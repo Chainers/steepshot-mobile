@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hint_email">Email</string>
+  <string name="hint_email">Username</string>
   <string name="hint_password">Password</string>
-    <string name="ApplicationName">SteepShot</string>
+  <string name="hint_posting_key">Posting key</string>
+  <string name="ApplicationName">SteepShot</string>
 </resources>
