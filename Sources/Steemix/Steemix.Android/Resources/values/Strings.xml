@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="hint_email">Username</string>
+  <string name="hint_username">User name</string>
   <string name="hint_password">Password</string>
   <string name="hint_posting_key">Posting key</string>
+  <string name="text_logo">Steemix</string>
+  <string name="text_login">Login</string>
+  <string name="text_create_acc">Create an account</string>
+  <string name="text_forgot_pass">Forgot password?</string>
   <string name="ApplicationName">SteepShot</string>
 </resources>

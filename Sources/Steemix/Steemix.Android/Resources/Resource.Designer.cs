@@ -1057,32 +1057,32 @@ namespace Steemix.Android
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f0d0045
-			public const int abc_background_cache_hint_selector_material_dark = 2131558469;
+			// aapt resource value: 0x7f0d0049
+			public const int abc_background_cache_hint_selector_material_dark = 2131558473;
 			
-			// aapt resource value: 0x7f0d0046
-			public const int abc_background_cache_hint_selector_material_light = 2131558470;
+			// aapt resource value: 0x7f0d004a
+			public const int abc_background_cache_hint_selector_material_light = 2131558474;
 			
-			// aapt resource value: 0x7f0d0047
-			public const int abc_color_highlight_material = 2131558471;
+			// aapt resource value: 0x7f0d004b
+			public const int abc_color_highlight_material = 2131558475;
 			
 			// aapt resource value: 0x7f0d0000
 			public const int abc_input_method_navigation_guard = 2131558400;
 			
-			// aapt resource value: 0x7f0d0048
-			public const int abc_primary_text_disable_only_material_dark = 2131558472;
-			
-			// aapt resource value: 0x7f0d0049
-			public const int abc_primary_text_disable_only_material_light = 2131558473;
-			
-			// aapt resource value: 0x7f0d004a
-			public const int abc_primary_text_material_dark = 2131558474;
-			
-			// aapt resource value: 0x7f0d004b
-			public const int abc_primary_text_material_light = 2131558475;
-			
 			// aapt resource value: 0x7f0d004c
-			public const int abc_search_url_text = 2131558476;
+			public const int abc_primary_text_disable_only_material_dark = 2131558476;
+			
+			// aapt resource value: 0x7f0d004d
+			public const int abc_primary_text_disable_only_material_light = 2131558477;
+			
+			// aapt resource value: 0x7f0d004e
+			public const int abc_primary_text_material_dark = 2131558478;
+			
+			// aapt resource value: 0x7f0d004f
+			public const int abc_primary_text_material_light = 2131558479;
+			
+			// aapt resource value: 0x7f0d0050
+			public const int abc_search_url_text = 2131558480;
 			
 			// aapt resource value: 0x7f0d0001
 			public const int abc_search_url_text_normal = 2131558401;
@@ -1093,11 +1093,11 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f0d0003
 			public const int abc_search_url_text_selected = 2131558403;
 			
-			// aapt resource value: 0x7f0d004d
-			public const int abc_secondary_text_material_dark = 2131558477;
+			// aapt resource value: 0x7f0d0051
+			public const int abc_secondary_text_material_dark = 2131558481;
 			
-			// aapt resource value: 0x7f0d004e
-			public const int abc_secondary_text_material_light = 2131558478;
+			// aapt resource value: 0x7f0d0052
+			public const int abc_secondary_text_material_light = 2131558482;
 			
 			// aapt resource value: 0x7f0d0004
 			public const int accent_material_dark = 2131558404;
@@ -1116,6 +1116,9 @@ namespace Steemix.Android
 			
 			// aapt resource value: 0x7f0d0009
 			public const int background_material_light = 2131558409;
+			
+			// aapt resource value: 0x7f0d0044
+			public const int blue = 2131558468;
 			
 			// aapt resource value: 0x7f0d000a
 			public const int bright_foreground_disabled_material_dark = 2131558410;
@@ -1141,8 +1144,11 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f0d0011
 			public const int button_material_light = 2131558417;
 			
-			// aapt resource value: 0x7f0d0044
-			public const int color_primary = 2131558468;
+			// aapt resource value: 0x7f0d0048
+			public const int color_primary = 2131558472;
+			
+			// aapt resource value: 0x7f0d0045
+			public const int dark_blue = 2131558469;
 			
 			// aapt resource value: 0x7f0d003a
 			public const int design_fab_shadow_end_color = 2131558458;
@@ -1203,6 +1209,9 @@ namespace Steemix.Android
 			
 			// aapt resource value: 0x7f0d001b
 			public const int hint_foreground_material_light = 2131558427;
+			
+			// aapt resource value: 0x7f0d0046
+			public const int light_blue = 2131558470;
 			
 			// aapt resource value: 0x7f0d001c
 			public const int material_blue_grey_800 = 2131558428;
@@ -1288,17 +1297,20 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f0d0037
 			public const int switch_thumb_disabled_material_light = 2131558455;
 			
-			// aapt resource value: 0x7f0d004f
-			public const int switch_thumb_material_dark = 2131558479;
+			// aapt resource value: 0x7f0d0053
+			public const int switch_thumb_material_dark = 2131558483;
 			
-			// aapt resource value: 0x7f0d0050
-			public const int switch_thumb_material_light = 2131558480;
+			// aapt resource value: 0x7f0d0054
+			public const int switch_thumb_material_light = 2131558484;
 			
 			// aapt resource value: 0x7f0d0038
 			public const int switch_thumb_normal_material_dark = 2131558456;
 			
 			// aapt resource value: 0x7f0d0039
 			public const int switch_thumb_normal_material_light = 2131558457;
+			
+			// aapt resource value: 0x7f0d0047
+			public const int white = 2131558471;
 			
 			static Color()
 			{
@@ -2254,6 +2266,9 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f08004a
 			public const int contentPanel = 2131230794;
 			
+			// aapt resource value: 0x7f080079
+			public const int create_acc_btn = 2131230841;
+			
 			// aapt resource value: 0x7f080050
 			public const int custom = 2131230800;
 			
@@ -2320,6 +2335,9 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f080038
 			public const int @fixed = 2131230776;
 			
+			// aapt resource value: 0x7f080077
+			public const int forgot_pass_btn = 2131230839;
+			
 			// aapt resource value: 0x7f080005
 			public const int home = 2131230725;
 			
@@ -2338,23 +2356,17 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f08009e
 			public const int info = 2131230878;
 			
-			// aapt resource value: 0x7f080074
-			public const int input_email = 2131230836;
-			
 			// aapt resource value: 0x7f080073
-			public const int input_layout_email = 2131230835;
+			public const int input_email = 2131230835;
 			
 			// aapt resource value: 0x7f080075
-			public const int input_layout_password = 2131230837;
+			public const int input_password = 2131230837;
+			
+			// aapt resource value: 0x7f080074
+			public const int input_posting_key = 2131230836;
 			
 			// aapt resource value: 0x7f080078
-			public const int input_layout_posting_key = 2131230840;
-			
-			// aapt resource value: 0x7f080076
-			public const int input_password = 2131230838;
-			
-			// aapt resource value: 0x7f080079
-			public const int input_posting_key = 2131230841;
+			public const int input_username = 2131230840;
 			
 			// aapt resource value: 0x7f080000
 			public const int item_touch_helper_previous_elevation = 2131230720;
@@ -2557,8 +2569,8 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f080013
 			public const int showTitle = 2131230739;
 			
-			// aapt resource value: 0x7f080077
-			public const int sign_up_btn = 2131230839;
+			// aapt resource value: 0x7f080076
+			public const int sign_up_btn = 2131230838;
 			
 			// aapt resource value: 0x7f08006c
 			public const int snackbar_action = 2131230828;
@@ -2916,8 +2928,8 @@ namespace Steemix.Android
 		public partial class String
 		{
 			
-			// aapt resource value: 0x7f090029
-			public const int ApplicationName = 2131296297;
+			// aapt resource value: 0x7f09002d
+			public const int ApplicationName = 2131296301;
 			
 			// aapt resource value: 0x7f09000f
 			public const int abc_action_bar_home_description = 2131296271;
@@ -2985,14 +2997,14 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f090025
 			public const int character_counter_pattern = 2131296293;
 			
-			// aapt resource value: 0x7f090026
-			public const int hint_email = 2131296294;
-			
 			// aapt resource value: 0x7f090027
 			public const int hint_password = 2131296295;
 			
 			// aapt resource value: 0x7f090028
 			public const int hint_posting_key = 2131296296;
+			
+			// aapt resource value: 0x7f090026
+			public const int hint_username = 2131296294;
 			
 			// aapt resource value: 0x7f090000
 			public const int mr_button_content_description = 2131296256;
@@ -3041,6 +3053,18 @@ namespace Steemix.Android
 			
 			// aapt resource value: 0x7f090022
 			public const int status_bar_notification_info_overflow = 2131296290;
+			
+			// aapt resource value: 0x7f09002b
+			public const int text_create_acc = 2131296299;
+			
+			// aapt resource value: 0x7f09002c
+			public const int text_forgot_pass = 2131296300;
+			
+			// aapt resource value: 0x7f09002a
+			public const int text_login = 2131296298;
+			
+			// aapt resource value: 0x7f090029
+			public const int text_logo = 2131296297;
 			
 			static String()
 			{
