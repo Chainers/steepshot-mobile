@@ -12,7 +12,7 @@ using Android.Widget;
 
 namespace Steemix.Android.Activity
 {
-    [Activity(Label = "SteepShot",MainLauncher =true,Icon ="@mipmap/ic_launcher")]
+    [Activity(Label = "SteepShot")]
     public class SignUpActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)

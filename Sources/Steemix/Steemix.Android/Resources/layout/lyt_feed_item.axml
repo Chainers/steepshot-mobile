@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#fafafa"
+    android:layout_height="wrap_content">
+    <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/profile_image"
+        android:layout_width="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="30dp"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#FF000000" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:text="Profile"
+        android:layout_marginTop="10dp"
+        android:textColor="@android:color/black"
+        android:layout_marginLeft="50dp"
+        android:id="@+id/author_name" />
+    <ImageButton
+        android:background="@android:color/transparent"
+        android:layout_width="30dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="center"
+        android:layout_alignParentRight="true"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_more" />
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/profile_image"
+        android:layout_width="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

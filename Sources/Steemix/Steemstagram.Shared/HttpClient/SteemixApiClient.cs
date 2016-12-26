@@ -47,7 +47,7 @@ namespace Steemix.Library.HttpClient
         {
             var parameters = new List<RequestParameter>
             {
-                new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie},
+               // new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie},
                 new RequestParameter {Key = "Offset", Value = request.Offset, Type = ParameterType.QueryString},
                 new RequestParameter {Key = "Limit", Value = request.Limit, Type = ParameterType.QueryString}
             };
