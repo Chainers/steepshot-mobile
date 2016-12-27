@@ -26,7 +26,7 @@ namespace Steemix.Tests
         public void GetTopPostsTest()
         {
             // Arrange
-            var request = new TopPostRequest(_token, 10, 10);
+			var request = new TopPostRequest(string.Empty, 10);
 
             // Act
             var response = _api.GetTopPosts(request);
