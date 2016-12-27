@@ -20,5 +20,11 @@
 	<string name = "time_mins">{0} minutes</string>
 	<string name = "time_days">{0} days</string>
 	<string name = "time_seconds">{0} seconds</string>
+  
+	<string name = "error_not_uniq_user">A user with that username already exists!</string>
+	<string name = "error_connect_to_server">Fail connect to server!</string>
+	<string name = "msg_empty_user_login">Please, fill all fields!</string>
+  
+  
 
 </resources>

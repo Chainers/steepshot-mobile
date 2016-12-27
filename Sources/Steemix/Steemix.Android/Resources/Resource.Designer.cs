@@ -3078,6 +3078,12 @@ namespace Steemix.Android
 			// aapt resource value: 0x7f090025
 			public const int character_counter_pattern = 2131296293;
 			
+			// aapt resource value: 0x7f090039
+			public const int error_connect_to_server = 2131296313;
+			
+			// aapt resource value: 0x7f090038
+			public const int error_not_uniq_user = 2131296312;
+			
 			// aapt resource value: 0x7f090033
 			public const int first_title_comment = 2131296307;
 			
@@ -3137,6 +3143,9 @@ namespace Steemix.Android
 			
 			// aapt resource value: 0x7f09000e
 			public const int mr_user_route_category_name = 2131296270;
+			
+			// aapt resource value: 0x7f09003a
+			public const int msg_empty_user_login = 2131296314;
 			
 			// aapt resource value: 0x7f09002f
 			public const int new_photos = 2131296303;
