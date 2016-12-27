@@ -1,4 +1,5 @@
 using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Steemix.Library.Exceptions;
@@ -66,7 +67,8 @@ namespace Steemix.Android.Activity
 
         private void SignUpBtn_Click(object sender, System.EventArgs e)
         {
-
+            var intent = new Intent(this, typeof(SignUpActivity));
+            StartActivity(intent);
         }
         
         private bool IsValid(LoginRequest request)
