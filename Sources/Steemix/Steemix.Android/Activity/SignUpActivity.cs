@@ -10,8 +10,7 @@ namespace Steemix.Android.Activity
     public class SignUpActivity : BaseActivity
     {
         private AppCompatButton SignUpBtn;
-        private AppCompatButton ForgotPassBtn;
-        private AppCompatButton CreateAccBtn;
+        private AppCompatButton SignInBtn;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -20,23 +19,17 @@ namespace Steemix.Android.Activity
             SetContentView(Resource.Layout.lyt_sign_up);
 
             SignUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
-            ForgotPassBtn = FindViewById<AppCompatButton>(Resource.Id.forgot_pass_btn);
-            CreateAccBtn = FindViewById<AppCompatButton>(Resource.Id.create_acc_btn);
+            SignInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
 
             SignUpBtn.Click += SignUpBtn_Click;
-            ForgotPassBtn.Click += ForgotPassBtn_Click;
-            CreateAccBtn.Click += CreateAccBtn_Click;
+            SignInBtn.Click += SignInBtn_Click;
         }
 
-        private void CreateAccBtn_Click(object sender, System.EventArgs e)
+        private void SignInBtn_Click(object sender, System.EventArgs e)
         {
 
         }
-
-        private void ForgotPassBtn_Click(object sender, System.EventArgs e)
-        {
-        }
-
+        
         private void SignUpBtn_Click(object sender, System.EventArgs e)
         {
             var username = FindViewById<AppCompatButton>(Resource.Id.input_username);

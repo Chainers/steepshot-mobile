@@ -3,84 +3,86 @@
     android:orientation="vertical"
     android:background="@color/blue"
     android:layout_width="match_parent"
-    android:gravity="top"
+    android:gravity="bottom"
     android:layout_height="match_parent"
-    android:minWidth="25px"
-    android:minHeight="25px"
+    android:minWidth="25dp"
+    android:minHeight="25dp"
     android:weightSum="1">
-  <!--Logo-->
-  <ImageView
-      android:src="@mipmap/ic_launcher"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="10dp"
-      android:id="@+id/logo" />
-  <TextView
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="10dp"
-      android:textColor="@color/dark_blue"
-      android:textAlignment="center"
-      android:textAllCaps="true"
-      android:text="@string/text_logo" />
-  <!--Username-->
-  <EditText
-      android:id="@+id/input_email"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="10dp"
-      android:textAlignment="center"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-      android:background="@color/white"
-      android:hint="@string/hint_username" />
-  <!--Posting key-->
-  <EditText
-      android:id="@+id/input_posting_key"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="10dp"
-      android:textAlignment="center"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-      android:background="@color/white"
-      android:hint="@string/hint_posting_key" />
-  <!--Password-->
-  <EditText
-      android:id="@+id/input_password"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:padding="10dp"
-      android:textAlignment="center"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-      android:inputType="textPassword"
-      android:background="@color/white"
-      android:hint="@string/hint_password" />
-  <!--Login-->
-  <android.support.v7.widget.AppCompatButton
-      android:text="@string/text_login"
-      android:textColor="@color/blue"
-      android:padding="16dp"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-      android:textAllCaps="true"
-      android:background="@color/white"
-      android:id="@+id/sign_up_btn" />
-  <!--Forgot password-->
-  <android.support.v7.widget.AppCompatButton
-      android:text="@string/text_forgot_pass"
-      android:textColor="@color/white"
-      android:padding="10dp"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="10dp"
-      android:background="@color/blue"
-      android:id="@+id/forgot_pass_btn" />
+<!--Logo-->
+    <ImageView
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/text_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:id="@+id/logo"
+        android:layout_weight="1" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/dark_blue"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:text="@string/text_logo" />
+<!--Username-->
+    <EditText
+        android:id="@+id/input_username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@color/white"
+        android:hint="@string/hint_username" />
+<!--Password-->
+    <EditText
+        android:id="@+id/input_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:inputType="textPassword"
+        android:background="@color/white"
+        android:hint="@string/hint_password" />
+<!--Login-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/text_login"
+        android:textColor="@color/blue"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:textAllCaps="true"
+        android:background="@color/white"
+        android:id="@+id/sign_in_btn" />
+<!--Forgot password-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/text_forgot_pass"
+        android:textColor="@color/white"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@color/blue"
+        android:id="@+id/forgot_pass_btn" />
+<!--Create an account-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/text_create_acc"
+        android:textColor="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/light_blue"
+        android:layout_gravity="bottom"
+        android:textAllCaps="true"
+        android:textAlignment="center"
+        android:layout_marginTop="80dp"
+        android:id="@+id/sign_up_btn" />
 </LinearLayout>
