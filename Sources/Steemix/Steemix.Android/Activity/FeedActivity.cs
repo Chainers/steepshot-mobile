@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Android.App;
-using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.Support.V7.Widget;
@@ -17,9 +10,9 @@ using Android.Content.PM;
 
 namespace Steemix.Android.Activity
 {
-    [Activity(Label = "FeedActivity", MainLauncher = true, Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
-    public class FeedActivity : BaseActivity, RecyclerView.IOnScrollChangeListener
-    {
+    [Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
+    public class FeedActivity : BaseActivity, View.IOnScrollChangeListener
+	{
         RecyclerView FeedList;
         ProgressBar Bar;
         Adapter.FeedAdapter FeedAdapter;
@@ -57,7 +50,7 @@ namespace Steemix.Android.Activity
                 RunOnUiThread(() =>
                 {
                     Bar.Visibility = ViewStates.Gone;
-                    if (arg.Result.Results == null || arg.Result.Results.Count == 0)
+					if (arg.Status == TaskStatus.Faulted)
                     {
                         ShowAlert("Posts not loaded. Try again");
                     }
@@ -66,7 +59,7 @@ namespace Steemix.Android.Activity
                         FeedAdapter.AddPosts(arg.Result.Results);
                     }
                 });
-            });;
+            });
         }
 
         public void ShowAlert(string message)
@@ -78,6 +71,7 @@ namespace Steemix.Android.Activity
             Dialog dialog = alert.Create();
             dialog.Show();
         }
+
         int prevPos=0;
         public void OnScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY)
         {

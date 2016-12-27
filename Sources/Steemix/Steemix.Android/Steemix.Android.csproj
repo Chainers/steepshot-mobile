@@ -20,6 +20,7 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <AndroidTlsProvider></AndroidTlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -105,6 +106,8 @@
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SplashScreen.cs" />
+    <Compile Include="Presenter\BasePresenter.cs" />
+    <Compile Include="Model\IBaseModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -120,6 +123,26 @@
     <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\drawable-hdpi\ic_heart.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_heart.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_heart.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_share_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_share_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_share_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_share_arrow.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_search.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_search.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_search.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_search.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_popup_arrow_down.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_popup_arrow_down.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_popup_arrow_down.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_popup_arrow_down.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_conversation.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_conversation.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_conversation.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_conversation.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
@@ -140,7 +163,7 @@
   <ItemGroup>
     <Folder Include="Presenter\" />
     <Folder Include="Resources\drawable\" />
-    <Folder Include="View\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
