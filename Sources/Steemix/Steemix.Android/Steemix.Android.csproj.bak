@@ -20,8 +20,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <AndroidTlsProvider>
-    </AndroidTlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,25 +45,8 @@
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Java.Interop" />
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
-    <Reference Include="Refractored.Controls.CircleImageView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Refractored.Controls.CircleImageView.1.0.1\lib\MonoAndroid10\Refractored.Controls.CircleImageView.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Square.OkHttp, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Square.OkHttp.2.4.0.1\lib\MonoAndroid\Square.OkHttp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Square.OkIO, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Square.OkIO.1.5.0.0\lib\MonoAndroid\Square.OkIO.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Square.Picasso, Version=2.5.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Square.Picasso.2.5.2.1\lib\MonoAndroid\Square.Picasso.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -101,14 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Activity\BaseActivity.cs" />
-    <Compile Include="Activity\SignInActivity.cs" />
-    <Compile Include="Activity\FeedActivity.cs" />
     <Compile Include="Activity\SignUpActivity.cs" />
-    <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Presenter\BasePresenter.cs" />
-    <Compile Include="Model\IBaseModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -117,38 +93,9 @@
     <AndroidResource Include="Resources\layout\lyt_sign_up.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_sign_in.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\drawable-hdpi\ic_heart.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_heart.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_heart.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_share_arrow.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_share_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_share_arrow.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_share_arrow.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_search.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_search.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_search.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_search.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_popup_arrow_down.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_popup_arrow_down.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_popup_arrow_down.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_popup_arrow_down.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_conversation.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_conversation.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_conversation.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_conversation.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\values\Strings.xml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\values\Strings.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\AndroidManifest.xml">
@@ -162,7 +109,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Presenter\" />
+    <Folder Include="Resources\drawable-hdpi\" />
+    <Folder Include="Resources\drawable-mdpi\" />
+    <Folder Include="Resources\drawable-xhdpi\" />
+    <Folder Include="Resources\drawable-xxhdpi\" />
     <Folder Include="Resources\drawable\" />
+    <Folder Include="View\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
@@ -189,36 +142,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\Styles.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-hdpi\ic_more.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_more.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_more.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <XamarinComponentReference Include="square.picasso">
-      <Visible>False</Visible>
-      <Version>2.5.2.2</Version>
-    </XamarinComponentReference>
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-hdpi\ic_big_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_big_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_big_logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_big_logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />

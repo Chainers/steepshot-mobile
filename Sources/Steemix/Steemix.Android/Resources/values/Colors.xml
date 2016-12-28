@@ -1,4 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
+  <item name="blue" type="color">#37b0e9</item>
+  <item name="dark_blue" type="color">#1F509C</item>
+  <item name="light_blue" type="color">#56BDEA</item>
+  <item name="white" type="color">#FFFFFF</item>
   <item name="color_primary" type="color">#37b0e9</item>
+  <item name="color_hint" type="color">#999999</item>
 </resources>

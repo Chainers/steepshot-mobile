@@ -10,7 +10,7 @@ using Android.Content.PM;
 
 namespace Steemix.Android.Activity
 {
-    [Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "SteepShot", MainLauncher=true,Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
     public class FeedActivity : BaseActivity, View.IOnScrollChangeListener
 	{
         RecyclerView FeedList;
@@ -26,8 +26,13 @@ namespace Steemix.Android.Activity
             FeedList = FindViewById<RecyclerView>(Resource.Id.feed_list);
             Bar = FindViewById<ProgressBar>(Resource.Id.loading_spinner);
             FeedList.SetLayoutManager(new LinearLayoutManager(this));
+            var follow = FindViewById<TextView>(Resource.Id.Title);
+            follow.Clickable = true;
 
-            
+            follow.Click += (sender, e) => {
+                StartActivity(typeof(SignInActivity));
+            };
+
             FeedAdapter = new Adapter.FeedAdapter(this);
             FeedList.SetAdapter(FeedAdapter);
         }

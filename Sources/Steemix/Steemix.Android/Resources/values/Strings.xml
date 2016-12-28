@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hint_email">Email</string>
-  <string name="hint_password">Password</string>
-    <string name="ApplicationName">SteepShot</string>
-	<string name="following">Following</string>
-	<string name="new_photos">New photos"</string>
+  <string name = "hint_username">User name</string>
+  <string name = "hint_password">Password</string>
+                 
+  <string name = "hint_posting_key">Posting key</string>
+  <string name = "text_logo">Steemix</string>
+  <string name = "text_login">Login</string>
+  <string name = "text_create_acc">Create an account</string>
+  <string name = "text_forgot_pass">Forgot password?</string>
+  <string name = "ApplicationName">SteepShot</string>
+                 
+	<string name = "following">Following</string>
+	<string name = "new_photos">New photos"</string>
 	<string name = "Trending">Trending</string>
 	<string name = "view_n_comments">View {0} comments</string>
 	<string name = "title_comment"><b>{0}</b> {1}</string>
@@ -13,4 +20,12 @@
 	<string name = "time_mins">{0} minutes</string>
 	<string name = "time_days">{0} days</string>
 	<string name = "time_seconds">{0} seconds</string>
+  
+	<string name = "error_not_uniq_user">User with that username already exists!</string>
+	<string name = "error_not_found_user">User not found!</string>
+	<string name = "error_connect_to_server">Fail connect to server!</string>
+	<string name = "msg_empty_user_login">Please, fill all fields!</string>
+  
+  
+
 </resources>
