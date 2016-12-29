@@ -25,7 +25,4 @@
 	<string name = "error_not_found_user">User not found!</string>
 	<string name = "error_connect_to_server">Fail connect to server!</string>
 	<string name = "msg_empty_user_login">Please, fill all fields!</string>
-  
-  
-
 </resources>

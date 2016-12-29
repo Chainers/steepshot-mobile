@@ -7,36 +7,28 @@ using System.Collections.Generic;
 using Square.Picasso;
 using Android.Content;
 using Android.Text;
+using System.Collections.ObjectModel;
 
 namespace Steemix.Android.Adapter
 {
 
 	public class FeedAdapter : RecyclerView.Adapter
 	{
-		List<UserPost> Posts;
+		ObservableCollection<UserPost> Posts;
 		private Context context;
 		string CommentPattern ="<b>{0}</b> {1}";
 
-        public FeedAdapter(Context context, List<UserPost> Posts=null)
+        public FeedAdapter(Context context, ObservableCollection<UserPost> Posts)
         {
             this.context = context;
-            if (Posts == null)
-                this.Posts = new List<UserPost>();
-            else
-                this.Posts = Posts;
-        }
-
-        public void UpdatePosts(List<UserPost> Posts)
-        {
             this.Posts = Posts;
-            NotifyDataSetChanged();
         }
 
-        public void AddPosts(List<UserPost> Posts)
-        {
-            this.Posts.AddRange(Posts);
-            NotifyDataSetChanged();
-        }
+		public void Clear()
+		{
+			Posts.Clear();
+			NotifyDataSetChanged();
+		}
 
         public UserPost GetItem(int position)
         {

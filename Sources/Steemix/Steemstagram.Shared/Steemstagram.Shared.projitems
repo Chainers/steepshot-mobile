@@ -33,5 +33,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\GetCommentResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CreateCommentResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\Comment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mobile\Manager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Mobile\" />
   </ItemGroup>
 </Project>

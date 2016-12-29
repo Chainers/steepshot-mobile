@@ -1,27 +1,32 @@
 using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
-using Steemix.Library.HttpClient;
+using Steemstagram.Shared;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace Steemix.Android.Activity 
 {
-    public class BaseActivity : AppCompatActivity, IBaseModel
+    public class  BaseActivity<T> : AppCompatActivity where T : MvvmViewModelBase
     {
-        protected readonly SteemixApiClient ApiClient = new SteemixApiClient();
-        protected static string UserName;
-        protected static string Token;
-
-		public Context GetContext()
-		{
-			return this;
-		}
+		protected T ViewModel { get { return SteemixApp.ViewModelLocator.GetViewModel<T>(); } }
 
 		protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+			ViewModel.ViewLoad();
         }
+
+		protected override void OnResume()
+		{
+			base.OnResume();
+			ViewModel.ViewAppear();
+		}
+
+		protected override void OnPause()
+		{
+			ViewModel.ViewDisappear();
+			base.OnPause();
+		}
 
         protected virtual void ShowAlert(int messageid)
         {
@@ -33,5 +38,10 @@ namespace Steemix.Android.Activity
             Dialog dialog = alert.Create();
             dialog.Show();
         }
-    }
+
+		public void OnCreatePresenter()
+		{
+			
+		}
+	}
 }

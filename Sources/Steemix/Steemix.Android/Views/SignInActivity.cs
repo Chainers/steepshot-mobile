@@ -9,7 +9,7 @@ using Android.Widget;
 namespace Steemix.Android.Activity
 {
     [Activity]
-    public class SignInActivity : BaseActivity
+	public class SignInActivity : BaseActivity<SignInViewModel>
     {
         private AppCompatButton SignInBtn;
         private AppCompatButton ForgotPassBtn;
@@ -40,33 +40,17 @@ namespace Steemix.Android.Activity
             password.Text = _password;
         }
 
-        private void SignInBtn_Click(object sender, System.EventArgs e)
+		private async void SignInBtn_Click(object sender, System.EventArgs e)
         {
-            var request = new LoginRequest(username.Text, password.Text);
-
-            if (!IsValid(request))
-            {
-                ShowAlert(Resource.String.msg_empty_user_login);
-            }
-            else
-            {
-                try
-                {
-                    var response = ApiClient.Login(request);
-                    if (!string.IsNullOrEmpty(response.error))
-                    {
-                        ShowAlert(Resource.String.error_not_found_user);
-                    }
-                    else
-                    {
-                        Token = response.Token;
-                    }
-                }
-                catch (ApiGatewayException ex)
-                {
-                    ShowAlert(Resource.String.error_connect_to_server);
-                }
-            }
+			var status = await ViewModel.SignIn(username.Text, password.Text);
+			if (status)
+			{
+				ShowAlert(Resource.String.hint_username);
+			}
+			else
+			{ 
+				ShowAlert(Resource.String.error_connect_to_server);
+			}
         }
 
         private void ForgotPassBtn_Click(object sender, System.EventArgs e)
