@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Steemix.Library.Models.Requests;
 
 namespace Steemix.Android
@@ -14,12 +13,14 @@ namespace Steemix.Android
 		{
 			var request = new LoginRequest(login, password);
 			var response = await Manager.Login(request);
-			if (response != null)
-				return true;
+		    if (response != null)
+		    {
+		        UserPrincipal.CreatePrincipal(response);
+                return true;
+		    }
 			else
 				return false;
-		}
 
+        }
 	}
 }
-

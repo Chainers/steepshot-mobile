@@ -11,21 +11,22 @@ namespace Steemix.Android
 		}
 
 		public async Task<bool> SignUp(string login, string password, string postingkey)
-		{ 
-			var request = new RegisterRequest(postingkey, login, password);
-            if (!IsValid(request))
-            {
-				return false;
-            }
-            else
-            {
-				await Manager.Register(request);
-				return true;
-            }
-			
+		{
+		    var request = new RegisterRequest(postingkey, login, password);
+		    if (IsValid(request))
+		    {
+                var response = await Manager.Register(request);
+		        if (string.IsNullOrEmpty(response.error))
+		        {
+		            UserPrincipal.CreatePrincipal(response);
+		            return true;
+		        }
+		    }
+
+		    return false;
 		}
 
-		private bool IsValid(RegisterRequest request)
+	    private bool IsValid(RegisterRequest request)
 		{
 			if (string.IsNullOrEmpty(request.username)
 				|| string.IsNullOrEmpty(request.password)
