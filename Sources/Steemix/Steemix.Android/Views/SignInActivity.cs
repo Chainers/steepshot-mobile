@@ -13,10 +13,7 @@ namespace Steemix.Android.Activity
         private AppCompatButton SignInBtn;
         private AppCompatButton ForgotPassBtn;
         private AppCompatButton SignUpBtn;
-
-        //string _name = "joseph.kalu";
-        //string _password = "test1234";
-
+        
         EditText username, password;
         protected override void OnCreate(Bundle savedInstanceState)
         {
