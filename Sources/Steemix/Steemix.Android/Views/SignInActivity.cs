@@ -2,7 +2,6 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
-using Steemix.Library.Exceptions;
 using Steemix.Library.Models.Requests;
 using Android.Widget;
 
@@ -15,8 +14,8 @@ namespace Steemix.Android.Activity
         private AppCompatButton ForgotPassBtn;
         private AppCompatButton SignUpBtn;
 
-        string _name = "joseph.kalu";
-        string _password = "test1234";
+        //string _name = "joseph.kalu";
+        //string _password = "test1234";
 
         EditText username, password;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,8 +35,9 @@ namespace Steemix.Android.Activity
             username = FindViewById<EditText>(Resource.Id.input_username);
             password = FindViewById<EditText>(Resource.Id.input_password);
 
-            username.Text = _name;
-            password.Text = _password;
+           
+            username.Text = UserPrincipal.CurrentUser.Login;
+            password.Text = UserPrincipal.CurrentUser.Password;
         }
 
 		private async void SignInBtn_Click(object sender, System.EventArgs e)
@@ -45,7 +45,7 @@ namespace Steemix.Android.Activity
 			var status = await ViewModel.SignIn(username.Text, password.Text);
 			if (status)
 			{
-				ShowAlert(Resource.String.hint_username);
+			    Finish();
 			}
 			else
 			{ 

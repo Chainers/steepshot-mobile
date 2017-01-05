@@ -3,8 +3,6 @@ using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Widget;
-using Steemix.Library.Exceptions;
-using Steemix.Library.Models.Requests;
 
 namespace Steemix.Android.Activity
 {
@@ -50,7 +48,5 @@ namespace Steemix.Android.Activity
 				ShowAlert(Resource.String.error_connect_to_server);
 			}
         }
-
-
     }
 }

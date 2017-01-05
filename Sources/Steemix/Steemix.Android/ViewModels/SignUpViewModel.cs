@@ -18,7 +18,7 @@ namespace Steemix.Android
                 var response = await Manager.Register(request);
 		        if (string.IsNullOrEmpty(response.error))
 		        {
-		            UserPrincipal.CreatePrincipal(response);
+		            UserPrincipal.CreatePrincipal(response, login, password);
 		            return true;
 		        }
 		    }

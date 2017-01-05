@@ -1,7 +1,6 @@
 using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
-using Steemstagram.Shared;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace Steemix.Android.Activity 
@@ -39,7 +38,16 @@ namespace Steemix.Android.Activity
             dialog.Show();
         }
 
-		public void OnCreatePresenter()
+        protected virtual void ShowAlert(string message)
+        {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.SetMessage(message);
+            alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        public void OnCreatePresenter()
 		{
 			
 		}
