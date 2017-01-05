@@ -12,6 +12,7 @@
                  
 	<string name = "following">Following</string>
 	<string name = "new_photos">New photos"</string>
+	<string name = "hot">Hot"</string>
 	<string name = "Trending">Trending</string>
 	<string name = "view_n_comments">View {0} comments</string>
 	<string name = "title_comment"><b>{0}</b> {1}</string>
