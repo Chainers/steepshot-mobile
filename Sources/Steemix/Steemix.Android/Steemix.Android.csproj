@@ -122,6 +122,9 @@
     <Reference Include="GalaSoft.MvvmLight.Platform">
       <HintPath>..\packages\MvvmLightLibs.5.3.0.0\lib\monoandroid1\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
+    <Reference Include="Cheeseknife">
+      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Realm\UserInfo.cs" />
@@ -139,6 +142,7 @@
     <Compile Include="ViewModels\SignUpViewModel.cs" />
     <Compile Include="ViewModels\SignInViewModel.cs" />
     <Compile Include="ViewModels\FeedViewModel.cs" />
+    <Compile Include="Views\FollowingFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -174,6 +178,11 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_conversation.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_conversation.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_conversation.png" />
+    <AndroidResource Include="Resources\layout\lyt_following.axml" />
+    <AndroidResource Include="Resources\Anim\up_down.xml" />
+    <AndroidResource Include="Resources\Anim\down_up.xml" />
+    <AndroidResource Include="Resources\Anim\rotate180.xml" />
+    <AndroidResource Include="Resources\Anim\rotate0.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
@@ -193,6 +202,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="Resources\Anim\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
@@ -236,6 +247,10 @@
     <XamarinComponentReference Include="square.picasso">
       <Visible>False</Visible>
       <Version>2.5.2.2</Version>
+    </XamarinComponentReference>
+    <XamarinComponentReference Include="cheeseknife">
+      <Version>1.0</Version>
+      <Visible>False</Visible>
     </XamarinComponentReference>
   </ItemGroup>
   <ItemGroup>

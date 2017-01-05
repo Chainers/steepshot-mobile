@@ -5,6 +5,7 @@ using Android.Widget;
 using Android.Support.V7.Widget;
 using Android.Content.PM;
 using System.Threading.Tasks;
+using Android.Views.Animations;
 
 namespace Steemix.Android.Activity
 {
@@ -14,6 +15,8 @@ namespace Steemix.Android.Activity
         RecyclerView FeedList;
         ProgressBar Bar;
         Adapter.FeedAdapter FeedAdapter;
+		ImageView arrow;
+		public const string FollowingFragmentId = "FollowingFragment";
 
 		protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -26,17 +29,22 @@ namespace Steemix.Android.Activity
             FeedList.SetLayoutManager(new LinearLayoutManager(this));
             var follow = FindViewById<TextView>(Resource.Id.Title);
             follow.Clickable = true;
+			arrow = FindViewById<ImageView>(Resource.Id.pop_up_arrow);
 
-            follow.Click += (sender, e) => {
-                StartActivity(typeof(SignInActivity));
-            };
+			follow.Click += Follow_Click;
 
 			FeedAdapter = new Adapter.FeedAdapter(this, ViewModel.Posts);
             FeedList.SetAdapter(FeedAdapter);
-
-
 			FeedList.SetOnScrollChangeListener(this);
         }
+
+		void Follow_Click(object sender, System.EventArgs e)
+		{
+			if (SupportFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
+				ShowFollowing();
+			else
+				HideFollowing();
+		}
 
 		protected override void OnResume()
 		{
@@ -61,6 +69,23 @@ namespace Steemix.Android.Activity
 			});
 		}
 
+		public void ShowFollowing()
+		{ 
+			arrow.StartAnimation(AnimationUtils.LoadAnimation(this, Resource.Animation.rotate180));
+			SupportFragmentManager.BeginTransaction()
+								  .SetCustomAnimations(Resource.Animation.up_down, Resource.Animation.down_up, Resource.Animation.up_down, Resource.Animation.down_up)
+								  .Add(Resource.Id.fragment_container, new FollowingFragment(), FollowingFragmentId)
+								  .Commit();
+		}
+
+		public void HideFollowing()
+		{
+			arrow.StartAnimation(AnimationUtils.LoadAnimation(this, Resource.Animation.rotate0));
+			SupportFragmentManager.BeginTransaction()
+								  .Remove(SupportFragmentManager.FindFragmentByTag(FollowingFragmentId))
+								  .Commit();
+		}
+
         int prevPos=0;
         public void OnScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY)
         {
@@ -71,7 +96,7 @@ namespace Steemix.Android.Activity
                 {
                     if (pos < FeedAdapter.ItemCount)
                     {
-						Task.Run(() =>ViewModel.GetTopPosts(FeedAdapter.GetItem(FeedAdapter.ItemCount - 1).Url, 20));
+						Task.Run(() =>ViewModel.GetTopPosts(FeedAdapter.GetItem(FeedAdapter.ItemCount - 1).Url, 10));
                         prevPos = pos;
                     }
                 }

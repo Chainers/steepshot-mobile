@@ -6,4 +6,5 @@
   <item name="white" type="color">#FFFFFF</item>
   <item name="color_primary" type="color">#37b0e9</item>
   <item name="color_hint" type="color">#999999</item>
+	<item name="white40" type="color">#99FFFFFF</item>
 </resources>

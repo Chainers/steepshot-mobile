@@ -5,10 +5,6 @@ namespace Steemix.Android
 {
     public class SignInViewModel : MvvmViewModelBase
     {
-        public SignInViewModel()
-        {
-        }
-
         public async Task<bool> SignIn(string login, string password)
         {
             var request = new LoginRequest(login, password);
@@ -20,7 +16,6 @@ namespace Steemix.Android
             }
             else
                 return false;
-
         }
     }
 }

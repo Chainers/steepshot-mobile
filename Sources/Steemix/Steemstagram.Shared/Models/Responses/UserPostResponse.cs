@@ -20,8 +20,14 @@ namespace Steemix.Library.Models.Responses
         [JsonProperty(PropertyName = "total_payout_value")]
         public string TotalPayoutValue { get; set; }
 
+		[JsonProperty(PropertyName = "children")]
+		public int CommentsCount { get; set; }
+
         [JsonProperty(PropertyName = "curator_payout_value")]
         public string CuratorPayoutValue { get; set; }
+
+		[JsonProperty(PropertyName = "avatar")]
+		public string Avatar { get; set; }
 
         public string Category { get; set; }
         public string Author { get; set; }

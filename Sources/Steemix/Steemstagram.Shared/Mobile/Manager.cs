@@ -64,5 +64,24 @@ namespace Steemstagram.Shared
 				}
 			});
 		}
+
+		public Task<VoteResponse> Vote(VoteRequest request,int liked)
+		{
+			return Task<VoteResponse>.Factory.StartNew(() =>
+			{
+				try
+				{
+					if(liked==1)
+						return ApiClient.DownVote(request);
+					else
+						return ApiClient.UpVote(request);
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+					return null;
+				}
+			});
+		}
 	}
 }

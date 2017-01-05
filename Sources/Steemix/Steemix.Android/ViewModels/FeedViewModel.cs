@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using Steemix.Library.Models.Requests;
 using Steemix.Library.Models.Responses;
 
 namespace Steemix.Android
@@ -9,14 +10,10 @@ namespace Steemix.Android
 	{
 		public ObservableCollection<UserPost> Posts = new ObservableCollection<UserPost>();
 
-		public FeedViewModel()
-		{
-		}
-
 		public override void ViewLoad()
 		{
 			base.ViewLoad();
-			GetTopPosts(string.Empty, 20);
+			Task.Run(() => GetTopPosts(string.Empty, 20));
 		}
 
 		public override void ViewAppear()
@@ -39,6 +36,12 @@ namespace Steemix.Android
 					Posts.Add(item);
 				}
 			}
+		}
+
+		public async Task<VoteResponse> Vote(UserPost post)
+		{
+			var voteRequest = new VoteRequest(string.Empty, post.Url); // TODO TOKEN
+			return await Manager.Vote(voteRequest, post.Vote);
 		}
 	}
 }

@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/Title" />
         <ImageView
+            android:id="@+id/pop_up_arrow"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/Title"
@@ -34,11 +35,16 @@
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent" />
     </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
-        android:layout_below="@+id/toolbar"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/feed_list" />
+        android:layout_below="@+id/toolbar">
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/feed_list" />
+    </FrameLayout>
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"

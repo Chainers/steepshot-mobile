@@ -3,7 +3,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Steemix.Library.Models.Responses;
 using Android.Widget;
-using System.Collections.Generic;
 using Square.Picasso;
 using Android.Content;
 using Android.Text;
@@ -57,9 +56,9 @@ namespace Steemix.Android.Adapter
 				vh.FirstComment.Visibility = ViewStates.Gone;
 			}
 
-			if (Posts[position].Replies != null && Posts[position].Replies.Count > 0)
+			if (Posts[position].CommentsCount > 0)
 			{
-				vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), Posts[position].Replies.Count.ToString());
+				vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), Posts[position].CommentsCount);
 			}
 			else
 			{
@@ -67,6 +66,12 @@ namespace Steemix.Android.Adapter
 			}
 			vh.UpdateData(Posts[position], context);
             Picasso.With(context).Load(Posts[position].Body).Into(vh.Photo);
+			if (!string.IsNullOrEmpty(Posts[position].Avatar)){
+				Picasso.With(context).Load(Posts[position].Avatar).Into(vh.Avatar);
+			}
+			else {
+				vh.Avatar.SetImageResource(Resource.Mipmap.ic_launcher);
+			}
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -77,29 +82,45 @@ namespace Steemix.Android.Adapter
             return vh;
         }
 
-        public class FeedViewHolder : RecyclerView.ViewHolder
+		public class FeedViewHolder : RecyclerView.ViewHolder
         {
             public ImageView Photo { get; private set; }
-            public ImageView Image { get; private set; }
+            public ImageView Avatar { get; private set; }
             public TextView Author { get; private set; }
 			public TextView FirstComment { get; private set; }
 			public TextView CommentSubtitle { get; private set; }
 			public TextView Time { get; private set; }
+			public TextView Likes { get; private set; }
+			public TextView Cost { get; private set; }
+			public ImageButton Like { get; private set; }
 
             public FeedViewHolder(View itemView) : base(itemView)
             {
-                Image = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
                 Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
                 Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
 				FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
 				CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
 				Time = itemView.FindViewById<TextView>(Resource.Id.time);
+				Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+
+				Like.Click += Like_Click;
             }
+
+			void Like_Click(object sender, EventArgs e)
+			{
+				
+			}
 
 			public void UpdateData(UserPost post,Context context)
 			{
 				DateTime date = DateTime.Parse(post.Created);
 				TimeSpan span = DateTime.Now - date;
+
+				Likes.Text = string.Format("{0} likes", post.NetVotes);
+				Cost.Text = string.Format("${0}", post.TotalPayoutValue);
 
 				if (span.TotalDays > 1){
 					Time.Text = string.Format(context.GetString(Resource.String.time_days), (int)span.TotalDays);
@@ -111,6 +132,7 @@ namespace Steemix.Android.Adapter
 					Time.Text = string.Format(context.GetString(Resource.String.time_seconds), (int)span.TotalSeconds);
 				}
 			}
-        }
+
+		}
     }
 }
