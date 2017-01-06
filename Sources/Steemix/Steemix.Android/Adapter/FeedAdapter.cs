@@ -17,6 +17,8 @@ namespace Steemix.Android.Adapter
 		private Context context;
 		string CommentPattern ="<b>{0}</b> {1}";
 
+		public Action<int> LikeAction;
+
         public FeedAdapter(Context context, ObservableCollection<UserPost> Posts)
         {
             this.context = context;
@@ -72,13 +74,15 @@ namespace Steemix.Android.Adapter
 			else {
 				vh.Avatar.SetImageResource(Resource.Mipmap.ic_launcher);
 			}
+
+			vh.Like.SetImageResource((Posts[position].Vote == 0) ? Resource.Drawable.ic_heart : Resource.Drawable.ic_heart_blue);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
-            FeedViewHolder vh = new FeedViewHolder(itemView);
+			FeedViewHolder vh = new FeedViewHolder(itemView,LikeAction);
             return vh;
         }
 
@@ -93,8 +97,10 @@ namespace Steemix.Android.Adapter
 			public TextView Likes { get; private set; }
 			public TextView Cost { get; private set; }
 			public ImageButton Like { get; private set; }
+			UserPost post;
+			Action<int> LikeAction;
 
-            public FeedViewHolder(View itemView) : base(itemView)
+			public FeedViewHolder(View itemView,Action<int> LikeAction) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
                 Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -106,16 +112,20 @@ namespace Steemix.Android.Adapter
 				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
 				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
 
+				this.LikeAction = LikeAction;
+
 				Like.Click += Like_Click;
             }
 
 			void Like_Click(object sender, EventArgs e)
 			{
-				
+				Like.SetImageResource((post.Vote == 0) ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+				LikeAction?.Invoke(AdapterPosition);
 			}
 
 			public void UpdateData(UserPost post,Context context)
 			{
+				this.post = post;
 				DateTime date = DateTime.Parse(post.Created);
 				TimeSpan span = DateTime.Now - date;
 

@@ -36,7 +36,23 @@ namespace Steemix.Android.Activity
 			FeedAdapter = new Adapter.FeedAdapter(this, ViewModel.Posts);
             FeedList.SetAdapter(FeedAdapter);
 			FeedList.SetOnScrollChangeListener(this);
+
+			FeedAdapter.LikeAction += FeedAdapter_LikeAction;
         }
+
+		async void FeedAdapter_LikeAction(int position)
+		{
+			var response = await ViewModel.Vote(ViewModel.Posts[position]);
+			if (response != null)
+			{
+				ViewModel.Posts[position].Vote = (response.IsVoted) ? 1 : 0;
+				FeedAdapter.NotifyDataSetChanged();
+			}
+			else
+			{
+				StartActivity(typeof(SignInActivity));
+			}
+		}
 
 		void Follow_Click(object sender, System.EventArgs e)
 		{

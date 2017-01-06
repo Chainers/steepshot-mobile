@@ -35,6 +35,9 @@ namespace Steemix.Android.Activity
            
             username.Text = UserPrincipal.CurrentUser.Login;
             password.Text = UserPrincipal.CurrentUser.Password;
+
+			username.Text = "joseph.kalu";
+			password.Text = "test1234";
         }
 
 		private async void SignInBtn_Click(object sender, System.EventArgs e)
