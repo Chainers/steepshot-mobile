@@ -25,5 +25,7 @@
 	<string name = "error_not_uniq_user">User with that username already exists!</string>
 	<string name = "error_not_found_user">User not found!</string>
 	<string name = "error_connect_to_server">Fail connect to server!</string>
-	<string name = "msg_empty_user_login">Please, fill all fields!</string>
+	<string name = "error_empty_field">Field can\'t be empty!</string>
+	<string name = "choose_photo">Choose photo</string>
+  
 </resources>

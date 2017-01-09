@@ -10,15 +10,14 @@ namespace Steemix.Android
     public class UserPrincipal : GenericPrincipal
     {
         private static readonly UserPrincipal EmptyUser = new UserPrincipal();
+        private static UserPrincipal Empty => EmptyUser;
+        private readonly string _token = string.Empty;
+        private readonly string _login = string.Empty;
+        private readonly string _password = string.Empty;
 
-        public static UserPrincipal Empty => EmptyUser;
-        private String _token = String.Empty;
-        private String _login = String.Empty;
-        private String _password = String.Empty;
-
-        public String Token => _token;
-        public String Login => _login;
-        public String Password => _password;
+        public string Token => _token;
+        public string Login => _login;
+        public string Password => _password;
 
 
         public static UserPrincipal CurrentUser
@@ -46,12 +45,11 @@ namespace Steemix.Android
         {
             get { return CurrentUser != null && CurrentUser != Empty; }
         }
-
-
-        private UserPrincipal() : base(new GenericIdentity(String.Empty), new String[0]) { }
+        
+        private UserPrincipal() : base(new GenericIdentity(string.Empty), new string[0]) { }
 
         private UserPrincipal(UserInfo userInfo)
-          : base(new GenericIdentity(userInfo.Token), new String[0])
+          : base(new GenericIdentity(userInfo.Token), new string[0])
         {
             _token = userInfo.Token;
             _login = userInfo.Login;
@@ -59,7 +57,7 @@ namespace Steemix.Android
         }
 
 
-        public static UserPrincipal CreatePrincipal(RegisterResponse userResponse, String login, String password)
+        public static UserPrincipal CreatePrincipal(RegisterResponse userResponse, string login, string password)
         {
             if (userResponse == null)
                 throw new ArgumentNullException(nameof(userResponse));
@@ -67,16 +65,16 @@ namespace Steemix.Android
             return CreatePrincipal(userResponse.Token, login, password);
         }
 
-        public static UserPrincipal CreatePrincipal(LoginResponse userResponse, String login, String password)
+        public static UserPrincipal CreatePrincipal(LoginResponse userResponse, string login, string password)
         {
             if (userResponse == null)
                 throw new ArgumentNullException(nameof(userResponse));
             return CreatePrincipal(userResponse.Token, login, password);
         }
 
-        public static UserPrincipal CreatePrincipal(String token, String login, String password)
+        public static UserPrincipal CreatePrincipal(string token, string login, string password)
         {
-            if (String.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token))
                 throw new ArgumentNullException(nameof(token));
 
             var userInfo = new UserInfo
@@ -92,13 +90,10 @@ namespace Steemix.Android
             var realm = Realms.Realm.GetInstance();
             using (var trans = realm.BeginWrite())
             {
+                realm.RemoveAll<UserInfo>();
                 realm.Add(userInfo);
                 trans.Commit();
             }
-
-            //realm.BeginWrite();
-            //realm.Add(userInfo);
-            //realm.Dispose();
 
             return user;
         }

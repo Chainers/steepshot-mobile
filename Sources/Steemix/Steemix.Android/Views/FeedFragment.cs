@@ -2,13 +2,12 @@
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Android.Activity;
+using Steemix.Android.Views;
 
 namespace Steemix.Android
 {

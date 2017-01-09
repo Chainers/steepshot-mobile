@@ -12,19 +12,19 @@ namespace Steemix.Android
 		[InjectOnClick(Resource.Id.btn_new)]
 		public void OnNewClick(object sender, EventArgs e)
 		{
-			(Activity as FeedActivity).HideFollowing();
+			//(Activity as FeedActivity).HideFollowing();
 		}
 
 		[InjectOnClick(Resource.Id.btn_hot)]
 		public void OnHotClick(object sender, EventArgs e)
 		{
-			(Activity as FeedActivity).HideFollowing();
+			//(Activity as FeedActivity).HideFollowing();
 		}
 
 		[InjectOnClick(Resource.Id.btn_trending)]
 		public void OnTrendingClick(object sender, EventArgs e)
 		{
-			(Activity as FeedActivity).HideFollowing();
+			//(Activity as FeedActivity).HideFollowing();
 		}
 
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

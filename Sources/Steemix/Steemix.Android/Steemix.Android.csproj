@@ -131,7 +131,6 @@
     <Compile Include="UserPrincipal.cs" />
     <Compile Include="Views\BaseActivity.cs" />
     <Compile Include="Views\SignInActivity.cs" />
-    <Compile Include="Views\FeedActivity.cs" />
     <Compile Include="Views\SignUpActivity.cs" />
     <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
@@ -152,6 +151,12 @@
     <Compile Include="ViewModels\ProfileViewModel.cs" />
     <Compile Include="Views\PhotoFragment.cs" />
     <Compile Include="Views\ProfileFragment.cs" />
+    <Compile Include="ViewModels\PhotoGridViewModel.cs" />
+    <Compile Include="ViewModels\CameraViewModel.cs" />
+    <Compile Include="Views\PhotoGridFragment.cs" />
+    <Compile Include="Views\CameraFragment.cs" />
+    <Compile Include="SquareLayout.cs" />
+    <Compile Include="Adapter\GalleryAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -212,6 +217,13 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_feed.png" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_photo.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid.png" />
+    <AndroidResource Include="Resources\layout\lyt_fragment_photo_grid.axml" />
+    <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
+    <AndroidResource Include="Resources\layout\image_grid_item.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
@@ -231,8 +243,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Resources\Anim\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
@@ -296,6 +306,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart_blue.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />

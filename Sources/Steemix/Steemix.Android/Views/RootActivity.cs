@@ -2,9 +2,11 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.Design.Widget;
+using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Android.Activity;
+using Android.Graphics;
 
 namespace Steemix.Android
 {
@@ -38,11 +40,14 @@ namespace Steemix.Android
 				TabLayout.Tab tab = tabLayout.GetTabAt(i);
 				if (null != tab)
 				{
-					tab.SetCustomView(Adapter.GetTabView(i));
+					tab.SetIcon(ContextCompat.GetDrawable(this,Adapter.tabIcos[i]));
 				}
 			}
 
 			viewPager.AddOnPageChangeListener(this);
+			tabLayout.GetTabAt(0).Icon.SetColorFilter(Color.Black, PorterDuff.Mode.SrcIn);
+			viewPager.SetCurrentItem(0, false);
+			viewPager.OffscreenPageLimit = 2;
 		}
 
 		public void OnPageScrollStateChanged(int state)
@@ -57,7 +62,21 @@ namespace Steemix.Android
 
 		public void OnPageSelected(int position)
 		{
-			
+			for (int i = 0; i < tabLayout.TabCount; i++)
+			{
+				TabLayout.Tab tab = tabLayout.GetTabAt(i);
+				if (null != tab)
+				{
+					if (i == position)
+					{
+						tab.Icon.SetColorFilter(Color.Black,PorterDuff.Mode.SrcIn);
+					}
+					else
+					{
+						tab.Icon.SetColorFilter(Color.LightGray, PorterDuff.Mode.SrcIn);
+					}
+				}
+			}
 		}
 	}
 }

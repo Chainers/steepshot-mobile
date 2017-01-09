@@ -13,7 +13,8 @@ namespace Steemix.Android
 		public override void ViewLoad()
 		{
 			base.ViewLoad();
-			Task.Run(() => GetTopPosts(string.Empty, 20));
+			if(Posts.Count==0)
+				Task.Run(() => GetTopPosts(string.Empty, 20));
 		}
 
 		public override void ViewAppear()
@@ -40,8 +41,9 @@ namespace Steemix.Android
 
 		public async Task<VoteResponse> Vote(UserPost post)
 		{
-			if (UserPrincipal.CurrentUser == null)
+			if (UserPrincipal.IsAuthenticated)
 				return null;
+
 			var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.Token, post.Url);
 			return await Manager.Vote(voteRequest, post.Vote);
 		}

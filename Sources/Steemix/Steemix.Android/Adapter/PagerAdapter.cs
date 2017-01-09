@@ -9,7 +9,7 @@ namespace Steemix.Android
 {
 	public class PagerAdapter : FragmentPagerAdapter
 	{
-		int[] tabIcos = new int[] {
+		public int[] tabIcos = new int[] {
 			Resource.Drawable.ic_feed,
 			Resource.Drawable.ic_camera,
 			Resource.Drawable.ic_profile
@@ -41,14 +41,6 @@ namespace Steemix.Android
 					return new ProfileFragment();
 			}
 			return null;
-		}
-
-		public View GetTabView(int position)
-		{
-			View tab = LayoutInflater.From(context).Inflate(Resource.Layout.tab_main, null);
-			ImageView imageView = (ImageView)tab.FindViewById(Resource.Id.tab_image);
-			imageView.SetImageDrawable(ResourcesCompat.GetDrawable(context.Resources, tabIcos[position], null));
-			return tab;
 		}
 	}
 }

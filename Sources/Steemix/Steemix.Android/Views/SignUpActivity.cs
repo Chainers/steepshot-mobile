@@ -1,17 +1,22 @@
 using Android.App;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Widget;
+using Steemix.Android.Activity;
 
-namespace Steemix.Android.Activity
+namespace Steemix.Android.Views
 {
-    [Activity]
-	public class SignUpActivity : BaseActivity<SignUpViewModel>
+    [Activity(NoHistory = true)]
+    public class SignUpActivity : BaseActivity<SignUpViewModel>
     {
-        private AppCompatButton SignUpBtn;
-        private AppCompatButton SignInBtn;
-		EditText username, postingkey, password; 
+        private AppCompatButton _signUpBtn;
+        private AppCompatButton _signInBtn;
+        private EditText _username;
+        private EditText _postingkey;
+        private EditText _password;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -19,34 +24,71 @@ namespace Steemix.Android.Activity
 
             SetContentView(Resource.Layout.lyt_sign_up);
 
-            SignUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
-            SignInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
+            _signUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
+            _signInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
 
-            SignUpBtn.Click += SignUpBtn_Click;
-            SignInBtn.Click += SignInBtn_Click;
+            _signUpBtn.Click += SignUpBtn_Click;
+            _signInBtn.Click += SignInBtn_Click;
 
-			username = FindViewById<EditText>(Resource.Id.input_username);
-			postingkey = FindViewById<EditText>(Resource.Id.input_key);
-			password = FindViewById<EditText>(Resource.Id.input_password);
-		}
+            _username = FindViewById<EditText>(Resource.Id.input_username);
+            _postingkey = FindViewById<EditText>(Resource.Id.input_key);
+            _password = FindViewById<EditText>(Resource.Id.input_password);
+
+
+            _username.TextChanged += TextChanged;
+            _username.TextChanged += TextChanged;
+            _postingkey.TextChanged += TextChanged;
+        }
 
         private void SignInBtn_Click(object sender, System.EventArgs e)
         {
             var intent = new Intent(this, typeof(SignInActivity));
             StartActivity(intent);
         }
-        
+
         private async void SignUpBtn_Click(object sender, System.EventArgs e)
         {
-			var result = await ViewModel.SignUp(username.Text, password.Text, postingkey.Text);
-			if (result)
-			{
-				ShowAlert(Resource.String.text_login);
-			}
-			else
-			{
-				ShowAlert(Resource.String.error_connect_to_server);
-			}
+            var login = _username.Text;
+            var pass = _password.Text;
+            var postingKey = _postingkey.Text;
+
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass) || string.IsNullOrEmpty(postingKey))
+                return;
+
+            var response = await ViewModel.SignUp(login, pass, postingKey);
+
+            if (response != null)
+            {
+                if (string.IsNullOrEmpty(response.error))
+                {
+                    UserPrincipal.CreatePrincipal(response, login, pass);
+                    Finish();
+                }
+                else
+                {
+                    ShowAlert(Resource.String.error_connect_to_server);
+                }
+            }
+            else
+            {
+                ShowAlert(Resource.String.error_connect_to_server);
+            }
+        }
+        
+        private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
+        {
+            var typedsender = (EditText)sender;
+            if (string.IsNullOrWhiteSpace(e.Text.ToString()))
+            {
+                typedsender.SetBackgroundColor(Color.Red);
+                var message = GetString(Resource.String.error_empty_field);
+                typedsender.SetError(message, null);
+            }
+            else
+            {
+                typedsender.SetBackgroundColor(Color.White);
+                typedsender.SetError(string.Empty, null);
+            }
         }
     }
 }
