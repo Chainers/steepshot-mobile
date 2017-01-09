@@ -6,6 +6,7 @@ using Android.Support.V7.Widget;
 using Android.Content.PM;
 using System.Threading.Tasks;
 using Android.Views.Animations;
+using Steemix.Android.Views;
 
 namespace Steemix.Android.Activity
 {
@@ -42,10 +43,10 @@ namespace Steemix.Android.Activity
 
 		async void FeedAdapter_LikeAction(int position)
 		{
-			var response = await ViewModel.Vote(ViewModel.Posts[position]);
+            var response = await ViewModel.Vote(ViewModel.Posts[position]);
 			if (response != null)
 			{
-				ViewModel.Posts[position].Vote = (response.IsVoted) ? 1 : 0;
+                ViewModel.Posts[position].Vote = (response.IsVoted) ? 1 : 0;
 				FeedAdapter.NotifyDataSetChanged();
 			}
 			else

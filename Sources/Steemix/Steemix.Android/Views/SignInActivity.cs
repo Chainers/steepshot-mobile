@@ -1,56 +1,98 @@
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
-using Steemix.Library.Models.Requests;
+using Android.Views;
 using Android.Widget;
+using Steemix.Android.Activity;
 
-namespace Steemix.Android.Activity
+namespace Steemix.Android.Views
 {
-    [Activity]
-	public class SignInActivity : BaseActivity<SignInViewModel>
+    [Activity(NoHistory = true)]
+    public class SignInActivity : BaseActivity<SignInViewModel>
     {
-        private AppCompatButton SignInBtn;
-        private AppCompatButton ForgotPassBtn;
-        private AppCompatButton SignUpBtn;
-        
-        EditText username, password;
+        private AppCompatButton _signInBtn;
+        private AppCompatButton _forgotPassBtn;
+        private AppCompatButton _signUpBtn;
+        private EditText _username;
+        private EditText _password;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.lyt_sign_in);
 
-            SignInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
-            ForgotPassBtn = FindViewById<AppCompatButton>(Resource.Id.forgot_pass_btn);
-            SignUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
+            _signInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
+            _forgotPassBtn = FindViewById<AppCompatButton>(Resource.Id.forgot_pass_btn);
+            _signUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
 
-            SignInBtn.Click += SignInBtn_Click;
-            ForgotPassBtn.Click += ForgotPassBtn_Click;
-            SignUpBtn.Click += SignUpBtn_Click;
+            _forgotPassBtn.Visibility = ViewStates.Invisible; // TODO:KOA-COM: спраятана по задаче SS-1: Login screen 
 
-            username = FindViewById<EditText>(Resource.Id.input_username);
-            password = FindViewById<EditText>(Resource.Id.input_password);
+            _signInBtn.Click += SignInBtn_Click;
+            _forgotPassBtn.Click += ForgotPassBtn_Click;
+            _signUpBtn.Click += SignUpBtn_Click;
 
-           
-            username.Text = UserPrincipal.CurrentUser.Login;
-            password.Text = UserPrincipal.CurrentUser.Password;
+            _username = FindViewById<EditText>(Resource.Id.input_username);
+            _password = FindViewById<EditText>(Resource.Id.input_password);
 
-			username.Text = "joseph.kalu";
-			password.Text = "test1234";
+            _username.Text = UserPrincipal.CurrentUser.Login;
+            _password.Text = UserPrincipal.CurrentUser.Password;
+
+            // TODO:KOA: удалить после тестирования
+            if (string.IsNullOrEmpty(_username.Text))
+            {
+                _username.Text = "joseph.kalu";
+                _password.Text = "test1234";
+            }
+
+            _username.TextChanged += TextChanged;
+            _username.TextChanged += TextChanged;
         }
 
-		private async void SignInBtn_Click(object sender, System.EventArgs e)
+        private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
         {
-			var status = await ViewModel.SignIn(username.Text, password.Text);
-			if (status)
-			{
-			    Finish();
-			}
-			else
-			{ 
-				ShowAlert(Resource.String.error_connect_to_server);
-			}
+            var typedsender = (EditText)sender;
+            if (string.IsNullOrWhiteSpace(e.Text.ToString()))
+            {
+                typedsender.SetBackgroundColor(Color.Red);
+                var message = GetString(Resource.String.error_empty_field);
+                typedsender.SetError(message, null);
+            }
+            else
+            {
+                typedsender.SetBackgroundColor(Color.White);
+                typedsender.SetError(string.Empty, null);
+            }
+        }
+
+        private async void SignInBtn_Click(object sender, System.EventArgs e)
+        {
+            var login = _username.Text;
+            var pass = _password.Text;
+
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+                return;
+
+            var response = await ViewModel.SignIn(login, pass);
+
+            if (response != null)
+            {
+                if (string.IsNullOrEmpty(response.error))
+                {
+                    UserPrincipal.CreatePrincipal(response, login, pass);
+                    Finish();
+                }
+                else
+                {
+                    ShowAlert(Resource.String.error_connect_to_server);
+                }
+            }
+            else
+            {
+                ShowAlert(Resource.String.error_connect_to_server);
+            }
         }
 
         private void ForgotPassBtn_Click(object sender, System.EventArgs e)
@@ -62,13 +104,6 @@ namespace Steemix.Android.Activity
         {
             var intent = new Intent(this, typeof(SignUpActivity));
             StartActivity(intent);
-        }
-        
-        private bool IsValid(LoginRequest request)
-        {
-            if (string.IsNullOrEmpty(request.username) || string.IsNullOrEmpty(request.password))
-                return false;
-            return true;
         }
     }
 }

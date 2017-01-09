@@ -40,8 +40,9 @@ namespace Steemix.Android
 
 		public async Task<VoteResponse> Vote(UserPost post)
 		{
-			if (UserPrincipal.CurrentUser == null)
+			if (UserPrincipal.IsAuthenticated)
 				return null;
+
 			var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.Token, post.Url);
 			return await Manager.Vote(voteRequest, post.Vote);
 		}
