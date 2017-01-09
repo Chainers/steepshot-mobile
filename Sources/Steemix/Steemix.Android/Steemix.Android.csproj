@@ -202,8 +202,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Resources\Anim\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
@@ -267,6 +265,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart_blue.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />
