@@ -9,7 +9,7 @@ using Android.Views.Animations;
 
 namespace Steemix.Android.Activity
 {
-    [Activity(Label = "SteepShot", MainLauncher=true,Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "SteepShot",Icon = "@mipmap/ic_launcher",ScreenOrientation = ScreenOrientation.Portrait)]
 	public class FeedActivity : BaseActivity<FeedViewModel>, View.IOnScrollChangeListener
 	{
         RecyclerView FeedList;

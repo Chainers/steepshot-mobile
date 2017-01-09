@@ -32,19 +32,11 @@
             android:textColor="@color/material_grey_600"
             android:layout_width="wrap_content"
             android:textSize="10sp"
+            android:text="2h"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="15 min"
-            android:layout_toLeftOf="@+id/btn_more"
-            android:layout_marginRight="5.0dp" />
-        <ImageButton
-            android:id="@+id/btn_more"
-            android:background="@android:color/transparent"
-            android:layout_width="50dp"
-            android:scaleType="center"
             android:layout_alignParentRight="true"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_more" />
+            android:layout_marginRight="10.0dp" />
     </RelativeLayout>
     <ImageView
         android:id="@+id/photo"
@@ -81,18 +73,10 @@
             android:textSize="10sp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
             android:text="$22.15"
             android:id="@+id/cost"
-            android:layout_toLeftOf="@+id/btn_share"
-            android:layout_marginRight="5.0dp" />
-        <ImageButton
-            android:id="@+id/btn_share"
-            android:background="@android:color/transparent"
-            android:layout_width="50dp"
-            android:scaleType="center"
-            android:layout_alignParentRight="true"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_share_arrow" />
+            android:layout_marginRight="10.0dp" />
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
@@ -124,6 +108,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/first_comment" />
             <TextView
+                android:clickable="true"
                 android:text="@string/view_n_comments"
                 android:layout_marginTop="10dp"
                 android:layout_width="match_parent"

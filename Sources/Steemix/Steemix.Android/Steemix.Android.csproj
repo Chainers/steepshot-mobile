@@ -143,6 +143,15 @@
     <Compile Include="ViewModels\SignInViewModel.cs" />
     <Compile Include="ViewModels\FeedViewModel.cs" />
     <Compile Include="Views\FollowingFragment.cs" />
+    <Compile Include="Views\RootActivity.cs" />
+    <Compile Include="ViewModels\TabHostViewModel.cs" />
+    <Compile Include="Adapter\PagerAdapter.cs" />
+    <Compile Include="Views\FeedFragment.cs" />
+    <Compile Include="Views\BaseFragment.cs" />
+    <Compile Include="ViewModels\PhotoViewModel.cs" />
+    <Compile Include="ViewModels\ProfileViewModel.cs" />
+    <Compile Include="Views\PhotoFragment.cs" />
+    <Compile Include="Views\ProfileFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -183,6 +192,26 @@
     <AndroidResource Include="Resources\Anim\down_up.xml" />
     <AndroidResource Include="Resources\Anim\rotate180.xml" />
     <AndroidResource Include="Resources\Anim\rotate0.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
+    <AndroidResource Include="Resources\layout\tab_main.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_camera.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_camera.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_feed.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_feed.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_feed.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_feed.png" />
+    <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
+    <AndroidResource Include="Resources\layout\lyt_fragment_photo.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
