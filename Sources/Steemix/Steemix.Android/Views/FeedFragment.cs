@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
@@ -7,9 +7,9 @@ using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Android.Views;
+using Steemix.Droid.Views;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
 	public class FeedFragment : BaseFragment<FeedViewModel>, View.IOnScrollChangeListener
 	{

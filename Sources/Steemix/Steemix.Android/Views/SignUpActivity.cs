@@ -5,9 +5,9 @@ using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Widget;
-using Steemix.Android.Activity;
+using Steemix.Droid.Activity;
 
-namespace Steemix.Android.Views
+namespace Steemix.Droid.Views
 {
     [Activity(NoHistory = true)]
     public class SignUpActivity : BaseActivity<SignUpViewModel>

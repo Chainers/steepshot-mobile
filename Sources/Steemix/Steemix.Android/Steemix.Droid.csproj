@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Steemix.Android</RootNamespace>
+    <RootNamespace>Steemix.Droid</RootNamespace>
     <AssemblyName>Steemix.Android</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <AndroidApplication>true</AndroidApplication>
@@ -157,6 +157,7 @@
     <Compile Include="Views\CameraFragment.cs" />
     <Compile Include="SquareLayout.cs" />
     <Compile Include="Adapter\GalleryAdapter.cs" />
+    <Compile Include="CameraPreview.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -224,6 +225,11 @@
     <AndroidResource Include="Resources\layout\lyt_fragment_photo_grid.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
     <AndroidResource Include="Resources\layout\image_grid_item.axml" />
+    <AndroidResource Include="Resources\drawable\photo_btn_bcak.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_white.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

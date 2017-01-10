@@ -1,11 +1,11 @@
-﻿using Android.Content;
+using Android.Content;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using System;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
     /// <summary>
     /// A square layout based on the smaller of height and width

@@ -3,14 +3,27 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:gravity="center"
+    android:weightSum="3"
+    android:background="@color/light_gray"
     android:layout_height="match_parent"
     android:minWidth="25px"
     android:minHeight="25px">
-    <TextView
-        android:text="TAKE PHOTO"
-        android:textColor="@color/black"
-        android:gravity="center"
+    <FrameLayout
+        android:background="@android:color/background_dark"
+        android:id="@+id/camera_frame"
+        android:layout_weight="2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView1" />
+        android:layout_height="0dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_camera_white"
+            android:background="@drawable/photo_btn_bcak"
+            android:tint="@color/white" />
+    </LinearLayout>
 </LinearLayout>

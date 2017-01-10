@@ -3,7 +3,7 @@ using Android.OS;
 using Android.Support.V7.App;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
-namespace Steemix.Android.Activity 
+namespace Steemix.Droid.Activity 
 {
     public class  BaseActivity<T> : AppCompatActivity where T : MvvmViewModelBase
     {

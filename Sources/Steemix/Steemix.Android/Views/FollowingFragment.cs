@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Android.Activity;
+using Steemix.Droid.Activity;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
 	public class FollowingFragment : Fragment
 	{

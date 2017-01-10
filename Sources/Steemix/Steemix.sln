@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Tests", "Steemix.Te
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Steemstagram.Shared", "Steemstagram.Shared\Steemstagram.Shared.shproj", "{D79AE7DF-CAB0-478D-AD7B-F55EAC865C02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Android", "Steemix.Android\Steemix.Android.csproj", "{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Droid", "Steemix.Android\Steemix.Droid.csproj", "{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
