@@ -224,6 +224,7 @@
     <AndroidResource Include="Resources\layout\lyt_fragment_photo_grid.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
     <AndroidResource Include="Resources\layout\image_grid_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_settings.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

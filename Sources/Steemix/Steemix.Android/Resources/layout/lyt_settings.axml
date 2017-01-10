@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/blue"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="25dp"
+    android:minHeight="25dp">
+<!--Settings
+   <android.support.v7.widget.AppCompatButton android:text="@string/settings"
+                                             android:textColor="@color/black"
+                                             android:padding="10dp"
+                                             android:background="@android:color/transparent"
+                                             android:layout_width="wrap_content"
+                                             android:layout_height="wrap_content"
+                                             android:layout_marginTop="10dp"
+                                             android:layout_centerHorizontal="true"
+                                             android:layout_below="@+id/avatar"
+                                             android:id="@+id/change_avatar" />-->
+<!--Change Avatar-->
+    <ImageView
+        android:src="@drawable/ic_big_logo"
+        android:contentDescription="@string/change_avatar"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:id="@+id/avatar" />
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/change_avatar"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:background="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/avatar"
+        android:id="@+id/change_avatar" />
+<!--Change Password-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/change_password"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:background="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/change_password" />
+<!--Terms of Service-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/terms_of_service"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:background="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/terms_of_service" />
+<!--Delete Steemix Account-->
+    <android.support.v7.widget.AppCompatButton
+        android:text="@string/delete_steemix_account"
+        android:textColor="@color/black"
+        android:padding="10dp"
+        android:background="@android:color/transparent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/delete_steemix_account" />
+</RelativeLayout>
