@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Steemix.Library.Models.Responses;
@@ -8,7 +8,7 @@ using Android.Content;
 using Android.Text;
 using System.Collections.ObjectModel;
 
-namespace Steemix.Android.Adapter
+namespace Steemix.Droid.Adapter
 {
 
 	public class FeedAdapter : RecyclerView.Adapter

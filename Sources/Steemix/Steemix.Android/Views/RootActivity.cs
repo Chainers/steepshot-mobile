@@ -1,14 +1,14 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Android.Activity;
+using Steemix.Droid.Activity;
 using Android.Graphics;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
 	[Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher", ScreenOrientation = ScreenOrientation.Portrait)]
 	public class RootActivity : BaseActivity<TabHostViewModel>,ViewPager.IOnPageChangeListener

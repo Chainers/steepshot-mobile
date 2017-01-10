@@ -5,9 +5,9 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steemix.Android.Activity;
+using Steemix.Droid.Activity;
 
-namespace Steemix.Android.Views
+namespace Steemix.Droid.Views
 {
     [Activity(NoHistory = true)]
     public class SignInActivity : BaseActivity<SignInViewModel>
@@ -28,7 +28,7 @@ namespace Steemix.Android.Views
             _forgotPassBtn = FindViewById<AppCompatButton>(Resource.Id.forgot_pass_btn);
             _signUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
 
-            _forgotPassBtn.Visibility = ViewStates.Invisible; // TODO:KOA-COM: спраятана по задаче SS-1: Login screen 
+            _forgotPassBtn.Visibility = ViewStates.Invisible; // TODO:KOA-COM: Г±ГЇГ°Г ГїГІГ Г­Г  ГЇГ® Г§Г Г¤Г Г·ГҐ SS-1: Login screen 
 
             _signInBtn.Click += SignInBtn_Click;
             _forgotPassBtn.Click += ForgotPassBtn_Click;
@@ -40,7 +40,7 @@ namespace Steemix.Android.Views
             _username.Text = UserPrincipal.CurrentUser.Login;
             _password.Text = UserPrincipal.CurrentUser.Password;
 
-            // TODO:KOA: удалить после тестирования
+            // TODO:KOA: ГіГ¤Г Г«ГЁГІГј ГЇГ®Г±Г«ГҐ ГІГҐГ±ГІГЁГ°Г®ГўГ Г­ГЁГї
             if (string.IsNullOrEmpty(_username.Text))
             {
                 _username.Text = "joseph.kalu";

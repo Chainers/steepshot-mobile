@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Runtime;
@@ -6,7 +6,7 @@ using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 using Steemstagram.Shared;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
 	[Application]
 	public class SteemixApp : Application

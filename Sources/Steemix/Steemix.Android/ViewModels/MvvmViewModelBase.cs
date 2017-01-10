@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using GalaSoft.MvvmLight;
 using Steemstagram.Shared;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
 	    public abstract class MvvmViewModelBase : ViewModelBase
     {

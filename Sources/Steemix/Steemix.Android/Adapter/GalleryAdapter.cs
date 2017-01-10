@@ -1,4 +1,4 @@
-﻿using Android.Support.V7.Widget;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Steemix.Library.Models.Responses;
 using Android.Widget;
@@ -11,7 +11,7 @@ using Android.Graphics;
 using Android.Net;
 using Java.IO;
 
-namespace Steemix.Android.Adapter
+namespace Steemix.Droid.Adapter
 {
 
 	public class GalleryAdapter : RecyclerView.Adapter

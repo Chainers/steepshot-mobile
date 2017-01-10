@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
     public class ViewModelLocator {
         public ViewModelLocator() {}

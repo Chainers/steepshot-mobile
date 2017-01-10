@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Principal;
-using Steemix.Android.Realm;
+using Steemix.Droid.Realm;
 using Steemix.Library.Models.Responses;
 
-namespace Steemix.Android
+namespace Steemix.Droid
 {
     [Serializable]
     public class UserPrincipal : GenericPrincipal

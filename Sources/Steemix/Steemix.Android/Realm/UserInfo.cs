@@ -1,6 +1,6 @@
 using Realms;
 
-namespace Steemix.Android.Realm
+namespace Steemix.Droid.Realm
 {
     public class UserInfo : RealmObject
     {
