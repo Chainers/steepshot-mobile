@@ -130,6 +130,7 @@
     <Compile Include="Realm\UserInfo.cs" />
     <Compile Include="UserPrincipal.cs" />
     <Compile Include="Views\BaseActivity.cs" />
+    <Compile Include="Views\SettingsActivity.cs" />
     <Compile Include="Views\SignInActivity.cs" />
     <Compile Include="Views\SignUpActivity.cs" />
     <Compile Include="Adapter\FeedAdapter.cs" />

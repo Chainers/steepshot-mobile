@@ -2311,8 +2311,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080079
 			public const int author_name = 2131230841;
 			
-			// aapt resource value: 0x7f08008b
-			public const int avatar = 2131230859;
+			// aapt resource value: 0x7f08008c
+			public const int avatar = 2131230860;
 			
 			// aapt resource value: 0x7f08001b
 			public const int beginning = 2131230747;
@@ -2353,8 +2353,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08002d
 			public const int center_vertical = 2131230765;
 			
-			// aapt resource value: 0x7f08008c
-			public const int change_avatar = 2131230860;
+			// aapt resource value: 0x7f08008b
+			public const int change_avatar = 2131230859;
 			
 			// aapt resource value: 0x7f08008d
 			public const int change_password = 2131230861;
