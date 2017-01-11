@@ -1,7 +1,8 @@
+using System;
 using Android.App;
 using Android.OS;
 using Android.Widget;
-using Refractored.Controls;
+using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.Activity;
 using Steemix.Droid.ViewModels;
 using Square.Picasso;
@@ -11,16 +12,15 @@ namespace Steemix.Droid.Views
     [Activity(NoHistory = true)]
     public class SettingsActivity : BaseActivity<SettingsViewModel>
     {
-        private ImageView Avatar;
+        [InjectView(Resource.Id.avatar)]
+        private ImageView _avatar;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            var info = ViewModel.GetUserInfo();
-            info.Start();
-
             SetContentView(Resource.Layout.lyt_settings);
-            Avatar = FindViewById<CircleImageView>(Resource.Id.avatar);
+            Cheeseknife.Inject(this);
+            //_avatar = FindViewById<CircleImageView>(Resource.Id.avatar);
             LoadAvatar();
         }
 
@@ -29,8 +29,14 @@ namespace Steemix.Droid.Views
             var info = await ViewModel.GetUserInfo();
             if (!string.IsNullOrEmpty(info.ImageUrl))
             {
-                Picasso.With(this.ApplicationContext).Load(info.ImageUrl).Into(Avatar);
+                Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
             }
+        }
+
+        [InjectOnClick(Resource.Id.settings)]
+        public void OnSettingsClick(object sender, EventArgs e)
+        {
+            Finish();
         }
     }
 }

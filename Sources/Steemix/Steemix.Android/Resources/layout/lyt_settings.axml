@@ -13,6 +13,13 @@
         android:background="@color/color_primary"
         android:minWidth="25px"
         android:minHeight="25px">
+        <ImageView
+            android:id="@+id/back_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_left"
+            android:layout_marginLeft="5dp" />
         <TextView
             android:text="@string/settings"
             android:layout_width="wrap_content"
@@ -22,67 +29,70 @@
             android:textColor="@android:color/white"
             android:layout_centerInParent="true"
             android:layout_height="wrap_content"
-            android:id="@+id/change_avatar" />
+            android:id="@+id/settings" />
     </RelativeLayout>
-<!--Change Avatar-->
+<!--Avatar-->
     <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:src="@mipmap/ic_launcher"
-        android:layout_height="30dp"
-        android:layout_width="30dp"
-        android:layout_marginLeft="10dp"
+        android:layout_height="120dp"
+        android:layout_width="120dp"
         android:layout_centerVertical="true"
         android:contentDescription="@string/change_avatar"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/toolbar"
         android:id="@+id/avatar" />
-    <android.support.v7.widget.AppCompatButton
-        android:text="@string/change_avatar"
-        android:textColor="@color/black"
-        android:padding="10dp"
-        android:background="@android:color/transparent"
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@color/material_grey_600"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/avatar"
-        android:id="@+id/change_avatar" />
-<!--Change Password-->
-    <android.support.v7.widget.AppCompatButton
-        android:text="@string/change_password"
-        android:textColor="@color/black"
-        android:padding="10dp"
-        android:background="@android:color/transparent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/change_avatar"
-        android:id="@+id/change_password" />
-<!--Terms of Service-->
-    <android.support.v7.widget.AppCompatButton
-        android:text="@string/terms_of_service"
-        android:textColor="@color/black"
-        android:padding="10dp"
-        android:background="@android:color/transparent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/change_password"
-        android:id="@+id/terms_of_service" />
-<!--Delete Steemix Account-->
-    <android.support.v7.widget.AppCompatButton
-        android:text="@string/delete_steemix_account"
-        android:textColor="@color/black"
-        android:padding="10dp"
-        android:background="@android:color/transparent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/terms_of_service"
-        android:id="@+id/delete_steemix_account" />
+        android:layout_below="@+id/avatar">
+    <!--Change Avatar-->
+        <android.support.v7.widget.AppCompatButton
+            android:text="@string/change_avatar"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:id="@+id/change_avatar" />
+    <!--Change Password-->
+        <android.support.v7.widget.AppCompatButton
+            android:text="@string/change_password"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_marginTop="1dp"
+            android:id="@+id/change_password" />
+    <!--Terms of Service-->
+        <android.support.v7.widget.AppCompatButton
+            android:text="@string/terms_of_service"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_marginTop="1dp"
+            android:id="@+id/terms_of_service" />
+    <!--Delete Steemix Account-->
+        <android.support.v7.widget.AppCompatButton
+            android:text="@string/delete_steemix_account"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:background="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:layout_marginTop="1dp"
+            android:id="@+id/delete_steemix_account" />
+    </LinearLayout>
 </RelativeLayout>
