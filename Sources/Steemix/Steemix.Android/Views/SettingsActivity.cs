@@ -3,24 +3,24 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Refractored.Controls;
 using Steemix.Droid.Activity;
 using Steemix.Droid.ViewModels;
 using Square.Picasso;
 
 namespace Steemix.Droid.Views
 {
-    [Activity(NoHistory = true)]
+    [Activity]
     public class SettingsActivity : BaseActivity<SettingsViewModel>
     {
         [InjectView(Resource.Id.avatar)]
-        private ImageView _avatar;
+        private CircleImageView _avatar;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Inject(this);
-            //_avatar = FindViewById<CircleImageView>(Resource.Id.avatar);
             LoadAvatar();
         }
 

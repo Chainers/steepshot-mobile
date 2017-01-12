@@ -229,6 +229,7 @@
     <AndroidResource Include="Resources\layout\image_grid_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\drawable\photo_btn_bcak.xml" />
+    <AndroidResource Include="Resources\drawable\btn_back.xml" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_camera_white.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_camera_white.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_white.png" />
@@ -319,7 +320,6 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_heart_blue.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_heart_blue.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart_blue.png" />
-    <AndroidResource Include="Resources\drawable\ic_arrow_left.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />
