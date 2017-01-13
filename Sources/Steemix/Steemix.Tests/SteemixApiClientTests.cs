@@ -10,23 +10,23 @@ namespace Steemix.Tests
     [TestFixture]
     public class SteemixApiClientTests
     {
-		string _name = "joseph.kalu";
-		string _password = "test1234";
-		readonly SteemixApiClient _api = new SteemixApiClient();
-		string _token = string.Empty;
+        string _name = "joseph.kalu";
+        string _password = "test1234";
+        readonly SteemixApiClient _api = new SteemixApiClient();
+        string _token = string.Empty;
 
-		[OneTimeSetUp]
-		public void Setup()
-		{
-			var request = new LoginRequest(_name, _password);
-			_token = _api.Login(request).Token;
-		}
+        [OneTimeSetUp]
+        public void Setup()
+        {
+            var request = new LoginRequest(_name, _password);
+            _token = _api.Login(request).Token;
+        }
 
         [Test]
         public void GetTopPostsTest()
         {
             // Arrange
-			var request = new TopPostRequest(string.Empty, 10);
+            var request = new TopPostRequest(string.Empty, 10);
 
             // Act
             var response = _api.GetTopPosts(request);
@@ -51,10 +51,24 @@ namespace Steemix.Tests
         }
 
         [Test]
+        public void GetUserAvatarTest()
+        {
+            // Arrange
+            var request = new UserInfoRequest(_token, _name);
+
+            // Act
+            var response = _api.GetUserInfo(request);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.IsTrue(string.IsNullOrEmpty(response.error));
+        }
+
+        [Test]
         public void LoginTest()
         {
-			// Arrange
-			var request = new LoginRequest(_name, _password);
+            // Arrange
+            var request = new LoginRequest(_name, _password);
 
             // Act
             var response = _api.Login(request);
@@ -68,15 +82,15 @@ namespace Steemix.Tests
         [Test]
         public void UploadImageTest()
         {
-			// Arrange
-			var file = File.ReadAllBytes(@"/home/anch/Pictures/cats.jpg");
-			var request = new UploadImageRequest(_token, "Cats", file);
+            // Arrange
+            var file = File.ReadAllBytes(@"/home/anch/Pictures/cats.jpg");
+            var request = new UploadImageRequest(_token, "Cats", file);
 
-			// Act
-			var response = _api.Upload(request);
+            // Act
+            var response = _api.Upload(request);
 
-			// Assert
-			Assert.NotNull(response);
+            // Assert
+            Assert.NotNull(response);
         }
 
         [Test]
@@ -93,68 +107,68 @@ namespace Steemix.Tests
             Assert.IsFalse(response.IsVoted);
         }
 
-		[Test]
-		public void DownVoteTest_PostArchived()
-		{
-			// Arrange
-			var request = new VoteRequest(_token, "@shenanigator/if-you-want-jobs-take-away-their-shovels-and-give-them-spoons");
+        [Test]
+        public void DownVoteTest_PostArchived()
+        {
+            // Arrange
+            var request = new VoteRequest(_token, "@shenanigator/if-you-want-jobs-take-away-their-shovels-and-give-them-spoons");
 
-		    // Act
-			var response = _api.DownVote(request);
+            // Act
+            var response = _api.DownVote(request);
 
-			// Assert
-			Assert.NotNull(response);
-			Assert.IsFalse(response.IsVoted);
-		}
+            // Assert
+            Assert.NotNull(response);
+            Assert.IsFalse(response.IsVoted);
+        }
 
-		[Test]
-		public void RegisterTest()
-		{
-			// Arrange
-			var request = new RegisterRequest("5JdHigxo9s8rdNSfGteprcx1Fhi7SBUwb7e2UcNvnTdz18Si7so", "anch", "qwerty12345");
+        [Test]
+        public void RegisterTest()
+        {
+            // Arrange
+            var request = new RegisterRequest("5JdHigxo9s8rdNSfGteprcx1Fhi7SBUwb7e2UcNvnTdz18Si7so", "anch", "qwerty12345");
 
-			// Act
-			try
-			{
-				var response = _api.Register(request);
+            // Act
+            try
+            {
+                var response = _api.Register(request);
 
-				// Assert
-				Assert.NotNull(response);
-				Assert.IsNotEmpty(response.username);
-			}
-			catch (ApiGatewayException ex)
-			{
-				Assert.True(ex.ResponseContent.Contains("A user with that username already exists"));
-			}
-		}
+                // Assert
+                Assert.NotNull(response);
+                Assert.IsNotEmpty(response.username);
+            }
+            catch (ApiGatewayException ex)
+            {
+                Assert.True(ex.ResponseContent.Contains("A user with that username already exists"));
+            }
+        }
 
-		[Test]
-		public void GetCommentsTest()
-		{
-			// Arrange
-			var request = new GetCommentsRequest(_token, "@asduj/new-application-coming---");
+        [Test]
+        public void GetCommentsTest()
+        {
+            // Arrange
+            var request = new GetCommentsRequest(_token, "@asduj/new-application-coming---");
 
-			// Act
-			var response = _api.GetComments(request);
+            // Act
+            var response = _api.GetComments(request);
 
-			// Assert
-			Assert.NotNull(response);
-			Assert.IsTrue(response.comments.Length > 0);
-		}
+            // Assert
+            Assert.NotNull(response);
+            Assert.IsTrue(response.comments.Length > 0);
+        }
 
 
-		[Test]
-		public void CreateCommentTest()
-		{
-			// Arrange
-			var request = new CreateCommentsRequest(_token, "@asduj/new-application-coming---", "люк я твой отец", "лошта?");
+        [Test]
+        public void CreateCommentTest()
+        {
+            // Arrange
+            var request = new CreateCommentsRequest(_token, "@asduj/new-application-coming---", "люк я твой отец", "лошта?");
 
-			// Act
-			var response = _api.CreateComment(request);
+            // Act
+            var response = _api.CreateComment(request);
 
-			// Assert
-			Assert.NotNull(response);
-		}
+            // Assert
+            Assert.NotNull(response);
+        }
 
         [Test]
         public void FollowTest()

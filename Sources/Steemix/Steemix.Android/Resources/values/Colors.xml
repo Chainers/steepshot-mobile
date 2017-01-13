@@ -9,4 +9,5 @@
 	<item name="white40" type="color">#99FFFFFF</item>
 	<item name="black" type="color">#000000</item>
 	<item name="light_gray" type="color">#CCCCCC</item>
+	<item name="light_gray_e5" type="color">#E5E5E5</item>
 </resources>

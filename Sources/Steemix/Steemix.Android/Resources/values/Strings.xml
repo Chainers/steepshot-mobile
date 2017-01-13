@@ -28,4 +28,11 @@
 	<string name = "error_empty_field">Field can\'t be empty!</string>
 	<string name = "choose_photo">Choose photo</string>
   
+  <!--lyt_settings.axml-->
+  <string name = "settings">Settings</string>
+  <string name = "change_avatar">Change Avatar</string>
+  <string name = "change_password">Change Password</string>
+  <string name = "terms_of_service">Terms of Service</string>
+  <string name = "delete_steemix_account">Delete Steemix Account</string>
+  
 </resources>

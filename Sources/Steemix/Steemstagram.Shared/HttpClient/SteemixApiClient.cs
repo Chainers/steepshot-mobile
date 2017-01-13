@@ -138,5 +138,15 @@ namespace Steemix.Library.HttpClient
             var response = _api.Post<FollowResponse>(endpoint, null, parameters);
             return response;
         }
+
+        public UserInfoResponse GetUserInfo(UserInfoRequest request)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                new RequestParameter { Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie }
+            };
+            var response = _api.Get<UserInfoResponse>($"/user/{request.Login}", null, parameters);
+            return response;
+        }
     }
 }
