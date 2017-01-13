@@ -36,7 +36,7 @@
     <LinearLayout
         android:layout_marginTop="180dp"
         android:orientation="vertical"
-        android:background="@color/material_grey_600"
+        android:background="@color/light_gray_e5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     <!--Change Avatar-->

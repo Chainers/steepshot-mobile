@@ -1081,32 +1081,32 @@ namespace Steemix.Droid
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f0d004d
-			public const int abc_background_cache_hint_selector_material_dark = 2131558477;
-			
 			// aapt resource value: 0x7f0d004e
-			public const int abc_background_cache_hint_selector_material_light = 2131558478;
+			public const int abc_background_cache_hint_selector_material_dark = 2131558478;
 			
 			// aapt resource value: 0x7f0d004f
-			public const int abc_color_highlight_material = 2131558479;
+			public const int abc_background_cache_hint_selector_material_light = 2131558479;
+			
+			// aapt resource value: 0x7f0d0050
+			public const int abc_color_highlight_material = 2131558480;
 			
 			// aapt resource value: 0x7f0d0000
 			public const int abc_input_method_navigation_guard = 2131558400;
 			
-			// aapt resource value: 0x7f0d0050
-			public const int abc_primary_text_disable_only_material_dark = 2131558480;
-			
 			// aapt resource value: 0x7f0d0051
-			public const int abc_primary_text_disable_only_material_light = 2131558481;
+			public const int abc_primary_text_disable_only_material_dark = 2131558481;
 			
 			// aapt resource value: 0x7f0d0052
-			public const int abc_primary_text_material_dark = 2131558482;
+			public const int abc_primary_text_disable_only_material_light = 2131558482;
 			
 			// aapt resource value: 0x7f0d0053
-			public const int abc_primary_text_material_light = 2131558483;
+			public const int abc_primary_text_material_dark = 2131558483;
 			
 			// aapt resource value: 0x7f0d0054
-			public const int abc_search_url_text = 2131558484;
+			public const int abc_primary_text_material_light = 2131558484;
+			
+			// aapt resource value: 0x7f0d0055
+			public const int abc_search_url_text = 2131558485;
 			
 			// aapt resource value: 0x7f0d0001
 			public const int abc_search_url_text_normal = 2131558401;
@@ -1117,11 +1117,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f0d0003
 			public const int abc_search_url_text_selected = 2131558403;
 			
-			// aapt resource value: 0x7f0d0055
-			public const int abc_secondary_text_material_dark = 2131558485;
-			
 			// aapt resource value: 0x7f0d0056
-			public const int abc_secondary_text_material_light = 2131558486;
+			public const int abc_secondary_text_material_dark = 2131558486;
+			
+			// aapt resource value: 0x7f0d0057
+			public const int abc_secondary_text_material_light = 2131558487;
 			
 			// aapt resource value: 0x7f0d0004
 			public const int accent_material_dark = 2131558404;
@@ -1246,6 +1246,9 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f0d004c
 			public const int light_gray = 2131558476;
 			
+			// aapt resource value: 0x7f0d004d
+			public const int light_gray_e5 = 2131558477;
+			
 			// aapt resource value: 0x7f0d001c
 			public const int material_blue_grey_800 = 2131558428;
 			
@@ -1330,11 +1333,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f0d0037
 			public const int switch_thumb_disabled_material_light = 2131558455;
 			
-			// aapt resource value: 0x7f0d0057
-			public const int switch_thumb_material_dark = 2131558487;
-			
 			// aapt resource value: 0x7f0d0058
-			public const int switch_thumb_material_light = 2131558488;
+			public const int switch_thumb_material_dark = 2131558488;
+			
+			// aapt resource value: 0x7f0d0059
+			public const int switch_thumb_material_light = 2131558489;
 			
 			// aapt resource value: 0x7f0d0038
 			public const int switch_thumb_normal_material_dark = 2131558456;
@@ -1939,13 +1942,13 @@ namespace Steemix.Droid
 			public const int abc_textfield_search_material = 2130837578;
 			
 			// aapt resource value: 0x7f02004b
-			public const int btn_back = 2130837579;
+			public const int design_fab_background = 2130837579;
 			
 			// aapt resource value: 0x7f02004c
-			public const int design_fab_background = 2130837580;
+			public const int design_snackbar_background = 2130837580;
 			
 			// aapt resource value: 0x7f02004d
-			public const int design_snackbar_background = 2130837581;
+			public const int ic_arrow_left = 2130837581;
 			
 			// aapt resource value: 0x7f02004e
 			public const int ic_audiotrack = 2130837582;
