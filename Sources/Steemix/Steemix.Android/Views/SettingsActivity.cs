@@ -1,7 +1,6 @@
 using System;
 using Android.App;
 using Android.OS;
-using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steemix.Droid.Activity;
@@ -26,12 +25,12 @@ namespace Steemix.Droid.Views
 
         private async void LoadAvatar()
         {
-            var info = await ViewModel.GetUserInfo();
-            if (!string.IsNullOrEmpty(info.ImageUrl))
-            {
-                Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
+                var info = await ViewModel.GetUserInfo();
+                if (!string.IsNullOrEmpty(info.ImageUrl))
+                {
+                    Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
+                }
             }
-        }
 
         [InjectOnClick(Resource.Id.settings)]
         public void OnSettingsClick(object sender, EventArgs e)
