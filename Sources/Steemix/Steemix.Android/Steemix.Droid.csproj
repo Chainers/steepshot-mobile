@@ -229,11 +229,14 @@
     <AndroidResource Include="Resources\layout\image_grid_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\drawable\photo_btn_bcak.xml" />
-    <AndroidResource Include="Resources\drawable\btn_back.xml" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_camera_white.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_camera_white.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_white.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_white.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_arrow_left.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_arrow_left.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_arrow_left.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrow_left.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
@@ -251,9 +254,7 @@
       <Name>Steemix.Library</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\drawable\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <AndroidResource Include="Resources\values\Styles.xml">
       <SubType>Designer</SubType>
