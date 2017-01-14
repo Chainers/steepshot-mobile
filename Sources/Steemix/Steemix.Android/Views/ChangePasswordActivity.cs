@@ -67,5 +67,11 @@ namespace Steemix.Droid.Views
                 ShowAlert(response.error);
             }
         }
+
+        [InjectOnClick(Resource.Id.go_back)]
+        public void GoBackClick(object sender, EventArgs e)
+        {
+            Finish();
+        }
     }
 }

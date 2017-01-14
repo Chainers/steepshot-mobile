@@ -40,8 +40,8 @@ namespace Steemix.Droid.Views
             }
         }
 
-        [InjectOnClick(Resource.Id.settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
+        [InjectOnClick(Resource.Id.go_back)]
+        public void GoBackClick(object sender, EventArgs e)
         {
             Finish();
         }
@@ -50,6 +50,13 @@ namespace Steemix.Droid.Views
         public void ChangePasswordClick(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(ChangePasswordActivity));
+            StartActivity(intent);
+        }
+
+        [InjectOnClick(Resource.Id.dtn_terms_of_service)]
+        public void TermsOfServiceClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(TermsOfServiceActivity));
             StartActivity(intent);
         }
     }

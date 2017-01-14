@@ -133,6 +133,7 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\BaseActivity.cs" />
     <Compile Include="Views\ChangePasswordActivity.cs" />
+    <Compile Include="Views\TermsOfServiceActivity.cs" />
     <Compile Include="Views\SettingsActivity.cs" />
     <Compile Include="Views\SignInActivity.cs" />
     <Compile Include="Views\SignUpActivity.cs" />
@@ -240,6 +241,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_arrow_left.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrow_left.png" />
     <AndroidResource Include="Resources\layout\lyt_change_password.axml" />
+    <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

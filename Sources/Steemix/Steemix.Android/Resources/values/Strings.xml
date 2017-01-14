@@ -43,4 +43,6 @@
   <string name = "hint_repeat_new_password">Repeat New Password</string>
   <string name = "text_change">Change</string>
 
+  <!--text_terms_of_service.axml-->
+  <string name = "text_terms_of_service">Terms of Service</string>
 </resources>
