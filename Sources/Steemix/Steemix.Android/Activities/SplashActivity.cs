@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Activities
 {
 	[Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher", ScreenOrientation = ScreenOrientation.Portrait)]
 	public class SplashActivity : BaseActivity<SplashViewModel>

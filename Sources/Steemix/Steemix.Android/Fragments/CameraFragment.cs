@@ -5,7 +5,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Fragments
 {
 	public class CameraFragment: BaseFragment<CameraViewModel>
 	{

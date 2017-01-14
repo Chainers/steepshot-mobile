@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.Principal;
-using Steemix.Droid.Realm;
 using Sweetshot.Library.Models.Responses;
+using Steemix.Droid.Realm;
 
 namespace Steemix.Droid
 {

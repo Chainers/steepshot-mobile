@@ -4,7 +4,7 @@ using Android.Support.V4.App;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Fragments
 {
 	public class FollowingFragment : Fragment
 	{

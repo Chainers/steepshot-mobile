@@ -5,7 +5,7 @@ using Android.Support.V7.App;
 using Steemix.Droid.ViewModels;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
-namespace Steemix.Droid.Views 
+namespace Steemix.Droid.Activities 
 {
     public class  BaseActivity<T> : AppCompatActivity where T : MvvmViewModelBase
     {

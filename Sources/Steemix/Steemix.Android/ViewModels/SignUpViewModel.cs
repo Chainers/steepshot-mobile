@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
+using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 
 namespace Steemix.Droid.ViewModels

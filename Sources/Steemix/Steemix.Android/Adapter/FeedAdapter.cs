@@ -1,12 +1,12 @@
 using System;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Sweetshot.Library.Models.Responses;
 using Android.Widget;
 using Square.Picasso;
 using Android.Content;
 using Android.Text;
 using System.Collections.ObjectModel;
+using Sweetshot.Library.Models.Responses;
 
 namespace Steemix.Droid.Adapter
 {

@@ -4,7 +4,7 @@ using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Activities
 {
     [Activity]
     public class TermsOfServiceActivity : BaseActivity<SettingsViewModel>

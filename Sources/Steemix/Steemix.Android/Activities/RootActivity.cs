@@ -1,15 +1,16 @@
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
-using Android.Graphics;
-using Android.Content;
 using Steemix.Droid.ViewModels;
+using PagerAdapter = Steemix.Droid.Adapter.PagerAdapter;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Activities
 {
 	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
 	public class RootActivity : BaseActivity<TabHostViewModel>,ViewPager.IOnPageChangeListener

@@ -1,8 +1,8 @@
 using Android.Content;
 using Android.Support.V4.App;
-using Steemix.Droid.Views;
+using Steemix.Droid.Fragments;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Adapter
 {
 	public class PagerAdapter : FragmentPagerAdapter
 	{

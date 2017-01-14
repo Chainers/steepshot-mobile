@@ -6,10 +6,10 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
-using Steemix.Droid.ViewModels;
 using Square.Picasso;
+using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Activities
 {
     [Activity]
     public class SettingsActivity : BaseActivity<SettingsViewModel>

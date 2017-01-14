@@ -6,7 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Fragments
 {
 	public class PhotoFragment : Fragment
 	{

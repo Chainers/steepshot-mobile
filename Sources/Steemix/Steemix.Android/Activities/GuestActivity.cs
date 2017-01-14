@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Android.Views.Animations;
-using System.Threading.Tasks;
+using Steemix.Droid.Fragments;
 using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid.Views
+namespace Steemix.Droid.Activities
 {
 	[Activity(Label = "GuestActivity")]
 	public class GuestActivity : BaseActivity<FeedViewModel>,View.IOnScrollChangeListener
