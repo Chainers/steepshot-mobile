@@ -3047,91 +3047,97 @@ namespace Steemix.Droid
 			public const int lyt_feed_item = 2130968616;
 			
 			// aapt resource value: 0x7f040029
-			public const int lyt_following = 2130968617;
+			public const int lyt_followers = 2130968617;
 			
 			// aapt resource value: 0x7f04002a
-			public const int lyt_fragment_photo = 2130968618;
+			public const int lyt_followers_item = 2130968618;
 			
 			// aapt resource value: 0x7f04002b
-			public const int lyt_fragment_photo_grid = 2130968619;
+			public const int lyt_following = 2130968619;
 			
 			// aapt resource value: 0x7f04002c
-			public const int lyt_fragment_profile = 2130968620;
+			public const int lyt_fragment_photo = 2130968620;
 			
 			// aapt resource value: 0x7f04002d
-			public const int lyt_fragment_take_photo = 2130968621;
+			public const int lyt_fragment_photo_grid = 2130968621;
 			
 			// aapt resource value: 0x7f04002e
-			public const int lyt_settings = 2130968622;
+			public const int lyt_fragment_profile = 2130968622;
 			
 			// aapt resource value: 0x7f04002f
-			public const int lyt_sign_in = 2130968623;
+			public const int lyt_fragment_take_photo = 2130968623;
 			
 			// aapt resource value: 0x7f040030
-			public const int lyt_sign_up = 2130968624;
+			public const int lyt_settings = 2130968624;
 			
 			// aapt resource value: 0x7f040031
-			public const int lyt_tab_host = 2130968625;
+			public const int lyt_sign_in = 2130968625;
 			
 			// aapt resource value: 0x7f040032
-			public const int lyt_terms_of_service = 2130968626;
+			public const int lyt_sign_up = 2130968626;
 			
 			// aapt resource value: 0x7f040033
-			public const int mr_chooser_dialog = 2130968627;
+			public const int lyt_tab_host = 2130968627;
 			
 			// aapt resource value: 0x7f040034
-			public const int mr_chooser_list_item = 2130968628;
+			public const int lyt_terms_of_service = 2130968628;
 			
 			// aapt resource value: 0x7f040035
-			public const int mr_controller_material_dialog_b = 2130968629;
+			public const int mr_chooser_dialog = 2130968629;
 			
 			// aapt resource value: 0x7f040036
-			public const int mr_controller_volume_item = 2130968630;
+			public const int mr_chooser_list_item = 2130968630;
 			
 			// aapt resource value: 0x7f040037
-			public const int mr_playback_control = 2130968631;
+			public const int mr_controller_material_dialog_b = 2130968631;
 			
 			// aapt resource value: 0x7f040038
-			public const int mr_volume_control = 2130968632;
+			public const int mr_controller_volume_item = 2130968632;
 			
 			// aapt resource value: 0x7f040039
-			public const int notification_media_action = 2130968633;
+			public const int mr_playback_control = 2130968633;
 			
 			// aapt resource value: 0x7f04003a
-			public const int notification_media_cancel_action = 2130968634;
+			public const int mr_volume_control = 2130968634;
 			
 			// aapt resource value: 0x7f04003b
-			public const int notification_template_big_media = 2130968635;
+			public const int notification_media_action = 2130968635;
 			
 			// aapt resource value: 0x7f04003c
-			public const int notification_template_big_media_narrow = 2130968636;
+			public const int notification_media_cancel_action = 2130968636;
 			
 			// aapt resource value: 0x7f04003d
-			public const int notification_template_lines = 2130968637;
+			public const int notification_template_big_media = 2130968637;
 			
 			// aapt resource value: 0x7f04003e
-			public const int notification_template_media = 2130968638;
+			public const int notification_template_big_media_narrow = 2130968638;
 			
 			// aapt resource value: 0x7f04003f
-			public const int notification_template_part_chronometer = 2130968639;
+			public const int notification_template_lines = 2130968639;
 			
 			// aapt resource value: 0x7f040040
-			public const int notification_template_part_time = 2130968640;
+			public const int notification_template_media = 2130968640;
 			
 			// aapt resource value: 0x7f040041
-			public const int select_dialog_item_material = 2130968641;
+			public const int notification_template_part_chronometer = 2130968641;
 			
 			// aapt resource value: 0x7f040042
-			public const int select_dialog_multichoice_material = 2130968642;
+			public const int notification_template_part_time = 2130968642;
 			
 			// aapt resource value: 0x7f040043
-			public const int select_dialog_singlechoice_material = 2130968643;
+			public const int select_dialog_item_material = 2130968643;
 			
 			// aapt resource value: 0x7f040044
-			public const int support_simple_spinner_dropdown_item = 2130968644;
+			public const int select_dialog_multichoice_material = 2130968644;
 			
 			// aapt resource value: 0x7f040045
-			public const int tab_main = 2130968645;
+			public const int select_dialog_singlechoice_material = 2130968645;
+			
+			// aapt resource value: 0x7f040046
+			public const int support_simple_spinner_dropdown_item = 2130968646;
+			
+			// aapt resource value: 0x7f040047
+			public const int tab_main = 2130968647;
 			
 			static Layout()
 			{
@@ -3350,6 +3356,9 @@ namespace Steemix.Droid
 			
 			// aapt resource value: 0x7f09002b
 			public const int text_create_acc = 2131296299;
+			
+			// aapt resource value: 0x7f09004a
+			public const int text_followers = 2131296330;
 			
 			// aapt resource value: 0x7f09002c
 			public const int text_forgot_pass = 2131296300;
