@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
@@ -42,6 +43,15 @@ namespace Steemix.Droid.Activity
         {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetMessage(message);
+            alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        protected virtual void ShowAlert(List<string> messages)
+        {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.SetMessage(string.Join(System.Environment.NewLine, messages));
             alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
             Dialog dialog = alert.Create();
             dialog.Show();

@@ -56,15 +56,15 @@ namespace Steemix.Droid.Views
             if (!string.IsNullOrEmpty(_oldPass.Error) || !string.IsNullOrEmpty(_newPass.Error) || !string.IsNullOrEmpty(_repeatPass.Error))
                 return;
 
-            var response = await ViewModel.ChangePassword(_oldPass.Text, _newPass.Text);
+            var response = await ViewModel.ChangePassword(_oldPass.Text, _newPass.Text, _repeatPass.Text);
 
-            if (string.IsNullOrEmpty(response.error))
+            if (response.Success)
             {
                 Finish();
             }
             else
             {
-                ShowAlert(response.error);
+                ShowAlert(response.Errors);
             }
         }
 

@@ -1,6 +1,6 @@
 using Android.Support.V7.Widget;
 using Android.Views;
-using Steemix.Library.Models.Responses;
+using Sweetshot.Library.Models.Responses;
 using Android.Widget;
 using Square.Picasso;
 using Android.Content;

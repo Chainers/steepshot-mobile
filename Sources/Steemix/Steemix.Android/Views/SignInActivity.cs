@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.Activity;
+using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views
 {
@@ -73,13 +74,12 @@ namespace Steemix.Droid.Views
 
             if (response != null)
             {
-                if (string.IsNullOrEmpty(response.error))
+                if (response.Success)
                 {
-                    UserPrincipal.CreatePrincipal(response, login, pass);
+                    UserPrincipal.CreatePrincipal(response.Result, login, pass);
 					var intent = new Intent(this, typeof(RootActivity));
 					intent.AddFlags(ActivityFlags.ClearTask);
                     StartActivity(intent);
-                    
                 }
                 else
                 {

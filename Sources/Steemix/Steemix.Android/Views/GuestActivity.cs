@@ -9,6 +9,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.Activity;
 using Android.Views.Animations;
 using System.Threading.Tasks;
+using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views
 {
@@ -62,10 +63,11 @@ namespace Steemix.Droid.Views
 
 		async void FeedAdapter_LikeAction(int position)
 		{
+
 			var response = await ViewModel.Vote(ViewModel.Posts[position]);
-			if (response != null)
+			if (response.Success)
 			{
-				ViewModel.Posts[position].Vote = (response.IsVoted) ? 1 : 0;
+				ViewModel.Posts[position].Vote = !ViewModel.Posts[position].Vote;
 				FeedAdapter.NotifyDataSetChanged();
 			}
 			else

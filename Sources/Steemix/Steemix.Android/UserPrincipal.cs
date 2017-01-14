@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Security.Principal;
 using Steemix.Droid.Realm;
-using Steemix.Library.Models.Responses;
+using Sweetshot.Library.Models.Responses;
 
 namespace Steemix.Droid
 {
@@ -11,11 +11,11 @@ namespace Steemix.Droid
     {
         private static readonly UserPrincipal EmptyUser = new UserPrincipal();
         private static UserPrincipal Empty => EmptyUser;
-        private readonly string _token = string.Empty;
+        private readonly string _sessionId = string.Empty;
         private readonly string _login = string.Empty;
         private readonly string _password = string.Empty;
 
-        public string Token => _token;
+        public string SessionId => _sessionId;
         public string Login => _login;
         public string Password => _password;
 
@@ -45,31 +45,23 @@ namespace Steemix.Droid
         {
             get { return CurrentUser != null && CurrentUser != Empty; }
         }
-        
+
         private UserPrincipal() : base(new GenericIdentity(string.Empty), new string[0]) { }
 
         private UserPrincipal(UserInfo userInfo)
           : base(new GenericIdentity(userInfo.Token), new string[0])
         {
-            _token = userInfo.Token;
+            _sessionId = userInfo.Token;
             _login = userInfo.Login;
             _password = userInfo.Password;
         }
 
 
-        public static UserPrincipal CreatePrincipal(RegisterResponse userResponse, string login, string password)
-        {
-            if (userResponse == null)
-                throw new ArgumentNullException(nameof(userResponse));
-
-            return CreatePrincipal(userResponse.Token, login, password);
-        }
-
         public static UserPrincipal CreatePrincipal(LoginResponse userResponse, string login, string password)
         {
             if (userResponse == null)
                 throw new ArgumentNullException(nameof(userResponse));
-            return CreatePrincipal(userResponse.Token, login, password);
+            return CreatePrincipal(userResponse.SessionId, login, password);
         }
 
         public static UserPrincipal CreatePrincipal(string token, string login, string password)

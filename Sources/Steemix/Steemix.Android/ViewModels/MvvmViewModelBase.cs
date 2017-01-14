@@ -1,13 +1,12 @@
-using System;
 using GalaSoft.MvvmLight;
-using Steemstagram.Shared;
+using Sweetshot.Library.HttpClient;
 
 namespace Steemix.Droid
 {
 	    public abstract class MvvmViewModelBase : ViewModelBase
     {
 
-		protected Manager Manager { get { return SteemixApp.Manager;}}
+		protected SteepshotApiClient Manager { get { return new SteepshotApiClient(""); }}
 
         public virtual void ViewLoad() { }
 

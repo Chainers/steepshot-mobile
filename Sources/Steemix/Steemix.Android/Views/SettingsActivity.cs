@@ -36,9 +36,9 @@ namespace Steemix.Droid.Views
         private async void LoadAvatar()
         {
             var info = await ViewModel.GetUserInfo();
-            if (!string.IsNullOrEmpty(info.ImageUrl))
+            if (info.Success && !string.IsNullOrEmpty(info.Result.ProfileImage))
             {
-                Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
+                Picasso.With(ApplicationContext).Load(info.Result.ProfileImage).Into(_avatar);
             }
         }
 
