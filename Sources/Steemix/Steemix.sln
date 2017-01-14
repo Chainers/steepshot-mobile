@@ -3,32 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Library", "Steemix.Library\Steemix.Library.csproj", "{7599C011-3069-4B5B-99B8-6C5979E9109B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Tests", "Steemix.Tests\Steemix.Tests.csproj", "{CDE65EC8-C7DA-4ECB-8B20-9F9F07267DCE}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Steemstagram.Shared", "Steemstagram.Shared\Steemstagram.Shared.shproj", "{D79AE7DF-CAB0-478D-AD7B-F55EAC865C02}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steemix.Droid", "Steemix.Android\Steemix.Droid.csproj", "{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sweetshot.Library", "Sweetshot.Library\Sweetshot.Library.shproj", "{D00F0D15-A2D0-4FDD-BA54-C750EAAEEA18}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Steemstagram.Shared\Steemstagram.Shared.projitems*{7599c011-3069-4b5b-99b8-6c5979e9109b}*SharedItemsImports = 4
-		Steemstagram.Shared\Steemstagram.Shared.projitems*{d79ae7df-cab0-478d-ad7b-f55eac865c02}*SharedItemsImports = 13
+		Sweetshot.Library\Sweetshot.Library.projitems*{d00f0d15-a2d0-4fdd-ba54-c750eaaeea18}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7599C011-3069-4B5B-99B8-6C5979E9109B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7599C011-3069-4B5B-99B8-6C5979E9109B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7599C011-3069-4B5B-99B8-6C5979E9109B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7599C011-3069-4B5B-99B8-6C5979E9109B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDE65EC8-C7DA-4ECB-8B20-9F9F07267DCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDE65EC8-C7DA-4ECB-8B20-9F9F07267DCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDE65EC8-C7DA-4ECB-8B20-9F9F07267DCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDE65EC8-C7DA-4ECB-8B20-9F9F07267DCE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB1D5B7B-CCCD-425D-BD40-0220DA69459A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
