@@ -160,6 +160,9 @@
     <Compile Include="SquareLayout.cs" />
     <Compile Include="Adapter\GalleryAdapter.cs" />
     <Compile Include="CameraPreview.cs" />
+    <Compile Include="Views\GuestActivity.cs" />
+    <Compile Include="Views\SplashActivity.cs" />
+    <Compile Include="ViewModels\SplashViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -237,6 +240,21 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_arrow_left.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_arrow_left.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_arrow_left.png" />
+    <AndroidResource Include="Resources\layout\lyt_profile_header.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_settings.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_back.png" />
+    <AndroidResource Include="Resources\drawable\white_corner_primary_btn.xml" />
+    <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_wallet.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_wallet.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_wallet.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_wallet.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

@@ -7,10 +7,11 @@ using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.Activity;
 using Android.Graphics;
+using Android.Content;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
-	[Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher", ScreenOrientation = ScreenOrientation.Portrait)]
+	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
 	public class RootActivity : BaseActivity<TabHostViewModel>,ViewPager.IOnPageChangeListener
 	{
 		[InjectView(Resource.Id.view_pager)]
@@ -52,7 +53,15 @@ namespace Steemix.Droid
 
 		public void OnPageScrollStateChanged(int state)
 		{
-			
+		}
+
+		private void CheckLogin()
+		{ 
+			if (!UserPrincipal.IsAuthenticated && viewPager.CurrentItem>0)
+			{
+				Intent loginItent = new Intent(this, typeof(SignInActivity));
+				StartActivity(loginItent);
+			}
 		}
 
 		public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)

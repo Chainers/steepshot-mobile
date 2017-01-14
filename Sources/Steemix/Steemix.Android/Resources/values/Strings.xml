@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name = "hint_username">User name</string>
-  <string name = "hint_password">Password</string>
+  	<string name = "hint_username">User name</string>
+  	<string name = "hint_password">Password</string>
                  
-  <string name = "hint_posting_key">Posting key</string>
-  <string name = "text_logo">Steemix</string>
-  <string name = "text_login">Login</string>
-  <string name = "text_create_acc">Create an account</string>
-  <string name = "text_forgot_pass">Forgot password?</string>
-  <string name = "ApplicationName">SteepShot</string>
+  	<string name = "hint_posting_key">Posting key</string>
+  	<string name = "text_logo">Steemix</string>
+  	<string name = "text_login">Login</string>
+  	<string name = "text_create_acc">Create an account</string>
+  	<string name = "text_forgot_pass">Forgot password?</string>
+  	<string name = "ApplicationName">SteepShot</string>
                  
 	<string name = "following">Following</string>
 	<string name = "new_photos">New photos"</string>
@@ -29,10 +29,13 @@
 	<string name = "choose_photo">Choose photo</string>
   
   <!--lyt_settings.axml-->
-  <string name = "settings">Settings</string>
-  <string name = "change_avatar">Change Avatar</string>
-  <string name = "change_password">Change Password</string>
-  <string name = "terms_of_service">Terms of Service</string>
-  <string name = "delete_steemix_account">Delete Steemix Account</string>
+  	<string name = "settings">Settings</string>
+  	<string name = "change_avatar">Change Avatar</string>
+  	<string name = "change_password">Change Password</string>
+  	<string name = "terms_of_service">Terms of Service</string>
+ 	<string name = "delete_steemix_account">Delete Steemix Account</string>
+	<string name = "follow">Follow</string>
+	<string name = "cost_param">{0}$</string>
+	<string name = "cost_param_on_balance">{0}$ On Balance</string>
   
 </resources>

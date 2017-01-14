@@ -62,7 +62,9 @@ namespace Steemix.Droid.Views
                 if (string.IsNullOrEmpty(response.error))
                 {
                     UserPrincipal.CreatePrincipal(response, login, pass);
-                    Finish();
+                    var intent = new Intent(this, typeof(RootActivity));
+					intent.AddFlags(ActivityFlags.ClearTask);
+					StartActivity(intent);
                 }
                 else
                 {
