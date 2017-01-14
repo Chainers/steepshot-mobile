@@ -133,6 +133,8 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\BaseActivity.cs" />
     <Compile Include="Views\ChangePasswordActivity.cs" />
+    <Compile Include="Views\FollowersActivity.cs" />
+    <Compile Include="ViewModels\FollowersViewModel.cs" />
     <Compile Include="Views\TermsOfServiceActivity.cs" />
     <Compile Include="Views\SettingsActivity.cs" />
     <Compile Include="Views\SignInActivity.cs" />
@@ -260,6 +262,8 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_wallet.png" />
     <AndroidResource Include="Resources\layout\lyt_change_password.axml" />
     <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
+    <AndroidResource Include="Resources\layout\lyt_followers.axml" />
+    <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
