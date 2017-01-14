@@ -3,10 +3,11 @@ using Sweetshot.Library.HttpClient;
 
 namespace Steemix.Droid.ViewModels
 {
-	    public abstract class MvvmViewModelBase : ViewModelBase
+    public abstract class MvvmViewModelBase : ViewModelBase
     {
-
-		protected SteepshotApiClient Api { get { return new SteepshotApiClient(""); }}
+        //TODO:KOA: move to some config
+        //<add key="sweetshot_url" value="http://138.197.40.124/api/v1/" />
+        protected SteepshotApiClient Api { get { return new SteepshotApiClient("http://138.197.40.124/api/v1/"); } }
 
         public virtual void ViewLoad() { }
 
