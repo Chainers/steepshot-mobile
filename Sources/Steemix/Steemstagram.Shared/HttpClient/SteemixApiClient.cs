@@ -24,20 +24,20 @@ namespace Steemix.Library.HttpClient
             return response;
         }
 
-		public RegisterResponse Register(RegisterRequest request)
-		{
-			var response = _api.Register("register", request, new List<RequestParameter>());
-			return response;
-		}
+        public RegisterResponse Register(RegisterRequest request)
+        {
+            var response = _api.Register("register", request, new List<RequestParameter>());
+            return response;
+        }
 
-		public UserPostResponse GetUserPosts(UserPostRequest request)
+        public UserPostResponse GetUserPosts(UserPostRequest request)
         {
             var parameters = new List<RequestParameter>
             {
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
             };
 
-			var endpoint = string.Format("/user/{0}/posts/", request.Username);
+            var endpoint = $"/user/{request.Username}/posts/";
 
             var response = _api.Get<UserPostResponse>(endpoint, null, parameters);
             return response;
@@ -58,24 +58,24 @@ namespace Steemix.Library.HttpClient
 
         public VoteResponse UpVote(VoteRequest request)
         {
-			var parameters = new List<RequestParameter>
-			{
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
-			};
+            var parameters = new List<RequestParameter>
+            {
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+            };
 
-			var endpoint = string.Format("/post/{0}/upvote", request.identifier);
+            var endpoint = $"/post/{request.identifier}/upvote";
             var response = _api.Vote<VoteResponse>(endpoint, request, parameters);
             return response;
         }
 
         public VoteResponse DownVote(VoteRequest request)
         {
-			var parameters = new List<RequestParameter>
-			{
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
-			};
+            var parameters = new List<RequestParameter>
+            {
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+            };
 
-			var endpoint = string.Format("/post/{0}/downvote", request.identifier);
+            var endpoint = $"/post/{request.identifier}/downvote";
             var response = _api.Vote<VoteResponse>(endpoint, request, parameters);
             return response;
         }
@@ -84,36 +84,36 @@ namespace Steemix.Library.HttpClient
         {
             var parameters = new List<RequestParameter>
             {
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
             };
 
             var response = _api.Upload<ImageUploadResponse>("post", request.photo, request.title, parameters);
             return response;
         }
 
-		public GetCommentResponse GetComments(GetCommentsRequest request)
-		{
-			var parameters = new List<RequestParameter>
-			{
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
-			};
+        public GetCommentResponse GetComments(GetCommentsRequest request)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+            };
 
-			var endpoint = string.Format("/post/{0}/comments", request.url);
-			var response = _api.Get<GetCommentResponse>(endpoint, null, parameters);
-			return response;
-		}
+            var endpoint = $"/post/{request.url}/comments";
+            var response = _api.Get<GetCommentResponse>(endpoint, null, parameters);
+            return response;
+        }
 
-		public CreateCommentResponse CreateComment(CreateCommentsRequest request)
-		{
-			var parameters = new List<RequestParameter>
-			{
-				 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
-			};
+        public CreateCommentResponse CreateComment(CreateCommentsRequest request)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
+            };
 
-			var endpoint = string.Format("/post/{0}/comment", request.url);
-			var response = _api.Post<CreateCommentResponse>(endpoint, request, parameters);
-			return response;
-		}
+            var endpoint = $"/post/{request.url}/comment";
+            var response = _api.Post<CreateCommentResponse>(endpoint, request, parameters);
+            return response;
+        }
 
         public FollowResponse Follow(FollowRequest request)
         {
@@ -122,7 +122,7 @@ namespace Steemix.Library.HttpClient
                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
             };
 
-            var endpoint = string.Format("/user/{0}/follow", request.username);
+            var endpoint = $"/user/{request.username}/follow";
             var response = _api.Post<FollowResponse>(endpoint, null, parameters);
             return response;
         }
@@ -134,7 +134,7 @@ namespace Steemix.Library.HttpClient
                 new RequestParameter {Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie}
             };
 
-            var endpoint = string.Format("/user/{0}/unfollow", request.username);
+            var endpoint = $"/user/{request.username}/unfollow";
             var response = _api.Post<FollowResponse>(endpoint, null, parameters);
             return response;
         }
@@ -146,6 +146,16 @@ namespace Steemix.Library.HttpClient
                 new RequestParameter { Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie }
             };
             var response = _api.Get<UserInfoResponse>($"/user/{request.Login}", null, parameters);
+            return response;
+        }
+
+        public ChangePasswordResponse ChangePassword(ChangePasswordRequest request)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                new RequestParameter { Key = "sessionid", Value = request.Token, Type = ParameterType.Cookie },
+            };
+            var response = _api.Post<ChangePasswordResponse>("/user/change-password", request, parameters);
             return response;
         }
     }

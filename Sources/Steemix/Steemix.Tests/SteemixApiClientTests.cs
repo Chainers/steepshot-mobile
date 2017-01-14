@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NUnit.Framework;
 using Steemix.Library.Exceptions;
 using Steemix.Library.HttpClient;
@@ -156,6 +155,16 @@ namespace Steemix.Tests
             Assert.IsTrue(response.comments.Length > 0);
         }
 
+        [Test]
+        public void ChangePasswordTest()
+        {
+            // Arrange
+            var request = new ChangePasswordRequest(_token, _password, _password);
+            // Act
+            var response = _api.ChangePassword(request);
+            // Assert
+            Assert.NotNull(response);
+        }
 
         [Test]
         public void CreateCommentTest()

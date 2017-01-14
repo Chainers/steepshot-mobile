@@ -10,7 +10,7 @@ using Steemix.Droid.ViewModels;
 namespace Steemix.Droid.Views
 {
     [Activity(NoHistory = true)]
-    public class ChangePassword : BaseActivity<SettingsViewModel>
+    public class ChangePasswordActivity : BaseActivity<ChangePasswordViewModel>
     {
         private EditText _oldPass;
         private EditText _newPass;
@@ -51,13 +51,21 @@ namespace Steemix.Droid.Views
         }
 
         [InjectOnClick(Resource.Id.btn_change)]
-        public void ChangeClick(object sender, EventArgs e)
+        public async void ChangeClick(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(_oldPass.Error) || !string.IsNullOrEmpty(_newPass.Error) || !string.IsNullOrEmpty(_repeatPass.Error))
                 return;
 
+            var response = await ViewModel.ChangePassword(_oldPass.Text, _newPass.Text);
 
-            Finish();
+            if (string.IsNullOrEmpty(response.error))
+            {
+                Finish();
+            }
+            else
+            {
+                ShowAlert(response.error);
+            }
         }
     }
 }

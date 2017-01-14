@@ -1,5 +1,6 @@
 using System;
 using Android.App;
+using Android.Content;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
@@ -41,7 +42,8 @@ namespace Steemix.Droid.Views
         [InjectOnClick(Resource.Id.dtn_change_password)]
         public void ChangePasswordClick(object sender, EventArgs e)
         {
-            //ChangePassword();
+            var intent = new Intent(this, typeof(ChangePasswordActivity));
+            StartActivity(intent);
         }
     }
 }
