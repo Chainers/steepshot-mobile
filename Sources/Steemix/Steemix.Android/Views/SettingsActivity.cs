@@ -27,6 +27,8 @@ namespace Steemix.Droid.Views
             // TODO:KOA-COM: NotReadyYet
             var changeAvatar = FindViewById<AppCompatButton>(Resource.Id.dtn_change_avatar);
             changeAvatar.Visibility = ViewStates.Invisible;
+            var deleteSteemixAccount = FindViewById<AppCompatButton>(Resource.Id.dtn_delete_steemix_account);
+            deleteSteemixAccount.Visibility = ViewStates.Invisible;
 
             LoadAvatar();
         }
