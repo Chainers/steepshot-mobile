@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Principal;
 using Sweetshot.Library.Models.Responses;
 using Steemix.Droid.Realm;
+using Sweetshot.Library.Models.Requests;
 
 namespace Steemix.Droid
 {
@@ -28,12 +29,8 @@ namespace Steemix.Droid
 
                 if (principal == null)
                 {
-                    var lastStored = GetLastRegisteredUser();
-                    if (lastStored == null)
-                        return Empty;
-
-                    principal = new UserPrincipal(lastStored);
-                    CurrentUser = principal;
+                    return Empty;
+                    //principal = TryLogIn();
                 }
 
                 return principal;
@@ -88,6 +85,23 @@ namespace Steemix.Droid
             }
 
             return user;
+        }
+
+        public static UserPrincipal TryLogIn()
+        {
+            var lastStored = GetLastRegisteredUser();
+            if (lastStored != null)
+            {
+                var login = lastStored.Login;
+                var password = lastStored.Password;
+                var loginRequest = new LoginRequest(login, password);
+                var responceTask = ViewModelLocator.Api.Login(loginRequest);
+                responceTask.Wait();
+                if (responceTask.IsCompleted && responceTask.Result.Success)
+                    return CreatePrincipal(responceTask.Result.Result, lastStored.Login, lastStored.Password);
+            }
+
+            return Empty;
         }
 
         public static UserInfo GetLastRegisteredUser()

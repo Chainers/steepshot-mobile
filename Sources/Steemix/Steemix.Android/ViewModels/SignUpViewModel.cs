@@ -10,7 +10,7 @@ namespace Steemix.Droid.ViewModels
 		public async Task<OperationResult<LoginResponse>> SignUp(string login, string password, string postingkey)
 		{
 		    var request = new RegisterRequest(postingkey, login, password);
-            var response = await Api.Register(request);
+            var response = await ViewModelLocator.Api.Register(request);
 		    return response;
 		}
 	}

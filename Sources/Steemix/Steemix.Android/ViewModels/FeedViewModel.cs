@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
@@ -30,7 +31,7 @@ namespace Steemix.Droid.ViewModels
         public async Task GetTopPosts(string offset, int limit)
         {
             var postrequest = new PostsRequest(string.Empty, PostType.Top, limit, offset);
-            var posts = await Api.GetPosts(postrequest);
+            var posts = await ViewModelLocator.Api.GetPosts(postrequest);
             //TODO:KOA -- Errors not processed
             if (posts.Success)
             {
@@ -43,11 +44,11 @@ namespace Steemix.Droid.ViewModels
 
         public async Task<OperationResult<VoteResponse>> Vote(UserPost post)
         {
-            if (UserPrincipal.IsAuthenticated)
-                return null;
-            
+            if (!UserPrincipal.IsAuthenticated)
+                return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };
+
             var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.SessionId, post.Vote, post.Url);
-            return await Api.Vote(voteRequest);
+            return await ViewModelLocator.Api.Vote(voteRequest);
         }
     }
 }
