@@ -26,6 +26,7 @@
 	<string name = "error_not_found_user">User not found!</string>
 	<string name = "error_connect_to_server">Fail connect to server!</string>
 	<string name = "error_empty_field">Field can\'t be empty!</string>
+	<string name = "error_repeat_pass_fail">Incorrect repeat password</string>
 	<string name = "choose_photo">Choose photo</string>
   
   <!--lyt_settings.axml-->
@@ -37,5 +38,14 @@
 	<string name = "follow">Follow</string>
 	<string name = "cost_param">{0}$</string>
 	<string name = "cost_param_on_balance">{0}$ On Balance</string>
-  
+
+  <!--lyt_change_password.axml-->
+  <string name = "text_password">Password</string>
+  <string name = "hint_old_password">Type Old Password</string>
+  <string name = "hint_new_password">New Password</string>
+  <string name = "hint_repeat_new_password">Repeat New Password</string>
+  <string name = "text_change">Change</string>
+
+  <!--text_terms_of_service.axml-->
+  <string name = "text_terms_of_service">Terms of Service</string>
 </resources>

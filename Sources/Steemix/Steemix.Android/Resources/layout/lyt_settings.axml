@@ -17,7 +17,7 @@
         android:gravity="center"
         android:background="@color/color_primary"
         android:textColor="@android:color/white"
-        android:id="@+id/settings" />
+        android:id="@+id/go_back" />
     <LinearLayout
         android:background="@drawable/ic_arrow_left"
         android:layout_width="12dp"
@@ -32,7 +32,7 @@
         android:layout_width="120dp"
         android:contentDescription="@string/change_avatar"
         android:layout_centerHorizontal="true"
-        android:id="@+id/avatar" />
+        android:id="@+id/civ_avatar" />
     <LinearLayout
         android:layout_marginTop="180dp"
         android:orientation="vertical"
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:padding="10dp"
-            android:id="@+id/change_avatar" />
+            android:id="@+id/dtn_change_avatar" />
     <!--Change Password-->
         <android.support.v7.widget.AppCompatButton
             android:text="@string/change_password"
@@ -61,7 +61,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:layout_marginTop="1dp"
-            android:id="@+id/change_password" />
+            android:id="@+id/dtn_change_password" />
     <!--Terms of Service-->
         <android.support.v7.widget.AppCompatButton
             android:text="@string/terms_of_service"
@@ -73,7 +73,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:layout_marginTop="1dp"
-            android:id="@+id/terms_of_service" />
+            android:id="@+id/dtn_terms_of_service" />
     <!--Delete Steemix Account-->
         <android.support.v7.widget.AppCompatButton
             android:text="@string/delete_steemix_account"
@@ -85,6 +85,6 @@
             android:gravity="center"
             android:padding="10dp"
             android:layout_marginTop="1dp"
-            android:id="@+id/delete_steemix_account" />
+            android:id="@+id/dtn_delete_steemix_account" />
     </LinearLayout>
 </RelativeLayout>

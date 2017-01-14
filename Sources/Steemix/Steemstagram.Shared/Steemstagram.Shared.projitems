@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\ApiClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\ApiGateway.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\SteemixApiClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\ChangePasswordRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserInfoRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LoginRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\TokenRequest.cs" />
@@ -21,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserPostRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\BaseResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ChangePasswordResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserInfoResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ImageUploadResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LoginResponse.cs" />

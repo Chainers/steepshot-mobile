@@ -100,5 +100,21 @@ namespace Steemstagram.Shared
                 }
             });
         }
+
+        public Task<ChangePasswordResponse> ChangePassword(ChangePasswordRequest req)
+        {
+            return Task<ChangePasswordResponse>.Factory.StartNew(() =>
+            {
+                try
+                {
+                    return ApiClient.ChangePassword(req);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+            });
+        }
     }
 }

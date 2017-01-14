@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -129,8 +129,11 @@
   <ItemGroup>
     <Compile Include="Realm\UserInfo.cs" />
     <Compile Include="UserPrincipal.cs" />
+    <Compile Include="ViewModels\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\BaseActivity.cs" />
+    <Compile Include="Views\ChangePasswordActivity.cs" />
+    <Compile Include="Views\TermsOfServiceActivity.cs" />
     <Compile Include="Views\SettingsActivity.cs" />
     <Compile Include="Views\SignInActivity.cs" />
     <Compile Include="Views\SignUpActivity.cs" />
@@ -255,6 +258,8 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_wallet.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_wallet.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_wallet.png" />
+    <AndroidResource Include="Resources\layout\lyt_change_password.axml" />
+    <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
