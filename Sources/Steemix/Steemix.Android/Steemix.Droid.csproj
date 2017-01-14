@@ -350,6 +350,10 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_heart_blue.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_heart_blue.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_heart_blue.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_error.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_error.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_error.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_error.png" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

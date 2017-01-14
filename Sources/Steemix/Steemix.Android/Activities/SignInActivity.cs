@@ -36,7 +36,7 @@ namespace Steemix.Droid.Activities
             }
 
             _username.TextChanged += TextChanged;
-            _username.TextChanged += TextChanged;
+            _password.TextChanged += TextChanged;
         }
 
         private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
@@ -44,14 +44,10 @@ namespace Steemix.Droid.Activities
             var typedsender = (EditText)sender;
             if (string.IsNullOrWhiteSpace(e.Text.ToString()))
             {
-                typedsender.SetBackgroundColor(Color.Red);
                 var message = GetString(Resource.String.error_empty_field);
-                typedsender.SetError(message, null);
-            }
-            else
-            {
-                typedsender.SetBackgroundColor(Color.White);
-                typedsender.SetError(string.Empty, null);
+                var d = GetDrawable(Resource.Drawable.ic_error);
+                d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
+                typedsender.SetError(message, d);
             }
         }
 

@@ -31,22 +31,21 @@ namespace Steemix.Droid.Activities
 
         private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)
         {
-            var isValid = true;
-            var message = string.Empty;
             var typedsender = (EditText)sender;
             if (string.IsNullOrWhiteSpace(e.Text.ToString()))
             {
-                isValid = false;
-                message = GetString(Resource.String.error_empty_field);
+                var message = GetString(Resource.String.error_empty_field);
+                var d = GetDrawable(Resource.Drawable.ic_error);
+                d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
+                typedsender.SetError(message, d);
             }
             else if (typedsender == _repeatPass && !_repeatPass.Text.EndsWith(_newPass.Text))
             {
-                isValid = false;
-                message = GetString(Resource.String.error_repeat_pass_fail);
+                var message = GetString(Resource.String.error_repeat_pass_fail);
+                var d = GetDrawable(Resource.Drawable.ic_error);
+                d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
+                typedsender.SetError(message, d);
             }
-
-            typedsender.SetError(message, null);
-            typedsender.SetBackgroundColor(isValid ? Color.White : Color.Red);
         }
 
         [InjectOnClick(Resource.Id.btn_change)]
