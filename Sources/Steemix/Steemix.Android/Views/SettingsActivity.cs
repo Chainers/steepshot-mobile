@@ -2,6 +2,8 @@ using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V7.Widget;
+using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steemix.Droid.Activity;
@@ -21,17 +23,22 @@ namespace Steemix.Droid.Views
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Inject(this);
+
+            // TODO:KOA-COM: NotReadyYet
+            var changeAvatar = FindViewById<AppCompatButton>(Resource.Id.dtn_change_avatar);
+            changeAvatar.Visibility = ViewStates.Invisible;
+
             LoadAvatar();
         }
 
         private async void LoadAvatar()
         {
-                var info = await ViewModel.GetUserInfo();
-                if (!string.IsNullOrEmpty(info.ImageUrl))
-                {
-                    Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
-                }
+            var info = await ViewModel.GetUserInfo();
+            if (!string.IsNullOrEmpty(info.ImageUrl))
+            {
+                Picasso.With(ApplicationContext).Load(info.ImageUrl).Into(_avatar);
             }
+        }
 
         [InjectOnClick(Resource.Id.settings)]
         public void OnSettingsClick(object sender, EventArgs e)
