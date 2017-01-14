@@ -12,7 +12,7 @@ namespace Steemix.Droid.Views
     [Activity]
     public class SettingsActivity : BaseActivity<SettingsViewModel>
     {
-        [InjectView(Resource.Id.avatar)]
+        [InjectView(Resource.Id.civ_avatar)]
         private CircleImageView _avatar;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,6 +36,12 @@ namespace Steemix.Droid.Views
         public void OnSettingsClick(object sender, EventArgs e)
         {
             Finish();
+        }
+
+        [InjectOnClick(Resource.Id.dtn_change_password)]
+        public void ChangePasswordClick(object sender, EventArgs e)
+        {
+            //ChangePassword();
         }
     }
 }

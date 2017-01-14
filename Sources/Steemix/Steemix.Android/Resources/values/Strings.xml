@@ -26,6 +26,7 @@
 	<string name = "error_not_found_user">User not found!</string>
 	<string name = "error_connect_to_server">Fail connect to server!</string>
 	<string name = "error_empty_field">Field can\'t be empty!</string>
+	<string name = "error_repeat_pass_fail">Incorrect repeat password</string>
 	<string name = "choose_photo">Choose photo</string>
   
   <!--lyt_settings.axml-->
@@ -34,5 +35,12 @@
   <string name = "change_password">Change Password</string>
   <string name = "terms_of_service">Terms of Service</string>
   <string name = "delete_steemix_account">Delete Steemix Account</string>
-  
+
+  <!--lyt_change_password.axml-->
+  <string name = "text_password">Password</string>
+  <string name = "hint_old_password">Type Old Password</string>
+  <string name = "hint_new_password">New Password</string>
+  <string name = "hint_repeat_new_password">Repeat New Password</string>
+  <string name = "text_change">Change</string>
+
 </resources>

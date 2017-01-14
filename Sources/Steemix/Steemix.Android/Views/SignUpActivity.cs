@@ -1,10 +1,9 @@
 using Android.App;
 using Android.Content;
 using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Support.V7.Widget;
 using Android.Widget;
+using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.Activity;
 
 namespace Steemix.Droid.Views
@@ -12,8 +11,6 @@ namespace Steemix.Droid.Views
     [Activity(NoHistory = true)]
     public class SignUpActivity : BaseActivity<SignUpViewModel>
     {
-        private AppCompatButton _signUpBtn;
-        private AppCompatButton _signInBtn;
         private EditText _username;
         private EditText _postingkey;
         private EditText _password;
@@ -21,31 +18,26 @@ namespace Steemix.Droid.Views
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
             SetContentView(Resource.Layout.lyt_sign_up);
-
-            _signUpBtn = FindViewById<AppCompatButton>(Resource.Id.sign_up_btn);
-            _signInBtn = FindViewById<AppCompatButton>(Resource.Id.sign_in_btn);
-
-            _signUpBtn.Click += SignUpBtn_Click;
-            _signInBtn.Click += SignInBtn_Click;
+            Cheeseknife.Inject(this);
 
             _username = FindViewById<EditText>(Resource.Id.input_username);
             _postingkey = FindViewById<EditText>(Resource.Id.input_key);
             _password = FindViewById<EditText>(Resource.Id.input_password);
-
-
             _username.TextChanged += TextChanged;
             _username.TextChanged += TextChanged;
             _postingkey.TextChanged += TextChanged;
         }
 
+
+        [InjectOnClick(Resource.Id.sign_in_btn)]
         private void SignInBtn_Click(object sender, System.EventArgs e)
         {
             var intent = new Intent(this, typeof(SignInActivity));
             StartActivity(intent);
         }
 
+        [InjectOnClick(Resource.Id.sign_up_btn)]
         private async void SignUpBtn_Click(object sender, System.EventArgs e)
         {
             var login = _username.Text;
@@ -75,7 +67,7 @@ namespace Steemix.Droid.Views
             }
         }
         
-        private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
+        private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)
         {
             var typedsender = (EditText)sender;
             if (string.IsNullOrWhiteSpace(e.Text.ToString()))
