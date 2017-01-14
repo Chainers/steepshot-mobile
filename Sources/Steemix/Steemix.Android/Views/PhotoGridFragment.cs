@@ -1,14 +1,15 @@
-using Android.Views;
-using Android.OS;
-using Com.Lilarcor.Cheeseknife;
-using Android.Support.V7.Widget;
-using Steemix.Droid.Adapter;
 using System.Collections.Generic;
 using Android.Database;
-using Android.Provider;
 using Android.Net;
+using Android.OS;
+using Android.Provider;
+using Android.Support.V7.Widget;
+using Android.Views;
+using Com.Lilarcor.Cheeseknife;
+using Steemix.Droid.Adapter;
+using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
 	public class PhotoGridFragment : BaseFragment<PhotoGridViewModel>
 	{

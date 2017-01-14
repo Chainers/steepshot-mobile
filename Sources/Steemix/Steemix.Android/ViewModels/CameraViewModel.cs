@@ -1,4 +1,4 @@
-namespace Steemix.Droid
+namespace Steemix.Droid.ViewModels
 {
 	public class CameraViewModel : MvvmViewModelBase
 	{

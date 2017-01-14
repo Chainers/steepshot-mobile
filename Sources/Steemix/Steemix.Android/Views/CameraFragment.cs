@@ -1,10 +1,11 @@
-using Android.Views;
-using Android.OS;
-using Com.Lilarcor.Cheeseknife;
-using Android.Widget;
 using Android.Content.PM;
+using Android.OS;
+using Android.Views;
+using Android.Widget;
+using Com.Lilarcor.Cheeseknife;
+using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
 	public class CameraFragment: BaseFragment<CameraViewModel>
 	{

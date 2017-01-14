@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Steemix.Droid.Activity;
+using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views
 {

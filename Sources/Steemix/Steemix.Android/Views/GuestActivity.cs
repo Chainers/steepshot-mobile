@@ -6,7 +6,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
 using Android.Views.Animations;
 using System.Threading.Tasks;
 using Steemix.Droid.ViewModels;

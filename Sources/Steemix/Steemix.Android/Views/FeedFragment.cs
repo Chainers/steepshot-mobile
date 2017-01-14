@@ -8,9 +8,8 @@ using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steemix.Droid.ViewModels;
-using Steemix.Droid.Views;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
     public class FeedFragment : BaseFragment<FeedViewModel>, View.IOnScrollChangeListener
     {

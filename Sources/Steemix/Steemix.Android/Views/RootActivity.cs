@@ -5,9 +5,9 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
 using Android.Graphics;
 using Android.Content;
+using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views
 {

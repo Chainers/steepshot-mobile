@@ -2,7 +2,6 @@ using System;
 using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
 using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views

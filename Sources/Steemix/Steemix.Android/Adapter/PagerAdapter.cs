@@ -1,5 +1,6 @@
 using Android.Content;
 using Android.Support.V4.App;
+using Steemix.Droid.Views;
 
 namespace Steemix.Droid
 {

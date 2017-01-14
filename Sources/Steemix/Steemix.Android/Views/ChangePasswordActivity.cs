@@ -4,7 +4,6 @@ using Android.Graphics;
 using Android.OS;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
 using Steemix.Droid.ViewModels;
 
 namespace Steemix.Droid.Views

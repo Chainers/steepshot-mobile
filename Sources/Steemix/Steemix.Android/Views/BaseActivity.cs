@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
+using Steemix.Droid.ViewModels;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
-namespace Steemix.Droid.Activity 
+namespace Steemix.Droid.Views 
 {
     public class  BaseActivity<T> : AppCompatActivity where T : MvvmViewModelBase
     {

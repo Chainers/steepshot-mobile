@@ -6,7 +6,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
-using Steemix.Droid.Activity;
 using Steemix.Droid.ViewModels;
 using Square.Picasso;
 

@@ -1,7 +1,7 @@
 using GalaSoft.MvvmLight;
 using Sweetshot.Library.HttpClient;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.ViewModels
 {
 	    public abstract class MvvmViewModelBase : ViewModelBase
     {

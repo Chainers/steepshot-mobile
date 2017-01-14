@@ -1,12 +1,12 @@
 using System;
+using Android.Graphics;
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
-using Android.OS;
-using Com.Lilarcor.Cheeseknife;
 using Android.Widget;
-using Android.Graphics;
+using Com.Lilarcor.Cheeseknife;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
 	public class PhotoFragment : Fragment
 	{

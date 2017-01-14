@@ -1,8 +1,9 @@
 using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
+using Steemix.Droid.ViewModels;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
 	public class BaseFragment<T> : Fragment where T : MvvmViewModelBase
 	{

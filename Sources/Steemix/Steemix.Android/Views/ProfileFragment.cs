@@ -1,9 +1,9 @@
+using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
-using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 
-namespace Steemix.Droid
+namespace Steemix.Droid.Views
 {
 	public class ProfileFragment : Fragment
 	{
