@@ -21,12 +21,7 @@ namespace Steemix.Droid.Activities
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
-
-            // TODO:KOA-COM: NotReadyYet
-            var forgotPassBtn = FindViewById<AppCompatButton>(Resource.Id.forgot_pass_btn);
-            forgotPassBtn.Visibility = ViewStates.Invisible; 
-       
-
+            
             _username = FindViewById<EditText>(Resource.Id.input_username);
             _password = FindViewById<EditText>(Resource.Id.input_password);
 
@@ -76,8 +71,8 @@ namespace Steemix.Droid.Activities
                 if (response.Success)
                 {
                     UserPrincipal.CreatePrincipal(response.Result, login, pass);
-					var intent = new Intent(this, typeof(RootActivity));
-					intent.AddFlags(ActivityFlags.ClearTask);
+                    var intent = new Intent(this, typeof(RootActivity));
+                    intent.AddFlags(ActivityFlags.ClearTask);
                     StartActivity(intent);
                 }
                 else
