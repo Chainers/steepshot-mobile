@@ -27,6 +27,6 @@ namespace Sweetshot.Library.Models.Responses
         public string TotalPayoutValue { get; set; }
         public string PendingPayoutValue { get; set; }
         public List<string> Replies { get; set; }
-        public int Vote { get; set; }
+        public bool Vote { get; set; }
     }
 }

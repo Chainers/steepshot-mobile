@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using RestSharp;
+using Sweetshot.Library.Extensions;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
@@ -86,20 +87,7 @@ namespace Sweetshot.Library.HttpClient
                 parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
             }
 
-            var endpoint = "/posts/";
-            if (request.Type == PostType.Top)
-            {
-                endpoint = endpoint + "top";
-            }
-            else if (request.Type == PostType.Hot)
-            {
-                endpoint = endpoint + "hot";
-            }
-            else
-            {
-                endpoint = endpoint + "new";
-            }
-
+            var endpoint = "/posts/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
@@ -113,16 +101,7 @@ namespace Sweetshot.Library.HttpClient
                 new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody}
             };
 
-            var endpoint = $"/post/{request.Identifier}/";
-            if (request.Type == VoteType.Up)
-            {
-                endpoint = endpoint + "upvote";
-            }
-            else
-            {
-                endpoint = endpoint + "downvote";
-            }
-
+            var endpoint = $"/post/{request.Identifier}/" + request.Type.GetDescription();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
@@ -135,16 +114,7 @@ namespace Sweetshot.Library.HttpClient
                 new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
             };
 
-            var endpoint = $"/user/{request.Username}/";
-            if (request.Type == FollowType.Follow)
-            {
-                endpoint = endpoint + "follow";
-            }
-            else
-            {
-                endpoint = endpoint + "unfollow";
-            }
-
+            var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
@@ -266,16 +236,7 @@ namespace Sweetshot.Library.HttpClient
                 parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
             }
 
-            var endpoint = $"/user/{request.Username}/";
-            if (request.Type == FriendsType.Followers)
-            {
-                endpoint = endpoint + "followers";
-            }
-            else
-            {
-                endpoint = endpoint + "following";
-            }
-
+            var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);

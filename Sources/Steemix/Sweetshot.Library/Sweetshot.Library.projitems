@@ -9,6 +9,7 @@
     <Import_RootNamespace>Sweetshot.Library</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\EnumExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\ApiGateway.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\SteepshotApiClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Common\OperationResult.cs" />
