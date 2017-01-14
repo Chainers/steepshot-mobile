@@ -10,7 +10,7 @@ namespace Steemix.Droid.ViewModels
         public async Task<OperationResult<LoginResponse>> SignIn(string login, string password)
         {
             var request = new LoginRequest(login, password);
-            var response = await Manager.Login(request);
+            var response = await Api.Login(request);
             return response;
         }
     }

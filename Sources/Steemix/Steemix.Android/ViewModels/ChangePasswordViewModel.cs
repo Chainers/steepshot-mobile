@@ -10,7 +10,7 @@ namespace Steemix.Droid.ViewModels
         public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)
         {
             var req = new ChangePasswordRequest(UserPrincipal.CurrentUser.SessionId, oldPassword, newPassword, confirmNewPassword);
-            var response = await Manager.ChangePassword(req);
+            var response = await Api.ChangePassword(req);
             return response;
         }
     }

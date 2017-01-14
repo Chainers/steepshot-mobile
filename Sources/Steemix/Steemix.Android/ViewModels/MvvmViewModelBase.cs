@@ -6,7 +6,7 @@ namespace Steemix.Droid.ViewModels
 	    public abstract class MvvmViewModelBase : ViewModelBase
     {
 
-		protected SteepshotApiClient Manager { get { return new SteepshotApiClient(""); }}
+		protected SteepshotApiClient Api { get { return new SteepshotApiClient(""); }}
 
         public virtual void ViewLoad() { }
 

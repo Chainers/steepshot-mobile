@@ -30,7 +30,7 @@ namespace Steemix.Droid.ViewModels
         public async Task GetTopPosts(string offset, int limit)
         {
             var postrequest = new PostsRequest(string.Empty, PostType.Top, limit, offset);
-            var posts = await Manager.GetPosts(postrequest);
+            var posts = await Api.GetPosts(postrequest);
             //TODO:KOA -- Errors not processed
             if (posts.Success)
             {
@@ -47,7 +47,7 @@ namespace Steemix.Droid.ViewModels
                 return null;
             
             var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.SessionId, post.Vote, post.Url);
-            return await Manager.Vote(voteRequest);
+            return await Api.Vote(voteRequest);
         }
     }
 }
