@@ -1,9 +1,6 @@
-using Android.Support.V4.App;
 using Android.Views;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
-using Android.Widget;
 using Android.Support.V7.Widget;
 using Steemix.Droid.Adapter;
 using System.Collections.Generic;

@@ -3,11 +3,8 @@ using Android.Support.V4.App;
 using Android.Views;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
-using Steemix.Droid.Activity;
 using Android.Widget;
 using Android.Graphics;
-using Android.Content.Res;
-using Android.Support.V4.Content;
 
 namespace Steemix.Droid
 {

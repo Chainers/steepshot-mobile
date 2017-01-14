@@ -1,14 +1,9 @@
 using Android.Support.V7.Widget;
 using Android.Views;
-using Sweetshot.Library.Models.Responses;
 using Android.Widget;
 using Square.Picasso;
 using Android.Content;
-using Android.Text;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using Android.Graphics;
-using Android.Net;
 using Java.IO;
 
 namespace Steemix.Droid.Adapter

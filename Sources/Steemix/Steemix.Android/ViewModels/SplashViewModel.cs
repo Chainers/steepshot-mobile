@@ -1,5 +1,4 @@
-﻿using System;
-namespace Steemix.Droid
+﻿namespace Steemix.Droid
 {
 	public class SplashViewModel: MvvmViewModelBase
 	{

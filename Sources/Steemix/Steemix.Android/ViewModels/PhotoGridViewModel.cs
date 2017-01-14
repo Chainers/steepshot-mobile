@@ -1,4 +1,3 @@
-using System;
 namespace Steemix.Droid
 {
 	public class PhotoGridViewModel : MvvmViewModelBase

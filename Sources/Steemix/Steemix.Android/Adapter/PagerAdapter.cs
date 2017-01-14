@@ -1,9 +1,5 @@
-using System;
 using Android.Content;
 using Android.Support.V4.App;
-using Android.Support.V4.Content.Res;
-using Android.Views;
-using Android.Widget;
 
 namespace Steemix.Droid
 {
