@@ -62,16 +62,23 @@ namespace Steemix.Droid.Fragments
 
         async void FeedAdapter_LikeAction(int position)
         {
-            var response = await ViewModel.Vote(ViewModel.Posts[position]);
-
-            if (!response.Success)
+            if (UserPrincipal.IsAuthenticated)
             {
-                ViewModel.Posts[position].Vote = !ViewModel.Posts[position].Vote;
-                FeedAdapter.NotifyDataSetChanged();
+                var response = await ViewModel.Vote(ViewModel.Posts[position]);
+
+                if (response.Success)
+                {
+                    ViewModel.Posts[position].Vote = !ViewModel.Posts[position].Vote;
+                    FeedAdapter.NotifyDataSetChanged();
+                }
+                else
+                {
+                    //TODO:KOA Show error
+                }
             }
             else
             {
-                Intent intent = new Intent(Context, typeof(SignInActivity));
+                var intent = new Intent(Context, typeof(SignInActivity));
                 StartActivity(intent);
             }
         }
@@ -119,7 +126,7 @@ namespace Steemix.Droid.Fragments
         int prevPos = 0;
         public void OnScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY)
         {
-            int pos = ((LinearLayoutManager)FeedList.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
+            var pos = ((LinearLayoutManager)FeedList.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
             if (pos > prevPos && pos != prevPos)
             {
                 if (pos == FeedList.GetAdapter().ItemCount - 1)
