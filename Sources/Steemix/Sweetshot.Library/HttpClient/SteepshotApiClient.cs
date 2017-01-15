@@ -64,10 +64,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
+            var parameters = CreateSessionParameter(request.SessionId);
 
             var response = await _gateway.Get($"/user/{request.Username}/posts/", parameters);
             var errorResult = CheckErrors(response);
@@ -76,10 +73,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
+            var parameters = CreateSessionParameter(request.SessionId);
 
             var response = await _gateway.Get("/recent/", parameters);
             var errorResult = CheckErrors(response);
@@ -92,7 +86,6 @@ namespace Sweetshot.Library.HttpClient
             {
                 new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
             };
-
             if (!string.IsNullOrWhiteSpace(request.Offset))
             {
                 parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
@@ -106,12 +99,9 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+            
             var endpoint = $"/post/{request.Identifier}/" + request.Type.GetDescription();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
@@ -120,11 +110,8 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            
             var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
@@ -133,10 +120,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
+            var parameters = CreateSessionParameter(request.SessionId);
 
             var response = await _gateway.Get($"/post/{request.Url}/comments", parameters);
             var errorResult = CheckErrors(response);
@@ -145,12 +129,9 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+           
             var response = await _gateway.Post($"/post/{request.Url}/comment", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
@@ -158,11 +139,8 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            
             var response = await _gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
@@ -170,12 +148,8 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<CategoriesResponse>> GetCategories(CategoriesRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString});
             if (!string.IsNullOrWhiteSpace(request.Offset))
             {
                 parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
@@ -188,12 +162,9 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<CategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
+            
             var response = await _gateway.Get("categories/search", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CategoriesResponse>(response.Content, errorResult);
@@ -201,12 +172,9 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+            
             var response = await _gateway.Post("user/change-password", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<ChangePasswordResponse>(response.Content, errorResult);
@@ -214,36 +182,26 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            
             var response = await _gateway.Post("logout", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<LogoutResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserResponse>> GetUserProfile(UserProfileRequest request)
+        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+          
             var response = await _gateway.Get($"/user/{request.Username}", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<UserResponse>(response.Content, errorResult);
+            return CreateResult<UserProfileResponse>(response.Content, errorResult);
         }
 
         public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
-                new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
-            };
-
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString});
             if (!string.IsNullOrWhiteSpace(request.Offset))
             {
                 parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
@@ -257,10 +215,20 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<TermOfServiceResponse>> TermsOfService()
         {
-            var endpoint = "/tos/";
+            const string endpoint = "/tos/";
             var response = await _gateway.Get(endpoint, new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
+        }
+
+        private List<RequestParameter> CreateSessionParameter(string sessionId)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                new RequestParameter {Key = "sessionid", Value = sessionId, Type = ParameterType.Cookie}
+            };
+
+            return parameters;
         }
 
         private OperationResult CheckErrors(IRestResponse response)

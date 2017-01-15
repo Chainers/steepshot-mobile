@@ -1,5 +1,33 @@
 namespace Sweetshot.Library.Models.Responses
 {
+    ///{
+    ///  "comments": [
+    ///    {
+    ///      "body": "abcd",
+    ///      "title": "abcd123",
+    ///      "url": "/spam/@asduj/new-application-coming---#@joseph.kalu/re-new-application-coming----20161211t142239",
+    ///      "category": "spam",
+    ///      "author": "joseph.kalu",
+    ///      "avatar": "",
+    ///      "author_rewards": 0,
+    ///      "author_reputation": 33,
+    ///      "net_votes": 0,
+    ///      "children": 0,
+    ///      "created": "2016-12-11T14:22:39Z",
+    ///      "curator_payout_value": 0.0,
+    ///      "total_payout_value": 0.0,
+    ///      "pending_payout_value": 0.0,
+    ///      "max_accepted_payout": 1000000.0,
+    ///      "total_payout_reward": 0.0,
+    ///      "vote": 0
+    ///    }
+    ///  ]
+    ///}
+    public class GetCommentResponse
+    {
+        public Comment[] Comments { get; set; }
+    }
+
     public class Comment
     {
         public string Body { get; set; }
@@ -19,10 +47,5 @@ namespace Sweetshot.Library.Models.Responses
         public string MaxAcceptedPayout { get; set; }
         public string TotalPayoutReward { get; set; }
         public string Vote { get; set; }
-    }
-
-    public class GetCommentResponse
-    {
-        public Comment[] Comments { get; set; }
     }
 }

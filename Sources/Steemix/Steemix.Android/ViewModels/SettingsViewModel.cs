@@ -7,7 +7,7 @@ namespace Steemix.Droid.ViewModels
 {
     public class SettingsViewModel : MvvmViewModelBase
     {
-        public async Task<OperationResult<UserResponse>> GetUserInfo()
+        public async Task<OperationResult<UserProfileResponse>> GetUserInfo()
         {
             var req = new UserProfileRequest(UserPrincipal.CurrentUser.SessionId, UserPrincipal.CurrentUser.Login);
             var response = await ViewModelLocator.Api.GetUserProfile(req);

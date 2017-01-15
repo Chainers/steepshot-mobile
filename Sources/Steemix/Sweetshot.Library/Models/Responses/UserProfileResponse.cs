@@ -1,6 +1,22 @@
 namespace Sweetshot.Library.Models.Responses
 {
-    public class UserResponse
+    ///{
+    ///  "posting_rewards": 0,
+    ///  "curation_rewards": 166,
+    ///  "last_account_update": "2016-07-24T20:55:18Z",
+    ///  "last_vote_time": "2017-01-13T07:50:33Z",
+    ///  "balance": "0.000 STEEM",
+    ///  "reputation": 35,
+    ///  "post_count": 52,
+    ///  "comment_count": 0,
+    ///  "followers_count": 61,
+    ///  "following_count": 9,
+    ///  "username": "joseph.kalu",
+    ///  "current_username": "joseph.kalu",
+    ///  "profile_image": "",
+    ///  "has_followed": 0
+    ///}
+    public class UserProfileResponse
     {
         public int PostingRewards { get; set; }
         public int CurationRewards { get; set; }
