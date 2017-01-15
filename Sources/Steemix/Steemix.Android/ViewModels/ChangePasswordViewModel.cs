@@ -7,9 +7,9 @@ namespace Steemix.Droid.ViewModels
 {
     public class ChangePasswordViewModel : MvvmViewModelBase
     {
-        public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)
+        public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(string oldPassword, string newPassword)
         {
-            var req = new ChangePasswordRequest(UserPrincipal.CurrentUser.SessionId, oldPassword, newPassword, confirmNewPassword);
+            var req = new ChangePasswordRequest(UserPrincipal.CurrentUser.SessionId, oldPassword, newPassword);
             var response = await ViewModelLocator.Api.ChangePassword(req);
             return response;
         }

@@ -54,7 +54,7 @@ namespace Steemix.Droid.Activities
             if (!string.IsNullOrEmpty(_oldPass.Error) || !string.IsNullOrEmpty(_newPass.Error) || !string.IsNullOrEmpty(_repeatPass.Error))
                 return;
 
-            var response = await ViewModel.ChangePassword(_oldPass.Text, _newPass.Text, _repeatPass.Text);
+            var response = await ViewModel.ChangePassword(_oldPass.Text, _newPass.Text);
 
             if (response.Success)
             {

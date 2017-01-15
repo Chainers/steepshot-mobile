@@ -9,7 +9,7 @@ namespace Steemix.Droid.ViewModels
     {
         public async Task<OperationResult<UserResponse>> GetUserInfo()
         {
-            var req = new UserRequest(UserPrincipal.CurrentUser.SessionId, UserPrincipal.CurrentUser.Login);
+            var req = new UserProfileRequest(UserPrincipal.CurrentUser.SessionId, UserPrincipal.CurrentUser.Login);
             var response = await ViewModelLocator.Api.GetUserProfile(req);
             return response;
         }

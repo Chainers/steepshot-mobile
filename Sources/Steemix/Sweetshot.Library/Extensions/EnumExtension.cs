@@ -16,9 +16,7 @@ namespace Sweetshot.Library.Extensions
                 {
                     var attr = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
                     if (attr != null)
-                    {
                         return attr.Description;
-                    }
                 }
             }
 

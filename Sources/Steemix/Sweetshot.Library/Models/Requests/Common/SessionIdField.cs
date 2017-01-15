@@ -6,10 +6,10 @@ namespace Sweetshot.Library.Models.Requests.Common
     {
         protected SessionIdField(string sessionId)
         {
-            //if (string.IsNullOrWhiteSpace(sessionId))
-            //{
-            //    throw new ArgumentNullException(nameof(sessionId));
-            //}
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                throw new ArgumentNullException(nameof(sessionId));
+            }
 
             SessionId = sessionId;
         }

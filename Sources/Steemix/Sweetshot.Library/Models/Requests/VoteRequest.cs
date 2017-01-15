@@ -16,7 +16,9 @@ namespace Sweetshot.Library.Models.Requests
         public VoteRequest(string sessionId, bool isUpVote, string identifier) : base(sessionId)
         {
             if (string.IsNullOrWhiteSpace(identifier))
+            {
                 throw new ArgumentNullException(nameof(identifier));
+            }
 
             Type = isUpVote ? VoteType.Up : VoteType.Down;
             Identifier = identifier;

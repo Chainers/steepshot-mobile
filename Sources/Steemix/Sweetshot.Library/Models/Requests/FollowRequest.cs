@@ -18,11 +18,10 @@ namespace Sweetshot.Library.Models.Requests
                 throw new ArgumentNullException(nameof(username));
             }
 
-            Username = username;
             Type = type;
+            Username = username;
         }
-
-        public string Username { get; private set; }
         public FollowType Type { get; private set; }
+        public string Username { get; private set; }
     }
 }

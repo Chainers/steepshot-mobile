@@ -1,4 +1,6 @@
-﻿namespace Sweetshot.Library.Models.Requests
+﻿using Sweetshot.Library.Models.Requests.Common;
+
+namespace Sweetshot.Library.Models.Requests
 {
     public enum FriendsType
     {
@@ -6,16 +8,16 @@
         Following
     }
 
-    public class UserFriendsRequest : UserRequest
+    public class UserFriendsRequest : OffsetLimitSessionRequest
     {
-        public UserFriendsRequest(string sessionId, string username, FriendsType type, string offset = "") : base(sessionId, username)
+        public UserFriendsRequest(string sessionId, string username, FriendsType type, string offset = "", int limit = 0)
+            : base(sessionId, offset, limit)
         {
+            Username = username;
             Type = type;
-            Offset = offset;
         }
 
+        public string Username { get; private set; }
         public FriendsType Type { get; private set; }
-
-        public string Offset { get; private set; }
     }
 }

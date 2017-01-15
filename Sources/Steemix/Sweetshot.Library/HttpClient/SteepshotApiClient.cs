@@ -62,7 +62,7 @@ namespace Sweetshot.Library.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
         {
             var parameters = new List<RequestParameter>
             {
@@ -74,11 +74,22 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
+        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request)
+        {
+            var parameters = new List<RequestParameter>
+            {
+                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
+            };
+
+            var response = await _gateway.Get("/recent/", parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<UserPostResponse>(response.Content, errorResult);
+        }
+
         public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request)
         {
             var parameters = new List<RequestParameter>
             {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
                 new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
             };
 
@@ -161,7 +172,8 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = new List<RequestParameter>
             {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
+                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
+                new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
             };
 
             if (!string.IsNullOrWhiteSpace(request.Offset))
@@ -212,7 +224,7 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<LogoutResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserResponse>> GetUserProfile(UserRequest request)
+        public async Task<OperationResult<UserResponse>> GetUserProfile(UserProfileRequest request)
         {
             var parameters = new List<RequestParameter>
             {
@@ -228,7 +240,8 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = new List<RequestParameter>
             {
-                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie}
+                new RequestParameter {Key = "sessionid", Value = request.SessionId, Type = ParameterType.Cookie},
+                new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
             };
 
             if (!string.IsNullOrWhiteSpace(request.Offset))
