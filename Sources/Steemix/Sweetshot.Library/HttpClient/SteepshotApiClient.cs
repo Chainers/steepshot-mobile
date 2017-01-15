@@ -186,7 +186,7 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<CategoriesResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchCategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
+        public async Task<OperationResult<CategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
         {
             var parameters = new List<RequestParameter>
             {
@@ -196,7 +196,7 @@ namespace Sweetshot.Library.HttpClient
 
             var response = await _gateway.Get("categories/search", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchCategoriesResponse>(response.Content, errorResult);
+            return CreateResult<CategoriesResponse>(response.Content, errorResult);
         }
 
         public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
@@ -253,6 +253,14 @@ namespace Sweetshot.Library.HttpClient
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);
+        }
+
+        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService()
+        {
+            var endpoint = "/tos/";
+            var response = await _gateway.Get(endpoint, new List<RequestParameter>());
+            var errorResult = CheckErrors(response);
+            return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
         }
 
         private OperationResult CheckErrors(IRestResponse response)

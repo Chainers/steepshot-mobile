@@ -36,6 +36,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ImageUploadResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LoginResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LogoutResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\TermOfServiceResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserFriendsResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserPostResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserResponse.cs" />
