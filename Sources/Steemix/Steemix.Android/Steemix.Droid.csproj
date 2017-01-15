@@ -135,6 +135,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ViewModels\TermsOfServiceViewModel.cs" />
+    <Compile Include="Adapter\FollowersAdapter.cs" />
     <Compile Include="Realm\UserInfo.cs" />
     <Compile Include="UserPrincipal.cs" />
     <Compile Include="ViewModels\ChangePasswordViewModel.cs" />
@@ -354,6 +356,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_error.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_error.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_error.png" />
+    <AndroidResource Include="Resources\drawable\primary_corner_wite_btn.xml" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

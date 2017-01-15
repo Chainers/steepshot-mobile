@@ -35,7 +35,7 @@ namespace Steemix.Droid.Activities
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetTitle("Error");
             alert.SetMessage(message);
-            alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
+            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }
@@ -44,7 +44,7 @@ namespace Steemix.Droid.Activities
         {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetMessage(message);
-            alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
+            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }
@@ -53,7 +53,7 @@ namespace Steemix.Droid.Activities
         {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.SetMessage(string.Join(System.Environment.NewLine, messages));
-            alert.SetPositiveButton("Ok", ((senderAlert, args) => { }));
+            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }

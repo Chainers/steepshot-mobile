@@ -53,5 +53,9 @@
 
   <!--lyt_followers.axml-->
   <string name = "text_followers">Followers</string>
+  <string name = "text_follow">Follow</string>
+  <string name = "text_unfollow">Unfollow</string>
+  
+  
 
 </resources>
