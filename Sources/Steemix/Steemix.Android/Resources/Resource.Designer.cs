@@ -1658,6 +1658,12 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f07004d
 			public const int disabled_alpha_material_light = 2131165261;
 			
+			// aapt resource value: 0x7f070072
+			public const int dp_button_text = 2131165298;
+			
+			// aapt resource value: 0x7f070071
+			public const int dp_head_text = 2131165297;
+			
 			// aapt resource value: 0x7f07004e
 			public const int highlight_alpha_material_colored = 2131165262;
 			

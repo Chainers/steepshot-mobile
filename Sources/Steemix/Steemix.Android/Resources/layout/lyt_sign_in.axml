@@ -68,6 +68,7 @@
   <android.support.v7.widget.AppCompatButton
       android:text="@string/text_login"
       android:textColor="@color/blue"
+      android:textSize="@dimen/dp_button_text"
       android:padding="16dp"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -83,6 +84,7 @@
   <android.support.v7.widget.AppCompatButton
       android:text="@string/text_forgot_pass"
       android:textColor="@color/blue"
+      android:textSize="@dimen/dp_button_text"
       android:padding="10dp"
       android:background="@android:color/transparent"
       android:layout_width="wrap_content"
@@ -95,6 +97,7 @@
   <android.support.v7.widget.AppCompatButton
       android:text="@string/text_create_acc"
       android:textColor="@color/white"
+      android:textSize="@dimen/dp_button_text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:background="@color/light_blue"
