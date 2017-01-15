@@ -22,7 +22,7 @@
             android:text="@string/following"
             android:layout_width="wrap_content"
             android:textAllCaps="true"
-            android:textSize="16sp"
+            android:textSize="@dimen/dp_head_text"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:layout_centerInParent="true"

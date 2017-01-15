@@ -12,8 +12,8 @@
         android:layout_height="wrap_content">
         <android.support.v7.widget.AppCompatButton
             android:text="@string/new_photos"
+            android:textSize="@dimen/dp_button_text"
             android:layout_width="match_parent"
-            android:textSize="13sp"
             android:textColor="@color/white"
             android:background="@color/color_primary"
             android:layout_marginTop="1dp"
@@ -22,7 +22,7 @@
             android:id="@+id/btn_new" />
         <android.support.v7.widget.AppCompatButton
             android:text="@string/hot"
-            android:textSize="13sp"
+            android:textSize="@dimen/dp_button_text"
             android:textColor="@color/white"
             android:layout_marginTop="1dp"
             android:background="@color/color_primary"
@@ -32,8 +32,8 @@
             android:id="@+id/btn_hot" />
         <android.support.v7.widget.AppCompatButton
             android:text="@string/Trending"
+            android:textSize="@dimen/dp_button_text"
             android:layout_marginTop="1dp"
-            android:textSize="13sp"
             android:textColor="@color/white"
             android:background="@color/color_primary"
             android:layout_width="match_parent"
