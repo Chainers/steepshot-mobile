@@ -9,7 +9,7 @@ namespace Steemix.Droid.ViewModels
 {
     public class FeedViewModel : MvvmViewModelBase
     {
-        public ObservableCollection<UserPost> Posts = new ObservableCollection<UserPost>();
+        public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
 
         public override void ViewLoad()
         {
@@ -42,7 +42,7 @@ namespace Steemix.Droid.ViewModels
             }
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(UserPost post)
+        public async Task<OperationResult<VoteResponse>> Vote(Post post)
         {
             if (!UserPrincipal.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };

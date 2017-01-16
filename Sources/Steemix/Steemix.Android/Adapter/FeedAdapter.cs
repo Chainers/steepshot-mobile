@@ -13,13 +13,13 @@ namespace Steemix.Droid.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        ObservableCollection<UserPost> Posts;
+        ObservableCollection<Post> Posts;
         private Context context;
         string CommentPattern = "<b>{0}</b> {1}";
 
         public Action<int> LikeAction;
 
-        public FeedAdapter(Context context, ObservableCollection<UserPost> Posts)
+        public FeedAdapter(Context context, ObservableCollection<Post> Posts)
         {
             this.context = context;
             this.Posts = Posts;
@@ -31,7 +31,7 @@ namespace Steemix.Droid.Adapter
             NotifyDataSetChanged();
         }
 
-        public UserPost GetItem(int position)
+        public Post GetItem(int position)
         {
             return Posts[position];
         }
@@ -57,7 +57,9 @@ namespace Steemix.Droid.Adapter
             {
                 vh.FirstComment.Visibility = ViewStates.Gone;
             }
+
             //TODO:KOA:тип данных сейчас string (в реальности int)
+            //TODO Type was changed to int, please update logic
             if (!string.IsNullOrEmpty(Posts[position].Children))
             {
                 vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), Posts[position].Children);
@@ -99,7 +101,7 @@ namespace Steemix.Droid.Adapter
             public TextView Likes { get; private set; }
             public TextView Cost { get; private set; }
             public ImageButton Like { get; private set; }
-            UserPost post;
+            Post post;
             Action<int> LikeAction;
 
             public FeedViewHolder(View itemView, Action<int> LikeAction) : base(itemView)
@@ -125,11 +127,10 @@ namespace Steemix.Droid.Adapter
                 LikeAction?.Invoke(AdapterPosition);
             }
 
-            public void UpdateData(UserPost post, Context context)
+            public void UpdateData(Post post, Context context)
             {
                 this.post = post;
-                DateTime date = DateTime.Parse(post.Created);
-                TimeSpan span = DateTime.Now - date;
+                TimeSpan span = DateTime.Now - post.Created;
 
                 Likes.Text = string.Format("{0} likes", post.NetVotes);
                 Cost.Text = string.Format("${0}", post.TotalPayoutValue);

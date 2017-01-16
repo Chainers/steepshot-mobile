@@ -3,19 +3,14 @@ using System.Collections.Generic;
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
-    ///  "offset": "therealpaul",
-    ///  "count": 2,
+    ///  "offset": "qweqweqwe",
+    ///  "count": 1,
     ///  "results": [
     ///    {
-    ///      "avatar": "",
-    ///      "author": "jag",
-    ///      "reputation": 25
-    ///    },
-    ///    {
-    ///      "avatar": "https://i.imgur.com/PSVLPPa.jpg",
-    ///      "author": "barvon",
-    ///      "reputation": 55
-    ///    },
+    ///      "avatar": "https://s18.postimg.org/kjq6871hl/curie.png",
+    ///      "author": "curie",
+    ///      "reputation": 74
+    ///    }
     ///  ]
     ///}
     public class UserFriendsResponse

@@ -1,3 +1,5 @@
+using System;
+
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
@@ -11,7 +13,7 @@ namespace Sweetshot.Library.Models.Responses
     ///      "author": "joseph.kalu",
     ///      "avatar": "http://vignette2.wikia.nocookie.net/tomandjerry/images/6/6d/Tom-tom-and-jerry.png/revision/latest?cb=20140627113049",
     ///      "author_rewards": 0,
-    ///      "author_reputation": 37,
+    ///      "author_reputation": 34,
     ///      "net_votes": 0,
     ///      "children": 0,
     ///      "created": "2016-12-11T14:22:39Z",
@@ -28,11 +30,11 @@ namespace Sweetshot.Library.Models.Responses
     ///}
     public class GetCommentResponse
     {
-        public string Count { get; set; }
-        public Comment[] Results { get; set; }
+        public int Count { get; set; }
+        public Post[] Results { get; set; }
     }
 
-    public class Comment
+    public class Post
     {
         public string Body { get; set; }
         public string Title { get; set; }
@@ -40,16 +42,18 @@ namespace Sweetshot.Library.Models.Responses
         public string Category { get; set; }
         public string Author { get; set; }
         public string Avatar { get; set; }
-        public string AuthorRewards { get; set; }
-        public string AuthorReputation { get; set; }
-        public string NetVotes { get; set; }
-        public string Children { get; set; }
-        public string Created { get; set; }
-        public string CuratorPayoutValue { get; set; }
-        public string TotalPayoutValue { get; set; }
-        public string PendingPayoutValue { get; set; }
-        public string MaxAcceptedPayout { get; set; }
-        public string TotalPayoutReward { get; set; }
-        public string Vote { get; set; }
+        public int AuthorRewards { get; set; }
+        public int AuthorReputation { get; set; }
+        public int NetVotes { get; set; }
+        public int Children { get; set; }
+        public DateTime Created { get; set; }
+        public double CuratorPayoutValue { get; set; }
+        public double TotalPayoutValue { get; set; }
+        public double PendingPayoutValue { get; set; }
+        public double MaxAcceptedPayout { get; set; }
+        public double TotalPayoutReward { get; set; }
+        public bool Vote { get; set; }
+        public string[] Tags { get; set; }
+        public int Depth { get; set; }
     }
 }

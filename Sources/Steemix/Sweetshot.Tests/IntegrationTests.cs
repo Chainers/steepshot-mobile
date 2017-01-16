@@ -9,6 +9,12 @@ using Sweetshot.Library.Models.Requests;
 
 namespace Sweetshot.Tests
 {
+    // check all tests
+    // add more tests
+    // test (assert) errors
+    // remove throws in DTOs
+    // check trello
+    // check chat
     [TestFixture]
     public class IntegrationTests
     {
@@ -37,8 +43,8 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("User was logged in.", response.Result.Message);
-            Assert.IsNotEmpty(response.Result.SessionId);
+            Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
+            Assert.That(response.Result.SessionId, Is.Not.Empty);
         }
 
         [Test]
@@ -94,9 +100,28 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.IsNotEmpty(response.Result.Results.First().Body);
-            Assert.IsNotEmpty(response.Result.Results.First().Author);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Empty);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Title, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Category, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Avatar, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().AuthorRewards, Is.Not.Null);
+            Assert.That(response.Result.Results.First().AuthorReputation, Is.Not.Null);
+            Assert.That(response.Result.Results.First().NetVotes, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Children, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Created, Is.Not.Null);
+            Assert.That(response.Result.Results.First().CuratorPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().TotalPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().PendingPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().MaxAcceptedPayout, Is.Not.Null);
+            Assert.That(response.Result.Results.First().TotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Vote, Is.False);
+            Assert.That(response.Result.Results.First().Tags, Is.Empty);
+            Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
         }
 
         [Test]
@@ -124,9 +149,9 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.IsNotEmpty(response.Result.Results.First().Body);
-            Assert.IsNotEmpty(response.Result.Results.First().Author);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
         [Test]
@@ -140,7 +165,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
         [Test]
@@ -155,7 +180,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual(defaultLimit, response.Result.Count);
+            Assert.That(defaultLimit, Is.EqualTo(response.Result.Count));
         }
 
         [Test]
@@ -170,7 +195,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual(limit, response.Result.Count);
+            Assert.That(limit, Is.EqualTo(response.Result.Count));
         }
 
         [Test]
@@ -185,7 +210,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual(defaultLimit, response.Result.Count);
+            Assert.That(defaultLimit, Is.EqualTo(response.Result.Count));
         }
 
         [Test]
@@ -199,9 +224,9 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsEmpty(response.Result.Offset);
-            Assert.AreEqual(0, response.Result.Count);
-            Assert.AreEqual(0, response.Result.Results.Count);
+            Assert.That(response.Result.Offset, Is.Empty);
+            Assert.That(response.Result.Count, Is.EqualTo(0));
+            Assert.That(response.Result.Results.Count, Is.EqualTo(0));
         }
 
         [Test]
@@ -215,7 +240,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
         [Test]
@@ -229,7 +254,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
         // TODO Need to create a profile and test it
@@ -244,8 +269,8 @@ namespace Sweetshot.Tests
 
             // Assert
             //AssertSuccessfulResult(response);
-            //Assert.NotNull(response.Result.SessionId);
-            //Assert.NotNull(response.Result.Username);
+            //Assert.That(response.Result.SessionId);
+            //Assert.That(response.Result.Username);
         }
 
         [Test]
@@ -340,15 +365,16 @@ namespace Sweetshot.Tests
 
 
             // Arrange
-            var request = new VoteRequest(_sessionId, true, "/nature/@joseph.kalu/test-post-abc1");
+            var request = new VoteRequest(_sessionId, true, "/nature/@joseph.kalu/test-post-abc2");
 
             // Act
             var response = _api.Vote(request).Result;
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.NewTotalPayoutReward);
-            Assert.AreEqual("Upvoted", response.Result.Message);
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
         }
 
         [Test]
@@ -358,15 +384,16 @@ namespace Sweetshot.Tests
             // TODO Create comment and vote
 
             // Arrange
-            var request = new VoteRequest(_sessionId, false, "/nature/@joseph.kalu/test-post-abc1");
+            var request = new VoteRequest(_sessionId, false, "/nature/@joseph.kalu/test-post-abc2");
 
             // Act
             var response = _api.Vote(request).Result;
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.NewTotalPayoutReward);
-            Assert.AreEqual("Downvoted", response.Result.Message);
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
         }
 
         [Test]
@@ -478,7 +505,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("User is followed", response.Result.Message);
+            Assert.That(response.Result.Message, Is.EqualTo("User is followed"));
         }
 
         [Test]
@@ -492,7 +519,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("User is unfollowed", response.Result.Message);
+            Assert.That(response.Result.Message, Is.EqualTo("User is unfollowed"));
         }
 
         [Test]
@@ -505,8 +532,8 @@ namespace Sweetshot.Tests
             var response = _api.Follow(request).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
-            Assert.AreEqual("User is followed", response.Result.Message);
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("User does not exist."));
         }
 
         [Test]
@@ -520,7 +547,27 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Title, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Category, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Avatar, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().AuthorRewards, Is.Not.Null);
+            Assert.That(response.Result.Results.First().AuthorReputation, Is.Not.Null);
+            Assert.That(response.Result.Results.First().NetVotes, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Children, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Created, Is.Not.Null);
+            Assert.That(response.Result.Results.First().CuratorPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().TotalPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().PendingPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.Results.First().MaxAcceptedPayout, Is.Not.Null);
+            Assert.That(response.Result.Results.First().TotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Results.First().Vote, Is.False);
+            Assert.That(response.Result.Results.First().Tags, Is.Empty);
+            Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
         }
 
         [Test]
@@ -562,7 +609,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("Comment created", response.Result.Message);
+            Assert.That(response.Result.Message, Is.EqualTo("Comment created"));
         }
 
         [Test]
@@ -620,9 +667,9 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Body);
-            Assert.NotNull(response.Result.Title);
-            Assert.IsNotEmpty(response.Result.Tags);
+            Assert.That(response.Result.Body, Is.Not.Empty);
+            Assert.That(response.Result.Title, Is.Not.Empty);
+            Assert.That(response.Result.Tags, Is.Not.Empty);
         }
 
         [Test]
@@ -636,10 +683,11 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.AreEqual(-1, response.Result.TotalCount);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
         [Test]
@@ -653,11 +701,11 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.AreEqual(-1, response.Result.TotalCount);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.AreEqual("food", response.Result.Results.First().Name);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.EqualTo("food"));
         }
 
         [Test]
@@ -671,10 +719,10 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.AreEqual(-1, response.Result.TotalCount);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
         [Test]
@@ -688,10 +736,10 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.AreEqual(-1, response.Result.TotalCount);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
         [Test]
@@ -706,11 +754,31 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.AreEqual(-1, response.Result.TotalCount);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.AreEqual(limit, response.Result.Results.Count);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
+        }
+
+        [Test]
+        public void Categories_Limit_Negative()
+        {
+            // Arrange
+            const int limit = -5;
+            const int defaultLimit = 10;
+            var request = new CategoriesRequest(_sessionId, limit: limit);
+
+            // Act
+            var response = _api.GetCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Count, Is.EqualTo(defaultLimit));
         }
 
         [Test]
@@ -724,10 +792,11 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsTrue(response.Result.Count > 0);
-            Assert.IsTrue(response.Result.TotalCount >= 0);
-            Assert.IsNotEmpty(response.Result.Results);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
         [Test]
@@ -741,10 +810,10 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result);
-            Assert.IsEmpty(response.Result.Results);
-            Assert.AreEqual(0, response.Result.Count);
-            Assert.AreEqual(0, response.Result.TotalCount);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Empty);
+            Assert.That(response.Result.Count, Is.EqualTo(0));
+            Assert.That(response.Result.TotalCount, Is.EqualTo(0));
         }
 
         [Test]
@@ -776,7 +845,6 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        //[Order(4)]
         public void ChangePassword()
         {
             // Arrange
@@ -787,17 +855,16 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("Password was changed", response.Result.Message);
+            Assert.That(response.Result.Message, Is.EqualTo("Password was changed"));
 
             // Revert
             var loginResponse = _api.Login(new LoginRequest(Name, NewPassword)).Result;
             var response2 = _api.ChangePassword(new ChangePasswordRequest(loginResponse.Result.SessionId, NewPassword, Password)).Result;
             AssertSuccessfulResult(response2);
-            Assert.AreEqual("Password was changed", response2.Result.Message);
+            Assert.That(response2.Result.Message, Is.EqualTo("Password was changed"));
         }
 
         [Test]
-        //[Order(3)]
         public void ChangePassword_Invalid_OldPassword()
         {
             // Arrange
@@ -813,7 +880,6 @@ namespace Sweetshot.Tests
 
         // TODO Add more tests about password types
         [Test]
-        //[Order(1)]
         public void ChangePassword_NewPassword_Short()
         {
             // Arrange
@@ -828,7 +894,6 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        //[Order(2)]
         public void ChangePassword_Invalid_SessionId()
         {
             // Arrange
@@ -853,7 +918,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.AreEqual("User is logged out", response.Result.Message);
+            Assert.That(response.Result.Message, Is.EqualTo("User is logged out"));
         }
 
         [Test]
@@ -867,8 +932,20 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.CommentCount);
-            Assert.NotNull(response.Result.CurationRewards);
+            Assert.That(response.Result.PostingRewards, Is.Not.Null);
+            Assert.That(response.Result.CurationRewards, Is.Not.Null);
+            Assert.That(response.Result.LastAccountUpdate, Is.Not.Null);
+            Assert.That(response.Result.LastVoteTime, Is.Not.Null);
+            Assert.That(response.Result.Reputation, Is.Not.Null);
+            Assert.That(response.Result.PostCount, Is.Not.Null);
+            Assert.That(response.Result.CommentCount, Is.Not.Null);
+            Assert.That(response.Result.FollowersCount, Is.Not.Null);
+            Assert.That(response.Result.FollowingCount, Is.Not.Null);
+            Assert.That(response.Result.Username, Is.Not.Empty);
+            Assert.That(response.Result.CurrentUsername, Is.Not.Empty);
+            Assert.That(response.Result.ProfileImage, Is.Not.Empty);
+            Assert.That(response.Result.HasFollowed, Is.Not.Null);
+            Assert.That(response.Result.EstimatedBalance, Is.Not.Null);
         }
 
         [Test]
@@ -896,10 +973,12 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Count);
-            Assert.NotNull(response.Result.Offset);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.IsNotEmpty(response.Result.Results.First().Author);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Empty);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Avatar, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Reputation, Is.Not.Null);
         }
 
         [Test]
@@ -913,10 +992,10 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Count);
-            Assert.NotNull(response.Result.Offset);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.IsNotEmpty(response.Result.Results.First().Author);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
         [Test]
@@ -930,8 +1009,8 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Count == 0);
-            Assert.IsEmpty(response.Result.Results);
+            Assert.That(response.Result.Count == 0);
+            Assert.That(response.Result.Results, Is.Empty);
         }
 
         [Test]
@@ -945,11 +1024,11 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Count);
-            Assert.NotNull(response.Result.Offset);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.AreEqual("vivianupman", response.Result.Results.First().Author);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.EqualTo("vivianupman"));
         }
 
         [Test]
@@ -963,11 +1042,28 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.NotNull(response.Result.Count);
-            Assert.NotNull(response.Result.Offset);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.IsNotEmpty(response.Result.Results);
-            Assert.IsTrue(response.Result.Results.Count == 5);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Count == 5);
+        }
+
+        [Test]
+        public void UserFriends_Followers_Limit_Negative()
+        {
+            // Arrange
+            const int defaultLimit = 50;
+            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Followers, limit: -5);
+
+            // Act
+            var response = _api.GetUserFriends(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Count, Is.EqualTo(defaultLimit));
         }
 
         [Test]
@@ -979,29 +1075,23 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.IsNotEmpty(response.Result.Text);
+            Assert.That(response.Result.Text, Is.Not.Empty);
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)
         {
-            lock (response)
-            {
-                Assert.NotNull(response);
-                Assert.IsTrue(response.Success);
-                Assert.NotNull(response.Result);
-                Assert.IsEmpty(response.Errors);
-            }
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Errors, Is.Empty);
         }
 
         private void AssertFailedResult<T>(OperationResult<T> response)
         {
-            lock (response)
-            {
-                Assert.NotNull(response);
-                Assert.IsFalse(response.Success);
-                Assert.IsNull(response.Result);
-                Assert.IsNotEmpty(response.Errors);
-            }
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Success, Is.False);
+            Assert.That(response.Result, Is.Null);
+            Assert.That(response.Errors, Is.Not.Empty);
         }
     }
 }

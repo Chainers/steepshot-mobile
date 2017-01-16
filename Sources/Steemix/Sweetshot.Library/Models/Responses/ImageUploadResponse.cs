@@ -11,7 +11,7 @@ namespace Sweetshot.Library.Models.Responses
     ///    "cat4",
     ///    "steepshot"
     ///  ],
-    ///  "body": "http://res.cloudinary.com/steepshot2/image/upload/v1484557919/i4oyghdlkflutvltwkr5.jpg"
+    ///  "body": "http://res.cloudinary.com/steepshot2/image/upload/v1484584571/bxfru7z88aeqkvermoiw.jpg"
     ///}
     public class ImageUploadResponse
     {
