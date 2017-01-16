@@ -178,6 +178,7 @@
     <Compile Include="Activities\GuestActivity.cs" />
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="ViewModels\SplashViewModel.cs" />
+    <Compile Include="ViewModels\UserFriendViewMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

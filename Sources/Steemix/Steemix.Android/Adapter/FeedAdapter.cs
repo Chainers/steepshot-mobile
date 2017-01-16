@@ -47,39 +47,38 @@ namespace Steemix.Droid.Adapter
         {
             FeedViewHolder vh = holder as FeedViewHolder;
             vh.Photo.SetImageResource(0);
-            vh.Author.Text = Posts[position].Author;
-            if (Posts[position].Title != null)
+            var post = Posts[position];
+            vh.Author.Text = post.Author;
+            if (post.Title != null)
             {
                 vh.FirstComment.Visibility = ViewStates.Visible;
-                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(CommentPattern, Posts[position].Author, Posts[position].Title));
+                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(CommentPattern, post.Author, post.Title));
             }
             else
             {
                 vh.FirstComment.Visibility = ViewStates.Gone;
             }
 
-            //TODO:KOA:тип данных сейчас string (в реальности int)
-            //TODO Type was changed to int, please update logic
-            if (!string.IsNullOrEmpty(Posts[position].Children))
+            if (post.Children > 0)
             {
-                vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), Posts[position].Children);
+                vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), post.Children);
             }
             else
             {
                 vh.CommentSubtitle.Text = context.GetString(Resource.String.first_title_comment);
             }
-            vh.UpdateData(Posts[position], context);
-            Picasso.With(context).Load(Posts[position].Body).Into(vh.Photo);
-            if (!string.IsNullOrEmpty(Posts[position].Avatar))
+            vh.UpdateData(post, context);
+            Picasso.With(context).Load(post.Body).Into(vh.Photo);
+            if (!string.IsNullOrEmpty(post.Avatar))
             {
-                Picasso.With(context).Load(Posts[position].Avatar).Into(vh.Avatar);
+                Picasso.With(context).Load(post.Avatar).Into(vh.Avatar);
             }
             else
             {
                 vh.Avatar.SetImageResource(Resource.Mipmap.ic_launcher);
             }
 
-            vh.Like.SetImageResource(Posts[position].Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

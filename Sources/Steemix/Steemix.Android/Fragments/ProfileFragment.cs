@@ -24,6 +24,23 @@ namespace Steemix.Droid.Fragments
             StartActivity(intent);
         }
 
+
+        [InjectOnClick(Resource.Id.btn_following)]
+        public void OnFollowingClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(FollowersActivity));
+            intent.PutExtra("isFollow", false);
+            StartActivity(intent);
+        }
+
+        [InjectOnClick(Resource.Id.btn_followers)]
+        public void OnFollowersClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(FollowersActivity));
+            intent.PutExtra("isFollow", true);
+            StartActivity(intent);
+        }
+
         public override void OnDestroyView()
         {
             base.OnDestroyView();

@@ -2287,8 +2287,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08007a
 			public const int Title = 2131230842;
 			
-			// aapt resource value: 0x7f0800cb
-			public const int action0 = 2131230923;
+			// aapt resource value: 0x7f0800cd
+			public const int action0 = 2131230925;
 			
 			// aapt resource value: 0x7f08005a
 			public const int action_bar = 2131230810;
@@ -2314,8 +2314,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08005b
 			public const int action_context_bar = 2131230811;
 			
-			// aapt resource value: 0x7f0800cf
-			public const int action_divider = 2131230927;
+			// aapt resource value: 0x7f0800d1
+			public const int action_divider = 2131230929;
 			
 			// aapt resource value: 0x7f080003
 			public const int action_menu_divider = 2131230723;
@@ -2359,6 +2359,12 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08008f
 			public const int btn_follow_unfollow = 2131230863;
 			
+			// aapt resource value: 0x7f0800a5
+			public const int btn_followers = 2131230885;
+			
+			// aapt resource value: 0x7f0800a4
+			public const int btn_following = 2131230884;
+			
 			// aapt resource value: 0x7f080091
 			public const int btn_hot = 2131230865;
 			
@@ -2386,8 +2392,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08009a
 			public const int camera_frame = 2131230874;
 			
-			// aapt resource value: 0x7f0800cc
-			public const int cancel_action = 2131230924;
+			// aapt resource value: 0x7f0800ce
+			public const int cancel_action = 2131230926;
 			
 			// aapt resource value: 0x7f08002b
 			public const int center = 2131230763;
@@ -2401,11 +2407,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080052
 			public const int checkbox = 2131230802;
 			
-			// aapt resource value: 0x7f0800d1
-			public const int chronometer = 2131230929;
+			// aapt resource value: 0x7f0800d3
+			public const int chronometer = 2131230931;
 			
-			// aapt resource value: 0x7f0800a4
-			public const int civ_avatar = 2131230884;
+			// aapt resource value: 0x7f0800a6
+			public const int civ_avatar = 2131230886;
 			
 			// aapt resource value: 0x7f080096
 			public const int cl_date_details = 2131230870;
@@ -2473,17 +2479,17 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08000e
 			public const int disableHome = 2131230734;
 			
-			// aapt resource value: 0x7f0800a5
-			public const int dtn_change_avatar = 2131230885;
-			
-			// aapt resource value: 0x7f0800a6
-			public const int dtn_change_password = 2131230886;
+			// aapt resource value: 0x7f0800a7
+			public const int dtn_change_avatar = 2131230887;
 			
 			// aapt resource value: 0x7f0800a8
-			public const int dtn_delete_steemix_account = 2131230888;
+			public const int dtn_change_password = 2131230888;
 			
-			// aapt resource value: 0x7f0800a7
-			public const int dtn_terms_of_service = 2131230887;
+			// aapt resource value: 0x7f0800aa
+			public const int dtn_delete_steemix_account = 2131230890;
+			
+			// aapt resource value: 0x7f0800a9
+			public const int dtn_terms_of_service = 2131230889;
 			
 			// aapt resource value: 0x7f08005c
 			public const int edit_query = 2131230812;
@@ -2491,8 +2497,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08001c
 			public const int end = 2131230748;
 			
-			// aapt resource value: 0x7f0800d6
-			public const int end_padder = 2131230934;
+			// aapt resource value: 0x7f0800d8
+			public const int end_padder = 2131230936;
 			
 			// aapt resource value: 0x7f080023
 			public const int enterAlways = 2131230755;
@@ -2533,8 +2539,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08008b
 			public const int followers_list = 2131230859;
 			
-			// aapt resource value: 0x7f0800ac
-			public const int forgot_pass_btn = 2131230892;
+			// aapt resource value: 0x7f0800ae
+			public const int forgot_pass_btn = 2131230894;
 			
 			// aapt resource value: 0x7f08007c
 			public const int fragment_container = 2131230844;
@@ -2569,11 +2575,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080088
 			public const int img_conversation = 2131230856;
 			
-			// aapt resource value: 0x7f0800d5
-			public const int info = 2131230933;
+			// aapt resource value: 0x7f0800d7
+			public const int info = 2131230935;
 			
-			// aapt resource value: 0x7f0800ae
-			public const int input_key = 2131230894;
+			// aapt resource value: 0x7f0800b0
+			public const int input_key = 2131230896;
 			
 			// aapt resource value: 0x7f080074
 			public const int input_new_password = 2131230836;
@@ -2587,8 +2593,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080075
 			public const int input_repeat_new_password = 2131230837;
 			
-			// aapt resource value: 0x7f0800aa
-			public const int input_username = 2131230890;
+			// aapt resource value: 0x7f0800ac
+			public const int input_username = 2131230892;
 			
 			// aapt resource value: 0x7f080000
 			public const int item_touch_helper_previous_elevation = 2131230720;
@@ -2602,11 +2608,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080085
 			public const int likes = 2131230853;
 			
-			// aapt resource value: 0x7f0800d0
-			public const int line1 = 2131230928;
+			// aapt resource value: 0x7f0800d2
+			public const int line1 = 2131230930;
 			
-			// aapt resource value: 0x7f0800d3
-			public const int line3 = 2131230931;
+			// aapt resource value: 0x7f0800d5
+			public const int line3 = 2131230933;
 			
 			// aapt resource value: 0x7f08000b
 			public const int listMode = 2131230731;
@@ -2620,11 +2626,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08007e
 			public const int loading_spinner = 2131230846;
 			
-			// aapt resource value: 0x7f0800a9
-			public const int logo = 2131230889;
+			// aapt resource value: 0x7f0800ab
+			public const int logo = 2131230891;
 			
-			// aapt resource value: 0x7f0800ce
-			public const int media_actions = 2131230926;
+			// aapt resource value: 0x7f0800d0
+			public const int media_actions = 2131230928;
 			
 			// aapt resource value: 0x7f08001d
 			public const int middle = 2131230749;
@@ -2632,77 +2638,77 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080037
 			public const int mini = 2131230775;
 			
-			// aapt resource value: 0x7f0800bd
-			public const int mr_art = 2131230909;
-			
-			// aapt resource value: 0x7f0800b2
-			public const int mr_chooser_list = 2131230898;
-			
-			// aapt resource value: 0x7f0800b5
-			public const int mr_chooser_route_desc = 2131230901;
-			
-			// aapt resource value: 0x7f0800b3
-			public const int mr_chooser_route_icon = 2131230899;
+			// aapt resource value: 0x7f0800bf
+			public const int mr_art = 2131230911;
 			
 			// aapt resource value: 0x7f0800b4
-			public const int mr_chooser_route_name = 2131230900;
-			
-			// aapt resource value: 0x7f0800ba
-			public const int mr_close = 2131230906;
-			
-			// aapt resource value: 0x7f0800c0
-			public const int mr_control_divider = 2131230912;
-			
-			// aapt resource value: 0x7f0800c6
-			public const int mr_control_play_pause = 2131230918;
-			
-			// aapt resource value: 0x7f0800c9
-			public const int mr_control_subtitle = 2131230921;
-			
-			// aapt resource value: 0x7f0800c8
-			public const int mr_control_title = 2131230920;
-			
-			// aapt resource value: 0x7f0800c7
-			public const int mr_control_title_container = 2131230919;
-			
-			// aapt resource value: 0x7f0800bb
-			public const int mr_custom_control = 2131230907;
-			
-			// aapt resource value: 0x7f0800bc
-			public const int mr_default_control = 2131230908;
+			public const int mr_chooser_list = 2131230900;
 			
 			// aapt resource value: 0x7f0800b7
-			public const int mr_dialog_area = 2131230903;
+			public const int mr_chooser_route_desc = 2131230903;
+			
+			// aapt resource value: 0x7f0800b5
+			public const int mr_chooser_route_icon = 2131230901;
 			
 			// aapt resource value: 0x7f0800b6
-			public const int mr_expandable_area = 2131230902;
+			public const int mr_chooser_route_name = 2131230902;
 			
-			// aapt resource value: 0x7f0800ca
-			public const int mr_group_expand_collapse = 2131230922;
-			
-			// aapt resource value: 0x7f0800be
-			public const int mr_media_main_control = 2131230910;
-			
-			// aapt resource value: 0x7f0800b9
-			public const int mr_name = 2131230905;
-			
-			// aapt resource value: 0x7f0800bf
-			public const int mr_playback_control = 2131230911;
-			
-			// aapt resource value: 0x7f0800b8
-			public const int mr_title_bar = 2131230904;
-			
-			// aapt resource value: 0x7f0800c1
-			public const int mr_volume_control = 2131230913;
+			// aapt resource value: 0x7f0800bc
+			public const int mr_close = 2131230908;
 			
 			// aapt resource value: 0x7f0800c2
-			public const int mr_volume_group_list = 2131230914;
+			public const int mr_control_divider = 2131230914;
+			
+			// aapt resource value: 0x7f0800c8
+			public const int mr_control_play_pause = 2131230920;
+			
+			// aapt resource value: 0x7f0800cb
+			public const int mr_control_subtitle = 2131230923;
+			
+			// aapt resource value: 0x7f0800ca
+			public const int mr_control_title = 2131230922;
+			
+			// aapt resource value: 0x7f0800c9
+			public const int mr_control_title_container = 2131230921;
+			
+			// aapt resource value: 0x7f0800bd
+			public const int mr_custom_control = 2131230909;
+			
+			// aapt resource value: 0x7f0800be
+			public const int mr_default_control = 2131230910;
+			
+			// aapt resource value: 0x7f0800b9
+			public const int mr_dialog_area = 2131230905;
+			
+			// aapt resource value: 0x7f0800b8
+			public const int mr_expandable_area = 2131230904;
+			
+			// aapt resource value: 0x7f0800cc
+			public const int mr_group_expand_collapse = 2131230924;
+			
+			// aapt resource value: 0x7f0800c0
+			public const int mr_media_main_control = 2131230912;
+			
+			// aapt resource value: 0x7f0800bb
+			public const int mr_name = 2131230907;
+			
+			// aapt resource value: 0x7f0800c1
+			public const int mr_playback_control = 2131230913;
+			
+			// aapt resource value: 0x7f0800ba
+			public const int mr_title_bar = 2131230906;
+			
+			// aapt resource value: 0x7f0800c3
+			public const int mr_volume_control = 2131230915;
 			
 			// aapt resource value: 0x7f0800c4
-			public const int mr_volume_item_icon = 2131230916;
+			public const int mr_volume_group_list = 2131230916;
 			
-			// aapt resource value: 0x7f0800c5
-			public const int mr_volume_slider = 2131230917;
+			// aapt resource value: 0x7f0800c6
+			public const int mr_volume_item_icon = 2131230918;
+			
+			// aapt resource value: 0x7f0800c7
+			public const int mr_volume_slider = 2131230919;
 			
 			// aapt resource value: 0x7f080016
 			public const int multiply = 2131230742;
@@ -2824,11 +2830,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080013
 			public const int showTitle = 2131230739;
 			
-			// aapt resource value: 0x7f0800ab
-			public const int sign_in_btn = 2131230891;
-			
 			// aapt resource value: 0x7f0800ad
-			public const int sign_up_btn = 2131230893;
+			public const int sign_in_btn = 2131230893;
+			
+			// aapt resource value: 0x7f0800af
+			public const int sign_up_btn = 2131230895;
 			
 			// aapt resource value: 0x7f0800a3
 			public const int site = 2131230883;
@@ -2860,8 +2866,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080031
 			public const int start = 2131230769;
 			
-			// aapt resource value: 0x7f0800cd
-			public const int status_bar_latest_event_content = 2131230925;
+			// aapt resource value: 0x7f0800cf
+			public const int status_bar_latest_event_content = 2131230927;
 			
 			// aapt resource value: 0x7f080065
 			public const int submit_area = 2131230821;
@@ -2872,17 +2878,17 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08000d
 			public const int tabMode = 2131230733;
 			
-			// aapt resource value: 0x7f0800d7
-			public const int tab_image = 2131230935;
+			// aapt resource value: 0x7f0800d9
+			public const int tab_image = 2131230937;
 			
-			// aapt resource value: 0x7f0800b0
-			public const int tab_layout = 2131230896;
+			// aapt resource value: 0x7f0800b2
+			public const int tab_layout = 2131230898;
+			
+			// aapt resource value: 0x7f0800d6
+			public const int text = 2131230934;
 			
 			// aapt resource value: 0x7f0800d4
-			public const int text = 2131230932;
-			
-			// aapt resource value: 0x7f0800d2
-			public const int text2 = 2131230930;
+			public const int text2 = 2131230932;
 			
 			// aapt resource value: 0x7f08004d
 			public const int textSpacerNoButtons = 2131230797;
@@ -2908,8 +2914,8 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f080069
 			public const int touch_outside = 2131230825;
 			
-			// aapt resource value: 0x7f0800b1
-			public const int tv_terms_of_service = 2131230897;
+			// aapt resource value: 0x7f0800b3
+			public const int tv_terms_of_service = 2131230899;
 			
 			// aapt resource value: 0x7f080009
 			public const int up = 2131230729;
@@ -2920,11 +2926,11 @@ namespace Steemix.Droid
 			// aapt resource value: 0x7f08000a
 			public const int view_offset_helper = 2131230730;
 			
-			// aapt resource value: 0x7f0800af
-			public const int view_pager = 2131230895;
+			// aapt resource value: 0x7f0800b1
+			public const int view_pager = 2131230897;
 			
-			// aapt resource value: 0x7f0800c3
-			public const int volume_item_container = 2131230915;
+			// aapt resource value: 0x7f0800c5
+			public const int volume_item_container = 2131230917;
 			
 			// aapt resource value: 0x7f080022
 			public const int withText = 2131230754;

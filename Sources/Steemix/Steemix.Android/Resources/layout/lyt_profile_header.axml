@@ -121,4 +121,22 @@
             android:textSize="11sp"
             android:text="www.marvinstudio.com" />
     </LinearLayout>
+    <Button
+        android:id="@+id/btn_following"
+        android:padding="5dp"
+        android:text="@string/following"
+        android:textColor="@color/color_primary"
+        android:textSize="10sp"
+        android:background="@drawable/white_solid_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btn_followers"
+        android:padding="5dp"
+        android:text="@string/text_followers"
+        android:textColor="@color/color_primary"
+        android:textSize="10sp"
+        android:background="@drawable/white_solid_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
