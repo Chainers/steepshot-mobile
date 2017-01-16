@@ -1,16 +1,17 @@
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
-    ///  "comments": [
+    ///  "count": 30,
+    ///  "results": [
     ///    {
     ///      "body": "abcd",
     ///      "title": "abcd123",
     ///      "url": "/spam/@asduj/new-application-coming---#@joseph.kalu/re-new-application-coming----20161211t142239",
     ///      "category": "spam",
     ///      "author": "joseph.kalu",
-    ///      "avatar": "",
+    ///      "avatar": "http://vignette2.wikia.nocookie.net/tomandjerry/images/6/6d/Tom-tom-and-jerry.png/revision/latest?cb=20140627113049",
     ///      "author_rewards": 0,
-    ///      "author_reputation": 33,
+    ///      "author_reputation": 37,
     ///      "net_votes": 0,
     ///      "children": 0,
     ///      "created": "2016-12-11T14:22:39Z",
@@ -19,13 +20,16 @@ namespace Sweetshot.Library.Models.Responses
     ///      "pending_payout_value": 0.0,
     ///      "max_accepted_payout": 1000000.0,
     ///      "total_payout_reward": 0.0,
-    ///      "vote": 0
+    ///      "vote": false,
+    ///      "tags": [],
+    ///      "depth": 1
     ///    }
     ///  ]
     ///}
     public class GetCommentResponse
     {
-        public Comment[] Comments { get; set; }
+        public string Count { get; set; }
+        public Comment[] Results { get; set; }
     }
 
     public class Comment

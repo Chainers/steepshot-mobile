@@ -1,7 +1,8 @@
+using Sweetshot.Library.Models.Responses.Common;
+
 namespace Sweetshot.Library.Models.Responses
 {
-    // TODO
-    public class CreateCommentResponse
+    public class CreateCommentResponse : MessageField
     {
     }
 }

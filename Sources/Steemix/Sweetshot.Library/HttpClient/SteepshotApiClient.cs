@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using RestSharp;
@@ -101,7 +102,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
-            
+
             var endpoint = $"/post/{request.Identifier}/" + request.Type.GetDescription();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
@@ -111,7 +112,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            
+
             var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
@@ -131,7 +132,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
-           
+
             var response = await _gateway.Post($"/post/{request.Url}/comment", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
@@ -140,7 +141,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            
+
             var response = await _gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
@@ -164,7 +165,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
-            
+
             var response = await _gateway.Get("categories/search", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CategoriesResponse>(response.Content, errorResult);
@@ -174,7 +175,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
-            
+
             var response = await _gateway.Post("user/change-password", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<ChangePasswordResponse>(response.Content, errorResult);
@@ -183,7 +184,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            
+
             var response = await _gateway.Post("logout", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<LogoutResponse>(response.Content, errorResult);
@@ -192,7 +193,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-          
+
             var response = await _gateway.Get($"/user/{request.Username}", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserProfileResponse>(response.Content, errorResult);
@@ -247,19 +248,89 @@ namespace Sweetshot.Library.HttpClient
                 result.Errors.Add("ResponseStatus: " + response.ResponseStatus);
             }
             // HTTP errors
-            else if (response.StatusCode == HttpStatusCode.InternalServerError ||
-                     response.StatusCode != HttpStatusCode.OK &&
-                     response.StatusCode != HttpStatusCode.Created)
+            else if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                result.Errors.Add(response.StatusDescription);
+                //result.Errors.Add(response.StatusDescription);
             }
+            else if (response.StatusCode == HttpStatusCode.BadGateway)
+            {
+                //result.Errors.Add(response.StatusDescription);
+            }
+            else if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
+            {
+                //result.Errors.Add(response.StatusDescription);
+            }
+            else if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                if (content.StartsWith(@"{""detail"":"))
+                {
+                    var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                    foreach (var kvp in dic)
+                    {
+                        result.Errors.AddRange(kvp.Value);
+                    }
+                }
+                else
+                {
+                    throw new ApplicationException();
+                }
+            }
+            else if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                //result.Errors.Add(response.StatusDescription);
+
+                if (content.StartsWith(@"{""non_field_errors"":"))
+                {
+                    var definition = new {non_field_errors = new List<string>()};
+                    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
+                    result.Errors.AddRange(value.non_field_errors);
+                }
+                // TODO Remove this if case
+                else if (content.StartsWith(@"{""detail"":"))
+                {
+                    var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                    foreach (var kvp in dic)
+                    {
+                        result.Errors.AddRange(kvp.Value);
+                    }
+                    //var definition = new {detail = ""};
+                    //var value = _jsonConverter.DeserializeAnonymousType(content, definition);
+                    //result.Errors.Add(value.detail);
+                }
+                else
+                {
+                    try
+                    {
+                        var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                        foreach (var kvp in dic)
+                        {
+                            result.Errors.AddRange(kvp.Value);
+                        }
+                    }
+                    catch
+                    {
+                        // TODO Remove
+                        var dic = _jsonConverter.Deserialize<Dictionary<string, string>>(content);
+                        foreach (var kvp in dic)
+                        {
+                            result.Errors.Add(kvp.Value);
+                        }
+                    }
+                }
+            }
+            else if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+            {
+                //result.Errors.Add(response.StatusDescription);
+            }
+
             // TODO
-            else if (content.StartsWith(@"{""error"":"))
-            {
-            }
+            //else if (content.StartsWith(@"{""error"":"))
+            //{
+            //}
             //else if (content.StartsWith(@"{""status"":"))
             //{
             //}
+
             else
             {
                 result.Success = true;
@@ -275,41 +346,41 @@ namespace Sweetshot.Library.HttpClient
                 {
                     result.Errors.Add(content);
                 }
-                else if (content.Contains("non_field_errors"))
-                {
-                    var definition = new {non_field_errors = new List<string>()};
-                    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                    result.Errors.AddRange(value.non_field_errors);
-                }
+                //else if (content.Contains("non_field_errors"))
+                //{
+                //var definition = new {non_field_errors = new List<string>()};
+                //var value = _jsonConverter.DeserializeAnonymousType(content, definition);
+                //result.Errors.AddRange(value.non_field_errors);
+                //}
                 else if (content.StartsWith(@"{""error"":"))
                 {
                     var definition = new {error = ""};
                     var value = _jsonConverter.DeserializeAnonymousType(content, definition);
                     result.Errors.Add(value.error);
                 }
-                else if (content.StartsWith(@"{""detail"":"))
-                {
-                    var definition = new {detail = ""};
-                    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                    result.Errors.Add(value.detail);
-                }
-                //else if (content.StartsWith(@"{""status"":"))
+                //else if (content.StartsWith(@"{""detail"":"))
+                //{
+                //    var definition = new {detail = ""};
+                //    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
+                //    result.Errors.Add(value.detail);
+                //}
+                ////else if (content.StartsWith(@"{""status"":"))
                 //{
                 //    var definition = new {status = ""};
                 //    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
                 //    result.Errors.Add(value.status);
                 //}
-                else
-                {
-                    var values = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                    foreach (var kvp in values)
-                    {
-                        foreach (var v in kvp.Value)
-                        {
-                            result.Errors.Add(kvp.Key + " " + v);
-                        }
-                    }
-                }
+                //else
+                //{
+                //    var values = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                //    foreach (var kvp in values)
+                //    {
+                //        foreach (var v in kvp.Value)
+                //        {
+                //            result.Errors.Add(kvp.Key + " " + v);
+                //        }
+                //    }
+                //}
             }
 
             return result;

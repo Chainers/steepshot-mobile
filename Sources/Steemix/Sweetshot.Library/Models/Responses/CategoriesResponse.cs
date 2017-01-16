@@ -3,14 +3,14 @@ using System.Collections.Generic;
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
+    ///  "total_count": -1,
     ///  "count": 2,
-    ///  "total_count": 2,
     ///  "results": [
     ///    {
-    ///      "name": "food"
+    ///      "name": "life"
     ///    },
     ///    {
-    ///      "name": "fantasyfootball"
+    ///      "name": "food"
     ///    }
     ///  ]
     ///}

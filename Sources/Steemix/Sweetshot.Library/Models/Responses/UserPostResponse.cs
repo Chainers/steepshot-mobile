@@ -3,27 +3,31 @@
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
-    ///  "offset": "/life/@donkeypong/how-i-learned-to-appreciate-fake-princesses-and-am-trying-to-be-less-judgmental",
-    ///  "count": 5,
+    ///  "offset": "/spam/@joseph.kalu/test-post-thu-jan-12-101304-2017",
+    ///  "count": 9,
     ///  "results": [
     ///    {
-    ///      "body": "http://postfiles15.naver.net/MjAxNzAxMTFfMTg5/MDAxNDg0MTAwMDMwOTQ0.FKJ01KWtRUWlEWTT2BixTvuSxUQDwSZx36WiGNFb2Pkg.5dtF8OP9eGIyv4OAo0EGc6WmQj_m-dUrvXi_gRn-avkg.JPEG.korbitinc/fb_multibrokerage_vol3-01.jpg",
-    ///      "title": "Korean Exchange Added STEEM-Fiat(KRW) Market",
-    ///      "url": "/steem/@clayop/korean-exchange-added-steem-fiat-krw-market",
-    ///      "category": "steem",
-    ///      "author": "clayop",
-    ///      "avatar": "http://i.imgsafe.org/4402e8d675.jpg",
+    ///      "body": "http://res.cloudinary.com/steepshot2/image/upload/v1484422967/zmfes9yxqi6naoram6ij.jpg",
+    ///      "title": "Test post Sat Jan 14 19:42:45 2017",
+    ///      "url": "/spam/@joseph.kalu/test-post-sat-jan-14-194245-2017",
+    ///      "category": "spam",
+    ///      "author": "joseph.kalu",
+    ///      "avatar": "http://vignette2.wikia.nocookie.net/tomandjerry/images/6/6d/Tom-tom-and-jerry.png/revision/latest?cb=20140627113049",
     ///      "author_rewards": 0,
-    ///      "author_reputation": 68,
-    ///      "net_votes": 368,
-    ///      "children": 19,
-    ///      "created": "2017-01-11T16:58:27Z",
+    ///      "author_reputation": 37,
+    ///      "net_votes": 5,
+    ///      "children": 0,
+    ///      "created": "2017-01-14T19:42:48Z",
     ///      "curator_payout_value": 0.0,
     ///      "total_payout_value": 0.0,
-    ///      "pending_payout_value": 191.116,
+    ///      "pending_payout_value": 0.0,
     ///      "max_accepted_payout": 1000000.0,
-    ///      "total_payout_reward": 191.116,
-    ///      "vote": 1
+    ///      "total_payout_reward": 0.0,
+    ///      "vote": false,
+    ///      "tags": [
+    ///        "test"
+    ///      ],
+    ///      "depth": 0
     ///    }
     ///  ]
     ///}

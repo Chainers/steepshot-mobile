@@ -29,7 +29,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CategoriesResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ChangePasswordResponse.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\Common\StatusField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\Common\MessageField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CreateCommentResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\FollowResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\GetCommentResponse.cs" />

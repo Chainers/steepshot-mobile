@@ -1,11 +1,12 @@
-﻿namespace Sweetshot.Library.Models.Responses
+﻿using Sweetshot.Library.Models.Responses.Common;
+
+namespace Sweetshot.Library.Models.Responses
 {
-    ///{
-    ///  "username": "joseph.kalu"
-    ///}
-    public class LoginResponse
+    /// {
+    ///  "message": "User was logged in."
+    /// }
+    public class LoginResponse : MessageField
     {
-        public string Username { get; set; }
         public string SessionId { get; set; }
     }
 }

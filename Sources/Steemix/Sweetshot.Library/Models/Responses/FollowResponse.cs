@@ -1,7 +1,8 @@
+using Sweetshot.Library.Models.Responses.Common;
+
 namespace Sweetshot.Library.Models.Responses
 {
-    // TODO
-    public class FollowResponse
+    public class FollowResponse : MessageField
     {
     }
 }

@@ -1,8 +1,8 @@
-using Sweetshot.Library.Models.Requests.Common;
+using Sweetshot.Library.Models.Responses.Common;
 
 namespace Sweetshot.Library.Models.Responses
 {
-    public class LogoutResponse : StatusField
+    public class LogoutResponse : MessageField
     {
     }
 }

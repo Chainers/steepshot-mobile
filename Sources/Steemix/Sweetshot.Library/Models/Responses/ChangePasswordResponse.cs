@@ -1,8 +1,8 @@
-using Sweetshot.Library.Models.Requests.Common;
+using Sweetshot.Library.Models.Responses.Common;
 
 namespace Sweetshot.Library.Models.Responses
 {
-    public class ChangePasswordResponse : StatusField
+    public class ChangePasswordResponse : MessageField
     {
     }
 }

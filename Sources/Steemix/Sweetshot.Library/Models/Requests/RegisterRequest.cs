@@ -1,4 +1,3 @@
-using System;
 using Newtonsoft.Json;
 
 namespace Sweetshot.Library.Models.Requests
@@ -7,9 +6,6 @@ namespace Sweetshot.Library.Models.Requests
     {
         public RegisterRequest(string postingKey, string username, string password) : base(username, password)
         {
-            if (string.IsNullOrWhiteSpace(postingKey))
-                throw new ArgumentNullException(nameof(postingKey));
-
             PostingKey = postingKey;
         }
 

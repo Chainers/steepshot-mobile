@@ -1,12 +1,13 @@
-﻿namespace Sweetshot.Library.Models.Responses
+﻿using Sweetshot.Library.Models.Responses.Common;
+
+namespace Sweetshot.Library.Models.Responses
 {
     ///{
-    ///  "new_total_payout_reward": "0.00",
-    ///  "status": "OK"
+    ///  "message": "Upvoted",
+    ///  "new_total_payout_reward": "0.00"
     ///}
-    public class VoteResponse
+    public class VoteResponse : MessageField
     {
         public double NewTotalPayoutReward { get; set; }
-        public string Status { get; set; }
     }
 }
