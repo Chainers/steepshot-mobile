@@ -29,8 +29,8 @@ namespace Steemix.Droid
 
                 if (principal == null)
                 {
-                    return Empty;
-                    //principal = TryLogIn();
+                    //return Empty;
+                    principal = TryLogIn();
                 }
 
                 return principal;
@@ -46,9 +46,9 @@ namespace Steemix.Droid
         private UserPrincipal() : base(new GenericIdentity(string.Empty), new string[0]) { }
 
         private UserPrincipal(UserInfo userInfo)
-          : base(new GenericIdentity(userInfo.Token), new string[0])
+          : base(new GenericIdentity(userInfo.SessionId), new string[0])
         {
-            _sessionId = userInfo.Token;
+            _sessionId = userInfo.SessionId;
             _login = userInfo.Login;
             _password = userInfo.Password;
         }
@@ -61,6 +61,13 @@ namespace Steemix.Droid
             return CreatePrincipal(userResponse.SessionId, login, password);
         }
 
+        public static UserPrincipal CreatePrincipal(UserInfo info)
+        {
+            if (info == null)
+                throw new ArgumentNullException(nameof(info));
+            return CreatePrincipal(info.SessionId, info.Login, info.Password);
+        }
+
         public static UserPrincipal CreatePrincipal(string token, string login, string password)
         {
             if (string.IsNullOrWhiteSpace(token))
@@ -68,7 +75,7 @@ namespace Steemix.Droid
 
             var userInfo = new UserInfo
             {
-                Token = token,
+                SessionId = token,
                 Login = login,
                 Password = password, //TODO:KOA по идеи надо шифровать, но пока так
             };
@@ -90,25 +97,38 @@ namespace Steemix.Droid
         public static UserPrincipal TryLogIn()
         {
             var lastStored = GetLastRegisteredUser();
-            if (lastStored != null)
-            {
-                var login = lastStored.Login;
-                var password = lastStored.Password;
-                var loginRequest = new LoginRequest(login, password);
-                var responceTask = ViewModelLocator.Api.Login(loginRequest);
-                responceTask.Wait();
-                if (responceTask.IsCompleted && responceTask.Result.Success)
-                    return CreatePrincipal(responceTask.Result.Result, lastStored.Login, lastStored.Password);
-            }
+            if (lastStored == null)
+                return Empty;
+
+            if ((lastStored.LoginTime - DateTime.Now).TotalMinutes < 20)
+                return CreatePrincipal(lastStored);
+
+
+            var login = lastStored.Login;
+            var password = lastStored.Password;
+
+            var loginRequest = new LoginRequest(login, password);
+            var responceTask = ViewModelLocator.Api.Login(loginRequest);
+            responceTask.Wait();
+            if (responceTask.IsCompleted && responceTask.Result.Success)
+                return CreatePrincipal(responceTask.Result.Result, lastStored.Login, lastStored.Password);
 
             return Empty;
         }
 
-        public static UserInfo GetLastRegisteredUser()
+        private static UserInfo GetLastRegisteredUser()
         {
-            var realm = Realms.Realm.GetInstance();
-            var userInfo = realm.All<UserInfo>().FirstOrDefault();
-            return userInfo;
+            try
+            {
+                var realm = Realms.Realm.GetInstance();
+                var userInfo = realm.All<UserInfo>().FirstOrDefault();
+                return userInfo;
+            }
+            catch (Exception)
+            {
+                Realms.Realm.DeleteRealm(Realms.RealmConfiguration.DefaultConfiguration);
+            }
+            return null;
         }
     }
 }

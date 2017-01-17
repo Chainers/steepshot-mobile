@@ -4,7 +4,7 @@
     android:id="@+id/cl_date_details"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_gray_e5">
+    android:background="@color/light_gray_fa">
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

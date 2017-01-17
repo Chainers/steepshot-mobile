@@ -50,15 +50,15 @@ namespace Steemix.Droid.Adapter
             else
                 vh.FriendAvatar.SetImageResource(Resource.Mipmap.ic_launcher);
 
-            if (item.FollowUnfollow)
+            if (item.IsFollow)
             {
                 vh.FollowUnfollow.Text = "Follow";
-                vh.FollowUnfollow.SetTextColor(Color.Blue);
+                vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
             }
             else
             {
                 vh.FollowUnfollow.Text = "Unfollow";
-                vh.FollowUnfollow.SetTextColor(Color.Gray);
+                vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
             }
 
         }
@@ -93,15 +93,15 @@ namespace Steemix.Droid.Adapter
 
             void Follow_Click(object sender, EventArgs e)
             {
-                if (_userFriendst.FollowUnfollow)
+                if (_userFriendst.IsFollow)
                 {
                     FollowUnfollow.Text = "Follow";
-                    FollowUnfollow.SetTextColor(Color.Blue);
+                    FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
                 }
                 else
                 {
                     FollowUnfollow.Text = "Unfollow";
-                    FollowUnfollow.SetTextColor(Color.Gray);
+                    FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
                 }
                 _followAction?.Invoke(AdapterPosition);
             }

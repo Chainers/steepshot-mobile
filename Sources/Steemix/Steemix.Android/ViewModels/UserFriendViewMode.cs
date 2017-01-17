@@ -4,14 +4,14 @@ namespace Steemix.Droid.ViewModels
 {
     public class UserFriendViewMode : UserFriend
     {
-        public UserFriendViewMode(UserFriend item, bool followUnfollow)
+        public UserFriendViewMode(UserFriend item, bool isFollow)
         {
             Author = item.Author;
             Avatar = item.Avatar;
             Reputation = item.Reputation;
-            FollowUnfollow = followUnfollow;
+            IsFollow = isFollow;
         }
 
-        public bool FollowUnfollow { get; set; }
+        public bool IsFollow { get; set; }
     }
 }

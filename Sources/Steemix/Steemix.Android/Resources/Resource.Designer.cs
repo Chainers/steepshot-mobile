@@ -1247,7 +1247,7 @@ namespace Steemix.Droid
 			public const int light_gray = 2131558476;
 			
 			// aapt resource value: 0x7f0d004d
-			public const int light_gray_e5 = 2131558477;
+			public const int light_gray_fa = 2131558477;
 			
 			// aapt resource value: 0x7f0d001c
 			public const int material_blue_grey_800 = 2131558428;

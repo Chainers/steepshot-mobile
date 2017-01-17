@@ -29,7 +29,7 @@ namespace Steemix.Droid.Fragments
         public void OnFollowingClick(object sender, EventArgs e)
         {
             var intent = new Intent(Context, typeof(FollowersActivity));
-            intent.PutExtra("isFollow", false);
+            intent.PutExtra("isFollowers", false);
             StartActivity(intent);
         }
 
@@ -37,7 +37,7 @@ namespace Steemix.Droid.Fragments
         public void OnFollowersClick(object sender, EventArgs e)
         {
             var intent = new Intent(Context, typeof(FollowersActivity));
-            intent.PutExtra("isFollow", true);
+            intent.PutExtra("isFollowers", true);
             StartActivity(intent);
         }
 

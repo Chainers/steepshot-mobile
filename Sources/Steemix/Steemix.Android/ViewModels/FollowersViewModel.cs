@@ -33,7 +33,7 @@ namespace Steemix.Droid.ViewModels
 
         public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
         {
-            var request = new FollowRequest(UserPrincipal.CurrentUser.SessionId, item.FollowUnfollow ? FollowType.Follow : FollowType.UnFollow, item.Author);
+            var request = new FollowRequest(UserPrincipal.CurrentUser.SessionId, item.IsFollow ? FollowType.Follow : FollowType.UnFollow, item.Author);
             return await ViewModelLocator.Api.Follow(request);
         }
     }

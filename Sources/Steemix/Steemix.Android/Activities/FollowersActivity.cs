@@ -28,11 +28,15 @@ namespace Steemix.Droid.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            var isFollow = Intent.GetBooleanExtra("isFollow", false);
-            _friendsType = isFollow ? FollowType.Follow : FollowType.UnFollow;
+            var isFollowers = Intent.GetBooleanExtra("isFollowers", false);
+            _friendsType = isFollowers ? FollowType.Follow : FollowType.UnFollow;
+            ViewModel.Collection.Clear();
             ViewModel.ViewLoad(_friendsType);
             SetContentView(Resource.Layout.lyt_followers);
             Cheeseknife.Inject(this);
+
+            var goBack = FindViewById<TextView>(Resource.Id.go_back);
+            goBack.Text = GetString(isFollowers ? Resource.String.text_followers : Resource.String.following);
 
             _followersAdapter = new FollowersAdapter(this, ViewModel.Collection);
             _followersList.SetAdapter(_followersAdapter);
@@ -46,7 +50,7 @@ namespace Steemix.Droid.Activities
             var response = await ViewModel.Follow(ViewModel.Collection[position]);
             if (response.Success)
             {
-                ViewModel.Collection[position].FollowUnfollow = !ViewModel.Collection[position].FollowUnfollow;
+                ViewModel.Collection[position].IsFollow = !ViewModel.Collection[position].IsFollow;
                 _followersAdapter.NotifyDataSetChanged();
             }
             else
