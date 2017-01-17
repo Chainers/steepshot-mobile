@@ -19,7 +19,7 @@ namespace Steemix.Droid.ViewModels
 
         public async Task GetItems(string offset, int limit, FollowType followType)
         {
-            var request = new UserFriendsRequest(UserPrincipal.CurrentUser.SessionId, UserPrincipal.CurrentUser.Login, followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following, offset, limit);
+            var request = new UserFriendsRequest(UserPrincipal.CurrentUser.Login, followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following, offset, limit);
             var responce = await ViewModelLocator.Api.GetUserFriends(request);
             //TODO:KOA -- Errors not processed
             if (responce.Success)

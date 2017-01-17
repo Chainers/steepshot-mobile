@@ -8,5 +8,6 @@ namespace Sweetshot.Library.Models.Responses
     public class LoginResponse : MessageField
     {
         public string SessionId { get; set; }
+        public bool IsLoggedIn => Message.Equals("User was logged in.");
     }
 }

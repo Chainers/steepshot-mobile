@@ -13,8 +13,7 @@ namespace Sweetshot.Tests
     // add more tests
     // test (assert) errors
     // remove throws in DTOs
-    // check trello
-    // check chat
+
     [TestFixture]
     public class IntegrationTests
     {
@@ -43,6 +42,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsLoggedIn, Is.True);
             Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
             Assert.That(response.Result.SessionId, Is.Not.Empty);
         }
@@ -93,7 +93,7 @@ namespace Sweetshot.Tests
         public void UserPosts()
         {
             // Arrange
-            var request = new UserPostsRequest(_sessionId, Name);
+            var request = new UserPostsRequest(Name);
 
             // Act
             var response = _api.GetUserPosts(request).Result;
@@ -128,7 +128,7 @@ namespace Sweetshot.Tests
         public void UserPosts_Invalid_Username()
         {
             // Arrange
-            var request = new UserPostsRequest(_sessionId, Name + "x");
+            var request = new UserPostsRequest(Name + "x");
 
             // Act
             var response = _api.GetUserPosts(request).Result;
@@ -188,7 +188,7 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new PostsRequest(PostType.Top, limit);
+            var request = new PostsRequest(PostType.Top, limit: limit);
 
             // Act
             var response = _api.GetPosts(request).Result;
@@ -199,25 +199,10 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Posts_Top_Check_Limit_Negative()
-        {
-            // Arrange
-            const int defaultLimit = 10;
-            var request = new PostsRequest(PostType.Top, -10);
-
-            // Act
-            var response = _api.GetPosts(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(defaultLimit, Is.EqualTo(response.Result.Count));
-        }
-
-        [Test]
         public void Posts_Top_Check_Offset()
         {
             // Arrange
-            var request = new PostsRequest(PostType.Top, 3, "/life/@hanshotfirst/best-buddies-i-see-you");
+            var request = new PostsRequest(PostType.Top, "/life/@hanshotfirst/best-buddies-i-see-you", 3);
 
             // Act
             var response = _api.GetPosts(request).Result;
@@ -268,6 +253,7 @@ namespace Sweetshot.Tests
             var response = _api.Register(request).Result;
 
             // Assert
+            //Assert.That(response.Result.IsLoggedIn, Is.False);
             //AssertSuccessfulResult(response);
             //Assert.That(response.Result.SessionId);
             //Assert.That(response.Result.Username);
@@ -372,6 +358,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsVoted, Is.True);
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -391,6 +378,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsVoted, Is.True);
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -505,6 +493,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsFollowed, Is.True);
             Assert.That(response.Result.Message, Is.EqualTo("User is followed"));
         }
 
@@ -519,6 +508,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsFollowed, Is.False);
             Assert.That(response.Result.Message, Is.EqualTo("User is unfollowed"));
         }
 
@@ -540,7 +530,7 @@ namespace Sweetshot.Tests
         public void Comments()
         {
             // Arrange
-            var request = new GetCommentsRequest(_sessionId, "@asduj/new-application-coming---");
+            var request = new GetCommentsRequest("@asduj/new-application-coming---");
 
             // Act
             var response = _api.GetComments(request).Result;
@@ -574,7 +564,7 @@ namespace Sweetshot.Tests
         public void Comments_Invalid_Url()
         {
             // Arrange
-            var request = new GetCommentsRequest(_sessionId, "qwe");
+            var request = new GetCommentsRequest("qwe");
 
             // Act
             var response = _api.GetComments(request).Result;
@@ -588,7 +578,7 @@ namespace Sweetshot.Tests
         public void Comments_Invalid_Url_But_Valid_User()
         {
             // Arrange
-            var request = new GetCommentsRequest(_sessionId, "@asduj/qweqweqweqw");
+            var request = new GetCommentsRequest("@asduj/qweqweqweqw");
 
             // Act
             var response = _api.GetComments(request).Result;
@@ -602,13 +592,14 @@ namespace Sweetshot.Tests
         public void CreateComment()
         {
             // Arrange
-            var request = new CreateCommentsRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "хипстеры наелись фалафели в коворкинге", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "хипстеры наелись фалафели в коворкинге", "свитшот");
 
             // Act
             var response = _api.CreateComment(request).Result;
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsCreated, Is.True);
             Assert.That(response.Result.Message, Is.EqualTo("Comment created"));
         }
 
@@ -616,7 +607,7 @@ namespace Sweetshot.Tests
         public void CreateComment_Wrong_Identifier()
         {
             // Arrange
-            var request = new CreateCommentsRequest(_sessionId, "@asduj/new-application-coming---", "хипстеры наелись фалафели в коворкинге", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, "@asduj/new-application-coming---", "хипстеры наелись фалафели в коворкинге", "свитшот");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -630,7 +621,7 @@ namespace Sweetshot.Tests
         public void CreateComment_Empty_Body()
         {
             // Arrange
-            var request = new CreateCommentsRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "", "свитшот");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -644,7 +635,7 @@ namespace Sweetshot.Tests
         public void CreateComment_Empty_Title()
         {
             // Arrange
-            var request = new CreateCommentsRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "свитшот", "");
+            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "свитшот", "");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -676,7 +667,7 @@ namespace Sweetshot.Tests
         public void Categories()
         {
             // Arrange
-            var request = new CategoriesRequest(_sessionId);
+            var request = new CategoriesRequest();
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -694,7 +685,7 @@ namespace Sweetshot.Tests
         public void Categories_Offset()
         {
             // Arrange
-            var request = new CategoriesRequest(_sessionId, "food");
+            var request = new CategoriesRequest("food");
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -709,27 +700,10 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Categories_Offset_Empty()
-        {
-            // Arrange
-            var request = new CategoriesRequest(_sessionId, " ");
-
-            // Act
-            var response = _api.GetCategories(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result, Is.Not.Null);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
-            Assert.That(response.Result.Results, Is.Not.Empty);
-        }
-
-        [Test]
         public void Categories_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new CategoriesRequest(_sessionId, "qweqweqwe");
+            var request = new CategoriesRequest("qweqweqwe");
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -747,7 +721,7 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new CategoriesRequest(_sessionId, limit: limit);
+            var request = new CategoriesRequest(limit: limit);
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -762,30 +736,10 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Categories_Limit_Negative()
-        {
-            // Arrange
-            const int limit = -5;
-            const int defaultLimit = 10;
-            var request = new CategoriesRequest(_sessionId, limit: limit);
-
-            // Act
-            var response = _api.GetCategories(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result, Is.Not.Null);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
-            Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.Count, Is.EqualTo(defaultLimit));
-        }
-
-        [Test]
         public void Categories_Search()
         {
             // Arrange
-            var request = new SearchCategoriesRequest(_sessionId, "foo");
+            var request = new SearchCategoriesRequest("foo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -803,7 +757,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Invalid_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest(_sessionId, "qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchCategoriesRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -820,7 +774,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Short_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest(_sessionId, "fo");
+            var request = new SearchCategoriesRequest("fo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -834,7 +788,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Empty_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest(_sessionId, "");
+            var request = new SearchCategoriesRequest(" ");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -842,6 +796,76 @@ namespace Sweetshot.Tests
             // Assert 
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("This field may not be blank."));
+        }
+
+        [Test]
+        public void Categories_Search_Test_Limit()
+        {
+            // Arrange
+            const int defaultLimit = 50;
+            var request = new SearchCategoriesRequest("steem");
+
+            // Act
+            var response = _api.SearchCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count, Is.EqualTo(defaultLimit));
+            Assert.That(response.Result.TotalCount >= defaultLimit);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
+        }
+
+        [Test]
+        public void Categories_Search_Offset()
+        {
+            // Arrange
+            var request = new SearchCategoriesRequest("life", "lifetime");
+
+            // Act
+            var response = _api.SearchCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount > 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.EqualTo("lifetime"));
+        }
+
+        [Test]
+        public void Categories_Search_Offset_Not_Exisiting()
+        {
+            // Arrange
+            var request = new SearchCategoriesRequest("life", "qweqweqwe");
+
+            // Act
+            var response = _api.SearchCategories(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Category used for offset was not found"));
+        }
+
+        [Test]
+        public void Categories_Search_Limit()
+        {
+            // Arrange
+            const int limit = 5;
+            var request = new SearchCategoriesRequest("life", limit: limit);
+
+            // Act
+            var response = _api.SearchCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result, Is.Not.Null);
+            Assert.That(response.Result.Count, Is.EqualTo(limit));
+            Assert.That(response.Result.TotalCount > 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
         }
 
         [Test]
@@ -855,12 +879,14 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsChanged, Is.True);
             Assert.That(response.Result.Message, Is.EqualTo("Password was changed"));
 
             // Revert
             var loginResponse = _api.Login(new LoginRequest(Name, NewPassword)).Result;
             var response2 = _api.ChangePassword(new ChangePasswordRequest(loginResponse.Result.SessionId, NewPassword, Password)).Result;
             AssertSuccessfulResult(response2);
+            Assert.That(response.Result.IsChanged, Is.True);
             Assert.That(response2.Result.Message, Is.EqualTo("Password was changed"));
         }
 
@@ -918,6 +944,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsLoggedOut, Is.True);
             Assert.That(response.Result.Message, Is.EqualTo("User is logged out"));
         }
 
@@ -925,7 +952,7 @@ namespace Sweetshot.Tests
         public void UserProfile()
         {
             // Arrange
-            var request = new UserProfileRequest(_sessionId, Name);
+            var request = new UserProfileRequest(Name);
 
             // Act
             var response = _api.GetUserProfile(request).Result;
@@ -942,7 +969,7 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.FollowersCount, Is.Not.Null);
             Assert.That(response.Result.FollowingCount, Is.Not.Null);
             Assert.That(response.Result.Username, Is.Not.Empty);
-            Assert.That(response.Result.CurrentUsername, Is.Not.Empty);
+            Assert.That(response.Result.CurrentUsername, Is.Not.Null);
             Assert.That(response.Result.ProfileImage, Is.Not.Empty);
             Assert.That(response.Result.HasFollowed, Is.Not.Null);
             Assert.That(response.Result.EstimatedBalance, Is.Not.Null);
@@ -952,7 +979,7 @@ namespace Sweetshot.Tests
         public void UserProfile_Invalid_Username()
         {
             // Arrange
-            var request = new UserProfileRequest(_sessionId, "qweqweqwe");
+            var request = new UserProfileRequest("qweqweqwe");
 
             // Act
             var response = _api.GetUserProfile(request).Result;
@@ -966,7 +993,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Following()
         {
             // Arrange
-            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Following);
+            var request = new UserFriendsRequest(Name, FriendsType.Following);
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -985,7 +1012,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers()
         {
             // Arrange
-            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Followers);
+            var request = new UserFriendsRequest(Name, FriendsType.Followers);
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -1002,7 +1029,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_Invalid_Username()
         {
             // Arrange
-            var request = new UserFriendsRequest(_sessionId, Name + "x", FriendsType.Followers);
+            var request = new UserFriendsRequest(Name + "x", FriendsType.Followers);
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -1017,7 +1044,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_Offset()
         {
             // Arrange
-            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Followers, "vivianupman");
+            var request = new UserFriendsRequest(Name, FriendsType.Followers, "vivianupman");
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -1035,7 +1062,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_Limit()
         {
             // Arrange
-            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Followers, limit: 5);
+            var request = new UserFriendsRequest(Name, FriendsType.Followers, limit: 5);
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -1049,24 +1076,6 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void UserFriends_Followers_Limit_Negative()
-        {
-            // Arrange
-            const int defaultLimit = 50;
-            var request = new UserFriendsRequest(_sessionId, Name, FriendsType.Followers, limit: -5);
-
-            // Act
-            var response = _api.GetUserFriends(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Null);
-            Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.Count, Is.EqualTo(defaultLimit));
-        }
-
-        [Test]
         public void Terms_Of_Service()
         {
             // Arrange
@@ -1076,6 +1085,51 @@ namespace Sweetshot.Tests
             // Assert
             AssertSuccessfulResult(response);
             Assert.That(response.Result.Text, Is.Not.Empty);
+        }
+
+        [Test]
+        public void GetPostInfo()
+        {
+            // Arrange
+            var request = new PostsInfoRequest("/spam/@joseph.kalu/test-post-127");
+
+            // Act
+            var response = _api.GetPostInfo(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Body, Is.Not.Empty);
+            Assert.That(response.Result.Title, Is.Not.Empty);
+            Assert.That(response.Result.Url, Is.Not.Empty);
+            Assert.That(response.Result.Category, Is.Not.Empty);
+            Assert.That(response.Result.Author, Is.Not.Empty);
+            Assert.That(response.Result.Avatar, Is.Not.Empty);
+            Assert.That(response.Result.AuthorRewards, Is.Not.Null);
+            Assert.That(response.Result.AuthorReputation, Is.Not.Null);
+            Assert.That(response.Result.NetVotes, Is.Not.Null);
+            Assert.That(response.Result.Children, Is.Not.Null);
+            Assert.That(response.Result.Created, Is.Not.Null);
+            Assert.That(response.Result.CuratorPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.TotalPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.PendingPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.MaxAcceptedPayout, Is.Not.Null);
+            Assert.That(response.Result.TotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Vote, Is.False);
+            Assert.That(response.Result.Tags, Is.Not.Null);
+            Assert.That(response.Result.Depth, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetPostInfo_Invalid_Url()
+        {
+            // Arrange
+            var request = new PostsInfoRequest("/spam/@joseph.kalu/qweqeqwqweqweqwe");
+
+            // Act
+            var response = _api.GetPostInfo(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)

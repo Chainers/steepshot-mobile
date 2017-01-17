@@ -8,10 +8,9 @@ namespace Sweetshot.Library.Models.Requests
         Following
     }
 
-    public class UserFriendsRequest : OffsetLimitSessionRequest
+    public class UserFriendsRequest : OffsetLimitFields
     {
-        public UserFriendsRequest(string sessionId, string username, FriendsType type, string offset = "", int limit = 0)
-            : base(sessionId, offset, limit)
+        public UserFriendsRequest(string username, FriendsType type, string offset = "", int limit = 0) : base(offset, limit)
         {
             Username = username;
             Type = type;

@@ -15,7 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Common\OperationResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CategoriesRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\ChangePasswordRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\OffsetLimitSessionRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\OffsetLimitFields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\SessionIdField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CommentsRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\FollowRequest.cs" />

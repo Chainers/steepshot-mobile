@@ -1,8 +1,10 @@
+using System;
+
 namespace Sweetshot.Library.Models.Requests.Common
 {
-    public class OffsetLimitSessionRequest : SessionIdField
+    public class OffsetLimitFields
     {
-        public OffsetLimitSessionRequest(string sessionId, string offset = "", int limit = 0) : base(sessionId)
+        public OffsetLimitFields(string offset = "", int limit = 0)
         {
             Offset = offset;
             Limit = limit;
