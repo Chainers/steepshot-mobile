@@ -2,7 +2,7 @@
 {
     public class UserProfileRequest : UserPostsRequest
     {
-        public UserProfileRequest(string sessionId, string username) : base(sessionId, username)
+        public UserProfileRequest(string username) : base(username)
         {
         }
     }

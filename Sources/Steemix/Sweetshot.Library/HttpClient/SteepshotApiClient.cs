@@ -65,9 +65,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
-
-            var response = await _gateway.Get($"/user/{request.Username}/posts/", parameters);
+            var response = await _gateway.Get($"/user/{request.Username}/posts/", new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -83,14 +81,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request)
         {
-            var parameters = new List<RequestParameter>
-            {
-                new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString}
-            };
-            if (!string.IsNullOrWhiteSpace(request.Offset))
-            {
-                parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
-            }
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
             var endpoint = "/posts/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Get(endpoint, parameters);
@@ -121,14 +112,12 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
-
-            var response = await _gateway.Get($"/post/{request.Url}/comments", parameters);
+            var response = await _gateway.Get($"/post/{request.Url}/comments", new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<GetCommentResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentsRequest request)
+        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
@@ -149,12 +138,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<CategoriesResponse>> GetCategories(CategoriesRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString});
-            if (!string.IsNullOrWhiteSpace(request.Offset))
-            {
-                parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
-            }
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
             var response = await _gateway.Get("categories/top", parameters);
             var errorResult = CheckErrors(response);
@@ -163,7 +147,7 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<CategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
 
             var response = await _gateway.Get("categories/search", parameters);
@@ -192,21 +176,14 @@ namespace Sweetshot.Library.HttpClient
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
-
-            var response = await _gateway.Get($"/user/{request.Username}", parameters);
+            var response = await _gateway.Get($"/user/{request.Username}", new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<UserProfileResponse>(response.Content, errorResult);
         }
 
         public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter {Key = "limit", Value = request.Limit, Type = ParameterType.QueryString});
-            if (!string.IsNullOrWhiteSpace(request.Offset))
-            {
-                parameters.Add(new RequestParameter {Key = "offset", Value = request.Offset, Type = ParameterType.QueryString});
-            }
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
             var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
             var response = await _gateway.Get(endpoint, parameters);
@@ -222,6 +199,14 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
         }
 
+        public async Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
+        {
+            var endpoint = $"/post/{request.Url}/info";
+            var response = await _gateway.Get(endpoint, new List<RequestParameter>());
+            var errorResult = CheckErrors(response);
+            return CreateResult<Post>(response.Content, errorResult);
+        }
+
         private List<RequestParameter> CreateSessionParameter(string sessionId)
         {
             var parameters = new List<RequestParameter>
@@ -229,6 +214,20 @@ namespace Sweetshot.Library.HttpClient
                 new RequestParameter {Key = "sessionid", Value = sessionId, Type = ParameterType.Cookie}
             };
 
+            return parameters;
+        }
+
+        private List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit)
+        {
+            var parameters = new List<RequestParameter>();
+            if (!string.IsNullOrWhiteSpace(offset))
+            {
+                parameters.Add(new RequestParameter {Key = "offset", Value = offset, Type = ParameterType.QueryString});
+            }
+            if (limit >= 0)
+            {
+                parameters.Add(new RequestParameter {Key = "limit", Value = limit, Type = ParameterType.QueryString});
+            }
             return parameters;
         }
 

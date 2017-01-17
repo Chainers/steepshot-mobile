@@ -3,9 +3,9 @@ using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UserPostsRequest : SessionIdField
+    public class UserPostsRequest
     {
-        public UserPostsRequest(string sessionId, string username) : base(sessionId)
+        public UserPostsRequest(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
             {
@@ -32,17 +32,28 @@ namespace Sweetshot.Library.Models.Requests
         New
     }
 
-    public class PostsRequest
+    public class PostsRequest : OffsetLimitFields
     {
-        public PostsRequest(PostType type, int limit = 0, string offset = "")
+        public PostsRequest(PostType type, string offset = "", int limit = 0) : base(offset, limit)
         {
             Type = type;
-            Limit = limit;
-            Offset = offset;
         }
 
         public PostType Type { get; private set; }
-        public int Limit { get; private set; }
-        public string Offset { get; private set; }
+    }
+
+    public class PostsInfoRequest
+    {
+        public PostsInfoRequest(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                throw new ArgumentNullException(nameof(url));
+            }
+
+            Url = url;
+        }
+
+        public string Url { get; private set; }
     }
 }

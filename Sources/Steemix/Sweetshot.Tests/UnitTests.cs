@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using Sweetshot.Library.Models.Requests;
+using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Tests
 {
@@ -32,7 +33,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new GetCommentsRequest("sessionId", "");
+                var r = new GetCommentsRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -42,7 +43,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new CreateCommentsRequest("sessionId", "", "test", "test");
+                var r = new CreateCommentRequest("sessionId", "", "test", "test");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }

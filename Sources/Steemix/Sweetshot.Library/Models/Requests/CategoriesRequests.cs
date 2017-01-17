@@ -2,16 +2,16 @@
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class CategoriesRequest : OffsetLimitSessionRequest
+    public class CategoriesRequest : OffsetLimitFields
     {
-        public CategoriesRequest(string sessionId, string offset = "", int limit = 0) : base(sessionId, offset, limit)
+        public CategoriesRequest(string offset = "", int limit = 0) : base(offset, limit)
         {
         }
     }
 
-    public class SearchCategoriesRequest : SessionIdField
+    public class SearchCategoriesRequest : CategoriesRequest
     {
-        public SearchCategoriesRequest(string sessionId, string query) : base(sessionId)
+        public SearchCategoriesRequest(string query, string offset = "", int limit = 0) : base(offset, limit)
         {
             Query = query;
         }

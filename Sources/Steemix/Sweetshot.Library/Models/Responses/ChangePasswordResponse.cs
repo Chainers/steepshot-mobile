@@ -7,5 +7,6 @@ namespace Sweetshot.Library.Models.Responses
     ///}
     public class ChangePasswordResponse : MessageField
     {
+        public bool IsChanged => Message.Equals("Password was changed");
     }
 }
