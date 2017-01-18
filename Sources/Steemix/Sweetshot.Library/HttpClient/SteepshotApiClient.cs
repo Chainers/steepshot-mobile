@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using RestSharp;
 using Sweetshot.Library.Extensions;
@@ -247,89 +247,19 @@ namespace Sweetshot.Library.HttpClient
                 result.Errors.Add("ResponseStatus: " + response.ResponseStatus);
             }
             // HTTP errors
-            else if (response.StatusCode == HttpStatusCode.InternalServerError)
+            else if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Forbidden)
             {
-                //result.Errors.Add(response.StatusDescription);
-            }
-            else if (response.StatusCode == HttpStatusCode.BadGateway)
-            {
-                //result.Errors.Add(response.StatusDescription);
-            }
-            else if (response.StatusCode == HttpStatusCode.UnsupportedMediaType)
-            {
-                //result.Errors.Add(response.StatusDescription);
-            }
-            else if (response.StatusCode == HttpStatusCode.Forbidden)
-            {
-                if (content.StartsWith(@"{""detail"":"))
+                var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                foreach (var kvp in dic)
                 {
-                    var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                    foreach (var kvp in dic)
-                    {
-                        result.Errors.AddRange(kvp.Value);
-                    }
-                }
-                else
-                {
-                    throw new ApplicationException();
+                    result.Errors.AddRange(kvp.Value);
                 }
             }
-            else if (response.StatusCode == HttpStatusCode.BadRequest)
+            else if (response.StatusCode != HttpStatusCode.OK &&
+                     response.StatusCode != HttpStatusCode.Created)
             {
-                //result.Errors.Add(response.StatusDescription);
-
-                if (content.StartsWith(@"{""non_field_errors"":"))
-                {
-                    var definition = new {non_field_errors = new List<string>()};
-                    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                    result.Errors.AddRange(value.non_field_errors);
-                }
-                // TODO Remove this if case
-                else if (content.StartsWith(@"{""detail"":"))
-                {
-                    var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                    foreach (var kvp in dic)
-                    {
-                        result.Errors.AddRange(kvp.Value);
-                    }
-                    //var definition = new {detail = ""};
-                    //var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                    //result.Errors.Add(value.detail);
-                }
-                else
-                {
-                    try
-                    {
-                        var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                        foreach (var kvp in dic)
-                        {
-                            result.Errors.AddRange(kvp.Value);
-                        }
-                    }
-                    catch
-                    {
-                        // TODO Remove
-                        var dic = _jsonConverter.Deserialize<Dictionary<string, string>>(content);
-                        foreach (var kvp in dic)
-                        {
-                            result.Errors.Add(kvp.Value);
-                        }
-                    }
-                }
+                result.Errors.Add(response.StatusDescription);
             }
-            else if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-            {
-                //result.Errors.Add(response.StatusDescription);
-            }
-
-            // TODO
-            //else if (content.StartsWith(@"{""error"":"))
-            //{
-            //}
-            //else if (content.StartsWith(@"{""status"":"))
-            //{
-            //}
-
             else
             {
                 result.Success = true;
@@ -337,49 +267,19 @@ namespace Sweetshot.Library.HttpClient
 
             if (!result.Success)
             {
+                // Checking content
                 if (string.IsNullOrWhiteSpace(content))
                 {
                     result.Errors.Add("Empty response content");
                 }
-                else if (content.Contains("<html>") || content.Contains("<h1>"))
+                else if (new Regex(@"<[^>]+>").IsMatch(content))
                 {
-                    result.Errors.Add(content);
+                    result.Errors.Add("Response content contains HTML : " + content);
                 }
-                //else if (content.Contains("non_field_errors"))
-                //{
-                //var definition = new {non_field_errors = new List<string>()};
-                //var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                //result.Errors.AddRange(value.non_field_errors);
-                //}
-                else if (content.StartsWith(@"{""error"":"))
+                else
                 {
-                    var definition = new {error = ""};
-                    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                    result.Errors.Add(value.error);
+                    result.Errors.Add("Response content is not valid");
                 }
-                //else if (content.StartsWith(@"{""detail"":"))
-                //{
-                //    var definition = new {detail = ""};
-                //    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                //    result.Errors.Add(value.detail);
-                //}
-                ////else if (content.StartsWith(@"{""status"":"))
-                //{
-                //    var definition = new {status = ""};
-                //    var value = _jsonConverter.DeserializeAnonymousType(content, definition);
-                //    result.Errors.Add(value.status);
-                //}
-                //else
-                //{
-                //    var values = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                //    foreach (var kvp in values)
-                //    {
-                //        foreach (var v in kvp.Value)
-                //        {
-                //            result.Errors.Add(kvp.Key + " " + v);
-                //        }
-                //    }
-                //}
             }
 
             return result;

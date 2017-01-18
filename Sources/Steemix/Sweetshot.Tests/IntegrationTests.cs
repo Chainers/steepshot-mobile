@@ -1,6 +1,4 @@
-﻿using System;
-using System.Configuration;
-using System.IO;
+﻿using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
 using Sweetshot.Library.HttpClient;
@@ -13,6 +11,7 @@ namespace Sweetshot.Tests
     // add more tests
     // test (assert) errors
     // remove throws in DTOs
+    // {"detail":["Creating post is impossible. Please try 10 minutes later."]}
 
     [TestFixture]
     public class IntegrationTests
@@ -24,15 +23,8 @@ namespace Sweetshot.Tests
 
         private readonly SteepshotApiClient _api = new SteepshotApiClient(ConfigurationManager.AppSettings["sweetshot_url"]);
 
-        [SetUp]
+        [OneTimeSetUp]
         public void Authenticate()
-        {
-            var request = new LoginRequest(Name, Password);
-            _sessionId = _api.Login(request).Result.Result.SessionId;
-        }
-
-        [Test]
-        public void Login_Valid_Credentials()
         {
             // Arrange
             var request = new LoginRequest(Name, Password);
@@ -45,6 +37,9 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.IsLoggedIn, Is.True);
             Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
             Assert.That(response.Result.SessionId, Is.Not.Empty);
+
+            // Setup
+            _sessionId = _api.Login(request).Result.Result.SessionId;
         }
 
         [Test]
@@ -120,8 +115,8 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results.First().MaxAcceptedPayout, Is.Not.Null);
             Assert.That(response.Result.Results.First().TotalPayoutReward, Is.Not.Null);
             Assert.That(response.Result.Results.First().Vote, Is.False);
-            Assert.That(response.Result.Results.First().Tags, Is.Empty);
-            Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
+            Assert.That(response.Result.Results.First().Tags, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Depth, Is.Not.Null);
         }
 
         [Test]
@@ -242,23 +237,6 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        // TODO Need to create a profile and test it
-        [Ignore("Ignoring")]
-        public void Register()
-        {
-            // Arrange
-            var request = new RegisterRequest("", "", "");
-
-            // Act
-            var response = _api.Register(request).Result;
-
-            // Assert
-            //Assert.That(response.Result.IsLoggedIn, Is.False);
-            //AssertSuccessfulResult(response);
-            //Assert.That(response.Result.SessionId);
-            //Assert.That(response.Result.Username);
-        }
-
         [Test]
         public void Register_PostingKey_Invalid()
         {
@@ -341,47 +319,6 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("This password is entirely numeric."));
-        }
-
-        [Test]
-        public void Vote_Up()
-        {
-            // Prepare
-            // TODO Create comment and vote
-
-
-            // Arrange
-            var request = new VoteRequest(_sessionId, true, "/nature/@joseph.kalu/test-post-abc2");
-
-            // Act
-            var response = _api.Vote(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.True);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-        }
-
-        [Test]
-        public void Vote_Down()
-        {
-            // Prepare
-            // TODO Create comment and vote
-
-            // Arrange
-            var request = new VoteRequest(_sessionId, false, "/nature/@joseph.kalu/test-post-abc2");
-
-            // Act
-            var response = _api.Vote(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.True);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
         }
 
         [Test]
@@ -483,36 +420,6 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Follow()
-        {
-            // Arrange
-            var request = new FollowRequest(_sessionId, FollowType.Follow, "asduj");
-
-            // Act
-            var response = _api.Follow(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsFollowed, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("User is followed"));
-        }
-
-        [Test]
-        public void Follow_UnFollow()
-        {
-            // Arrange
-            var request = new FollowRequest(_sessionId, FollowType.UnFollow, "asduj");
-
-            // Act
-            var response = _api.Follow(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsFollowed, Is.False);
-            Assert.That(response.Result.Message, Is.EqualTo("User is unfollowed"));
-        }
-
-        [Test]
         public void Follow_Invalid_Username()
         {
             // Arrange
@@ -530,7 +437,7 @@ namespace Sweetshot.Tests
         public void Comments()
         {
             // Arrange
-            var request = new GetCommentsRequest("@asduj/new-application-coming---");
+            var request = new GetCommentsRequest("@joseph.kalu/cat636203355240074655");
 
             // Act
             var response = _api.GetComments(request).Result;
@@ -589,25 +496,10 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void CreateComment()
-        {
-            // Arrange
-            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "хипстеры наелись фалафели в коворкинге", "свитшот");
-
-            // Act
-            var response = _api.CreateComment(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsCreated, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("Comment created"));
-        }
-
-        [Test]
         public void CreateComment_Wrong_Identifier()
         {
             // Arrange
-            var request = new CreateCommentRequest(_sessionId, "@asduj/new-application-coming---", "хипстеры наелись фалафели в коворкинге", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, "@asduj/new-application-coming---", "test_body", "test_title");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -621,7 +513,7 @@ namespace Sweetshot.Tests
         public void CreateComment_Empty_Body()
         {
             // Arrange
-            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "", "test_title");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -635,7 +527,7 @@ namespace Sweetshot.Tests
         public void CreateComment_Empty_Title()
         {
             // Arrange
-            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "свитшот", "");
+            var request = new CreateCommentRequest(_sessionId, "/spam/@joseph.kalu/test-post-127", "test_body", "");
 
             // Act
             var response = _api.CreateComment(request).Result;
@@ -643,24 +535,6 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("This field may not be blank."));
-        }
-
-        [Test]
-        public void Upload()
-        {
-            // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
-            var file = File.ReadAllBytes(path);
-            var request = new UploadImageRequest(_sessionId, "cat", file, "cat1", "cat2", "cat3", "cat4");
-
-            // Act
-            var response = _api.Upload(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.Body, Is.Not.Empty);
-            Assert.That(response.Result.Title, Is.Not.Empty);
-            Assert.That(response.Result.Tags, Is.Not.Empty);
         }
 
         [Test]
@@ -869,28 +743,6 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void ChangePassword()
-        {
-            // Arrange
-            var request = new ChangePasswordRequest(_sessionId, Password, NewPassword);
-
-            // Act
-            var response = _api.ChangePassword(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsChanged, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("Password was changed"));
-
-            // Revert
-            var loginResponse = _api.Login(new LoginRequest(Name, NewPassword)).Result;
-            var response2 = _api.ChangePassword(new ChangePasswordRequest(loginResponse.Result.SessionId, NewPassword, Password)).Result;
-            AssertSuccessfulResult(response2);
-            Assert.That(response.Result.IsChanged, Is.True);
-            Assert.That(response2.Result.Message, Is.EqualTo("Password was changed"));
-        }
-
-        [Test]
         public void ChangePassword_Invalid_OldPassword()
         {
             // Arrange
@@ -902,21 +754,6 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("Old password is invalid."));
-        }
-
-        // TODO Add more tests about password types
-        [Test]
-        public void ChangePassword_NewPassword_Short()
-        {
-            // Arrange
-            var request = new ChangePasswordRequest(_sessionId, Password, "t");
-
-            // Act
-            var response = _api.ChangePassword(request).Result;
-
-            // Assert
-            AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("This password is too short. It must contain at least 8 characters."));
         }
 
         [Test]
@@ -934,18 +771,31 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Logout()
+        public void ChangePassword_NewPassword_Short()
         {
             // Arrange
-            var request = new LogoutRequest(_sessionId);
+            var request = new ChangePasswordRequest(_sessionId, Password, "t");
 
             // Act
-            var response = _api.Logout(request).Result;
+            var response = _api.ChangePassword(request).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsLoggedOut, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("User is logged out"));
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("This password is too short. It must contain at least 8 characters."));
+        }
+
+        [Test]
+        public void ChangePassword_NewPassword_Numeric()
+        {
+            // Arrange
+            var request = new ChangePasswordRequest(_sessionId, Password, "1234567890");
+
+            // Act
+            var response = _api.ChangePassword(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("This password is entirely numeric."));
         }
 
         [Test]
@@ -1129,7 +979,8 @@ namespace Sweetshot.Tests
             var response = _api.GetPostInfo(request).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Wrong identifier."));
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)
