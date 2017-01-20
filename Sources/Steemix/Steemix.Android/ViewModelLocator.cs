@@ -15,7 +15,7 @@ namespace Steemix.Droid
             get
             {
                 if (_apiClient == null)
-                    _apiClient = new SteepshotApiClient("http://138.197.40.124/api/v1/");
+                    _apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
                 return _apiClient;
             }
         }
