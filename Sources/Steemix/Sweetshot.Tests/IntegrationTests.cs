@@ -10,8 +10,17 @@ namespace Sweetshot.Tests
     // check all tests
     // add more tests
     // test (assert) errors
+
     // remove throws in DTOs
     // {"detail":["Creating post is impossible. Please try 10 minutes later."]}
+    // invalid api url test
+
+    // vs code setup - run and debug, unit tests with debug 
+    // vagrant or docker ?
+    // requests refactoring
+    // changes in user UserProfile
+    // Add documents (URL mappings)
+    // Linux proxy
 
     [TestFixture]
     public class IntegrationTests
@@ -134,6 +143,27 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void UserPosts_Offset_Limit()
+        {
+            // Arrange
+            var request = new UserPostsRequest(Name);
+            request.Offset = "/cat1/@joseph.kalu/cat636203389144533548";
+            request.Limit = 3;
+
+            // Act
+            var response = _api.GetUserPosts(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Empty);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
+            Assert.That(request.Offset, Is.EqualTo(response.Result.Results.First().Url));
+            Assert.That(response.Result.Count, Is.EqualTo(request.Limit));
+        }
+
+        [Test]
         public void UserRecentPosts()
         {
             // Arrange
@@ -147,6 +177,27 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Count > 0);
             Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+        }
+
+        [Test]
+        public void UserRecentPosts_Offset_Limit()
+        {
+            // Arrange
+            var request = new UserRecentPostsRequest(_sessionId);
+            request.Offset = "/health/@heiditravels/what-are-you-putting-on-your-face";
+            request.Limit = 3;
+
+            // Act
+            var response = _api.GetUserRecentPosts(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
+            Assert.That(request.Offset, Is.EqualTo(response.Result.Results.First().Url));
+            Assert.That(response.Result.Count, Is.EqualTo(request.Limit));
         }
 
         [Test]
@@ -179,34 +230,22 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void Posts_Top_Check_Limit()
+        public void Posts_Top_Offset_Limit()
         {
             // Arrange
-            const int limit = 5;
-            var request = new PostsRequest(PostType.Top, limit: limit);
+            var request = new PostsRequest(PostType.Top);
+            request.Offset = "/steemit/@heiditravels/elevate-your-social-media-experience-with-steemit";
+            request.Limit = 3;
 
             // Act
             var response = _api.GetPosts(request).Result;
 
             // Assert
             AssertSuccessfulResult(response);
-            Assert.That(limit, Is.EqualTo(response.Result.Count));
-        }
-
-        [Test]
-        public void Posts_Top_Check_Offset()
-        {
-            // Arrange
-            var request = new PostsRequest(PostType.Top, "/life/@hanshotfirst/best-buddies-i-see-you", 3);
-
-            // Act
-            var response = _api.GetPosts(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.Offset, Is.Empty);
-            Assert.That(response.Result.Count, Is.EqualTo(0));
-            Assert.That(response.Result.Results.Count, Is.EqualTo(0));
+            Assert.That(response.Result.Offset, Is.Not.Empty);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(request.Limit, Is.EqualTo(response.Result.Count));
+            Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
         [Test]
@@ -559,7 +598,8 @@ namespace Sweetshot.Tests
         public void Categories_Offset()
         {
             // Arrange
-            var request = new CategoriesRequest("food");
+            var request = new CategoriesRequest();
+            request.Offset = "food";
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -577,7 +617,8 @@ namespace Sweetshot.Tests
         public void Categories_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new CategoriesRequest("qweqweqwe");
+            var request = new CategoriesRequest();
+            request.Offset = "qweqweqwe";
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -595,7 +636,8 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new CategoriesRequest(limit: limit);
+            var request = new CategoriesRequest();
+            request.Limit = limit;
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -695,7 +737,8 @@ namespace Sweetshot.Tests
         public void Categories_Search_Offset()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("life", "lifetime");
+            var request = new SearchCategoriesRequest("life");
+            request.Offset = "lifetime";
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -713,7 +756,8 @@ namespace Sweetshot.Tests
         public void Categories_Search_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("life", "qweqweqwe");
+            var request = new SearchCategoriesRequest("life");
+            request.Offset = "qweqweqwe";
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -728,7 +772,8 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new SearchCategoriesRequest("life", limit: limit);
+            var request = new SearchCategoriesRequest("life");
+            request.Limit = limit;
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -894,7 +939,8 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_Offset()
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers, "vivianupman");
+            var request = new UserFriendsRequest(Name, FriendsType.Followers);
+            request.Offset = "vivianupman";
 
             // Act
             var response = _api.GetUserFriends(request).Result;
@@ -912,7 +958,8 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_Limit()
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers, limit: 5);
+            var request = new UserFriendsRequest(Name, FriendsType.Followers);
+            request.Limit = 5;
 
             // Act
             var response = _api.GetUserFriends(request).Result;

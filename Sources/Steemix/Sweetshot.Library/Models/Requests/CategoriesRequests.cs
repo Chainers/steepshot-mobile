@@ -4,14 +4,11 @@ namespace Sweetshot.Library.Models.Requests
 {
     public class CategoriesRequest : OffsetLimitFields
     {
-        public CategoriesRequest(string offset = "", int limit = 0) : base(offset, limit)
-        {
-        }
     }
 
     public class SearchCategoriesRequest : CategoriesRequest
     {
-        public SearchCategoriesRequest(string query, string offset = "", int limit = 0) : base(offset, limit)
+        public SearchCategoriesRequest(string query)
         {
             Query = query;
         }

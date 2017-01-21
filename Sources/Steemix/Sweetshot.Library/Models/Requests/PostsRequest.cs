@@ -3,7 +3,7 @@ using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UserPostsRequest
+    public class UserPostsRequest : OffsetLimitFields
     {
         public UserPostsRequest(string username)
         {
@@ -18,11 +18,19 @@ namespace Sweetshot.Library.Models.Requests
         public string Username { get; private set; }
     }
 
-    public class UserRecentPostsRequest : SessionIdField
+    public class UserRecentPostsRequest : OffsetLimitFields
     {
-        public UserRecentPostsRequest(string sessionId) : base(sessionId)
+        public UserRecentPostsRequest(string sessionId)
         {
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                throw new ArgumentNullException(nameof(sessionId));
+            }
+
+            SessionId = sessionId;
         }
+
+        public string SessionId { get; private set; }
     }
 
     public enum PostType
@@ -34,7 +42,7 @@ namespace Sweetshot.Library.Models.Requests
 
     public class PostsRequest : OffsetLimitFields
     {
-        public PostsRequest(PostType type, string offset = "", int limit = 0) : base(offset, limit)
+        public PostsRequest(PostType type)
         {
             Type = type;
         }
@@ -42,18 +50,10 @@ namespace Sweetshot.Library.Models.Requests
         public PostType Type { get; private set; }
     }
 
-    public class PostsInfoRequest
+    public class PostsInfoRequest : UrlField
     {
-        public PostsInfoRequest(string url)
+        public PostsInfoRequest(string url) : base(url)
         {
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
-
-            Url = url;
         }
-
-        public string Url { get; private set; }
     }
 }

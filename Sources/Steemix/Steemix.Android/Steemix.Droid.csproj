@@ -179,6 +179,9 @@
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="ViewModels\SplashViewModel.cs" />
     <Compile Include="ViewModels\UserFriendViewMode.cs" />
+    <Compile Include="Adapter\PostsGridAdapter.cs" />
+    <Compile Include="Activities\ProfileActivity.cs" />
+    <Compile Include="Activities\UserProfileViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -275,6 +278,16 @@
     <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_gray_list.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_gray_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_gray_list.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gray_list.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_gray_grid.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_gray_grid.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_gray_grid.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gray_grid.png" />
+    <AndroidResource Include="Resources\drawable\white_bottom_shadow.xml" />
+    <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

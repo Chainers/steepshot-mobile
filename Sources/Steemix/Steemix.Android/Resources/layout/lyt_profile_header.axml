@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:background="@color/color_primary"
     android:layout_width="match_parent"
-    android:paddingBottom="10dp"
+    android:gravity="center_horizontal"
     android:layout_height="wrap_content">
     <RelativeLayout
         android:id="@+id/toolbar"
@@ -60,19 +60,22 @@
         android:layout_width="100dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="75dp"
+        app:civ_border_width="1dp"
+        app:civ_border_color="#FFFFFF"
         android:src="@mipmap/ic_launcher" />
-    <LinearLayout
+    <RelativeLayout
         android:orientation="horizontal"
         android:gravity="center"
         android:padding="20dp"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+        android:layout_width="wrap_content">
         <Button
             android:id="@+id/cost_btn"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:padding="5dp"
             android:drawablePadding="5dp"
+            style="?android:attr/buttonBarButtonStyle"
             android:drawableLeft="@drawable/ic_wallet"
             android:text="56$"
             android:textColor="@color/white"
@@ -83,12 +86,13 @@
             android:layout_width="wrap_content"
             android:layout_height="25dp"
             android:padding="5dp"
+            android:layout_toRightOf="@+id/cost_btn"
             android:layout_marginLeft="10dp"
             android:text="@string/follow"
             android:textColor="@color/color_primary"
             android:textSize="10sp"
             android:background="@drawable/white_solid_btn" />
-    </LinearLayout>
+    </RelativeLayout>
     <TextView
         android:id="@+id/description"
         android:layout_width="match_parent"
@@ -121,22 +125,4 @@
             android:textSize="11sp"
             android:text="www.marvinstudio.com" />
     </LinearLayout>
-    <Button
-        android:id="@+id/btn_following"
-        android:padding="5dp"
-        android:text="@string/following"
-        android:textColor="@color/color_primary"
-        android:textSize="10sp"
-        android:background="@drawable/white_solid_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/btn_followers"
-        android:padding="5dp"
-        android:text="@string/text_followers"
-        android:textColor="@color/color_primary"
-        android:textSize="10sp"
-        android:background="@drawable/white_solid_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 </LinearLayout>

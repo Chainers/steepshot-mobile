@@ -1,11 +1,11 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
 
 namespace Steemix.Droid.ViewModels
 {
-	public class ProfileViewModel :MvvmViewModelBase
+	public class UserProfileViewModel : MvvmViewModelBase
 	{
 
 		private UserProfileResponse userData;
@@ -41,7 +41,7 @@ namespace Steemix.Droid.ViewModels
 
 		public string GetPostsOffset()
 		{
-			if(postsData!=null)
+			if (postsData != null)
 				return postsData.Offset;
 
 			return null;

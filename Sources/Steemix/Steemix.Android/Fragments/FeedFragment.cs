@@ -52,6 +52,7 @@ namespace Steemix.Droid.Fragments
             FeedList.SetLayoutManager(new LinearLayoutManager(Context));
             FeedList.SetOnScrollChangeListener(this);
             FeedAdapter.LikeAction += FeedAdapter_LikeAction;
+			FeedAdapter.UserAction += FeedAdapter_UserAction;
         }
 
         public override void OnDestroyView()
@@ -60,7 +61,14 @@ namespace Steemix.Droid.Fragments
             Cheeseknife.Reset(this);
         }
 
-        async void FeedAdapter_LikeAction(int position)
+		void FeedAdapter_UserAction(int position)
+		{
+			Intent intent = new Intent(this.Context, typeof(ProfileActivity));
+			intent.PutExtra("ID", ViewModel.Posts[position].Author);
+			this.Context.StartActivity(intent);
+		}
+
+		async void FeedAdapter_LikeAction(int position)
         {
             if (UserPrincipal.IsAuthenticated)
             {

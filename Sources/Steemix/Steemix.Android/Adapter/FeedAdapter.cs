@@ -17,7 +17,7 @@ namespace Steemix.Droid.Adapter
         private Context context;
         string CommentPattern = "<b>{0}</b> {1}";
 
-        public Action<int> LikeAction;
+        public Action<int> LikeAction,UserAction;
 
         public FeedAdapter(Context context, ObservableCollection<Post> Posts)
         {
@@ -85,7 +85,7 @@ namespace Steemix.Droid.Adapter
         {
             View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
-            FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction);
+			FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction);
             return vh;
         }
 
@@ -103,7 +103,7 @@ namespace Steemix.Droid.Adapter
             Post post;
             Action<int> LikeAction;
 
-            public FeedViewHolder(View itemView, Action<int> LikeAction) : base(itemView)
+            public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
                 Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -118,6 +118,8 @@ namespace Steemix.Droid.Adapter
                 this.LikeAction = LikeAction;
 
                 Like.Click += Like_Click;
+				Avatar.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
+				Author.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
             }
 
             void Like_Click(object sender, EventArgs e)
