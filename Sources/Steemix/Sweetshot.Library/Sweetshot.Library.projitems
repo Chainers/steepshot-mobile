@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project 
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
@@ -17,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\ChangePasswordRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\OffsetLimitFields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\SessionIdField.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\UrlField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CommentsRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\FollowRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LoginRequest.cs" />

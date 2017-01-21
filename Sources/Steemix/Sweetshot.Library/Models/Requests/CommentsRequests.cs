@@ -22,18 +22,11 @@ namespace Sweetshot.Library.Models.Requests
         public string Title { get; private set; }
     }
 
-    public class GetCommentsRequest
+    // TODO Offset and Limit ?
+    public class GetCommentsRequest : UrlField
     {
-        public GetCommentsRequest(string url)
+        public GetCommentsRequest(string url) : base(url)
         {
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
-
-            Url = url;
         }
-
-        public string Url { get; private set; }
     }
 }
