@@ -53,12 +53,12 @@ namespace Steemix.Droid.Adapter
             if (item.IsFollow)
             {
                 vh.FollowUnfollow.Text = "Follow";
-                vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
             }
             else
             {
                 vh.FollowUnfollow.Text = "Unfollow";
-                vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
             }
 
         }
@@ -96,12 +96,12 @@ namespace Steemix.Droid.Adapter
                 if (_userFriendst.IsFollow)
                 {
                     FollowUnfollow.Text = "Follow";
-                    FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                    FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
                 }
                 else
                 {
                     FollowUnfollow.Text = "Unfollow";
-                    FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                    FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
                 }
                 _followAction?.Invoke(AdapterPosition);
             }
