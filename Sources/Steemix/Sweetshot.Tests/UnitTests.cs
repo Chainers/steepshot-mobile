@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Tests
 {

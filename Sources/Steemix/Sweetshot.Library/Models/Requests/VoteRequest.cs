@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
@@ -11,22 +10,31 @@ namespace Sweetshot.Library.Models.Requests
         [Description("downvote")] Down
     }
 
-    public class VoteRequest : SessionIdField
+    public class VoteRequest
     {
-        public VoteRequest(string sessionId, bool isUpVote, string identifier) : base(sessionId)
+        public VoteRequest(string sessionId, bool isUpVote, string identifier)
         {
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                throw new ArgumentNullException(nameof(sessionId));
+            }
             if (string.IsNullOrWhiteSpace(identifier))
             {
                 throw new ArgumentNullException(nameof(identifier));
             }
 
+            SessionId = sessionId;
             Type = isUpVote ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }
 
+        [JsonIgnore]
+        public string SessionId { get; private set; }
+
         [JsonProperty(PropertyName = "identifier")]
         public string Identifier { get; private set; }
-
+        
+        [JsonIgnore]
         public VoteType Type { get; private set; }
     }
 }

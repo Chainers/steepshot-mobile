@@ -1,35 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UploadImageRequest : SessionIdField
+    public class UploadImageRequest
     {
-        public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags) : base(sessionId)
+        public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags)
         {
-            if (string.IsNullOrWhiteSpace(title))
+            if (string.IsNullOrWhiteSpace(sessionId))
             {
-                throw new ArgumentNullException(nameof(title));
+                throw new ArgumentNullException(nameof(sessionId));
             }
             if (photo == null)
             {
                 throw new ArgumentNullException(nameof(photo));
             }
 
+            SessionId = sessionId;
             Title = title;
             Photo = photo;
-
-            if (tags.Length >= 1 && tags.Length <= 4)
-            {
-                Tags = new List<string>(tags);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(tags), "The number of tags should be between 1 and 4.");
-            }
+            Tags = new List<string>(tags);
         }
 
+        public string SessionId { get; private set; }
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
         public List<string> Tags { get; private set; }
