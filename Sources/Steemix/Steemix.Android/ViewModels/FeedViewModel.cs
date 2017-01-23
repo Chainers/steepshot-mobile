@@ -30,7 +30,12 @@ namespace Steemix.Droid.ViewModels
 
         public async Task GetTopPosts(string offset, int limit)
         {
-            var postrequest = new PostsRequest(PostType.Top, offset, limit);
+            var postrequest = new PostsRequest(PostType.Top)
+            {
+                Limit = limit,
+                Offset = offset
+            };
+
             var posts = await ViewModelLocator.Api.GetPosts(postrequest);
             //TODO:KOA -- Errors not processed
             if (posts.Success)

@@ -54,13 +54,15 @@ namespace Steemix.Droid.Adapter
             {
                 vh.FollowUnfollow.Text = "Follow";
                 vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                //vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
             }
             else
             {
                 vh.FollowUnfollow.Text = "Unfollow";
-                vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                vh.FollowUnfollow.SetTextColor(Color.LightGray);
+              //  vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.gray_border);
             }
-
+            vh.UpdateData(item);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -97,11 +99,13 @@ namespace Steemix.Droid.Adapter
                 {
                     FollowUnfollow.Text = "Follow";
                     FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                   // FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
                 }
                 else
                 {
                     FollowUnfollow.Text = "Unfollow";
-                    FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
+                    FollowUnfollow.SetTextColor(Color.LightGray);
+                   // FollowUnfollow.SetBackgroundResource(Resource.Drawable.gray_border);
                 }
                 _followAction?.Invoke(AdapterPosition);
             }

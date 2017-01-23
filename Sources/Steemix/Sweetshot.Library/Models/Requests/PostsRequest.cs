@@ -1,5 +1,4 @@
 ﻿using System;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
@@ -14,15 +13,26 @@ namespace Sweetshot.Library.Models.Requests
 
             Username = username;
         }
-
         public string Username { get; private set; }
+        public string Offset { get; set; }
+        public int Limit { get; set; }
     }
 
-    public class UserRecentPostsRequest : SessionIdField
+    public class UserRecentPostsRequest
     {
-        public UserRecentPostsRequest(string sessionId) : base(sessionId)
+        public UserRecentPostsRequest(string sessionId)
         {
+            if (string.IsNullOrWhiteSpace(sessionId))
+            {
+                throw new ArgumentNullException(nameof(sessionId));
+            }
+
+            SessionId = sessionId;
         }
+
+        public string SessionId { get; private set; }
+        public string Offset { get; set; }
+        public int Limit { get; set; }
     }
 
     public enum PostType
@@ -32,14 +42,16 @@ namespace Sweetshot.Library.Models.Requests
         New
     }
 
-    public class PostsRequest : OffsetLimitFields
+    public class PostsRequest
     {
-        public PostsRequest(PostType type, string offset = "", int limit = 0) : base(offset, limit)
+        public PostsRequest(PostType type)
         {
             Type = type;
         }
-
+        
         public PostType Type { get; private set; }
+        public string Offset { get; set; }
+        public int Limit { get; set; }
     }
 
     public class PostsInfoRequest

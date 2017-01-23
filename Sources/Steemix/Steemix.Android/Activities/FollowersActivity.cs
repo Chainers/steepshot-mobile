@@ -18,8 +18,7 @@ namespace Steemix.Droid.Activities
         private FollowType _friendsType;
 
         private FollowersAdapter _followersAdapter;
-
-        [InjectView(Resource.Id.followers_list)]
+        
         private RecyclerView _followersList;
 
         [InjectView(Resource.Id.loading_spinner)]
@@ -39,6 +38,7 @@ namespace Steemix.Droid.Activities
             goBack.Text = GetString(isFollowers ? Resource.String.text_followers : Resource.String.following);
 
             _followersAdapter = new FollowersAdapter(this, ViewModel.Collection);
+            _followersList = FindViewById<RecyclerView>(Resource.Id.followers_list);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(this));
             _followersList.SetOnScrollChangeListener(this);

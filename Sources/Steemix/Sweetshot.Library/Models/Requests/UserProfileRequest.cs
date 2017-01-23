@@ -1,9 +1,19 @@
-﻿namespace Sweetshot.Library.Models.Requests
+﻿using System;
+
+namespace Sweetshot.Library.Models.Requests
 {
-    public class UserProfileRequest : UserPostsRequest
+    public class UserProfileRequest
     {
-        public UserProfileRequest(string username) : base(username)
+        public UserProfileRequest(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentNullException(nameof(username));
+            }
+
+            Username = username;
         }
+
+        public string Username { get; private set; }
     }
 }
