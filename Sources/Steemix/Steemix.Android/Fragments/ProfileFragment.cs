@@ -27,6 +27,7 @@ namespace Steemix.Droid.Fragments
 			backButton.Visibility = ViewStates.Gone;
 			FollowButton.Visibility = ViewStates.Gone;
 			PostsList.SetLayoutManager(new GridLayoutManager(Context, 3));
+			PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 			LoadProfile();
 		}
 
@@ -67,6 +68,7 @@ namespace Steemix.Droid.Fragments
 			{ 
 				Switcher.SetImageResource(Resource.Drawable.ic_gray_list);
 				PostsList.SetLayoutManager(new GridLayoutManager(Context, 3));
+				PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 				PostsList.SetAdapter(new Adapter.PostsGridAdapter(Context, ViewModel.UserPosts));
 			}
 		}

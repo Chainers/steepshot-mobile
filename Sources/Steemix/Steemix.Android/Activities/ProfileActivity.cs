@@ -1,13 +1,7 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -30,6 +24,7 @@ namespace Steemix.Droid.Activities
 			ProfileId = Intent.GetStringExtra("ID");
 			Settings.Visibility = ViewStates.Gone;
 			PostsList.SetLayoutManager(new GridLayoutManager(this, 3));
+			PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 		}
 
 		protected override void OnResume()
@@ -84,6 +79,7 @@ namespace Steemix.Droid.Activities
 			{
 				Switcher.SetImageResource(Resource.Drawable.ic_gray_list);
 				PostsList.SetLayoutManager(new GridLayoutManager(this, 3));
+				PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 				PostsList.SetAdapter(new Adapter.PostsGridAdapter(this, ViewModel.UserPosts));
 			}
 		}

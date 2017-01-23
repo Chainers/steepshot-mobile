@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Android.Content;
 using Android.Database;
 using Android.Net;
 using Android.OS;
@@ -6,6 +7,7 @@ using Android.Provider;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
+using Java.IO;
 using Steemix.Droid.Adapter;
 using Steemix.Droid.ViewModels;
 
@@ -29,14 +31,64 @@ namespace Steemix.Droid.Fragments
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			ImagesList.SetLayoutManager(new GridLayoutManager(Context,3));
-			Adapter = new GalleryAdapter(Context, GetAllShownImagesPaths());
+			ImagesList.AddItemDecoration(new GridItemdecoration(2, 3));
+			Adapter = new GalleryAdapter(Context);
 			ImagesList.SetAdapter(Adapter);
+
+			Adapter.Click += Adapter_Click;
+		}
+
+		void Adapter_Click(int obj)
+		{
+			StartPost(obj);
+		}
+
+		private void StartPost(int obj)
+		{
+			Intent i = new Intent(Context, typeof(PostDescriptionActivity));
+			i.PutExtra("FILEPATH", Adapter.GetItem(obj));
+			Context.StartActivity(i);
 		}
 
 		public override void OnDestroyView()
 		{
 			base.OnDestroyView();
 			Cheeseknife.Reset(this);
+		}
+
+		public override void OnResume()
+		{
+			base.OnResume();
+			Adapter.Reset(GetAllShownImagesPaths());
+		}
+
+		public override void OnPause()
+		{
+			Adapter.Clear();
+			base.OnPause();
+		}
+
+		private Java.IO.File GetDirectoryForPictures()
+		{
+			var _dir = new Java.IO.File(
+				Android.OS.Environment.GetExternalStoragePublicDirectory(
+					Android.OS.Environment.DirectoryPictures), "SteepShot");
+			if (!_dir.Exists())
+			{
+				_dir.Mkdirs();
+			}
+
+			return _dir;
+		}
+
+		private void GetAppPictures(List<string> listOfAllImages)
+		{
+			File sdCardRoot = GetDirectoryForPictures();
+			foreach (File f in sdCardRoot.ListFiles())
+			{
+				if (f.IsFile)
+					listOfAllImages.Add(f.AbsolutePath);
+			}
 		}
 
 		private List<string> GetAllShownImagesPaths()
@@ -46,6 +98,8 @@ namespace Steemix.Droid.Fragments
 			int column_index_data, Column_index_folder_name;
 
 			List<string> listOfAllImages = new List<string>();
+
+			GetAppPictures(listOfAllImages);
 
 			string AbsolutePathOfImage = null;
 

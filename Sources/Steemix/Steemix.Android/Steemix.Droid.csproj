@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
     <AndroidLinkMode>None</AndroidLinkMode>
+    <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -172,7 +173,6 @@
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="Fragments\PhotoGridFragment.cs" />
     <Compile Include="Fragments\CameraFragment.cs" />
-    <Compile Include="SquareLayout.cs" />
     <Compile Include="Adapter\GalleryAdapter.cs" />
     <Compile Include="CameraPreview.cs" />
     <Compile Include="Activities\GuestActivity.cs" />
@@ -182,6 +182,10 @@
     <Compile Include="Adapter\PostsGridAdapter.cs" />
     <Compile Include="Activities\ProfileActivity.cs" />
     <Compile Include="Activities\UserProfileViewModel.cs" />
+    <Compile Include="Utils\GridItemdecoration.cs" />
+    <Compile Include="ViewModels\PostDescriptionViewModel.cs" />
+    <Compile Include="Activities\PostDescriptionActivity.cs" />
+    <Compile Include="Utils\ScaleImageView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -288,6 +292,7 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_gray_grid.png" />
     <AndroidResource Include="Resources\drawable\white_bottom_shadow.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
+    <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">
@@ -371,6 +376,9 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_error.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_error.png" />
     <AndroidResource Include="Resources\drawable\primary_corner_wite_btn.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

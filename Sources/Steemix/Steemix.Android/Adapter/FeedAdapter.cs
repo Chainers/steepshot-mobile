@@ -77,7 +77,6 @@ namespace Steemix.Droid.Adapter
             {
                 vh.Avatar.SetImageResource(Resource.Mipmap.ic_launcher);
             }
-
             vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
         }
 
@@ -124,7 +123,7 @@ namespace Steemix.Droid.Adapter
 
             void Like_Click(object sender, EventArgs e)
             {
-                Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                Like.SetImageResource(!post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
                 LikeAction?.Invoke(AdapterPosition);
             }
 

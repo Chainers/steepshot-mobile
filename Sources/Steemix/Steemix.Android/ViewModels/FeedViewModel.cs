@@ -47,7 +47,7 @@ namespace Steemix.Droid.ViewModels
             if (!UserPrincipal.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };
 
-            var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.SessionId, post.Vote, post.Url);
+            var voteRequest = new VoteRequest(UserPrincipal.CurrentUser.SessionId, !post.Vote, post.Url);
             return await ViewModelLocator.Api.Vote(voteRequest);
         }
     }

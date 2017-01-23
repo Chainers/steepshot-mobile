@@ -11,17 +11,26 @@ namespace Steemix.Droid.Adapter
 
 	public class GalleryAdapter : RecyclerView.Adapter
 	{
-		List<string> Posts;
+		List<string> Posts = new List<string>();
 		private Context context;
 		string CommentPattern ="<b>{0}</b> {1}";
 
 		public System.Action<int> Click;
 
-        public GalleryAdapter(Context context, List<string> Posts)
+        public GalleryAdapter(Context context)
         {
             this.context = context;
-            this.Posts = Posts;
         }
+
+		public void Clear()
+		{
+			Posts.Clear();
+		}
+
+		public void Reset(List<string> Posts)
+		{
+			this.Posts = Posts;
+		}
 
         public string GetItem(int position)
         {
@@ -60,6 +69,9 @@ namespace Steemix.Droid.Adapter
             {
 				this.Click = Click;
 				Photo = (ImageView)itemView;
+
+				Photo.Clickable = true;
+				Photo.Click += (sender, e) => Click.Invoke(AdapterPosition);
             }
 
 		}

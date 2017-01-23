@@ -54,6 +54,7 @@
   <string name = "text_follow">Follow</string>
   <string name = "text_unfollow">Unfollow</string>
 	<string name = "photos">Photos</string>
+	<string name ="add_description">Add Description</string>
 
   
   <!-- The class name to the ScrollingChildBehavior required for AppBarLayout -->
