@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
@@ -45,7 +46,7 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Tags, Is.Not.Empty);
         }
 
-        [Test]
+        [Ignore("Ingoring...")]
         public void Upload_Throttling()
         {
             // Arrange
@@ -133,6 +134,100 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
             Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+        }
+
+        [Test]
+        public void Vote_Up_Comment()
+        {
+            // Get latest posts
+            var userPostsRequest = new UserPostsRequest(Name);
+            var userPostsResponse = _api.GetUserPosts(userPostsRequest).Result;
+            AssertSuccessfulResult(userPostsResponse);
+            Assert.That(userPostsResponse.Result.Count, Is.Not.Null);
+            Assert.That(userPostsResponse.Result.Offset, Is.Not.Empty);
+            Assert.That(userPostsResponse.Result.Results, Is.Not.Empty);
+
+            var postUrl = userPostsResponse.Result.Results.First().Url;
+
+            // Comment latest post
+            var createCommentRequest = new CreateCommentRequest(_sessionId, postUrl, "nailed it !", "свитшот");
+            var createCommentResponse = _api.CreateComment(createCommentRequest).Result;
+            AssertSuccessfulResult(createCommentResponse);
+            Assert.That(createCommentResponse.Result.IsCreated, Is.True);
+            Assert.That(createCommentResponse.Result.Message, Is.EqualTo("Comment created"));
+
+            // Load comments for this post
+            var commentsRequest = new GetCommentsRequest(postUrl);
+            var commentsResponse = _api.GetComments(commentsRequest).Result;
+            AssertSuccessfulResult(commentsResponse);
+            Assert.That(commentsResponse.Result.Count, Is.Not.Null);
+            Assert.That(commentsResponse.Result.Results, Is.Not.Empty);
+
+            // Voteup new comment
+            var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
+            var request = new VoteRequest(_sessionId, true, commentUrl);
+
+            // Act
+            var response = _api.Vote(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsVoted, Is.True);
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+
+            // Check if it is was voted
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+            var commentsRequest2 = new GetCommentsRequest(postUrl) {SessionId = _sessionId};
+            var commentsResponse2 = _api.GetComments(commentsRequest2).Result;
+            Assert.That(commentsResponse2.Result.Results.First().Vote, Is.True);
+        }
+
+        [Test]
+        public void Vote_Down_Comment()
+        {
+            //TODO
+        }
+
+        [Test]
+        public void Create_Post_Vote_Check()
+        {
+            // Create new post
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var file = File.ReadAllBytes(path);
+            var createPostRequest = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var createPostResponse = _api.Upload(createPostRequest).Result;
+
+            // Check if it is there
+            var userPostsResponse = _api.GetUserPosts(new UserPostsRequest(Name)).Result;
+            Assert.That(createPostResponse.Result.Title, Is.EqualTo(userPostsResponse.Result.Results.First().Title));
+            Assert.That(userPostsResponse.Result.Results.First().Vote, Is.False);
+
+            // Arrange
+            var url = userPostsResponse.Result.Results.First().Url;
+            var request = new VoteRequest(_sessionId, true, url);
+
+            // Act
+            var response = _api.Vote(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.IsVoted, Is.True);
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
+            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+
+            // Check if it is was voted
+            Thread.Sleep(TimeSpan.FromSeconds(5));
+            var userPostsResponse2 = _api.GetUserPosts(new UserPostsRequest(Name) {SessionId = _sessionId}).Result;
+            Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.True);
+        }
+
+        [Test]
+        public void Create_Comment_Vote_Check()
+        {
+            //TODO
         }
 
         [Test]

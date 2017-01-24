@@ -13,6 +13,7 @@ namespace Sweetshot.Library.Models.Requests
 
             Username = username;
         }
+        public string SessionId { get; set; }
         public string Username { get; private set; }
         public string Offset { get; set; }
         public int Limit { get; set; }

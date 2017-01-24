@@ -12,7 +12,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new VoteRequest("sessionId", true, "");
+                new VoteRequest("sessionId", true, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("identifier"));
         }
@@ -22,7 +22,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new FollowRequest("sessionId", FollowType.Follow, "");
+                new FollowRequest("sessionId", FollowType.Follow, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("username"));
         }
@@ -32,7 +32,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new GetCommentsRequest("");
+                new GetCommentsRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -42,7 +42,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                var r = new CreateCommentRequest("sessionId", "", "test", "test");
+                new CreateCommentRequest("sessionId", "", "test", "test");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
