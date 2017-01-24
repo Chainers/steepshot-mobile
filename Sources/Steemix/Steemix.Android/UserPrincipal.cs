@@ -4,6 +4,7 @@ using System.Security.Principal;
 using Sweetshot.Library.Models.Responses;
 using Steemix.Droid.Realm;
 using Sweetshot.Library.Models.Requests;
+using Realms;
 
 namespace Steemix.Droid
 {
@@ -80,17 +81,27 @@ namespace Steemix.Droid
                 Password = password, //TODO:KOA по идеи надо шифровать, но пока так
             };
 
-            var user = new UserPrincipal(userInfo);
-            CurrentUser = user;
+			UserPrincipal user=null;
 
-            var realm = Realms.Realm.GetInstance();
-            using (var trans = realm.BeginWrite())
-            {
-                realm.RemoveAll<UserInfo>();
-                realm.Add(userInfo);
-                trans.Commit();
-            }
+			user = new UserPrincipal(userInfo);
+			CurrentUser = user;
 
+			var config = new RealmConfiguration("Realm.realm");
+			config.ObjectClasses = new[] { typeof(UserInfo) };
+
+			Realms.Realm.DeleteRealm(config);
+			try
+			{
+				var realm = Realms.Realm.GetInstance(config);
+				using (var trans = realm.BeginWrite())
+				{
+					realm.RemoveAll<UserInfo>();
+					realm.Add(userInfo);
+					trans.Commit();
+				}
+
+			}
+			catch { }
             return user;
         }
 

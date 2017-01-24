@@ -197,6 +197,7 @@
     <Compile Include="ViewModels\PostDescriptionViewModel.cs" />
     <Compile Include="Activities\PostDescriptionActivity.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
+    <Compile Include="Utils\TagLayout.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -304,6 +305,11 @@
     <AndroidResource Include="Resources\drawable\white_bottom_shadow.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
+    <AndroidResource Include="Resources\layout\lyt_tag.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_cross.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_cross.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_cross.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_cross.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

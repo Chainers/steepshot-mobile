@@ -18,7 +18,7 @@ using Steemix.Droid.Activities;
 
 namespace Steemix.Droid
 {
-	[Activity(Label = "PostDescriptionActivity",ScreenOrientation=Android.Content.PM.ScreenOrientation.Portrait,WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
+	[Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
 	public class PostDescriptionActivity : BaseActivity<ViewModels.PostDescriptionViewModel>, ITarget
 	{
 		[InjectOnClick(Resource.Id.btn_back)]
@@ -26,6 +26,9 @@ namespace Steemix.Droid
 		{
 			OnBackPressed();
 		}
+
+		[InjectView(Resource.Id.tag_container)]
+		TagLayout tagLayout;
 
 		[InjectView(Resource.Id.photo)]
 		ScaleImageView PhotoView;
@@ -40,13 +43,24 @@ namespace Steemix.Droid
 			PhotoView.SetBackgroundColor(Color.Black);
 
 			Path = Intent.GetStringExtra("FILEPATH");
+		}
 
+		public void AddTags()
+		{
+			for (int i = 0; i < 30; i++)
+			{
+				FrameLayout tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
+				tag.FindViewById<TextView>(Resource.Id.text).Text = string.Format("#tag{0}", i);
+				tagLayout.AddView(tag);
+				tagLayout.RequestLayout();
+			}
 		}
 
 		protected override void OnPostCreate(Bundle savedInstanceState)
 		{
 			base.OnPostCreate(savedInstanceState);
 			Picasso.With(this).Load(new Java.IO.File(Path)).Into(this);
+			AddTags();
 		}
 
 		protected override void OnDestroy()
@@ -59,7 +73,7 @@ namespace Steemix.Droid
 
 		public void OnBitmapFailed(Drawable p0)
 		{
-			
+
 		}
 
 		public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
@@ -68,9 +82,9 @@ namespace Steemix.Droid
 			int dstHeight = 0;
 			float coeff = 0;
 
-				coeff = (float)p0.Height / (float)p0.Width;
-				dstWidth = Resources.DisplayMetrics.WidthPixels;
-				dstHeight = (int)(dstWidth * coeff);
+			coeff = (float)p0.Height / (float)p0.Width;
+			dstWidth = Resources.DisplayMetrics.WidthPixels;
+			dstHeight = (int)(dstWidth * coeff);
 
 			var b = Bitmap.CreateScaledBitmap(p0, dstWidth, dstHeight, true);
 			RunOnUiThread(() =>
@@ -83,7 +97,7 @@ namespace Steemix.Droid
 
 		public void OnPrepareLoad(Drawable p0)
 		{
-			
+
 		}
 	}
 }

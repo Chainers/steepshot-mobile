@@ -73,12 +73,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="1px"
                 android:background="@color/light_gray" />
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/lst_tags"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <ScrollView
                 android:layout_below="@+id/d_edit"
-                android:layout_above="@+id/btn_post" />
+                android:layout_above="@+id/btn_post"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <Steemix.Droid.TagLayout
+                    android:id="@+id/tag_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </ScrollView>
             <Button
                 android:id="@+id/btn_post"
                 android:layout_width="match_parent"

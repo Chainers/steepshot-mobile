@@ -3,6 +3,7 @@ using Realms;
 
 namespace Steemix.Droid.Realm
 {
+	[Preserve(AllMembers = true)]
     public class UserInfo : RealmObject
     {
         [PrimaryKey]
