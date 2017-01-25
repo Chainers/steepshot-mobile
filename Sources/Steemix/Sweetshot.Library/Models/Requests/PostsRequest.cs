@@ -13,6 +13,7 @@ namespace Sweetshot.Library.Models.Requests
 
             Username = username;
         }
+
         public string SessionId { get; set; }
         public string Username { get; private set; }
         public string Offset { get; set; }
@@ -49,10 +50,20 @@ namespace Sweetshot.Library.Models.Requests
         {
             Type = type;
         }
-        
+
         public PostType Type { get; private set; }
         public string Offset { get; set; }
         public int Limit { get; set; }
+    }
+
+    public class PostsByCategoryRequest : PostsRequest
+    {
+        public PostsByCategoryRequest(PostType type, string category) : base(type)
+        {
+            Category = category;
+        }
+
+        public string Category { get; set; }
     }
 
     public class PostsInfoRequest

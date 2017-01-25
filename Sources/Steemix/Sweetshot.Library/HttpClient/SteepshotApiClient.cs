@@ -43,7 +43,12 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = new List<RequestParameter>
             {
-                new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody}
+                new RequestParameter
+                {
+                    Key = "application/json",
+                    Value = _jsonConverter.Serialize(request),
+                    Type = ParameterType.RequestBody
+                }
             };
 
             var response = await _gateway.Post(endpoint, parameters);
@@ -71,7 +76,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu/posts HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/user/joseph.kalu/posts?offset=%2Fcat1%2F%40joseph.kalu%2Fcat636203389144533548&limit=3 HTTP/1.1
         ///            Cookie: sessionid=q9umzz8q17bclh8yvkkipww3e96dtdn3
@@ -81,14 +86,14 @@ namespace Sweetshot.Library.HttpClient
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
-            
+
             var response = await _gateway.Get($"/user/{request.Username}/posts", parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/recent HTTP/1.1
         ///            Cookie: sessionid=h0loy20ff472dzlmwpafyd6aix07v3q6
         ///     2) GET https://steepshot.org/api/v1/recent?offset=%2Fhealth%2F%40heiditravels%2Fwhat-are-you-putting-on-your-face&limit=3 HTTP/1.1
@@ -106,7 +111,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/posts/new HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/posts/hot HTTP/1.1
         ///     3) GET https://steepshot.org/api/v1/posts/top HTTP/1.1
@@ -123,7 +128,23 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
+        ///     1) GET https://steepshot.org/api/v1/posts/food/top HTTP/1.1
+        ///     2) GET https://steepshot.org/api/v1/posts/food/top?offset=%2Ftravel%2F%40sweetsssj%2Ftravel-with-me-39-my-appointment-with-gulangyu&limit=5 HTTP/1.1
+        /// </summary>
+        /// 
+        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request)
+        {
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
+
+            var endpoint = "/posts/" + request.Category + "/" + request.Type.ToString().ToLowerInvariant();
+            var response = await _gateway.Get(endpoint, parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<UserPostResponse>(response.Content, errorResult);
+        }
+
+        /// <summary>
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/post/cat1/@joseph.kalu/cat636206825039716128/upvote HTTP/1.1
         ///             Cookie: sessionid=q9umzz8q17bclh8yvkkipww3e96dtdn3
         ///             {"identifier":"/cat1/@joseph.kalu/cat636206825039716128"}
@@ -134,7 +155,12 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+            parameters.Add(new RequestParameter
+            {
+                Key = "application/json",
+                Value = _jsonConverter.Serialize(request),
+                Type = ParameterType.RequestBody
+            });
 
             var endpoint = $"/post/{request.Identifier}/" + request.Type.GetDescription();
             var response = await _gateway.Post(endpoint, parameters);
@@ -143,7 +169,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/user/asduj/follow HTTP/1.1
         ///             Cookie: sessionid=neg365kgpokr5kz8sia2eohc854z15od
         ///     2) POST https://steepshot.org/api/v1/user/asduj/unfollow HTTP/1.1
@@ -160,7 +186,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
@@ -171,7 +197,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
         ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
         ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
@@ -179,7 +205,12 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+            parameters.Add(new RequestParameter
+            {
+                Key = "application/json",
+                Value = _jsonConverter.Serialize(request),
+                Type = ParameterType.RequestBody
+            });
 
             var response = await _gateway.Post($"/post/{request.Url}/comment", parameters);
             var errorResult = CheckErrors(response);
@@ -187,7 +218,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/post HTTP/1.1
         ///             Cookie: sessionid=qps2cjt685or8g5kbyq0ybdti9nzf9ly
         ///             Content-Disposition: form-data; name="title"
@@ -213,7 +244,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
@@ -227,7 +258,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
@@ -242,7 +273,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/user/change-password HTTP/1.1
         ///             Cookie: sessionid=oh3f8vua8a5s2au5ovfqhsi6zvqgjfif
         ///             {"old_password":"test1234","new_password":"test12345"}
@@ -250,7 +281,12 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter {Key = "application/json", Value = _jsonConverter.Serialize(request), Type = ParameterType.RequestBody});
+            parameters.Add(new RequestParameter
+            {
+                Key = "application/json",
+                Value = _jsonConverter.Serialize(request),
+                Type = ParameterType.RequestBody
+            });
 
             var response = await _gateway.Post("user/change-password", parameters);
             var errorResult = CheckErrors(response);
@@ -258,7 +294,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/logout HTTP/1.1
         ///             Cookie: sessionid=rm8haiqibvsvpv7f495mg17sdzje29aw
         /// </summary>
@@ -272,7 +308,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu HTTP/1.1
         /// </summary>
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
@@ -283,7 +319,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu/following HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/user/joseph.kalu/followers HTTP/1.1
         ///     3) GET https://steepshot.org/api/v1/user/joseph.kalu/followers?offset=vivianupman&limit=5 HTTP/1.1
@@ -297,9 +333,9 @@ namespace Sweetshot.Library.HttpClient
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);
         }
-        
+
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/tos HTTP/1.1
         /// </summary>
         public async Task<OperationResult<TermOfServiceResponse>> TermsOfService()
@@ -311,7 +347,7 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
         /// </summary>
         public async Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
@@ -327,7 +363,12 @@ namespace Sweetshot.Library.HttpClient
             var parameters = new List<RequestParameter>();
             if (!string.IsNullOrWhiteSpace(sessionId))
             {
-                parameters.Add(new RequestParameter { Key = "sessionid", Value = sessionId, Type = ParameterType.Cookie});
+                parameters.Add(new RequestParameter
+                {
+                    Key = "sessionid",
+                    Value = sessionId,
+                    Type = ParameterType.Cookie
+                });
             }
             return parameters;
         }
@@ -362,7 +403,8 @@ namespace Sweetshot.Library.HttpClient
                 result.Errors.Add("ResponseStatus: " + response.ResponseStatus);
             }
             // HTTP errors
-            else if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Forbidden)
+            else if (response.StatusCode == HttpStatusCode.BadRequest ||
+                     response.StatusCode == HttpStatusCode.Forbidden)
             {
                 var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
                 foreach (var kvp in dic)

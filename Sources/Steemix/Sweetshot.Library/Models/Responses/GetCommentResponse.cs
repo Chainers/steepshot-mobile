@@ -1,10 +1,30 @@
 using System;
+using System.Collections.Generic;
 
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
     ///  "count": 30,
-    ///  "results": [
+    ///  "results": []
+    ///}
+    public class GetCommentResponse
+    {
+        public int Count { get; set; }
+        public List<Post> Results { get; set; }
+    }
+
+    ///{
+    ///  "offset": "/spam/@joseph.kalu/test-post-mon-jan-16-103314-2017",
+    ///  "count": 1,
+    ///  "results": []
+    ///}
+    public class UserPostResponse
+    {
+        public string Offset { get; set; }
+        public int Count { get; set; }
+        public List<Post> Results { get; set; }
+    }
+
     ///    {
     ///      "body": "abcd",
     ///      "title": "abcd123",
@@ -26,14 +46,6 @@ namespace Sweetshot.Library.Models.Responses
     ///      "tags": [],
     ///      "depth": 1
     ///    }
-    ///  ]
-    ///}
-    public class GetCommentResponse
-    {
-        public int Count { get; set; }
-        public Post[] Results { get; set; }
-    }
-
     public class Post
     {
         public string Body { get; set; }

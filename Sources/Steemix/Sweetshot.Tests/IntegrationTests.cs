@@ -162,7 +162,7 @@ namespace Sweetshot.Tests
         public void UserPosts_With_SessionId_Some_Votes_True()
         {
             // Arrange
-            var request = new UserPostsRequest(Name) { SessionId = _sessionId };
+            var request = new UserPostsRequest(Name) {SessionId = _sessionId};
 
             // Act
             var response = _api.GetUserPosts(request).Result;
@@ -297,6 +297,112 @@ namespace Sweetshot.Tests
             // Assert
             AssertSuccessfulResult(response);
             Assert.That(response.Result.Results, Is.Not.Empty);
+        }
+
+        [Test]
+        public void Posts_By_Category()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "food");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Where(x => !x.Tags.Contains("food")), Is.Empty);
+        }
+
+        [Test]
+        public void Posts_By_Category_Invalid_Name()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Authentication credentials were not provided."));
+        }
+
+        [Test]
+        public void Posts_By_Category_Not_Existing_Name()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "qweqweqweqewqwqweqe");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Empty);
+        }
+
+        [Test]
+        public void Posts_By_Category_Empty_Name()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Authentication credentials were not provided."));
+        }
+
+        [Test]
+        public void Posts_By_Category_Hot()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Hot, "food");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Where(x => !x.Tags.Contains("food")), Is.Empty);
+        }
+
+        [Test]
+        public void Posts_By_Category_New()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.New, "food");
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Where(x => !x.Tags.Contains("food")), Is.Empty);
+        }
+
+        [Test]
+        public void Posts_By_Category_Offset_Limit()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "food");
+            request.Offset = _api.GetPostsByCategory(request).Result.Result.Results.First().Url;
+            request.Limit = 5;
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.Where(x => !x.Tags.Contains("food")), Is.Empty);
+            Assert.That(response.Result.Results.Count, Is.EqualTo(request.Limit));
+            Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
         [Test]
@@ -519,7 +625,7 @@ namespace Sweetshot.Tests
         public void Comments_With_SessionId_Check_True_Votes()
         {
             // Arrange
-            var request = new GetCommentsRequest("@joseph.kalu/cat636203355240074655") { SessionId = _sessionId };
+            var request = new GetCommentsRequest("@joseph.kalu/cat636203355240074655") {SessionId = _sessionId};
 
             // Act
             var response = _api.GetComments(request).Result;
