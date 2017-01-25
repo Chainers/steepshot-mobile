@@ -74,12 +74,15 @@ namespace Sweetshot.Library.HttpClient
         ///     Examples: 
         ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu/posts HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/user/joseph.kalu/posts?offset=%2Fcat1%2F%40joseph.kalu%2Fcat636203389144533548&limit=3 HTTP/1.1
+        ///            Cookie: sessionid=q9umzz8q17bclh8yvkkipww3e96dtdn3
         /// </summary>
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
         {
-            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
-
-            var response = await _gateway.Get($"/user/{request.Username}/posts", parameters);
+            var parameters = CreateSessionParameter(request.SessionId);
+            var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
+            parameters2.AddRange(parameters);
+            
+            var response = await _gateway.Get($"/user/{request.Username}/posts", parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -321,11 +324,11 @@ namespace Sweetshot.Library.HttpClient
 
         private List<RequestParameter> CreateSessionParameter(string sessionId)
         {
-            var parameters = new List<RequestParameter>
+            var parameters = new List<RequestParameter>();
+            if (!string.IsNullOrWhiteSpace(sessionId))
             {
-                new RequestParameter {Key = "sessionid", Value = sessionId, Type = ParameterType.Cookie}
-            };
-
+                parameters.Add(new RequestParameter { Key = "sessionid", Value = sessionId, Type = ParameterType.Cookie});
+            }
             return parameters;
         }
 

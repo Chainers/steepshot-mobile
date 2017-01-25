@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sweetshot.Library.Models.Requests
+﻿namespace Sweetshot.Library.Models.Requests
 {
     public class CategoriesRequest
     {

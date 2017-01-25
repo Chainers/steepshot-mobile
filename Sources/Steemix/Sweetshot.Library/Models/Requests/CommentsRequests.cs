@@ -40,7 +40,7 @@ namespace Sweetshot.Library.Models.Requests
 
             Url = url;
         }
-
+        public string SessionId { get; set; }
         public string Url { get; private set; }
     }
 }

@@ -14,7 +14,6 @@ namespace Sweetshot.Tests
     // test (assert) errors
     // Register - tests, request examples
 
-    // vs code setup - run and debug, unit tests with debug 
     // vagrant or docker ?
     // linux proxy
 
@@ -160,6 +159,34 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void UserPosts_With_SessionId_Some_Votes_True()
+        {
+            // Arrange
+            var request = new UserPostsRequest(Name) { SessionId = _sessionId };
+
+            // Act
+            var response = _api.GetUserPosts(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.True);
+        }
+
+        [Test]
+        public void UserPosts_Without_SessionId_Votes_False()
+        {
+            // Arrange
+            var request = new UserPostsRequest(Name);
+
+            // Act
+            var response = _api.GetUserPosts(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.False);
+        }
+
+        [Test]
         public void UserRecentPosts()
         {
             // Arrange
@@ -214,7 +241,7 @@ namespace Sweetshot.Tests
         public void Posts_Top_Limit_Default()
         {
             // Arrange
-            const int defaultLimit = 10;
+            const int defaultLimit = 20;
             var request = new PostsRequest(PostType.Top);
 
             // Act
@@ -486,6 +513,34 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results.First().Vote, Is.False);
             Assert.That(response.Result.Results.First().Tags, Is.Empty);
             Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
+        }
+
+        [Test]
+        public void Comments_With_SessionId_Check_True_Votes()
+        {
+            // Arrange
+            var request = new GetCommentsRequest("@joseph.kalu/cat636203355240074655") { SessionId = _sessionId };
+
+            // Act
+            var response = _api.GetComments(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.True);
+        }
+
+        [Test]
+        public void Comments_Without_SessionId_Check_False_Votes()
+        {
+            // Arrange
+            var request = new GetCommentsRequest("@joseph.kalu/cat636203355240074655");
+
+            // Act
+            var response = _api.GetComments(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.False);
         }
 
         [Test]
