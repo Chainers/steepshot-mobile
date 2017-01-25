@@ -145,6 +145,9 @@
     <Reference Include="Cheeseknife">
       <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
+    <Reference Include="TagView">
+      <HintPath>..\packages\TagView.1.0.0\lib\TagView.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ViewModels\TermsOfServiceViewModel.cs" />
@@ -198,6 +201,9 @@
     <Compile Include="Activities\PostDescriptionActivity.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\TagLayout.cs" />
+    <Compile Include="Activities\TagsActivity.cs" />
+    <Compile Include="ViewModels\TagsViewModel.cs" />
+    <Compile Include="Adapter\TagsAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -310,6 +316,15 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_cross.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_cross.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_cross.png" />
+    <AndroidResource Include="Resources\layout\lyt_add_tag.axml" />
+    <AndroidResource Include="Resources\drawable\primary_corner_white_btn.xml" />
+    <AndroidResource Include="Resources\layout\lyt_tags.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_search_gray.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_search_gray.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_search_gray.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_search_gray.png" />
+    <AndroidResource Include="Resources\drawable\white_corner.xml" />
+    <AndroidResource Include="Resources\layout\lyr_search_tag.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml">

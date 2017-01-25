@@ -6,13 +6,12 @@
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:padding="10dp"
-        android:background="@drawable/white_solid_btn"
+        android:background="@drawable/primary_corner_white_btn"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/black"
+        android:textColor="@color/color_primary"
         android:layout_margin="5dp"
-        android:drawableRight="@drawable/ic_cross"
+        android:textAllCaps="true"
         android:gravity="center"
-        android:drawablePadding="5dp"
         android:textSize="12sp"
-        android:text="#tag" />
+        android:text="ADD TAGS" />
 </FrameLayout>
