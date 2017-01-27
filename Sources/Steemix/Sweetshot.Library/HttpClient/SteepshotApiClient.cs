@@ -121,7 +121,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
-            var endpoint = "/posts/" + request.Type.ToString().ToLowerInvariant();
+            var endpoint = $"/posts/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
@@ -137,7 +137,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
-            var endpoint = "/posts/" + request.Category + "/" + request.Type.ToString().ToLowerInvariant();
+            var endpoint = $"/posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
@@ -162,7 +162,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var endpoint = $"/post/{request.Identifier}/" + request.Type.GetDescription();
+            var endpoint = $"/post/{request.Identifier}/{request.Type.GetDescription()}";
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
@@ -179,7 +179,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
+            var endpoint = $"/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
@@ -265,7 +265,8 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<CategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
-            parameters.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
+            parameters.Add(
+                new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
 
             var response = await _gateway.Get("categories/search", parameters);
             var errorResult = CheckErrors(response);
@@ -309,11 +310,11 @@ namespace Sweetshot.Library.HttpClient
 
         /// <summary>
         ///     Examples:
-        ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu HTTP/1.1
+        ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu/info HTTP/1.1
         /// </summary>
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
         {
-            var response = await _gateway.Get($"/user/{request.Username}", new List<RequestParameter>());
+            var response = await _gateway.Get($"/user/{request.Username}/info", new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<UserProfileResponse>(response.Content, errorResult);
         }
@@ -328,7 +329,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
-            var endpoint = $"/user/{request.Username}/" + request.Type.ToString().ToLowerInvariant();
+            var endpoint = $"/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);

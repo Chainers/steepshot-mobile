@@ -21,8 +21,8 @@ namespace Sweetshot.Tests
     public class IntegrationTests
     {
         private const string Name = "joseph.kalu";
-        private const string Password = "test1234";
-        private const string NewPassword = "test12345";
+        private const string Password = "test12345";
+        private const string NewPassword = "test123456";
         private string _sessionId = string.Empty;
 
         private readonly SteepshotApiClient _api = new SteepshotApiClient(ConfigurationManager.AppSettings["sweetshot_url"]);
@@ -325,7 +325,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Authentication credentials were not provided."));
+            Assert.That(response.Errors.Contains("Not Found"));
         }
 
         [Test]
@@ -353,7 +353,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Authentication credentials were not provided."));
+            Assert.That(response.Errors.Contains("Not Found"));
         }
 
         [Test]

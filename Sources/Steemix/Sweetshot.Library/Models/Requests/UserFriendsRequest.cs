@@ -20,7 +20,7 @@ namespace Sweetshot.Library.Models.Requests
             Username = username;
             Type = type;
         }
-        
+
         public string Username { get; private set; }
         public FriendsType Type { get; private set; }
         public string Offset { get; set; }

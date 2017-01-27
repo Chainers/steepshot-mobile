@@ -14,8 +14,8 @@ namespace Sweetshot.Tests
     public class IntegrationTestsChangingState
     {
         private const string Name = "joseph.kalu";
-        private const string Password = "test1234";
-        private const string NewPassword = "test12345";
+        private const string Password = "test12345";
+        private const string NewPassword = "test123456";
         private string _sessionId = string.Empty;
 
         private readonly SteepshotApiClient _api = new SteepshotApiClient(ConfigurationManager.AppSettings["sweetshot_url"]);
@@ -68,8 +68,11 @@ namespace Sweetshot.Tests
         [Order(1)]
         public void CreateComment()
         {
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = _api.GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
             // Arrange
-            var request = new CreateCommentRequest(_sessionId, "@joseph.kalu/cat636203355240074655", "nailed it !", "свитшот");
+            var request = new CreateCommentRequest(_sessionId, lastPost.Url, "nailed it !", "свитшот");
 
             // Act
             var response = _api.CreateComment(request).Result;
