@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using NUnit.Framework;
 using Sweetshot.Library.Models.Requests;
 
@@ -45,6 +46,23 @@ namespace Sweetshot.Tests
                 new CreateCommentRequest("sessionId", "", "test", "test");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
+        }
+
+        [Test]
+        public void Upload_Base64_Equals_ByteArray()
+        {
+            // Arrange
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var file = File.ReadAllBytes(path);
+
+            // Act
+            var requestArray = new UploadImageRequest("sessionId", "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var base64 = Convert.ToBase64String(file);
+            var requestBase64 = new UploadImageRequest("sessionId", "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
+
+            // Assert
+            Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
+            Assert.That(requestArray.Photo.Length, Is.EqualTo(requestBase64.Photo.Length));
         }
     }
 }

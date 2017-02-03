@@ -191,7 +191,9 @@ namespace Sweetshot.Library.HttpClient
         /// </summary>
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
         {
-            var response = await _gateway.Get($"/post/{request.Url}/comments", new List<RequestParameter>());
+            var parameters = CreateSessionParameter(request.SessionId);
+
+            var response = await _gateway.Get($"/post/{request.Url}/comments", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<GetCommentResponse>(response.Content, errorResult);
         }

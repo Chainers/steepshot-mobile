@@ -118,7 +118,7 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results.First().PendingPayoutValue, Is.Not.Null);
             Assert.That(response.Result.Results.First().MaxAcceptedPayout, Is.Not.Null);
             Assert.That(response.Result.Results.First().TotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Results.First().Vote, Is.False);
+            Assert.That(response.Result.Results.First().Vote, Is.Not.Null);
             Assert.That(response.Result.Results.First().Tags, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Depth, Is.Not.Null);
         }
@@ -173,7 +173,7 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        public void UserPosts_Without_SessionId_Votes_False()
+        public void UserPosts_Without_SessionId_All_Votes_False()
         {
             // Arrange
             var request = new UserPostsRequest(Name);
@@ -616,7 +616,7 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results.First().PendingPayoutValue, Is.Not.Null);
             Assert.That(response.Result.Results.First().MaxAcceptedPayout, Is.Not.Null);
             Assert.That(response.Result.Results.First().TotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Results.First().Vote, Is.False);
+            Assert.That(response.Result.Results.First().Vote, Is.Not.Null);
             Assert.That(response.Result.Results.First().Tags, Is.Empty);
             Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
         }
@@ -1122,6 +1122,20 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void Upload_Empty_Photo()
+        {
+            // Arrange
+            var request = new UploadImageRequest(_sessionId, "title", "cat1", "cat2", "cat3", "cat4");
+
+            // Act
+            var response = _api.Upload(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
+        }
+
+        [Test]
         public void Upload_Tags_Less_Than_1()
         {
             // Arrange
@@ -1155,18 +1169,24 @@ namespace Sweetshot.Tests
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)
         {
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Success, Is.True);
-            Assert.That(response.Result, Is.Not.Null);
-            Assert.That(response.Errors, Is.Empty);
+            lock (response)
+            {
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.Success, Is.True);
+                Assert.That(response.Result, Is.Not.Null);
+                Assert.That(response.Errors, Is.Empty);
+            }
         }
 
         private void AssertFailedResult<T>(OperationResult<T> response)
         {
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Success, Is.False);
-            Assert.That(response.Result, Is.Null);
-            Assert.That(response.Errors, Is.Not.Empty);
+            lock (response)
+            {
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.Success, Is.False);
+                Assert.That(response.Result, Is.Null);
+                Assert.That(response.Errors, Is.Not.Empty);
+            }
         }
     }
 }
