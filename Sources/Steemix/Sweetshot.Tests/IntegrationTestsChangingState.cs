@@ -28,255 +28,164 @@ namespace Sweetshot.Tests
         }
 
         [Test]
-        [Order(0)]
-        public void New_Post()
+        public void BlockchainStateChangingTest()
         {
-            // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            // 1) Create new post
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
-            var request = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            
+            var createPostRequest = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var createPostResponse = _api.Upload(createPostRequest).Result;
 
-            // Act
-            var response = _api.Upload(request).Result;
+            AssertSuccessfulResult(createPostResponse);
+            Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
+            Assert.That(createPostResponse.Result.Title, Is.Not.Empty);
+            Assert.That(createPostResponse.Result.Tags, Is.Not.Empty);
 
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.Body, Is.Not.Empty);
-            Assert.That(response.Result.Title, Is.Not.Empty);
-            Assert.That(response.Result.Tags, Is.Not.Empty);
-        }
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
 
-        [Test]
-        [Order(1)]
-        public void CreateComment()
-        {
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-
+            // Load last created post
             var userPostsRequest = new UserPostsRequest(Name);
             var lastPost = _api.GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
 
-            // Arrange
-            var request = new CreateCommentRequest(_sessionId, lastPost.Url, "nailed it !", "свитшот");
+            // 2) Create new comment
+            const string body = "Ллойс!";
+            const string title = "Лучший камент ever";
+            var createCommentRequest = new CreateCommentRequest(_sessionId, lastPost.Url, body, title);
+            var createCommentResponse = _api.CreateComment(createCommentRequest).Result;
 
-            // Act
-            var response = _api.CreateComment(request).Result;
+            AssertSuccessfulResult(createCommentResponse);
+            Assert.That(createCommentResponse.Result.IsCreated, Is.True);
+            Assert.That(createCommentResponse.Result.Message, Is.EqualTo("Comment created"));
 
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsCreated, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("Comment created"));
-        }
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
 
-        [Test]
-        [Order(2)]
-        public void Vote_Up_Post()
-        {
-            // Create new post
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
-            var createPostRequest = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, File.ReadAllBytes(path), "cat1", "cat2", "cat3", "cat4");
-            var createPostResponse = _api.Upload(createPostRequest).Result;
+            // Load comments for this post and check them
+            var getCommentsRequest = new GetCommentsRequest(lastPost.Url);
+            var commentsResponse = _api.GetComments(getCommentsRequest).Result;
+            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(title));
+            Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
 
-            // Check new post
-            var userPostsResponse = _api.GetUserPosts(new UserPostsRequest(Name)).Result;
-            Assert.That(createPostResponse.Result.Title, Is.EqualTo(userPostsResponse.Result.Results.First().Title));
-
-            // Arrange
-            var request = new VoteRequest(_sessionId, true, userPostsResponse.Result.Results.First().Url);
-
-            // Act
-            var response = _api.Vote(request).Result;
+            // 3) Vote up
+            var voteUpRequest = new VoteRequest(_sessionId, true, lastPost.Url);
+            var voteUpResponse = _api.Vote(voteUpRequest).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.True);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            AssertSuccessfulResult(voteUpResponse);
+            Assert.That(voteUpResponse.Result.IsVoted, Is.True);
+            Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(voteUpResponse.Result.Message, Is.EqualTo("Upvoted"));
+            Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
-            // Check if it is was voted
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-            var userPostsResponse2 = _api.GetUserPosts(new UserPostsRequest(Name) {SessionId = _sessionId}).Result;
-            Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.True);
-        }
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+            // Provide sessionId with request to be able read voting information
+            userPostsRequest.SessionId = _sessionId;
+            var userPostsResponse = _api.GetUserPosts(userPostsRequest).Result;
+            // Check if last post was voted
+            Assert.That(userPostsResponse.Result.Results.First().Vote, Is.True);
 
-        [Test]
-        [Order(3)]
-        public void Vote_Down_Post()
-        {
-            // Create new post
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
-            var createPostRequest = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, File.ReadAllBytes(path), "cat1", "cat2", "cat3", "cat4");
-            var createPostResponse = _api.Upload(createPostRequest).Result;
+            // 4) Vote down
+            var voteDownRequest = new VoteRequest(_sessionId, false, lastPost.Url);
+            var voteDownResponse = _api.Vote(voteDownRequest).Result;
 
-            // Check new post
-            var userPostsResponse = _api.GetUserPosts(new UserPostsRequest(Name)).Result;
-            Assert.That(createPostResponse.Result.Title, Is.EqualTo(userPostsResponse.Result.Results.First().Title));
+            AssertSuccessfulResult(voteDownResponse);
+            Assert.That(voteDownResponse.Result.IsVoted, Is.False);
+            Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(voteDownResponse.Result.Message, Is.EqualTo("Downvoted"));
+            Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
-            // Arrange
-            var request = new VoteRequest(_sessionId, false, userPostsResponse.Result.Results.First().Url);
-
-            // Act
-            var response = _api.Vote(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.False);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-
-            // Check if it is was voted
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-            var userPostsResponse2 = _api.GetUserPosts(new UserPostsRequest(Name) {SessionId = _sessionId}).Result;
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+            // Provide sessionId with request to be able read voting information
+            userPostsRequest.SessionId = _sessionId;
+            var userPostsResponse2 = _api.GetUserPosts(userPostsRequest).Result;
+            // Check if last post was voted
             Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.False);
-        }
 
-        [Test]
-        [Order(4)]
-        public void Vote_Up_Comment()
-        {
-            // Get latest posts
-            var userPostsResponse = _api.GetUserPosts(new UserPostsRequest(Name)).Result;
-            var postUrl = userPostsResponse.Result.Results.First().Url;
-
-            // Comment latest post
-            const string body = "Vote_Up_Comment_Body";
-            const string title = "Vote_Up_Comment_Title";
-            var resp = _api.CreateComment(new CreateCommentRequest(_sessionId, postUrl, body, title)).Result;
-
-            // Load comments for this post
-            var commentsResponse = _api.GetComments(new GetCommentsRequest(postUrl)).Result;
-            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(title));
-            Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
-
-            // Vote
+            // 5) Vote up comment
             var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var request = new VoteRequest(_sessionId, true, commentUrl);
+            var voteUpCommentRequest = new VoteRequest(_sessionId, true, commentUrl);
+            var voteUpCommentResponse = _api.Vote(voteUpCommentRequest).Result;
 
-            // Act
-            var response = _api.Vote(request).Result;
+            AssertSuccessfulResult(voteUpCommentResponse);
+            Assert.That(voteUpCommentResponse.Result.IsVoted, Is.True);
+            Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(voteUpCommentResponse.Result.Message, Is.EqualTo("Upvoted"));
+            Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.True);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Upvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-
-            // Check if it is was voted
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-            var commentsResponse2 = _api.GetComments(new GetCommentsRequest(postUrl) {SessionId = _sessionId}).Result;
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+            // Provide sessionId with request to be able read voting information
+            getCommentsRequest.SessionId = _sessionId;
+            var commentsResponse2 = _api.GetComments(getCommentsRequest).Result;
+            // Check if last comment was voted
             Assert.That(commentsResponse2.Result.Results.First().Vote, Is.True);
-        }
 
-        [Test]
-        [Order(5)]
-        public void Vote_Down_Comment()
-        {
-            // Get latest posts
-            var userPostsResponse = _api.GetUserPosts(new UserPostsRequest(Name)).Result;
-            var postUrl = userPostsResponse.Result.Results.First().Url;
+            // 6) Vote down comment
+            var voteDownCommentRequest = new VoteRequest(_sessionId, false, commentUrl);
+            var voteDownCommentResponse = _api.Vote(voteDownCommentRequest).Result;
 
-            // Comment latest post
-            const string body = "Vote_Up_Comment_Body";
-            const string title = "Vote_Up_Comment_Title";
-            var resp = _api.CreateComment(new CreateCommentRequest(_sessionId, postUrl, body, title)).Result;
+            AssertSuccessfulResult(voteDownCommentResponse);
+            Assert.That(voteDownCommentResponse.Result.IsVoted, Is.False);
+            Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
+            Assert.That(voteDownCommentResponse.Result.Message, Is.EqualTo("Downvoted"));
+            Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
-            // Load comments for this post
-            var commentsResponse = _api.GetComments(new GetCommentsRequest(postUrl)).Result;
-            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(title));
-            Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
+            // Wait for data to be writed into blockchain
+            Thread.Sleep(TimeSpan.FromSeconds(15));
+            // Provide sessionId with request to be able read voting information
+            getCommentsRequest.SessionId = _sessionId;
+            var commentsResponse3 = _api.GetComments(getCommentsRequest).Result;
+            // Check if last comment was voted
+            Assert.That(commentsResponse3.Result.Results.First().Vote, Is.False);
 
-            // Vote
-            var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var request = new VoteRequest(_sessionId, false, commentUrl);
+            // 7) Follow
+            var followRequest = new FollowRequest(_sessionId, FollowType.Follow, "asduj");
+            var followResponse = _api.Follow(followRequest).Result;
 
-            // Act
-            var response = _api.Vote(request).Result;
+            AssertSuccessfulResult(followResponse);
+            Assert.That(followResponse.Result.IsFollowed, Is.True);
+            Assert.That(followResponse.Result.Message, Is.EqualTo("User is followed"));
 
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsVoted, Is.False);
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
-            Assert.That(response.Result.Message, Is.EqualTo("Downvoted"));
-            Assert.That(response.Result.NewTotalPayoutReward, Is.Not.Null);
+            // 8) UnFollow
+            var unfollowRequest = new FollowRequest(_sessionId, FollowType.UnFollow, "asduj");
+            var unfollowResponse = _api.Follow(unfollowRequest).Result;
 
-            // Check if it is was voted
-            Thread.Sleep(TimeSpan.FromSeconds(5));
-            var commentsResponse2 = _api.GetComments(new GetCommentsRequest(postUrl) {SessionId = _sessionId}).Result;
-            Assert.That(commentsResponse2.Result.Results.First().Vote, Is.False);
-        }
+            AssertSuccessfulResult(unfollowResponse);
+            Assert.That(unfollowResponse.Result.IsFollowed, Is.False);
+            Assert.That(unfollowResponse.Result.Message, Is.EqualTo("User is unfollowed"));
 
-        [Test]
-        [Order(6)]
-        public void Follow()
-        {
-            // Arrange
-            var request = new FollowRequest(_sessionId, FollowType.Follow, "asduj");
+            // 9) Change password
+            var changePasswordRequest = new ChangePasswordRequest(_sessionId, Password, NewPassword);
+            var changePasswordResponse = _api.ChangePassword(changePasswordRequest).Result;
 
-            // Act
-            var response = _api.Follow(request).Result;
+            AssertSuccessfulResult(changePasswordResponse);
+            Assert.That(changePasswordResponse.Result.IsChanged, Is.True);
+            Assert.That(changePasswordResponse.Result.Message, Is.EqualTo("Password was changed"));
 
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsFollowed, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("User is followed"));
-        }
-
-        [Test]
-        [Order(7)]
-        public void Follow_UnFollow()
-        {
-            // Arrange
-            var request = new FollowRequest(_sessionId, FollowType.UnFollow, "asduj");
-
-            // Act
-            var response = _api.Follow(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsFollowed, Is.False);
-            Assert.That(response.Result.Message, Is.EqualTo("User is unfollowed"));
-        }
-
-        [Test]
-        [Order(8)]
-        public void ChangePassword()
-        {
-            // Arrange
-            var request = new ChangePasswordRequest(_sessionId, Password, NewPassword);
-
-            // Act
-            var response = _api.ChangePassword(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsChanged, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("Password was changed"));
-
-            // Revert
-            var loginResponse = _api.Login(new LoginRequest(Name, NewPassword)).Result;
-            var response2 = _api.ChangePassword(new ChangePasswordRequest(loginResponse.Result.SessionId, NewPassword, Password)).Result;
-            AssertSuccessfulResult(response2);
-            Assert.That(response.Result.IsChanged, Is.True);
-            Assert.That(response2.Result.Message, Is.EqualTo("Password was changed"));
+            // Rollback
+            // TODO Refactor it.
+            var loginRequest = new LoginRequest(Name, NewPassword);
+            var loginResponse = _api.Login(loginRequest).Result;
+            var changePasswordRequest2 = new ChangePasswordRequest(loginResponse.Result.SessionId, NewPassword, Password);
+            var changePasswordResponse2 = _api.ChangePassword(changePasswordRequest2).Result;
+            AssertSuccessfulResult(changePasswordResponse2);
+            Assert.That(changePasswordResponse.Result.IsChanged, Is.True);
+            Assert.That(changePasswordResponse2.Result.Message, Is.EqualTo("Password was changed"));
             Authenticate();
-        }
 
-        [Test]
-        [Order(9)]
-        public void Logout()
-        {
-            // Arrange
-            var request = new LogoutRequest(_sessionId);
+            // 10) Logout
+            var logoutRequest = new LogoutRequest(_sessionId);
+            var logoutResponse = _api.Logout(logoutRequest).Result;
 
-            // Act
-            var response = _api.Logout(request).Result;
-
-            // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsLoggedOut, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("User is logged out"));
+            AssertSuccessfulResult(logoutResponse);
+            Assert.That(logoutResponse.Result.IsLoggedOut, Is.True);
+            Assert.That(logoutResponse.Result.Message, Is.EqualTo("User is logged out"));
         }
 
         [Ignore("Ignoring")]

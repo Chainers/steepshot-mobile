@@ -493,18 +493,32 @@ namespace Sweetshot.Tests
         public void Vote_Up_Already_Voted()
         {
             // Arrange
-            var request = new VoteRequest(_sessionId, true, "spam/@joseph.kalu/test-post-tue-jan--3-170111-2017");
+            var request = new VoteRequest(_sessionId, true, "cat1/@joseph.kalu/cat636218265707845000");
 
             // Act
             var response = _api.Vote(request).Result;
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("You have used the maximum number of vote changes on this comment."));
+            Assert.That(response.Errors.Contains("You have already voted in a similar way"));
         }
 
         [Test]
         public void Vote_Down_Already_Voted()
+        {
+            // Arrange
+            var request = new VoteRequest(_sessionId, false, "cat1/@joseph.kalu/cat636218269269392832");
+
+            // Act
+            var response = _api.Vote(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("You have already voted in a similar way"));
+        }
+
+        [Test]
+        public void Vote_Archived_Post()
         {
             // Arrange
             var request = new VoteRequest(_sessionId, false, "spam/@joseph.kalu/test-post-tue-jan--3-170111-2017");
@@ -514,7 +528,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("You have used the maximum number of vote changes on this comment."));
+            Assert.That(response.Errors.Contains("This post is archived."));
         }
 
         [Test]
