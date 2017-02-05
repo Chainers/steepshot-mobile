@@ -4,7 +4,7 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Sweetshot.Library.Models.Responses;
+using Result = Sweetshot.Library.Models.Responses.Result;
 
 namespace Steemix.Droid.Activities
 {
@@ -28,7 +28,7 @@ namespace Steemix.Droid.Activities
 
 		Adapter.TagsAdapter Adapter;
 
-		List<Category> SelectedCategories = new List<Category>();
+		List<Result> SelectedCategories = new List<Result>();
 
 		protected override void OnCreate(Bundle savedInstanceState)
 		{

@@ -1,8 +1,9 @@
 ﻿using System;
+using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UserPostsRequest
+    public class UserPostsRequest : OffsetLimitFields
     {
         public UserPostsRequest(string username)
         {
@@ -16,11 +17,9 @@ namespace Sweetshot.Library.Models.Requests
 
         public string SessionId { get; set; }
         public string Username { get; private set; }
-        public string Offset { get; set; }
-        public int Limit { get; set; }
     }
 
-    public class UserRecentPostsRequest
+    public class UserRecentPostsRequest : OffsetLimitFields
     {
         public UserRecentPostsRequest(string sessionId)
         {
@@ -33,8 +32,6 @@ namespace Sweetshot.Library.Models.Requests
         }
 
         public string SessionId { get; private set; }
-        public string Offset { get; set; }
-        public int Limit { get; set; }
     }
 
     public enum PostType
@@ -44,7 +41,7 @@ namespace Sweetshot.Library.Models.Requests
         New
     }
 
-    public class PostsRequest
+    public class PostsRequest : OffsetLimitFields
     {
         public PostsRequest(PostType type)
         {
@@ -52,8 +49,6 @@ namespace Sweetshot.Library.Models.Requests
         }
 
         public PostType Type { get; private set; }
-        public string Offset { get; set; }
-        public int Limit { get; set; }
     }
 
     public class PostsByCategoryRequest : PostsRequest

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
+using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Tests
 {
@@ -737,7 +738,7 @@ namespace Sweetshot.Tests
         public void Categories()
         {
             // Arrange
-            var request = new CategoriesRequest();
+            var request = new OffsetLimitFields();
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -755,9 +756,11 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new CategoriesRequest();
-            request.Offset = "food";
-            request.Limit = limit;
+            var request = new OffsetLimitFields
+            {
+                Offset = "food",
+                Limit = limit
+            };
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -777,8 +780,7 @@ namespace Sweetshot.Tests
         public void Categories_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new CategoriesRequest();
-            request.Offset = "qweqweqwe";
+            var request = new OffsetLimitFields {Offset = "qweqweqwe"};
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -794,7 +796,7 @@ namespace Sweetshot.Tests
         public void Categories_Search()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("foo");
+            var request = new SearchRequest("foo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -811,7 +813,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Invalid_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -827,7 +829,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Short_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("fo");
+            var request = new SearchRequest("fo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -841,7 +843,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Empty_Query()
         {
             // Arrange
-            var request = new SearchCategoriesRequest(" ");
+            var request = new SearchRequest(" ");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -856,7 +858,7 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new SearchCategoriesRequest("lif");
+            var request = new SearchRequest("lif");
             request.Offset = "life";
             request.Limit = limit;
 
@@ -876,8 +878,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new SearchCategoriesRequest("life");
-            request.Offset = "qweqweqwe";
+            var request = new SearchRequest("life") {Offset = "qweqweqwe"};
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -1179,6 +1180,104 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("The number of tags should be between 1 and 4."));
+        }
+
+         [Test]
+        public void User_Search()
+        {
+            // Arrange
+            var request = new SearchRequest("aar");
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
+        }
+
+        [Test]
+        public void User_Search_Invalid_Query()
+        {
+            // Arrange
+            var request = new SearchRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Empty);
+            Assert.That(response.Result.Count, Is.EqualTo(0));
+            Assert.That(response.Result.TotalCount, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void User_Search_Short_Query()
+        {
+            // Arrange
+            var request = new SearchRequest("fo");
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert 
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Query should have at least 3 characters"));
+        }
+
+        [Test]
+        public void User_Search_Empty_Query()
+        {
+            // Arrange
+            var request = new SearchRequest(" ");
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert 
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("This field may not be blank."));
+        }
+
+        [Test]
+        public void User_Search_Offset_Limit()
+        {
+            // Arrange
+            const int limit = 5;
+            var request = new SearchRequest("aar")
+            {
+                Offset = "gatilaar",
+                Limit = limit
+            };
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count, Is.EqualTo(limit));
+            Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
+            Assert.That(response.Result.TotalCount > limit);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.EqualTo("gatilaar"));
+        }
+
+        [Test]
+        public void User_Search_Offset_Not_Exisiting()
+        {
+            // Arrange
+            var request = new SearchRequest("aar") {Offset = "qweqweqwe"};
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Username used for offset was not found"));
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)

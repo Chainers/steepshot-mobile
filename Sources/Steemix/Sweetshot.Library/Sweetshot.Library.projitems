@@ -13,9 +13,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\ApiGateway.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\SteepshotApiClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Common\OperationResult.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CategoriesRequests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\SearchRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\ChangePasswordRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CommentsRequests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\Common\OffsetLimitFields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\FollowRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LoginRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LogoutRequest.cs" />
@@ -25,7 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserFriendsRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserProfileRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CategoriesResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\SearchResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ChangePasswordResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\Common\MessageField.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CreateCommentResponse.cs" />

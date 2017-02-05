@@ -12,7 +12,7 @@ namespace Steemix.Droid.Adapter
 
 	public class TagsAdapter : RecyclerView.Adapter
 	{
-		List<Category> Items = new List<Category>();
+		List<Result> Items = new List<Result>();
 		private Context context;
 
 		public System.Action<int> Click;
@@ -27,12 +27,12 @@ namespace Steemix.Droid.Adapter
 			Items.Clear();
 		}
 
-		public void Reset(List<Category> Items)
+		public void Reset(List<Result> Items)
 		{
 			this.Items = Items;
 		}
 
-		public Category GetItem(int position)
+		public Result GetItem(int position)
 		{
 			return Items[position];
 		}

@@ -6,6 +6,7 @@ using RestSharp;
 using Sweetshot.Library.Extensions;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
+using Sweetshot.Library.Models.Requests.Common;
 using Sweetshot.Library.Models.Responses;
 using Sweetshot.Library.Serializing;
 
@@ -250,13 +251,13 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<CategoriesResponse>> GetCategories(CategoriesRequest request)
+        public async Task<OperationResult<SearchResponse>> GetCategories(OffsetLimitFields request)
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
 
             var response = await _gateway.Get("categories/top", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<CategoriesResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -264,15 +265,14 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<CategoriesResponse>> SearchCategories(SearchCategoriesRequest request)
+        public async Task<OperationResult<SearchResponse>> SearchCategories(SearchRequest request)
         {
             var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
-            parameters.Add(
-                new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
+            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
             var response = await _gateway.Get("categories/search", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<CategoriesResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -361,6 +361,20 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<Post>(response.Content, errorResult);
         }
 
+        /// <summary>
+        ///     Examples:
+        ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
+        /// </summary>
+        public async Task<OperationResult<SearchResponse>> SearchUser(SearchRequest request)
+        {
+            var parameters = CreateOffsetLimitParameters(request.Offset, request.Limit);
+            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+
+            var response = await _gateway.Get("user/search", parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<SearchResponse>(response.Content, errorResult);
+        }
+
         private List<RequestParameter> CreateSessionParameter(string sessionId)
         {
             var parameters = new List<RequestParameter>();
@@ -381,11 +395,11 @@ namespace Sweetshot.Library.HttpClient
             var parameters = new List<RequestParameter>();
             if (!string.IsNullOrWhiteSpace(offset))
             {
-                parameters.Add(new RequestParameter {Key = "offset", Value = offset, Type = ParameterType.QueryString});
+                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
             }
             if (limit > 0)
             {
-                parameters.Add(new RequestParameter {Key = "limit", Value = limit, Type = ParameterType.QueryString});
+                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
             }
             return parameters;
         }
