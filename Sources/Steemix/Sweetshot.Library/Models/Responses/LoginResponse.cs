@@ -1,6 +1,4 @@
-﻿using Sweetshot.Library.Models.Responses.Common;
-
-namespace Sweetshot.Library.Models.Responses
+﻿namespace Sweetshot.Library.Models.Responses
 {
     ///{
     ///  "message": "User was logged in."

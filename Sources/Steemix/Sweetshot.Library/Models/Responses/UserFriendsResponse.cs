@@ -13,10 +13,8 @@ namespace Sweetshot.Library.Models.Responses
     ///    }
     ///  ]
     ///}
-    public class UserFriendsResponse
+    public class UserFriendsResponse : OffsetCountFields
     {
-        public string Offset { get; set; }
-        public int Count { get; set; }
         public List<UserFriend> Results { get; set; }
     }
 

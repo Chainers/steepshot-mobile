@@ -1,10 +1,12 @@
-﻿using Sweetshot.Library.Models.Requests.Common;
-
-namespace Sweetshot.Library.Models.Requests
+﻿namespace Sweetshot.Library.Models.Requests
 {
-    public class SearchRequest : OffsetLimitFields
+    public class SearchRequest : SessionIdOffsetLimitFields
     {
-        public SearchRequest(string query)
+    }
+
+    public class SearchWithQueryRequest : SearchRequest
+    {
+        public SearchWithQueryRequest(string query)
         {
             Query = query;
         }

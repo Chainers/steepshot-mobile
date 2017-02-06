@@ -2,14 +2,11 @@
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UserProfileRequest
+    public class UserProfileRequest : SessionIdField
     {
         public UserProfileRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
             Username = username;
         }

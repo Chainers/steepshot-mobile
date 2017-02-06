@@ -6,7 +6,6 @@ using NUnit.Framework;
 using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Tests
 {
@@ -273,6 +272,21 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void Posts_Top_With_SessionId()
+        {
+            // Arrange
+            var request = new PostsRequest(PostType.Top) {SessionId = _sessionId};
+
+            // Act
+            var response = _api.GetPosts(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Offset, Is.Not.Empty);
+            Assert.That(response.Result.Count > 0);
+        }
+
+        [Test]
         public void Posts_Hot()
         {
             // Arrange
@@ -407,6 +421,20 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void Posts_By_Category_With_SessionId()
+        {
+            // Arrange
+            var request = new PostsByCategoryRequest(PostType.Top, "food") { SessionId = _sessionId };
+
+            // Act
+            var response = _api.GetPostsByCategory(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+        }
+
+        [Test]
         public void Register_PostingKey_Invalid()
         {
             // Arrange
@@ -493,8 +521,12 @@ namespace Sweetshot.Tests
         [Test]
         public void Vote_Up_Already_Voted()
         {
+            // Load last post
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = _api.GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
             // Arrange
-            var request = new VoteRequest(_sessionId, true, "cat1/@joseph.kalu/cat636218265707845000");
+            var request = new VoteRequest(_sessionId, true, lastPost.Url);
 
             // Act
             var response = _api.Vote(request).Result;
@@ -507,8 +539,12 @@ namespace Sweetshot.Tests
         [Test]
         public void Vote_Down_Already_Voted()
         {
+            // Load last post
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = _api.GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
             // Arrange
-            var request = new VoteRequest(_sessionId, false, "cat1/@joseph.kalu/cat636218269269392832");
+            var request = new VoteRequest(_sessionId, false, lastPost.Url);
 
             // Act
             var response = _api.Vote(request).Result;
@@ -738,7 +774,7 @@ namespace Sweetshot.Tests
         public void Categories()
         {
             // Arrange
-            var request = new OffsetLimitFields();
+            var request = new SearchRequest();
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -756,7 +792,7 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new OffsetLimitFields
+            var request = new SearchRequest
             {
                 Offset = "food",
                 Limit = limit
@@ -780,7 +816,7 @@ namespace Sweetshot.Tests
         public void Categories_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new OffsetLimitFields {Offset = "qweqweqwe"};
+            var request = new SearchRequest {Offset = "qweqweqwe"};
 
             // Act
             var response = _api.GetCategories(request).Result;
@@ -793,10 +829,27 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void Categories_With_SessionId()
+        {
+            // Arrange
+            var request = new SearchRequest {SessionId = _sessionId};
+
+            // Act
+            var response = _api.GetCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
+        }
+
+        [Test]
         public void Categories_Search()
         {
             // Arrange
-            var request = new SearchRequest("foo");
+            var request = new SearchWithQueryRequest("foo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -813,7 +866,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Invalid_Query()
         {
             // Arrange
-            var request = new SearchRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -829,7 +882,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Short_Query()
         {
             // Arrange
-            var request = new SearchRequest("fo");
+            var request = new SearchWithQueryRequest("fo");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -843,7 +896,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Empty_Query()
         {
             // Arrange
-            var request = new SearchRequest(" ");
+            var request = new SearchWithQueryRequest(" ");
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -858,9 +911,11 @@ namespace Sweetshot.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new SearchRequest("lif");
-            request.Offset = "life";
-            request.Limit = limit;
+            var request = new SearchWithQueryRequest("lif")
+            {
+                Offset = "life",
+                Limit = limit
+            };
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -878,7 +933,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new SearchRequest("life") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("life") {Offset = "qweqweqwe"};
 
             // Act
             var response = _api.SearchCategories(request).Result;
@@ -886,6 +941,23 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("Category used for offset was not found"));
+        }
+
+        [Test]
+        public void Categories_Search_With_SessionId()
+        {
+            // Arrange
+            var request = new SearchWithQueryRequest("lif");
+
+            // Act
+            var response = _api.SearchCategories(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
         [Test]
@@ -991,6 +1063,38 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void UserProfile_With_SessionId()
+        {
+            // Arrange
+            var request = new UserProfileRequest(Name) {SessionId = _sessionId};
+
+            // Act
+            var response = _api.GetUserProfile(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.PostingRewards, Is.Not.Null);
+            Assert.That(response.Result.CurationRewards, Is.Not.Null);
+            Assert.That(response.Result.LastAccountUpdate, Is.Not.Null);
+            Assert.That(response.Result.LastVoteTime, Is.Not.Null);
+            Assert.That(response.Result.Reputation, Is.Not.Null);
+            Assert.That(response.Result.PostCount, Is.Not.Null);
+            Assert.That(response.Result.CommentCount, Is.Not.Null);
+            Assert.That(response.Result.FollowersCount, Is.Not.Null);
+            Assert.That(response.Result.FollowingCount, Is.Not.Null);
+            Assert.That(response.Result.Username, Is.Not.Empty);
+            Assert.That(response.Result.CurrentUsername, Is.Not.Null);
+            Assert.That(response.Result.ProfileImage, Is.Not.Empty);
+            Assert.That(response.Result.HasFollowed, Is.Not.Null);
+            Assert.That(response.Result.EstimatedBalance, Is.Not.Null);
+            Assert.That(response.Result.Created, Is.Not.Null);
+            Assert.That(response.Result.Name, Is.Not.Empty);
+            Assert.That(response.Result.About, Is.Not.Empty);
+            Assert.That(response.Result.Location, Is.Not.Empty);
+            Assert.That(response.Result.WebSite, Is.Not.Empty);
+        }
+
+        [Test]
         public void UserFriends_Following()
         {
             // Arrange
@@ -1063,6 +1167,23 @@ namespace Sweetshot.Tests
         }
 
         [Test]
+        public void UserFriends_Followers_With_SessionId()
+        {
+            // Arrange
+            var request = new UserFriendsRequest(Name, FriendsType.Followers) {SessionId = _sessionId};
+
+            // Act
+            var response = _api.GetUserFriends(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count, Is.Not.Null);
+            Assert.That(response.Result.Offset, Is.Not.Null);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
+        }
+
+        [Test]
         public void Terms_Of_Service()
         {
             // Arrange
@@ -1079,6 +1200,38 @@ namespace Sweetshot.Tests
         {
             // Arrange
             var request = new PostsInfoRequest("spam/@joseph.kalu/test-post-127");
+
+            // Act
+            var response = _api.GetPostInfo(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Body, Is.Not.Empty);
+            Assert.That(response.Result.Title, Is.Not.Empty);
+            Assert.That(response.Result.Url, Is.Not.Empty);
+            Assert.That(response.Result.Category, Is.Not.Empty);
+            Assert.That(response.Result.Author, Is.Not.Empty);
+            Assert.That(response.Result.Avatar, Is.Not.Empty);
+            Assert.That(response.Result.AuthorRewards, Is.Not.Null);
+            Assert.That(response.Result.AuthorReputation, Is.Not.Null);
+            Assert.That(response.Result.NetVotes, Is.Not.Null);
+            Assert.That(response.Result.Children, Is.Not.Null);
+            Assert.That(response.Result.Created, Is.Not.Null);
+            Assert.That(response.Result.CuratorPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.TotalPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.PendingPayoutValue, Is.Not.Null);
+            Assert.That(response.Result.MaxAcceptedPayout, Is.Not.Null);
+            Assert.That(response.Result.TotalPayoutReward, Is.Not.Null);
+            Assert.That(response.Result.Vote, Is.False);
+            Assert.That(response.Result.Tags, Is.Not.Null);
+            Assert.That(response.Result.Depth, Is.Not.Null);
+        }
+
+        [Test]
+        public void GetPostInfo_With_SessionId()
+        {
+            // Arrange
+            var request = new PostsInfoRequest("spam/@joseph.kalu/test-post-127") {SessionId = _sessionId};
 
             // Act
             var response = _api.GetPostInfo(request).Result;
@@ -1124,7 +1277,8 @@ namespace Sweetshot.Tests
         public void Upload_Empty_Title()
         {
             // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
             var request = new UploadImageRequest(_sessionId, "", file, "cat1", "cat2", "cat3", "cat4");
 
@@ -1154,7 +1308,8 @@ namespace Sweetshot.Tests
         public void Upload_Tags_Less_Than_1()
         {
             // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
             var request = new UploadImageRequest(_sessionId, "cat", file);
 
@@ -1170,7 +1325,8 @@ namespace Sweetshot.Tests
         public void Upload_Tags_Greater_Than_4()
         {
             // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
             var request = new UploadImageRequest(_sessionId, "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
@@ -1182,11 +1338,11 @@ namespace Sweetshot.Tests
             Assert.That(response.Errors.Contains("The number of tags should be between 1 and 4."));
         }
 
-         [Test]
+        [Test]
         public void User_Search()
         {
             // Arrange
-            var request = new SearchRequest("aar");
+            var request = new SearchWithQueryRequest("aar");
 
             // Act
             var response = _api.SearchUser(request).Result;
@@ -1203,7 +1359,7 @@ namespace Sweetshot.Tests
         public void User_Search_Invalid_Query()
         {
             // Arrange
-            var request = new SearchRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = _api.SearchUser(request).Result;
@@ -1219,7 +1375,7 @@ namespace Sweetshot.Tests
         public void User_Search_Short_Query()
         {
             // Arrange
-            var request = new SearchRequest("fo");
+            var request = new SearchWithQueryRequest("fo");
 
             // Act
             var response = _api.SearchUser(request).Result;
@@ -1233,7 +1389,7 @@ namespace Sweetshot.Tests
         public void User_Search_Empty_Query()
         {
             // Arrange
-            var request = new SearchRequest(" ");
+            var request = new SearchWithQueryRequest(" ");
 
             // Act
             var response = _api.SearchUser(request).Result;
@@ -1247,8 +1403,8 @@ namespace Sweetshot.Tests
         public void User_Search_Offset_Limit()
         {
             // Arrange
-            const int limit = 5;
-            var request = new SearchRequest("aar")
+            const int limit = 2;
+            var request = new SearchWithQueryRequest("aar")
             {
                 Offset = "gatilaar",
                 Limit = limit
@@ -1261,7 +1417,7 @@ namespace Sweetshot.Tests
             AssertSuccessfulResult(response);
             Assert.That(response.Result.Count, Is.EqualTo(limit));
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
-            Assert.That(response.Result.TotalCount > limit);
+            Assert.That(response.Result.TotalCount >= limit);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.EqualTo("gatilaar"));
         }
@@ -1270,7 +1426,7 @@ namespace Sweetshot.Tests
         public void User_Search_Offset_Not_Exisiting()
         {
             // Arrange
-            var request = new SearchRequest("aar") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("aar") {Offset = "qweqweqwe"};
 
             // Act
             var response = _api.SearchUser(request).Result;
@@ -1278,6 +1434,23 @@ namespace Sweetshot.Tests
             // Assert
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("Username used for offset was not found"));
+        }
+
+        [Test]
+        public void User_Search_With_SessionId()
+        {
+            // Arrange
+            var request = new SearchWithQueryRequest("aar") {SessionId = _sessionId};
+
+            // Act
+            var response = _api.SearchUser(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)

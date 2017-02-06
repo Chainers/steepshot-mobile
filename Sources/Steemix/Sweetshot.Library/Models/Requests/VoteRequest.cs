@@ -10,26 +10,17 @@ namespace Sweetshot.Library.Models.Requests
         [Description("downvote")] Down
     }
 
-    public class VoteRequest
+    public class VoteRequest : SessionIdField
     {
         public VoteRequest(string sessionId, bool isUpVote, string identifier)
         {
-            if (string.IsNullOrWhiteSpace(sessionId))
-            {
-                throw new ArgumentNullException(nameof(sessionId));
-            }
-            if (string.IsNullOrWhiteSpace(identifier))
-            {
-                throw new ArgumentNullException(nameof(identifier));
-            }
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
+            if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            SessionId = sessionId;
+            base.SessionId = sessionId;
             Type = isUpVote ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }
-
-        [JsonIgnore]
-        public string SessionId { get; private set; }
 
         [JsonProperty(PropertyName = "identifier")]
         public string Identifier { get; private set; }

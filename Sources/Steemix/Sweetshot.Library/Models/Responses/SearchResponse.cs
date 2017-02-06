@@ -15,10 +15,10 @@ namespace Sweetshot.Library.Models.Responses
     {
         public int TotalCount { get; set; }
         public int Count { get; set; }
-        public List<Result> Results { get; set; }
+        public List<SearchResult> Results { get; set; }
     }
 
-    public class Result
+    public class SearchResult
     {
         public string Name { get; set; }
     }

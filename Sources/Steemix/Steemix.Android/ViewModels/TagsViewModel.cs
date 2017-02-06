@@ -15,7 +15,7 @@ namespace Steemix.Droid.ViewModels
 		public async Task<OperationResult<SearchResponse>> SearchTags(string s)
 		{ 
 			 // Arrange
-            var request = new SearchRequest(s);
+            var request = new SearchWithQueryRequest(s);
 
 			// Act
 			return await ViewModelLocator.Api.SearchCategories(request);

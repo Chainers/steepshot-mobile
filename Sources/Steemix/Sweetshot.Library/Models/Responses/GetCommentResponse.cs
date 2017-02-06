@@ -18,10 +18,8 @@ namespace Sweetshot.Library.Models.Responses
     ///  "count": 1,
     ///  "results": []
     ///}
-    public class UserPostResponse
+    public class UserPostResponse : OffsetCountFields
     {
-        public string Offset { get; set; }
-        public int Count { get; set; }
         public List<Post> Results { get; set; }
     }
 

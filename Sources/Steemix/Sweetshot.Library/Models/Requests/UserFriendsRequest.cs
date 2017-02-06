@@ -1,5 +1,4 @@
 ﻿using System;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
@@ -9,14 +8,11 @@ namespace Sweetshot.Library.Models.Requests
         Following
     }
 
-    public class UserFriendsRequest : OffsetLimitFields
+    public class UserFriendsRequest : SessionIdOffsetLimitFields
     {
         public UserFriendsRequest(string username, FriendsType type)
         {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
             Username = username;
             Type = type;

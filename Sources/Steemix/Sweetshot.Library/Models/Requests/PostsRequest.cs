@@ -1,37 +1,27 @@
 ﻿using System;
-using Sweetshot.Library.Models.Requests.Common;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public class UserPostsRequest : OffsetLimitFields
+    public class UserPostsRequest : SessionIdOffsetLimitFields
     {
         public UserPostsRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
             Username = username;
         }
 
-        public string SessionId { get; set; }
         public string Username { get; private set; }
     }
 
-    public class UserRecentPostsRequest : OffsetLimitFields
+    public class UserRecentPostsRequest : SessionIdOffsetLimitFields
     {
         public UserRecentPostsRequest(string sessionId)
         {
-            if (string.IsNullOrWhiteSpace(sessionId))
-            {
-                throw new ArgumentNullException(nameof(sessionId));
-            }
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
 
-            SessionId = sessionId;
+            base.SessionId = sessionId;
         }
-
-        public string SessionId { get; private set; }
     }
 
     public enum PostType
@@ -41,7 +31,7 @@ namespace Sweetshot.Library.Models.Requests
         New
     }
 
-    public class PostsRequest : OffsetLimitFields
+    public class PostsRequest : SessionIdOffsetLimitFields
     {
         public PostsRequest(PostType type)
         {
@@ -61,14 +51,11 @@ namespace Sweetshot.Library.Models.Requests
         public string Category { get; set; }
     }
 
-    public class PostsInfoRequest
+    public class PostsInfoRequest : SessionIdField
     {
         public PostsInfoRequest(string url)
         {
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
+            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
 
             Url = url;
         }
