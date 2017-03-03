@@ -52,7 +52,8 @@ namespace Sweetshot.Tests
         public void Upload_Base64_Equals_ByteArray()
         {
             // Arrange
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+            var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
 
             // Act

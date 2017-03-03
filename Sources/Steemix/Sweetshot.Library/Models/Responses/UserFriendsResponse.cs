@@ -9,7 +9,8 @@ namespace Sweetshot.Library.Models.Responses
     ///    {
     ///      "avatar": "https://s18.postimg.org/kjq6871hl/curie.png",
     ///      "author": "curie",
-    ///      "reputation": 74
+    ///      "reputation": 74,
+    ///      "has_followed": false
     ///    }
     ///  ]
     ///}
@@ -23,5 +24,6 @@ namespace Sweetshot.Library.Models.Responses
         public string Avatar { get; set; }
         public string Author { get; set; }
         public int Reputation { get; set; }
+        public bool HasFollowed { get; set; }
     }
 }
