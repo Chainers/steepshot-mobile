@@ -23,8 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\PostsRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\BaseRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UploadImageRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserFriendsRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserProfileRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\BaseResponses.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\SearchResponse.cs" />
@@ -36,6 +35,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LoginResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LogoutResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\TermOfServiceResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserExistsResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserFriendsResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\UserProfileResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\VoteResponse.cs" />

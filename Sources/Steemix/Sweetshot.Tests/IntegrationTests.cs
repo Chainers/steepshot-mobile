@@ -1500,6 +1500,34 @@ namespace Sweetshot.Tests
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
+        [Test]
+        public void User_Exists_Check_Valid_Username()
+        {
+            // Arrange
+            var request = new UserExistsRequests("pmartynov");
+
+            // Act
+            var response = _api.UserExistsCheck(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.True(response.Result.Exists);
+        }
+
+        [Test]
+        public void User_Exists_Check_Invalid_Username()
+        {
+            // Arrange
+            var request = new UserExistsRequests("pmartynov123");
+
+            // Act
+            var response = _api.UserExistsCheck(request).Result;
+
+            // Assert
+            AssertSuccessfulResult(response);
+            Assert.False(response.Result.Exists);
+        }
+
         private void AssertSuccessfulResult<T>(OperationResult<T> response)
         {
             Assert.That(response, Is.Not.Null);

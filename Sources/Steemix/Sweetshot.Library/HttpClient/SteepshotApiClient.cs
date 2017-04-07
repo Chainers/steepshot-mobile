@@ -390,6 +390,18 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<SearchResponse>(response.Content, errorResult);
         }
 
+        /// <summary>
+        ///     Examples:
+        ///     1) GET GET https://steepshot.org/api/v1/user/pussyhunter123/exists HTTP/1.1
+        /// </summary>
+        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
+        {
+            var endpoint = $"/user/{request.Username}/exists";
+            var response = await _gateway.Get(endpoint, new List<RequestParameter>());
+            var errorResult = CheckErrors(response);
+            return CreateResult<UserExistsResponse>(response.Content, errorResult);
+        }
+
         private List<RequestParameter> CreateSessionParameter(string sessionId)
         {
             var parameters = new List<RequestParameter>();
