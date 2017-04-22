@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
+    <ProjectGuid>{4B259270-7F8D-4132-91C4-AD144D025A30}</ProjectGuid>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Steepshot.iOS</RootNamespace>
+    <AssemblyName>Steepshot.iOS</AssemblyName>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
+    <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <IOSDebuggerPort>38792</IOSDebuggerPort>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhone\Release</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <MtouchFloat32>true</MtouchFloat32>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhone\Debug</OutputPath>
+    <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <DeviceSpecificBuild>true</DeviceSpecificBuild>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <MtouchFloat32>true</MtouchFloat32>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <CodesignProvision>
+    </CodesignProvision>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Xamarin.iOS" />
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\Xamarin.iOS10\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Contents.json">
+      <InProject>false</InProject>
+    </ImageAsset>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <InterfaceDefinition Include="LaunchScreen.storyboard" />
+    <InterfaceDefinition Include="Main.storyboard" />
+    <InterfaceDefinition Include="Cells\FeedTableViewCell.xib" />
+    <InterfaceDefinition Include="Cells\PhotoCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
+    <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Info.plist" />
+    <None Include="Entitlements.plist" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Main.cs" />
+    <Compile Include="AppDelegate.cs" />
+    <Compile Include="MySecondViewController.cs" />
+    <Compile Include="MySecondViewController.designer.cs">
+      <DependentUpon>MySecondViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\MainTabBarController.cs" />
+    <Compile Include="Cells\FeedTableViewCell.cs" />
+    <Compile Include="Cells\FeedTableViewCell.designer.cs">
+      <DependentUpon>FeedTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\FeedTableViewSource.cs" />
+    <Compile Include="ViewControllers\BaseViewController.cs" />
+    <Compile Include="ViewControllers\FeedViewController.cs" />
+    <Compile Include="ViewControllers\FeedViewController.designer.cs">
+      <DependentUpon>FeedViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\PhotoViewController.cs" />
+    <Compile Include="ViewControllers\PhotoViewController.designer.cs">
+      <DependentUpon>PhotoViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\PhotoCollectionViewCell.cs" />
+    <Compile Include="Cells\PhotoCollectionViewCell.designer.cs">
+      <DependentUpon>PhotoCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\PhotoCollectionViewSource.cs" />
+    <Compile Include="ViewControllers\DescriptionViewController.cs" />
+    <Compile Include="ViewControllers\DescriptionViewController.designer.cs">
+      <DependentUpon>DescriptionViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\LoginViewController.cs" />
+    <Compile Include="ViewControllers\LoginViewController.designer.cs">
+      <DependentUpon>LoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\UserContext.cs" />
+    <Compile Include="Helpers\Constants.cs" />
+    <Compile Include="ViewControllers\PostTagsViewController.cs" />
+    <Compile Include="ViewControllers\PostTagsViewController.designer.cs">
+      <DependentUpon>PostTagsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\PostTagsTableViewSource.cs" />
+    <Compile Include="ViewSources\TagsCollectionViewSource.cs" />
+    <Compile Include="Cells\TagCollectionViewCell.cs" />
+    <Compile Include="Cells\TagCollectionViewCell.designer.cs">
+      <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\TagsCollectionViewController.cs" />
+    <Compile Include="ViewControllers\ProfileViewController.cs" />
+    <Compile Include="ViewControllers\ProfileViewController.designer.cs">
+      <DependentUpon>ProfileViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
+    <Compile Include="ViewControllers\ImagePreviewViewController.cs" />
+    <Compile Include="ViewControllers\ImagePreviewViewController.designer.cs">
+      <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\FollowViewController.cs" />
+    <Compile Include="ViewControllers\FollowViewController.designer.cs">
+      <DependentUpon>FollowViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\FollowViewCell.cs" />
+    <Compile Include="Cells\FollowViewCell.designer.cs">
+      <DependentUpon>FollowViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\FollowTableViewSource.cs" />
+    <Compile Include="ViewSources\BaseTableSource.cs" />
+    <Compile Include="ViewControllers\CommentsViewController.cs" />
+    <Compile Include="ViewControllers\CommentsViewController.designer.cs">
+      <DependentUpon>CommentsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\CommentTableViewCell.cs" />
+    <Compile Include="Cells\CommentTableViewCell.designer.cs">
+      <DependentUpon>CommentTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\CommentsTableViewSource.cs" />
+    <Compile Include="ViewControllers\PreLoginViewController.cs" />
+    <Compile Include="ViewControllers\PreLoginViewController.designer.cs">
+      <DependentUpon>PreLoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewControllers\SettingsViewController.cs" />
+    <Compile Include="ViewControllers\SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Account.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_heart_blue.png" />
+    <BundleResource Include="Resources\ic_heart.png" />
+    <BundleResource Include="Resources\ic_photo_holder.png" />
+    <BundleResource Include="Resources\ic_user_placeholder.png" />
+    <BundleResource Include="Resources\ic_feed.png" />
+    <BundleResource Include="Resources\ic_camera.png" />
+    <BundleResource Include="Resources\ic_profile.png" />
+    <BundleResource Include="Resources\ic_conversation.png" />
+    <BundleResource Include="Resources\white-arrow-down.png" />
+    <BundleResource Include="Resources\ic_grid.png" />
+    <BundleResource Include="Resources\ic_logo.png" />
+    <BundleResource Include="Resources\ic_white_logo.png" />
+    <BundleResource Include="Resources\ic_search_gray.png" />
+    <BundleResource Include="Resources\ic_cross.png" />
+    <BundleResource Include="Resources\ic_wallet.png" />
+    <BundleResource Include="Resources\ic_settings.png" />
+    <BundleResource Include="Resources\ic_gray_grid.png" />
+    <BundleResource Include="Resources\ic_gray_list.png" />
+    <BundleResource Include="Resources\ic_micro_heart.png" />
+    <BundleResource Include="Resources\ic_big_logo.png" />
+    <BundleResource Include="Resources\ic_send.png" />
+    <BundleResource Include="Resources\eye.png" />
+    <BundleResource Include="Resources\eye%402x.png" />
+    <BundleResource Include="Resources\eye%403x.png" />
+    <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
+    <BundleResource Include="Resources\Fonts\Lato-Heavy.ttf" />
+  </ItemGroup>
+  <Import Project="..\..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" Condition="Exists('..\..\Sweetshot.Library\Sweetshot.Library.projitems')" />
+  <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+</Project>

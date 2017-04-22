@@ -1,0 +1,247 @@
+﻿using System;
+using System.Drawing;
+using System.Threading.Tasks;
+using AVFoundation;
+using CoreGraphics;
+using Foundation;
+using Photos;
+using UIKit;
+
+namespace Steepshot.iOS
+{
+	public partial class PhotoViewController : UIViewController
+	{
+		AVCaptureSession captureSession;
+		AVCaptureDeviceInput captureDeviceInput;
+		AVCaptureStillImageOutput stillImageOutput;
+		PhotoCollectionViewSource source;
+
+		private bool _isCameraAccessDenied = false;
+
+		protected PhotoViewController(IntPtr handle) : base(handle)
+		{
+			// Note: this .ctor should not contain any initialization logic.
+		}
+
+		public override void ViewDidLoad()
+		{
+			base.ViewDidLoad();
+			photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
+			photoCollection.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
+
+			photoButton.TouchDown += PhotoButton_TouchDown;
+
+			RequestPhotoAuth();
+			AuthorizeCameraUse();
+		}
+
+		public override void ViewDidAppear(bool animated)
+		{
+			SetNavBar();
+			base.ViewDidAppear(animated);
+		}
+
+		async void PhotoButton_TouchDown(object sender, EventArgs e)
+		{
+			var videoConnection = stillImageOutput.ConnectionFromMediaType(AVMediaType.Video);
+			var sampleBuffer = await stillImageOutput.CaptureStillImageTaskAsync(videoConnection);
+			var jpegImageAsNsData = AVCaptureStillImageOutput.JpegStillToNSData(sampleBuffer);
+			var photo = UIImage.LoadFromData(jpegImageAsNsData);
+			var cropY = (int)(photo.Size.Height - photo.Size.Width) / 2;
+			UIImage cropped = CropImage(photo, 0, cropY, (int)photo.Size.Width, (int)photo.Size.Width);
+			GoToDescription(cropped);
+		}
+
+		private UIImage CropImage(UIImage sourceImage, int crop_x, int crop_y, int width, int height)
+		{
+			var imgSize = sourceImage.Size;
+			UIGraphics.BeginImageContext(new SizeF(width, height));
+			var context = UIGraphics.GetCurrentContext();
+			var clippedRect = new RectangleF(0, 0, width, height);
+			context.ClipToRect(clippedRect);
+			var drawRect = new CGRect(-crop_x, -crop_y, imgSize.Width, imgSize.Height);
+			sourceImage.Draw(drawRect);
+			var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+			UIGraphics.EndImageContext();
+			context.Dispose();
+			return modifiedImage;
+		}
+
+		private async Task RequestPhotoAuth()
+		{
+			var status = await PHPhotoLibrary.RequestAuthorizationAsync();
+			if (status == PHAuthorizationStatus.Authorized)
+			{
+				source = new PhotoCollectionViewSource();
+				photoCollection.DataSource = source;
+				photoCollection.Delegate = new CollectionViewFlowDelegate(PhotoPicked);
+				photoCollection.ReloadData();
+			}
+		}
+
+		public override void ViewWillAppear(bool animated)
+		{
+			base.ViewWillAppear(animated);
+		}
+
+		async Task AuthorizeCameraUse()
+		{
+			var authorizationStatus = AVCaptureDevice.GetAuthorizationStatus(AVMediaType.Video);
+
+			if (authorizationStatus != AVAuthorizationStatus.Authorized)
+			{
+				if (!await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video))
+				{
+					_isCameraAccessDenied = true;
+					return;
+				}
+			}
+			SetupLiveCameraStream();
+		}
+
+		void SwitchSource(object sender, EventArgs e)
+		{
+			if(!_isCameraAccessDenied)
+				photoButton.Hidden = !photoButton.Hidden;
+			liveCameraStream.Hidden = !liveCameraStream.Hidden;
+			photoCollection.Hidden = !photoCollection.Hidden;
+			if (photoCollection.Hidden)
+			{
+				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_grid.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+				TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+			}
+			else
+			{
+				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+				TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+			}
+		}
+
+		private void SetNavBar()
+		{
+			TabBarController.NavigationController.SetNavigationBarHidden(false, false);
+			var barHeight = TabBarController.NavigationController.NavigationBar.Frame.Height;
+
+			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, barHeight));
+			tw.TextColor = UIColor.White;
+			tw.Text = "CHOOSE PHOTO"; // to constants
+			tw.BackgroundColor = UIColor.Clear;
+			tw.TextAlignment = UITextAlignment.Center;
+			tw.Font = UIFont.SystemFontOfSize(17);
+
+			TabBarController.NavigationItem.TitleView = tw;
+
+			var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+			TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+
+			TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+			TabBarController.NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
+		}
+
+		public void SetupLiveCameraStream()
+		{
+			captureSession = new AVCaptureSession();
+
+			var viewLayer = liveCameraStream.Layer;
+
+			var videoPreviewLayer = new AVCaptureVideoPreviewLayer(captureSession)
+			{
+				Frame = new CGRect(0, 0, liveCameraStream.Frame.Width, liveCameraStream.Frame.Height) //liveCameraStream.Frame
+			};
+			videoPreviewLayer.VideoGravity = AVLayerVideoGravity.ResizeAspectFill;
+			liveCameraStream.Layer.AddSublayer(videoPreviewLayer);
+
+			var captureDevice = AVCaptureDevice.GetDefaultDevice(AVMediaType.Video);
+			ConfigureCameraForDevice(captureDevice);
+			captureDeviceInput = AVCaptureDeviceInput.FromDevice(captureDevice);
+			captureSession.AddInput(captureDeviceInput);
+
+			var dictionary = new NSMutableDictionary();
+			dictionary[AVVideo.CodecKey] = new NSNumber((int)AVVideoCodec.JPEG);
+			stillImageOutput = new AVCaptureStillImageOutput()
+			{
+				OutputSettings = new NSDictionary()
+			};
+
+			captureSession.AddOutput(stillImageOutput);
+			captureSession.StartRunning();
+		}
+
+		void ConfigureCameraForDevice(AVCaptureDevice device)
+		{
+			var error = new NSError();
+			if (device.IsFocusModeSupported(AVCaptureFocusMode.ContinuousAutoFocus))
+			{
+				device.LockForConfiguration(out error);
+				device.FocusMode = AVCaptureFocusMode.ContinuousAutoFocus;
+				device.UnlockForConfiguration();
+			}
+			else if (device.IsExposureModeSupported(AVCaptureExposureMode.ContinuousAutoExposure))
+			{
+				device.LockForConfiguration(out error);
+				device.ExposureMode = AVCaptureExposureMode.ContinuousAutoExposure;
+				device.UnlockForConfiguration();
+			}
+			else if (device.IsWhiteBalanceModeSupported(AVCaptureWhiteBalanceMode.ContinuousAutoWhiteBalance))
+			{
+				device.LockForConfiguration(out error);
+				device.WhiteBalanceMode = AVCaptureWhiteBalanceMode.ContinuousAutoWhiteBalance;
+				device.UnlockForConfiguration();
+			}
+		}
+
+		private void PhotoPicked(NSIndexPath indexPath)
+		{
+			var collectionCell = (PhotoCollectionViewCell)photoCollection.CellForItem(indexPath);
+
+			if (collectionCell.Asset != null)
+			{
+				using (var m = new PHImageManager())
+				{
+					m.RequestImageData(collectionCell.Asset, new PHImageRequestOptions(), (data, dataUti, orientation, info) =>
+					   {
+						   GoToDescription(UIImage.LoadFromData(data));
+					   });
+				}
+			}
+		}
+
+		private void GoToDescription(UIImage image)
+		{
+			var descriptionViewController = Storyboard.InstantiateViewController("DescriptionViewController") as DescriptionViewController;
+			descriptionViewController.ImageAsset = image;
+			TabBarController.NavigationController.PushViewController(descriptionViewController, true);
+		}
+	}
+
+	class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
+	{
+		Action ScrolledAction;
+		Action<NSIndexPath> CellClick;
+
+
+		public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null)
+		{
+			ScrolledAction = scrolled;
+			CellClick = cellClick;
+		}
+
+		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+		{
+			var cellSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
+			return new SizeF(cellSize, cellSize);
+		}
+
+		public override void Scrolled(UIScrollView scrollView)
+		{
+			if (ScrolledAction != null)
+				ScrolledAction();
+		}
+
+		public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
+		{
+			if (CellClick != null)
+				CellClick(indexPath);
+		}
+	}
+}
