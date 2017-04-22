@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -23,23 +24,55 @@ namespace Sweetshot.Library.HttpClient
         }
 
         /// <summary>
-        ///     Examples: 
+        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/login HTTP/1.1
         ///             {"username":"joseph.kalu","password":"test1234"}
         /// </summary>
+        [Obsolete]
         public async Task<OperationResult<LoginResponse>> Login(LoginRequest request)
         {
             return await Authenticate("login", request);
         }
 
-        /// <summary>
-        /// </summary>
+        [Obsolete]
         public async Task<OperationResult<LoginResponse>> Register(RegisterRequest request)
         {
             return await Authenticate("register", request);
         }
 
-        private async Task<OperationResult<LoginResponse>> Authenticate(string endpoint, LoginRequest request)
+        /// <summary>
+        ///     Examples:
+        ///     1) POST https://steepshot.org/api/v1/user/change-password HTTP/1.1
+        ///             Cookie: sessionid=oh3f8vua8a5s2au5ovfqhsi6zvqgjfif
+        ///             {"old_password":"test1234","new_password":"test12345"}
+        /// </summary>
+        [Obsolete]
+        public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
+        {
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter
+            {
+                Key = "application/json",
+                Value = _jsonConverter.Serialize(request),
+                Type = ParameterType.RequestBody
+            });
+
+            var response = await _gateway.Post("user/change-password", parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<ChangePasswordResponse>(response.Content, errorResult);
+        }
+
+        /// <summary>
+        ///     Examples:
+        ///     1) POST https://steepshot.org/api/v1/login-with-posting HTTP/1.1
+        ///             {"username":"joseph.kalu","posting_key":"test1234"}
+        /// </summary>
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request)
+        {
+            return await Authenticate("login-with-posting", request);
+        }
+
+        private async Task<OperationResult<LoginResponse>> Authenticate(string endpoint, ILoginRequest request)
         {
             var parameters = new List<RequestParameter>
             {
@@ -280,27 +313,6 @@ namespace Sweetshot.Library.HttpClient
             var response = await _gateway.Get("categories/search", parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<SearchResponse>(response.Content, errorResult);
-        }
-
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/user/change-password HTTP/1.1
-        ///             Cookie: sessionid=oh3f8vua8a5s2au5ovfqhsi6zvqgjfif
-        ///             {"old_password":"test1234","new_password":"test12345"}
-        /// </summary>
-        public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
-        {
-            var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter
-            {
-                Key = "application/json",
-                Value = _jsonConverter.Serialize(request),
-                Type = ParameterType.RequestBody
-            });
-
-            var response = await _gateway.Post("user/change-password", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<ChangePasswordResponse>(response.Content, errorResult);
         }
 
         /// <summary>
