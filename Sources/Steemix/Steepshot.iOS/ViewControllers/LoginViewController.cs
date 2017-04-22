@@ -53,8 +53,8 @@ namespace Steepshot.iOS
 		{
 			try
 			{
-				var request = new LoginRequest(Username, password.Text);
-				var response = await Api.Login(request);
+				var request = new LoginWithPostingKeyRequest(Username, password.Text);
+				var response = await Api.LoginWithPostingKey(request);
 
 				if (response.Success)
 				{
