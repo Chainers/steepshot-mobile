@@ -53,8 +53,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Golos\IntegrationTestsChangingState.cs" />
-    <Compile Include="Golos\IntegrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Steemit\IntegrationTests.cs" />
     <Compile Include="Steemit\IntegrationTestsChangingState.cs" />
