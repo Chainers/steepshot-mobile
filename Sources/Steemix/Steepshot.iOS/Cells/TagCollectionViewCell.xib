@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="cZE-iV-UFb" customClass="TagCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="100" height="25"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="100" height="25"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Pizzagate" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="izN-iQ-OSD">
+                        <rect key="frame" x="0.0" y="0.0" width="79" height="25"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" image="ic_cross.png" translatesAutoresizingMaskIntoConstraints="NO" id="NS6-Xb-2eH">
+                        <rect key="frame" x="84" y="4.5" width="16" height="16"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="16" id="Dqp-o6-JHX"/>
+                            <constraint firstAttribute="width" constant="16" id="PcT-1D-ges"/>
+                        </constraints>
+                    </imageView>
+                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WF0-SM-hGi">
+                        <rect key="frame" x="0.0" y="0.0" width="100" height="25"/>
+                        <state key="normal" title="ADD TAGS"/>
+                    </button>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="izN-iQ-OSD" firstAttribute="leading" secondItem="cZE-iV-UFb" secondAttribute="leading" id="AFe-N6-auz"/>
+                <constraint firstItem="WF0-SM-hGi" firstAttribute="top" secondItem="cZE-iV-UFb" secondAttribute="top" id="ZiN-7i-wjP"/>
+                <constraint firstItem="NS6-Xb-2eH" firstAttribute="leading" secondItem="izN-iQ-OSD" secondAttribute="trailing" constant="5" id="aKn-89-gy1"/>
+                <constraint firstAttribute="bottom" secondItem="WF0-SM-hGi" secondAttribute="bottom" id="b5N-c5-cig"/>
+                <constraint firstItem="izN-iQ-OSD" firstAttribute="top" secondItem="cZE-iV-UFb" secondAttribute="top" id="duz-wt-jNi"/>
+                <constraint firstItem="NS6-Xb-2eH" firstAttribute="centerY" secondItem="izN-iQ-OSD" secondAttribute="centerY" id="jEb-q6-QvE"/>
+                <constraint firstItem="WF0-SM-hGi" firstAttribute="leading" secondItem="cZE-iV-UFb" secondAttribute="leading" id="jjH-d4-n4K"/>
+                <constraint firstAttribute="trailing" secondItem="NS6-Xb-2eH" secondAttribute="trailing" id="oFA-jY-nI4"/>
+                <constraint firstAttribute="bottom" secondItem="izN-iQ-OSD" secondAttribute="bottom" id="r9v-pc-P5p"/>
+                <constraint firstAttribute="trailing" secondItem="WF0-SM-hGi" secondAttribute="trailing" id="tic-uk-jSP"/>
+            </constraints>
+            <connections>
+                <outlet property="addTagsButton" destination="WF0-SM-hGi" id="voE-Nw-Oua"/>
+                <outlet property="closeImage" destination="NS6-Xb-2eH" id="eXv-6g-0De"/>
+                <outlet property="tagText" destination="izN-iQ-OSD" id="afp-u6-Axd"/>
+            </connections>
+            <point key="canvasLocation" x="60" y="59.5"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="ic_cross.png" width="24" height="24"/>
+    </resources>
+</document>
