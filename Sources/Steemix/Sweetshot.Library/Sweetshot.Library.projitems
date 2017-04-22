@@ -19,7 +19,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\FollowRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LoginRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\LogoutRequest.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\RegisterRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\PostsRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\BaseRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UploadImageRequest.cs" />

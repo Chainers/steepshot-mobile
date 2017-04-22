@@ -8,12 +8,12 @@ using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 
-namespace Sweetshot.Tests
+namespace Sweetshot.Tests.Steemit
 {
     [TestFixture]
     public class IntegrationTestsChangingState
     {
-        private readonly SteepshotApiClient _api = new SteepshotApiClient(ConfigurationManager.AppSettings["sweetshot_url"]);
+        private readonly SteepshotApiClient _api = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
 
         [Test]
         public void BlockchainStateChangingTest()
@@ -193,20 +193,24 @@ namespace Sweetshot.Tests
             return response.Result.SessionId;
         }
 
-        [Ignore("Ignoring")]
-        public void Register()
+        [Test]
+        public void Register_Test()
         {
-            // Arrange
-            //var request = new RegisterRequest("", "", "");
+            const string postingKey = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
+            const string name = "joseph.kalu";
+            const string password = "test12345";
 
-            //// Act
-            //var response = _api.Register(request).Result;
+            // Arrange
+            var request = new RegisterRequest(postingKey, name, password);
+
+            // Act
+            var response = _api.Register(request).Result;
 
             // Assert
-            //Assert.That(response.Result.IsLoggedIn, Is.False);
-            //AssertSuccessfulResult(response);
-            //Assert.That(response.Result.SessionId);
-            //Assert.That(response.Result.Username);
+            AssertResult(response);
+            Assert.That(response.Result.IsLoggedIn, Is.True);
+            Assert.That(response.Result.SessionId, Is.Not.Empty);
+            Assert.That(response.Result.Message, Is.Not.Empty);
         }
 
         [Ignore("Ingoring...")]

@@ -1,0 +1,12 @@
+1) compare golos and steemit tests
+2) remove /register /login /change-passord test
+4) limit\offset tests
+5) register tests
+6) unregister tests
+7) any additional tests
+8) проверка тега меньше 1
+9) is.not.null delete
+10) TODO
+11) обновть profile у user
+12) Conditional attr
+13) Register_Username_Already_Exists
