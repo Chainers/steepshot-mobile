@@ -16,7 +16,6 @@ namespace Steepshot.iOS
         public static readonly NSString Key = new NSString("FeedTableViewCell");
         public static readonly UINib Nib;
 
-        //private Post _post;
         private bool isButtonBinded = false;
         private List<WebClient> webClients = new List<WebClient>();
         public event VoteEventHandler Voted;
@@ -77,7 +76,7 @@ namespace Steepshot.iOS
         {
 			_currentPost = post;
             cellText.Text = post.Author;
-            rewards.Text = $"${post.TotalPayoutReward.ToString()}";
+			rewards.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
             netVotes.Text = $"{post.NetVotes.ToString()} likes";
             likeButton.Selected = post.Vote;
             var nicknameAttribute = new UIStringAttributes
@@ -134,7 +133,6 @@ namespace Steepshot.iOS
                     webClient.Dispose();
                 }
             }
-
             LoadImage(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"));
             LoadImage(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"));
         }
@@ -148,7 +146,8 @@ namespace Steepshot.iOS
                 {
 					likeButton.Selected = post.IsVoted;
                     likeButton.Enabled = true;
-					rewards.Text = $"${post.NewTotalPayoutReward.ToString()}";
+					rewards.Text = $"{Constants.Currency}{post.NewTotalPayoutReward.ToString()}";
+
 					_currentPost.NetVotes++;
 					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
                 }
