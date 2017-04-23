@@ -13,8 +13,8 @@ namespace Sweetshot.Tests.Steemit
     [TestFixture]
     public class IntegrationTestsChangingState
     {
-        private readonly SteepshotApiClient steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
-        private readonly SteepshotApiClient golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
+        private readonly SteepshotApiClient steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
+        private readonly SteepshotApiClient golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
         private SteepshotApiClient Api(string name)
         {
             switch (name)
@@ -178,7 +178,7 @@ namespace Sweetshot.Tests.Steemit
             Assert.That(unfollowResponse.Result.IsFollowed, Is.False);
             Assert.That(unfollowResponse.Result.Message, Is.EqualTo("User is unfollowed"));
 
-            // 10) Logout
+            // 9) Logout
             var logoutRequest = new LogoutRequest(sessionId);
             var logoutResponse = Api(apiName).Logout(logoutRequest).Result;
             AssertResult(logoutResponse);
