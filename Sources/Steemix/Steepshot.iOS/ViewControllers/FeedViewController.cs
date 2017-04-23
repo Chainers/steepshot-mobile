@@ -229,10 +229,7 @@ namespace Steepshot.iOS
                 navItem.SetLeftBarButtonItem(leftBarButton, true);
             }
             else
-            {
-                /*var leftBarButton = new UIBarButtonItem("Logout", UIBarButtonItemStyle.Plain,(e, sender) => LogoutTapped(e, sender)); //ToConstants name
-                navItem.SetLeftBarButtonItem(leftBarButton, true);*/
-            }
+                navItem.SetLeftBarButtonItem(null, false);
 
             navController.NavigationBar.TintColor = UIColor.White;
 			navController.NavigationBar.BarTintColor = Constants.NavBlue; // To constants
@@ -265,33 +262,33 @@ namespace Steepshot.iOS
             hotButton.SetTitle("HOT", UIControlState.Normal); //ToConstants name
             hotButton.BackgroundColor = buttonColor;
 
-            hotButton.TouchDown += ((e, obj) =>
-               {
-                   if (currentPostType == PostType.Hot)
-                       return;
-                   ToogleDropDownList();
-                   tableSource.TableItems.Clear();
-                   FeedTable.ReloadData();
-                   currentPostType = PostType.Hot;
-                   tw.Text = hotButton.TitleLabel.Text;
-                   GetPosts();
-               });
+			hotButton.TouchDown += ((e, obj) =>
+			   {
+				   if (currentPostType == PostType.Hot)
+					   return;
+				   ToogleDropDownList();
+				   tableSource.TableItems.Clear();
+				   FeedTable.ReloadData();
+				   currentPostType = PostType.Hot;
+				   tw.Text = hotButton.TitleLabel.Text;
+				   GetPosts();
+			   });
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
             trendingButton.SetTitle("TRENDING", UIControlState.Normal); //ToConstants name
             trendingButton.BackgroundColor = buttonColor;
 
-            trendingButton.TouchDown += ((e, obj) =>
-               {
-                    if(currentPostType == PostType.Top)
-                           return;
-                   ToogleDropDownList();
-                   tableSource.TableItems.Clear();
-                   FeedTable.ReloadData();
-                   currentPostType = PostType.Top;
-                   tw.Text = trendingButton.TitleLabel.Text;
-                   GetPosts();
-               });
+			trendingButton.TouchDown += ((e, obj) =>
+			   {
+				   if (currentPostType == PostType.Top)
+					   return;
+				   ToogleDropDownList();
+				   tableSource.TableItems.Clear();
+				   FeedTable.ReloadData();
+				   currentPostType = PostType.Top;
+				   tw.Text = trendingButton.TitleLabel.Text;
+				   GetPosts();
+			   });
 
             view.Add(newPhotosButton);
             view.Add(hotButton);

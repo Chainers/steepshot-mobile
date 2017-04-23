@@ -89,7 +89,7 @@ namespace Steepshot.iOS
 		private void SetText()
 		{
 			loginLabel.Text = $"Log in with your {newAccountNetwork ?? UserContext.Instanse.Network} Account";
-			signLabel.Text = $"Havent {newAccountNetwork ?? UserContext.Instanse.Network} account yet?";
+			signLabel.Text = $"Haven't {newAccountNetwork ?? UserContext.Instanse.Network} account yet?";
 		}
 
 		private async Task GetUserInfo()

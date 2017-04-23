@@ -19,6 +19,10 @@ namespace Steepshot.iOS
 		public static readonly UIFont Heavy115 = UIFont.FromName("Lato-Heavy", 11.5f);
 		public const string Steem = "Steem";
 		public const string Golos = "Golos";
+		public static string Currency
+		{
+			get { return UserContext.Instanse.Network == Constants.Steem ? "$" : "₽"; }
+		}
     }
 
 	public enum Networks
