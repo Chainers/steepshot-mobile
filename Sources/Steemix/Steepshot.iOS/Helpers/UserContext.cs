@@ -18,6 +18,8 @@ namespace Steepshot.iOS
 		public bool ShouldProfileUpdate { get; set; }
 		[JsonIgnore]
 		public bool NetworkChanged { get; set; }
+		[JsonIgnore]
+		public bool IsHomeFeedLoaded { get; set; }
 
 		public bool IsDev { get; set; }
 

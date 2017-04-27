@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12118" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -97,13 +97,20 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ksH-Me-hpH">
+                        <rect key="frame" x="0.0" y="396" width="320" height="150.5"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </view>
                 </subviews>
                 <constraints>
                     <constraint firstItem="vpA-jY-0do" firstAttribute="centerY" secondItem="TKV-b8-oi0" secondAttribute="centerY" id="0ie-3x-YyX"/>
                     <constraint firstAttribute="bottom" secondItem="Lxc-lm-Gwz" secondAttribute="bottom" constant="20" id="BJx-dP-CcD"/>
                     <constraint firstAttribute="leadingMargin" secondItem="ZPJ-tN-wM4" secondAttribute="leading" id="Bg1-wW-n9b"/>
+                    <constraint firstItem="ksH-Me-hpH" firstAttribute="top" secondItem="qhf-ES-gSB" secondAttribute="bottom" constant="8" id="DhY-wm-ITX"/>
                     <constraint firstItem="deq-TU-zDO" firstAttribute="leading" secondItem="vpA-jY-0do" secondAttribute="trailing" constant="13" id="FcW-aH-nNX"/>
+                    <constraint firstAttribute="bottom" secondItem="ksH-Me-hpH" secondAttribute="bottom" id="Ft8-UY-yBI"/>
                     <constraint firstAttribute="trailing" secondItem="JXb-vy-c0E" secondAttribute="trailing" id="HDJ-5G-Nq8"/>
+                    <constraint firstAttribute="trailing" secondItem="ksH-Me-hpH" secondAttribute="trailing" id="IwC-Tn-C5o"/>
                     <constraint firstItem="deq-TU-zDO" firstAttribute="centerY" secondItem="TKV-b8-oi0" secondAttribute="centerY" id="Nd6-Rw-nW2"/>
                     <constraint firstItem="JXb-vy-c0E" firstAttribute="top" secondItem="TKV-b8-oi0" secondAttribute="bottom" id="PMH-PZ-I6M"/>
                     <constraint firstItem="JXb-vy-c0E" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" id="QCb-ee-QoV"/>
@@ -112,6 +119,7 @@
                     <constraint firstItem="ZPJ-tN-wM4" firstAttribute="top" secondItem="JXb-vy-c0E" secondAttribute="bottom" constant="9" id="Tbn-Us-kEl"/>
                     <constraint firstItem="qhf-ES-gSB" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" id="U30-QI-Gm2"/>
                     <constraint firstItem="Lxc-lm-Gwz" firstAttribute="leading" secondItem="XEZ-Zj-6pl" secondAttribute="leading" id="W4p-ae-wBl"/>
+                    <constraint firstItem="ksH-Me-hpH" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" id="XLb-eG-8dZ"/>
                     <constraint firstItem="XEZ-Zj-6pl" firstAttribute="top" secondItem="RtG-sO-zeH" secondAttribute="top" id="cKZ-i0-ST9"/>
                     <constraint firstItem="Lxc-lm-Gwz" firstAttribute="top" secondItem="XEZ-Zj-6pl" secondAttribute="bottom" constant="5" id="e8F-vi-aXg"/>
                     <constraint firstItem="TKV-b8-oi0" firstAttribute="top" secondItem="YTl-1W-gDM" secondAttribute="top" id="fxa-Ki-M1w"/>
@@ -135,6 +143,7 @@
                 <outlet property="bodyImage" destination="JXb-vy-c0E" id="HvG-xm-n5A"/>
                 <outlet property="cellText" destination="deq-TU-zDO" id="BQV-gH-uaN"/>
                 <outlet property="commentText" destination="XEZ-Zj-6pl" id="d8m-Rk-FLb"/>
+                <outlet property="commentView" destination="ksH-Me-hpH" id="uOD-YX-xb3"/>
                 <outlet property="likeButton" destination="ZPJ-tN-wM4" id="QGP-gy-H48"/>
                 <outlet property="netVotes" destination="fQM-Sx-2jf" id="8vK-bR-eGm"/>
                 <outlet property="rewards" destination="KuL-aM-toa" id="fZ7-jv-SIF"/>
