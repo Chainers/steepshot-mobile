@@ -113,10 +113,11 @@ namespace Steepshot.iOS
 
 			if (!isButtonBinded)
 			{
-				viewCommentButton.TouchDown += (sender, e) =>
+				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
 					GoToComments(post.Url);
-				};
+				});
+				commentView.AddGestureRecognizer(tap);
 			}
 
             if (!isButtonBinded)

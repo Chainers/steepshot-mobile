@@ -28,6 +28,9 @@ namespace Steepshot.iOS
 		UIKit.UILabel commentText { get; set; }
 
 		[Outlet]
+		UIKit.UIView commentView { get; set; }
+
+		[Outlet]
 		UIKit.UIButton likeButton { get; set; }
 
 		[Outlet]
@@ -56,21 +59,6 @@ namespace Steepshot.iOS
 				cellText = null;
 			}
 
-			if (netVotes != null) {
-				netVotes.Dispose ();
-				netVotes = null;
-			}
-
-			if (rewards != null) {
-				rewards.Dispose ();
-				rewards = null;
-			}
-
-			if (likeButton != null) {
-				likeButton.Dispose ();
-				likeButton = null;
-			}
-
 			if (commentAuthor != null) {
 				commentAuthor.Dispose ();
 				commentAuthor = null;
@@ -81,9 +69,29 @@ namespace Steepshot.iOS
 				commentText = null;
 			}
 
+			if (likeButton != null) {
+				likeButton.Dispose ();
+				likeButton = null;
+			}
+
+			if (netVotes != null) {
+				netVotes.Dispose ();
+				netVotes = null;
+			}
+
+			if (rewards != null) {
+				rewards.Dispose ();
+				rewards = null;
+			}
+
 			if (viewCommentButton != null) {
 				viewCommentButton.Dispose ();
 				viewCommentButton = null;
+			}
+
+			if (commentView != null) {
+				commentView.Dispose ();
+				commentView = null;
 			}
 		}
 	}

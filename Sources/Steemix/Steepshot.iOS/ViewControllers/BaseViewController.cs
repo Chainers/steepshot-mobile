@@ -12,7 +12,7 @@ namespace Steepshot.iOS
 		{
 		}
 
-		private UIView activeview;
+		protected UIView activeview;
 		private nfloat scroll_amount = 0.0f;
 		private nfloat bottom = 0.0f;
 		private nfloat offset = 10.0f;
