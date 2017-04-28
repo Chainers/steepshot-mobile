@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	 <string name = "hint_username">User name</string>
+  <string name = "hint_password">Password</string>
+
+  <string name = "hint_posting_key">Posting key</string>
+  <string name = "text_logo">SteepShot</string>
+  <string name = "text_login">Login</string>
+  <string name = "text_signup">Sign Up</string>
+  <string name = "text_logout">Logout</string>
+  <string name = "text_create_acc">Create an account</string>
+  <string name = "text_forgot_pass">Forgot password?</string>
+  <string name = "ApplicationName">SteepShot</string>
+  <string name ="need_login">You need to be logged in to perform this action</string>
+  <string name = "following">Following</string>
+  <string name = "new_photos">New photos"</string>
+  <string name = "hot">Hot"</string>
+  <string name = "Trending">Trending</string>
+  <string name = "view_n_comments">View {0} comments</string>
+  <string name = "title_comment"><b>{0}</b> {1}</string>
+  <string name = "first_title_comment">Post first comment</string>
+  <string name = "time_hours">{0} hours</string>
+  <string name = "time_mins">{0} minutes</string>
+  <string name = "time_days">{0} days</string>
+  <string name = "time_seconds">{0} seconds</string>
+
+  <string name = "error_not_uniq_user">User with that username already exists!</string>
+  <string name = "error_not_found_user">User not found!</string>
+  <string name = "error_connect_to_server">Fail connect to server!</string>
+  <string name = "error_empty_field">Field can\'t be empty!</string>
+  <string name = "error_repeat_pass_fail">Incorrect repeat password</string>
+  <string name = "choose_photo">Choose photo</string>
+
+  <!--lyt_settings.axml-->
+  <string name = "settings">Settings</string>
+  <string name = "change_avatar">Change Avatar</string>
+  <string name = "change_password">Change Password</string>
+  <string name = "terms_of_service">Terms of Service</string>
+  <string name = "delete_steemix_account">Delete Steepshot Account</string>
+  <string name = "follow">Follow</string>
+  <string name = "cost_param">${0}</string>
+  <string name = "cost_param_on_balance">${0} On Balance</string>
+
+  <!--lyt_change_password.axml-->
+  <string name = "text_password">Password</string>
+  <string name = "hint_old_password">Type Old Password</string>
+  <string name = "hint_new_password">New Password</string>
+  <string name = "hint_repeat_new_password">Repeat New Password</string>
+  <string name = "text_change">Change</string>
+
+  <!--text_terms_of_service.axml-->
+  <string name = "text_terms_of_service">Terms of Service</string>
+
+  <!--lyt_followers.axml-->
+  <string name = "text_followers">Followers</string>
+  <string name = "text_following">Following</string>
+  <string name = "text_follow">Follow</string>
+  <string name = "text_unfollow">Unfollow</string>
+	<string name = "photos">Photos</string>
+	<string name ="add_description">Add Description</string>
+
+  
+  <!-- The class name to the ScrollingChildBehavior required for AppBarLayout -->
+<string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+	<string name="app_name">Steepshot</string>
+</resources>
