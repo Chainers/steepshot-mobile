@@ -231,7 +231,6 @@
     <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
     <BundleResource Include="Resources\Fonts\Lato-Heavy.ttf" />
   </ItemGroup>
-  <Import Project="..\..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" Condition="Exists('..\..\Sweetshot.Library\Sweetshot.Library.projitems')" />
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
