@@ -11,4 +11,6 @@
 	<item name="light_gray" type="color">#CCCCCC</item>
 	<item name="light_gray_fa" type="color">#fafafa</item>
   <item name="material_grey_600" type="color">#FFFFFF</item>
+	<item name="login_gray" type="color">#F7F7F7</item>
+	<item name="rgb55_176_233" type="color">#37B0E9</item>
 </resources>

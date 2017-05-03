@@ -134,6 +134,10 @@
     <Compile Include="Presenter\PhotoGridPresenter.cs" />
     <Compile Include="View\PhotoGridView.cs" />
     <Compile Include="Data\UserFriendViewMode.cs" />
+    <Compile Include="Activity\PreSignInActivity.cs" />
+    <Compile Include="Presenter\PreSignInPresenter.cs" />
+    <Compile Include="View\PreSignInView.cs" />
+    <Compile Include="Data\Constants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -146,6 +150,7 @@
     <AndroidResource Include="Resources\layout\lyt_post_preview.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_pre_sign_in.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />

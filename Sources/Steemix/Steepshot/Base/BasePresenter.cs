@@ -12,7 +12,7 @@ namespace Steepshot
 			get
 			{
 				if (_apiClient == null)
-					_apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
+					SwitchNetwork();
 				return _apiClient;
 			}
 		}
@@ -23,5 +23,22 @@ namespace Steepshot
 			this.view = view;
 		}
 
+		public static void SwitchNetwork()
+		{
+			if (UserPrincipal.Instance.CurrentNetwork == Constants.Steem)
+			{
+				/*if(UserContext.Instanse.IsDev)
+					_apiClient = new SteepshotApiClient("https://qa.steepshot.org/api/v1/");
+				else*/
+					_apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
+			}
+			else
+			{
+				/*if(UserContext.Instanse.IsDev)
+					_apiClient = new SteepshotApiClient("https://qa.golos.steepshot.org/api/v1/");
+				else*/
+					_apiClient = new SteepshotApiClient("https://golos.steepshot.org/api/v1/");
+			}
+		}
 	}
 }

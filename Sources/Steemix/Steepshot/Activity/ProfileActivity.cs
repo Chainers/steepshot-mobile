@@ -125,6 +125,7 @@ namespace Steepshot
 		{
 			var intent = new Intent(this, typeof(FollowersActivity));
 			intent.PutExtra("isFollowers", false);
+			intent.PutExtra("username", ProfileId);
 			StartActivity(intent);
 		}
 
@@ -133,6 +134,7 @@ namespace Steepshot
 		{
 			var intent = new Intent(this, typeof(FollowersActivity));
 			intent.PutExtra("isFollowers", true);
+			intent.PutExtra("username", ProfileId);
 			StartActivity(intent);
 		}
 

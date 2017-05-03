@@ -193,7 +193,7 @@ namespace Steepshot
 
         private void OpenLogin()
         {
-            Intent intent = new Intent(this, typeof(SignInActivity));
+            Intent intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }
 

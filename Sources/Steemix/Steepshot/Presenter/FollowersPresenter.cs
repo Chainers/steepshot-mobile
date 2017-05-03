@@ -15,15 +15,15 @@ namespace Steepshot
 
 		public readonly ObservableCollection<UserFriendViewMode> Collection = new ObservableCollection<UserFriendViewMode>();
 
-		public void ViewLoad(FollowType friendsType)
+		public void ViewLoad(FollowType friendsType, string username)
 		{
 			if (Collection.Count == 0)
-				Task.Run(() => GetItems(string.Empty, 10, friendsType));
+				Task.Run(() => GetItems(string.Empty, 10, friendsType, username));
 		}
 
-		public async Task GetItems(string offset, int limit, FollowType followType)
+		public async Task GetItems(string offset, int limit, FollowType followType, string username)
 		{
-			var request = new UserFriendsRequest(UserPrincipal.Instance.CurrentUser.Login,
+			var request = new UserFriendsRequest(username,
                 followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
 			{
                 SessionId = UserPrincipal.Instance.Cookie,

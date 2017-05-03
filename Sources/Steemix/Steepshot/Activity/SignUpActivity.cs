@@ -67,7 +67,7 @@ namespace Steepshot
             {
                 if (response.Success)
                 {
-                    UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass);
+                    //UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass);
                     var intent = new Intent(this, typeof(RootActivity));
                     intent.AddFlags(ActivityFlags.ClearTask);
                     StartActivity(intent);

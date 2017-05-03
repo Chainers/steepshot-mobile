@@ -1045,29 +1045,29 @@ namespace Steepshot
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f0c0051
-			public const int abc_background_cache_hint_selector_material_dark = 2131492945;
+			// aapt resource value: 0x7f0c0053
+			public const int abc_background_cache_hint_selector_material_dark = 2131492947;
 			
-			// aapt resource value: 0x7f0c0052
-			public const int abc_background_cache_hint_selector_material_light = 2131492946;
+			// aapt resource value: 0x7f0c0054
+			public const int abc_background_cache_hint_selector_material_light = 2131492948;
 			
 			// aapt resource value: 0x7f0c0000
 			public const int abc_input_method_navigation_guard = 2131492864;
 			
-			// aapt resource value: 0x7f0c0053
-			public const int abc_primary_text_disable_only_material_dark = 2131492947;
-			
-			// aapt resource value: 0x7f0c0054
-			public const int abc_primary_text_disable_only_material_light = 2131492948;
-			
 			// aapt resource value: 0x7f0c0055
-			public const int abc_primary_text_material_dark = 2131492949;
+			public const int abc_primary_text_disable_only_material_dark = 2131492949;
 			
 			// aapt resource value: 0x7f0c0056
-			public const int abc_primary_text_material_light = 2131492950;
+			public const int abc_primary_text_disable_only_material_light = 2131492950;
 			
 			// aapt resource value: 0x7f0c0057
-			public const int abc_search_url_text = 2131492951;
+			public const int abc_primary_text_material_dark = 2131492951;
+			
+			// aapt resource value: 0x7f0c0058
+			public const int abc_primary_text_material_light = 2131492952;
+			
+			// aapt resource value: 0x7f0c0059
+			public const int abc_search_url_text = 2131492953;
 			
 			// aapt resource value: 0x7f0c0001
 			public const int abc_search_url_text_normal = 2131492865;
@@ -1078,11 +1078,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0003
 			public const int abc_search_url_text_selected = 2131492867;
 			
-			// aapt resource value: 0x7f0c0058
-			public const int abc_secondary_text_material_dark = 2131492952;
+			// aapt resource value: 0x7f0c005a
+			public const int abc_secondary_text_material_dark = 2131492954;
 			
-			// aapt resource value: 0x7f0c0059
-			public const int abc_secondary_text_material_light = 2131492953;
+			// aapt resource value: 0x7f0c005b
+			public const int abc_secondary_text_material_light = 2131492955;
 			
 			// aapt resource value: 0x7f0c0004
 			public const int accent_material_dark = 2131492868;
@@ -1225,6 +1225,9 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c001b
 			public const int link_text_material_light = 2131492891;
 			
+			// aapt resource value: 0x7f0c0051
+			public const int login_gray = 2131492945;
+			
 			// aapt resource value: 0x7f0c001c
 			public const int material_blue_grey_800 = 2131492892;
 			
@@ -1267,6 +1270,9 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0028
 			public const int primary_text_disabled_material_light = 2131492904;
 			
+			// aapt resource value: 0x7f0c0052
+			public const int rgb55_176_233 = 2131492946;
+			
 			// aapt resource value: 0x7f0c0029
 			public const int ripple_material_dark = 2131492905;
 			
@@ -1303,11 +1309,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0030
 			public const int switch_thumb_disabled_material_light = 2131492912;
 			
-			// aapt resource value: 0x7f0c005a
-			public const int switch_thumb_material_dark = 2131492954;
+			// aapt resource value: 0x7f0c005c
+			public const int switch_thumb_material_dark = 2131492956;
 			
-			// aapt resource value: 0x7f0c005b
-			public const int switch_thumb_material_light = 2131492955;
+			// aapt resource value: 0x7f0c005d
+			public const int switch_thumb_material_light = 2131492957;
 			
 			// aapt resource value: 0x7f0c0031
 			public const int switch_thumb_normal_material_dark = 2131492913;
@@ -1960,8 +1966,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070095
 			public const int Title = 2131165333;
 			
-			// aapt resource value: 0x7f0700ec
-			public const int action0 = 2131165420;
+			// aapt resource value: 0x7f0700fc
+			public const int action0 = 2131165436;
 			
 			// aapt resource value: 0x7f070058
 			public const int action_bar = 2131165272;
@@ -1987,8 +1993,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070059
 			public const int action_context_bar = 2131165273;
 			
-			// aapt resource value: 0x7f0700f0
-			public const int action_divider = 2131165424;
+			// aapt resource value: 0x7f070100
+			public const int action_divider = 2131165440;
 			
 			// aapt resource value: 0x7f070003
 			public const int action_menu_divider = 2131165187;
@@ -2010,6 +2016,9 @@ namespace Steepshot
 			
 			// aapt resource value: 0x7f070093
 			public const int activity_main = 2131165331;
+			
+			// aapt resource value: 0x7f0700eb
+			public const int add_account = 2131165419;
 			
 			// aapt resource value: 0x7f070048
 			public const int alertTitle = 2131165256;
@@ -2056,8 +2065,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700a0
 			public const int btn_search = 2131165344;
 			
-			// aapt resource value: 0x7f0700cc
-			public const int btn_settings = 2131165388;
+			// aapt resource value: 0x7f0700d7
+			public const int btn_settings = 2131165399;
 			
 			// aapt resource value: 0x7f0700b5
 			public const int btn_switch = 2131165365;
@@ -2092,11 +2101,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700c4
 			public const int camera_frame = 2131165380;
 			
-			// aapt resource value: 0x7f0700ed
-			public const int cancel_action = 2131165421;
+			// aapt resource value: 0x7f0700fd
+			public const int cancel_action = 2131165437;
 			
-			// aapt resource value: 0x7f0700d5
-			public const int categories = 2131165397;
+			// aapt resource value: 0x7f0700e0
+			public const int categories = 2131165408;
 			
 			// aapt resource value: 0x7f07002c
 			public const int center = 2131165228;
@@ -2110,11 +2119,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f070050
 			public const int checkbox = 2131165264;
 			
-			// aapt resource value: 0x7f0700f2
-			public const int chronometer = 2131165426;
+			// aapt resource value: 0x7f070102
+			public const int chronometer = 2131165442;
 			
-			// aapt resource value: 0x7f0700d7
-			public const int civ_avatar = 2131165399;
+			// aapt resource value: 0x7f0700e2
+			public const int civ_avatar = 2131165410;
 			
 			// aapt resource value: 0x7f0700b8
 			public const int cl_profile = 2131165368;
@@ -2149,8 +2158,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070092
 			public const int cost = 2131165330;
 			
-			// aapt resource value: 0x7f0700cd
-			public const int cost_btn = 2131165389;
+			// aapt resource value: 0x7f0700d8
+			public const int cost_btn = 2131165400;
 			
 			// aapt resource value: 0x7f07004d
 			public const int custom = 2131165261;
@@ -2170,8 +2179,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070041
 			public const int default_activity_button = 2131165249;
 			
-			// aapt resource value: 0x7f0700d1
-			public const int description = 2131165393;
+			// aapt resource value: 0x7f0700dc
+			public const int description = 2131165404;
 			
 			// aapt resource value: 0x7f07001d
 			public const int dialog = 2131165213;
@@ -2179,23 +2188,23 @@ namespace Steepshot
 			// aapt resource value: 0x7f07000e
 			public const int disableHome = 2131165198;
 			
-			// aapt resource value: 0x7f0700e9
-			public const int div = 2131165417;
+			// aapt resource value: 0x7f0700f9
+			public const int div = 2131165433;
 			
 			// aapt resource value: 0x7f07001e
 			public const int dropdown = 2131165214;
 			
-			// aapt resource value: 0x7f0700d8
-			public const int dtn_change_avatar = 2131165400;
+			// aapt resource value: 0x7f0700ec
+			public const int dtn_change_avatar = 2131165420;
 			
-			// aapt resource value: 0x7f0700d9
-			public const int dtn_change_password = 2131165401;
+			// aapt resource value: 0x7f0700ed
+			public const int dtn_change_password = 2131165421;
 			
-			// aapt resource value: 0x7f0700db
-			public const int dtn_delete_steemix_account = 2131165403;
+			// aapt resource value: 0x7f0700ef
+			public const int dtn_delete_steemix_account = 2131165423;
 			
-			// aapt resource value: 0x7f0700da
-			public const int dtn_terms_of_service = 2131165402;
+			// aapt resource value: 0x7f0700ee
+			public const int dtn_terms_of_service = 2131165422;
 			
 			// aapt resource value: 0x7f07005a
 			public const int edit_query = 2131165274;
@@ -2203,8 +2212,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070016
 			public const int end = 2131165206;
 			
-			// aapt resource value: 0x7f0700f6
-			public const int end_padder = 2131165430;
+			// aapt resource value: 0x7f070106
+			public const int end_padder = 2131165446;
 			
 			// aapt resource value: 0x7f070025
 			public const int enterAlways = 2131165221;
@@ -2239,14 +2248,14 @@ namespace Steepshot
 			// aapt resource value: 0x7f070039
 			public const int @fixed = 2131165241;
 			
-			// aapt resource value: 0x7f0700cf
-			public const int follow_btn = 2131165391;
+			// aapt resource value: 0x7f0700da
+			public const int follow_btn = 2131165402;
 			
-			// aapt resource value: 0x7f0700ce
-			public const int follow_cont = 2131165390;
+			// aapt resource value: 0x7f0700d9
+			public const int follow_cont = 2131165401;
 			
-			// aapt resource value: 0x7f0700d0
-			public const int follow_spinner = 2131165392;
+			// aapt resource value: 0x7f0700db
+			public const int follow_spinner = 2131165403;
 			
 			// aapt resource value: 0x7f0700c0
 			public const int followers_btn = 2131165376;
@@ -2272,9 +2281,6 @@ namespace Steepshot
 			// aapt resource value: 0x7f070090
 			public const int footer = 2131165328;
 			
-			// aapt resource value: 0x7f0700e0
-			public const int forgot_pass_btn = 2131165408;
-			
 			// aapt resource value: 0x7f0700a1
 			public const int fragment_container = 2131165345;
 			
@@ -2287,8 +2293,20 @@ namespace Steepshot
 			// aapt resource value: 0x7f070087
 			public const int go_back = 2131165319;
 			
-			// aapt resource value: 0x7f0700d6
-			public const int header = 2131165398;
+			// aapt resource value: 0x7f0700e7
+			public const int golosView = 2131165415;
+			
+			// aapt resource value: 0x7f0700e8
+			public const int golos_avatar = 2131165416;
+			
+			// aapt resource value: 0x7f0700cb
+			public const int golos_logo = 2131165387;
+			
+			// aapt resource value: 0x7f0700e9
+			public const int golos_text = 2131165417;
+			
+			// aapt resource value: 0x7f0700e1
+			public const int header = 2131165409;
 			
 			// aapt resource value: 0x7f070005
 			public const int home = 2131165189;
@@ -2296,8 +2314,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f07000f
 			public const int homeAsUp = 2131165199;
 			
-			// aapt resource value: 0x7f0700e6
-			public const int ic_close = 2131165414;
+			// aapt resource value: 0x7f0700f6
+			public const int ic_close = 2131165430;
+			
+			// aapt resource value: 0x7f0700cf
+			public const int ic_logo = 2131165391;
 			
 			// aapt resource value: 0x7f070043
 			public const int icon = 2131165251;
@@ -2314,14 +2335,14 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700aa
 			public const int img_conversation = 2131165354;
 			
-			// aapt resource value: 0x7f0700f5
-			public const int info = 2131165429;
+			// aapt resource value: 0x7f070105
+			public const int info = 2131165445;
 			
 			// aapt resource value: 0x7f07006b
 			public const int input_email = 2131165291;
 			
-			// aapt resource value: 0x7f0700e2
-			public const int input_key = 2131165410;
+			// aapt resource value: 0x7f0700f2
+			public const int input_key = 2131165426;
 			
 			// aapt resource value: 0x7f07006d
 			public const int input_message = 2131165293;
@@ -2344,14 +2365,14 @@ namespace Steepshot
 			// aapt resource value: 0x7f07006c
 			public const int input_subject = 2131165292;
 			
-			// aapt resource value: 0x7f0700dd
-			public const int input_username = 2131165405;
+			// aapt resource value: 0x7f0700d0
+			public const int input_username = 2131165392;
 			
 			// aapt resource value: 0x7f070000
 			public const int item_touch_helper_previous_elevation = 2131165184;
 			
-			// aapt resource value: 0x7f0700cb
-			public const int joined_text = 2131165387;
+			// aapt resource value: 0x7f0700d6
+			public const int joined_text = 2131165398;
 			
 			// aapt resource value: 0x7f07007f
 			public const int label_author = 2131165311;
@@ -2383,11 +2404,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f070091
 			public const int likes = 2131165329;
 			
-			// aapt resource value: 0x7f0700f1
-			public const int line1 = 2131165425;
+			// aapt resource value: 0x7f070101
+			public const int line1 = 2131165441;
 			
-			// aapt resource value: 0x7f0700f4
-			public const int line3 = 2131165428;
+			// aapt resource value: 0x7f070104
+			public const int line3 = 2131165444;
 			
 			// aapt resource value: 0x7f07000b
 			public const int listMode = 2131165195;
@@ -2407,11 +2428,14 @@ namespace Steepshot
 			// aapt resource value: 0x7f070099
 			public const int loading_spinner = 2131165337;
 			
-			// aapt resource value: 0x7f0700dc
-			public const int logo = 2131165404;
+			// aapt resource value: 0x7f0700ce
+			public const int login_label = 2131165390;
 			
-			// aapt resource value: 0x7f0700ef
-			public const int media_actions = 2131165423;
+			// aapt resource value: 0x7f0700f1
+			public const int logo = 2131165425;
+			
+			// aapt resource value: 0x7f0700ff
+			public const int media_actions = 2131165439;
 			
 			// aapt resource value: 0x7f070097
 			public const int message = 2131165335;
@@ -2424,6 +2448,9 @@ namespace Steepshot
 			
 			// aapt resource value: 0x7f070020
 			public const int multiply = 2131165216;
+			
+			// aapt resource value: 0x7f0700cc
+			public const int network_switch = 2131165388;
 			
 			// aapt resource value: 0x7f07001b
 			public const int never = 2131165211;
@@ -2455,11 +2482,14 @@ namespace Steepshot
 			// aapt resource value: 0x7f07002a
 			public const int pin = 2131165226;
 			
-			// aapt resource value: 0x7f0700d2
-			public const int place = 2131165394;
+			// aapt resource value: 0x7f0700dd
+			public const int place = 2131165405;
 			
 			// aapt resource value: 0x7f07009f
 			public const int pop_up_arrow = 2131165343;
+			
+			// aapt resource value: 0x7f0700f0
+			public const int posting_key_title = 2131165424;
 			
 			// aapt resource value: 0x7f0700c3
 			public const int posts_list = 2131165379;
@@ -2467,8 +2497,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700a3
 			public const int profile_image = 2131165347;
 			
-			// aapt resource value: 0x7f0700ca
-			public const int profile_name = 2131165386;
+			// aapt resource value: 0x7f0700d5
+			public const int profile_name = 2131165397;
 			
 			// aapt resource value: 0x7f070006
 			public const int progress_circular = 2131165190;
@@ -2478,6 +2508,12 @@ namespace Steepshot
 			
 			// aapt resource value: 0x7f070052
 			public const int radio = 2131165266;
+			
+			// aapt resource value: 0x7f0700ea
+			public const int remove_golos = 2131165418;
+			
+			// aapt resource value: 0x7f0700e5
+			public const int remove_steem = 2131165413;
 			
 			// aapt resource value: 0x7f0700b0
 			public const int reputation = 2131165360;
@@ -2503,8 +2539,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f07005b
 			public const int search_bar = 2131165275;
 			
-			// aapt resource value: 0x7f0700e8
-			public const int search_box = 2131165416;
+			// aapt resource value: 0x7f0700f8
+			public const int search_box = 2131165432;
 			
 			// aapt resource value: 0x7f07005d
 			public const int search_button = 2131165277;
@@ -2518,8 +2554,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070064
 			public const int search_go_btn = 2131165284;
 			
-			// aapt resource value: 0x7f0700e7
-			public const int search_layout = 2131165415;
+			// aapt resource value: 0x7f0700f7
+			public const int search_layout = 2131165431;
 			
 			// aapt resource value: 0x7f07005f
 			public const int search_mag_icon = 2131165279;
@@ -2530,8 +2566,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070061
 			public const int search_src_text = 2131165281;
 			
-			// aapt resource value: 0x7f0700d4
-			public const int search_view = 2131165396;
+			// aapt resource value: 0x7f0700df
+			public const int search_view = 2131165407;
 			
 			// aapt resource value: 0x7f070065
 			public const int search_voice_btn = 2131165285;
@@ -2560,20 +2596,23 @@ namespace Steepshot
 			// aapt resource value: 0x7f070013
 			public const int showTitle = 2131165203;
 			
-			// aapt resource value: 0x7f0700df
-			public const int sign_in_btn = 2131165407;
+			// aapt resource value: 0x7f0700d2
+			public const int sign_in_btn = 2131165394;
 			
-			// aapt resource value: 0x7f0700de
-			public const int sign_in_cont = 2131165406;
+			// aapt resource value: 0x7f0700d1
+			public const int sign_in_cont = 2131165393;
 			
-			// aapt resource value: 0x7f0700e1
-			public const int sign_up_btn = 2131165409;
+			// aapt resource value: 0x7f0700d4
+			public const int sign_up_btn = 2131165396;
 			
-			// aapt resource value: 0x7f0700e3
-			public const int sign_up_cont = 2131165411;
+			// aapt resource value: 0x7f0700f3
+			public const int sign_up_cont = 2131165427;
 			
 			// aapt resource value: 0x7f0700d3
-			public const int site = 2131165395;
+			public const int sign_up_label = 2131165395;
+			
+			// aapt resource value: 0x7f0700de
+			public const int site = 2131165406;
 			
 			// aapt resource value: 0x7f070084
 			public const int snackbar_action = 2131165316;
@@ -2596,8 +2635,20 @@ namespace Steepshot
 			// aapt resource value: 0x7f070036
 			public const int start = 2131165238;
 			
-			// aapt resource value: 0x7f0700ee
-			public const int status_bar_latest_event_content = 2131165422;
+			// aapt resource value: 0x7f0700fe
+			public const int status_bar_latest_event_content = 2131165438;
+			
+			// aapt resource value: 0x7f0700e3
+			public const int steemView = 2131165411;
+			
+			// aapt resource value: 0x7f0700e4
+			public const int steem_avatar = 2131165412;
+			
+			// aapt resource value: 0x7f0700cd
+			public const int steem_logo = 2131165389;
+			
+			// aapt resource value: 0x7f0700e6
+			public const int steem_text = 2131165414;
 			
 			// aapt resource value: 0x7f070063
 			public const int submit_area = 2131165283;
@@ -2605,14 +2656,17 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700a7
 			public const int subtitle = 2131165351;
 			
+			// aapt resource value: 0x7f0700ca
+			public const int switch_view = 2131165386;
+			
 			// aapt resource value: 0x7f07000d
 			public const int tabMode = 2131165197;
 			
-			// aapt resource value: 0x7f0700f7
-			public const int tab_image = 2131165431;
+			// aapt resource value: 0x7f070107
+			public const int tab_image = 2131165447;
 			
-			// aapt resource value: 0x7f0700e5
-			public const int tab_layout = 2131165413;
+			// aapt resource value: 0x7f0700f5
+			public const int tab_layout = 2131165429;
 			
 			// aapt resource value: 0x7f070085
 			public const int tag = 2131165317;
@@ -2620,8 +2674,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f0700c8
 			public const int tag_container = 2131165384;
 			
-			// aapt resource value: 0x7f0700ea
-			public const int tags_list = 2131165418;
+			// aapt resource value: 0x7f0700fa
+			public const int tags_list = 2131165434;
 			
 			// aapt resource value: 0x7f0700c5
 			public const int take_photo = 2131165381;
@@ -2629,8 +2683,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070086
 			public const int text = 2131165318;
 			
-			// aapt resource value: 0x7f0700f3
-			public const int text2 = 2131165427;
+			// aapt resource value: 0x7f070103
+			public const int text2 = 2131165443;
 			
 			// aapt resource value: 0x7f07004b
 			public const int textSpacerNoButtons = 2131165259;
@@ -2659,8 +2713,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f070046
 			public const int topPanel = 2131165254;
 			
-			// aapt resource value: 0x7f0700eb
-			public const int tv_terms_of_service = 2131165419;
+			// aapt resource value: 0x7f0700fb
+			public const int tv_terms_of_service = 2131165435;
 			
 			// aapt resource value: 0x7f070009
 			public const int up = 2131165193;
@@ -2674,8 +2728,8 @@ namespace Steepshot
 			// aapt resource value: 0x7f07000a
 			public const int view_offset_helper = 2131165194;
 			
-			// aapt resource value: 0x7f0700e4
-			public const int view_pager = 2131165412;
+			// aapt resource value: 0x7f0700f4
+			public const int view_pager = 2131165428;
 			
 			// aapt resource value: 0x7f07007e
 			public const int web_update_details = 2131165310;
@@ -2914,70 +2968,73 @@ namespace Steepshot
 			public const int lyt_post_preview = 2130968631;
 			
 			// aapt resource value: 0x7f040038
-			public const int lyt_profile_header = 2130968632;
+			public const int lyt_pre_sign_in = 2130968632;
 			
 			// aapt resource value: 0x7f040039
-			public const int lyt_search = 2130968633;
+			public const int lyt_profile_header = 2130968633;
 			
 			// aapt resource value: 0x7f04003a
-			public const int lyt_settings = 2130968634;
+			public const int lyt_search = 2130968634;
 			
 			// aapt resource value: 0x7f04003b
-			public const int lyt_sign_in = 2130968635;
+			public const int lyt_settings = 2130968635;
 			
 			// aapt resource value: 0x7f04003c
-			public const int lyt_sign_up = 2130968636;
+			public const int lyt_sign_in = 2130968636;
 			
 			// aapt resource value: 0x7f04003d
-			public const int lyt_tab_host = 2130968637;
+			public const int lyt_sign_up = 2130968637;
 			
 			// aapt resource value: 0x7f04003e
-			public const int lyt_tag = 2130968638;
+			public const int lyt_tab_host = 2130968638;
 			
 			// aapt resource value: 0x7f04003f
-			public const int lyt_tags = 2130968639;
+			public const int lyt_tag = 2130968639;
 			
 			// aapt resource value: 0x7f040040
-			public const int lyt_terms_of_service = 2130968640;
+			public const int lyt_tags = 2130968640;
 			
 			// aapt resource value: 0x7f040041
-			public const int notification_media_action = 2130968641;
+			public const int lyt_terms_of_service = 2130968641;
 			
 			// aapt resource value: 0x7f040042
-			public const int notification_media_cancel_action = 2130968642;
+			public const int notification_media_action = 2130968642;
 			
 			// aapt resource value: 0x7f040043
-			public const int notification_template_big_media = 2130968643;
+			public const int notification_media_cancel_action = 2130968643;
 			
 			// aapt resource value: 0x7f040044
-			public const int notification_template_big_media_narrow = 2130968644;
+			public const int notification_template_big_media = 2130968644;
 			
 			// aapt resource value: 0x7f040045
-			public const int notification_template_lines = 2130968645;
+			public const int notification_template_big_media_narrow = 2130968645;
 			
 			// aapt resource value: 0x7f040046
-			public const int notification_template_media = 2130968646;
+			public const int notification_template_lines = 2130968646;
 			
 			// aapt resource value: 0x7f040047
-			public const int notification_template_part_chronometer = 2130968647;
+			public const int notification_template_media = 2130968647;
 			
 			// aapt resource value: 0x7f040048
-			public const int notification_template_part_time = 2130968648;
+			public const int notification_template_part_chronometer = 2130968648;
 			
 			// aapt resource value: 0x7f040049
-			public const int select_dialog_item_material = 2130968649;
+			public const int notification_template_part_time = 2130968649;
 			
 			// aapt resource value: 0x7f04004a
-			public const int select_dialog_multichoice_material = 2130968650;
+			public const int select_dialog_item_material = 2130968650;
 			
 			// aapt resource value: 0x7f04004b
-			public const int select_dialog_singlechoice_material = 2130968651;
+			public const int select_dialog_multichoice_material = 2130968651;
 			
 			// aapt resource value: 0x7f04004c
-			public const int support_simple_spinner_dropdown_item = 2130968652;
+			public const int select_dialog_singlechoice_material = 2130968652;
 			
 			// aapt resource value: 0x7f04004d
-			public const int tab_main = 2130968653;
+			public const int support_simple_spinner_dropdown_item = 2130968653;
+			
+			// aapt resource value: 0x7f04004e
+			public const int tab_main = 2130968654;
 			
 			static Layout()
 			{
