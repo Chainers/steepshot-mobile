@@ -18,5 +18,11 @@ namespace Steepshot
 			var response = await Api.GetUserProfile(req);
 			return response;
 		}
+
+		public async Task<OperationResult<LogoutResponse>> Logout()
+		{
+			var request = new LogoutRequest(UserPrincipal.Instance.CurrentUser.SessionId);
+			return await Api.Logout(request);
+		}
 	}
 }

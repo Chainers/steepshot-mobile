@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using Android.App;
+using Android.Content;
+using Android.Preferences;
 using SQLite;
 using Sweetshot.Library.Models.Responses;
 
@@ -20,6 +24,22 @@ namespace Steepshot
 		}
 
 		private SQLiteConnection db;
+
+		public string CurrentNetwork {
+			get
+			{
+				ISharedPreferences prefs = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+				var network = prefs.GetString ("network", Constants.Steem);
+				return network;
+			}
+			set
+			{
+				ISharedPreferences prefs = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+				ISharedPreferencesEditor editor = prefs.Edit();
+				editor.PutString ("network", value);
+				editor.Apply();  
+			}
+		}
 
 		private UserPrincipal()
 		{
@@ -48,10 +68,11 @@ namespace Steepshot
 			}
 		}
 
-		public void CreatePrincipal(LoginResponse result, string login, string pass)
+		public void CreatePrincipal(LoginResponse result, string login, string pass, string network)
 		{
 			var userInfo = new UserInfo();
 			userInfo.Login = login;
+			userInfo.Network = network;
 			userInfo.Password = pass;
 			userInfo.SessionId = result.SessionId;
 			db.Insert(userInfo);
@@ -75,6 +96,11 @@ namespace Steepshot
             }
         }
 
+		public void DeleteUser(UserInfo user)
+		{
+			db.Delete(user);
+		}
+
 		private UserInfo CurrentSessionUser;
 
 		public UserInfo CurrentUser
@@ -85,7 +111,8 @@ namespace Steepshot
 				{
 					try
 					{
-						var user = db.Query<UserInfo>("SELECT * FROM UserInfo ORDER BY ROWID ASC LIMIT 1")[0];
+						//var user = db.Query<UserInfo>("SELECT * FROM UserInfo ORDER BY ROWID ASC LIMIT 1")[0];
+						var user = db.Query<UserInfo>($"SELECT * FROM UserInfo WHERE Network=\"{CurrentNetwork}\"")[0];
 						CurrentSessionUser = user;
 						return CurrentSessionUser;
 					}
@@ -97,6 +124,12 @@ namespace Steepshot
 				else
 					return CurrentSessionUser;
 			}
+		}
+
+		public List<UserInfo> GetAllAccounts()
+		{
+			var items = db.Query<UserInfo>("select * FROM UserInfo");
+			return items;
 		}
 	}
 }

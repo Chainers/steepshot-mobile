@@ -31,10 +31,11 @@ namespace Steepshot
         {
             base.OnCreate(savedInstanceState);
             var isFollowers = Intent.GetBooleanExtra("isFollowers", false);
+			var username = Intent.GetStringExtra("username") ?? UserPrincipal.Instance.CurrentUser.Login ;
             _friendsType = isFollowers ? FollowType.Follow : FollowType.UnFollow;
 
             presenter.Collection.Clear();
-			presenter.ViewLoad(_friendsType);
+			presenter.ViewLoad(_friendsType, username);
             SetContentView(Resource.Layout.lyt_followers);
             Cheeseknife.Inject(this);
 
