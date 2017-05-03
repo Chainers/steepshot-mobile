@@ -104,7 +104,7 @@ namespace Steepshot
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            Logout.Text = GetString(Resource.String.text_logout);
+			Logout.Visibility = ViewStates.Gone;
             Title.Text = "Trending";
 			FeedAdapter = new FeedAdapter(Context, presenter.Posts);
             FeedList.SetAdapter(FeedAdapter);

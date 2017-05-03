@@ -53,7 +53,7 @@ namespace Steepshot
 
 			steemAcc = accounts.FirstOrDefault(a => a.Network == Constants.Steem);
 			golosAcc = accounts.FirstOrDefault(a => a.Network == Constants.Golos);
-			//previousNetwork = UserContext.Instanse.Network;
+
 
 			if (steemAcc != null)
 			{

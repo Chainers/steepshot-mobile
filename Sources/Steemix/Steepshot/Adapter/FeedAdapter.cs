@@ -152,7 +152,7 @@ namespace Steepshot
                 TimeSpan span = DateTime.Now - post.Created;
 
                 Likes.Text = string.Format("{0} likes", post.NetVotes);
-                Cost.Text = string.Format("${0}", post.TotalPayoutReward);
+                Cost.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
 
                 if (span.TotalDays > 1)
                 {

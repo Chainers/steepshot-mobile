@@ -7,6 +7,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Sweetshot.Library.Models.Requests;
 using Android.Support.V4.Content;
+using System.Threading.Tasks;
 
 namespace Steepshot
 {
@@ -45,16 +46,38 @@ namespace Steepshot
             _followersList = FindViewById<RecyclerView>(Resource.Id.followers_list);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(this));
-            _followersList.AddOnScrollListener(new FollowersScrollListener());
+			_followersList.AddOnScrollListener(new FollowersScrollListener(presenter, username, _friendsType));
             _followersAdapter.FollowAction += FollowersAdapter_FollowAction;
         }
 
         public class FollowersScrollListener : RecyclerView.OnScrollListener
         {
-            public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
+			FollowersPresenter presenter;
+			private string _username;
+			private FollowType _followType;
 
-            }
+			public FollowersScrollListener(FollowersPresenter presenter, string username, FollowType followType)
+			{
+				this.presenter = presenter;
+				_username = username;
+				_followType = followType;
+			}
+			int prevPos = 0;
+			public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
+			{
+				int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
+				if (pos > prevPos && pos != prevPos)
+				{
+					if (pos == recyclerView.GetAdapter().ItemCount - 1)
+					{
+						if (pos < ((FollowersAdapter)recyclerView.GetAdapter()).ItemCount)
+						{
+							Task.Run(() => presenter.GetItems(20, _followType, _username));
+							prevPos = pos;
+						}
+					}
+				}
+			}
 
             public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
             {
