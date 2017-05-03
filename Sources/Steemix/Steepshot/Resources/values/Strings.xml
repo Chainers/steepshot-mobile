@@ -38,8 +38,8 @@
   <string name = "terms_of_service">Terms of Service</string>
   <string name = "delete_steemix_account">Delete Steepshot Account</string>
   <string name = "follow">Follow</string>
-  <string name = "cost_param">${0}</string>
-  <string name = "cost_param_on_balance">${0} On Balance</string>
+  <string name = "cost_param">{1}{0}</string>
+  <string name = "cost_param_on_balance">{1}{0} On Balance</string>
 
   <!--lyt_change_password.axml-->
   <string name = "text_password">Password</string>

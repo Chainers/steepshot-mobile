@@ -202,10 +202,10 @@ namespace Steepshot
                     Picasso.With(this).Load(Profile.ProfileImage).Resize(ProfileImage.Width, ProfileImage.Width).Into(ProfileImage);
                 else
                     Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Resize(ProfileImage.Width, ProfileImage.Width).Into(ProfileImage);
-                CostButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), Profile.EstimatedBalance));
+				CostButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), Profile.EstimatedBalance, Constants.Currency));
                 PhotosCount.Text = Profile.PostCount.ToString();
                 Description.Text = Profile.About;
-                //Site.Text = Profile.WebSite;
+                Site.Text = Profile.Website;
                 if (!string.IsNullOrEmpty(Profile.Location))
                     Place.Text = Profile.Location.Trim();
                 FollowingCount.Text = Profile.FollowingCount.ToString();
