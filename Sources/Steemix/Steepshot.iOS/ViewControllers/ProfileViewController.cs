@@ -159,8 +159,8 @@ namespace Steepshot.iOS
 				LoadImage(userData.ProfileImage);
 			else
 				avatar.Image = UIImage.FromBundle("ic_user_placeholder");
-			
-			balanceButton.SetTitle($"${userData.EstimatedBalance.ToString()} ON BALANCE", UIControlState.Normal);
+
+			balanceButton.SetTitle($"{Constants.Currency}{userData.EstimatedBalance.ToString()} ON BALANCE", UIControlState.Normal);
 			
 			var buttonsAttributes = new UIStringAttributes
 			{
