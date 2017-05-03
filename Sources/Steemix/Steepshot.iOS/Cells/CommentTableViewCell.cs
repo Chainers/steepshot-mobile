@@ -55,7 +55,7 @@ namespace Steepshot.iOS
 			bodyLabel.Text = post.Body;
 			loginLabel.Text = post.Author;
 			likeLabel.Text = post.NetVotes.ToString();
-			costLabel.Text = $"${post.TotalPayoutValue}";
+			costLabel.Text = $"${post.TotalPayoutReward}";
 			likeButton.Selected = post.Vote;
 			likeButton.Enabled = true;
 

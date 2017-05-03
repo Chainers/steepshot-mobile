@@ -57,6 +57,8 @@ namespace Steepshot.iOS
             {
                 GetTags(((UITextField)sender).Text);
             };
+
+			activeview = searchText;
         }
 
         private void TableTagSelected(int row)

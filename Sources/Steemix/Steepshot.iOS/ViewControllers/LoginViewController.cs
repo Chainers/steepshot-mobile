@@ -53,8 +53,8 @@ namespace Steepshot.iOS
 		{
 			try
 			{
-				var request = new LoginRequest(Username, password.Text);
-				var response = await Api.Login(request);
+				var request = new LoginWithPostingKeyRequest(Username, password.Text);
+				var response = await Api.LoginWithPostingKey(request);
 
 				if (response.Success)
 				{
@@ -68,6 +68,7 @@ namespace Steepshot.iOS
 
 					UserContext.Save();
 
+					UserContext.Instanse.IsHomeFeedLoaded = false;
 					var myViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController; // MainTabBar to const
 					this.NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
 					this.NavigationController.PopViewController(true);
