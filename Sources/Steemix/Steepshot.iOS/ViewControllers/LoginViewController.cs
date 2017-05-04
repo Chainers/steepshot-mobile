@@ -39,7 +39,9 @@ namespace Steepshot.iOS
 				password.ResignFirstResponder();
 				return true;
 			};
-
+#if DEBUG
+			password.Text = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
+#endif
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
 			tw.TextColor = UIColor.White;
 			tw.Text = "PROFILE"; // to constants

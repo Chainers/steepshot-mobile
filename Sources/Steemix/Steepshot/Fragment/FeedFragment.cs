@@ -17,65 +17,65 @@ namespace Steepshot
 	{
 		FeedPresenter presenter;
 
-        public static int SearchRequestCode = 1336;
+		public static int SearchRequestCode = 1336;
 
-        [InjectView(Resource.Id.feed_list)]
-        RecyclerView FeedList;
+		[InjectView(Resource.Id.feed_list)]
+		RecyclerView FeedList;
 
-        [InjectView(Resource.Id.loading_spinner)]
-        ProgressBar Bar;
+		[InjectView(Resource.Id.loading_spinner)]
+		ProgressBar Bar;
 
-        FeedAdapter FeedAdapter;
+		FeedAdapter FeedAdapter;
 
-        [InjectView(Resource.Id.pop_up_arrow)]
-        ImageView arrow;
+		[InjectView(Resource.Id.pop_up_arrow)]
+		ImageView arrow;
 
-        [InjectOnClick(Resource.Id.btn_search)]
-        public void OnSearch(object sender, EventArgs e)
-        {
-            Intent searchIntent = new Intent(this.Activity,typeof(SearchActivity));
-            StartActivityForResult(searchIntent, SearchRequestCode);
-        }
+		[InjectOnClick(Resource.Id.btn_search)]
+		public void OnSearch(object sender, EventArgs e)
+		{
+			Intent searchIntent = new Intent(this.Activity, typeof(SearchActivity));
+			StartActivityForResult(searchIntent, SearchRequestCode);
+		}
 
-        [InjectView(Resource.Id.btn_login)]
-        Button Logout;
+		[InjectView(Resource.Id.btn_login)]
+		Button Logout;
 
-        [InjectOnClick(Resource.Id.btn_login)]
-        public void OnLogout(object sender, EventArgs e)
-        {
-            presenter.Logout();
-            UserPrincipal.Instance.DeleteUser();
-            Intent i = new Intent(Context,typeof(GuestActivity));
-            i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-            StartActivity(i);
-        }
+		[InjectOnClick(Resource.Id.btn_login)]
+		public void OnLogout(object sender, EventArgs e)
+		{
+			presenter.Logout();
+			UserPrincipal.Instance.DeleteUser();
+			Intent i = new Intent(Context, typeof(GuestActivity));
+			i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+			StartActivity(i);
+		}
 
-        public async void OnSearchPosts(string title, PostType type)
-        {
-            Title.Text = title;
+		public async void OnSearchPosts(string title, PostType type)
+		{
+			Title.Text = title;
 			presenter.ClearPosts();
-            Bar.Visibility = ViewStates.Visible;
-			await presenter.GetTopPosts(string.Empty, 20, type, true);
-            Bar.Visibility = ViewStates.Gone;
-        }
+			Bar.Visibility = ViewStates.Visible;
+			await presenter.GetTopPosts(20, type, true);
+			Bar.Visibility = ViewStates.Gone;
+		}
 
-        [InjectView(Resource.Id.Title)]
-        public TextView Title;
+		[InjectView(Resource.Id.Title)]
+		public TextView Title;
 
-        [InjectOnClick(Resource.Id.Title)]
-        public void OnTitleClick(object sender, EventArgs e)
-        {
-            if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
-                ShowFollowing();
-            else
-                HideFollowing();
-        }
+		[InjectOnClick(Resource.Id.Title)]
+		public void OnTitleClick(object sender, EventArgs e)
+		{
+			if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
+				ShowFollowing();
+			else
+				HideFollowing();
+		}
 
-        public const string FollowingFragmentId = "FollowingFragment";
+		public const string FollowingFragmentId = "FollowingFragment";
 
-        public async override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
+		public async override void OnActivityResult(int requestCode, int resultCode, Intent data)
+		{
+			base.OnActivityResult(requestCode, resultCode, data);
 			try
 			{
 				if (requestCode == SearchRequestCode)
@@ -92,69 +92,68 @@ namespace Steepshot
 			}
 			catch
 			{ }
-        }
+		}
 
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            var v = inflater.Inflate(Resource.Layout.lyt_feed, null);
-            Cheeseknife.Inject(this, v);
-            return v;
-        }
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		{
+			var v = inflater.Inflate(Resource.Layout.lyt_feed, null);
+			Cheeseknife.Inject(this, v);
+			return v;
+		}
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
-        {
-            base.OnViewCreated(view, savedInstanceState);
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		{
+			base.OnViewCreated(view, savedInstanceState);
 			Logout.Visibility = ViewStates.Gone;
-            Title.Text = "Trending";
+			Title.Text = "Trending";
 			FeedAdapter = new FeedAdapter(Context, presenter.Posts);
-            FeedList.SetAdapter(FeedAdapter);
-            FeedList.SetLayoutManager(new LinearLayoutManager(Context));
-            FeedList.AddOnScrollListener(new FeedsScrollListener(presenter));
-            FeedAdapter.LikeAction += FeedAdapter_LikeAction;
+			FeedList.SetAdapter(FeedAdapter);
+			FeedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+			FeedList.AddOnScrollListener(new FeedsScrollListener(presenter));
+			FeedAdapter.LikeAction += FeedAdapter_LikeAction;
 			FeedAdapter.UserAction += FeedAdapter_UserAction;
-            FeedAdapter.CommentAction += FeedAdapter_CommentAction;
-            FeedAdapter.PhotoClick += PhotoClick;
+			FeedAdapter.CommentAction += FeedAdapter_CommentAction;
+			FeedAdapter.PhotoClick += PhotoClick;
 			presenter.ViewLoad();
-        }
+		}
 
-        public void PhotoClick(int position)
-        {
-            Intent intent = new Intent(this.Context, typeof(PostPreviewActivity));
-            intent.PutExtra("PhotoURL", presenter.Posts[position].Body);
-            StartActivity(intent);
-        }
+		public void PhotoClick(int position)
+		{
+			Intent intent = new Intent(this.Context, typeof(PostPreviewActivity));
+			intent.PutExtra("PhotoURL", presenter.Posts[position].Body);
+			StartActivity(intent);
+		}
 
-        public class FeedsScrollListener : RecyclerView.OnScrollListener
-        {
-            FeedPresenter presenter;
-            public FeedsScrollListener(FeedPresenter presenter)
-            {
-                this.presenter = presenter;
-            }
-            int prevPos = 0;
-            public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
-                if (pos > prevPos && pos != prevPos)
-                {
-                    if (pos == recyclerView.GetAdapter().ItemCount - 1)
-                    {
-                        if (pos < ((FeedAdapter)recyclerView.GetAdapter()).ItemCount)
-                        {
-                            Task.Run(() => presenter.GetTopPosts(((FeedAdapter)recyclerView.GetAdapter())
-                                .GetItem(((FeedAdapter)recyclerView.GetAdapter()).ItemCount - 1)
-                                .Url, 10, presenter.GetCurrentType()));
-                            prevPos = pos;
-                        }
-                    }
-                }
-            }
+		private class FeedsScrollListener : RecyclerView.OnScrollListener
+		{
+			FeedPresenter presenter;
+			public FeedsScrollListener(FeedPresenter presenter)
+			{
+				this.presenter = presenter;
+			}
+			int prevPos = 0;
+			public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
+			{
+				//int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
+				var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
+				if (pos > prevPos && pos != prevPos)
+				{
+					if (pos == recyclerView.GetAdapter().ItemCount - 1)
+					{
+						if (pos < ((FeedAdapter)recyclerView.GetAdapter()).ItemCount)
+						{
+							Task.Run(() => presenter.GetTopPosts(20, presenter.GetCurrentType()));
+							prevPos = pos;
+						}
+					}
+				}
+			}
 
-            public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
-            {
+			public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
+			{
 
-            }
-        }
+			}
+		}
 
         public override void OnDestroyView()
         {

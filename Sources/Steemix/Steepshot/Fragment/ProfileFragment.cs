@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -47,6 +48,7 @@ namespace Steepshot
 			FollowCont.Visibility = ViewStates.Gone;
 			PostsList.SetLayoutManager(new GridLayoutManager(Context, 3));
 			PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
+			PostsList.AddOnScrollListener(new FeedsScrollListener(presenter));
 		}
 
 		[InjectOnClick(Resource.Id.btn_settings)]
@@ -62,7 +64,7 @@ namespace Steepshot
 
             if(PostsList.GetAdapter()!=null)
                 PostsList.GetAdapter().NotifyDataSetChanged();
-
+			presenter.UserPosts.CollectionChanged += CollectionChanged;
             LoadProfile();
         }
 
@@ -161,7 +163,7 @@ namespace Steepshot
                 FollowersCount.Text = Profile.FollowersCount.ToString();
                 spinner.Visibility = ViewStates.Gone;
                 Content.Visibility = ViewStates.Visible;
-				var Posts = await presenter.GetUserPosts();
+				await presenter.GetUserPosts();
                 if (PostsList.GetAdapter() == null)
                     PostsList.SetAdapter(GridAdapter);
                 else
@@ -220,5 +222,41 @@ namespace Steepshot
                 StartActivity(intent);
             }
         }
+
+		void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			FeedAdapter.NotifyDataSetChanged();
+			GridAdapter.NotifyDataSetChanged();
+		}
+
+		private class FeedsScrollListener : RecyclerView.OnScrollListener
+		{
+			UserProfilePresenter presenter;
+			public FeedsScrollListener(UserProfilePresenter presenter)
+			{
+				this.presenter = presenter;
+			}
+			int prevPos = 0;
+			public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
+			{
+				int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
+				if (pos > prevPos && pos != prevPos)
+				{
+					if (pos == recyclerView.GetAdapter().ItemCount - 1)
+					{
+						if (pos < (recyclerView.GetAdapter()).ItemCount)
+						{
+							Task.Run(() => presenter.GetUserPosts());
+							prevPos = pos;
+						}
+					}
+				}
+			}
+
+			public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
+			{
+
+			}
+		}
     }
 }
