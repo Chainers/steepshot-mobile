@@ -3,6 +3,7 @@ using System;
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -20,6 +21,9 @@ namespace Steepshot
 
 		private PostType type = PostType.Top;
 
+		private bool _hasItems = true;
+		private string _offsetUrl = string.Empty;
+
 		public PostType GetCurrentType()
 		{
 			return type;
@@ -28,7 +32,7 @@ namespace Steepshot
 		public void ViewLoad()
 		{
 			if (Posts.Count == 0)
-				Task.Run(() => GetTopPosts(string.Empty, 20, type, true));
+				Task.Run(() => GetTopPosts(20, type, true));
 		}
 
 		public bool processing = false;
@@ -38,7 +42,7 @@ namespace Steepshot
 			Posts.Clear();
 		}
 
-		public async Task GetTopPosts(string offset, int limit, PostType type, bool clearOld = false)
+		public async Task GetTopPosts(int limit, PostType type, bool clearOld = false)
 		{
 			this.type = type;
 			processing = true;
@@ -47,18 +51,27 @@ namespace Steepshot
 			{
                 SessionId = UserPrincipal.Instance.Cookie,
                 Limit = limit,
-				Offset = offset
+				Offset = _offsetUrl
 			};
 
-			var posts = await Api.GetPosts(postrequest);
+			var response = await Api.GetPosts(postrequest);
 			//TODO:KOA -- Errors not processed
-			if (posts.Success)
+			if (response.Success)
 			{
+
+				var lastItem = response.Result.Results.Last();
+				if (response.Result.Results.Count == limit)
+					response.Result.Results.Remove(lastItem);
+				else
+					_hasItems = false;
+
+				_offsetUrl = lastItem.Url;
+
 				if (clearOld)
 				{
 					Posts.Clear();
 				}
-				foreach (var item in posts.Result.Results)
+				foreach (var item in response.Result.Results)
 				{
 					Posts.Add(item);
 				}

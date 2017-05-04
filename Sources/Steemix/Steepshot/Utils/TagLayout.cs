@@ -85,11 +85,13 @@ namespace Steepshot
 				// Measure the child.
 				MeasureChild(child, widthMeasureSpec, heightMeasureSpec);
 				maxWidth += Math.Max(maxWidth, child.MeasuredWidth);
+				var widthBeforeRow = mLeftWidth;
 				mLeftWidth += child.MeasuredWidth;
 
 				if ((mLeftWidth / Resources.DisplayMetrics.WidthPixels) > rowCount)
 				{
 					maxHeight += child.MeasuredHeight;
+					mLeftWidth += Resources.DisplayMetrics.WidthPixels - widthBeforeRow;
 					rowCount++;
 				}
 				else

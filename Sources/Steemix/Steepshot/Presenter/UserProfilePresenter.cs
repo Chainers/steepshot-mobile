@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
 using Sweetshot.Library.Models.Common;
+using System.Linq;
 
 namespace Steepshot
 {
@@ -20,6 +21,9 @@ namespace Steepshot
 
 		public ObservableCollection<Post> UserPosts = new ObservableCollection<Post>();
 
+		private bool _hasItems = true;
+		private string _offsetUrl = string.Empty;
+
 		public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
 		{
 			if (requireUpdate || userData == null)
@@ -31,18 +35,31 @@ namespace Steepshot
 			return userData;
 		}
 
-		public async Task<UserPostResponse> GetUserPosts()
+		public async Task GetUserPosts()
 		{
-			var req = new UserPostsRequest(userData.Username) { SessionId = UserPrincipal.Instance.Cookie };
-			var response = await Api.GetUserPosts(req);
-			postsData = response.Result;
-            UserPosts.Clear();
-			foreach (var item in response.Result.Results)
-			{
-				UserPosts.Add(item);
-			}
+			if (!_hasItems)
+				return;
 
-			return postsData;
+			var req = new UserPostsRequest(userData.Username) { Offset = _offsetUrl, Limit=20, SessionId = UserPrincipal.Instance.Cookie };
+			var response = await Api.GetUserPosts(req);
+
+			if (response.Success)
+			{
+				var lastItem = response.Result.Results.Last();
+				if (response.Result.Results.Count == 20)
+					response.Result.Results.Remove(lastItem);
+				else
+					_hasItems = false;
+
+				_offsetUrl = lastItem.Url;
+
+				postsData = response.Result;
+
+				foreach (var item in response.Result.Results)
+				{
+					UserPosts.Add(item);
+				}
+			}
 		}
 
 		public string GetPostsOffset()

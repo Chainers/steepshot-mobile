@@ -83,7 +83,7 @@ namespace Steepshot
             title.Text = _title;
             presenter.ClearPosts();
             Bar.Visibility = ViewStates.Visible;
-            await presenter.GetTopPosts(string.Empty, 20, type, true);
+            await presenter.GetTopPosts(20, type, true);
             Bar.Visibility = ViewStates.Gone;
         }
 
@@ -148,7 +148,7 @@ namespace Steepshot
             this.StartActivity(intent);
         }
 
-        public class FeedsScrollListener : RecyclerView.OnScrollListener
+        private class FeedsScrollListener : RecyclerView.OnScrollListener
         {
             FeedPresenter presenter;
             public FeedsScrollListener(FeedPresenter presenter)
@@ -165,9 +165,7 @@ namespace Steepshot
                     {
                         if (pos < ((FeedAdapter)recyclerView.GetAdapter()).ItemCount)
                         {
-                            Task.Run(() => presenter.GetTopPosts(((FeedAdapter)recyclerView.GetAdapter())
-                                .GetItem(((FeedAdapter)recyclerView.GetAdapter()).ItemCount - 1)
-                                .Url, 10, presenter.GetCurrentType()));
+                            Task.Run(() => presenter.GetTopPosts(20, presenter.GetCurrentType()));
                             prevPos = pos;
                         }
                     }

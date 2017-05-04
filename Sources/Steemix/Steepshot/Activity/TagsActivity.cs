@@ -84,7 +84,7 @@ namespace Steepshot
 
 		void Adapter_Click(int obj)
 		{
-			if (SelectedCategories.Find((finded) => finded.Name.Equals(Adapter.GetItem(obj).Name)) == null)
+			if (SelectedCategories.Count < 4 && SelectedCategories.Find((finded) => finded.Name.Equals(Adapter.GetItem(obj).Name)) == null)
 			{
 				SelectedCategories.Add(Adapter.GetItem(obj));
 				AddTag(Adapter.GetItem(obj).Name);

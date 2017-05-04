@@ -119,8 +119,7 @@ namespace Steepshot
 			if (requestCode == TagRequestCode && resultCode == Result.Ok)
 			{
                 var b = data.GetBundleExtra("TAGS");
-                tags.AddRange(b.GetStringArray("TAGS").ToList());
-                tags = tags.Distinct().ToList();
+				tags = b.GetStringArray("TAGS").Distinct().ToList();
                 AddTags(tags);
 			}
 		}

@@ -47,35 +47,34 @@
             android:drawablePadding="10dp"
             android:background="@drawable/white_corner" />
     </RelativeLayout>
-  <ScrollView
-    android:id="@+id/scroll"
-    android:layout_below="@+id/search_layout"
-    android:layout_width="match_parent"
-    android:layout_height="60dp">
-    <Steepshot.TagLayout
-        android:id="@+id/tag_container"
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_below="@+id/search_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-  </ScrollView>
-  <Button
-    android:id="@+id/btn_post"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textColor="@color/color_primary"
-    android:textAllCaps="true"
-    android:textStyle="bold"
-    android:background="@color/white"
-    android:layout_below="@+id/scroll"
-    android:textSize="15sp"
-    style="?android:attr/borderlessButtonStyle"
-    android:text="ADD THESE TAGS" />
-  <View
-    android:id="@+id/div"
-    android:layout_below="@+id/btn_post"
-    android:layout_width="match_parent"
-    android:background="@color/light_gray"
-    android:layout_height ="1px"
-    />
+        android:layout_height="80dp">
+        <Steepshot.TagLayout
+            android:id="@+id/tag_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+    <Button
+        android:id="@+id/btn_post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_primary"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:background="@color/white"
+        android:layout_below="@+id/scroll"
+        android:textSize="15sp"
+        style="?android:attr/borderlessButtonStyle"
+        android:text="ADD THESE TAGS" />
+    <View
+        android:id="@+id/div"
+        android:layout_below="@+id/btn_post"
+        android:layout_width="match_parent"
+        android:background="@color/light_gray"
+        android:layout_height="1px" />
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:background="@color/white"
