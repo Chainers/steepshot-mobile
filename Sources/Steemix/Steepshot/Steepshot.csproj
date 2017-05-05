@@ -138,6 +138,7 @@
     <Compile Include="Presenter\PreSignInPresenter.cs" />
     <Compile Include="View\PreSignInView.cs" />
     <Compile Include="Data\Constants.cs" />
+    <Compile Include="Utils\TopCropScaleImageView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -151,6 +152,10 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_pre_sign_in.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_golos_logo.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_golos_logo.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_golos_logo.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos_logo.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />

@@ -38,11 +38,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <FrameLayout
+                android:id="@+id/photo_frame"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:background="@color/black"
-                android:layout_weight="1">
-                <Steepshot.ScaleImageView
+                android:background="@color/black">
+                <Steepshot.TopCropScaleImageView
                     android:id="@+id/photo"
                     android:layout_height="match_parent"
                     android:layout_width="match_parent" />

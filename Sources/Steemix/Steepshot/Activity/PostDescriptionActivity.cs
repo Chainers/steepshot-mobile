@@ -69,7 +69,7 @@ namespace Steepshot
 		TagLayout tagLayout;
 
 		[InjectView(Resource.Id.photo)]
-		ScaleImageView PhotoView;
+		ImageView PhotoView;
 		string Path;
 
 		List<string> tags = new List<string>();
@@ -83,6 +83,11 @@ namespace Steepshot
 
 			PhotoView.SetBackgroundColor(Color.Black);
             PhotoView.DrawingCacheEnabled = true;
+
+			var photoFrame = FindViewById<FrameLayout>(Resource.Id.photo_frame);
+			var parameters = photoFrame.LayoutParameters;
+			parameters.Height = Resources.DisplayMetrics.WidthPixels;
+			photoFrame.LayoutParameters = parameters;
 
 			Path = Intent.GetStringExtra("FILEPATH");
 		}
@@ -158,7 +163,7 @@ namespace Steepshot
 			RunOnUiThread(() =>
 			{
 				PhotoView.SetImageBitmap(b);
-				PhotoView.SetZoom(1);
+				//PhotoView.SetZoom(1);
 				PhotoView.Invalidate();
 			});
 		}
