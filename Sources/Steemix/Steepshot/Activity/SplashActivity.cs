@@ -7,7 +7,7 @@ using Android.Widget;
 
 namespace Steepshot
 {
-	[Activity(Label = "SteepShot", MainLauncher = true, Icon = "@mipmap/ic_launcher", ScreenOrientation = ScreenOrientation.Portrait, NoHistory =true)]
+	[Activity(Label = "Steepshot", MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
 	public class SplashActivity : BaseActivity, SplashView
 	{
 		SplashPresenter presenter;

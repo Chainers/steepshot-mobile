@@ -29,7 +29,7 @@
         android:layout_marginTop="60dp"
         android:layout_below="@+id/posting_key_title"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/logo_login" />
 <!--Password-->
     <EditText
         android:id="@+id/input_password"
@@ -86,6 +86,7 @@
     </RelativeLayout>
 <!--Create an account-->
     <Button
+        android:visibility="gone"
         android:text="What is posting key?"
         android:textColor="@color/light_blue"
         android:background="@android:color/transparent"

@@ -13,4 +13,5 @@
   <item name="material_grey_600" type="color">#FFFFFF</item>
 	<item name="login_gray" type="color">#F7F7F7</item>
 	<item name="rgb55_176_233" type="color">#37B0E9</item>
+	<item name="rgb58_176_227" type="color">#3AB0E3</item>
 </resources>
