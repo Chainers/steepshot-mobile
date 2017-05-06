@@ -1045,29 +1045,29 @@ namespace Steepshot
 		public partial class Color
 		{
 			
-			// aapt resource value: 0x7f0c0053
-			public const int abc_background_cache_hint_selector_material_dark = 2131492947;
-			
 			// aapt resource value: 0x7f0c0054
-			public const int abc_background_cache_hint_selector_material_light = 2131492948;
+			public const int abc_background_cache_hint_selector_material_dark = 2131492948;
+			
+			// aapt resource value: 0x7f0c0055
+			public const int abc_background_cache_hint_selector_material_light = 2131492949;
 			
 			// aapt resource value: 0x7f0c0000
 			public const int abc_input_method_navigation_guard = 2131492864;
 			
-			// aapt resource value: 0x7f0c0055
-			public const int abc_primary_text_disable_only_material_dark = 2131492949;
-			
 			// aapt resource value: 0x7f0c0056
-			public const int abc_primary_text_disable_only_material_light = 2131492950;
+			public const int abc_primary_text_disable_only_material_dark = 2131492950;
 			
 			// aapt resource value: 0x7f0c0057
-			public const int abc_primary_text_material_dark = 2131492951;
+			public const int abc_primary_text_disable_only_material_light = 2131492951;
 			
 			// aapt resource value: 0x7f0c0058
-			public const int abc_primary_text_material_light = 2131492952;
+			public const int abc_primary_text_material_dark = 2131492952;
 			
 			// aapt resource value: 0x7f0c0059
-			public const int abc_search_url_text = 2131492953;
+			public const int abc_primary_text_material_light = 2131492953;
+			
+			// aapt resource value: 0x7f0c005a
+			public const int abc_search_url_text = 2131492954;
 			
 			// aapt resource value: 0x7f0c0001
 			public const int abc_search_url_text_normal = 2131492865;
@@ -1078,11 +1078,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0003
 			public const int abc_search_url_text_selected = 2131492867;
 			
-			// aapt resource value: 0x7f0c005a
-			public const int abc_secondary_text_material_dark = 2131492954;
-			
 			// aapt resource value: 0x7f0c005b
-			public const int abc_secondary_text_material_light = 2131492955;
+			public const int abc_secondary_text_material_dark = 2131492955;
+			
+			// aapt resource value: 0x7f0c005c
+			public const int abc_secondary_text_material_light = 2131492956;
 			
 			// aapt resource value: 0x7f0c0004
 			public const int accent_material_dark = 2131492868;
@@ -1273,6 +1273,9 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0052
 			public const int rgb55_176_233 = 2131492946;
 			
+			// aapt resource value: 0x7f0c0053
+			public const int rgb58_176_227 = 2131492947;
+			
 			// aapt resource value: 0x7f0c0029
 			public const int ripple_material_dark = 2131492905;
 			
@@ -1309,11 +1312,11 @@ namespace Steepshot
 			// aapt resource value: 0x7f0c0030
 			public const int switch_thumb_disabled_material_light = 2131492912;
 			
-			// aapt resource value: 0x7f0c005c
-			public const int switch_thumb_material_dark = 2131492956;
-			
 			// aapt resource value: 0x7f0c005d
-			public const int switch_thumb_material_light = 2131492957;
+			public const int switch_thumb_material_dark = 2131492957;
+			
+			// aapt resource value: 0x7f0c005e
+			public const int switch_thumb_material_light = 2131492958;
 			
 			// aapt resource value: 0x7f0c0031
 			public const int switch_thumb_normal_material_dark = 2131492913;
@@ -1912,46 +1915,55 @@ namespace Steepshot
 			public const int ic_share_arrow = 2130837591;
 			
 			// aapt resource value: 0x7f020058
-			public const int ic_user_placeholder = 2130837592;
+			public const int ic_steem_logo = 2130837592;
 			
 			// aapt resource value: 0x7f020059
-			public const int ic_wallet = 2130837593;
+			public const int ic_user_placeholder = 2130837593;
 			
 			// aapt resource value: 0x7f02005a
-			public const int ic_white_logo = 2130837594;
-			
-			// aapt resource value: 0x7f020065
-			public const int notification_template_icon_bg = 2130837605;
+			public const int ic_wallet = 2130837594;
 			
 			// aapt resource value: 0x7f02005b
-			public const int photo_btn_bcak = 2130837595;
+			public const int ic_white_logo = 2130837595;
 			
 			// aapt resource value: 0x7f02005c
-			public const int primary_corner_white_btn = 2130837596;
+			public const int logo_login = 2130837596;
+			
+			// aapt resource value: 0x7f020068
+			public const int notification_template_icon_bg = 2130837608;
 			
 			// aapt resource value: 0x7f02005d
-			public const int primary_order = 2130837597;
+			public const int photo_btn_bcak = 2130837597;
 			
 			// aapt resource value: 0x7f02005e
-			public const int snackbar_background = 2130837598;
+			public const int primary_corner_white_btn = 2130837598;
 			
 			// aapt resource value: 0x7f02005f
-			public const int splash = 2130837599;
+			public const int primary_order = 2130837599;
 			
 			// aapt resource value: 0x7f020060
-			public const int white_bottom_shadow = 2130837600;
+			public const int snackbar_background = 2130837600;
 			
 			// aapt resource value: 0x7f020061
-			public const int white_corner = 2130837601;
+			public const int splash = 2130837601;
 			
 			// aapt resource value: 0x7f020062
-			public const int white_corner_primary_btn = 2130837602;
+			public const int splash_logo = 2130837602;
 			
 			// aapt resource value: 0x7f020063
-			public const int white_solid_btn = 2130837603;
+			public const int white_bottom_shadow = 2130837603;
 			
 			// aapt resource value: 0x7f020064
-			public const int white_top_shadow = 2130837604;
+			public const int white_corner = 2130837604;
+			
+			// aapt resource value: 0x7f020065
+			public const int white_corner_primary_btn = 2130837605;
+			
+			// aapt resource value: 0x7f020066
+			public const int white_solid_btn = 2130837606;
+			
+			// aapt resource value: 0x7f020067
+			public const int white_top_shadow = 2130837607;
 			
 			static Drawable()
 			{
@@ -3057,6 +3069,9 @@ namespace Steepshot
 			
 			// aapt resource value: 0x7f030000
 			public const int ic_launcher = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int launch_icon = 2130903041;
 			
 			static Mipmap()
 			{

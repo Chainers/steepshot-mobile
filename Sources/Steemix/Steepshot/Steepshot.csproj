@@ -156,6 +156,23 @@
     <AndroidResource Include="Resources\drawable-hdpi\ic_golos_logo.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_golos_logo.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_golos_logo.png" />
+    <AndroidResource Include="Resources\mipmap-mdpi\launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-hdpi\launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xhdpi\launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxhdpi\launch_icon.png" />
+    <AndroidResource Include="Resources\mipmap-xxxhdpi\launch_icon.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\logo_login.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\logo_login.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\logo_login.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\logo_login.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\ic_steem_logo.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_steem_logo.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_steem_logo.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_steem_logo.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\splash_logo.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\splash_logo.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\splash_logo.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\splash_logo.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />

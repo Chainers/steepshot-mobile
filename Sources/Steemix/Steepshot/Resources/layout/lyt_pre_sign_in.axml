@@ -24,7 +24,7 @@
             android:layout_marginRight="10dp" />
         <ImageView
             android:id="@+id/steem_logo"
-            android:src="@drawable/ic_logo"
+            android:src="@drawable/ic_steem_logo"
             android:layout_width="20dp"
             android:layout_height="20dp" />
     </LinearLayout>
@@ -40,8 +40,8 @@
         android:textColor="@color/black" />
     <ImageView
         android:id="@+id/ic_logo"
-        android:src="@drawable/ic_logo"
-        android:layout_width="match_parent"
+        android:src="@drawable/logo_login"
+        android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginTop="60dp"
         android:layout_marginLeft="25dp"
@@ -96,6 +96,7 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
     <TextView
+        android:visibility="gone"
         android:id="@+id/sign_up_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -106,6 +107,7 @@
         android:textSize="12sp"
         android:textColor="@color/black" />
     <Button
+        android:visibility="gone"
         android:id="@+id/sign_up_btn"
         android:text="sign up for free"
         android:textColor="@color/rgb55_176_233"
