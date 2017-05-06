@@ -10,7 +10,7 @@
   <string name = "text_logout">Logout</string>
   <string name = "text_create_acc">Create an account</string>
   <string name = "text_forgot_pass">Forgot password?</string>
-  <string name = "ApplicationName">SteepShot</string>
+  <string name = "ApplicationName">Steepshot</string>
   <string name ="need_login">You need to be logged in to perform this action</string>
   <string name = "following">Following</string>
   <string name = "new_photos">New photos"</string>
