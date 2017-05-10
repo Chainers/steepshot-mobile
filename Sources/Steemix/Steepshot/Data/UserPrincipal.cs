@@ -58,7 +58,7 @@ namespace Steepshot
 					if (CurrentSessionUser != null)
 						return true;
 
-					var items = db.Query<UserInfo>("select * FROM UserInfo");
+					var items = db.Query<UserInfo>("SELECT * FROM UserInfo");
 					return (items != null && items.Count > 0) ? true : false;
 				}
 				catch (Exception e)
