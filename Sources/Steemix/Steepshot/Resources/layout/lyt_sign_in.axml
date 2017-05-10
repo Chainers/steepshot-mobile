@@ -7,7 +7,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello, @joseph.kal"
+        android:text="Hello, dear user"
         android:layout_marginTop="34dp"
         android:layout_centerHorizontal="true"
         android:textSize="22sp"

@@ -147,7 +147,7 @@ namespace Steepshot
 				UserPrincipal.Instance.CurrentNetwork = network;
 				BasePresenter.SwitchNetwork();
 				Intent i = new Intent(ApplicationContext, typeof(RootActivity));
-				i.AddFlags(ActivityFlags.ClearTask);
+				i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
 				StartActivity(i);
 			}
 		}

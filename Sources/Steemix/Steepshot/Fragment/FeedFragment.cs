@@ -40,14 +40,17 @@ namespace Steepshot
 		[InjectView(Resource.Id.btn_login)]
 		Button Logout;
 
+		[InjectView(Resource.Id.logo_login)]
+		ImageView LogoImage;
+
 		[InjectOnClick(Resource.Id.btn_login)]
 		public void OnLogout(object sender, EventArgs e)
 		{
-			presenter.Logout();
+			/*presenter.Logout();
 			UserPrincipal.Instance.DeleteUser();
 			Intent i = new Intent(Context, typeof(GuestActivity));
 			i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-			StartActivity(i);
+			StartActivity(i);*/
 		}
 
 		public async void OnSearchPosts(string title, PostType type)
@@ -105,6 +108,8 @@ namespace Steepshot
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			Logout.Visibility = ViewStates.Gone;
+			LogoImage.Visibility = ViewStates.Visible;
+
 			Title.Text = "Trending";
 			FeedAdapter = new FeedAdapter(Context, presenter.Posts);
 			FeedList.SetAdapter(FeedAdapter);
