@@ -144,6 +144,7 @@ namespace Steepshot
 		{
 			if (UserPrincipal.Instance.CurrentNetwork != network)
 			{
+				UserPrincipal.Instance.ClearUser();
 				UserPrincipal.Instance.CurrentNetwork = network;
 				BasePresenter.SwitchNetwork();
 				Intent i = new Intent(ApplicationContext, typeof(RootActivity));

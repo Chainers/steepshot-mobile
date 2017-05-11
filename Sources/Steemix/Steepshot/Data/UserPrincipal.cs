@@ -126,6 +126,11 @@ namespace Steepshot
 			}
 		}
 
+		public void ClearUser()
+		{
+			CurrentSessionUser = null;
+		}
+
 		public List<UserInfo> GetAllAccounts()
 		{
 			var items = db.Query<UserInfo>("select * FROM UserInfo");

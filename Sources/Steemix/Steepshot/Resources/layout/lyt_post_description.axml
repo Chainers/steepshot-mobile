@@ -42,7 +42,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:background="@color/black">
-                <Steepshot.TopCropScaleImageView
+                <ImageView
                     android:id="@+id/photo"
                     android:layout_height="match_parent"
                     android:layout_width="match_parent" />
