@@ -13,6 +13,9 @@ namespace Steepshot.iOS
 	partial class PreLoginViewController
 	{
 		[Outlet]
+		UIKit.UIActivityIndicatorView activityIndicator { get; set; }
+
+		[Outlet]
 		UIKit.UISwitch devSwitch { get; set; }
 
 		[Outlet]
@@ -44,6 +47,11 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (devSwitch != null) {
+				devSwitch.Dispose ();
+				devSwitch = null;
+			}
+
 			if (golosImg != null) {
 				golosImg.Dispose ();
 				golosImg = null;
@@ -62,6 +70,11 @@ namespace Steepshot.iOS
 			if (loginText != null) {
 				loginText.Dispose ();
 				loginText = null;
+			}
+
+			if (logo != null) {
+				logo.Dispose ();
+				logo = null;
 			}
 
 			if (networkSwitch != null) {
@@ -84,14 +97,9 @@ namespace Steepshot.iOS
 				steemImg = null;
 			}
 
-			if (devSwitch != null) {
-				devSwitch.Dispose ();
-				devSwitch = null;
-			}
-
-			if (logo != null) {
-				logo.Dispose ();
-				logo = null;
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
 			}
 		}
 	}

@@ -103,6 +103,11 @@
     <ImageAsset Include="Assets.xcassets\Contents.json">
       <InProject>false</InProject>
     </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -227,13 +232,24 @@
     <BundleResource Include="Resources\ic_gray_grid.png" />
     <BundleResource Include="Resources\ic_gray_list.png" />
     <BundleResource Include="Resources\ic_micro_heart.png" />
-    <BundleResource Include="Resources\ic_big_logo.png" />
     <BundleResource Include="Resources\ic_send.png" />
     <BundleResource Include="Resources\eye.png" />
     <BundleResource Include="Resources\eye%402x.png" />
     <BundleResource Include="Resources\eye%403x.png" />
     <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
     <BundleResource Include="Resources\Fonts\Lato-Heavy.ttf" />
+    <BundleResource Include="Resources\golos.png" />
+    <BundleResource Include="Resources\golos%402x.png" />
+    <BundleResource Include="Resources\golos%403x.png" />
+    <BundleResource Include="Resources\logo_login.png" />
+    <BundleResource Include="Resources\logo_login%40x2.png" />
+    <BundleResource Include="Resources\logo_login%40x3.png" />
+    <BundleResource Include="Resources\splash_logo.png" />
+    <BundleResource Include="Resources\splash_logo%40x2.png" />
+    <BundleResource Include="Resources\splash_logo%40x3.png" />
+    <BundleResource Include="Resources\steemit.png" />
+    <BundleResource Include="Resources\steemit%40x2.png" />
+    <BundleResource Include="Resources\steemit%40x3.png" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

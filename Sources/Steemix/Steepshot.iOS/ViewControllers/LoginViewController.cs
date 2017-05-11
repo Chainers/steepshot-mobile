@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
 using UIKit;
@@ -33,13 +34,16 @@ namespace Steepshot.iOS
 			password.Font = Constants.Bold135;
 			loginButton.Font = Constants.Heavy115;
 			postingKeyButton.Font = Constants.Bold15;
-
+#if DEBUG
+			password.Text = "***REMOVED***";
+#endif
 			password.ShouldReturn += (textField) =>
 			{
 				password.ResignFirstResponder();
 				return true;
 			};
-
+			password.RightView = new UIView(new CGRect(0, 0, eyeButton.Frame.Width + 10, 0));
+			password.RightViewMode = UITextFieldViewMode.Always;
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
 			tw.TextColor = UIColor.White;
 			tw.Text = "PROFILE"; // to constants
@@ -51,6 +55,8 @@ namespace Steepshot.iOS
 
 		private async Task Login()
 		{
+			activityIndicator.StartAnimating();
+			loginButton.Enabled = false;
 			try
 			{
 				var request = new LoginWithPostingKeyRequest(Username, password.Text);
@@ -95,6 +101,11 @@ namespace Steepshot.iOS
 			catch (Exception ex)
 			{
 
+			}
+			finally
+			{
+				loginButton.Enabled = true;
+				activityIndicator.StopAnimating();
 			}
 		}
 
