@@ -40,6 +40,10 @@ namespace Steepshot.iOS
 				return true;
 			};
 
+#if DEBUG
+			loginText.Text = "joseph.kalu";
+#endif
+
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
 			tw.TextColor = UIColor.White;
 			tw.Text = "PROFILE"; // to constants
@@ -94,8 +98,11 @@ namespace Steepshot.iOS
 
 		private async Task GetUserInfo()
 		{
+			activityIndicator.StartAnimating();
+			loginButton.Enabled = false;
 			try
 			{
+				await Task.Delay(5000);
 				var req = new UserProfileRequest(loginText.Text) { };
 				var response = await Api.GetUserProfile(req);
 				if (response.Success)
@@ -126,7 +133,12 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-				
+
+			}
+			finally
+			{
+				loginButton.Enabled = true;
+				activityIndicator.StopAnimating();
 			}
 		}
 	}

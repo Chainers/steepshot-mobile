@@ -13,6 +13,9 @@ namespace Steepshot.iOS
 	partial class LoginViewController
 	{
 		[Outlet]
+		UIKit.UIActivityIndicatorView activityIndicator { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView avatar { get; set; }
 
 		[Outlet]
@@ -68,6 +71,11 @@ namespace Steepshot.iOS
 			if (postingLabel != null) {
 				postingLabel.Dispose ();
 				postingLabel = null;
+			}
+
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
 			}
 		}
 	}
