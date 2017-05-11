@@ -14,6 +14,8 @@ using Square.Picasso;
 using System.Linq;
 using Java.IO;
 using System.IO;
+using Android.Media;
+using System.Threading.Tasks;
 
 namespace Steepshot
 {
@@ -40,29 +42,37 @@ namespace Steepshot
         public async void OnPost(object sender, EventArgs e)
         {
             loadLayout.Visibility = ViewStates.Visible;
-            PhotoView.BuildDrawingCache();
-            var b = PhotoView.DrawingCache;
-            byte[] bitmapData;
-            using (var stream = new MemoryStream())
-            {
-                b.Compress(Bitmap.CompressFormat.Png, 0, stream);
-                bitmapData = stream.ToArray();
-            }
-			var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
-                UserPrincipal.Instance.CurrentUser.SessionId,
-                description.Text,
-                bitmapData,
-                tags.ToArray()
-                ));
-            loadLayout.Visibility = ViewStates.Gone;
-            if (resp.Errors.Count > 0)
-            {
-                Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
-            }
-            else
-            {
-                Finish();
-            }
+			try
+			{
+				Bitmap bitmap = BitmapFactory.DecodeFile(Path);
+				byte[] bitmapData;
+				using (var stream = new MemoryStream())
+				{
+					bitmap.Compress(Bitmap.CompressFormat.Png, 0, stream);
+					bitmapData = stream.ToArray();
+				}
+				var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
+					UserPrincipal.Instance.CurrentUser.SessionId,
+					description.Text,
+					bitmapData,
+					tags.ToArray()));
+				if (resp.Errors.Count > 0)
+				{
+					Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
+				}
+				else
+				{
+					Finish();
+				}
+			}
+			catch (Exception ex)
+			{
+				
+			}
+			finally
+			{
+				loadLayout.Visibility = ViewStates.Gone;
+			}
         }
 
         [InjectView(Resource.Id.tag_container)]
@@ -82,7 +92,7 @@ namespace Steepshot
 			Cheeseknife.Inject(this);
 
 			PhotoView.SetBackgroundColor(Color.Black);
-            PhotoView.DrawingCacheEnabled = true;
+            //PhotoView.DrawingCacheEnabled = true;
 
 			var photoFrame = FindViewById<FrameLayout>(Resource.Id.photo_frame);
 			var parameters = photoFrame.LayoutParameters;
@@ -132,7 +142,9 @@ namespace Steepshot
 		protected override void OnPostCreate(Bundle savedInstanceState)
 		{
 			base.OnPostCreate(savedInstanceState);
+
 			Picasso.With(this).Load(new Java.IO.File(Path)).Into(this);
+
 			AddTags(tags);
 		}
 
@@ -151,7 +163,7 @@ namespace Steepshot
 
 		public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
 		{
-			int dstWidth = 0;
+			/*int dstWidth = 0;
 			int dstHeight = 0;
 			float coeff = 0;
 
@@ -159,14 +171,40 @@ namespace Steepshot
 			dstWidth = Resources.DisplayMetrics.WidthPixels;
 			dstHeight = (int)(dstWidth * coeff);
 
-			var b = Bitmap.CreateScaledBitmap(p0, dstWidth, dstHeight, true);
+			var b = Bitmap.CreateScaledBitmap(p0, dstWidth, dstHeight, true);*/
 			RunOnUiThread(() =>
 			{
-				PhotoView.SetImageBitmap(b);
+				PhotoView.SetImageBitmap(p0);
 				//PhotoView.SetZoom(1);
-				PhotoView.Invalidate();
+				//PhotoView.Invalidate();
 			});
 		}
+
+		/*private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
+		{
+			ExifInterface ei = new ExifInterface(selectedImage);
+			int orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
+
+			switch ((Android.Media.Orientation)orientation)
+			{
+				case Android.Media.Orientation.Rotate90:
+					return RotateImage(img, 90);
+				case Android.Media.Orientation.Rotate180:
+					return RotateImage(img, 180);
+				case Android.Media.Orientation.Rotate270:
+					return RotateImage(img, 270);
+				default:
+					return img;
+			}
+		}
+
+		private static Bitmap RotateImage(Bitmap img, int degree)
+		{
+			Matrix matrix = new Matrix();
+			matrix.PostRotate(degree);
+			Bitmap rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
+			return rotatedImg;
+		}*/
 
 		public void OnPrepareLoad(Drawable p0)
 		{

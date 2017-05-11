@@ -1,7 +1,8 @@
 using System;
+using Android.Content;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.V4.App;
+using Android.Provider;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
@@ -21,17 +22,28 @@ namespace Steepshot
 		[InjectView(Resource.Id.btn_switch)]
 		ImageButton SwitchButton;
 
+		private Java.IO.File photo;
+
+		private string stringPath;
+
 		[InjectOnClick(Resource.Id.btn_switch)]
 		public void OnSwitcherClick(object sender, EventArgs e)
 		{
-			if (ChildFragmentManager.FindFragmentByTag(GridFragmentId) != null)
+			var directory = GetDirectoryForPictures();
+			photo = new Java.IO.File(directory, System.Guid.NewGuid().ToString());
+
+			Intent intent = new Intent(MediaStore.ActionImageCapture);
+			intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(photo));
+			StartActivityForResult(intent, 0);
+
+			/*if (ChildFragmentManager.FindFragmentByTag(GridFragmentId) != null)
 			{
 				OpenCamera();
 			}
 			else if (ChildFragmentManager.FindFragmentByTag(CameraFragmentId) != null)
 			{
 				OpenGrid();
-			}
+			}*/
 		}
 
 		public const string CameraFragmentId = "CameraFragmentId";
@@ -42,6 +54,17 @@ namespace Steepshot
 			var v = inflater.Inflate(Resource.Layout.lyt_fragment_photo, null);
 			Cheeseknife.Inject(this, v);
 			return v;
+		}
+
+		public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+		{
+			base.OnActivityResult(requestCode, resultCode, data);
+			if (resultCode == -1)
+			{
+				Intent i = new Intent(Context, typeof(PostDescriptionActivity));
+				i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(photo).Path);
+				Context.StartActivity(i);
+			}
 		}
 
 		public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -68,6 +91,17 @@ namespace Steepshot
 		{
 			base.OnDestroyView();
 			Cheeseknife.Reset(this);
+		}
+
+		private Java.IO.File GetDirectoryForPictures()
+		{
+			var _dir = new Java.IO.File(
+				Android.OS.Environment.GetExternalStoragePublicDirectory(
+					Android.OS.Environment.DirectoryPictures), "SteepShot");
+			if (!_dir.Exists())
+				_dir.Mkdirs();
+			
+			return _dir;
 		}
 
 		protected override void CreatePresenter()

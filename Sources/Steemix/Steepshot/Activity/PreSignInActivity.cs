@@ -110,10 +110,11 @@ namespace Steepshot
 			{
 				if (response.Success)
 				{
-					_newAccountNetwork = null;
 					var intent = new Intent(this, typeof(SignInActivity));
 					intent.PutExtra("login", login);
 					intent.PutExtra("avatar_url", response.Result.ProfileImage);
+					intent.PutExtra("newNetwork", _newAccountNetwork);
+					_newAccountNetwork = null;
 					StartActivity(intent);
 				}
 				else

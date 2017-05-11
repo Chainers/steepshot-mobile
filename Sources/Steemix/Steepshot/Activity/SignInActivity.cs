@@ -12,7 +12,7 @@ using Square.Picasso;
 
 namespace Steepshot
 {
-    [Activity(NoHistory = true, ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
 	public class SignInActivity : BaseActivity, SignInView
     {
 		SignInPresenter presenter;
@@ -29,6 +29,8 @@ namespace Steepshot
 		[InjectView(Resource.Id.title)]
 		TextView title;
 
+		private string _newAccountNetwork;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -38,13 +40,8 @@ namespace Steepshot
 			_username = Intent.GetStringExtra("login");
 			title.Text = $"Hello, {_username}";
 			var profileImage = Intent.GetStringExtra("avatar_url");
-            
+            _newAccountNetwork = Intent.GetStringExtra("newNetwork");
             _password = FindViewById<EditText>(Resource.Id.input_password);
-
-            if (UserPrincipal.Instance.CurrentUser != null)
-            {
-                _password.Text = UserPrincipal.Instance.CurrentUser.Password;
-            }
 
             // TODO:KOA: Stub Login/Pass for test
             
@@ -96,6 +93,7 @@ namespace Steepshot
             {
                 if (response.Success)
                 {
+					_newAccountNetwork = null;
 					UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
                     var intent = new Intent(this, typeof(RootActivity));
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
@@ -122,6 +120,16 @@ namespace Steepshot
             /*var intent = new Intent(this, typeof(SignUpActivity));
             StartActivity(intent);*/
         }
+
+		protected override void OnDestroy()
+		{
+			if (!string.IsNullOrEmpty(_newAccountNetwork))
+			{
+				UserPrincipal.Instance.CurrentNetwork = _newAccountNetwork == Constants.Steem ? Constants.Golos : Constants.Steem;
+				BasePresenter.SwitchNetwork();
+			}
+			base.OnDestroy();
+		}
 
 		protected override void CreatePresenter()
 		{
