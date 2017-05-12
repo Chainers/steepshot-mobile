@@ -8,6 +8,7 @@ using Com.Lilarcor.Cheeseknife;
 using Sweetshot.Library.Models.Requests;
 using Android.Support.V4.Content;
 using System.Threading.Tasks;
+using Android.Content;
 
 namespace Steepshot
 {
@@ -48,6 +49,7 @@ namespace Steepshot
             _followersList.SetLayoutManager(new LinearLayoutManager(this));
 			_followersList.AddOnScrollListener(new FollowersScrollListener(presenter, username, _friendsType));
             _followersAdapter.FollowAction += FollowersAdapter_FollowAction;
+			_followersAdapter.UserAction += FollowersAdapter_UserAction;
         }
 
         public class FollowersScrollListener : RecyclerView.OnScrollListener
@@ -100,6 +102,13 @@ namespace Steepshot
                 _followersAdapter.NotifyDataSetChanged();
             }
         }
+
+		async void FollowersAdapter_UserAction(int position)
+		{
+			Intent intent = new Intent(this, typeof(ProfileActivity));
+			intent.PutExtra("ID", presenter.Collection[position].Author);
+			this.StartActivity(intent);
+		}
 
         [InjectOnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
