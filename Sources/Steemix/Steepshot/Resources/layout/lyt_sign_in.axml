@@ -55,12 +55,24 @@
         android:layout_marginLeft="40dp"
         android:layout_below="@+id/input_password"
         android:background="@android:color/white" />
+    <Button
+        android:drawableLeft="@drawable/ic_qr"
+        android:text="  Scan posting key"
+        android:textColor="@color/light_blue"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/dp_button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/qr_button"
+        android:layout_marginBottom="37dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/input_password" />
 <!--Login-->
     <RelativeLayout
         android:id="@+id/sign_in_cont"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/input_password"
+        android:layout_below="@+id/qr_button"
         android:background="@color/light_blue"
         android:layout_marginTop="10dp"
         android:layout_marginRight="25dp"
@@ -85,17 +97,6 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
 <!--Create an account-->
-    <Button
-        android:text="QR"
-        android:textColor="@color/light_blue"
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/dp_button_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/qr_button"
-        android:layout_marginBottom="37dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/sign_in_cont" />
     <Button
         android:visibility="gone"
         android:text="What is posting key?"
