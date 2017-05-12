@@ -30,7 +30,7 @@ namespace Steepshot.iOS
 			photoCollection.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
 
 			photoButton.TouchDown += PhotoButton_TouchDown;
-
+			swapCameraButton.TouchDown += SwitchCameraButtonTapped;
 			RequestPhotoAuth();
 			AuthorizeCameraUse();
 		}
@@ -206,12 +206,50 @@ namespace Steepshot.iOS
 			}
 		}
 
+		private void SwitchCameraButtonTapped(object sender, EventArgs e)
+		{
+			var devicePosition = captureDeviceInput.Device.Position;
+			if (devicePosition == AVCaptureDevicePosition.Front)
+			{
+				devicePosition = AVCaptureDevicePosition.Back;
+			}
+			else
+			{
+				devicePosition = AVCaptureDevicePosition.Front;
+			}
+
+			var device = GetCameraForOrientation(devicePosition);
+			ConfigureCameraForDevice(device);
+
+			captureSession.BeginConfiguration();
+			captureSession.RemoveInput(captureDeviceInput);
+			captureDeviceInput = AVCaptureDeviceInput.FromDevice(device);
+			captureSession.AddInput(captureDeviceInput);
+			captureSession.CommitConfiguration();
+		}
+
+		public AVCaptureDevice GetCameraForOrientation(AVCaptureDevicePosition orientation)
+		{
+			var devices = AVCaptureDevice.DevicesWithMediaType(AVMediaType.Video);
+			foreach (var device in devices)
+			{
+				if (device.Position == orientation)
+				{
+					return device;
+				}
+			}
+
+			return null;
+		}
+
 		private void GoToDescription(UIImage image)
 		{
 			var descriptionViewController = Storyboard.InstantiateViewController("DescriptionViewController") as DescriptionViewController;
 			descriptionViewController.ImageAsset = image;
 			TabBarController.NavigationController.PushViewController(descriptionViewController, true);
 		}
+
+
 	}
 
 	class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout

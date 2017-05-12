@@ -102,7 +102,6 @@ namespace Steepshot.iOS
 			loginButton.Enabled = false;
 			try
 			{
-				await Task.Delay(5000);
 				var req = new UserProfileRequest(loginText.Text) { };
 				var response = await Api.GetUserProfile(req);
 				if (response.Success)

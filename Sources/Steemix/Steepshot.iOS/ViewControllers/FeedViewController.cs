@@ -91,8 +91,8 @@ namespace Steepshot.iOS
         {
 			SetNavBar();
 
-			if (UserContext.Instanse.NetworkChanged)
-				RefreshTable();
+			//if (UserContext.Instanse.NetworkChanged)
+				//RefreshTable();
             base.ViewDidAppear(animated);
         }
 

@@ -76,7 +76,7 @@ namespace Steepshot.iOS
 
 					UserContext.Instanse.IsHomeFeedLoaded = false;
 					var myViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController; // MainTabBar to const
-					this.NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
+					this.NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 					this.NavigationController.PopViewController(true);
 				}
 				else
