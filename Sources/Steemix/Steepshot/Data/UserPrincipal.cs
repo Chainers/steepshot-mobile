@@ -59,6 +59,12 @@ namespace Steepshot
 						return true;
 
 					var items = db.Query<UserInfo>("SELECT * FROM UserInfo");
+					if (items.Count == 1 && items[0].Network == null)
+					{
+						items[0].Network = Constants.Steem;
+						db.Update(items[0]);
+					}
+
 					return (items != null && items.Count > 0) ? true : false;
 				}
 				catch (Exception e)
