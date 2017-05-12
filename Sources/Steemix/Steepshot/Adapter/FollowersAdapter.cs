@@ -15,6 +15,7 @@ namespace Steepshot
         private readonly ObservableCollection<UserFriendViewMode> _collection;
         private readonly Context _context;
         public Action<int> FollowAction;
+		public Action<int> UserAction;
 
         public FollowersAdapter(Context context, ObservableCollection<UserFriendViewMode> collection)
         {
@@ -60,7 +61,7 @@ namespace Steepshot
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
-            var vh = new FollowersViewHolder(itemView, FollowAction);
+            var vh = new FollowersViewHolder(itemView, FollowAction, UserAction);
             return vh;
         }
 
@@ -73,8 +74,9 @@ namespace Steepshot
 
             private UserFriendViewMode _userFriendst;
             private readonly Action<int> _followAction;
+			private readonly Action<int> _userAction;
 
-            public FollowersViewHolder(View itemView, Action<int> followAction)
+            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction)
                 : base(itemView)
             {
                 FriendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
@@ -82,8 +84,18 @@ namespace Steepshot
                 Reputation = itemView.FindViewById<TextView>(Resource.Id.reputation);
                 FollowUnfollow = itemView.FindViewById<AppCompatButton>(Resource.Id.btn_follow_unfollow);
                 _followAction = followAction;
+				_userAction = userAction;
                 FollowUnfollow.Click += Follow_Click;
+				FriendName.Clickable = true;
+				FriendName.Click += User_Click;
+				FriendAvatar.Clickable = true;
+				FriendAvatar.Click += User_Click;
             }
+
+			private void User_Click(object sender, EventArgs e)
+			{
+				_userAction?.Invoke(AdapterPosition);
+			}
 
             void Follow_Click(object sender, EventArgs e)
             {
