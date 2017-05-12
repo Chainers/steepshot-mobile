@@ -143,6 +143,7 @@
                     style="?android:attr/borderlessButtonStyle" />
             <!--Change Avatar-->
                 <android.support.v7.widget.AppCompatButton
+                    android:visibility="gone"
                     android:text="@string/change_avatar"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
@@ -157,6 +158,7 @@
                     style="?android:attr/borderlessButtonStyle" />
             <!--Change Password-->
                 <android.support.v7.widget.AppCompatButton
+                    android:visibility="gone"
                     android:text="@string/change_password"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
@@ -185,6 +187,7 @@
                     style="?android:attr/borderlessButtonStyle" />
             <!--Delete Steemix Account-->
                 <android.support.v7.widget.AppCompatButton
+                    android:visibility="gone"
                     android:text="@string/delete_steemix_account"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"

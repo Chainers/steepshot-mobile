@@ -9,6 +9,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using ZXing.Mobile;
 
 namespace Steepshot
 {
@@ -29,6 +30,7 @@ namespace Steepshot
 		[InjectView(Resource.Id.title)]
 		TextView title;
 
+		MobileBarcodeScanner scanner;
 		private string _newAccountNetwork;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,7 +38,8 @@ namespace Steepshot
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
-            
+            MobileBarcodeScanner.Initialize (Application);
+			scanner = new MobileBarcodeScanner();
 			_username = Intent.GetStringExtra("login");
 			title.Text = $"Hello, {_username}";
 			var profileImage = Intent.GetStringExtra("avatar_url");
@@ -55,6 +58,28 @@ namespace Steepshot
                     Picasso.With(this).Load(profileImage).Into(ProfileImage);
                 else
                     Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
+			
+			var buttonScanDefaultView = this.FindViewById<Button>(Resource.Id.qr_button);
+			buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
+			{
+				try
+				{
+					//Tell our scanner to use the default overlay
+					scanner.UseCustomOverlay = false;
+
+					//We can customize the top and bottom text of the default overlay
+					scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
+					scanner.BottomText = "Wait for the barcode to automatically scan!";
+
+					//Start scanning
+					var result = await scanner.Scan();
+					_password.Text = result.Text;
+				}
+				catch (Exception ex)
+				{
+					
+				}
+			};
         }
 
         private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
