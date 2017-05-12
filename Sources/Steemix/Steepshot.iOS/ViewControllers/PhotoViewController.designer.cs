@@ -20,6 +20,9 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UICollectionView photoCollection { get; set; }
+
+		[Outlet]
+		UIKit.UIButton swapCameraButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -36,6 +39,11 @@ namespace Steepshot.iOS
 			if (photoCollection != null) {
 				photoCollection.Dispose ();
 				photoCollection = null;
+			}
+
+			if (swapCameraButton != null) {
+				swapCameraButton.Dispose ();
+				swapCameraButton = null;
 			}
 		}
 	}

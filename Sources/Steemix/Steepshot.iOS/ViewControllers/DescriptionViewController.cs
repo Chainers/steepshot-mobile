@@ -73,31 +73,31 @@ namespace Steepshot.iOS
         private async Task PostPhoto()
         {
             loadingView.Hidden = false;
+			NSData imageData;
             try
             {
-                using (NSData imageData = photoView.Image.AsPNG())
+				imageData = photoView.Image.AsPNG();
+                var myByteArray = new Byte[imageData.Length];
+                Marshal.Copy(imageData.Bytes, myByteArray, 0, Convert.ToInt32(imageData.Length));
+                var request = new UploadImageRequest(UserContext.Instanse.Token, descriptionTextField.Text, myByteArray, UserContext.Instanse.TagsList.ToArray());
+                var imageUploadResponse = await Api.Upload(request);
+                if (imageUploadResponse.Success)
                 {
-                    Byte[] myByteArray = new Byte[imageData.Length];
-                    Marshal.Copy(imageData.Bytes, myByteArray, 0, Convert.ToInt32(imageData.Length));
-                    var request = new UploadImageRequest(UserContext.Instanse.Token, descriptionTextField.Text, myByteArray, UserContext.Instanse.TagsList.ToArray());
-                    var imageUploadResponse = await Api.Upload(request);
-                    if (imageUploadResponse.Success)
-                    {
-                        UserContext.Instanse.TagsList.Clear();
-						UserContext.Instanse.ShouldProfileUpdate = true;
-                        this.NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-						//logging
-						UIAlertView alert = new UIAlertView()
-						{
-							Message = imageUploadResponse.Errors[0]
-						};
-						alert.AddButton("OK");
-						alert.Show();
-					}
+                    UserContext.Instanse.TagsList.Clear();
+					UserContext.Instanse.ShouldProfileUpdate = true;
+                    this.NavigationController.PopViewController(true);
                 }
+                else
+                {
+					//logging
+					UIAlertView alert = new UIAlertView()
+					{
+						Message = imageUploadResponse.Errors[0]
+					};
+					alert.AddButton("OK");
+					alert.Show();
+				}
+                
             }
             catch (Exception ex)
             {
@@ -105,6 +105,8 @@ namespace Steepshot.iOS
             }
             finally
             {
+				imageData = null;
+				imageData.Dispose();
                 loadingView.Hidden = true;
             }
         }

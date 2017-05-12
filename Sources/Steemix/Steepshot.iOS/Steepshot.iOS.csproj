@@ -242,14 +242,14 @@
     <BundleResource Include="Resources\golos%402x.png" />
     <BundleResource Include="Resources\golos%403x.png" />
     <BundleResource Include="Resources\logo_login.png" />
-    <BundleResource Include="Resources\logo_login%40x2.png" />
-    <BundleResource Include="Resources\logo_login%40x3.png" />
-    <BundleResource Include="Resources\splash_logo.png" />
-    <BundleResource Include="Resources\splash_logo%40x2.png" />
-    <BundleResource Include="Resources\splash_logo%40x3.png" />
-    <BundleResource Include="Resources\steemit.png" />
-    <BundleResource Include="Resources\steemit%40x2.png" />
-    <BundleResource Include="Resources\steemit%40x3.png" />
+    <BundleResource Include="Resources\logo_login%402x.png" />
+    <BundleResource Include="Resources\logo_login%403x.png" />
+    <BundleResource Include="Resources\steem.png" />
+    <BundleResource Include="Resources\steem%402x.png" />
+    <BundleResource Include="Resources\steem%403x.png" />
+    <BundleResource Include="Resources\splash.png" />
+    <BundleResource Include="Resources\splash%402x.png" />
+    <BundleResource Include="Resources\splash%403x.png" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

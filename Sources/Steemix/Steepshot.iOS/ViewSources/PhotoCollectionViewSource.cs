@@ -1,4 +1,5 @@
 ﻿using System;
+using Foundation;
 using Photos;
 using UIKit;
 
@@ -10,7 +11,10 @@ namespace Steepshot.iOS
         PHImageManager m;
         public PhotoCollectionViewSource()
         {
-            fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, null);
+
+			PHFetchOptions options = new PHFetchOptions();
+			options.SortDescriptors = new NSSortDescriptor[] { new NSSortDescriptor("creationDate", false) };
+            fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
             m = new PHImageManager();
         }
 

@@ -26,13 +26,13 @@ namespace Steepshot.iOS
 			golosAcc = UserContext.Instanse.Accounts.FirstOrDefault(a => a.Network == Constants.Golos);
 			previousNetwork = UserContext.Instanse.Network;
 
-			steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
-			golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
+			//steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
+			//golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
 			if (steemAcc != null)
 			{
 				steemLabel.Text = steemAcc.Login;
-				LoadImage(steemAcc.Avatar, steemAvatar);
+				//LoadImage(steemAcc.Avatar, steemAvatar);
 			}
 			else
 				steemViewHeight.Constant = 0;
@@ -41,7 +41,7 @@ namespace Steepshot.iOS
 			if (golosAcc != null)
 			{
 				golosLabel.Text = golosAcc.Login;
-				LoadImage(golosAcc.Avatar, golosAvatar);
+				//LoadImage(golosAcc.Avatar, golosAvatar);
 			}
 			else
 				golosViewHeight.Constant = 0;
@@ -79,14 +79,38 @@ namespace Steepshot.iOS
 
 		private void SwitchNetwork(string network)
 		{
-			if (UserContext.Instanse.Network != network)
+			UserContext.Instanse.Network = network;
+			//HighlightView();
+			SwitchApiAddress();
+
+			//SetAddButton();
+			UserContext.Save();
+
+			UserContext.Instanse.IsHomeFeedLoaded = false;
+			var myViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+			NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+			NavigationController.PopViewController(false);
+
+			/*
+			var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
+
+			alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
+			alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
 			{
-				UserContext.Instanse.Network = network;
-				HighlightView();
-				SwitchApiAddress();
-                SetAddButton();
-				UserContext.Save();
-			}
+				if (UserContext.Instanse.Network != network)
+				{
+					try
+					{
+
+					}
+					catch (Exception ex)
+					{
+
+					}
+				}
+			}));
+
+			PresentViewController(alert, animated: true, completionHandler: null); */
 		}
 
 		private void RemoveNetwork(string network)
@@ -111,12 +135,12 @@ namespace Steepshot.iOS
 		{
 			if (UserContext.Instanse.Network == Constants.Golos)
 			{
-				golosView.BackgroundColor = Constants.Blue;
+				golosView.BackgroundColor = UIColor.Cyan;//Constants.Blue;
 				steemView.BackgroundColor = UIColor.White;
 			}
 			else
 			{
-				steemView.BackgroundColor = Constants.Blue;
+				steemView.BackgroundColor = UIColor.Cyan;//Constants.Blue;
 				golosView.BackgroundColor = UIColor.White;
 			}
 		}
