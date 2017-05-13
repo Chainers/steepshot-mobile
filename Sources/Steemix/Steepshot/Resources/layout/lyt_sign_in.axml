@@ -57,14 +57,13 @@
         android:background="@android:color/white" />
     <Button
         android:drawableLeft="@drawable/ic_qr"
-        android:text="  Scan posting key"
+        android:text="  Scan private posting key"
         android:textColor="@color/light_blue"
         android:background="@android:color/transparent"
         android:textSize="@dimen/dp_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/qr_button"
-        android:layout_marginBottom="37dp"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/input_password" />
 <!--Login-->
@@ -74,7 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/qr_button"
         android:background="@color/light_blue"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="25dp"
         android:layout_marginLeft="25dp">
         <Button
