@@ -40,6 +40,8 @@ namespace Steepshot
 		public void ClearPosts()
 		{
 			Posts.Clear();
+			_hasItems = true;
+			_offsetUrl = string.Empty;
 		}
 
 		public async Task GetTopPosts(int limit, PostType type, bool clearOld = false)

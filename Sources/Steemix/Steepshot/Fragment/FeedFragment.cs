@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.App;
+using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.Animations;
@@ -120,6 +121,13 @@ namespace Steepshot
 			FeedAdapter.CommentAction += FeedAdapter_CommentAction;
 			FeedAdapter.PhotoClick += PhotoClick;
 			presenter.ViewLoad();
+			var refresher = Activity.FindViewById<SwipeRefreshLayout>(Resource.Id.feed_refresher);
+			refresher.Refresh += async delegate
+				{
+					presenter.ClearPosts();
+					await presenter.GetTopPosts(20, presenter.GetCurrentType());
+					refresher.Refreshing = false;
+				};
 		}
 
 		public void PhotoClick(int position)
