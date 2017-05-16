@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
+using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -49,6 +50,13 @@ namespace Steepshot
 			PostsList.SetLayoutManager(new GridLayoutManager(Context, 3));
 			PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 			PostsList.AddOnScrollListener(new FeedsScrollListener(presenter));
+
+			var refresher = Activity.FindViewById<SwipeRefreshLayout>(Resource.Id.refresher);
+			refresher.Refresh += async delegate
+			{
+				await LoadProfile(true);
+				refresher.Refreshing = false;
+			};
 		}
 
 		[InjectOnClick(Resource.Id.btn_settings)]
@@ -140,11 +148,9 @@ namespace Steepshot
 			}
 		}
 
-
-
-		private async void LoadProfile()
+		private async Task LoadProfile(bool needRefresh = false)
 		{
-			var Profile = await presenter.GetUserInfo(UserPrincipal.Instance.CurrentUser.Login);
+			var Profile = await presenter.GetUserInfo(UserPrincipal.Instance.CurrentUser.Login, needRefresh);
             if (Profile != null)
             {
                 ProfileName.Text = Profile.Username;
@@ -163,7 +169,7 @@ namespace Steepshot
                 FollowersCount.Text = Profile.FollowersCount.ToString();
                 spinner.Visibility = ViewStates.Gone;
                 Content.Visibility = ViewStates.Visible;
-				await presenter.GetUserPosts();
+				await presenter.GetUserPosts(needRefresh);
                 if (PostsList.GetAdapter() == null)
                     PostsList.SetAdapter(GridAdapter);
                 else
