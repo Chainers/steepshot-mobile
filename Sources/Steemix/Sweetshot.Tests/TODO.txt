@@ -1,8 +1,0 @@
-4) limit\offset tests
-5) register tests
-6) unregister tests
-7) any additional tests
-8) проверка тега меньше 1
-9) is.not.null delete
-10) TODO
-11) обновть profile у user
