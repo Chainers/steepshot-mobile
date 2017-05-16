@@ -96,7 +96,8 @@
                     android:background="@color/white"
                     android:layout_alignParentBottom="true"
                     android:textSize="15sp"
-                    android:text="Post photo" />
+                    android:text="Post photo"
+                    android:enabled="false" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

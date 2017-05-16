@@ -35,8 +35,15 @@ namespace Steepshot
 			return userData;
 		}
 
-		public async Task GetUserPosts()
+		public async Task GetUserPosts(bool needRefresh = false)
 		{
+			if (needRefresh)
+			{
+				_offsetUrl = string.Empty;
+				_hasItems = true;
+				UserPosts.Clear();
+			}
+
 			if (!_hasItems)
 				return;
 

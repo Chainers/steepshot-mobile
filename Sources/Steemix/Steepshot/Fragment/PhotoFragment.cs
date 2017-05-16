@@ -9,6 +9,7 @@ using Com.Lilarcor.Cheeseknife;
 
 namespace Steepshot
 {
+	public delegate void VoidDelegate(); 
 	public class PhotoFragment : BaseFragment, PhotoView
 	{
 		PhotoPresenter presenter;
@@ -23,6 +24,7 @@ namespace Steepshot
 		ImageButton SwitchButton;
 
 		private Java.IO.File photo;
+		public event VoidDelegate UpdateProfile;
 
 		private string stringPath;
 
@@ -59,11 +61,11 @@ namespace Steepshot
 		public override void OnActivityResult(int requestCode, int resultCode, Intent data)
 		{
 			base.OnActivityResult(requestCode, resultCode, data);
-			if (resultCode == -1)
+			if (resultCode == -1 && requestCode == 0)
 			{
 				Intent i = new Intent(Context, typeof(PostDescriptionActivity));
 				i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(photo).Path);
-				Context.StartActivity(i);
+				StartActivity(i);
 			}
 		}
 
