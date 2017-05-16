@@ -41,7 +41,7 @@ namespace Sweetshot.Library.Models.Responses
         public string Name { get; set; }
         public string About { get; set; }
         public string Location { get; set; }
-        public string WebSite { get; set; }
+        public string Website { get; set; }
         public int HasFollowed { get; set; }
         public double EstimatedBalance { get; set; }
     }
