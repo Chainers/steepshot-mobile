@@ -2759,6 +2759,9 @@ namespace Steepshot
 			// aapt resource value: 0x7f0b00f6
 			public const int description = 2131427574;
 			
+			// aapt resource value: 0x7f0b00df
+			public const int description_scroll = 2131427551;
+			
 			// aapt resource value: 0x7f0b0076
 			public const int design_bottom_sheet = 2131427446;
 			
@@ -3082,9 +3085,6 @@ namespace Steepshot
 			
 			// aapt resource value: 0x7f0b00be
 			public const int photo = 2131427518;
-			
-			// aapt resource value: 0x7f0b00df
-			public const int photo_frame = 2131427551;
 			
 			// aapt resource value: 0x7f0b00d2
 			public const int photos_btn = 2131427538;
