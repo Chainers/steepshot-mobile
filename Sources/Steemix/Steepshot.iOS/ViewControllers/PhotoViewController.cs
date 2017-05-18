@@ -108,19 +108,19 @@ namespace Steepshot.iOS
 			if (photoCollection.Hidden)
 			{
 				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_grid.png"), UIBarButtonItemStyle.Plain, SwitchSource);
-				TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+				NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 			}
 			else
 			{
 				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
-				TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+				NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 			}
 		}
 
 		private void SetNavBar()
 		{
-			TabBarController.NavigationController.SetNavigationBarHidden(false, false);
-			var barHeight = TabBarController.NavigationController.NavigationBar.Frame.Height;
+			NavigationController.SetNavigationBarHidden(false, false);
+			var barHeight = NavigationController.NavigationBar.Frame.Height;
 
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, barHeight));
 			tw.TextColor = UIColor.White;
@@ -129,13 +129,13 @@ namespace Steepshot.iOS
 			tw.TextAlignment = UITextAlignment.Center;
 			tw.Font = UIFont.SystemFontOfSize(17);
 
-			TabBarController.NavigationItem.TitleView = tw;
+			NavigationItem.TitleView = tw;
 
 			var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
-			TabBarController.NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+			NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 
-			TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-			TabBarController.NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
+			NavigationController.NavigationBar.TintColor = UIColor.White;
+			NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
 		}
 
 		public void SetupLiveCameraStream()
