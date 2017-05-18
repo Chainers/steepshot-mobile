@@ -92,7 +92,6 @@ namespace Steepshot.iOS
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
 
-
 			if (!isButtonBinded)
 			{
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
@@ -106,7 +105,7 @@ namespace Steepshot.iOS
 			{
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
-					GoToProfile(post.Author);
+					GoToProfile(_currentPost.Author);
 				});
 				avatarImage.AddGestureRecognizer(tap);
 			}
@@ -115,7 +114,7 @@ namespace Steepshot.iOS
 			{
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
-					GoToComments(post.Url);
+					GoToComments(_currentPost.Url);
 				});
 				commentView.AddGestureRecognizer(tap);
 			}

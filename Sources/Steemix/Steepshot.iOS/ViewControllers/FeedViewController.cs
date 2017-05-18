@@ -35,8 +35,9 @@ namespace Steepshot.iOS
         {
             base.ViewDidLoad();
 
-            navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-            navItem = TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
+			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
+			navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
+
             FeedTable.Source = tableSource;
             FeedTable.LayoutMargins = UIEdgeInsets.Zero;
 			FeedTable.RegisterClassForCellReuse(typeof(FeedTableViewCell), nameof(FeedTableViewCell));
@@ -51,17 +52,25 @@ namespace Steepshot.iOS
 			{
 				isHomeFeed = true;
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-				TabBarItem.Image = UIImage.FromBundle("eye");
-				TabBarItem.SelectedImage = UIImage.FromBundle("eye");
+				NavigationController.TabBarItem.Image = UIImage.FromBundle("eye");
+				NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("eye");
 			}
-
+			if (TabBarController != null)
+			{
+				TabBarController.NavigationController.NavigationBarHidden = true;
+				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+			}
 			tableSource.GoToProfile += (username)  =>
             {
-				if (username == UserContext.Instanse.Username)
+				if (username == UserContext.Instanse?.Username)
 					return;
 				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
 				myViewController.Username = username;
-				navController.PushViewController(myViewController, true);
+				NavigationController.PushViewController(myViewController, true);
+				//var lil = NavigationController;
+				//var lol = TabBarController.NavigationController.NavigationBarHidden = true;
+				//navController.PushViewController(myViewController, true);
             };
 
 			tableSource.GoToComments += (postUrl)  =>
@@ -75,7 +84,7 @@ namespace Steepshot.iOS
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 				myViewController.imageForPreview = image;
-				navController.PushViewController(myViewController, true);
+				NavigationController.PushViewController(myViewController, true);
 			};
 
             FeedTable.RowHeight = UITableView.AutomaticDimension;
@@ -84,17 +93,24 @@ namespace Steepshot.iOS
 			{
 				dropdown = CreateDropDownList();
 			}
+            SetNavBar();
             GetPosts();
         }
 
         public override void ViewDidAppear(bool animated)
         {
-			SetNavBar();
+			//SetNavBar();
 
 			//if (UserContext.Instanse.NetworkChanged)
 				//RefreshTable();
             base.ViewDidAppear(animated);
         }
+
+		public override void ViewWillAppear(bool animated)
+		{
+            //SetNavBar();
+			base.ViewWillAppear(animated);
+		}
 
 		private async Task RefreshTable()
 		{

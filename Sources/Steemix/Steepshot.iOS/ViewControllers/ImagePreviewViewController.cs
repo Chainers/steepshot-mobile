@@ -36,7 +36,9 @@ namespace Steepshot.iOS
 			imageScrollView.ContentSize = imageView.Image.Size;
 			imageScrollView.AddSubview(imageView);
 			imageScrollView.ContentSize = new CGSize(this.View.Frame.Width, this.View.Frame.Height - NavigationController.View.Frame.Height);
-
+			if(TabBarController != null)
+				TabBarController.TabBar.Hidden = true;
+			NavigationController.SetNavigationBarHidden(false, false);
 		}
 	}
 }

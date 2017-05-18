@@ -30,7 +30,9 @@ namespace Steepshot.iOS
 		{
 			base.ViewDidLoad();
 
-			navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
+			if(TabBarController != null)
+				TabBarController.NavigationController.NavigationBarHidden = true;
 
 			avatar.Layer.CornerRadius = avatar.Frame.Width / 2;
 			headerView.BackgroundColor = Constants.Blue;
@@ -95,7 +97,7 @@ namespace Steepshot.iOS
 			settingsButton.TouchDown += (sender, e) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(SettingsViewController)) as SettingsViewController;
-				navController.PushViewController(myViewController, true);
+				TabBarController.NavigationController.PushViewController(myViewController, true);
 			};
 
 			followingButton.TouchDown += (sender, e) =>
@@ -118,8 +120,18 @@ namespace Steepshot.iOS
 
 			settingsButton.Hidden = Username != UserContext.Instanse.Username;
 
+			NavigationController.NavigationBar.TintColor = UIColor.White;
+			NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+
 			GetUserInfo();
 			GetUserPosts();
+		}
+
+		public override void ViewWillAppear(bool animated)
+		{
+			if(Username == UserContext.Instanse.Username)
+				navController.SetNavigationBarHidden(true, false);
+			base.ViewWillAppear(animated);
 		}
 
 		public override void ViewDidAppear(bool animated)
@@ -132,16 +144,16 @@ namespace Steepshot.iOS
 				GetUserPosts();
 				UserContext.Instanse.ShouldProfileUpdate = false;
 			}
-			if(TabBarController != null)
-				navController.SetNavigationBarHidden(true, false);
+			//if(TabBarController != null)
+				//navController.SetNavigationBarHidden(true, false);
 		}
 
 		private void PreviewPhoto(UIImage image)
 		{
-			navController.SetNavigationBarHidden(false, false);
+			//navController.SetNavigationBarHidden(false, false);
 			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 			myViewController.imageForPreview = image;
-			navController.PushViewController(myViewController, true);
+			NavigationController.PushViewController(myViewController, true);
 		}
 
 		private async Task GetUserInfo()

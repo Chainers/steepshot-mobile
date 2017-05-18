@@ -13,7 +13,13 @@ namespace Steepshot.iOS
 	partial class PreLoginViewController
 	{
 		[Outlet]
+		UIKit.NSLayoutConstraint aboveConstant { get; set; }
+
+		[Outlet]
 		UIKit.UIActivityIndicatorView activityIndicator { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint belowConstant { get; set; }
 
 		[Outlet]
 		UIKit.UISwitch devSwitch { get; set; }
@@ -47,6 +53,11 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (devSwitch != null) {
 				devSwitch.Dispose ();
 				devSwitch = null;
@@ -97,9 +108,14 @@ namespace Steepshot.iOS
 				steemImg = null;
 			}
 
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
+			if (aboveConstant != null) {
+				aboveConstant.Dispose ();
+				aboveConstant = null;
+			}
+
+			if (belowConstant != null) {
+				belowConstant.Dispose ();
+				belowConstant = null;
 			}
 		}
 	}

@@ -22,6 +22,13 @@ namespace Steepshot.iOS
 
 		private static SteepshotApiClient _apiClient;
 
+		public override void ViewWillAppear(bool animated)
+		{
+			if(TabBarController != null)
+				TabBarController.TabBar.Hidden = false;
+			base.ViewWillAppear(animated);
+		}
+
 		public override void ViewDidAppear(bool animated)
 		{
 			base.ViewDidAppear(animated);

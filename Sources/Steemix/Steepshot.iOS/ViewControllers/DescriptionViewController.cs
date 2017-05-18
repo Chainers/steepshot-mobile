@@ -53,6 +53,12 @@ namespace Steepshot.iOS
 			descriptionTextField.Layer.BorderColor = UIColor.Black.CGColor;
 		}
 
+		public override void ViewWillAppear(bool animated)
+		{
+			NavigationController.NavigationBarHidden = false;
+			base.ViewWillAppear(animated);
+		}
+
 		public override void ViewDidAppear(bool animated)
 		{
 			base.ViewDidAppear(animated);
