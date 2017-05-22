@@ -10,26 +10,34 @@ using UIKit;
 
 namespace Steepshot.iOS
 {
-    public partial class FeedViewController : BaseViewController
-    {
-        protected FeedViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
+	public partial class FeedViewController : BaseViewController
+	{
+		protected FeedViewController(IntPtr handle) : base(handle)
+		{
+			// Note: this .ctor should not contain any initialization logic.
+		}
 
-        private PostType currentPostType = PostType.Top;
+		private PostType currentPostType = PostType.Top;
+		private string currentPostCategory;
 
-        private FeedTableViewSource tableSource = new FeedTableViewSource();
-        private UIView dropdown;
-        private nfloat dropDownListOffsetFromTop;
-        private UILabel tw;
-        private UIImageView arrow;
+		private FeedTableViewSource tableSource = new FeedTableViewSource();
+		private UIView dropdown;
+		private nfloat dropDownListOffsetFromTop;
+		private UILabel tw;
+		private UIImageView arrow;
 		private string _offsetUrl;
 
-        UINavigationController navController;
-        UINavigationItem navItem;
+		UINavigationController navController;
+		UINavigationItem navItem;
 
+		private bool _hasItems = true;
 		private bool isHomeFeed;
+
+		UIRefreshControl RefreshControl;
+
+		private bool _isFeedRefreshing = false;
+
+		private bool IsDropDownOpen => dropdown.Frame.Y > 0;
 
         public override void ViewDidLoad()
         {
@@ -48,12 +56,33 @@ namespace Steepshot.iOS
                 Vote(vote, url, action);
             };
 
+			RefreshControl = new UIRefreshControl();
+			RefreshControl.ValueChanged += async (sender, e) =>
+			{
+				if (_isFeedRefreshing)
+					return;
+				_isFeedRefreshing = true;
+				await RefreshTable();
+				RefreshControl.EndRefreshing();
+				_isFeedRefreshing = false;
+			};
+			FeedTable.Add(RefreshControl);
+
+			if (TabBarController != null)
+			{
+				TabBarController.TabBar.TintColor = Constants.NavBlue;
+				foreach(var controler in TabBarController.ViewControllers)
+				{
+					controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
+				};
+			}
+
 			if (!UserContext.Instanse.IsHomeFeedLoaded)
 			{
 				isHomeFeed = true;
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-				NavigationController.TabBarItem.Image = UIImage.FromBundle("eye");
-				NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("eye");
+				NavigationController.TabBarItem.Image = UIImage.FromBundle("home");
+				NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("home");
 			}
 			if (TabBarController != null)
 			{
@@ -68,9 +97,6 @@ namespace Steepshot.iOS
 				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
 				myViewController.Username = username;
 				NavigationController.PushViewController(myViewController, true);
-				//var lil = NavigationController;
-				//var lol = TabBarController.NavigationController.NavigationBarHidden = true;
-				//navController.PushViewController(myViewController, true);
             };
 
 			tableSource.GoToComments += (postUrl)  =>
@@ -97,31 +123,40 @@ namespace Steepshot.iOS
             GetPosts();
         }
 
-        public override void ViewDidAppear(bool animated)
-        {
-			//SetNavBar();
-
-			//if (UserContext.Instanse.NetworkChanged)
-				//RefreshTable();
-            base.ViewDidAppear(animated);
-        }
-
 		public override void ViewWillAppear(bool animated)
 		{
-            //SetNavBar();
+			//SetNavBar();
+			if (UserContext.Instanse.CurrentPostCategory != currentPostCategory && !isHomeFeed)
+			{
+				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
+				tableSource.TableItems.Clear();
+				FeedTable.ReloadData();
+				tw.Text = UserContext.Instanse.CurrentPostCategory;
+				GetPosts();
+			}
+
 			base.ViewWillAppear(animated);
+		}
+
+		public override void ViewWillDisappear(bool animated)
+		{
+			if(!isHomeFeed && IsDropDownOpen)
+				ToogleDropDownList();
+			base.ViewWillDisappear(animated);
 		}
 
 		private async Task RefreshTable()
 		{
 			tableSource.TableItems.Clear();
-			await GetPosts();
-			UserContext.Instanse.NetworkChanged = false;
+			FeedTable.ReloadData();
+			_hasItems = true;
+			await GetPosts(false);
 		}
 
         private void TableSource_ScrolledToBottom()
         {
-            GetPosts();
+			if(_hasItems)
+            	GetPosts();
         }
 
         void LoginTapped(object sender, EventArgs e)
@@ -129,6 +164,12 @@ namespace Steepshot.iOS
 			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
             navController.PushViewController(myViewController, true);
         }
+
+		void SearchTapped(object sender, EventArgs e)
+		{
+			var myViewController = Storyboard.InstantiateViewController(nameof(TagsSearchViewController)) as TagsSearchViewController;
+			navController.PushViewController(myViewController, true);
+		}
 
         private async Task LogoutTapped(object sender, EventArgs e)
         {
@@ -166,11 +207,13 @@ namespace Steepshot.iOS
             }
         }
 
-        public async Task GetPosts()
+        public async Task GetPosts(bool shouldStartAnimating = true)
         {
             if (activityIndicator.IsAnimating)
                 return;
-            activityIndicator.StartAnimating();
+			if(shouldStartAnimating)
+            	activityIndicator.StartAnimating();
+			noFeedLabel.Hidden = true;
             try
             {
 				OperationResult<UserPostResponse> posts;
@@ -178,13 +221,26 @@ namespace Steepshot.iOS
 
 				if (!isHomeFeed)
 				{
-					var postrequest = new PostsRequest(currentPostType)
+					if (UserContext.Instanse.CurrentPostCategory == null)
 					{
-						SessionId = UserContext.Instanse.Token,
-						Limit = 20,
-						Offset = offset
-					};
-					posts = await Api.GetPosts(postrequest);
+						var postrequest = new PostsRequest(currentPostType)
+						{
+							SessionId = UserContext.Instanse.Token,
+							Limit = 20,
+							Offset = offset
+						};
+						posts = await Api.GetPosts(postrequest);
+					}
+					else
+					{
+						var postrequest = new PostsByCategoryRequest(currentPostType, UserContext.Instanse.CurrentPostCategory)
+						{
+							SessionId = UserContext.Instanse.Token,
+							Limit = 20,
+							Offset = offset
+						};
+						posts = await Api.GetPostsByCategory(postrequest);
+					}
 				}
 				else
 				{
@@ -195,16 +251,30 @@ namespace Steepshot.iOS
 					};
 					posts = await Api.GetUserRecentPosts(f);
 				}
-                
+				if (posts.Result.Results.Count == 0 && isHomeFeed)
+					noFeedLabel.Hidden = false;
+
 				var lastItem = posts.Result.Results.Last();
 				_offsetUrl = lastItem.Url;
-				posts.Result.Results.Remove(lastItem);
-				tableSource.TableItems.AddRange(posts.Result.Results);
-				if (UserContext.Instanse.NetworkChanged)
+
+				if (posts.Result.Results.Count == 1)
+					_hasItems = false;
+				else
+					posts.Result.Results.Remove(lastItem);
+				
+
+				if (posts.Result.Results.Count != 0)
 				{
-					FeedTable.SetContentOffset(new CGPoint(0, 0), false);
+					tableSource.TableItems.AddRange(posts.Result.Results);
+					/*if (UserContext.Instanse.NetworkChanged)
+					{
+						FeedTable.SetContentOffset(new CGPoint(0, 0), false);
+					}*/
+					FeedTable.ReloadData();
 				}
-                FeedTable.ReloadData();
+				else
+					_hasItems = false;
+				
             }
             catch (Exception ex)
             {
@@ -268,6 +338,9 @@ namespace Steepshot.iOS
 				arrow.Image = UIImage.FromBundle("white-arrow-down");
 				titleView.Add(arrow);
 				titleView.Frame = new CoreGraphics.CGRect(0, 0, arrow.Frame.Right, barHeight);
+
+				var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_search_gray"), UIBarButtonItemStyle.Plain, SearchTapped); //ToConstants name
+				navItem.SetRightBarButtonItem(rightBarButton, true);
 			}
 
 			navItem.TitleView = titleView;
@@ -278,6 +351,8 @@ namespace Steepshot.iOS
 			}
 			else
 				navItem.SetLeftBarButtonItem(null, false);
+
+
 
             navController.NavigationBar.TintColor = UIColor.White;
 			navController.NavigationBar.BarTintColor = Constants.NavBlue; // To constants
@@ -303,6 +378,7 @@ namespace Steepshot.iOS
                    FeedTable.ReloadData();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
+				   UserContext.Instanse.CurrentPostCategory = null;
                    GetPosts();
                });
 
@@ -319,6 +395,7 @@ namespace Steepshot.iOS
 				   FeedTable.ReloadData();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
+				   UserContext.Instanse.CurrentPostCategory = null;
 				   GetPosts();
 			   });
 
@@ -335,6 +412,7 @@ namespace Steepshot.iOS
 				   FeedTable.ReloadData();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
+				   UserContext.Instanse.CurrentPostCategory = null;
 				   GetPosts();
 			   });
 

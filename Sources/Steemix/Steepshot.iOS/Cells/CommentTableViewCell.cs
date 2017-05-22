@@ -82,8 +82,7 @@ namespace Steepshot.iOS
 					webClient.Dispose();
 				}
 			}
-
-			LoadImage(post.Avatar, avatar, UIImage.FromBundle("ic_user_placeholder"));
+			ImageDownloader.Download(post.Avatar, avatar, UIImage.FromBundle("ic_user_placeholder"), webClients);
 		}
 
 		private void LikeTap(object sender, EventArgs e)
@@ -97,40 +96,6 @@ namespace Steepshot.iOS
 					likeButton.Enabled = true;
 				}
 			});
-		}
-
-		public void LoadImage(string uri, UIImageView imageView, UIImage defaultPicture)
-		{
-			try
-			{
-				imageView.Image = defaultPicture;
-				using (var webClient = new WebClient())
-				{
-					webClients.Add(webClient);
-					webClient.DownloadDataCompleted += (sender, e) =>
-					{
-						try
-						{
-							using (var data = NSData.FromArray(e.Result))
-								imageView.Image = UIImage.LoadFromData(data);
-
-							/*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-							string localFilename = "downloaded.png";
-							string localPath = Path.Combine(documentsPath, localFilename);
-							File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-						}
-						catch (Exception ex)
-						{
-							//Logging
-						}
-					};
-					webClient.DownloadDataAsync(new Uri(uri));
-				}
-			}
-			catch (Exception ex)
-			{
-				//Logging
-			}
 		}
 	}
 }

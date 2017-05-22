@@ -20,6 +20,8 @@ namespace Steepshot.iOS
 		public bool NetworkChanged { get; set; }
 		[JsonIgnore]
 		public bool IsHomeFeedLoaded { get; set; }
+		[JsonIgnore]
+		public string CurrentPostCategory { get; set; }
 
 		public bool IsDev { get; set; }
 

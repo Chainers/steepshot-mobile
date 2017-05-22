@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using AVFoundation;
@@ -37,6 +38,7 @@ namespace Steepshot.iOS
 
 		public override void ViewDidAppear(bool animated)
 		{
+			//TabBarController.NavigationController.NavigationBarHidden = true;
 			SetNavBar();
 			base.ViewDidAppear(animated);
 		}
@@ -59,11 +61,25 @@ namespace Steepshot.iOS
 			var context = UIGraphics.GetCurrentContext();
 			var clippedRect = new RectangleF(0, 0, width, height);
 			context.ClipToRect(clippedRect);
+
 			var drawRect = new CGRect(-crop_x, -crop_y, imgSize.Width, imgSize.Height);
 			sourceImage.Draw(drawRect);
 			var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
 			UIGraphics.EndImageContext();
 			context.Dispose();
+			return modifiedImage;
+		}
+
+		private UIImage NormalizeImage(UIImage sourceImage)
+		{
+			var imgSize = sourceImage.Size;
+			UIGraphics.BeginImageContextWithOptions(sourceImage.Size, false, sourceImage.CurrentScale);
+
+			var drawRect = new CGRect(0, 0, imgSize.Width, imgSize.Height);
+			sourceImage.Draw(drawRect);
+			var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+			UIGraphics.EndImageContext();
+
 			return modifiedImage;
 		}
 
@@ -81,6 +97,10 @@ namespace Steepshot.iOS
 
 		public override void ViewWillAppear(bool animated)
 		{
+			if (TabBarController != null)
+			{
+				TabBarController.NavigationController.NavigationBarHidden = true;
+			}
 			base.ViewWillAppear(animated);
 		}
 
@@ -101,13 +121,16 @@ namespace Steepshot.iOS
 
 		void SwitchSource(object sender, EventArgs e)
 		{
-			if(!_isCameraAccessDenied)
+			if (!_isCameraAccessDenied)
+			{
+				swapCameraButton.Hidden = !swapCameraButton.Hidden;
 				photoButton.Hidden = !photoButton.Hidden;
+			}
 			liveCameraStream.Hidden = !liveCameraStream.Hidden;
 			photoCollection.Hidden = !photoCollection.Hidden;
 			if (photoCollection.Hidden)
 			{
-				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_grid.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("gallery.png"), UIBarButtonItemStyle.Plain, SwitchSource);
 				NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 			}
 			else
@@ -200,7 +223,9 @@ namespace Steepshot.iOS
 				{
 					m.RequestImageData(collectionCell.Asset, new PHImageRequestOptions(), (data, dataUti, orientation, info) =>
 					   {
-						   GoToDescription(UIImage.LoadFromData(data));
+						   var photo = UIImage.LoadFromData(data);
+						   UIImage cropped = NormalizeImage(photo);
+						   GoToDescription(cropped);
 					   });
 				}
 			}
@@ -248,8 +273,6 @@ namespace Steepshot.iOS
 			descriptionViewController.ImageAsset = image;
 			TabBarController.NavigationController.PushViewController(descriptionViewController, true);
 		}
-
-
 	}
 
 	class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
@@ -273,7 +296,10 @@ namespace Steepshot.iOS
 		public override void Scrolled(UIScrollView scrollView)
 		{
 			if (ScrolledAction != null)
-				ScrolledAction();
+			{
+				if(scrollView.Bounds.Bottom >= scrollView.ContentSize.Height)
+					ScrolledAction();
+			}
 		}
 
 		public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)

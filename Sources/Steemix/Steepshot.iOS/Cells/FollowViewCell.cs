@@ -101,41 +101,7 @@ namespace Steepshot.iOS
                     webClient.Dispose();
                 }
             }
-			LoadImage(user.Avatar, avatar, UIImage.FromBundle("ic_user_placeholder"));
-		}
-
-		public void LoadImage(string uri, UIImageView imageView, UIImage defaultPicture)
-		{
-			try
-			{
-				imageView.Image = defaultPicture;
-				using (var webClient = new WebClient())
-				{
-					webClients.Add(webClient);
-					webClient.DownloadDataCompleted += (sender, e) =>
-					{
-						try
-						{
-							using (var data = NSData.FromArray(e.Result))
-								imageView.Image = UIImage.LoadFromData(data);
-
-							/*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-							string localFilename = "downloaded.png";
-							string localPath = Path.Combine(documentsPath, localFilename);
-							File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-						}
-						catch (Exception ex)
-						{
-							//Logging
-						}
-					};
-					webClient.DownloadDataAsync(new Uri(uri));
-				}
-			}
-			catch (Exception ex)
-			{
-				//Logging
-			}
+			ImageDownloader.Download(user.Avatar, avatar, UIImage.FromBundle("ic_photo_holder"), webClients);
 		}
 	}
 }

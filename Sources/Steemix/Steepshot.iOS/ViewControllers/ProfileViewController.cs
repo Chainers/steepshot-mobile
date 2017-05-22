@@ -20,6 +20,9 @@ namespace Steepshot.iOS
 		private List<Post> photosList = new List<Post>();
 
 		UINavigationController navController;
+		private string _offsetUrl;
+		private bool _hasItems = true;
+		UIRefreshControl RefreshControl;
 
 		protected ProfileViewController(IntPtr handle) : base(handle)
         {
@@ -52,6 +55,11 @@ namespace Steepshot.iOS
 			{
 				var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
 				PreviewPhoto(collectionCell.Image);
+			},
+			() =>
+			{
+				if(_hasItems)
+					GetUserPosts();
 			});
 
 			tableSource.TableItems = photosList;
@@ -70,8 +78,7 @@ namespace Steepshot.iOS
 				navController.PushViewController(myViewController, true);
             };
 			tableSource.ImagePreview += PreviewPhoto;
-
-
+			tableSource.ScrolledToBottom += () => GetUserPosts();
             tableView.RowHeight = UITableView.AutomaticDimension;
             tableView.EstimatedRowHeight = 450f;
 
@@ -102,20 +109,18 @@ namespace Steepshot.iOS
 
 			followingButton.TouchDown += (sender, e) =>
 			{
-				navController.SetNavigationBarHidden(false, false);
 				var myViewController = Storyboard.InstantiateViewController(nameof(FollowViewController)) as FollowViewController;
 				myViewController.Username = Username;
 				myViewController.FriendsType = FriendsType.Following;
-				navController.PushViewController(myViewController, true);
+				NavigationController.PushViewController(myViewController, true);
 			};
 
 			followersButton.TouchDown += (sender, e) =>
 			{
-				navController.SetNavigationBarHidden(false, false);
 				var myViewController = Storyboard.InstantiateViewController(nameof(FollowViewController)) as FollowViewController;
 				myViewController.Username = Username;
 				myViewController.FriendsType = FriendsType.Followers;
-				navController.PushViewController(myViewController, true);
+				NavigationController.PushViewController(myViewController, true);
 			};
 
 			settingsButton.Hidden = Username != UserContext.Instanse.Username;
@@ -123,14 +128,32 @@ namespace Steepshot.iOS
 			NavigationController.NavigationBar.TintColor = UIColor.White;
 			NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
 
+			RefreshControl = new UIRefreshControl();
+			RefreshControl.ValueChanged += async (sender, e) =>
+						{
+							photosList.Clear();
+							tableView.ReloadData();
+							collectionView.ReloadData();
+							_hasItems = true;
+							await GetUserPosts();
+							RefreshControl.EndRefreshing();
+							
+						};
+			tableView.Add(RefreshControl);
+			collectionView.Add(RefreshControl);
+
 			GetUserInfo();
 			GetUserPosts();
 		}
 
 		public override void ViewWillAppear(bool animated)
 		{
-			if(Username == UserContext.Instanse.Username)
+			if (Username == UserContext.Instanse.Username)
+			{
 				navController.SetNavigationBarHidden(true, false);
+				if(TabBarController != null)
+					TabBarController.NavigationController.SetNavigationBarHidden(true, false);
+			}
 			base.ViewWillAppear(animated);
 		}
 
@@ -140,17 +163,15 @@ namespace Steepshot.iOS
 			if (UserContext.Instanse.ShouldProfileUpdate)
 			{
 				photosList.Clear();
+				_hasItems = true;
 				GetUserInfo();
 				GetUserPosts();
 				UserContext.Instanse.ShouldProfileUpdate = false;
 			}
-			//if(TabBarController != null)
-				//navController.SetNavigationBarHidden(true, false);
 		}
 
 		private void PreviewPhoto(UIImage image)
 		{
-			//navController.SetNavigationBarHidden(false, false);
 			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 			myViewController.imageForPreview = image;
 			NavigationController.PushViewController(myViewController, true);
@@ -168,7 +189,7 @@ namespace Steepshot.iOS
 			locationLabel.Text = userData.Location;
 
 			if (!string.IsNullOrEmpty(userData.ProfileImage))
-				LoadImage(userData.ProfileImage);
+				ImageDownloader.Download(userData.ProfileImage, avatar);
 			else
 				avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
@@ -213,22 +234,48 @@ namespace Steepshot.iOS
 			loadingView.Hidden = true;
 		}
 
+		private bool _isPostsLoading;
+
 		public async Task GetUserPosts()
 		{
+			if (_isPostsLoading)
+				return;
+			_isPostsLoading = true;
 			try
 			{
-				var req = new UserPostsRequest(Username) { SessionId = UserContext.Instanse.Token };
+				var req = new UserPostsRequest(Username)
+				{
+					Limit = 20,
+					Offset = tableSource.TableItems.Count == 0 ? "0" : _offsetUrl,
+					SessionId = UserContext.Instanse.Token
+				};
 				var response = await Api.GetUserPosts(req);
 				if (response.Success)
 				{
-					photosList.AddRange(response.Result.Results);
-					collectionView.ReloadData();
-					tableView.ReloadData();
+					var lastItem = response.Result.Results.Last();
+					_offsetUrl = lastItem.Url;
+					if (response.Result.Results.Count == 1)
+						_hasItems = false;
+					else
+						response.Result.Results.Remove(lastItem);
+					
+					if (response.Result.Results.Count != 0)
+					{
+						photosList.AddRange(response.Result.Results);
+						collectionView.ReloadData();
+						tableView.ReloadData();
+					}
+					else
+						_hasItems = false;
 				}
 			}
 			catch (Exception ex)
 			{
 				//logging
+			}
+			finally
+			{
+				_isPostsLoading = false;
 			}
 		}
 
@@ -277,38 +324,6 @@ namespace Steepshot.iOS
 			{
 				followButtonWidth.Constant = 0;
 				followButtonMargin.Constant = 0;
-			}
-		}
-
-		public void LoadImage(string uri)
-		{
-			try
-			{
-				using (var webClient = new WebClient())
-				{
-					webClient.DownloadDataCompleted += (sender, e) =>
-					{
-						try
-						{
-							using (var data = NSData.FromArray(e.Result))
-								avatar.Image = UIImage.LoadFromData(data);
-
-							/*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                            string localFilename = "downloaded.png";
-                            string localPath = Path.Combine(documentsPath, localFilename);
-                            File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-						}
-						catch (Exception ex)
-						{
-							//Logging
-						}
-					};
-					webClient.DownloadDataAsync(new Uri(uri));
-				}
-			}
-			catch (Exception ex)
-			{
-				//Logging
 			}
 		}
 	}

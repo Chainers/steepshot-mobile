@@ -53,6 +53,12 @@ namespace Steepshot.iOS
 			GetItems();
 		}
 
+		public override void ViewWillAppear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(false, false);
+			base.ViewWillAppear(animated);
+		}
+
 		public async Task GetItems()
 		{
 			if (progressBar.IsAnimating)
@@ -73,7 +79,12 @@ namespace Steepshot.iOS
 				{
 					var lastItem = responce.Result.Results.Last();
 					_offsetUrl = lastItem.Author;
-					responce.Result.Results.Remove(lastItem);
+
+					if (responce.Result.Results.Count == 1)
+						_hasItems = false;
+					else
+						responce.Result.Results.Remove(lastItem);
+					
 					if (responce.Result.Results.Count != 0)
 					{
 						tableSource.TableItems.AddRange(responce.Result.Results);

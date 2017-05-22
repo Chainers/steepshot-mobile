@@ -103,11 +103,16 @@ namespace Steepshot.iOS
 
 			if (!isButtonBinded)
 			{
-				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+				UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
 				{
 					GoToProfile(_currentPost.Author);
 				});
-				avatarImage.AddGestureRecognizer(tap);
+				UITapGestureRecognizer textTap = new UITapGestureRecognizer(() =>
+				{
+					GoToProfile(_currentPost.Author);
+				});
+				avatarImage.AddGestureRecognizer(imageTap);
+				cellText.AddGestureRecognizer(textTap);
 			}
 
 			if (!isButtonBinded)
@@ -133,8 +138,9 @@ namespace Steepshot.iOS
                     webClient.Dispose();
                 }
             }
-            LoadImage(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"));
-            LoadImage(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"));
+
+			ImageDownloader.Download(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"), webClients);
+			ImageDownloader.Download(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"), webClients);
         }
 
         private void LikeTap(object sender, EventArgs e)
@@ -152,40 +158,6 @@ namespace Steepshot.iOS
 					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
                 }
             });
-
-        }
-
-        public void LoadImage(string uri, UIImageView imageView, UIImage defaultPicture)
-        {
-            try
-            {
-                imageView.Image = defaultPicture;
-                using (var webClient = new WebClient())
-                {
-                    webClients.Add(webClient);
-                    webClient.DownloadDataCompleted += (sender, e) => {
-                        try
-                        {
-                            using (var data = NSData.FromArray(e.Result))
-                                imageView.Image = UIImage.LoadFromData(data);
-
-                            /*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                            string localFilename = "downloaded.png";
-                            string localPath = Path.Combine(documentsPath, localFilename);
-                            File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-                        }
-                        catch (Exception ex)
-                        {
-                            //Logging
-                        }
-                    };
-                    webClient.DownloadDataAsync(new Uri(uri));
-                }
-            }
-            catch (Exception ex)
-            {
-                //Logging
-            }
         }
     }
 }
