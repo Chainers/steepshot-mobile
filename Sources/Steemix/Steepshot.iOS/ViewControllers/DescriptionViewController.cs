@@ -42,6 +42,7 @@ namespace Steepshot.iOS
 				this.NavigationController.PushViewController(myViewController, true);
 			});
 			collectionviewSource.tagsCollection = new List<string>() { "" }; //UserContext.Instanse.TagsList;
+			collectionviewSource.RowSelectedEvent += CollectionTagSelected;
 			tagsCollectionView.Source = collectionviewSource;
 
 			UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
@@ -83,7 +84,7 @@ namespace Steepshot.iOS
 			try
 			{
 				byte[] photoByteArray;
-				using (NSData imageData = photoView.Image.AsJPEG(0.8f))
+				using (NSData imageData = photoView.Image.AsJPEG(0.6f))
 				{
 					photoByteArray = new Byte[imageData.Length];
 					Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
@@ -117,6 +118,13 @@ namespace Steepshot.iOS
 			{
 				loadingView.Hidden = true;
 			}
+		}
+
+		void CollectionTagSelected(int row)
+		{
+			collectionviewSource.tagsCollection.RemoveAt(row);
+			UserContext.Instanse.TagsList.RemoveAt(row - 1);
+            tagsCollectionView.ReloadData();
 		}
 	}
 }

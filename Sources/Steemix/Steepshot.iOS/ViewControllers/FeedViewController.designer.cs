@@ -17,17 +17,25 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UITableView FeedTable { get; set; }
+
+		[Outlet]
+		UIKit.UILabel noFeedLabel { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (FeedTable != null) {
 				FeedTable.Dispose ();
 				FeedTable = null;
 			}
 
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
+			if (noFeedLabel != null) {
+				noFeedLabel.Dispose ();
+				noFeedLabel = null;
 			}
 		}
 	}

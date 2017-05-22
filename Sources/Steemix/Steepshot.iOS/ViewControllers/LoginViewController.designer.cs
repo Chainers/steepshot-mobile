@@ -35,9 +35,17 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UILabel postingLabel { get; set; }
+
+		[Outlet]
+		UIKit.UIButton qrButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (avatar != null) {
 				avatar.Dispose ();
 				avatar = null;
@@ -63,6 +71,11 @@ namespace Steepshot.iOS
 				password = null;
 			}
 
+			if (qrButton != null) {
+				qrButton.Dispose ();
+				qrButton = null;
+			}
+
 			if (postingKeyButton != null) {
 				postingKeyButton.Dispose ();
 				postingKeyButton = null;
@@ -71,11 +84,6 @@ namespace Steepshot.iOS
 			if (postingLabel != null) {
 				postingLabel.Dispose ();
 				postingLabel = null;
-			}
-
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
 			}
 		}
 	}

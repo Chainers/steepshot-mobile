@@ -123,10 +123,15 @@ namespace Steepshot.iOS
 			}
 			else
 			{
-				UserContext.Instanse.Network = network == Constants.Steem? Constants.Golos : Constants.Steem;
-				HighlightView();
-				SwitchApiAddress();
-				SetAddButton();
+				if (UserContext.Instanse.Network != network)
+				{
+					HighlightView();
+					SetAddButton();
+				}
+				else
+				{
+                    SwitchNetwork(UserContext.Instanse.Network == Constants.Steem ? Constants.Golos : Constants.Steem);
+				}
 			}
 			UserContext.Save();
 		}
@@ -148,39 +153,6 @@ namespace Steepshot.iOS
 		private void SetAddButton()
 		{
 			addAccountButton.Hidden = UserContext.Instanse.Accounts.Count == 2;
-		}
-
-		public void LoadImage(string uri, UIImageView avatar)
-		{
-			avatar.Image = UIImage.FromBundle("ic_user_placeholder");
-			try
-			{
-				using (var webClient = new WebClient())
-				{
-					webClient.DownloadDataCompleted += (sender, e) =>
-					{
-						try
-						{
-							using (var data = NSData.FromArray(e.Result))
-								avatar.Image = UIImage.LoadFromData(data);
-
-							/*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-							string localFilename = "downloaded.png";
-							string localPath = Path.Combine(documentsPath, localFilename);
-							File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-						}
-						catch (Exception ex)
-						{
-							//Logging
-						}
-					};
-					webClient.DownloadDataAsync(new Uri(uri));
-				}
-			}
-			catch (Exception ex)
-			{
-				//Logging
-			}
 		}
 
 		public override void ViewDidDisappear(bool animated)

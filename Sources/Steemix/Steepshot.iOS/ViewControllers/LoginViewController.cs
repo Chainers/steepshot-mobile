@@ -27,7 +27,7 @@ namespace Steepshot.iOS
 			{
 				password.SecureTextEntry = !password.SecureTextEntry;
 			};
-			LoadImage(AvatarLink);
+			ImageDownloader.Download(AvatarLink, avatar);
 			loginTitle.Text = $"Hello, {Username}";
 			loginTitle.Font = Constants.Bold225;
 			postingLabel.Font = Constants.Bold175;
@@ -51,6 +51,18 @@ namespace Steepshot.iOS
 			tw.TextAlignment = UITextAlignment.Center;
 			tw.Font = Constants.Heavy165;
 			NavigationItem.TitleView = tw;
+
+			qrButton.Font = Constants.Bold135;
+			var lil = qrButton.ImageEdgeInsets;
+			//qrButton.ImageEdgeInsets = new UIEdgeInsets(5, 5, -5, -5);
+			qrButton.TouchDown += async (sender, e) =>
+			{
+				var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+				var result = await scanner.Scan();
+
+				if (result != null)
+					password.Text = result.Text;
+			};
 		}
 
 		private async Task Login()
@@ -106,38 +118,6 @@ namespace Steepshot.iOS
 			{
 				loginButton.Enabled = true;
 				activityIndicator.StopAnimating();
-			}
-		}
-
-		public void LoadImage(string uri)
-		{
-			try
-			{
-				using (var webClient = new WebClient())
-				{
-					webClient.DownloadDataCompleted += (sender, e) =>
-					{
-						try
-						{
-							using (var data = NSData.FromArray(e.Result))
-								avatar.Image = UIImage.LoadFromData(data);
-
-							/*string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-							string localFilename = "downloaded.png";
-							string localPath = Path.Combine(documentsPath, localFilename);
-							File.WriteAllBytes(localPath, bytes); // writes to local storage*/
-						}
-						catch (Exception ex)
-						{
-							//Logging
-						}
-					};
-					webClient.DownloadDataAsync(new Uri(uri));
-				}
-			}
-			catch (Exception ex)
-			{
-				//Logging
 			}
 		}
 	}

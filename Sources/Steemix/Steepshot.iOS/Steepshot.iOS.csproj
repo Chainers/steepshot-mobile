@@ -95,6 +95,15 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ZXing.Net.Mobile.Core">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\ZXing.Net.Mobile.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.portable">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\zxing.portable.dll</HintPath>
+    </Reference>
+    <Reference Include="ZXingNetMobile">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -211,6 +220,11 @@
       <DependentUpon>SettingsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="ViewControllers\TagsSearchViewController.cs" />
+    <Compile Include="ViewControllers\TagsSearchViewController.designer.cs">
+      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\ImageDownloader.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />
@@ -233,12 +247,10 @@
     <BundleResource Include="Resources\ic_gray_list.png" />
     <BundleResource Include="Resources\ic_micro_heart.png" />
     <BundleResource Include="Resources\ic_send.png" />
-    <BundleResource Include="Resources\eye.png" />
     <BundleResource Include="Resources\eye%402x.png" />
     <BundleResource Include="Resources\eye%403x.png" />
     <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
     <BundleResource Include="Resources\Fonts\Lato-Heavy.ttf" />
-    <BundleResource Include="Resources\golos.png" />
     <BundleResource Include="Resources\golos%402x.png" />
     <BundleResource Include="Resources\golos%403x.png" />
     <BundleResource Include="Resources\logo_login.png" />
@@ -250,6 +262,22 @@
     <BundleResource Include="Resources\splash.png" />
     <BundleResource Include="Resources\splash%402x.png" />
     <BundleResource Include="Resources\splash%403x.png" />
+    <BundleResource Include="Resources\qr%402x.png" />
+    <BundleResource Include="Resources\qr%403x.png" />
+    <BundleResource Include="Resources\rotate%402x.png" />
+    <BundleResource Include="Resources\rotate%403x.png" />
+    <BundleResource Include="Resources\home%402x.png" />
+    <BundleResource Include="Resources\home%403x.png" />
+    <BundleResource Include="Resources\browse%402x.png" />
+    <BundleResource Include="Resources\browse%403x.png" />
+    <BundleResource Include="Resources\camera%402x.png" />
+    <BundleResource Include="Resources\camera%403x.png" />
+    <BundleResource Include="Resources\profile%402x.png" />
+    <BundleResource Include="Resources\profile%403x.png" />
+    <BundleResource Include="Resources\gallery%403x.png" />
+    <BundleResource Include="Resources\gallery%402x.png" />
+    <BundleResource Include="Resources\take_photo%402x.png" />
+    <BundleResource Include="Resources\take_photo%403x.png" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

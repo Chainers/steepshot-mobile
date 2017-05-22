@@ -19,13 +19,15 @@ namespace Steepshot.iOS
 		private bool moveViewUp = false;
 		protected NSObject showKeyboardToken;
 		protected NSObject closeKeyboardToken;
+		protected NSObject foregroundToken;
 
 		private static SteepshotApiClient _apiClient;
 
 		public override void ViewWillAppear(bool animated)
 		{
-			if(TabBarController != null)
+			if (TabBarController != null)
 				TabBarController.TabBar.Hidden = false;
+			
 			base.ViewWillAppear(animated);
 		}
 
@@ -34,15 +36,22 @@ namespace Steepshot.iOS
 			base.ViewDidAppear(animated);
 			showKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
 			(UIKeyboard.DidShowNotification, KeyBoardUpNotification);
+			foregroundToken = NSNotificationCenter.DefaultCenter.AddObserver
+												  (UIApplication.WillResignActiveNotification, (g) =>
+												  {
+													  activeview.ResignFirstResponder();
+												  });
+
 			closeKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
 			(UIKeyboard.WillHideNotification, KeyBoardDownNotification);
 		}
 
 		public override void ViewDidDisappear(bool animated)
 		{
-			NSNotificationCenter.DefaultCenter.RemoveObservers(new NSObject[2] { closeKeyboardToken, showKeyboardToken });
+			NSNotificationCenter.DefaultCenter.RemoveObservers(new NSObject[3] { closeKeyboardToken, showKeyboardToken, foregroundToken });
 			showKeyboardToken.Dispose();
 			closeKeyboardToken.Dispose();
+			foregroundToken.Dispose();
 			base.ViewDidDisappear(animated);
 		}
 
@@ -76,6 +85,9 @@ namespace Steepshot.iOS
 
 		protected virtual void KeyBoardUpNotification(NSNotification notification)
 		{
+			if (scroll_amount > 0)
+				return;
+
 			CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
 			foreach (UIView view in this.View.Subviews)
 			{
@@ -91,6 +103,11 @@ namespace Steepshot.iOS
 			}
 			else
 				moveViewUp = false;
+		}
+
+		public override void ViewDidUnload()
+		{
+			base.ViewDidUnload();
 		}
 
 		protected virtual void KeyBoardDownNotification(NSNotification notification)
