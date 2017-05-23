@@ -80,6 +80,7 @@ namespace Steepshot.iOS
 		private async Task PostPhoto()
 		{
 			loadingView.Hidden = false;
+			postPhotoButton.Enabled = false;
 
 			try
 			{
@@ -117,6 +118,7 @@ namespace Steepshot.iOS
 			finally
 			{
 				loadingView.Hidden = true;
+				postPhotoButton.Enabled = true;
 			}
 		}
 

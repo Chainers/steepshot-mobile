@@ -39,7 +39,8 @@ namespace Steepshot.iOS
 			foregroundToken = NSNotificationCenter.DefaultCenter.AddObserver
 												  (UIApplication.WillResignActiveNotification, (g) =>
 												  {
-													  activeview.ResignFirstResponder();
+													  if (activeview != null)
+														  activeview.ResignFirstResponder();
 												  });
 
 			closeKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
