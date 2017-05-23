@@ -371,14 +371,14 @@ namespace Steepshot.iOS
             newPhotosButton.BackgroundColor = buttonColor;
             newPhotosButton.TouchDown += ((e, obj) =>
                {
-                if(currentPostType == PostType.New)
+                   if(currentPostType == PostType.New && UserContext.Instanse.CurrentPostCategory == null)
                        return;
                    ToogleDropDownList();
                    tableSource.TableItems.Clear();
                    FeedTable.ReloadData();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = null;
+				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
                    GetPosts();
                });
 
@@ -388,14 +388,14 @@ namespace Steepshot.iOS
 
 			hotButton.TouchDown += ((e, obj) =>
 			   {
-				   if (currentPostType == PostType.Hot)
+				   if (currentPostType == PostType.Hot && UserContext.Instanse.CurrentPostCategory == null)
 					   return;
 				   ToogleDropDownList();
 				   tableSource.TableItems.Clear();
 				   FeedTable.ReloadData();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = null;
+				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
 				   GetPosts();
 			   });
 
@@ -405,14 +405,14 @@ namespace Steepshot.iOS
 
 			trendingButton.TouchDown += ((e, obj) =>
 			   {
-				   if (currentPostType == PostType.Top)
+				   if (currentPostType == PostType.Top && UserContext.Instanse.CurrentPostCategory == null)
 					   return;
 				   ToogleDropDownList();
 				   tableSource.TableItems.Clear();
 				   FeedTable.ReloadData();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = null;
+				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
 				   GetPosts();
 			   });
 

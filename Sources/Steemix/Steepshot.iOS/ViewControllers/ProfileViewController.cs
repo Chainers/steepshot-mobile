@@ -258,15 +258,11 @@ namespace Steepshot.iOS
 						_hasItems = false;
 					else
 						response.Result.Results.Remove(lastItem);
-					
-					if (response.Result.Results.Count != 0)
-					{
-						photosList.AddRange(response.Result.Results);
-						collectionView.ReloadData();
-						tableView.ReloadData();
-					}
-					else
-						_hasItems = false;
+
+					photosList.AddRange(response.Result.Results);
+					collectionView.ReloadData();
+					tableView.ReloadData();
+
 				}
 			}
 			catch (Exception ex)
