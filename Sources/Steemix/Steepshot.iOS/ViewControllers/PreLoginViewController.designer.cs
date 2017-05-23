@@ -43,6 +43,9 @@ namespace Steepshot.iOS
 		UIKit.UISwitch networkSwitch { get; set; }
 
 		[Outlet]
+		UIKit.UIPickerView picker { get; set; }
+
+		[Outlet]
 		UIKit.UILabel signLabel { get; set; }
 
 		[Outlet]
@@ -53,9 +56,19 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (aboveConstant != null) {
+				aboveConstant.Dispose ();
+				aboveConstant = null;
+			}
+
 			if (activityIndicator != null) {
 				activityIndicator.Dispose ();
 				activityIndicator = null;
+			}
+
+			if (belowConstant != null) {
+				belowConstant.Dispose ();
+				belowConstant = null;
 			}
 
 			if (devSwitch != null) {
@@ -108,14 +121,9 @@ namespace Steepshot.iOS
 				steemImg = null;
 			}
 
-			if (aboveConstant != null) {
-				aboveConstant.Dispose ();
-				aboveConstant = null;
-			}
-
-			if (belowConstant != null) {
-				belowConstant.Dispose ();
-				belowConstant = null;
+			if (picker != null) {
+				picker.Dispose ();
+				picker = null;
 			}
 		}
 	}

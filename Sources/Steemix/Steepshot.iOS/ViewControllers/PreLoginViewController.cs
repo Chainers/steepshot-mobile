@@ -17,10 +17,10 @@ namespace Steepshot.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-			networkSwitch.Layer.CornerRadius = 16;
-			networkSwitch.On = UserContext.Instanse.Network == Constants.Steem;
+			//networkSwitch.Layer.CornerRadius = 16;
+			//networkSwitch.On = UserContext.Instanse.Network == Constants.Steem;
 			SetText();
-			networkSwitch.ValueChanged += NetworkSwithed;
+			//networkSwitch.ValueChanged += NetworkSwithed;
 			loginButton.TouchDown += (sender, e) => GetUserInfo();
 			loginLabel.Font = Constants.Bold175;
 			signLabel.Font = Constants.Bold125;
@@ -52,11 +52,14 @@ namespace Steepshot.iOS
 			tw.Font = Constants.Heavy165;
 			NavigationItem.TitleView = tw;
 
+			picker.Model = new NetworkPickerViewModel(NetworkSwithed);
+			picker.Select(Convert.ToInt32(UserContext.Instanse.Network != Constants.Steem), 0, true);
+			        
 			if (!string.IsNullOrEmpty(newAccountNetwork))
 			{
-				networkSwitch.Hidden = true;
-				steemImg.Hidden = true;
-				golosImg.Hidden = true;
+				picker.Hidden = true;
+				//steemImg.Hidden = true;
+				//golosImg.Hidden = true;
 				UserContext.Instanse.Network = newAccountNetwork;
                 SwitchApiAddress();
 			}
@@ -82,9 +85,9 @@ namespace Steepshot.iOS
 			
 		}
 
-		private void NetworkSwithed(object sender, EventArgs e)
+		private void NetworkSwithed(string network)
 		{
-			UserContext.Instanse.Network = ((UISwitch)sender).On ? Constants.Steem : Constants.Golos;
+			UserContext.Instanse.Network = network;
 			SetText();
 			UserContext.Save();
 			SwitchApiAddress();
@@ -138,6 +141,49 @@ namespace Steepshot.iOS
 			{
 				loginButton.Enabled = true;
 				activityIndicator.StopAnimating();
+			}
+		}
+	}
+
+	public class NetworkPickerViewModel : UIPickerViewModel
+	{
+		private Action<string> _switched;
+
+		public NetworkPickerViewModel(Action<string> switched)
+		{
+			_switched = switched;
+		}
+
+		public override nint GetComponentCount(UIPickerView pickerView)
+		{
+			return 1;
+		}
+
+		public override nint GetRowsInComponent(UIPickerView pickerView, nint component)
+		{
+			return 2;
+		}
+
+		public override string GetTitle(UIPickerView pickerView, nint row, nint component)
+		{
+			return GetTitle(row);
+		}
+
+		public override void Selected(UIPickerView pickerView, nint row, nint component)
+		{
+			_switched(GetTitle(row));
+		}
+
+		private string GetTitle(nint row)
+		{
+			switch (row)
+			{
+				case 0:
+					return Constants.Steem;
+				case 1:
+					return Constants.Golos;
+				default:
+					return string.Empty;
 			}
 		}
 	}
