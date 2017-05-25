@@ -32,6 +32,7 @@ namespace Steepshot.iOS
             }
             else
             {
+				UserContext.Instanse.IsHomeFeedLoaded = true;
                 initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
             var navController = new UINavigationController(initialViewController);

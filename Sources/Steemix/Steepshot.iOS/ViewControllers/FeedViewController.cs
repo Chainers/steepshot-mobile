@@ -29,6 +29,8 @@ namespace Steepshot.iOS
         UINavigationController navController;
         UINavigationItem navItem;
 
+		private bool isHomeFeed;
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -44,6 +46,14 @@ namespace Steepshot.iOS
             {
                 Vote(vote, url, action);
             };
+
+			if (!UserContext.Instanse.IsHomeFeedLoaded)
+			{
+				isHomeFeed = true;
+				UserContext.Instanse.IsHomeFeedLoaded = true;
+				TabBarItem.Image = UIImage.FromBundle("eye");
+				TabBarItem.SelectedImage = UIImage.FromBundle("eye");
+			}
 
 			tableSource.GoToProfile += (username)  =>
             {
@@ -70,13 +80,17 @@ namespace Steepshot.iOS
 
             FeedTable.RowHeight = UITableView.AutomaticDimension;
             FeedTable.EstimatedRowHeight = 450f;
-            dropdown = CreateDropDownList();
+			if (!isHomeFeed)
+			{
+				dropdown = CreateDropDownList();
+			}
             GetPosts();
         }
 
         public override void ViewDidAppear(bool animated)
         {
-            SetNavBar();
+			SetNavBar();
+
 			if (UserContext.Instanse.NetworkChanged)
 				RefreshTable();
             base.ViewDidAppear(animated);
@@ -143,13 +157,29 @@ namespace Steepshot.iOS
             activityIndicator.StartAnimating();
             try
             {
-                var postrequest = new PostsRequest(currentPostType)
-                {
-                    SessionId = UserContext.Instanse.Token,
-                    Limit = 20,
-                    Offset = tableSource.TableItems.Count == 0 ? "0" : _offsetUrl
-                };
-                var posts = await Api.GetPosts(postrequest);
+				OperationResult<UserPostResponse> posts;
+				string offset = tableSource.TableItems.Count == 0 ? "0" : _offsetUrl;
+
+				if (!isHomeFeed)
+				{
+					var postrequest = new PostsRequest(currentPostType)
+					{
+						SessionId = UserContext.Instanse.Token,
+						Limit = 20,
+						Offset = offset
+					};
+					posts = await Api.GetPosts(postrequest);
+				}
+				else
+				{
+					var f = new UserRecentPostsRequest(UserContext.Instanse.Token)
+					{
+						Limit = 20,
+						Offset = offset
+					};
+					posts = await Api.GetUserRecentPosts(f);
+				}
+                
 				var lastItem = posts.Result.Results.Last();
 				_offsetUrl = lastItem.Url;
 				posts.Result.Results.Remove(lastItem);
@@ -195,44 +225,43 @@ namespace Steepshot.iOS
             }
         }
 
-        private void SetNavBar()
-        {
+		private void SetNavBar()
+		{
 			navController.SetNavigationBarHidden(false, false);
+			var barHeight = navController.NavigationBar.Frame.Height;
+			UIView titleView = new UIView();
 
-            var barHeight = navController.NavigationBar.Frame.Height;
+			tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, barHeight));
+			tw.TextColor = UIColor.White;
+			tw.Text = "FEED"; //ToConstants name
+			tw.BackgroundColor = UIColor.Clear;
+			tw.TextAlignment = UITextAlignment.Center;
+			tw.Font = UIFont.SystemFontOfSize(17);
+			titleView.Frame = new CoreGraphics.CGRect(0, 0, tw.Frame.Right, barHeight);
 
-            UIView titleView = new UIView();
-            UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
-            titleView.AddGestureRecognizer(tapGesture);
-            titleView.UserInteractionEnabled = true;
+			titleView.Add(tw);
+			if (!isHomeFeed)
+			{
+				tw.Text = "TRENDING"; // SET current post type
+				UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
+				titleView.AddGestureRecognizer(tapGesture);
+				titleView.UserInteractionEnabled = true;
 
-            tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, barHeight));
-            tw.TextColor = UIColor.White;
-            tw.Text = "TRENDING"; //ToConstants name
-            tw.BackgroundColor = UIColor.Clear;
-            tw.TextAlignment = UITextAlignment.Center;
-            tw.Font = UIFont.SystemFontOfSize(17);
+				var arrowSize = 15;
+				arrow = new UIImageView(new CoreGraphics.CGRect(tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
+				arrow.Image = UIImage.FromBundle("white-arrow-down");
+				titleView.Add(arrow);
+				titleView.Frame = new CoreGraphics.CGRect(0, 0, arrow.Frame.Right, barHeight);
+			}
 
-            titleView.Add(tw);
-
-            var arrowSize = 15;
-            arrow = new UIImageView(new CoreGraphics.CGRect(tw.Frame.Right, barHeight/2 - arrowSize/2, arrowSize, arrowSize));
-            arrow.Image = UIImage.FromBundle("white-arrow-down");
-            titleView.Add(arrow);
-
-            titleView.Frame = new CoreGraphics.CGRect(0, 0, arrow.Frame.Right, barHeight);
-            navItem.TitleView = titleView;
-
-            if (UserContext.Instanse.Token == null)
-            {
-                var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
-                navItem.SetLeftBarButtonItem(leftBarButton, true);
-            }
-            else
-            {
-                /*var leftBarButton = new UIBarButtonItem("Logout", UIBarButtonItemStyle.Plain,(e, sender) => LogoutTapped(e, sender)); //ToConstants name
-                navItem.SetLeftBarButtonItem(leftBarButton, true);*/
-            }
+			navItem.TitleView = titleView;
+			if (UserContext.Instanse.Token == null)
+			{
+				var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
+				navItem.SetLeftBarButtonItem(leftBarButton, true);
+			}
+			else
+				navItem.SetLeftBarButtonItem(null, false);
 
             navController.NavigationBar.TintColor = UIColor.White;
 			navController.NavigationBar.BarTintColor = Constants.NavBlue; // To constants
@@ -265,33 +294,33 @@ namespace Steepshot.iOS
             hotButton.SetTitle("HOT", UIControlState.Normal); //ToConstants name
             hotButton.BackgroundColor = buttonColor;
 
-            hotButton.TouchDown += ((e, obj) =>
-               {
-                   if (currentPostType == PostType.Hot)
-                       return;
-                   ToogleDropDownList();
-                   tableSource.TableItems.Clear();
-                   FeedTable.ReloadData();
-                   currentPostType = PostType.Hot;
-                   tw.Text = hotButton.TitleLabel.Text;
-                   GetPosts();
-               });
+			hotButton.TouchDown += ((e, obj) =>
+			   {
+				   if (currentPostType == PostType.Hot)
+					   return;
+				   ToogleDropDownList();
+				   tableSource.TableItems.Clear();
+				   FeedTable.ReloadData();
+				   currentPostType = PostType.Hot;
+				   tw.Text = hotButton.TitleLabel.Text;
+				   GetPosts();
+			   });
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
             trendingButton.SetTitle("TRENDING", UIControlState.Normal); //ToConstants name
             trendingButton.BackgroundColor = buttonColor;
 
-            trendingButton.TouchDown += ((e, obj) =>
-               {
-                    if(currentPostType == PostType.Top)
-                           return;
-                   ToogleDropDownList();
-                   tableSource.TableItems.Clear();
-                   FeedTable.ReloadData();
-                   currentPostType = PostType.Top;
-                   tw.Text = trendingButton.TitleLabel.Text;
-                   GetPosts();
-               });
+			trendingButton.TouchDown += ((e, obj) =>
+			   {
+				   if (currentPostType == PostType.Top)
+					   return;
+				   ToogleDropDownList();
+				   tableSource.TableItems.Clear();
+				   FeedTable.ReloadData();
+				   currentPostType = PostType.Top;
+				   tw.Text = trendingButton.TitleLabel.Text;
+				   GetPosts();
+			   });
 
             view.Add(newPhotosButton);
             view.Add(hotButton);
