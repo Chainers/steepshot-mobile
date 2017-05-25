@@ -37,6 +37,14 @@ namespace Steepshot.iOS
 
 		public void UpdateImage(string url)
 		{
+			foreach (var webClient in webClients)
+            {
+                if (webClient != null)
+                {
+                    webClient.CancelAsync();
+                    webClient.Dispose();
+                }
+            }
 			LoadImage(url, photoImg, null);
 		}
 
