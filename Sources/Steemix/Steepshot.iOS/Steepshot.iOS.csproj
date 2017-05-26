@@ -127,6 +127,7 @@
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
+    <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -225,6 +226,10 @@
       <DependentUpon>TagsSearchViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ImageDownloader.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.designer.cs">
+      <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />
@@ -278,6 +283,19 @@
     <BundleResource Include="Resources\gallery%402x.png" />
     <BundleResource Include="Resources\take_photo%402x.png" />
     <BundleResource Include="Resources\take_photo%403x.png" />
+    <BundleResource Include="Resources\list%402x.png" />
+    <BundleResource Include="Resources\list%403x.png" />
+    <BundleResource Include="Resources\grid%402x.png" />
+    <BundleResource Include="Resources\grid%403x.png" />
+    <BundleResource Include="Resources\gear%402x.png" />
+    <BundleResource Include="Resources\gear%403x.png" />
+    <BundleResource Include="Resources\wallet%402x.png" />
+    <BundleResource Include="Resources\wallet%403x.png" />
+    <BundleResource Include="Resources\Fonts\Lato-Regular.ttf" />
+    <BundleResource Include="Resources\Fonts\Lato-Semibold.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

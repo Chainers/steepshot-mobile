@@ -275,6 +275,16 @@ namespace Steepshot.iOS
 		}
 	}
 
+
+	class NewCollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
+	{
+		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+		{
+			var cellSize = (float)UIScreen.MainScreen.Bounds.Width;
+			return new SizeF(cellSize, cellSize);
+		}
+	}
+
 	class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
 	{
 		Action ScrolledAction;
