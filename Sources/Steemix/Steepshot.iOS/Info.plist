@@ -40,6 +40,8 @@
 	<array>
 		<string>Fonts/Lato-Bold.ttf</string>
 		<string>Fonts/Lato-Heavy.ttf</string>
+		<string>Fonts/Lato-Regular.ttf</string>
+		<string>Fonts/Lato-Semibold.ttf</string>
 	</array>
 </dict>
 </plist>
