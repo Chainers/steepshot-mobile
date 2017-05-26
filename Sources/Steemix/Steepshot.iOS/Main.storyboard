@@ -326,9 +326,8 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="QkP-id-evD">
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="QkP-id-evD">
                                 <rect key="frame" x="169" y="315" width="37" height="37"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="color" red="0.1144511421" green="0.1144511421" blue="0.1144511421" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
                         </subviews>
@@ -336,7 +335,9 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Ybu-gT-2ac" secondAttribute="trailing" id="220-08-hkD"/>
                             <constraint firstItem="Ybu-gT-2ac" firstAttribute="leading" secondItem="12N-l8-NBi" secondAttribute="leading" id="3ZU-aj-MPI"/>
+                            <constraint firstItem="QkP-id-evD" firstAttribute="centerY" secondItem="12N-l8-NBi" secondAttribute="centerY" id="5qg-iU-xa0"/>
                             <constraint firstItem="9KS-oH-zeB" firstAttribute="top" secondItem="Ybu-gT-2ac" secondAttribute="bottom" id="YrV-FL-cHq"/>
+                            <constraint firstItem="QkP-id-evD" firstAttribute="centerX" secondItem="12N-l8-NBi" secondAttribute="centerX" id="bPz-gT-NRQ"/>
                             <constraint firstItem="Ybu-gT-2ac" firstAttribute="top" secondItem="2NW-gz-eHQ" secondAttribute="bottom" id="egy-Mp-Yag"/>
                         </constraints>
                     </view>
