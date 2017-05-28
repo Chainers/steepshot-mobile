@@ -156,7 +156,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var endpoint = $"/posts/{request.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
@@ -174,7 +174,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var endpoint = $"/posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
@@ -199,7 +199,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var endpoint = $"/post/{request.Identifier}/{request.Type.GetDescription()}";
+            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
@@ -216,7 +216,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var endpoint = $"/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
@@ -230,7 +230,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Get($"/post/{request.Url}/comments", parameters);
+            var response = await _gateway.Get($"post/{request.Url}/comments", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<GetCommentResponse>(response.Content, errorResult);
         }
@@ -251,7 +251,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var response = await _gateway.Post($"/post/{request.Url}/comment", parameters);
+            var response = await _gateway.Post($"post/{request.Url}/comment", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
         }
@@ -308,7 +308,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
-            parameters2.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+            parameters2.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
 
             var response = await _gateway.Get("categories/search", parameters2);
             var errorResult = CheckErrors(response);
@@ -354,7 +354,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var endpoint = $"/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
+            var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Get(endpoint, parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);
@@ -380,7 +380,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var endpoint = $"/post/{request.Url}/info";
+            var endpoint = $"post/{request.Url}/info";
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<Post>(response.Content, errorResult);
@@ -408,10 +408,26 @@ namespace Sweetshot.Library.HttpClient
         /// </summary>
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
         {
-            var endpoint = $"/user/{request.Username}/exists";
+            var endpoint = $"user/{request.Username}/exists";
             var response = await _gateway.Get(endpoint, new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<UserExistsResponse>(response.Content, errorResult);
+        }
+
+        public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request)
+        {
+            var parameters = CreateSessionParameter(request.SessionId);
+            parameters.Add(new RequestParameter
+            {
+                Key = "application/json",
+                Value = _jsonConverter.Serialize(request),
+                Type = ParameterType.RequestBody
+            });
+
+            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
+            var response = await _gateway.Post(endpoint, parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<FlagResponse>(response.Content, errorResult);
         }
 
         private List<RequestParameter> CreateSessionParameter(string sessionId)

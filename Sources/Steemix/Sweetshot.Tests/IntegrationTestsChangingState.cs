@@ -8,21 +8,23 @@ using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 
-namespace Sweetshot.Tests.Steemit
+namespace Sweetshot.Tests
 {
     [TestFixture]
     public class IntegrationTestsChangingState
     {
-        private readonly SteepshotApiClient steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
-        private readonly SteepshotApiClient golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
+        private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
+        //private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
+        private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
+        //private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
         private SteepshotApiClient Api(string name)
         {
             switch (name)
             {
                 case "Steem":
-                    return steem;
+                    return _steem;
                 case "Golos":
-                    return golos;
+                    return _golos;
                 default:
                     return null;
             }

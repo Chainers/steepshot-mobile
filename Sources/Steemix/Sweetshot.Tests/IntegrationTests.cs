@@ -7,7 +7,7 @@ using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 
-namespace Sweetshot.Tests.Steemit
+namespace Sweetshot.Tests
 {
     [TestFixture]
     public class IntegrationTests
@@ -15,16 +15,19 @@ namespace Sweetshot.Tests.Steemit
         private const string Name = "joseph.kalu";
         private const string PostingKey = "***REMOVED***";
 
-        private SteepshotApiClient steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
-        private SteepshotApiClient golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
+        //private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
+        private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
+        //private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
+        private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
+
         private SteepshotApiClient Api(string name)
         {
             switch (name)
             {
                 case "Steem":
-                    return steem;
+                    return _steem;
                 case "Golos":
-                    return golos;
+                    return _golos;
                 default:
                     return null;
             }
@@ -536,6 +539,100 @@ namespace Sweetshot.Tests.Steemit
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
 
+        [Test, Sequential]
+        public void Flag_Up_Already_Flagged([Values("Steem", "Golos")] string name)
+        {
+            // Load last post
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), true, lastPost.Url);
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+            var response2 = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response2);
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+        }
+
+        [Test, Sequential]
+        public void Flag_Down_Already_Flagged([Values("Steem", "Golos")] string name)
+        {
+            // Load last post
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), false, lastPost.Url);
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+            var response2 = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response2);
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+        }
+
+        [Test, Sequential]
+        public void Flag_Invalid_Identifier1([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe");
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Incorrect identifier"));
+        }
+
+        [Test, Sequential]
+        public void Flag_Invalid_Identifier2([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/qwe");
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Incorrect identifier"));
+        }
+
+        [Test, Sequential]
+        public void Flag_Invalid_Identifier3([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/qwe");
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Incorrect identifier"));
+        }
+
+        [Test, Sequential]
+        public void Flag_Invalid_Identifier4([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/@qwe");
+
+            // Act
+            var response = Api(name).Flag(request).Result;
+
+            // Assert
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Incorrect identifier"));
+        }
+        
         [Test, Sequential]
         public void Follow_Invalid_Username([Values("Steem", "Golos")] string name)
         {
@@ -1349,10 +1446,8 @@ namespace Sweetshot.Tests.Steemit
             var response = Api(name).Login(request).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsLoggedIn, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("User was logged in."));
-            Assert.That(response.Result.SessionId, Is.Not.Empty);
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Your version of Steepshot is too old. Please download an update."));
         }
 
         [Test, Sequential]
@@ -1371,7 +1466,7 @@ namespace Sweetshot.Tests.Steemit
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("A user with that username already exists."));
+            Assert.That(response.Errors.Contains("Your version of Steepshot is too old. Please download an update."));
         }
 
         [Test, Sequential]
@@ -1388,17 +1483,8 @@ namespace Sweetshot.Tests.Steemit
             var response = Api(name).ChangePassword(request).Result;
 
             // Assert
-            AssertSuccessfulResult(response);
-            Assert.That(response.Result.IsChanged, Is.True);
-            Assert.That(response.Result.Message, Is.EqualTo("Password was changed"));
-
-            // Rollback
-            var request2 = new ChangePasswordRequest(Authenticate(Api(name)), newPassword, password);
-            var response2 = Api(name).ChangePassword(request2).Result;
-
-            AssertSuccessfulResult(response2);
-            Assert.That(response2.Result.IsChanged, Is.True);
-            Assert.That(response2.Result.Message, Is.EqualTo("Password was changed"));
+            AssertFailedResult(response);
+            Assert.That(response.Errors.Contains("Your version of Steepshot is too old. Please download an update."));
         }
 
         private void AssertSuccessfulResult<T>(OperationResult<T> response)
