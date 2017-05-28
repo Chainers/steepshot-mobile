@@ -4,21 +4,21 @@ using Newtonsoft.Json;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public enum VoteType
+    public enum FlagType
     {
-        [Description("upvote")] Up,
-        [Description("downvote")] Down
+        [Description("flag")] Up,
+        [Description("noflag")] Down
     }
 
-    public class VoteRequest : SessionIdField
+    public class FlagRequest : SessionIdField
     {
-        public VoteRequest(string sessionId, bool isUp, string identifier)
+        public FlagRequest(string sessionId, bool isUp, string identifier)
         {
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
             base.SessionId = sessionId;
-            Type = isUp ? VoteType.Up : VoteType.Down;
+            Type = isUp ? FlagType.Up : FlagType.Down;
             Identifier = identifier;
         }
 
@@ -26,6 +26,6 @@ namespace Sweetshot.Library.Models.Requests
         public string Identifier { get; private set; }
 
         [JsonIgnore]
-        public VoteType Type { get; private set; }
+        public FlagType Type { get; private set; }
     }
 }
