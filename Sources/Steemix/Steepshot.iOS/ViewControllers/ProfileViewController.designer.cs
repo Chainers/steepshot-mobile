@@ -22,6 +22,9 @@ namespace Steepshot.iOS
 		UIKit.UICollectionView collectionView { get; set; }
 
 		[Outlet]
+		UIKit.UICollectionViewFlowLayout collectioViewFlowLayout { get; set; }
+
+		[Outlet]
 		UIKit.UILabel dateLabel { get; set; }
 
 		[Outlet]
@@ -126,6 +129,11 @@ namespace Steepshot.iOS
 				headerView = null;
 			}
 
+			if (loading != null) {
+				loading.Dispose ();
+				loading = null;
+			}
+
 			if (loadingView != null) {
 				loadingView.Dispose ();
 				loadingView = null;
@@ -161,9 +169,9 @@ namespace Steepshot.iOS
 				tableView = null;
 			}
 
-			if (loading != null) {
-				loading.Dispose ();
-				loading = null;
+			if (collectioViewFlowLayout != null) {
+				collectioViewFlowLayout.Dispose ();
+				collectioViewFlowLayout = null;
 			}
 		}
 	}
