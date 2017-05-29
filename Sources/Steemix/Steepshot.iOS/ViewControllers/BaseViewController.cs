@@ -70,14 +70,14 @@ namespace Steepshot.iOS
 		{
 			if (UserContext.Instanse.Network == Constants.Steem)
 			{
-				if(UserContext.Instanse.IsDev)
+				if(UserContext.Instanse.Dev)
 					_apiClient = new SteepshotApiClient("https://qa.steepshot.org/api/v1/");
 				else
 					_apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
 			}
 			else
 			{
-				if(UserContext.Instanse.IsDev)
+				if(UserContext.Instanse.Dev)
 					_apiClient = new SteepshotApiClient("https://qa.golos.steepshot.org/api/v1/");
 				else
 					_apiClient = new SteepshotApiClient("https://golos.steepshot.org/api/v1/");

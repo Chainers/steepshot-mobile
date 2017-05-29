@@ -9,11 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot", "Steepshot\Steepshot.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Ditch", "..\..\..\Ditch\Sources\Ditch\Ditch.shproj", "{4222CCB1-9D8A-40C7-9CEE-4F3C0B0BB625}"
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Ditch", "..\..\..\Ditch\Sources\Ditch\Ditch.shproj", "{60F06DE7-AAC5-444F-841A-B1CCE1D159AE}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Cryptography.ECDSA", "..\..\..\Cryptography.ECDSA\Sources\Cryptography.ECDSA\Cryptography.ECDSA.shproj", "{58C01553-9621-4267-82CF-6D02A79FFEE1}"
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Cryptography.ECDSA", "..\..\..\Cryptography.ECDSA\Sources\Cryptography.ECDSA\Cryptography.ECDSA.shproj", "{8A802014-0BA4-4C11-B416-E39F973AF0A1}"
 EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Sweetshot.Tests", "Sweetshot.Tests\Sweetshot.Tests.csproj", "{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweetshot.Tests", "Sweetshot.Tests\Sweetshot.Tests.csproj", "{D3CCF11D-1947-4CE4-9654-08276BABD863}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -55,17 +55,17 @@ Global
 		{1A6A26C2-067B-40ED-A717-7509B633A345}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{1A6A26C2-067B-40ED-A717-7509B633A345}.Release|iPhone.Build.0 = Release|Any CPU
 		{1A6A26C2-067B-40ED-A717-7509B633A345}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{6DBD534B-10A6-4BE7-ADD5-9723FF60675C}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

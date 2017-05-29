@@ -27,10 +27,10 @@ namespace Steepshot.iOS
 			loginText.Font = Constants.Bold135;
 			loginButton.Font = Constants.Heavy115;
 			signUpButton.Font = Constants.Bold135;
-			devSwitch.On = UserContext.Instanse.IsDev;
+			devSwitch.On = UserContext.Instanse.Dev;
 			devSwitch.ValueChanged += (sender, e) =>
 			{
-				UserContext.Instanse.IsDev = ((UISwitch)sender).On;
+				UserContext.Instanse.Dev = ((UISwitch)sender).On;
 				SwitchApiAddress();
 				UserContext.Save();
 			};

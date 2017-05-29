@@ -13,7 +13,7 @@ namespace Steepshot.iOS
 		public static readonly UINib Nib;
 		private List<WebClient> webClients = new List<WebClient>();
 		private bool isButtonBinded = false;
-		public event VoteEventHandler Voted;
+		public event VoteEventHandler<VoteResponse> Voted;
 		public event HeaderTappedHandler GoToProfile;
 		private string PostUrl;
 
