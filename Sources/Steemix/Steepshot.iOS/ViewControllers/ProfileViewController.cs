@@ -17,7 +17,7 @@ namespace Steepshot.iOS
 
 		UserProfileResponse userData;
 		public string Username = UserContext.Instanse.Username;
-		ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
+		FeedCollectionViewSource collectionViewSource = new FeedCollectionViewSource(); //new ProfileCollectionViewSource();
 		private FeedTableViewSource tableSource = new FeedTableViewSource();
 
 		private List<Post> photosList = new List<Post>();
@@ -29,7 +29,7 @@ namespace Steepshot.iOS
 		private bool _isPostsLoading;
 		private bool _isFeed = true;
 		private ProfileHeaderViewController _profileHeader;
-
+		//UICollectionView collectionViewNew;
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
@@ -37,11 +37,27 @@ namespace Steepshot.iOS
 			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
 			if (TabBarController != null)
 				TabBarController.NavigationController.NavigationBarHidden = true;
-			
+
 			collectionViewSource.PhotoList = photosList;
-			collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
-			collectionView.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
+
+			collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 450);
+			//collectioViewFlowLayout.MinimumLineSpacing = 0;
+			//collectioViewFlowLayout.MinimumInteritemSpacing = 0;
+
+
+			//collectionView = new UICollectionView(new CGRect(0,0,(float)UIScreen.MainScreen.Bounds.Width, 500),  new UICollectionViewFlowLayout());
+			//collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
+			//collectionView.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
+
+			collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
+			collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
+
 			collectionView.Source = collectionViewSource;
+			//this.Add(collectionViewNew);
+
+			//collectionView.Delegate = new UICollectionViewDelegateFlowLayout();
+
+			/*
 			collectionView.Delegate = new CollectionViewFlowDelegate((indexPath) =>
 			{
 				var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
@@ -51,7 +67,7 @@ namespace Steepshot.iOS
 			{
 				if (_hasItems)
 					GetUserPosts();
-			});
+			});*/
 
 			_profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
 			_profileHeader.View.Frame = new CGRect(0, -_profileHeader.View.Frame.Height, _profileHeader.View.Frame.Width, _profileHeader.View.Frame.Height);

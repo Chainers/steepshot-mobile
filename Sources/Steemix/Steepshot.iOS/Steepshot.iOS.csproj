@@ -128,6 +128,7 @@
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
+    <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -230,6 +231,11 @@
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
       <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cells\FeedCollectionViewCell.cs" />
+    <Compile Include="Cells\FeedCollectionViewCell.designer.cs">
+      <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\FeedCollectionViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />
