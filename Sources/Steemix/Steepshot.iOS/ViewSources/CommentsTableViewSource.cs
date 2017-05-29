@@ -8,7 +8,7 @@ namespace Steepshot.iOS
 	public class CommentsTableViewSource : BaseTableSource<Post>
 	{
 		string CellIdentifier = nameof(CommentTableViewCell);
-		public event VoteEventHandler Voted;
+		public event VoteEventHandler<VoteResponse> Voted;
 		public event HeaderTappedHandler GoToProfile;
 
 		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)

@@ -23,7 +23,7 @@ namespace Steepshot.iOS
 		[JsonIgnore]
 		public string CurrentPostCategory { get; set; }
 
-		public bool IsDev { get; set; }
+		public bool Dev { get; set; }
 
 		public List<Account> Accounts { get; set; } = new List<Account>();
 
@@ -58,6 +58,7 @@ namespace Steepshot.iOS
 					Instanse.Accounts = loadedInstance.Accounts;
 					//Instanse.Username = loadedInstance.Username;
 					Instanse.Network = loadedInstance.Network;
+					Instanse.Dev = loadedInstance.Dev;
 				}
 				else
 				{

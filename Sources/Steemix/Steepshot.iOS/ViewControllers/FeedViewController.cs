@@ -55,6 +55,10 @@ namespace Steepshot.iOS
             {
                 Vote(vote, url, action);
             };
+			tableSource.Flagged += (vote, url, action)  =>
+            {
+                Flagged(vote, url, action);
+            };
 
 			RefreshControl = new UIRefreshControl();
 			RefreshControl.ValueChanged += async (sender, e) =>
@@ -310,6 +314,31 @@ namespace Steepshot.iOS
                 //logging
             }
         }
+
+		private async Task Flagged(bool vote, string postUrl, Action<string, FlagResponse> action)
+		{
+			if (UserContext.Instanse.Token == null)
+			{
+				LoginTapped(null, null);
+				return;
+			}
+			try
+			{
+				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl);
+				var flagResponse = await Api.Flag(flagRequest);
+				if (flagResponse.Success)
+				{
+					//var u = tableSource.TableItems.First(p => p.Url == postUrl);
+					//u.Vote = vote;
+					//u.NetVotes++;
+					action.Invoke(postUrl, flagResponse.Result);
+				}
+			}
+			catch (Exception ex)
+			{
+				//logging
+			}
+		}
 
 		private void SetNavBar()
 		{
