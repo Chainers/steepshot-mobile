@@ -42,6 +42,9 @@ namespace Steepshot
 		[InjectView(Resource.Id.btn_post)]
 		Button postButton;
 
+		[InjectView(Resource.Id.description_scroll)]
+		ScrollView descriptionScroll;
+
 		[InjectOnClick(Resource.Id.btn_post)]
 		public void OnPost(object sender, EventArgs e)
 		{
@@ -76,7 +79,7 @@ namespace Steepshot
 
 			PhotoView.SetBackgroundColor(Color.Black);
 
-			var photoFrame = FindViewById<FrameLayout>(Resource.Id.photo_frame);
+			var photoFrame = FindViewById<ImageView>(Resource.Id.photo);
 			var parameters = photoFrame.LayoutParameters;
 			parameters.Height = Resources.DisplayMetrics.WidthPixels;
 			photoFrame.LayoutParameters = parameters;
@@ -103,6 +106,7 @@ namespace Steepshot
 				tagLayout.AddView(tag);
 				tagLayout.RequestLayout();
 			}
+			descriptionScroll.RequestLayout();
 		}
 
 		public void OpenTags()
@@ -153,21 +157,10 @@ namespace Steepshot
 
 		public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
 		{
-			/*int dstWidth = 0;
-			int dstHeight = 0;
-			float coeff = 0;
-
-			coeff = (float)p0.Height / (float)p0.Width;
-			dstWidth = Resources.DisplayMetrics.WidthPixels;
-			dstHeight = (int)(dstWidth * coeff);
-
-			var b = Bitmap.CreateScaledBitmap(p0, dstWidth, dstHeight, true);*/
 			RunOnUiThread(() =>
 			{
 				PhotoView?.SetImageBitmap(p0);
 				postButton.Enabled = true;
-				//PhotoView.SetZoom(1);
-				//PhotoView.Invalidate();
 			});
 			photoComressionTask = Task.Factory.StartNew(CompressPhoto, ct);
 		}
@@ -225,22 +218,10 @@ namespace Steepshot
 						ct.ThrowIfCancellationRequested();
 						photoComressionTask.Dispose();
 					}
-					bitmapToUpload.Compress(Bitmap.CompressFormat.Png, 100, stream);
+					bitmapToUpload.Compress(Bitmap.CompressFormat.Jpeg, 80, stream);
 					var streamArray = stream.ToArray();
-					var photoSize = streamArray.Length / 1024f / 1024f;
-					if (photoSize < 1)
-						return stream.ToArray();
-
-					var compressLevel = photoSize > 6 ? 35 : 95;
-					using (var compressedStream = EZCompress1.Plugin.CrossEZCompress1.Current.compressImage(stream, compressLevel))
-					{
-						if (ct.IsCancellationRequested)
-						{
-							ct.ThrowIfCancellationRequested();
-							photoComressionTask.Dispose();
-						}
-						return compressedStream.ToArray();
-					}
+					//var photoSize = streamArray.Length / 1024f / 1024f;
+					return streamArray;
 				}
 			}
 			catch (Exception ex)

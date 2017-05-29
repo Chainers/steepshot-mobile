@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\ApiGateway.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClient\SteepshotApiClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Common\OperationResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\SearchRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\ChangePasswordRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\CommentsRequests.cs" />
@@ -23,8 +24,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\BaseRequests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UploadImageRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\UserRequests.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\VoteRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\FlagRequest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\BaseResponses.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\FlagResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\SearchResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\ChangePasswordResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\CreateCommentResponse.cs" />

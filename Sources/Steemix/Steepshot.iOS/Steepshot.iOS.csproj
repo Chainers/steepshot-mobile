@@ -85,9 +85,16 @@
     <LangVersion>Default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\netstandard1.3\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
+    <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.iOS" />
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.105.2.3\lib\Xamarin.iOS10\RestSharp.dll</HintPath>
@@ -136,6 +143,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\LogManager.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MySecondViewController.cs" />
