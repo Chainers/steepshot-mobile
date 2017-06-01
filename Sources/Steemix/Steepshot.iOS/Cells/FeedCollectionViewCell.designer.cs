@@ -34,7 +34,7 @@ namespace Steepshot.iOS
 		UIKit.NSLayoutConstraint contentViewWidth { get; set; }
 
 		[Outlet]
-		UIKit.UIView flagButton { get; set; }
+		UIKit.UIButton flagButton { get; set; }
 
 		[Outlet]
 		UIKit.NSLayoutConstraint imageWidth { get; set; }

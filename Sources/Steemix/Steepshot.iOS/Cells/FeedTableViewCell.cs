@@ -9,7 +9,7 @@ namespace Steepshot.iOS
 {
 	public delegate void HeaderTappedHandler(string username);
 	public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
-	public delegate void VoteEventHandler(bool vote, string postUri, Action<string, VoteResponse> success);
+	public delegate void VoteEventHandler<T>(bool vote, string postUri, Action<string, T> success);
 
     public partial class FeedTableViewCell : UITableViewCell
     {
@@ -18,7 +18,7 @@ namespace Steepshot.iOS
 
         private bool isButtonBinded = false;
         private List<WebClient> webClients = new List<WebClient>();
-        public event VoteEventHandler Voted;
+		public event VoteEventHandler<VoteResponse> Voted;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;

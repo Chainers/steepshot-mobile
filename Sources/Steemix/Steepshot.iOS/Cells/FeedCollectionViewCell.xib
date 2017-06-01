@@ -28,7 +28,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uOb-p7-mhn">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uOb-p7-mhn">
                                 <rect key="frame" x="275" y="0.0" width="45" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="uOb-p7-mhn" secondAttribute="height" multiplier="1:1" id="mvc-er-7L5"/>
@@ -36,7 +36,7 @@
                                 <state key="normal" image="flag.png"/>
                                 <state key="selected" image="steem.png"/>
                             </button>
-                            <view alpha="0.10000000149011612" contentMode="scaleToFill" verticalCompressionResistancePriority="760" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-6N-qKO">
+                            <view userInteractionEnabled="NO" alpha="0.10000000149011612" contentMode="scaleToFill" verticalCompressionResistancePriority="760" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-6N-qKO">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="45"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
@@ -174,7 +174,7 @@
                 <outlet property="commentView" destination="tca-gS-OKk" id="tkq-gm-FHV"/>
                 <outlet property="contentView" destination="FaT-0u-dfJ" id="EHy-8I-Yjw"/>
                 <outlet property="contentViewWidth" destination="eHh-rT-52k" id="YUs-hv-fcQ"/>
-                <outlet property="flagButton" destination="Ze7-6N-qKO" id="UtI-RT-kq2"/>
+                <outlet property="flagButton" destination="uOb-p7-mhn" id="weF-wr-5LP"/>
                 <outlet property="likeButton" destination="eca-fi-pKp" id="TRz-gW-Pl8"/>
                 <outlet property="netVotes" destination="qOn-sQ-E0v" id="s33-Uw-oGB"/>
                 <outlet property="rewards" destination="1HN-g5-LJ3" id="AIO-rM-mFf"/>

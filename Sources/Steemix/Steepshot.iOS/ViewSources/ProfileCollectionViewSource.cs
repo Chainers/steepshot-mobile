@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 using UIKit;
 
@@ -10,7 +11,8 @@ namespace Steepshot.iOS
 		public List<Post> PhotoList = new List<Post>();
 
 		public bool IsGrid = true;
-		public event VoteEventHandler Voted;
+		public event VoteEventHandler<VoteResponse> Voted;
+		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;
@@ -32,11 +34,18 @@ namespace Steepshot.iOS
 			else
 			{
 				cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell("FeedCollectionViewCell", indexPath);
-				if (!((FeedCollectionViewCell)cell).IsVotedSet)
+			if (!((FeedCollectionViewCell)cell).IsVotedSet)
             {
                 ((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
                 {
                     Voted(vote, url, action);
+                };
+            }
+			if (!((FeedCollectionViewCell)cell).IsFlaggedSet)
+            {
+                ((FeedCollectionViewCell)cell).Flagged += (vote, url, action) =>
+                {
+                    Flagged(vote, url, action);
                 };
             }
 			if (!((FeedCollectionViewCell)cell).IsGoToProfileSet)

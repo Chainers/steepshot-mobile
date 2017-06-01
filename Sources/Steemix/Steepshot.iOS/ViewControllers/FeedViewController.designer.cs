@@ -16,7 +16,10 @@ namespace Steepshot.iOS
 		UIKit.UIActivityIndicatorView activityIndicator { get; set; }
 
 		[Outlet]
-		UIKit.UITableView FeedTable { get; set; }
+		UIKit.UICollectionView feedCollection { get; set; }
+
+		[Outlet]
+		UIKit.UICollectionViewFlowLayout flowLayout { get; set; }
 
 		[Outlet]
 		UIKit.UILabel noFeedLabel { get; set; }
@@ -28,14 +31,19 @@ namespace Steepshot.iOS
 				activityIndicator = null;
 			}
 
-			if (FeedTable != null) {
-				FeedTable.Dispose ();
-				FeedTable = null;
-			}
-
 			if (noFeedLabel != null) {
 				noFeedLabel.Dispose ();
 				noFeedLabel = null;
+			}
+
+			if (feedCollection != null) {
+				feedCollection.Dispose ();
+				feedCollection = null;
+			}
+
+			if (flowLayout != null) {
+				flowLayout.Dispose ();
+				flowLayout = null;
 			}
 		}
 	}
