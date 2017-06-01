@@ -7,7 +7,7 @@ namespace Sweetshot.Library.Models.Requests
     public enum FlagType
     {
         [Description("flag")] Up,
-        [Description("noflag")] Down
+        [Description("downvote")] Down
     }
 
     public class FlagRequest : SessionIdField

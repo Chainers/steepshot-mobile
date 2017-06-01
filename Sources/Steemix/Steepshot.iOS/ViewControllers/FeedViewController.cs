@@ -341,8 +341,8 @@ namespace Steepshot.iOS
 				{
 					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
 					u.Flag = vote;
-					action.Invoke(postUrl, flagResponse);
 				}
+				action.Invoke(postUrl, flagResponse);
 			}
 			catch (Exception ex)
 			{
