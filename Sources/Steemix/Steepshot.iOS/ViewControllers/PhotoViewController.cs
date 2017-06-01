@@ -275,49 +275,23 @@ namespace Steepshot.iOS
 		}
 	}
 
-
-	class NewCollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
-	{
-		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
-		{
-			var cellSize = (float)UIScreen.MainScreen.Bounds.Width;
-			return new SizeF(cellSize, cellSize);
-		}
-	}
-
-	class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
+	public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
 	{
 		Action ScrolledAction;
 		Action<NSIndexPath> CellClick;
 		public bool isGrid = true;
-		private UICollectionView _collectionView;
 
 		public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null)
 		{
 			ScrolledAction = scrolled;
 			CellClick = cellClick;
-			//_collectionView = collectionView;
 		}
-		/*
-		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
-		{
-			//if (isGrid)
-			//{
-				var cellSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
-				return new SizeF(cellSize, cellSize);
-			//}
-			//else
-				//return base.GetSizeForItem(collectionView, layout, indexPath);
-			
-		}*/
 
 		public override void Scrolled(UIScrollView scrollView)
 		{
 			if (ScrolledAction != null)
 			{
-				
-				//if(scrollView.Bounds.Bottom != 0 && scrollView.Bounds.Bottom >= scrollView.ContentSize.Height)
-					ScrolledAction();
+				ScrolledAction();
 			}
 		}
 

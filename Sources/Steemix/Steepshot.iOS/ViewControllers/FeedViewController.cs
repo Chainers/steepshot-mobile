@@ -20,7 +20,8 @@ namespace Steepshot.iOS
 		private PostType currentPostType = PostType.Top;
 		private string currentPostCategory;
 
-		private FeedTableViewSource tableSource = new FeedTableViewSource();
+		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
+		//private FeedTableViewSource tableSource = new FeedTableViewSource();
 		private UIView dropdown;
 		private nfloat dropDownListOffsetFromTop;
 		private UILabel tw;
@@ -38,6 +39,7 @@ namespace Steepshot.iOS
 		private bool _isFeedRefreshing = false;
 
 		private bool IsDropDownOpen => dropdown.Frame.Y > 0;
+		private CollectionViewFlowDelegate gridDelegate;
 
         public override void ViewDidLoad()
         {
@@ -46,19 +48,32 @@ namespace Steepshot.iOS
 			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
 			navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
 
-            FeedTable.Source = tableSource;
-            FeedTable.LayoutMargins = UIEdgeInsets.Zero;
-			FeedTable.RegisterClassForCellReuse(typeof(FeedTableViewCell), nameof(FeedTableViewCell));
-            FeedTable.RegisterNibForCellReuse(UINib.FromName(nameof(FeedTableViewCell), NSBundle.MainBundle), nameof(FeedTableViewCell));
-            tableSource.ScrolledToBottom += TableSource_ScrolledToBottom;
-            /*tableSource.Voted += (vote, url, action)  =>
+			gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
+			 {
+				 try
+				 {
+					 var lastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
+					 if (collectionViewSource.PhotoList.Count <= lastRow)
+						 if (_hasItems)
+							 GetPosts();
+				 }
+				 catch (InvalidOperationException ex) { }
+			 });
+			collectionViewSource.IsGrid = false;
+
+			feedCollection.Source = collectionViewSource;
+			feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
+			feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
+			flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 460);
+            
+            collectionViewSource.Voted += (vote, url, action)  =>
             {
                 Vote(vote, url, action);
             };
-			tableSource.Flagged += (vote, url, action)  =>
+			collectionViewSource.Flagged += (vote, url, action)  =>
             {
                 Flagged(vote, url, action);
-            };*/
+            };
 
 			RefreshControl = new UIRefreshControl();
 			RefreshControl.ValueChanged += async (sender, e) =>
@@ -70,7 +85,8 @@ namespace Steepshot.iOS
 				RefreshControl.EndRefreshing();
 				_isFeedRefreshing = false;
 			};
-			FeedTable.Add(RefreshControl);
+			feedCollection.Add(RefreshControl);
+			feedCollection.Delegate = gridDelegate;
 
 			if (TabBarController != null)
 			{
@@ -94,7 +110,7 @@ namespace Steepshot.iOS
 				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
 				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
 			}
-			tableSource.GoToProfile += (username)  =>
+			collectionViewSource.GoToProfile += (username)  =>
             {
 				if (username == UserContext.Instanse?.Username)
 					return;
@@ -103,22 +119,22 @@ namespace Steepshot.iOS
 				NavigationController.PushViewController(myViewController, true);
             };
 
-			tableSource.GoToComments += (postUrl)  =>
+			collectionViewSource.GoToComments += (postUrl)  =>
             {
 				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
 				myViewController.PostUrl = postUrl;
 				navController.PushViewController(myViewController, true);
             };
 
-			/*tableSource.ImagePreview += (image) =>
+			collectionViewSource.ImagePreview += (image, url) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 				myViewController.imageForPreview = image;
-				NavigationController.PushViewController(myViewController, true);
-			};*/
+				myViewController.ImageUrl = url;
 
-            FeedTable.RowHeight = UITableView.AutomaticDimension;
-            FeedTable.EstimatedRowHeight = 450f;
+				NavigationController.PushViewController(myViewController, true);
+			};
+
 			if (!isHomeFeed)
 			{
 				dropdown = CreateDropDownList();
@@ -133,8 +149,8 @@ namespace Steepshot.iOS
 			if (UserContext.Instanse.CurrentPostCategory != currentPostCategory && !isHomeFeed)
 			{
 				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
-				tableSource.TableItems.Clear();
-				FeedTable.ReloadData();
+				collectionViewSource.PhotoList.Clear();
+				feedCollection.ReloadData();
 				tw.Text = UserContext.Instanse.CurrentPostCategory;
 				GetPosts();
 			}
@@ -151,17 +167,11 @@ namespace Steepshot.iOS
 
 		private async Task RefreshTable()
 		{
-			tableSource.TableItems.Clear();
-			FeedTable.ReloadData();
+			collectionViewSource.PhotoList.Clear();
+			feedCollection.ReloadData();
 			_hasItems = true;
 			await GetPosts(false);
 		}
-
-        private void TableSource_ScrolledToBottom()
-        {
-			if(_hasItems)
-            	GetPosts();
-        }
 
         void LoginTapped(object sender, EventArgs e)
         {
@@ -221,7 +231,7 @@ namespace Steepshot.iOS
             try
             {
 				OperationResult<UserPostResponse> posts;
-				string offset = tableSource.TableItems.Count == 0 ? "0" : _offsetUrl;
+				string offset = collectionViewSource.PhotoList.Count == 0 ? "0" : _offsetUrl;
 
 				if (!isHomeFeed)
 				{
@@ -269,12 +279,13 @@ namespace Steepshot.iOS
 
 				if (posts.Result.Results.Count != 0)
 				{
-					tableSource.TableItems.AddRange(posts.Result.Results);
+					collectionViewSource.PhotoList.AddRange(posts.Result.Results);
 					/*if (UserContext.Instanse.NetworkChanged)
 					{
 						FeedTable.SetContentOffset(new CGPoint(0, 0), false);
 					}*/
-					FeedTable.ReloadData();
+					feedCollection.ReloadData();
+					feedCollection.CollectionViewLayout.InvalidateLayout();
 				}
 				else
 					_hasItems = false;
@@ -303,7 +314,7 @@ namespace Steepshot.iOS
                 var voteResponse = await Api.Vote(voteRequest);
 				if (voteResponse.Success)
                 {
-					var u = tableSource.TableItems.First(p => p.Url == postUrl);
+					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
 					u.Vote = vote;
 					u.NetVotes++;
 					action.Invoke(postUrl, voteResponse.Result);
@@ -315,7 +326,7 @@ namespace Steepshot.iOS
             }
         }
 
-		private async Task Flagged(bool vote, string postUrl, Action<string, FlagResponse> action)
+		private async Task Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
 			if (UserContext.Instanse.Token == null)
 			{
@@ -328,10 +339,9 @@ namespace Steepshot.iOS
 				var flagResponse = await Api.Flag(flagRequest);
 				if (flagResponse.Success)
 				{
-					//var u = tableSource.TableItems.First(p => p.Url == postUrl);
-					//u.Vote = vote;
-					//u.NetVotes++;
-					action.Invoke(postUrl, flagResponse.Result);
+					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
+					u.Flag = vote;
+					action.Invoke(postUrl, flagResponse);
 				}
 			}
 			catch (Exception ex)
@@ -401,8 +411,8 @@ namespace Steepshot.iOS
                    if(currentPostType == PostType.New && UserContext.Instanse.CurrentPostCategory == null)
                        return;
                    ToogleDropDownList();
-                   tableSource.TableItems.Clear();
-                   FeedTable.ReloadData();
+                   collectionViewSource.PhotoList.Clear();
+                   feedCollection.ReloadData();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -418,8 +428,8 @@ namespace Steepshot.iOS
 				   if (currentPostType == PostType.Hot && UserContext.Instanse.CurrentPostCategory == null)
 					   return;
 				   ToogleDropDownList();
-				   tableSource.TableItems.Clear();
-				   FeedTable.ReloadData();
+				   collectionViewSource.PhotoList.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -435,8 +445,8 @@ namespace Steepshot.iOS
 				   if (currentPostType == PostType.Top && UserContext.Instanse.CurrentPostCategory == null)
 					   return;
 				   ToogleDropDownList();
-				   tableSource.TableItems.Clear();
-				   FeedTable.ReloadData();
+				   collectionViewSource.PhotoList.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;

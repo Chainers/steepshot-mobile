@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
+using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
 using UIKit;
@@ -34,7 +35,7 @@ namespace Steepshot.iOS
 
 			collectionViewSource.PhotoList = photosList;
 			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
-
+			collectionViewSource.Flagged += (vote, url, action)  => Flagged(vote, url, action);
 			collectionViewSource.GoToComments += (postUrl) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
@@ -336,6 +337,29 @@ namespace Steepshot.iOS
 					
 					success.Invoke(postUri, voteResponse.Result);
 				}
+			}
+			catch (Exception ex)
+			{
+				//logging
+			}
+		}
+
+		private async Task Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		{
+			try
+			{
+				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl.TrimStart('/'));
+				OperationResult<FlagResponse> flagResponse;
+				//if(vote)
+					 flagResponse = await Api.Flag(flagRequest);
+				//else
+					//flagResponse = await Api.Flag(flagRequest);
+				if (flagResponse.Success)
+				{
+					var u = photosList.First(p => p.Url == postUrl);
+					u.Flag = vote;
+				}
+				action.Invoke(postUrl, flagResponse);
 			}
 			catch (Exception ex)
 			{

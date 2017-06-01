@@ -5,6 +5,7 @@ using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 using UIKit;
 
@@ -23,13 +24,15 @@ namespace Steepshot.iOS
 
 		private bool isButtonBinded = false;
 		private List<WebClient> webClients = new List<WebClient>();
-		public event VoteEventHandler Voted;
+		public event VoteEventHandler<VoteResponse> Voted;
+		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;
 		private Post _currentPost;
 
 		public bool IsVotedSet => Voted != null;
+		public bool IsFlaggedSet => Flagged != null;
 		public bool IsGoToProfileSet => GoToProfile != null;
 		public bool IsGoToCommentsSet => GoToComments != null;
 		public bool IsImagePreviewSet => ImagePreview != null;
@@ -79,6 +82,7 @@ namespace Steepshot.iOS
 			rewards.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
 			netVotes.Text = $"{post.NetVotes.ToString()} likes";
 			likeButton.Selected = post.Vote;
+			flagButton.Selected = post.Flag;
 			var nicknameAttribute = new UIStringAttributes
 			{
 				Font = UIFont.BoldSystemFontOfSize(commentText.Font.PointSize)
@@ -91,6 +95,7 @@ namespace Steepshot.iOS
 			var buttonTitle = post.Children == 0 ? "Post first comment" : $"View {post.Children} comments";
 			viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
 			likeButton.Enabled = true;
+			flagButton.Enabled = true;
 
 			if (!isButtonBinded)
 			{
@@ -99,10 +104,7 @@ namespace Steepshot.iOS
 					ImagePreview(bodyImage.Image, _currentPost.Body);
 				});
 				bodyImage.AddGestureRecognizer(tap);
-			}
 
-			if (!isButtonBinded)
-			{
 				UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
 				{
 					GoToProfile(_currentPost.Author);
@@ -113,19 +115,14 @@ namespace Steepshot.iOS
 				});
 				avatarImage.AddGestureRecognizer(imageTap);
 				cellText.AddGestureRecognizer(textTap);
-			}
 
-			if (!isButtonBinded)
-			{
-				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+				UITapGestureRecognizer commentTap = new UITapGestureRecognizer(() =>
 				{
 					GoToComments(_currentPost.Url);
 				});
-				commentView.AddGestureRecognizer(tap);
-			}
+				commentView.AddGestureRecognizer(commentTap);
 
-			if (!isButtonBinded)
-			{
+				flagButton.TouchDown += FlagButton_TouchDown;
 				likeButton.TouchDown += LikeTap;
 				isButtonBinded = true;
 			}
@@ -143,6 +140,19 @@ namespace Steepshot.iOS
 					rewards.Text = $"{Constants.Currency}{post.NewTotalPayoutReward.ToString()}";
 					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
 				}
+			});
+		}
+
+		private void FlagButton_TouchDown(object sender, EventArgs e)
+		{
+			flagButton.Enabled = false;
+            Flagged(!flagButton.Selected, _currentPost.Url, (url, post) =>
+			{
+				if (url == _currentPost.Url && post.Success)
+				{
+					flagButton.Selected = post.Result.IsFlagged;
+				}
+				flagButton.Enabled = true;
 			});
 		}
 	}
