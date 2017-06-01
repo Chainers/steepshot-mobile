@@ -13,7 +13,7 @@ namespace Steepshot.iOS
 		public static readonly UINib Nib;
 		private List<WebClient> webClients = new List<WebClient>();
 		private bool isButtonBinded = false;
-		public event VoteEventHandler<VoteResponse> Voted;
+		//public event VoteEventHandler<VoteResponse> Voted;
 		public event HeaderTappedHandler GoToProfile;
 		private string PostUrl;
 
@@ -21,7 +21,8 @@ namespace Steepshot.iOS
 		{
 			get
 			{
-				return Voted != null;
+				return false;
+				//return Voted != null;
 			}
 		}
 
@@ -88,14 +89,14 @@ namespace Steepshot.iOS
 		private void LikeTap(object sender, EventArgs e)
 		{
 			likeButton.Enabled = false;
-			Voted(!likeButton.Selected, PostUrl, (postUrl, post) =>
+			/*Voted(!likeButton.Selected, PostUrl, (postUrl, post) =>
 			{
 				if (postUrl == PostUrl)
 				{
 					likeButton.Selected = post.IsVoted;
 					likeButton.Enabled = true;
 				}
-			});
+			});*/
 		}
 	}
 }

@@ -111,6 +111,15 @@
     <Reference Include="ZXingNetMobile">
       <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
     </Reference>
+    <Reference Include="WebP.Touch">
+      <HintPath>..\packages\WebP.Touch.1.0.3\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
+    </Reference>
+    <Reference Include="FFImageLoading">
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.2.9\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
+    </Reference>
+    <Reference Include="FFImageLoading.Platform">
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.2.9\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -134,6 +143,8 @@
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
+    <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
+    <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -234,6 +245,15 @@
       <DependentUpon>TagsSearchViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ImageDownloader.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.designer.cs">
+      <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\FeedCollectionViewCell.cs" />
+    <Compile Include="Cells\FeedCollectionViewCell.designer.cs">
+      <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\BaseProfileCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />
@@ -287,6 +307,29 @@
     <BundleResource Include="Resources\gallery%402x.png" />
     <BundleResource Include="Resources\take_photo%402x.png" />
     <BundleResource Include="Resources\take_photo%403x.png" />
+    <BundleResource Include="Resources\list%402x.png" />
+    <BundleResource Include="Resources\list%403x.png" />
+    <BundleResource Include="Resources\grid%402x.png" />
+    <BundleResource Include="Resources\grid%403x.png" />
+    <BundleResource Include="Resources\gear%402x.png" />
+    <BundleResource Include="Resources\gear%403x.png" />
+    <BundleResource Include="Resources\wallet%402x.png" />
+    <BundleResource Include="Resources\wallet%403x.png" />
+    <BundleResource Include="Resources\Fonts\Lato-Regular.ttf" />
+    <BundleResource Include="Resources\Fonts\Lato-Semibold.ttf" />
+    <BundleResource Include="Resources\flag%402x.png" />
+    <BundleResource Include="Resources\flag%403x.png" />
+    <BundleResource Include="Resources\small_camera%402x.png" />
+    <BundleResource Include="Resources\small_camera%403x.png" />
+    <BundleResource Include="Resources\heart_black%402x.png" />
+    <BundleResource Include="Resources\heart_black%403x.png" />
+    <BundleResource Include="Resources\heart%402x.png" />
+    <BundleResource Include="Resources\heart%403x.png" />
+    <BundleResource Include="Resources\search%402x.png" />
+    <BundleResource Include="Resources\search%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

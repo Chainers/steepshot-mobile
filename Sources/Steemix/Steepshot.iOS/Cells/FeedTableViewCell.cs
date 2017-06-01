@@ -8,8 +8,8 @@ using UIKit;
 namespace Steepshot.iOS
 {
 	public delegate void HeaderTappedHandler(string username);
-	public delegate void ImagePreviewHandler(UIImage image);
-	public delegate void VoteEventHandler<T>(bool vote, string postUri, Action<string, T> success);
+	public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
+	public delegate void VoteEventHandler(bool vote, string postUri, Action<string, VoteResponse> success);
 
     public partial class FeedTableViewCell : UITableViewCell
     {
@@ -18,8 +18,7 @@ namespace Steepshot.iOS
 
         private bool isButtonBinded = false;
         private List<WebClient> webClients = new List<WebClient>();
-		public event VoteEventHandler<VoteResponse> Voted;
-		public event VoteEventHandler<FlagResponse> Flagged;
+        public event VoteEventHandler Voted;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;
@@ -32,14 +31,6 @@ namespace Steepshot.iOS
                 return Voted != null;
             }
         }
-
-		public bool IsFlaggedSet
-		{
-			get
-			{
-				return Flagged != null;
-			}
-		}
 
 		public bool IsGoToProfileSet
 		{
@@ -105,7 +96,7 @@ namespace Steepshot.iOS
 			{
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
-					ImagePreview(bodyImage.Image);
+					ImagePreview(bodyImage.Image, "");
 				});
 				bodyImage.AddGestureRecognizer(tap);
 			}
@@ -132,11 +123,6 @@ namespace Steepshot.iOS
 				});
 				commentView.AddGestureRecognizer(tap);
 			}
-
-			if (!isButtonBinded)
-            {
-				flagButton.TouchDown += FlagTap;
-            }
 
             if (!isButtonBinded)
             {
@@ -173,16 +159,5 @@ namespace Steepshot.iOS
                 }
             });
         }
-
-		private void FlagTap(object sender, EventArgs e)
-		{
-			Flagged(!likeButton.Selected, _currentPost.Url, (url, post) =>
-			{
-				if (url == _currentPost.Url)
-				{
-					
-				}
-			});
-		}
     }
 }

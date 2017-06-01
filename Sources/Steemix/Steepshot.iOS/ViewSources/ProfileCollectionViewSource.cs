@@ -9,6 +9,12 @@ namespace Steepshot.iOS
 	{
 		public List<Post> PhotoList = new List<Post>();
 
+		public bool IsGrid = true;
+		public event VoteEventHandler Voted;
+		public event HeaderTappedHandler GoToProfile;
+		public event HeaderTappedHandler GoToComments;
+		public event ImagePreviewHandler ImagePreview;
+
 		public ProfileCollectionViewSource()
 		{
 		}
@@ -20,9 +26,53 @@ namespace Steepshot.iOS
 
 		public override UICollectionViewCell GetCell(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
 		{
-			var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell("PhotoCollectionViewCell", indexPath);
-			imageCell.UpdateImage(PhotoList[(int)indexPath.Item].Body);
-			return imageCell;
+			BaseProfileCell cell;
+			if (IsGrid)
+				cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell("PhotoCollectionViewCell", indexPath);
+			else
+			{
+				cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell("FeedCollectionViewCell", indexPath);
+				if (!((FeedCollectionViewCell)cell).IsVotedSet)
+            {
+                ((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
+                {
+                    Voted(vote, url, action);
+                };
+            }
+			if (!((FeedCollectionViewCell)cell).IsGoToProfileSet)
+			{
+				((FeedCollectionViewCell)cell).GoToProfile += (username) =>
+				{
+					if(GoToProfile != null)
+						GoToProfile(username);
+				};
+			}
+			if (!((FeedCollectionViewCell)cell).IsGoToCommentsSet)
+			{
+				((FeedCollectionViewCell)cell).GoToComments += (postUrl) =>
+				{
+					if(GoToComments != null)
+						GoToComments(postUrl);
+				};
+			}
+			if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)
+			{
+				((FeedCollectionViewCell)cell).ImagePreview += (image, url) =>
+				{
+					if(ImagePreview != null)
+						ImagePreview(image, url);
+				};
+			}
+			}
+			try
+			{
+				cell.UpdateCell(PhotoList[(int)indexPath.Item]);
+			}
+			catch (ArgumentOutOfRangeException ex)
+			{
+				//ignore ^^
+			}
+			return cell;
 		}
 	}
 }

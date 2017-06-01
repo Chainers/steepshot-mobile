@@ -9,8 +9,8 @@ using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS
 {
-	[Register ("ProfileViewController")]
-	partial class ProfileViewController
+	[Register ("ProfileHeaderViewController")]
+	partial class ProfileHeaderViewController
 	{
 		[Outlet]
 		UIKit.UIImageView avatar { get; set; }
@@ -19,19 +19,10 @@ namespace Steepshot.iOS
 		UIKit.UIButton balanceButton { get; set; }
 
 		[Outlet]
-		UIKit.UICollectionView collectionView { get; set; }
-
-		[Outlet]
-		UIKit.UICollectionViewFlowLayout collectioViewFlowLayout { get; set; }
-
-		[Outlet]
 		UIKit.UILabel dateLabel { get; set; }
 
 		[Outlet]
 		UIKit.UILabel descriptionLabel { get; set; }
-
-		[Outlet]
-		UIKit.UILabel errorMessage { get; set; }
 
 		[Outlet]
 		UIKit.UIButton followButton { get; set; }
@@ -49,19 +40,7 @@ namespace Steepshot.iOS
 		UIKit.UIButton followingButton { get; set; }
 
 		[Outlet]
-		UIKit.UIView headerView { get; set; }
-
-		[Outlet]
-		UIKit.UIActivityIndicatorView loading { get; set; }
-
-		[Outlet]
-		UIKit.UIView loadingView { get; set; }
-
-		[Outlet]
 		UIKit.UILabel locationLabel { get; set; }
-
-		[Outlet]
-		UIKit.UILabel nameLabel { get; set; }
 
 		[Outlet]
 		UIKit.UIButton photosButton { get; set; }
@@ -73,7 +52,7 @@ namespace Steepshot.iOS
 		UIKit.UIButton switchButton { get; set; }
 
 		[Outlet]
-		UIKit.UITableView tableView { get; set; }
+		UIKit.UILabel username { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -85,16 +64,6 @@ namespace Steepshot.iOS
 			if (balanceButton != null) {
 				balanceButton.Dispose ();
 				balanceButton = null;
-			}
-
-			if (collectionView != null) {
-				collectionView.Dispose ();
-				collectionView = null;
-			}
-
-			if (collectioViewFlowLayout != null) {
-				collectioViewFlowLayout.Dispose ();
-				collectioViewFlowLayout = null;
 			}
 
 			if (dateLabel != null) {
@@ -112,16 +81,6 @@ namespace Steepshot.iOS
 				followButton = null;
 			}
 
-			if (followButtonMargin != null) {
-				followButtonMargin.Dispose ();
-				followButtonMargin = null;
-			}
-
-			if (followButtonWidth != null) {
-				followButtonWidth.Dispose ();
-				followButtonWidth = null;
-			}
-
 			if (followersButton != null) {
 				followersButton.Dispose ();
 				followersButton = null;
@@ -132,29 +91,9 @@ namespace Steepshot.iOS
 				followingButton = null;
 			}
 
-			if (headerView != null) {
-				headerView.Dispose ();
-				headerView = null;
-			}
-
-			if (loading != null) {
-				loading.Dispose ();
-				loading = null;
-			}
-
-			if (loadingView != null) {
-				loadingView.Dispose ();
-				loadingView = null;
-			}
-
 			if (locationLabel != null) {
 				locationLabel.Dispose ();
 				locationLabel = null;
-			}
-
-			if (nameLabel != null) {
-				nameLabel.Dispose ();
-				nameLabel = null;
 			}
 
 			if (photosButton != null) {
@@ -162,24 +101,29 @@ namespace Steepshot.iOS
 				photosButton = null;
 			}
 
-			if (settingsButton != null) {
-				settingsButton.Dispose ();
-				settingsButton = null;
-			}
-
 			if (switchButton != null) {
 				switchButton.Dispose ();
 				switchButton = null;
 			}
 
-			if (tableView != null) {
-				tableView.Dispose ();
-				tableView = null;
+			if (username != null) {
+				username.Dispose ();
+				username = null;
 			}
 
-			if (errorMessage != null) {
-				errorMessage.Dispose ();
-				errorMessage = null;
+			if (settingsButton != null) {
+				settingsButton.Dispose ();
+				settingsButton = null;
+			}
+
+			if (followButtonWidth != null) {
+				followButtonWidth.Dispose ();
+				followButtonWidth = null;
+			}
+
+			if (followButtonMargin != null) {
+				followButtonMargin.Dispose ();
+				followButtonMargin = null;
 			}
 		}
 	}

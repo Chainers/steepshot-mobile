@@ -11,8 +11,8 @@ namespace Steepshot.iOS
 	public class FeedTableViewSource : BaseTableSource<Post>
     {
 		string CellIdentifier = nameof(FeedTableViewCell);
-		public event VoteEventHandler<VoteResponse> Voted;
-		public event VoteEventHandler<FlagResponse> Flagged;
+		//public event VoteEventHandler<VoteResponse> Voted;
+		//public event VoteEventHandler<FlagResponse> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;
@@ -24,16 +24,16 @@ namespace Steepshot.iOS
             {
                 cell.Voted += (vote, url, action) =>
                 {
-                    Voted(vote, url, action);
+                    //Voted(vote, url, action);
                 };
             }
-			if (!cell.IsFlaggedSet)
+			/*if (!cell.IsFlaggedSet)
             {
 				cell.Flagged += (vote, url, action) =>
                 {
                     Flagged(vote, url, action);
                 };
-            }
+            }*/
 			if (!cell.IsGoToProfileSet)
 			{
 				cell.GoToProfile += (username) =>
@@ -52,10 +52,10 @@ namespace Steepshot.iOS
 			}
 			if (!cell.IsImagePreviewSet)
 			{
-				cell.ImagePreview += (image) =>
+				cell.ImagePreview += (image, url) =>
 				{
 					if(ImagePreview != null)
-                        ImagePreview(image);
+                        ImagePreview(image, url);
 				};
 			}
 			cell.UpdateCell(TableItems[indexPath.Row]);

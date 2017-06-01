@@ -1,17 +1,15 @@
 ﻿using System;
 using CoreGraphics;
+using FFImageLoading;
 using UIKit;
 
 namespace Steepshot.iOS
 {
 	public partial class ImagePreviewViewController : UIViewController
 	{
+		protected ImagePreviewViewController(IntPtr handle) : base(handle) {}
 		public UIImage imageForPreview;
-
-		protected ImagePreviewViewController(IntPtr handle) : base(handle)
-		{
-			// Note: this .ctor should not contain any initialization logic
-		}
+		public string ImageUrl;
 
 		public override void ViewDidLoad()
 		{
@@ -23,6 +21,11 @@ namespace Steepshot.iOS
 			if (imageForPreview != null)
 			{
 				imageView.Image = imageForPreview;
+				var lil = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
+													 .Retry(2, 200)
+													 .Into(imageView);
+				
+				
 				imageScrollView.MinimumZoomScale = 1f;
 				imageScrollView.MaximumZoomScale = 6.0f;
 				imageScrollView.ViewForZoomingInScrollView += (UIScrollView sv) => { return imageView; };
