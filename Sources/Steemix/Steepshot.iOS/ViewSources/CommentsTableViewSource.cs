@@ -8,7 +8,7 @@ namespace Steepshot.iOS
 	public class CommentsTableViewSource : BaseTableSource<Post>
 	{
 		string CellIdentifier = nameof(CommentTableViewCell);
-		public event VoteEventHandler<VoteResponse> Voted;
+		//public event VoteEventHandler<VoteResponse> Voted;
 		public event HeaderTappedHandler GoToProfile;
 
 		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -16,10 +16,10 @@ namespace Steepshot.iOS
 			var cell = (CommentTableViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
 			if (!cell.IsVotedSet)
             {
-                cell.Voted += (vote, url, action) =>
+                /*cell.Voted += (vote, url, action) =>
                 {
 					Voted(vote, url, action);
-                };
+                };*/
             }
 			if (!cell.IsGoToProfileSet)
 			{
