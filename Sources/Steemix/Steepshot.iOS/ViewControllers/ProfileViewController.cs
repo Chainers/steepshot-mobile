@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
+using FFImageLoading;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
@@ -14,88 +15,86 @@ namespace Steepshot.iOS
 	public partial class ProfileViewController : BaseViewController
 	{
 		protected ProfileViewController(IntPtr handle) : base(handle) {}
-
-		UserProfileResponse userData;
+		private UserProfileResponse userData;
 		public string Username = UserContext.Instanse.Username;
-		FeedCollectionViewSource collectionViewSource = new FeedCollectionViewSource(); //new ProfileCollectionViewSource();
-		private FeedTableViewSource tableSource = new FeedTableViewSource();
-
+		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
 		private List<Post> photosList = new List<Post>();
-
-		UINavigationController navController;
 		private string _offsetUrl;
 		private bool _hasItems = true;
-		UIRefreshControl RefreshControl;
+		private UIRefreshControl RefreshControl;
 		private bool _isPostsLoading;
-		private bool _isFeed = true;
 		private ProfileHeaderViewController _profileHeader;
-		//UICollectionView collectionViewNew;
+		private CollectionViewFlowDelegate gridDelegate;
+
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-
-			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
 			if (TabBarController != null)
 				TabBarController.NavigationController.NavigationBarHidden = true;
 
 			collectionViewSource.PhotoList = photosList;
+			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
 
-			collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 450);
-			//collectioViewFlowLayout.MinimumLineSpacing = 0;
-			//collectioViewFlowLayout.MinimumInteritemSpacing = 0;
+			collectionViewSource.GoToComments += (postUrl) =>
+			{
+				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
+				myViewController.PostUrl = postUrl;
+				NavigationController.PushViewController(myViewController, true);
+			};
 
+			collectionViewSource.ImagePreview += PreviewPhoto;
 
-			//collectionView = new UICollectionView(new CGRect(0,0,(float)UIScreen.MainScreen.Bounds.Width, 500),  new UICollectionViewFlowLayout());
-			//collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
-			//collectionView.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
-
+			collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
+			collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
 			collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
 			collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-
+			collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
 			collectionView.Source = collectionViewSource;
-			//this.Add(collectionViewNew);
 
-			//collectionView.Delegate = new UICollectionViewDelegateFlowLayout();
-
-			/*
-			collectionView.Delegate = new CollectionViewFlowDelegate((indexPath) =>
+			gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
 			{
 				var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
-				PreviewPhoto(collectionCell.Image);
+				PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
 			},
 			() =>
 			{
-				if (_hasItems)
-					GetUserPosts();
-			});*/
+				try
+				{
+					var lastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
+					if (photosList.Count <= lastRow)
+						GetUserPosts();
+				}
+				catch (InvalidOperationException ex)
+				{
+					//ignore
+				}
+			});
+
+			collectionView.Delegate = gridDelegate;
 
 			_profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
-			_profileHeader.View.Frame = new CGRect(0, -_profileHeader.View.Frame.Height, _profileHeader.View.Frame.Width, _profileHeader.View.Frame.Height);
+			collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
 			collectionView.AddSubview(_profileHeader.View);
-			collectionView.ContentInset = new UIEdgeInsets(_profileHeader.View.Frame.Height, 0, 0, 0);
 
 			RefreshControl = new UIRefreshControl();
-			RefreshControl.ValueChanged += async (sender, e) =>
-						{
-							photosList.Clear();
-							//tableView.ReloadData();
-							collectionView.ReloadData();
-							_hasItems = true;
-							await GetUserPosts();
-							RefreshControl.EndRefreshing();
-
-						};
+			RefreshControl.ValueChanged += RefreshControl_ValueChanged;
 			collectionView.Add(RefreshControl);
 
 			GetUserInfo();
 			GetUserPosts();
 		}
 
+		async void RefreshControl_ValueChanged(object sender, EventArgs e)
+		{
+            await RefreshPage();
+			RefreshControl.EndRefreshing();
+		}
+
 		public override void ViewWillAppear(bool animated)
 		{
 			if (Username == UserContext.Instanse.Username)
 			{
-				navController.SetNavigationBarHidden(true, false);
+				NavigationController.SetNavigationBarHidden(true, false);
 				if (TabBarController != null)
 					TabBarController.NavigationController.SetNavigationBarHidden(true, false);
 			}
@@ -106,19 +105,19 @@ namespace Steepshot.iOS
 		{
 			_profileHeader.SwitchButton.TouchDown += (sender, e) =>
 			{
-				if (!_isFeed)
+				if (!collectionViewSource.IsGrid)
 				{
+					collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
 					_profileHeader.SwitchButton.SetImage(UIImage.FromFile("list.png"), UIControlState.Normal);
-					collectionView.Delegate = new CollectionViewFlowDelegate();
 				}
 				else
 				{
+					collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400);
 					_profileHeader.SwitchButton.SetImage(UIImage.FromFile("grid.png"), UIControlState.Normal);
-					collectionView.Delegate = new NewCollectionViewFlowDelegate();
-				}
 
+				}
+				gridDelegate.isGrid = collectionViewSource.IsGrid = !collectionViewSource.IsGrid;
 				collectionView.ReloadData();
-				_isFeed = !_isFeed;
 			};
 
 			_profileHeader.FollowButton.TouchDown += (object sender, EventArgs e) =>
@@ -154,100 +153,136 @@ namespace Steepshot.iOS
 			base.ViewDidAppear(animated);
 			if (UserContext.Instanse.ShouldProfileUpdate)
 			{
-				photosList.Clear();
-				_hasItems = true;
-				GetUserInfo();
-				GetUserPosts();
+				RefreshPage();
 				UserContext.Instanse.ShouldProfileUpdate = false;
 			}
 		}
 
-		private void PreviewPhoto(UIImage image)
+		private async Task RefreshPage()
+		{
+			photosList.Clear();
+			_hasItems = true;
+			GetUserInfo();
+			await GetUserPosts();
+		}
+
+		private void PreviewPhoto(UIImage image,string url)
 		{
 			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 			myViewController.imageForPreview = image;
+			myViewController.ImageUrl = url;
 			NavigationController.PushViewController(myViewController, true);
 		}
 
 		private async Task GetUserInfo()
 		{
-			var req = new UserProfileRequest(Username) { SessionId = UserContext.Instanse.Token };
-			var response = await Api.GetUserProfile(req);
-			userData = response.Result;
-
-			_profileHeader.Username.Text = !string.IsNullOrEmpty(userData.Name) ? userData.Name : userData.Username;
-			var culture = new CultureInfo("en-US");
-			_profileHeader.Date.Text = $"Joined {userData.LastAccountUpdate.ToString("Y", culture)}";
-			if(!string.IsNullOrEmpty(userData.Location))
-				_profileHeader.Location.Text = userData.Location;
-			if(!string.IsNullOrEmpty(userData.About))
-				_profileHeader.DescriptionLabel.Text = userData.About;
-
-			if (!string.IsNullOrEmpty(userData.ProfileImage))
-				ImageDownloader.Download(userData.ProfileImage, _profileHeader.Avatar);
-			else
-				_profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
-
-			_profileHeader.Balance.SetTitle($"{userData.EstimatedBalance.ToString()}{Constants.Currency}", UIControlState.Normal);
-			_profileHeader.SettingsButton.Hidden = Username != UserContext.Instanse.Username;
-
-			var buttonsAttributes = new UIStringAttributes
+			errorMessage.Hidden = true;
+			try
 			{
-				Font = Constants.Bold12,
-				ForegroundColor = UIColor.FromRGB(51,51,51),
-				ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
-			};
+				var req = new UserProfileRequest(Username) { SessionId = UserContext.Instanse.Token };
+				var response = await Api.GetUserProfile(req);
+				if (response.Success)
+				{
+					userData = response.Result;
+					_profileHeader.Username.Text = !string.IsNullOrEmpty(userData.Name) ? userData.Name : userData.Username;
+					var culture = new CultureInfo("en-US");
+					_profileHeader.Date.Text = $"Joined {userData.LastAccountUpdate.ToString("Y", culture)}";
+					if (!string.IsNullOrEmpty(userData.Location))
+						_profileHeader.Location.Text = userData.Location;
+					if (!string.IsNullOrEmpty(userData.About))
+						_profileHeader.DescriptionLabel.Text = userData.About;
 
-			var textAttributes = new UIStringAttributes
+					if (!string.IsNullOrEmpty(userData.ProfileImage))
+						ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
+				                             .Retry(2, 200)
+				                             .FadeAnimation(false, false, 0)
+							        		 .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
+				                             .Into(_profileHeader.Avatar);
+					else
+						_profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
+
+					_profileHeader.Balance.SetTitle($"{userData.EstimatedBalance.ToString()}{Constants.Currency}", UIControlState.Normal);
+					_profileHeader.SettingsButton.Hidden = Username != UserContext.Instanse.Username;
+
+					var buttonsAttributes = new UIStringAttributes
+					{
+						Font = Constants.Bold12,
+						ForegroundColor = UIColor.FromRGB(51, 51, 51),
+						ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
+					};
+
+					var textAttributes = new UIStringAttributes
+					{
+						Font = Constants.Bold9,
+						ForegroundColor = UIColor.FromRGB(153, 153, 153),
+						ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
+					};
+
+					NSMutableAttributedString photosString = new NSMutableAttributedString();
+					photosString.Append(new NSAttributedString(userData.PostCount.ToString(), buttonsAttributes));
+					photosString.Append(new NSAttributedString(Environment.NewLine));
+					photosString.Append(new NSAttributedString("PHOTOS", textAttributes));
+
+					_profileHeader.PhotosButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
+					_profileHeader.PhotosButton.TitleLabel.TextAlignment = UITextAlignment.Center;
+					_profileHeader.PhotosButton.SetAttributedTitle(photosString, UIControlState.Normal);
+
+					NSMutableAttributedString followingString = new NSMutableAttributedString();
+					followingString.Append(new NSAttributedString(userData.FollowingCount.ToString(), buttonsAttributes));
+					followingString.Append(new NSAttributedString(Environment.NewLine));
+					followingString.Append(new NSAttributedString("FOLLOWING", textAttributes));
+
+					_profileHeader.FollowingButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
+					_profileHeader.FollowingButton.TitleLabel.TextAlignment = UITextAlignment.Center;
+					_profileHeader.FollowingButton.SetAttributedTitle(followingString, UIControlState.Normal);
+
+					NSMutableAttributedString followersString = new NSMutableAttributedString();
+					followersString.Append(new NSAttributedString(userData.FollowersCount.ToString(), buttonsAttributes));
+					followersString.Append(new NSAttributedString(Environment.NewLine));
+					followersString.Append(new NSAttributedString("FOLLOWERS", textAttributes));
+
+					_profileHeader.FollowersButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
+					_profileHeader.FollowersButton.TitleLabel.TextAlignment = UITextAlignment.Center;
+					_profileHeader.FollowersButton.SetAttributedTitle(followersString, UIControlState.Normal);
+
+					ToogleFollowButton();
+
+					if (!RefreshControl.Refreshing)
+					{
+						_profileHeader.View.SetNeedsLayout();
+						_profileHeader.View.LayoutIfNeeded();
+						var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(_profileHeader.View.Frame.Width, 300));
+
+						_profileHeader.View.Frame = new CGRect(0, -size.Height, _profileHeader.View.Frame.Width, size.Height);
+						var lil2 = collectionView.ContentInset;
+						collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
+						collectionView.Hidden = false;
+					}
+				}
+				else {
+					throw new Exception();
+				}
+			}
+			catch (Exception ex)
 			{
-				Font = Constants.Bold9,
-				ForegroundColor = UIColor.FromRGB(153, 153, 153),
-				ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
-			};
-
-			NSMutableAttributedString photosString = new NSMutableAttributedString();
-			photosString.Append(new NSAttributedString(userData.PostCount.ToString(), buttonsAttributes));
-			photosString.Append(new NSAttributedString(Environment.NewLine));
-			photosString.Append(new NSAttributedString("PHOTOS", textAttributes));
-
-			_profileHeader.PhotosButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-			_profileHeader.PhotosButton.TitleLabel.TextAlignment = UITextAlignment.Center;
-			_profileHeader.PhotosButton.SetAttributedTitle(photosString, UIControlState.Normal);
-
-			NSMutableAttributedString followingString = new NSMutableAttributedString();
-			followingString.Append(new NSAttributedString(userData.FollowingCount.ToString(), buttonsAttributes));
-			followingString.Append(new NSAttributedString(Environment.NewLine));
-			followingString.Append(new NSAttributedString("FOLLOWING", textAttributes));
-
-			_profileHeader.FollowingButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-			_profileHeader.FollowingButton.TitleLabel.TextAlignment = UITextAlignment.Center;
-			_profileHeader.FollowingButton.SetAttributedTitle(followingString, UIControlState.Normal);
-
-			NSMutableAttributedString followersString = new NSMutableAttributedString();
-			followersString.Append(new NSAttributedString(userData.FollowersCount.ToString(), buttonsAttributes));
-			followersString.Append(new NSAttributedString(Environment.NewLine));
-			followersString.Append(new NSAttributedString("FOLLOWERS", textAttributes));
-
-			_profileHeader.FollowersButton.TitleLabel.LineBreakMode = UILineBreakMode.WordWrap;
-			_profileHeader.FollowersButton.TitleLabel.TextAlignment = UITextAlignment.Center;
-			_profileHeader.FollowersButton.SetAttributedTitle(followersString, UIControlState.Normal);
-
-			ToogleFollowButton();
-
-			loading.StopAnimating();
-			collectionView.Hidden = false;
+				errorMessage.Hidden = false;
+			}
+			finally
+			{
+				loading.StopAnimating();
+			}
 		}
 
 		public async Task GetUserPosts()
 		{
-			if (_isPostsLoading)
+			if (_isPostsLoading || !_hasItems)
 				return;
 			_isPostsLoading = true;
 			try
 			{
 				var req = new UserPostsRequest(Username)
 				{
-					Limit = 20,
+					Limit = 40,
 					Offset = photosList.Count == 0 ? "0" : _offsetUrl,
 					SessionId = UserContext.Instanse.Token
 				};
@@ -263,7 +298,7 @@ namespace Steepshot.iOS
 
 					photosList.AddRange(response.Result.Results);
 					collectionView.ReloadData();
-
+					collectionView.CollectionViewLayout.InvalidateLayout();
 				}
 			}
 			catch (Exception ex)
@@ -277,25 +312,29 @@ namespace Steepshot.iOS
 		}
 
 
-		private async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
+		private async Task Vote(bool vote, string postUri, Action<string, VoteResponse> success)
 		{
 			try
 			{
 				if (UserContext.Instanse.Token == null)
 				{
 					var myViewController = Storyboard.InstantiateViewController(nameof(LoginViewController)) as LoginViewController;
-					navController.PushViewController(myViewController, true);
+					NavigationController.PushViewController(myViewController, true);
 					return;
 				}
 
-				var voteRequest = new VoteRequest(UserContext.Instanse.Token, vote, postUrl);
+				var voteRequest = new VoteRequest(UserContext.Instanse.Token, vote, postUri);
 				var voteResponse = await Api.Vote(voteRequest);
 				if (voteResponse.Success)
 				{
-					var u = tableSource.TableItems.First(p => p.Url == postUrl);
+					var u = photosList.First(p => p.Url == postUri);
 					u.Vote = vote;
-					u.NetVotes++;
-					action.Invoke(postUrl, voteResponse.Result);
+					if (vote)
+						u.NetVotes++;
+					else
+						u.NetVotes--;
+					
+					success.Invoke(postUri, voteResponse.Result);
 				}
 			}
 			catch (Exception ex)

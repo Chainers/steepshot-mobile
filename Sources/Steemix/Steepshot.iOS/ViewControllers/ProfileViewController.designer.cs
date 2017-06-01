@@ -31,6 +31,9 @@ namespace Steepshot.iOS
 		UIKit.UILabel descriptionLabel { get; set; }
 
 		[Outlet]
+		UIKit.UILabel errorMessage { get; set; }
+
+		[Outlet]
 		UIKit.UIButton followButton { get; set; }
 
 		[Outlet]
@@ -87,6 +90,11 @@ namespace Steepshot.iOS
 			if (collectionView != null) {
 				collectionView.Dispose ();
 				collectionView = null;
+			}
+
+			if (collectioViewFlowLayout != null) {
+				collectioViewFlowLayout.Dispose ();
+				collectioViewFlowLayout = null;
 			}
 
 			if (dateLabel != null) {
@@ -169,9 +177,9 @@ namespace Steepshot.iOS
 				tableView = null;
 			}
 
-			if (collectioViewFlowLayout != null) {
-				collectioViewFlowLayout.Dispose ();
-				collectioViewFlowLayout = null;
+			if (errorMessage != null) {
+				errorMessage.Dispose ();
+				errorMessage = null;
 			}
 		}
 	}

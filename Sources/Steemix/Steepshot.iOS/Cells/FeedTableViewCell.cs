@@ -8,7 +8,7 @@ using UIKit;
 namespace Steepshot.iOS
 {
 	public delegate void HeaderTappedHandler(string username);
-	public delegate void ImagePreviewHandler(UIImage image);
+	public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
 	public delegate void VoteEventHandler(bool vote, string postUri, Action<string, VoteResponse> success);
 
     public partial class FeedTableViewCell : UITableViewCell
@@ -96,7 +96,7 @@ namespace Steepshot.iOS
 			{
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
-					ImagePreview(bodyImage.Image);
+					ImagePreview(bodyImage.Image, "");
 				});
 				bodyImage.AddGestureRecognizer(tap);
 			}

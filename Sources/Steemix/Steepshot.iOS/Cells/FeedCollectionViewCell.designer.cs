@@ -31,6 +31,15 @@ namespace Steepshot.iOS
 		UIKit.UIView contentView { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint contentViewWidth { get; set; }
+
+		[Outlet]
+		UIKit.UIView flagButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint imageWidth { get; set; }
+
+		[Outlet]
 		UIKit.UIButton likeButton { get; set; }
 
 		[Outlet]
@@ -40,7 +49,7 @@ namespace Steepshot.iOS
 		UIKit.UILabel rewards { get; set; }
 
 		[Outlet]
-		UIKit.UIView viewCommentButton { get; set; }
+		UIKit.UIButton viewCommentButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -69,6 +78,21 @@ namespace Steepshot.iOS
 				commentView = null;
 			}
 
+			if (contentView != null) {
+				contentView.Dispose ();
+				contentView = null;
+			}
+
+			if (contentViewWidth != null) {
+				contentViewWidth.Dispose ();
+				contentViewWidth = null;
+			}
+
+			if (imageWidth != null) {
+				imageWidth.Dispose ();
+				imageWidth = null;
+			}
+
 			if (likeButton != null) {
 				likeButton.Dispose ();
 				likeButton = null;
@@ -89,9 +113,9 @@ namespace Steepshot.iOS
 				viewCommentButton = null;
 			}
 
-			if (contentView != null) {
-				contentView.Dispose ();
-				contentView = null;
+			if (flagButton != null) {
+				flagButton.Dispose ();
+				flagButton = null;
 			}
 		}
 	}
