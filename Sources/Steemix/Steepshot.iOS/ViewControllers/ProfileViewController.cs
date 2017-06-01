@@ -348,12 +348,9 @@ namespace Steepshot.iOS
 		{
 			try
 			{
-				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl.TrimStart('/'));
-				OperationResult<FlagResponse> flagResponse;
-				//if(vote)
-					 flagResponse = await Api.Flag(flagRequest);
-				//else
-					//flagResponse = await Api.Flag(flagRequest);
+				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl);
+				var flagResponse = await Api.Flag(flagRequest);
+
 				if (flagResponse.Success)
 				{
 					var u = photosList.First(p => p.Url == postUrl);
