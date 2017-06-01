@@ -31,6 +31,9 @@ namespace Steepshot.iOS
 		UIKit.UIView commentView { get; set; }
 
 		[Outlet]
+		UIKit.UIButton flagButton { get; set; }
+
+		[Outlet]
 		UIKit.UIButton likeButton { get; set; }
 
 		[Outlet]
@@ -69,6 +72,11 @@ namespace Steepshot.iOS
 				commentText = null;
 			}
 
+			if (commentView != null) {
+				commentView.Dispose ();
+				commentView = null;
+			}
+
 			if (likeButton != null) {
 				likeButton.Dispose ();
 				likeButton = null;
@@ -89,9 +97,9 @@ namespace Steepshot.iOS
 				viewCommentButton = null;
 			}
 
-			if (commentView != null) {
-				commentView.Dispose ();
-				commentView = null;
+			if (flagButton != null) {
+				flagButton.Dispose ();
+				flagButton = null;
 			}
 		}
 	}

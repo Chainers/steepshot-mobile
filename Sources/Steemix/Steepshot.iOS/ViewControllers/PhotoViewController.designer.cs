@@ -13,6 +13,9 @@ namespace Steepshot.iOS
 	partial class PhotoViewController
 	{
 		[Outlet]
+		UIKit.UICollectionViewFlowLayout collectionViewFlowLayout { get; set; }
+
+		[Outlet]
 		UIKit.UIView liveCameraStream { get; set; }
 
 		[Outlet]
@@ -44,6 +47,11 @@ namespace Steepshot.iOS
 			if (swapCameraButton != null) {
 				swapCameraButton.Dispose ();
 				swapCameraButton = null;
+			}
+
+			if (collectionViewFlowLayout != null) {
+				collectionViewFlowLayout.Dispose ();
+				collectionViewFlowLayout = null;
 			}
 		}
 	}

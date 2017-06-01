@@ -29,6 +29,7 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
 			photoCollection.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
+			collectionViewFlowLayout.EstimatedItemSize = new CGSize(150, 150);
 
 			photoButton.TouchDown += PhotoButton_TouchDown;
 			swapCameraButton.TouchDown += SwitchCameraButtonTapped;
@@ -38,7 +39,6 @@ namespace Steepshot.iOS
 
 		public override void ViewDidAppear(bool animated)
 		{
-			//TabBarController.NavigationController.NavigationBarHidden = true;
 			SetNavBar();
 			base.ViewDidAppear(animated);
 		}
@@ -135,7 +135,7 @@ namespace Steepshot.iOS
 			}
 			else
 			{
-				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+				var leftBarButton = new UIBarButtonItem(UIImage.FromFile("small_camera"), UIBarButtonItemStyle.Plain, SwitchSource);
 				NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 			}
 		}
@@ -154,7 +154,7 @@ namespace Steepshot.iOS
 
 			NavigationItem.TitleView = tw;
 
-			var leftBarButton = new UIBarButtonItem(UIImage.FromFile("ic_camera.png"), UIBarButtonItemStyle.Plain, SwitchSource);
+			var leftBarButton = new UIBarButtonItem(UIImage.FromFile("small_camera"), UIBarButtonItemStyle.Plain, SwitchSource);
 			NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 
 			NavigationController.NavigationBar.TintColor = UIColor.White;
@@ -289,31 +289,43 @@ namespace Steepshot.iOS
 	{
 		Action ScrolledAction;
 		Action<NSIndexPath> CellClick;
-
+		public bool isGrid = true;
+		private UICollectionView _collectionView;
 
 		public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null)
 		{
 			ScrolledAction = scrolled;
 			CellClick = cellClick;
+			//_collectionView = collectionView;
 		}
-
+		/*
 		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
 		{
-			var cellSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
-			return new SizeF(cellSize, cellSize);
-		}
+			//if (isGrid)
+			//{
+				var cellSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
+				return new SizeF(cellSize, cellSize);
+			//}
+			//else
+				//return base.GetSizeForItem(collectionView, layout, indexPath);
+			
+		}*/
 
 		public override void Scrolled(UIScrollView scrollView)
 		{
 			if (ScrolledAction != null)
 			{
-				if(scrollView.Bounds.Bottom >= scrollView.ContentSize.Height)
+				
+				//if(scrollView.Bounds.Bottom != 0 && scrollView.Bounds.Bottom >= scrollView.ContentSize.Height)
 					ScrolledAction();
 			}
 		}
 
 		public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
 		{
+			if (!isGrid)
+				return;
+
 			if (CellClick != null)
 				CellClick(indexPath);
 		}

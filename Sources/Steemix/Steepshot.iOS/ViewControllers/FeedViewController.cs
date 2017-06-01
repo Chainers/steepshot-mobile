@@ -106,12 +106,12 @@ namespace Steepshot.iOS
 				navController.PushViewController(myViewController, true);
             };
 
-			tableSource.ImagePreview += (image) =>
+			/*tableSource.ImagePreview += (image) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 				myViewController.imageForPreview = image;
 				NavigationController.PushViewController(myViewController, true);
-			};
+			};*/
 
             FeedTable.RowHeight = UITableView.AutomaticDimension;
             FeedTable.EstimatedRowHeight = 450f;
@@ -337,9 +337,9 @@ namespace Steepshot.iOS
 				arrow = new UIImageView(new CoreGraphics.CGRect(tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
 				arrow.Image = UIImage.FromBundle("white-arrow-down");
 				titleView.Add(arrow);
-				titleView.Frame = new CoreGraphics.CGRect(0, 0, arrow.Frame.Right, barHeight);
+				titleView.Frame = new CGRect(0, 0, arrow.Frame.Right, barHeight);
 
-				var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_search_gray"), UIBarButtonItemStyle.Plain, SearchTapped); //ToConstants name
+				var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("search"), UIBarButtonItemStyle.Plain, SearchTapped);
 				navItem.SetRightBarButtonItem(rightBarButton, true);
 			}
 
@@ -352,10 +352,8 @@ namespace Steepshot.iOS
 			else
 				navItem.SetLeftBarButtonItem(null, false);
 
-
-
             navController.NavigationBar.TintColor = UIColor.White;
-			navController.NavigationBar.BarTintColor = Constants.NavBlue; // To constants
+			navController.NavigationBar.BarTintColor = Constants.NavBlue;
         }
 
         private UIView CreateDropDownList()

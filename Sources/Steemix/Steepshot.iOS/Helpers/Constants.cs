@@ -1,6 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using CoreGraphics;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -26,10 +25,12 @@ namespace Steepshot.iOS
 		public static readonly UIFont Heavy135 = UIFont.FromName("Lato-Heavy", 13.5f);
 		public const string Steem = "Steem";
 		public const string Golos = "Golos";
-		public static string Currency
-		{
-			get { return UserContext.Instanse.Network == Constants.Steem ? "$" : "₽"; }
-		}
+		public static string Currency => UserContext.Instanse.Network == Constants.Steem ? "$" : "₽";
+
+		public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
+		public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
+
+		public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
     }
 
 	public enum Networks

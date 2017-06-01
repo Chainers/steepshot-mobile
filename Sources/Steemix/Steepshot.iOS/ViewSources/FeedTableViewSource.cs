@@ -44,10 +44,10 @@ namespace Steepshot.iOS
 			}
 			if (!cell.IsImagePreviewSet)
 			{
-				cell.ImagePreview += (image) =>
+				cell.ImagePreview += (image, url) =>
 				{
 					if(ImagePreview != null)
-                        ImagePreview(image);
+                        ImagePreview(image, url);
 				};
 			}
 			cell.UpdateCell(TableItems[indexPath.Row]);
