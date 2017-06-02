@@ -244,7 +244,6 @@
     <Compile Include="ViewControllers\TagsSearchViewController.designer.cs">
       <DependentUpon>TagsSearchViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\ImageDownloader.cs" />
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
       <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
@@ -327,6 +326,8 @@
     <BundleResource Include="Resources\heart%403x.png" />
     <BundleResource Include="Resources\search%402x.png" />
     <BundleResource Include="Resources\search%403x.png" />
+    <BundleResource Include="Resources\flag_active%402x.png" />
+    <BundleResource Include="Resources\flag_active%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\" />

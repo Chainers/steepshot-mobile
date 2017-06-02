@@ -13,14 +13,14 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FeedCollectionViewCell" id="cZE-iV-UFb" customClass="FeedCollectionViewCell">
-            <rect key="frame" x="0.0" y="0.0" width="320" height="509"/>
-            <autoresizingMask key="autoresizingMask"/>
+            <rect key="frame" x="0.0" y="0.0" width="320" height="485"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="509"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="485"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FaT-0u-dfJ">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="509"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="485"/>
                         <subviews>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="royal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kkv-xH-c8d">
                                 <rect key="frame" x="55" y="0.0" width="220" height="45"/>
@@ -34,7 +34,7 @@
                                     <constraint firstAttribute="width" secondItem="uOb-p7-mhn" secondAttribute="height" multiplier="1:1" id="mvc-er-7L5"/>
                                 </constraints>
                                 <state key="normal" image="flag.png"/>
-                                <state key="selected" image="steem.png"/>
+                                <state key="selected" image="flag_active.png"/>
                             </button>
                             <view userInteractionEnabled="NO" alpha="0.10000000149011612" contentMode="scaleToFill" verticalCompressionResistancePriority="760" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-6N-qKO">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="45"/>
@@ -80,10 +80,10 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" verticalCompressionResistancePriority="752" translatesAutoresizingMaskIntoConstraints="NO" id="tca-gS-OKk">
-                                <rect key="frame" x="0.0" y="416" width="320" height="93"/>
+                                <rect key="frame" x="0.0" y="416" width="320" height="69"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="249" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="749" text="Harry" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="100" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RJj-FH-H4A">
-                                        <rect key="frame" x="45" y="5" width="265" height="46"/>
+                                        <rect key="frame" x="45" y="5" width="265" height="22"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -96,7 +96,7 @@
                                         </constraints>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wUB-cf-kao">
-                                        <rect key="frame" x="45" y="61" width="89" height="27"/>
+                                        <rect key="frame" x="45" y="37" width="89" height="27"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <state key="normal" title="ViewComments">
                                             <color key="titleColor" red="0.80784313730000001" green="0.80784313730000001" blue="0.82352941180000006" alpha="1" colorSpace="calibratedRGB"/>
@@ -185,10 +185,10 @@
     </objects>
     <resources>
         <image name="flag.png" width="25" height="25"/>
+        <image name="flag_active.png" width="25" height="25"/>
         <image name="heart.png" width="25" height="25"/>
         <image name="heart_black.png" width="25" height="25"/>
         <image name="ic_conversation.png" width="66" height="66"/>
         <image name="ic_heart_blue.png" width="48" height="48"/>
-        <image name="steem.png" width="22" height="22"/>
     </resources>
 </document>

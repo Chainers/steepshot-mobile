@@ -79,6 +79,9 @@ namespace Steepshot.iOS
 
 		private void SwitchNetwork(string network)
 		{
+			if (UserContext.Instanse.Network == network)
+				return;
+
 			UserContext.Instanse.Network = network;
 			//HighlightView();
 			SwitchApiAddress();

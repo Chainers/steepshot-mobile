@@ -139,8 +139,8 @@ namespace Steepshot.iOS
                 }
             }
 
-			ImageDownloader.Download(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"), webClients);
-			ImageDownloader.Download(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"), webClients);
+			//ImageDownloader.Download(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"), webClients);
+			//ImageDownloader.Download(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"), webClients);
         }
 
         private void LikeTap(object sender, EventArgs e)
