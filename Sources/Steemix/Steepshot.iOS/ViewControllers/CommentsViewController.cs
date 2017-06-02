@@ -32,10 +32,10 @@ namespace Steepshot.iOS
 			commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 			commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
 
-			/*tableSource.Voted += (vote, url, action)  =>
+			tableSource.Voted += (vote, url, action)  =>
             {
 				Vote(vote, url, action);
-            };*/
+            };
 
 			tableSource.GoToProfile += (username)  =>
             {

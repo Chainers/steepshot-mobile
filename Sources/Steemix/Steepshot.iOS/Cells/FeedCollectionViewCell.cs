@@ -24,7 +24,7 @@ namespace Steepshot.iOS
 
 		private bool isButtonBinded = false;
 		private List<WebClient> webClients = new List<WebClient>();
-		public event VoteEventHandler<VoteResponse> Voted;
+		public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
 		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
@@ -39,21 +39,13 @@ namespace Steepshot.iOS
 		private IScheduledWork _scheduledWorkAvatar;
 		private IScheduledWork _scheduledWorkBody;
 
-		private bool _isHeightCalculated = false;
-
 		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)
 		{
-			if(_isHeightCalculated)
-			{
-				SetNeedsLayout();
-				LayoutIfNeeded();
-				contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
-				var size = contentView.SystemLayoutSizeFittingSize(layoutAttributes.Size);
-				var newFrame = layoutAttributes.Frame;
-				newFrame.Size = new CGSize(newFrame.Size.Width, size.Height);
-				layoutAttributes.Frame = newFrame;
-				_isHeightCalculated = true;
-			}
+			contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
+			var size = contentView.SystemLayoutSizeFittingSize(layoutAttributes.Size);
+			var newFrame = layoutAttributes.Frame;
+			newFrame.Size = new CGSize(size);
+			layoutAttributes.Frame = newFrame;
 			return layoutAttributes;
 		}
 
@@ -141,13 +133,14 @@ namespace Steepshot.iOS
 			likeButton.Enabled = false;
 			Voted(!likeButton.Selected, _currentPost.Url, (url, post) =>
 			{
-				if (url == _currentPost.Url)
+				if (url == _currentPost.Url && post.Success)
 				{
-					likeButton.Selected = post.IsVoted;
-					likeButton.Enabled = true;
-					rewards.Text = $"{Constants.Currency}{post.NewTotalPayoutReward.ToString()}";
+					likeButton.Selected = post.Result.IsVoted;
+					flagButton.Selected = _currentPost.Flag;
+					rewards.Text = $"{Constants.Currency}{post.Result.NewTotalPayoutReward.ToString()}";
 					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
 				}
+				likeButton.Enabled = true;
 			});
 		}
 
@@ -159,6 +152,9 @@ namespace Steepshot.iOS
 				if (url == _currentPost.Url && post.Success)
 				{
 					flagButton.Selected = post.Result.IsFlagged;
+					likeButton.Selected = _currentPost.Vote;
+					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+					rewards.Text = $"{Constants.Currency}{post.Result.NewTotalPayoutReward.ToString()}";
 				}
 				flagButton.Enabled = true;
 			});

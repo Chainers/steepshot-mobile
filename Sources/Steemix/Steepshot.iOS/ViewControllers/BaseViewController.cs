@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
 using Sweetshot.Library.HttpClient;
@@ -131,6 +132,16 @@ namespace Steepshot.iOS
 			}
 			View.Frame = frame;
 			UIView.CommitAnimations(); 
+		}
+
+		protected void ShowAlert(string message)
+		{
+			UIAlertView alert = new UIAlertView()
+			{
+				Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
+			};
+			alert.AddButton("OK");
+			alert.Show();
 		}
 	}
 }

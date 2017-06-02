@@ -85,7 +85,7 @@ namespace Steepshot.iOS
 			try
 			{
 				byte[] photoByteArray;
-				using (NSData imageData = photoView.Image.AsJPEG(0.6f))
+				using (NSData imageData = photoView.Image.AsJPEG(0.4f))
 				{
 					photoByteArray = new Byte[imageData.Length];
 					Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));

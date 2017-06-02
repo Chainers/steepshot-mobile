@@ -82,7 +82,6 @@ namespace Steepshot.iOS
 				UserContext.Instanse.Network = newAccountNetwork == Constants.Steem ? Constants.Golos : Constants.Steem;
 				SwitchApiAddress();
 			}
-			
 		}
 
 		private void NetworkSwithed(string network)
@@ -116,22 +115,12 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					UIAlertView alert = new UIAlertView()
-					{
-						Message = response.Errors[0]
-					};
-					alert.AddButton("OK");
-					alert.Show();
+                    ShowAlert(response.Errors[0]);
 				}
 			}
 			catch (ArgumentNullException ex)
 			{
-				UIAlertView alert = new UIAlertView()
-				{
-					Message = "Login cannot be empty"
-				};
-				alert.AddButton("OK");
-				alert.Show();
+				ShowAlert("Login cannot be empty");
 			}
 			catch (Exception ex)
 			{

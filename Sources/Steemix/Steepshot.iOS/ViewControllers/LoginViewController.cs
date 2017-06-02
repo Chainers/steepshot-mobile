@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using CoreGraphics;
-using Foundation;
+using FFImageLoading;
 using Sweetshot.Library.Models.Requests;
 using UIKit;
 
@@ -27,7 +26,12 @@ namespace Steepshot.iOS
 			{
 				password.SecureTextEntry = !password.SecureTextEntry;
 			};
-			ImageDownloader.Download(AvatarLink, avatar);
+			ImageService.Instance.LoadUrl(AvatarLink, TimeSpan.FromDays(30))
+											 .Retry(2, 200)
+											 .FadeAnimation(false, false, 0)
+											 .DownSample(width: (int)avatar.Frame.Width)
+											 .Into(avatar);
+
 			loginTitle.Text = $"Hello, {Username}";
 			loginTitle.Font = Constants.Bold225;
 			postingLabel.Font = Constants.Bold175;
@@ -93,22 +97,12 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					UIAlertView alert = new UIAlertView()
-					{
-						Message = response.Errors[0]
-					};
-					alert.AddButton("OK");
-					alert.Show();
+                    ShowAlert(response.Errors[0]);
 				}
 			}
 			catch (ArgumentNullException ex)
 			{
-				UIAlertView alert = new UIAlertView()
-				{
-					Message = "Password cannot be empty"
-				};
-				alert.AddButton("OK");
-				alert.Show();
+                ShowAlert("Password cannot be empty");
 			}
 			catch (Exception ex)
 			{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
@@ -26,6 +27,7 @@ namespace Steepshot.iOS
 		private bool _isPostsLoading;
 		private ProfileHeaderViewController _profileHeader;
 		private CollectionViewFlowDelegate gridDelegate;
+		private int _lastRow;
 
 		public override void ViewDidLoad()
 		{
@@ -61,9 +63,12 @@ namespace Steepshot.iOS
 			{
 				try
 				{
-					var lastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					if (photosList.Count <= lastRow)
+					var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
+					if (_lastRow != newlastRow)
+						collectionView.CollectionViewLayout.InvalidateLayout();
+					if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
 						GetUserPosts();
+					_lastRow = newlastRow;
 				}
 				catch (InvalidOperationException ex)
 				{
@@ -113,7 +118,7 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400);
+					collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
 					_profileHeader.SwitchButton.SetImage(UIImage.FromFile("grid.png"), UIControlState.Normal);
 
 				}
@@ -255,7 +260,6 @@ namespace Steepshot.iOS
 						var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(_profileHeader.View.Frame.Width, 300));
 
 						_profileHeader.View.Frame = new CGRect(0, -size.Height, _profileHeader.View.Frame.Width, size.Height);
-						var lil2 = collectionView.ContentInset;
 						collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
 						collectionView.Hidden = false;
 					}
@@ -292,7 +296,8 @@ namespace Steepshot.iOS
 				{
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Url;
-					if (response.Result.Results.Count == 1)
+
+					if (response.Result.Results.Count < response.Result.Results.Count / 2)
 						_hasItems = false;
 					else
 						response.Result.Results.Remove(lastItem);
@@ -313,7 +318,7 @@ namespace Steepshot.iOS
 		}
 
 
-		private async Task Vote(bool vote, string postUri, Action<string, VoteResponse> success)
+		private async Task Vote(bool vote, string postUri, Action<string, OperationResult<VoteResponse>> success)
 		{
 			try
 			{
@@ -331,12 +336,21 @@ namespace Steepshot.iOS
 					var u = photosList.First(p => p.Url == postUri);
 					u.Vote = vote;
 					if (vote)
-						u.NetVotes++;
+					{
+						u.Flag = false;
+						if (u.NetVotes == -1)
+							u.NetVotes = 1;
+						else
+							u.NetVotes++;
+					}
 					else
 						u.NetVotes--;
-					
-					success.Invoke(postUri, voteResponse.Result);
 				}
+				else
+				{
+                    ShowAlert(voteResponse.Errors[0]);
+				}
+				success.Invoke(postUri, voteResponse);
 			}
 			catch (Exception ex)
 			{
@@ -350,11 +364,23 @@ namespace Steepshot.iOS
 			{
 				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl);
 				var flagResponse = await Api.Flag(flagRequest);
-
 				if (flagResponse.Success)
 				{
 					var u = photosList.First(p => p.Url == postUrl);
 					u.Flag = vote;
+					if (flagResponse.Result.IsFlagged)
+					{
+						if (u.Vote)
+							if (u.NetVotes == 1)
+								u.NetVotes = -1;
+							else
+								u.NetVotes--;
+						u.Vote = false;
+					}
+				}
+				else
+				{
+                    ShowAlert(flagResponse.Errors[0]);
 				}
 				action.Invoke(postUrl, flagResponse);
 			}

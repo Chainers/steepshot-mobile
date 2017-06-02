@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using FFImageLoading;
+using FFImageLoading.Work;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
@@ -12,38 +14,20 @@ namespace Steepshot.iOS
 
 	public partial class FollowViewCell : UITableViewCell
 	{
+		protected FollowViewCell(IntPtr handle) : base(handle) { }
 		public static readonly NSString Key = new NSString("FollowViewCell");
 		public static readonly UINib Nib;
-		private List<WebClient> webClients = new List<WebClient>();
 		private bool isButtonBinded = false;
 		public event FollowEventHandler Follow;
 		public event HeaderTappedHandler GoToProfile;
 		private UserFriend _currentUser;
-
-		public bool IsFollowSet
-		{
-			get
-			{
-				return Follow != null;
-			}
-		}
-
-		public bool IsGoToProfileSet
-		{
-			get
-			{
-				return GoToProfile != null;
-			}
-		}
+		public bool IsFollowSet => Follow != null;
+		public bool IsGoToProfileSet => GoToProfile != null;
+		private IScheduledWork _scheduledWorkAvatar;
 
 		static FollowViewCell()
 		{
 			Nib = UINib.FromName("FollowViewCell", NSBundle.MainBundle);
-		}
-
-		protected FollowViewCell(IntPtr handle) : base(handle)
-		{
-			// Note: this .ctor should not contain any initialization logic.
 		}
 
 		public override void LayoutSubviews()
@@ -60,8 +44,16 @@ namespace Steepshot.iOS
 		public void UpdateCell(UserFriend user)
 		{
 			_currentUser = user;
-			userName.Text = user.Author;
-			followButton.SetTitle(user.HasFollowed ? "UNFOLLOW" : "FOLLOW", UIControlState.Normal);
+			avatar.Image = null;
+			_scheduledWorkAvatar?.Cancel();
+			_scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
+																						 .Retry(2, 200)
+																						 .FadeAnimation(false, false, 0)
+																						 .DownSample(width: (int)avatar.Frame.Width)
+																						 .Into(avatar);
+
+			userName.Text = _currentUser.Author;
+			followButton.SetTitle(_currentUser.HasFollowed ? "UNFOLLOW" : "FOLLOW", UIControlState.Normal);
 
 			followButton.Enabled = true;
 			progressBar.StopAnimating();
@@ -93,15 +85,6 @@ namespace Steepshot.iOS
 				};
 				isButtonBinded = true;
 			}
-			foreach (var webClient in webClients)
-            {
-                if (webClient != null)
-                {
-                    webClient.CancelAsync();
-                    webClient.Dispose();
-                }
-            }
-			ImageDownloader.Download(user.Avatar, avatar, UIImage.FromBundle("ic_photo_holder"), webClients);
 		}
 	}
 }

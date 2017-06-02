@@ -11,7 +11,7 @@ namespace Steepshot.iOS
 		public List<Post> PhotoList = new List<Post>();
 
 		public bool IsGrid = true;
-		public event VoteEventHandler<VoteResponse> Voted;
+		public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
 		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
@@ -77,7 +77,7 @@ namespace Steepshot.iOS
 			{
 				cell.UpdateCell(PhotoList[(int)indexPath.Item]);
 			}
-			catch (ArgumentOutOfRangeException ex)
+			catch (Exception ex)
 			{
 				//ignore ^^
 			}
