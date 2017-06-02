@@ -39,13 +39,21 @@ namespace Steepshot.iOS
 		private IScheduledWork _scheduledWorkAvatar;
 		private IScheduledWork _scheduledWorkBody;
 
+		private bool _isHeightCalculated = false;
+
 		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)
 		{
-			contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
-			var size = contentView.SystemLayoutSizeFittingSize(layoutAttributes.Size);
-			var newFrame = layoutAttributes.Frame;
-			newFrame.Size = new CGSize(newFrame.Size.Width, size.Height);
-			layoutAttributes.Frame = newFrame;
+			if(_isHeightCalculated)
+			{
+				SetNeedsLayout();
+				LayoutIfNeeded();
+				contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
+				var size = contentView.SystemLayoutSizeFittingSize(layoutAttributes.Size);
+				var newFrame = layoutAttributes.Frame;
+				newFrame.Size = new CGSize(newFrame.Size.Width, size.Height);
+				layoutAttributes.Frame = newFrame;
+				_isHeightCalculated = true;
+			}
 			return layoutAttributes;
 		}
 
