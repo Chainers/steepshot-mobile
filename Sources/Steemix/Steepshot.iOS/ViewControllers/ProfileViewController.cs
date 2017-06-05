@@ -28,6 +28,7 @@ namespace Steepshot.iOS
 		private ProfileHeaderViewController _profileHeader;
 		private CollectionViewFlowDelegate gridDelegate;
 		private int _lastRow;
+		private const int _limit = 40;
 
 		public override void ViewDidLoad()
 		{
@@ -64,8 +65,8 @@ namespace Steepshot.iOS
 				try
 				{
 					var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					if (_lastRow != newlastRow)
-						collectionView.CollectionViewLayout.InvalidateLayout();
+					//if (_lastRow != newlastRow)
+						//collectionView.CollectionViewLayout.InvalidateLayout();
 					if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
 						GetUserPosts();
 					_lastRow = newlastRow;
@@ -287,7 +288,7 @@ namespace Steepshot.iOS
 			{
 				var req = new UserPostsRequest(Username)
 				{
-					Limit = 40,
+					Limit = _limit,
 					Offset = photosList.Count == 0 ? "0" : _offsetUrl,
 					SessionId = UserContext.Instanse.Token
 				};
@@ -297,7 +298,7 @@ namespace Steepshot.iOS
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Url;
 
-					if (response.Result.Results.Count < response.Result.Results.Count / 2)
+					if (response.Result.Results.Count < _limit / 2)
 						_hasItems = false;
 					else
 						response.Result.Results.Remove(lastItem);

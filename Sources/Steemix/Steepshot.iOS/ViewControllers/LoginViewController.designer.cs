@@ -19,6 +19,9 @@ namespace Steepshot.iOS
 		UIKit.UIImageView avatar { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint bottomMargin { get; set; }
+
+		[Outlet]
 		UIKit.UIButton eyeButton { get; set; }
 
 		[Outlet]
@@ -38,6 +41,9 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UIButton qrButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint topMargin { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -71,11 +77,6 @@ namespace Steepshot.iOS
 				password = null;
 			}
 
-			if (qrButton != null) {
-				qrButton.Dispose ();
-				qrButton = null;
-			}
-
 			if (postingKeyButton != null) {
 				postingKeyButton.Dispose ();
 				postingKeyButton = null;
@@ -84,6 +85,21 @@ namespace Steepshot.iOS
 			if (postingLabel != null) {
 				postingLabel.Dispose ();
 				postingLabel = null;
+			}
+
+			if (qrButton != null) {
+				qrButton.Dispose ();
+				qrButton = null;
+			}
+
+			if (topMargin != null) {
+				topMargin.Dispose ();
+				topMargin = null;
+			}
+
+			if (bottomMargin != null) {
+				bottomMargin.Dispose ();
+				bottomMargin = null;
 			}
 		}
 	}

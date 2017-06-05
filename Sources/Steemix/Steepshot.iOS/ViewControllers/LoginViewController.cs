@@ -20,6 +20,11 @@ namespace Steepshot.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
+			if ((float)UIScreen.MainScreen.Bounds.Height < 500)
+			{
+				topMargin.Constant = 0;
+				bottomMargin.Constant = 5;
+			}
 			loginButton.TouchDown += (object sender, EventArgs e) => Login();
 			avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
 			eyeButton.TouchDown += (sender, e) =>
@@ -57,7 +62,6 @@ namespace Steepshot.iOS
 			NavigationItem.TitleView = tw;
 
 			qrButton.Font = Constants.Bold135;
-			var lil = qrButton.ImageEdgeInsets;
 			//qrButton.ImageEdgeInsets = new UIEdgeInsets(5, 5, -5, -5);
 			qrButton.TouchDown += async (sender, e) =>
 			{

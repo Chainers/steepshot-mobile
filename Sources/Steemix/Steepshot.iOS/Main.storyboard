@@ -172,7 +172,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter your posting key" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1iy-VJ-wV5">
-                                <rect key="frame" x="102" y="118" width="171" height="21"/>
+                                <rect key="frame" x="102" y="117.5" width="171" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -202,7 +202,7 @@
                                 <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </activityIndicatorView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uAZ-aM-4IC">
-                                <rect key="frame" x="83.5" y="386" width="208" height="20"/>
+                                <rect key="frame" x="83.5" y="385.5" width="208" height="20"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8XT-DS-Tr0">
                                         <rect key="frame" x="28" y="0.0" width="180" height="20"/>
@@ -260,6 +260,7 @@
                     <connections>
                         <outlet property="activityIndicator" destination="Ox4-bd-OyH" id="Bq3-db-wej"/>
                         <outlet property="avatar" destination="A4L-Cm-S2u" id="cqg-Sx-1AK"/>
+                        <outlet property="bottomMargin" destination="iaY-MP-JoJ" id="LNj-qg-3pg"/>
                         <outlet property="eyeButton" destination="ejv-Wb-RlF" id="jJR-i5-7cN"/>
                         <outlet property="loginButton" destination="Cpd-UC-cj7" id="aOp-LJ-cBH"/>
                         <outlet property="loginTitle" destination="AZf-ry-nbW" id="jjg-CN-RlM"/>
@@ -267,6 +268,7 @@
                         <outlet property="postingKeyButton" destination="dI4-9e-oDR" id="ufw-Iw-3cy"/>
                         <outlet property="postingLabel" destination="1iy-VJ-wV5" id="2II-Zf-vwl"/>
                         <outlet property="qrButton" destination="8XT-DS-Tr0" id="VzF-2x-J37"/>
+                        <outlet property="topMargin" destination="Tjh-bU-Lsu" id="Kl8-KJ-jSL"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z4e-Et-gYD" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -317,7 +319,7 @@
                                 </cells>
                             </collectionView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Something went wrong" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vhp-HX-Chb">
-                                <rect key="frame" x="99.5" y="323" width="176.5" height="21"/>
+                                <rect key="frame" x="99" y="323" width="177" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -601,7 +603,7 @@
                                 <state key="normal" image="take_photo.png"/>
                             </button>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nhQ-8F-Gfk">
-                                <rect key="frame" x="330" y="398.5" width="40" height="35.5"/>
+                                <rect key="frame" x="330" y="399" width="40" height="35"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" id="tNh-8f-R1d"/>
                                     <constraint firstAttribute="width" secondItem="nhQ-8F-Gfk" secondAttribute="height" multiplier="25:22" id="vAt-bk-YOv"/>
@@ -700,7 +702,7 @@
                                         <rect key="frame" x="137.5" y="0.0" width="100" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="0.0" y="0.0" width="101" height="50"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </view>
                                     </collectionViewCell>
@@ -724,7 +726,7 @@
                                         <rect key="frame" x="137.5" y="50" width="100" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="0.0" y="0.0" width="101" height="50"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </view>
                                     </collectionViewCell>
@@ -854,7 +856,7 @@
                                         </view>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="zWn-LE-3ji">
-                                        <rect key="frame" x="138" y="0.0" width="100" height="50"/>
+                                        <rect key="frame" x="137.5" y="0.0" width="100" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
@@ -1138,7 +1140,7 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tags not found" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1u-7k-GQb">
-                                <rect key="frame" x="0.0" y="323.5" width="375" height="20.5"/>
+                                <rect key="frame" x="0.0" y="323" width="375" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
