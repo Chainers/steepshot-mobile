@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -41,6 +43,7 @@ namespace Steepshot.iOS
 		private bool IsDropDownOpen => dropdown.Frame.Y > 0;
 		private CollectionViewFlowDelegate gridDelegate;
 		private int _lastRow;
+		private const int limit = 40;
 
         public override void ViewDidLoad()
         {
@@ -54,8 +57,8 @@ namespace Steepshot.iOS
 				 try
 				 {
 					 var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					 if (_lastRow != newlastRow)
-						 feedCollection.CollectionViewLayout.InvalidateLayout();
+					 //if (_lastRow != newlastRow)
+						 //feedCollection.CollectionViewLayout.InvalidateLayout();
 					 if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_isFeedRefreshing)
 						 GetPosts();
 					 _lastRow = newlastRow;
@@ -153,7 +156,6 @@ namespace Steepshot.iOS
 			{
 				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
 				collectionViewSource.PhotoList.Clear();
-				feedCollection.ReloadData();
 				tw.Text = UserContext.Instanse.CurrentPostCategory;
 				GetPosts();
 			}
@@ -242,7 +244,7 @@ namespace Steepshot.iOS
 						var postrequest = new PostsRequest(currentPostType)
 						{
 							SessionId = UserContext.Instanse.Token,
-							Limit = 20,
+							Limit = limit,
 							Offset = offset
 						};
 						posts = await Api.GetPosts(postrequest);
@@ -252,7 +254,7 @@ namespace Steepshot.iOS
 						var postrequest = new PostsByCategoryRequest(currentPostType, UserContext.Instanse.CurrentPostCategory)
 						{
 							SessionId = UserContext.Instanse.Token,
-							Limit = 20,
+							Limit = limit,
 							Offset = offset
 						};
 						posts = await Api.GetPostsByCategory(postrequest);
@@ -262,18 +264,28 @@ namespace Steepshot.iOS
 				{
 					var f = new UserRecentPostsRequest(UserContext.Instanse.Token)
 					{
-						Limit = 20,
+						Limit = limit,
 						Offset = offset
 					};
 					posts = await Api.GetUserRecentPosts(f);
 				}
+
+				if (posts.Result == null || posts.Result.Results == null)
+				{
+					_hasItems = false;
+					collectionViewSource.PhotoList.Clear();
+					feedCollection.ReloadData();
+					feedCollection.CollectionViewLayout.InvalidateLayout();
+					return;
+				}
+
 				if (posts.Result.Results.Count == 0 && isHomeFeed)
 					noFeedLabel.Hidden = false;
 
 				var lastItem = posts.Result.Results.Last();
 				_offsetUrl = lastItem.Url;
 
-				if (posts.Result.Results.Count == 1)
+				if (posts.Result.Results.Count < limit / 2)
 					_hasItems = false;
 				else
 					posts.Result.Results.Remove(lastItem);
@@ -440,6 +452,7 @@ namespace Steepshot.iOS
                    tw.Text = newPhotosButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
                    GetPosts();
+				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
 
             var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, navController.NavigationBar.Frame.Width, 50));
@@ -456,6 +469,7 @@ namespace Steepshot.iOS
 				   tw.Text = hotButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
 				   GetPosts();
+				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
 			   });
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
@@ -472,6 +486,7 @@ namespace Steepshot.iOS
 				   tw.Text = trendingButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
 				   GetPosts();
+				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
 			   });
 
             view.Add(newPhotosButton);
@@ -483,5 +498,58 @@ namespace Steepshot.iOS
             return view;
         }
     }
+
+	public class lilLayout : UICollectionViewFlowLayout
+	{
+		public override CGPoint TargetContentOffsetForProposedContentOffset(CGPoint proposedContentOffset)
+		{
+			return new CGPoint();
+		}
+
+		public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
+		{
+			var bob = base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
+			return bob;
+		}
+
+		public override UICollectionViewLayoutAttributes[] LayoutAttributesForElementsInRect(CGRect rect)
+		{
+			var allAttributes = base.LayoutAttributesForElementsInRect(rect).ToList();
+			var f = new List<UICollectionViewLayoutAttributes>();
+			foreach (UICollectionViewLayoutAttributes att in allAttributes)
+			{
+				if (att.RepresentedElementCategory == UICollectionElementCategory.Cell)
+				{
+					f.Add(LayoutAttributesForItem(att.IndexPath));
+				}
+				//f.Add(att);
+			}
+			return f.ToArray();
+			/*return allAttributes.FlatMap { attributes in
+				switch attributes.representedElementCategory {
+				case .Cell: return LayoutAttributesForItem(attributes.indexPath)
+				default: return attributes
+				}*/
+		}
+
+		public override UICollectionViewLayoutAttributes LayoutAttributesForItem(NSIndexPath indexPath)
+		{
+			var attributes = base.LayoutAttributesForItem(indexPath);
+
+			//guard let collectionView = collectionView else { return attributes }
+			attributes.Bounds = new RectangleF((PointF)attributes.Bounds.Location, new SizeF((float)(CollectionView.Bounds.Width - SectionInset.Left - SectionInset.Right), (float)attributes.Bounds.Size.Height));
+			return attributes;
+		}
+	}
+
+
+		/*public override CGSize CollectionViewContentSize
+		{
+			get
+			{
+				return new CGSize(320,0);
+			}
+		}*/
+	
 }
 
