@@ -188,6 +188,26 @@ namespace Sweetshot.Tests
             Assert.That(logoutResponse.Result.Message, Is.EqualTo("User is logged out"));
         }
 
+        [Test, Sequential]
+        public void Nsfw_Tests([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            var sessionId = Authenticate("joseph.kalu", "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG", Api(name));
+            var setRequest = new SetNsfwRequest(sessionId, true);
+            var checkRequest = new IsNsfwRequest(sessionId);
+
+            // Act
+            var setResponse = Api(name).SetNsfw(setRequest).Result;
+            var checkResponse = Api(name).IsNsfw(checkRequest).Result;
+
+            // Assert
+            AssertResult(setResponse);
+            Assert.That(setResponse.Result.IsSet, Is.True);
+
+            AssertResult(checkResponse);
+            Assert.That(checkResponse.Result.ShowNsfw, Is.True);
+        }
+
         //[Ignore("Ingoring...")]
         //public void Upload_Throttling()
         //{
