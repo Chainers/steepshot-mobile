@@ -77,25 +77,52 @@ namespace Steepshot.iOS
 													 .DownSample(width: (int)bodyImage.Frame.Width)
 													 .Into(bodyImage);
 
-			_currentPost = post;
-			cellText.Text = post.Author;
-			rewards.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
-			netVotes.Text = $"{post.NetVotes.ToString()} likes";
-			likeButton.Selected = post.Vote;
-			flagButton.Selected = post.Flag;
+
+			cellText.Text = _currentPost.Author;
+			rewards.Text = $"{Constants.Currency}{_currentPost.TotalPayoutReward.ToString()}";
+			netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+			likeButton.Selected = _currentPost.Vote;
+			flagButton.Selected = _currentPost.Flag;
 			var nicknameAttribute = new UIStringAttributes
 			{
 				Font = UIFont.BoldSystemFontOfSize(commentText.Font.PointSize)
 			};
 			NSMutableAttributedString at = new NSMutableAttributedString();
-			at.Append(new NSAttributedString(post.Author, nicknameAttribute));
+			at.Append(new NSAttributedString(_currentPost.Author, nicknameAttribute));
 			at.Append(new NSAttributedString(" "));
-			at.Append(new NSAttributedString(post.Title));
+			at.Append(new NSAttributedString(_currentPost.Title));
 			commentText.AttributedText = at;
-			var buttonTitle = post.Children == 0 ? "Post first comment" : $"View {post.Children} comments";
+			var buttonTitle = _currentPost.Children == 0 ? "Post first comment" : $"View {_currentPost.Children} comments";
 			viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
 			likeButton.Enabled = true;
 			flagButton.Enabled = true;
+			//postTimeStamp.Text = DateTime.Now.Subtract(_currentPost.Created).ToString("M", culture);
+			var period = DateTime.UtcNow.Subtract(_currentPost.Created);
+
+			if (period.Days / 365 != 0)
+			{
+				postTimeStamp.Text = $"{period.Days / 365} y";
+			}
+			if (period.Days / 30 != 0)
+			{
+				postTimeStamp.Text = $"{period.Days / 30} m";
+			}
+			if (period.Days != 0)
+			{
+				postTimeStamp.Text = $"{period.Days} d";
+			}
+			else if (period.Hours != 0)
+			{
+				postTimeStamp.Text = $"{period.Hours} h";
+			}
+			else if (period.Minutes != 0)
+			{
+				postTimeStamp.Text = $"{period.Minutes} m";
+			}
+			else if (period.Seconds != 0)
+			{
+				postTimeStamp.Text = $"{period.Seconds} s";
+			}
 
 			if (!isButtonBinded)
 			{

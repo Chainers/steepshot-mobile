@@ -8,8 +8,7 @@ namespace Steepshot.iOS
 	{
 		public static void FilterNSFW(this List<Post> list)
 		{
-			//var lil = list.Where(p => p.Category.Contains("nsfw") || p.Tags.Any(t => t.Contains("nsfw"))).ToList();
-			if (UserContext.Instanse.NSFW)
+			if (!UserContext.Instanse.NSFW)
 				list.RemoveAll(p => p.Category.Contains("nsfw") || p.Tags.Any(t => t.Contains("nsfw")));
 		}
 	}

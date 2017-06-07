@@ -147,7 +147,7 @@ namespace Steepshot.iOS
 				dropdown = CreateDropDownList();
 			}
             SetNavBar();
-            GetPosts();
+			GetPosts();
         }
 
 		public override void ViewWillAppear(bool animated)
@@ -272,7 +272,6 @@ namespace Steepshot.iOS
 
 				if (posts.Success)
 				{
-					posts?.Result?.Results?.FilterNSFW();
 					if (posts.Result == null || posts.Result.Results == null)
 					{
 						_hasItems = false;

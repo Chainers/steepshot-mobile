@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Foundation;
 using MessageUI;
+using Sweetshot.Library.Models.Requests;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -23,6 +25,8 @@ namespace Steepshot.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
+			nsfwSwitch.On = UserContext.Instanse.NSFW;
+			CheckNSFW();
 			NavigationController.SetNavigationBarHidden(false, false);
 			steemAcc = UserContext.Instanse.Accounts.FirstOrDefault(a => a.Network == Constants.Steem);
 			golosAcc = UserContext.Instanse.Accounts.FirstOrDefault(a => a.Network == Constants.Golos);
@@ -99,8 +103,56 @@ namespace Steepshot.iOS
 			{
 				UIApplication.SharedApplication.OpenUrl(new Uri("https://www.google.by/"));
 			};
+			nsfwSwitch.ValueChanged += (sender, e) =>
+			{
+				SwitchNSFW();
+			};
+		}
 
+		private async Task SwitchNSFW()
+		{
+			try
+			{
+				nsfwSwitch.Enabled = false;
+				var response = await Api.SetNsfw(new SetNsfwRequest(UserContext.Instanse.Token, !UserContext.Instanse.NSFW));
+				if (response.Success)
+				{
+					UserContext.Instanse.NSFW = response.Result.IsSet;
+					UserContext.Save();
+				}
+			}
+			catch (Exception ex)
+			{
 
+			}
+			finally
+			{
+				nsfwSwitch.On = UserContext.Instanse.NSFW;
+				nsfwSwitch.Enabled = true;
+			}
+		}
+
+		private async Task CheckNSFW()
+		{
+			try
+			{
+				nsfwSwitch.Enabled = false;
+				var response = await Api.IsNsfw(new IsNsfwRequest(UserContext.Instanse.Token));
+				if (response.Success)
+				{
+					UserContext.Instanse.NSFW = response.Result.ShowNsfw;
+					nsfwSwitch.On = UserContext.Instanse.NSFW;
+					UserContext.Save();
+				}
+			}
+			catch (Exception ex)
+			{
+
+			}
+			finally
+			{
+				nsfwSwitch.Enabled = true;
+			}
 		}
 
 		private void SwitchNetwork(string network)
