@@ -483,16 +483,29 @@
                                 </constraints>
                                 <state key="normal" title="Add account"/>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pQh-C1-qdY">
+                                <rect key="frame" x="130" y="245" width="114" height="30"/>
+                                <state key="normal" title="Terms of service"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x2b-A1-hKw">
+                                <rect key="frame" x="141" y="295" width="92" height="30"/>
+                                <state key="normal" title="Report abuse"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="EgW-iv-rRT" firstAttribute="top" secondItem="4tf-nJ-0dJ" secondAttribute="bottom" id="2YA-Jq-bfn"/>
                             <constraint firstItem="kHc-4P-q4Y" firstAttribute="leading" secondItem="Vzb-MT-ARg" secondAttribute="leading" id="7Ev-Zh-dFL"/>
+                            <constraint firstItem="x2b-A1-hKw" firstAttribute="top" secondItem="pQh-C1-qdY" secondAttribute="bottom" constant="20" id="ETi-ub-ZaW"/>
                             <constraint firstItem="pvH-ft-4RK" firstAttribute="top" secondItem="EgW-iv-rRT" secondAttribute="bottom" constant="2" id="GAm-V9-8y6"/>
                             <constraint firstItem="pvH-ft-4RK" firstAttribute="leading" secondItem="Vzb-MT-ARg" secondAttribute="leading" id="Kbl-xF-Oh4"/>
+                            <constraint firstItem="kHc-4P-q4Y" firstAttribute="centerX" secondItem="Vzb-MT-ARg" secondAttribute="centerX" id="NjP-OM-GYB"/>
+                            <constraint firstItem="pQh-C1-qdY" firstAttribute="top" secondItem="kHc-4P-q4Y" secondAttribute="bottom" constant="15" id="OMz-64-CMP"/>
                             <constraint firstAttribute="trailing" secondItem="pvH-ft-4RK" secondAttribute="trailing" id="RS9-v3-1ke"/>
                             <constraint firstAttribute="trailing" secondItem="EgW-iv-rRT" secondAttribute="trailing" id="SPR-rm-wJH"/>
+                            <constraint firstItem="pQh-C1-qdY" firstAttribute="centerX" secondItem="Vzb-MT-ARg" secondAttribute="centerX" id="TBH-mE-DPq"/>
                             <constraint firstItem="EgW-iv-rRT" firstAttribute="leading" secondItem="Vzb-MT-ARg" secondAttribute="leading" id="UVC-RK-dRR"/>
+                            <constraint firstItem="x2b-A1-hKw" firstAttribute="centerX" secondItem="Vzb-MT-ARg" secondAttribute="centerX" id="XCT-7h-LYp"/>
                             <constraint firstItem="kHc-4P-q4Y" firstAttribute="top" secondItem="pvH-ft-4RK" secondAttribute="bottom" constant="8" id="Z0C-Dc-cPg"/>
                             <constraint firstAttribute="trailing" secondItem="kHc-4P-q4Y" secondAttribute="trailing" id="bdg-PL-oR0"/>
                         </constraints>
@@ -504,11 +517,13 @@
                         <outlet property="golosLabel" destination="szb-Kc-mu3" id="KRh-g9-qUO"/>
                         <outlet property="golosView" destination="pvH-ft-4RK" id="X11-Tv-vs0"/>
                         <outlet property="golosViewHeight" destination="vCU-fx-Fh5" id="mSV-BG-s5G"/>
+                        <outlet property="reportButton" destination="x2b-A1-hKw" id="UTz-JT-jPX"/>
                         <outlet property="steemAvatar" destination="2MP-cR-8KW" id="h5W-br-amV"/>
                         <outlet property="steemButton" destination="2uC-ig-Fqe" id="HOY-k5-07i"/>
                         <outlet property="steemLabel" destination="gHV-e9-4ib" id="sW6-G9-KoD"/>
                         <outlet property="steemView" destination="EgW-iv-rRT" id="ubY-Zp-7KE"/>
                         <outlet property="steemViewHeight" destination="gVo-kk-JYT" id="E2S-E9-5HM"/>
+                        <outlet property="termsButton" destination="pQh-C1-qdY" id="cOZ-5v-Gwd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aZE-NU-jA6" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -856,7 +871,7 @@
                                         </view>
                                     </collectionViewCell>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="zWn-LE-3ji">
-                                        <rect key="frame" x="137.5" y="0.0" width="100" height="50"/>
+                                        <rect key="frame" x="138" y="0.0" width="100" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
