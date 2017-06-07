@@ -96,18 +96,17 @@ namespace Steepshot.iOS
 			viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
 			likeButton.Enabled = true;
 			flagButton.Enabled = true;
-			//postTimeStamp.Text = DateTime.Now.Subtract(_currentPost.Created).ToString("M", culture);
 			var period = DateTime.UtcNow.Subtract(_currentPost.Created);
 
 			if (period.Days / 365 != 0)
 			{
 				postTimeStamp.Text = $"{period.Days / 365} y";
 			}
-			if (period.Days / 30 != 0)
+			else if(period.Days / 30 != 0)
 			{
-				postTimeStamp.Text = $"{period.Days / 30} m";
+				postTimeStamp.Text = $"{period.Days / 30} M";
 			}
-			if (period.Days != 0)
+			else if (period.Days != 0)
 			{
 				postTimeStamp.Text = $"{period.Days} d";
 			}
