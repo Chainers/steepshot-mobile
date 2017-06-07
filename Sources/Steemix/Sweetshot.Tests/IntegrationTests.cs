@@ -632,7 +632,7 @@ namespace Sweetshot.Tests
             AssertFailedResult(response);
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
-        
+
         [Test, Sequential]
         public void Follow_Invalid_Username([Values("Steem", "Golos")] string name)
         {
