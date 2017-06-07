@@ -253,6 +253,7 @@
       <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />

@@ -295,6 +295,7 @@ namespace Steepshot.iOS
 				var response = await Api.GetUserPosts(req);
 				if (response.Success)
 				{
+					response?.Result?.Results?.FilterNSFW();
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Url;
 
@@ -306,6 +307,10 @@ namespace Steepshot.iOS
 					photosList.AddRange(response.Result.Results);
 					collectionView.ReloadData();
 					collectionView.CollectionViewLayout.InvalidateLayout();
+				}
+				else
+				{
+					ShowAlert(response.Errors[0]);
 				}
 			}
 			catch (Exception ex)

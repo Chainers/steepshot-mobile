@@ -270,34 +270,42 @@ namespace Steepshot.iOS
 					posts = await Api.GetUserRecentPosts(f);
 				}
 
-				if (posts.Result == null || posts.Result.Results == null)
+				if (posts.Success)
 				{
-					_hasItems = false;
-					collectionViewSource.PhotoList.Clear();
-					feedCollection.ReloadData();
-					feedCollection.CollectionViewLayout.InvalidateLayout();
-					return;
+					posts?.Result?.Results?.FilterNSFW();
+					if (posts.Result == null || posts.Result.Results == null)
+					{
+						_hasItems = false;
+						collectionViewSource.PhotoList.Clear();
+						feedCollection.ReloadData();
+						feedCollection.CollectionViewLayout.InvalidateLayout();
+						return;
+					}
+
+					if (posts.Result.Results.Count == 0 && isHomeFeed)
+						noFeedLabel.Hidden = false;
+
+					var lastItem = posts.Result.Results.Last();
+					_offsetUrl = lastItem.Url;
+
+					if (posts.Result.Results.Count < limit / 2)
+						_hasItems = false;
+					else
+						posts.Result.Results.Remove(lastItem);
+
+					if (posts.Result.Results.Count != 0)
+					{
+						collectionViewSource.PhotoList.AddRange(posts.Result.Results);
+						feedCollection.ReloadData();
+						feedCollection.CollectionViewLayout.InvalidateLayout();
+					}
+					else
+						_hasItems = false;
 				}
-
-				if (posts.Result.Results.Count == 0 && isHomeFeed)
-					noFeedLabel.Hidden = false;
-
-				var lastItem = posts.Result.Results.Last();
-				_offsetUrl = lastItem.Url;
-
-				if (posts.Result.Results.Count < limit / 2)
-					_hasItems = false;
 				else
-					posts.Result.Results.Remove(lastItem);
-
-				if (posts.Result.Results.Count != 0)
 				{
-					collectionViewSource.PhotoList.AddRange(posts.Result.Results);
-					feedCollection.ReloadData();
-					feedCollection.CollectionViewLayout.InvalidateLayout();
+					ShowAlert(posts.Errors[0]);
 				}
-				else
-					_hasItems = false;
 				
             }
             catch (Exception ex)

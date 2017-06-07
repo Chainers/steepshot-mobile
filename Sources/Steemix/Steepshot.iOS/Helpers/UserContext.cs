@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using Newtonsoft.Json;
@@ -22,6 +21,8 @@ namespace Steepshot.iOS
 		public bool IsHomeFeedLoaded { get; set; }
 		[JsonIgnore]
 		public string CurrentPostCategory { get; set; }
+		[JsonIgnore]
+		public bool NSFW { get; set; } = true;
 
 		public bool Dev { get; set; }
 

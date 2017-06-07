@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using Foundation;
+using MessageUI;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -17,6 +18,7 @@ namespace Steepshot.iOS
 		private Account golosAcc;
 
 		private string previousNetwork;
+		private MFMailComposeViewController mailController;
 
 		public override void ViewDidLoad()
 		{
@@ -75,6 +77,30 @@ namespace Steepshot.iOS
 
 			steemView.AddGestureRecognizer(steemTap);
 			golosView.AddGestureRecognizer(golosTap);
+
+			reportButton.TouchDown += (sender, e) =>
+			{
+				if (MFMailComposeViewController.CanSendMail)
+				{
+					mailController = new MFMailComposeViewController();
+					mailController.SetToRecipients(new string[] { "steepshot.org@gmail.com" });
+					mailController.SetSubject("User report");
+					mailController.Finished += (object s, MFComposeResultEventArgs args) =>
+					{
+						args.Controller.DismissViewController(true, null);
+					};
+					this.PresentViewController(mailController, true, null);
+				}
+				else
+					ShowAlert("Setup your mail please");
+			};
+
+			termsButton.TouchDown += (sender, e) =>
+			{
+				UIApplication.SharedApplication.OpenUrl(new Uri("https://www.google.by/"));
+			};
+
+
 		}
 
 		private void SwitchNetwork(string network)

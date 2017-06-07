@@ -34,6 +34,9 @@ namespace Steepshot.iOS
 		UIKit.NSLayoutConstraint golosViewHeight { get; set; }
 
 		[Outlet]
+		UIKit.UIButton reportButton { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView steemAvatar { get; set; }
 
 		[Outlet]
@@ -47,12 +50,20 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.NSLayoutConstraint steemViewHeight { get; set; }
+
+		[Outlet]
+		UIKit.UIButton termsButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
 			if (addAccountButton != null) {
 				addAccountButton.Dispose ();
 				addAccountButton = null;
+			}
+
+			if (devSwitch != null) {
+				devSwitch.Dispose ();
+				devSwitch = null;
 			}
 
 			if (golosAvatar != null) {
@@ -105,9 +116,14 @@ namespace Steepshot.iOS
 				steemViewHeight = null;
 			}
 
-			if (devSwitch != null) {
-				devSwitch.Dispose ();
-				devSwitch = null;
+			if (termsButton != null) {
+				termsButton.Dispose ();
+				termsButton = null;
+			}
+
+			if (reportButton != null) {
+				reportButton.Dispose ();
+				reportButton = null;
 			}
 		}
 	}
