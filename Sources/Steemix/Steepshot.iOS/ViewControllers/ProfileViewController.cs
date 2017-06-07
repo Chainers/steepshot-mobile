@@ -295,7 +295,6 @@ namespace Steepshot.iOS
 				var response = await Api.GetUserPosts(req);
 				if (response.Success)
 				{
-					response?.Result?.Results?.FilterNSFW();
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Url;
 

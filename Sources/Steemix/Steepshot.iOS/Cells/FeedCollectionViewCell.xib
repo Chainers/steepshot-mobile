@@ -23,8 +23,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="485"/>
                         <subviews>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="752" text="royal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kkv-xH-c8d">
-                                <rect key="frame" x="55" y="0.0" width="220" height="45"/>
+                                <rect key="frame" x="55" y="0.0" width="203.5" height="45"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="300" verticalHuggingPriority="251" text="4d" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CkO-zy-E75">
+                                <rect key="frame" x="258.5" y="15" width="16.5" height="16"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -132,9 +138,12 @@
                             <constraint firstItem="Ze7-6N-qKO" firstAttribute="top" secondItem="FaT-0u-dfJ" secondAttribute="top" id="7TV-7K-VJS"/>
                             <constraint firstItem="eca-fi-pKp" firstAttribute="leading" secondItem="7uU-79-DPn" secondAttribute="leading" constant="-9" id="9Gd-v8-gru"/>
                             <constraint firstItem="1HN-g5-LJ3" firstAttribute="width" secondItem="qOn-sQ-E0v" secondAttribute="width" id="BN5-sn-0FS"/>
+                            <constraint firstItem="CkO-zy-E75" firstAttribute="leading" secondItem="Kkv-xH-c8d" secondAttribute="trailing" id="DAt-0E-Awh"/>
                             <constraint firstItem="CZd-21-mbX" firstAttribute="top" secondItem="Kkv-xH-c8d" secondAttribute="bottom" id="F5T-Du-ZZM"/>
                             <constraint firstItem="eca-fi-pKp" firstAttribute="top" secondItem="CZd-21-mbX" secondAttribute="bottom" constant="5" id="Ggn-lV-kYG"/>
+                            <constraint firstItem="uOb-p7-mhn" firstAttribute="leading" secondItem="CkO-zy-E75" secondAttribute="trailing" id="HGe-cj-uEY"/>
                             <constraint firstItem="7uU-79-DPn" firstAttribute="leading" secondItem="FaT-0u-dfJ" secondAttribute="leading" constant="10" id="IeO-gW-vFJ"/>
+                            <constraint firstItem="CkO-zy-E75" firstAttribute="centerY" secondItem="Kkv-xH-c8d" secondAttribute="centerY" id="JaS-hB-TIS"/>
                             <constraint firstItem="uOb-p7-mhn" firstAttribute="top" secondItem="FaT-0u-dfJ" secondAttribute="top" id="NkQ-ec-aAr"/>
                             <constraint firstItem="tca-gS-OKk" firstAttribute="top" secondItem="tKp-4M-r6B" secondAttribute="bottom" id="QYn-BY-jW4"/>
                             <constraint firstItem="tca-gS-OKk" firstAttribute="leading" secondItem="FaT-0u-dfJ" secondAttribute="leading" id="RNG-zc-AAh"/>
@@ -154,7 +163,6 @@
                             <constraint firstAttribute="trailing" secondItem="tca-gS-OKk" secondAttribute="trailing" id="p7T-mA-RgP"/>
                             <constraint firstAttribute="trailing" secondItem="uOb-p7-mhn" secondAttribute="trailing" id="qoP-BN-Rd6"/>
                             <constraint firstItem="7uU-79-DPn" firstAttribute="top" secondItem="FaT-0u-dfJ" secondAttribute="top" constant="5" id="tnZ-Bj-sas"/>
-                            <constraint firstItem="uOb-p7-mhn" firstAttribute="leading" secondItem="Kkv-xH-c8d" secondAttribute="trailing" id="wO2-TC-zsP"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -177,6 +185,7 @@
                 <outlet property="flagButton" destination="uOb-p7-mhn" id="weF-wr-5LP"/>
                 <outlet property="likeButton" destination="eca-fi-pKp" id="TRz-gW-Pl8"/>
                 <outlet property="netVotes" destination="qOn-sQ-E0v" id="s33-Uw-oGB"/>
+                <outlet property="postTimeStamp" destination="CkO-zy-E75" id="m0o-X3-epb"/>
                 <outlet property="rewards" destination="1HN-g5-LJ3" id="AIO-rM-mFf"/>
                 <outlet property="viewCommentButton" destination="wUB-cf-kao" id="F7x-L9-aFB"/>
             </connections>

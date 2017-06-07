@@ -46,6 +46,9 @@ namespace Steepshot.iOS
 		UIKit.UILabel netVotes { get; set; }
 
 		[Outlet]
+		UIKit.UILabel postTimeStamp { get; set; }
+
+		[Outlet]
 		UIKit.UILabel rewards { get; set; }
 
 		[Outlet]
@@ -88,6 +91,11 @@ namespace Steepshot.iOS
 				contentViewWidth = null;
 			}
 
+			if (flagButton != null) {
+				flagButton.Dispose ();
+				flagButton = null;
+			}
+
 			if (imageWidth != null) {
 				imageWidth.Dispose ();
 				imageWidth = null;
@@ -113,9 +121,9 @@ namespace Steepshot.iOS
 				viewCommentButton = null;
 			}
 
-			if (flagButton != null) {
-				flagButton.Dispose ();
-				flagButton = null;
+			if (postTimeStamp != null) {
+				postTimeStamp.Dispose ();
+				postTimeStamp = null;
 			}
 		}
 	}
