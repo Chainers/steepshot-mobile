@@ -46,6 +46,9 @@ namespace Steepshot.iOS
 		UIKit.UIPickerView picker { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint pickerHeight { get; set; }
+
+		[Outlet]
 		UIKit.UILabel signLabel { get; set; }
 
 		[Outlet]
@@ -106,6 +109,11 @@ namespace Steepshot.iOS
 				networkSwitch = null;
 			}
 
+			if (picker != null) {
+				picker.Dispose ();
+				picker = null;
+			}
+
 			if (signLabel != null) {
 				signLabel.Dispose ();
 				signLabel = null;
@@ -121,9 +129,9 @@ namespace Steepshot.iOS
 				steemImg = null;
 			}
 
-			if (picker != null) {
-				picker.Dispose ();
-				picker = null;
+			if (pickerHeight != null) {
+				pickerHeight.Dispose ();
+				pickerHeight = null;
 			}
 		}
 	}

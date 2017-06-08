@@ -46,6 +46,7 @@ namespace Steepshot.iOS
 
 #if !DEBUG
 			picker.Hidden = true;
+			pickerHeight.Constant = 0;
 #endif
 
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
@@ -76,6 +77,12 @@ namespace Steepshot.iOS
 			);
 			logoTap.NumberOfTapsRequired = 5;
 			logo.AddGestureRecognizer(logoTap);
+
+			signUpButton.TouchDown += (sender, e) =>
+			{
+				var myViewController = Storyboard.InstantiateViewController(nameof(WebPageViewController)) as WebPageViewController;
+				this.NavigationController.PushViewController(myViewController, true);
+			};
 		}
 
 		public override void ViewDidDisappear(bool animated)

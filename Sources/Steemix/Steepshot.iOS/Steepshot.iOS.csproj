@@ -254,6 +254,10 @@
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="ViewControllers\WebPageViewController.cs" />
+    <Compile Include="ViewControllers\WebPageViewController.designer.cs">
+      <DependentUpon>WebPageViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_heart_blue.png" />
