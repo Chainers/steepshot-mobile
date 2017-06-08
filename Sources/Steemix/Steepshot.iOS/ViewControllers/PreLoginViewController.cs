@@ -44,6 +44,10 @@ namespace Steepshot.iOS
 			loginText.Text = "joseph.kalu";
 #endif
 
+#if !DEBUG
+			picker.Hidden = true;
+#endif
+
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
 			tw.TextColor = UIColor.White;
 			tw.Text = "PROFILE"; // to constants
