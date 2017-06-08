@@ -258,9 +258,9 @@ namespace Steepshot.iOS
 					{
 						_profileHeader.View.SetNeedsLayout();
 						_profileHeader.View.LayoutIfNeeded();
-						var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(_profileHeader.View.Frame.Width, 300));
+						var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(UIScreen.MainScreen.Bounds.Width, 300));
 
-						_profileHeader.View.Frame = new CGRect(0, -size.Height, _profileHeader.View.Frame.Width, size.Height);
+						_profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
 						collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
 						collectionView.Hidden = false;
 					}
