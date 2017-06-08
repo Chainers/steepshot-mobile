@@ -234,6 +234,9 @@ namespace Steepshot.iOS
 		private void SetAddButton()
 		{
 			addAccountButton.Hidden = UserContext.Instanse.Accounts.Count == 2;
+#if !DEBUG
+			addAccountButton.Hidden = true;
+#endif
 		}
 
 		public override void ViewDidDisappear(bool animated)
