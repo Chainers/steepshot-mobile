@@ -295,15 +295,18 @@ namespace Steepshot.iOS
 				var response = await Api.GetUserPosts(req);
 				if (response.Success)
 				{
-					var lastItem = response.Result.Results.Last();
-					_offsetUrl = lastItem.Url;
+					if (response?.Result?.Results?.Count != 0)
+					{
+						var lastItem = response?.Result?.Results?.Last();
+						_offsetUrl = lastItem?.Url;
 
-					if (response.Result.Results.Count < _limit / 2)
-						_hasItems = false;
-					else
-						response.Result.Results.Remove(lastItem);
+						if (response?.Result?.Results?.Count < _limit / 2)
+							_hasItems = false;
+						else
+							response.Result.Results.Remove(lastItem);
 
-					photosList.AddRange(response.Result.Results);
+						photosList.AddRange(response?.Result?.Results);
+					}
 					collectionView.ReloadData();
 					collectionView.CollectionViewLayout.InvalidateLayout();
 				}

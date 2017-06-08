@@ -430,15 +430,15 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<FlagResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<IsNsfwResponse>> IsNsfw(IsNsfwRequest request)
+        public async Task<OperationResult<IsLowRatedResponse>> IsNsfw(IsLowRatedRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            var response = await _gateway.Get("user/nsfw", parameters);
+            var response = await _gateway.Get("user/low-rated", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<IsNsfwResponse>(response.Content, errorResult);
+            return CreateResult<IsLowRatedResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<SetNsfwResponse>> SetNsfw(SetNsfwRequest request)
+		public async Task<OperationResult<SetLowRatedResponse>> SetLowRated(SetLowRatedRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter
@@ -448,9 +448,9 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var response = await _gateway.Post("user/nsfw", parameters);
+            var response = await _gateway.Post("user/low-rated", parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<SetNsfwResponse>(response.Content, errorResult);
+            return CreateResult<SetLowRatedResponse>(response.Content, errorResult);
         }
 
         private List<RequestParameter> CreateSessionParameter(string sessionId)

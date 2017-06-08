@@ -284,22 +284,23 @@ namespace Steepshot.iOS
 					if (posts.Result.Results.Count == 0 && isHomeFeed)
 						noFeedLabel.Hidden = false;
 
-					var lastItem = posts.Result.Results.Last();
-					_offsetUrl = lastItem.Url;
-
-					if (posts.Result.Results.Count < limit / 2)
-						_hasItems = false;
-					else
-						posts.Result.Results.Remove(lastItem);
-
 					if (posts.Result.Results.Count != 0)
 					{
+						var lastItem = posts.Result.Results.Last();
+						_offsetUrl = lastItem.Url;
+
+						if (posts.Result.Results.Count < limit / 2)
+							_hasItems = false;
+						else
+							posts.Result.Results.Remove(lastItem);
+
 						collectionViewSource.PhotoList.AddRange(posts.Result.Results);
-						feedCollection.ReloadData();
-						feedCollection.CollectionViewLayout.InvalidateLayout();
 					}
 					else
 						_hasItems = false;
+
+					feedCollection.ReloadData();
+					feedCollection.CollectionViewLayout.InvalidateLayout();
 				}
 				else
 				{

@@ -105,19 +105,19 @@ namespace Steepshot.iOS
 			};
 			nsfwSwitch.ValueChanged += (sender, e) =>
 			{
-				SwitchNSFW();
+				SwitchLowRated();
 			};
 		}
 
-		private async Task SwitchNSFW()
+		private async Task SwitchLowRated()
 		{
 			try
 			{
 				nsfwSwitch.Enabled = false;
-				var response = await Api.SetNsfw(new SetNsfwRequest(UserContext.Instanse.Token, !UserContext.Instanse.NSFW));
+				var response = await Api.SetLowRated(new SetLowRatedRequest(UserContext.Instanse.Token, !UserContext.Instanse.NSFW));
 				if (response.Success)
 				{
-					UserContext.Instanse.NSFW = response.Result.IsSet;
+					UserContext.Instanse.NSFW = !UserContext.Instanse.NSFW;
 					UserContext.Save();
 				}
 			}
@@ -137,10 +137,10 @@ namespace Steepshot.iOS
 			try
 			{
 				nsfwSwitch.Enabled = false;
-				var response = await Api.IsNsfw(new IsNsfwRequest(UserContext.Instanse.Token));
+				var response = await Api.IsNsfw(new IsLowRatedRequest(UserContext.Instanse.Token));
 				if (response.Success)
 				{
-					UserContext.Instanse.NSFW = response.Result.ShowNsfw;
+					UserContext.Instanse.NSFW = response.Result.ShowLowRated;
 					nsfwSwitch.On = UserContext.Instanse.NSFW;
 					UserContext.Save();
 				}
