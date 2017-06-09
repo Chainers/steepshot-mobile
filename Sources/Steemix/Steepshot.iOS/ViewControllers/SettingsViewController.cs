@@ -101,7 +101,7 @@ namespace Steepshot.iOS
 
 			termsButton.TouchDown += (sender, e) =>
 			{
-				UIApplication.SharedApplication.OpenUrl(new Uri($"{Api.Url}tos-html"));
+				UIApplication.SharedApplication.OpenUrl(new Uri(Constants.Tos));
 			};
 			nsfwSwitch.ValueChanged += (sender, e) =>
 			{
