@@ -43,5 +43,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\VoteResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serializing\JsonNetDeserializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\LowRatedResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Requests\NsfwRequest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Responses\NsfwResponse.cs" />
   </ItemGroup>
 </Project>
