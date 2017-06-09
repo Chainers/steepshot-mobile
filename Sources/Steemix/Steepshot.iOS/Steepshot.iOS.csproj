@@ -260,24 +260,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="Resources\ic_heart_blue.png" />
-    <BundleResource Include="Resources\ic_heart.png" />
     <BundleResource Include="Resources\ic_photo_holder.png" />
     <BundleResource Include="Resources\ic_user_placeholder.png" />
-    <BundleResource Include="Resources\ic_feed.png" />
-    <BundleResource Include="Resources\ic_camera.png" />
-    <BundleResource Include="Resources\ic_profile.png" />
     <BundleResource Include="Resources\ic_conversation.png" />
     <BundleResource Include="Resources\white-arrow-down.png" />
-    <BundleResource Include="Resources\ic_grid.png" />
-    <BundleResource Include="Resources\ic_logo.png" />
-    <BundleResource Include="Resources\ic_white_logo.png" />
-    <BundleResource Include="Resources\ic_search_gray.png" />
     <BundleResource Include="Resources\ic_cross.png" />
-    <BundleResource Include="Resources\ic_wallet.png" />
-    <BundleResource Include="Resources\ic_settings.png" />
-    <BundleResource Include="Resources\ic_gray_grid.png" />
-    <BundleResource Include="Resources\ic_gray_list.png" />
     <BundleResource Include="Resources\ic_micro_heart.png" />
     <BundleResource Include="Resources\ic_send.png" />
     <BundleResource Include="Resources\eye%402x.png" />
