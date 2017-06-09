@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreGraphics;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -31,6 +32,7 @@ namespace Steepshot.iOS
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
+			this.View.Frame = new CGRect(this.View.Frame.Location, new CGSize(UIScreen.MainScreen.Bounds.Width, this.View.Frame.Height));
             _viewLoaded();
 			username.Font = Constants.Heavy135;
 			dateLabel.Font = Constants.Semibold10;

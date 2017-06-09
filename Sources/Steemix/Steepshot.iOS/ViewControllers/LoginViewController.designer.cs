@@ -34,6 +34,12 @@ namespace Steepshot.iOS
 		UIKit.UITextField password { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint photoBottomMargin { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint photoMargin { get; set; }
+
+		[Outlet]
 		UIKit.UIButton postingKeyButton { get; set; }
 
 		[Outlet]
@@ -44,6 +50,12 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.NSLayoutConstraint topMargin { get; set; }
+
+		[Outlet]
+		UIKit.UIButton tosButton { get; set; }
+
+		[Outlet]
+		UIKit.UISwitch tosSwitch { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -55,6 +67,11 @@ namespace Steepshot.iOS
 			if (avatar != null) {
 				avatar.Dispose ();
 				avatar = null;
+			}
+
+			if (bottomMargin != null) {
+				bottomMargin.Dispose ();
+				bottomMargin = null;
 			}
 
 			if (eyeButton != null) {
@@ -97,9 +114,24 @@ namespace Steepshot.iOS
 				topMargin = null;
 			}
 
-			if (bottomMargin != null) {
-				bottomMargin.Dispose ();
-				bottomMargin = null;
+			if (photoMargin != null) {
+				photoMargin.Dispose ();
+				photoMargin = null;
+			}
+
+			if (photoBottomMargin != null) {
+				photoBottomMargin.Dispose ();
+				photoBottomMargin = null;
+			}
+
+			if (tosButton != null) {
+				tosButton.Dispose ();
+				tosButton = null;
+			}
+
+			if (tosSwitch != null) {
+				tosSwitch.Dispose ();
+				tosSwitch = null;
 			}
 		}
 	}
