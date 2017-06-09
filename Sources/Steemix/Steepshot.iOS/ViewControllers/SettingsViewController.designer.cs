@@ -34,6 +34,9 @@ namespace Steepshot.iOS
 		UIKit.NSLayoutConstraint golosViewHeight { get; set; }
 
 		[Outlet]
+		UIKit.UISwitch lowRatedSwitch { get; set; }
+
+		[Outlet]
 		UIKit.UISwitch nsfwSwitch { get; set; }
 
 		[Outlet]
@@ -94,6 +97,11 @@ namespace Steepshot.iOS
 				golosViewHeight = null;
 			}
 
+			if (nsfwSwitch != null) {
+				nsfwSwitch.Dispose ();
+				nsfwSwitch = null;
+			}
+
 			if (reportButton != null) {
 				reportButton.Dispose ();
 				reportButton = null;
@@ -124,14 +132,14 @@ namespace Steepshot.iOS
 				steemViewHeight = null;
 			}
 
+			if (lowRatedSwitch != null) {
+				lowRatedSwitch.Dispose ();
+				lowRatedSwitch = null;
+			}
+
 			if (termsButton != null) {
 				termsButton.Dispose ();
 				termsButton = null;
-			}
-
-			if (nsfwSwitch != null) {
-				nsfwSwitch.Dispose ();
-				nsfwSwitch = null;
 			}
 		}
 	}

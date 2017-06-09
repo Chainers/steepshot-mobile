@@ -33,6 +33,7 @@ namespace Steepshot.iOS
 		public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
 		public static string Tos => UserContext.Instanse.Dev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
+		public static string Pp => UserContext.Instanse.Dev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
     }
 
 	public enum Networks

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
@@ -77,6 +78,10 @@ namespace Steepshot.iOS
 			{
 				UIApplication.SharedApplication.OpenUrl(new Uri(Constants.Tos));
 			};
+			ppButton.TouchDown += (sender, e) =>
+			{
+				UIApplication.SharedApplication.OpenUrl(new Uri(Constants.Pp));
+			};
 
 			tosSwitch.ValueChanged += (sender, e) =>
 			{
@@ -103,7 +108,8 @@ namespace Steepshot.iOS
 						Network = UserContext.Instanse.Network,
 						Login = Username,
 						Token = response.Result.SessionId,
-						Avatar = AvatarLink
+						Avatar = AvatarLink,
+						Postblacklist = new List<string>()
 					});
 
 					UserContext.Save();

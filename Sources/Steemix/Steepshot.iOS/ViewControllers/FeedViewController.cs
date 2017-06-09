@@ -77,10 +77,10 @@ namespace Steepshot.iOS
             {
                 Vote(vote, url, action);
             };
-			collectionViewSource.Flagged += (vote, url, action)  =>
-            {
-                Flagged(vote, url, action);
-            };
+			collectionViewSource.Flagged += Flagged;// (vote, url, action)  =>
+            //{
+                //Flagged(vote, url, action);
+            //};
 
 			RefreshControl = new UIRefreshControl();
 			RefreshControl.ValueChanged += async (sender, e) =>
@@ -286,6 +286,7 @@ namespace Steepshot.iOS
 
 					if (posts.Result.Results.Count != 0)
 					{
+						posts.Result.Results.FilterHided();
 						var lastItem = posts.Result.Results.Last();
 						_offsetUrl = lastItem.Url;
 
@@ -357,7 +358,36 @@ namespace Steepshot.iOS
             }
         }
 
-		private async Task Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		{
+			UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+			actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo",UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo",UIAlertActionStyle.Default, (obj) =>  HidePhoto(postUrl)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Cancel",UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>() {
+				Success = false
+			})));
+			this.PresentViewController(actionSheetAlert,true,null);
+		}
+
+		private void HidePhoto(string url)
+		{
+			try
+			{
+				if (UserContext.Instanse.CurrentAccount.Postblacklist == null)
+					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
+				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
+				UserContext.Save();
+				collectionViewSource.PhotoList.Remove(collectionViewSource.PhotoList.First(p => p.Url == url));
+				feedCollection.ReloadData();
+				flowLayout.InvalidateLayout();
+			}
+			catch (Exception ex)
+			{
+				
+			}
+		}
+
+		private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
 			if (UserContext.Instanse.Token == null)
 			{

@@ -297,6 +297,7 @@ namespace Steepshot.iOS
 				{
 					if (response?.Result?.Results?.Count != 0)
 					{
+						response?.Result?.Results?.FilterHided();
 						var lastItem = response?.Result?.Results?.Last();
 						_offsetUrl = lastItem?.Url;
 
