@@ -75,7 +75,7 @@ namespace Steepshot.iOS
 			};
 			tosButton.TouchDown += (sender, e) =>
 			{
-				UIApplication.SharedApplication.OpenUrl(new Uri($"{Api.Url}tos-html"));
+				UIApplication.SharedApplication.OpenUrl(new Uri(Constants.Tos));
 			};
 
 			tosSwitch.ValueChanged += (sender, e) =>
