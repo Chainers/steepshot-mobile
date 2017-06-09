@@ -22,7 +22,9 @@ namespace Steepshot.iOS
 		[JsonIgnore]
 		public string CurrentPostCategory { get; set; }
 		[JsonIgnore]
-		public bool NSFW { get; set; } = true;
+		public bool NSFW { get; set; }
+		[JsonIgnore]
+		public bool LowRated { get; set; }
 
 		public bool Dev { get; set; }
 
@@ -36,6 +38,9 @@ namespace Steepshot.iOS
 				return Accounts.FirstOrDefault(a => a.Network == Network)?.Token;
 			}
 		}
+
+		[JsonIgnore]
+		public Account CurrentAccount => Accounts.FirstOrDefault(a => a.Network == Network);
 
 		[JsonIgnore]
 		public string Username

@@ -46,6 +46,9 @@ namespace Steepshot.iOS
 		UIKit.UILabel postingLabel { get; set; }
 
 		[Outlet]
+		UIKit.UIButton ppButton { get; set; }
+
+		[Outlet]
 		UIKit.UIButton qrButton { get; set; }
 
 		[Outlet]
@@ -94,6 +97,16 @@ namespace Steepshot.iOS
 				password = null;
 			}
 
+			if (photoBottomMargin != null) {
+				photoBottomMargin.Dispose ();
+				photoBottomMargin = null;
+			}
+
+			if (photoMargin != null) {
+				photoMargin.Dispose ();
+				photoMargin = null;
+			}
+
 			if (postingKeyButton != null) {
 				postingKeyButton.Dispose ();
 				postingKeyButton = null;
@@ -114,16 +127,6 @@ namespace Steepshot.iOS
 				topMargin = null;
 			}
 
-			if (photoMargin != null) {
-				photoMargin.Dispose ();
-				photoMargin = null;
-			}
-
-			if (photoBottomMargin != null) {
-				photoBottomMargin.Dispose ();
-				photoBottomMargin = null;
-			}
-
 			if (tosButton != null) {
 				tosButton.Dispose ();
 				tosButton = null;
@@ -132,6 +135,11 @@ namespace Steepshot.iOS
 			if (tosSwitch != null) {
 				tosSwitch.Dispose ();
 				tosSwitch = null;
+			}
+
+			if (ppButton != null) {
+				ppButton.Dispose ();
+				ppButton = null;
 			}
 		}
 	}

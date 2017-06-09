@@ -182,6 +182,7 @@ namespace Steepshot.iOS
 					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
 					rewards.Text = $"{Constants.Currency}{post.Result.NewTotalPayoutReward.ToString()}";
 				}
+				flagButton.Selected = _currentPost.Flag;
 				flagButton.Enabled = true;
 			});
 		}
