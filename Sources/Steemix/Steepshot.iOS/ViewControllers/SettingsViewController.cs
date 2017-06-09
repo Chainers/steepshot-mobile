@@ -27,8 +27,8 @@ namespace Steepshot.iOS
 		{
 			base.ViewDidLoad();
 			nsfwSwitch.On = UserContext.Instanse.NSFW;
-			//CheckNsfw();
-			//CheckLowRated();
+			CheckNsfw();
+			CheckLowRated();
 			NavigationController.SetNavigationBarHidden(false, false);
 			steemAcc = UserContext.Instanse.Accounts.FirstOrDefault(a => a.Network == Constants.Steem);
 			golosAcc = UserContext.Instanse.Accounts.FirstOrDefault(a => a.Network == Constants.Golos);
@@ -111,10 +111,10 @@ namespace Steepshot.iOS
 			};
 			nsfwSwitch.ValueChanged += (sender, e) =>
 			{
-                //SwitchNsfw();
+                SwitchNsfw();
 			};
 		}
-		/*
+
 		private async Task SwitchNsfw()
 		{
 			try
@@ -136,7 +136,7 @@ namespace Steepshot.iOS
 				nsfwSwitch.On = UserContext.Instanse.NSFW;
 				nsfwSwitch.Enabled = true;
 			}
-		}*/
+		}
 
 		private async Task SwitchLowRated()
 		{
@@ -160,7 +160,7 @@ namespace Steepshot.iOS
 				lowRatedSwitch.Enabled = true;
 			}
 		}
-		/*
+
 		private async Task CheckLowRated()
 		{
 			try
@@ -182,8 +182,8 @@ namespace Steepshot.iOS
 			{
 				lowRatedSwitch.Enabled = true;
 			}
-		}*/
-		/*
+		}
+
 		private async Task CheckNsfw()
 		{
 			try
@@ -206,7 +206,7 @@ namespace Steepshot.iOS
 				nsfwSwitch.Enabled = true;
 			}
 		}
-*/
+
 		private void SwitchNetwork(string network)
 		{
 			if (UserContext.Instanse.Network == network)
