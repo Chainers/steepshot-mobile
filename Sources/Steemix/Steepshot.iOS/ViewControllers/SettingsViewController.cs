@@ -101,7 +101,7 @@ namespace Steepshot.iOS
 
 			termsButton.TouchDown += (sender, e) =>
 			{
-				UIApplication.SharedApplication.OpenUrl(new Uri("https://www.google.by/"));
+				UIApplication.SharedApplication.OpenUrl(new Uri($"{Api.Url}tos-html"));
 			};
 			nsfwSwitch.ValueChanged += (sender, e) =>
 			{

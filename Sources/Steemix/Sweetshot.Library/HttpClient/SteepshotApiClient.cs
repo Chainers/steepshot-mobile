@@ -17,10 +17,14 @@ namespace Sweetshot.Library.HttpClient
         private readonly IApiGateway _gateway;
         private readonly IJsonConverter _jsonConverter;
 
+		private string _url;
+		public string Url => _url;
+
         public SteepshotApiClient(string url)
         {
             _gateway = new ApiGateway(url);
             _jsonConverter = new JsonNetConverter();
+			_url = url;
         }
 
         /// <summary>
