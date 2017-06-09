@@ -22,8 +22,10 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			if ((float)UIScreen.MainScreen.Bounds.Height < 500)
 			{
-				topMargin.Constant = 0;
+				topMargin.Constant = 5;
 				bottomMargin.Constant = 5;
+				photoMargin.Constant = 5;
+				photoBottomMargin.Constant = 5;
 			}
 			loginButton.TouchDown += (object sender, EventArgs e) => Login();
 			avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
@@ -71,12 +73,24 @@ namespace Steepshot.iOS
 				if (result != null)
 					password.Text = result.Text;
 			};
+			tosButton.TouchDown += (sender, e) =>
+			{
+				UIApplication.SharedApplication.OpenUrl(new Uri($"{Api.Url}tos-html"));
+			};
+
+			tosSwitch.ValueChanged += (sender, e) =>
+			{
+				loginButton.Enabled = tosSwitch.On;
+			};
 		}
 
 		private async Task Login()
 		{
 			activityIndicator.StartAnimating();
 			loginButton.Enabled = false;
+			tosSwitch.Enabled = false;
+			var titleColor = loginButton.TitleColor(UIControlState.Disabled);
+			loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
 			try
 			{
 				var request = new LoginWithPostingKeyRequest(Username, password.Text);
@@ -115,6 +129,8 @@ namespace Steepshot.iOS
 			finally
 			{
 				loginButton.Enabled = true;
+				tosSwitch.Enabled = true;
+				loginButton.SetTitleColor(titleColor, UIControlState.Disabled);
 				activityIndicator.StopAnimating();
 			}
 		}
