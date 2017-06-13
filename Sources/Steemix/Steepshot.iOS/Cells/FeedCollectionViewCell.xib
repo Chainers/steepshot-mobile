@@ -56,12 +56,6 @@
                                     <constraint firstAttribute="width" constant="35" id="zWP-b7-QcU"/>
                                 </constraints>
                             </imageView>
-                            <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="CZd-21-mbX">
-                                <rect key="frame" x="0.0" y="45" width="320" height="320"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="CZd-21-mbX" secondAttribute="height" multiplier="1:1" id="Syj-AE-3eW"/>
-                                </constraints>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eca-fi-pKp">
                                 <rect key="frame" x="1" y="370" width="40" height="40"/>
                                 <constraints>
@@ -120,6 +114,12 @@
                                     <constraint firstItem="RJj-FH-H4A" firstAttribute="leading" secondItem="3a2-Qp-6yJ" secondAttribute="trailing" constant="10" id="z84-hC-iAC"/>
                                 </constraints>
                             </view>
+                            <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="CZd-21-mbX">
+                                <rect key="frame" x="0.0" y="45" width="320" height="320"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="CZd-21-mbX" secondAttribute="height" multiplier="1:1" id="Syj-AE-3eW"/>
+                                </constraints>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="34534252 likes" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qOn-sQ-E0v">
                                 <rect key="frame" x="49" y="382" width="131" height="16"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
