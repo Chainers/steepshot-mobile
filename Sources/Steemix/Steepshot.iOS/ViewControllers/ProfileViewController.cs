@@ -52,7 +52,7 @@ namespace Steepshot.iOS
 			collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
 			collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
 			collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-			collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
+			//collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
 			collectionView.Source = collectionViewSource;
 
 			gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
@@ -65,8 +65,7 @@ namespace Steepshot.iOS
 				try
 				{
 					var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					//if (_lastRow != newlastRow)
-						//collectionView.CollectionViewLayout.InvalidateLayout();
+
 					if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
 						GetUserPosts();
 					_lastRow = newlastRow;
@@ -75,7 +74,7 @@ namespace Steepshot.iOS
 				{
 					//ignore
 				}
-			});
+			}, collectionViewSource.FeedStrings);
 
 			collectionView.Delegate = gridDelegate;
 
@@ -114,12 +113,12 @@ namespace Steepshot.iOS
 			{
 				if (!collectionViewSource.IsGrid)
 				{
-					collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
+					//collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
 					_profileHeader.SwitchButton.SetImage(UIImage.FromFile("list.png"), UIControlState.Normal);
 				}
 				else
 				{
-					collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
+					//collectioViewFlowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
 					_profileHeader.SwitchButton.SetImage(UIImage.FromFile("grid.png"), UIControlState.Normal);
 
 				}
@@ -168,6 +167,7 @@ namespace Steepshot.iOS
 		private async Task RefreshPage()
 		{
 			photosList.Clear();
+			collectionViewSource.FeedStrings.Clear();
 			_hasItems = true;
 			GetUserInfo();
 			await GetUserPosts();
@@ -306,6 +306,13 @@ namespace Steepshot.iOS
 						else
 							response.Result.Results.Remove(lastItem);
 
+						foreach (var r in response?.Result?.Results)
+						{
+							var at = new NSMutableAttributedString();
+							at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
+							at.Append(new NSAttributedString($" {r.Title}"));
+							collectionViewSource.FeedStrings.Add(at);
+						}
 						photosList.AddRange(response?.Result?.Results);
 					}
 					collectionView.ReloadData();

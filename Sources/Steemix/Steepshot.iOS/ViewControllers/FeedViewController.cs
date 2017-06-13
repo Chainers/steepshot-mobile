@@ -57,21 +57,19 @@ namespace Steepshot.iOS
 				 try
 				 {
 					 var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					 //if (_lastRow != newlastRow)
-						 //feedCollection.CollectionViewLayout.InvalidateLayout();
 					 if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_isFeedRefreshing)
 						 GetPosts();
 					 _lastRow = newlastRow;
 			 
 				 }
 				 catch (Exception ex) { }
-			 });
+			}, commentString: collectionViewSource.FeedStrings);
 			collectionViewSource.IsGrid = false;
-
+			gridDelegate.isGrid = false;
 			feedCollection.Source = collectionViewSource;
 			feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
 			feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-			flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
+			//flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
             
             collectionViewSource.Voted += (vote, url, action)  =>
             {
@@ -156,6 +154,7 @@ namespace Steepshot.iOS
 			{
 				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
 				collectionViewSource.PhotoList.Clear();
+				collectionViewSource.FeedStrings.Clear();
 				tw.Text = UserContext.Instanse.CurrentPostCategory;
 				GetPosts();
 			}
@@ -276,6 +275,7 @@ namespace Steepshot.iOS
 					{
 						_hasItems = false;
 						collectionViewSource.PhotoList.Clear();
+						collectionViewSource.FeedStrings.Clear();
 						feedCollection.ReloadData();
 						feedCollection.CollectionViewLayout.InvalidateLayout();
 						return;
@@ -294,6 +294,14 @@ namespace Steepshot.iOS
 							_hasItems = false;
 						else
 							posts.Result.Results.Remove(lastItem);
+
+						foreach (var r in posts.Result.Results)
+						{
+							var at = new NSMutableAttributedString();
+							at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
+							at.Append(new NSAttributedString($" {r.Title}"));
+							collectionViewSource.FeedStrings.Add(at);
+						}
 
 						collectionViewSource.PhotoList.AddRange(posts.Result.Results);
 					}
@@ -377,7 +385,10 @@ namespace Steepshot.iOS
 					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
 				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
 				UserContext.Save();
-				collectionViewSource.PhotoList.Remove(collectionViewSource.PhotoList.First(p => p.Url == url));
+				var postToHide = collectionViewSource.PhotoList.First(p => p.Url == url);
+				var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
+				collectionViewSource.PhotoList.Remove(postToHide);
+				collectionViewSource.FeedStrings.RemoveAt(postIndex);
 				feedCollection.ReloadData();
 				flowLayout.InvalidateLayout();
 			}
