@@ -15,7 +15,8 @@ namespace Steepshot.iOS
 		{
 			base.ViewDidLoad();
 
-			var imageScrollView = new UIScrollView(new CGRect(0, NavigationController.NavigationBar.Frame.Height, View.Frame.Width, View.Frame.Height - NavigationController.NavigationBar.Frame.Height));
+			var imageScrollView = new UIScrollView(new CGRect(0, NavigationController.NavigationBar.Frame.Height + UIApplication.SharedApplication.StatusBarFrame.Height,
+			                                                  View.Frame.Width, View.Frame.Height - NavigationController.NavigationBar.Frame.Height));
 			this.View.AddSubview(imageScrollView);
 			var imageView = new UIImageView(new CGRect(0, 0, imageScrollView.Frame.Width, imageScrollView.Frame.Height));
 			if (imageForPreview != null)

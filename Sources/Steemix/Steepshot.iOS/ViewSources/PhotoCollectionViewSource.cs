@@ -11,7 +11,6 @@ namespace Steepshot.iOS
         PHImageManager m;
         public PhotoCollectionViewSource()
         {
-
 			PHFetchOptions options = new PHFetchOptions();
 			options.SortDescriptors = new NSSortDescriptor[] { new NSSortDescriptor("creationDate", false) };
             fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);

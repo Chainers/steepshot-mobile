@@ -30,7 +30,6 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
 			photoCollection.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
-			collectionViewFlowLayout.EstimatedItemSize = new CGSize(150, 150);
 
 			photoButton.TouchDown += PhotoButton_TouchDown;
 			swapCameraButton.TouchDown += SwitchCameraButtonTapped;

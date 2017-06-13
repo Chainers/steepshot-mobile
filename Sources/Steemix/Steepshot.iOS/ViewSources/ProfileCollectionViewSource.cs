@@ -77,7 +77,7 @@ namespace Steepshot.iOS
 			}
 			try
 			{
-				cell.UpdateCell(PhotoList[(int)indexPath.Item]);
+				cell.UpdateCell(PhotoList[(int)indexPath.Item], FeedStrings[(int)indexPath.Item]);
 			}
 			catch (Exception ex)
 			{

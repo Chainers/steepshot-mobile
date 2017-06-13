@@ -72,32 +72,6 @@ namespace Steepshot.iOS
 			likeButton.Enabled = true;
 			flagButton.Enabled = true;
 			postTimeStamp.Text = _currentPost.Created.ToPostTime();
-			/*var period = DateTime.UtcNow.Subtract(_currentPost.Created);
-
-			if (period.Days / 365 != 0)
-			{
-				postTimeStamp.Text = $"{period.Days / 365} y";
-			}
-			else if (period.Days / 30 != 0)
-			{
-				postTimeStamp.Text = $"{period.Days / 30} M";
-			}
-			else if (period.Days != 0)
-			{
-				postTimeStamp.Text = $"{period.Days} d";
-			}
-			else if (period.Hours != 0)
-			{
-				postTimeStamp.Text = $"{period.Hours} h";
-			}
-			else if (period.Minutes != 0)
-			{
-				postTimeStamp.Text = $"{period.Minutes} m";
-			}
-			else if (period.Seconds != 0)
-			{
-				postTimeStamp.Text = $"{period.Seconds} s";
-			}*/
 
 			if (!isButtonBinded)
 			{
