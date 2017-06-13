@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -13,7 +10,10 @@ namespace Steepshot.iOS
 {
 	public partial class FeedCollectionViewCell : BaseProfileCell
 	{
-		protected FeedCollectionViewCell(IntPtr handle) : base(handle) {}
+		protected FeedCollectionViewCell(IntPtr handle) : base(handle)
+		{
+			
+		}
 		public static readonly NSString Key = new NSString("FeedCollectionViewCell");
 		public static readonly UINib Nib;
 
@@ -23,7 +23,6 @@ namespace Steepshot.iOS
 		}
 
 		private bool isButtonBinded = false;
-		private List<WebClient> webClients = new List<WebClient>();
 		public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
 		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
@@ -39,23 +38,7 @@ namespace Steepshot.iOS
 		private IScheduledWork _scheduledWorkAvatar;
 		private IScheduledWork _scheduledWorkBody;
 
-		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)
-		{
-			contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
-			var size = contentView.SystemLayoutSizeFittingSize(layoutAttributes.Size);
-			var newFrame = layoutAttributes.Frame;
-			newFrame.Size = new CGSize(size);
-			layoutAttributes.Frame = newFrame;
-			return layoutAttributes;
-		}
-
-		public override void LayoutSubviews()
-		{
-			avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
-			base.LayoutSubviews();
-		}
-
-		public override void UpdateCell(Post post)
+		public override void UpdateCell(Post post, NSMutableAttributedString comment)
 		{
 			_currentPost = post;
 			avatarImage.Image = null;
@@ -65,44 +48,37 @@ namespace Steepshot.iOS
 			_scheduledWorkBody?.Cancel();
 
 			_scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+													 .WithCache(FFImageLoading.Cache.CacheType.All)
 													 .Retry(2, 200)
-													 .FadeAnimation(false, false, 0)
-													 .DownSample(width: (int)avatarImage.Frame.Width)
+													 .DownSample(width: 20)
 													 .Into(avatarImage);
 
 
 			_scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Constants.ImageCacheDuration)
+													 .WithCache(FFImageLoading.Cache.CacheType.All)
 													 .Retry(2, 200)
-													 .FadeAnimation(false, false, 0)
-													 .DownSample(width: (int)bodyImage.Frame.Width)
+													 .DownSample(width: 200)
 													 .Into(bodyImage);
-
 
 			cellText.Text = _currentPost.Author;
 			rewards.Text = $"{Constants.Currency}{_currentPost.TotalPayoutReward.ToString()}";
 			netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
 			likeButton.Selected = _currentPost.Vote;
 			flagButton.Selected = _currentPost.Flag;
-			var nicknameAttribute = new UIStringAttributes
-			{
-				Font = UIFont.BoldSystemFontOfSize(commentText.Font.PointSize)
-			};
-			NSMutableAttributedString at = new NSMutableAttributedString();
-			at.Append(new NSAttributedString(_currentPost.Author, nicknameAttribute));
-			at.Append(new NSAttributedString(" "));
-			at.Append(new NSAttributedString(_currentPost.Title));
-			commentText.AttributedText = at;
+			commentText.AttributedText = comment;
+
 			var buttonTitle = _currentPost.Children == 0 ? "Post first comment" : $"View {_currentPost.Children} comments";
 			viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
 			likeButton.Enabled = true;
 			flagButton.Enabled = true;
-			var period = DateTime.UtcNow.Subtract(_currentPost.Created);
+			postTimeStamp.Text = _currentPost.Created.ToPostTime();
+			/*var period = DateTime.UtcNow.Subtract(_currentPost.Created);
 
 			if (period.Days / 365 != 0)
 			{
 				postTimeStamp.Text = $"{period.Days / 365} y";
 			}
-			else if(period.Days / 30 != 0)
+			else if (period.Days / 30 != 0)
 			{
 				postTimeStamp.Text = $"{period.Days / 30} M";
 			}
@@ -121,10 +97,11 @@ namespace Steepshot.iOS
 			else if (period.Seconds != 0)
 			{
 				postTimeStamp.Text = $"{period.Seconds} s";
-			}
+			}*/
 
 			if (!isButtonBinded)
 			{
+				avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
 				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
 				{
 					ImagePreview(bodyImage.Image, _currentPost.Body);

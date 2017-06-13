@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Foundation;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 using UIKit;
@@ -9,6 +10,7 @@ namespace Steepshot.iOS
 	public class ProfileCollectionViewSource : UICollectionViewSource
 	{
 		public List<Post> PhotoList = new List<Post>();
+		public List<NSMutableAttributedString> FeedStrings = new List<NSMutableAttributedString>();
 
 		public bool IsGrid = true;
 		public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
@@ -34,44 +36,44 @@ namespace Steepshot.iOS
 			else
 			{
 				cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell("FeedCollectionViewCell", indexPath);
-			if (!((FeedCollectionViewCell)cell).IsVotedSet)
-            {
-                ((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
-                {
-                    Voted(vote, url, action);
-                };
-            }
-			if (!((FeedCollectionViewCell)cell).IsFlaggedSet)
-            {
-                ((FeedCollectionViewCell)cell).Flagged += (vote, url, action) =>
-                {
-                    Flagged(vote, url, action);
-                };
-            }
-			if (!((FeedCollectionViewCell)cell).IsGoToProfileSet)
-			{
-				((FeedCollectionViewCell)cell).GoToProfile += (username) =>
+				if (!((FeedCollectionViewCell)cell).IsVotedSet)
 				{
-					if(GoToProfile != null)
-						GoToProfile(username);
-				};
-			}
-			if (!((FeedCollectionViewCell)cell).IsGoToCommentsSet)
-			{
-				((FeedCollectionViewCell)cell).GoToComments += (postUrl) =>
+					((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
+					{
+						Voted(vote, url, action);
+					};
+				}
+				if (!((FeedCollectionViewCell)cell).IsFlaggedSet)
 				{
-					if(GoToComments != null)
-						GoToComments(postUrl);
-				};
-			}
-			if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)
-			{
-				((FeedCollectionViewCell)cell).ImagePreview += (image, url) =>
+					((FeedCollectionViewCell)cell).Flagged += (vote, url, action) =>
+					{
+						Flagged(vote, url, action);
+					};
+				}
+				if (!((FeedCollectionViewCell)cell).IsGoToProfileSet)
 				{
-					if(ImagePreview != null)
-						ImagePreview(image, url);
-				};
-			}
+					((FeedCollectionViewCell)cell).GoToProfile += (username) =>
+					{
+						if (GoToProfile != null)
+							GoToProfile(username);
+					};
+				}
+				if (!((FeedCollectionViewCell)cell).IsGoToCommentsSet)
+				{
+					((FeedCollectionViewCell)cell).GoToComments += (postUrl) =>
+					{
+						if (GoToComments != null)
+							GoToComments(postUrl);
+					};
+				}
+				if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)
+				{
+					((FeedCollectionViewCell)cell).ImagePreview += (image, url) =>
+					{
+						if (ImagePreview != null)
+							ImagePreview(image, url);
+					};
+				}
 			}
 			try
 			{

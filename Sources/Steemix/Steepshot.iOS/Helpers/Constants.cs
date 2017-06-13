@@ -34,6 +34,11 @@ namespace Steepshot.iOS
 
 		public static string Tos => UserContext.Instanse.Dev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
 		public static string Pp => UserContext.Instanse.Dev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+
+		public static readonly UIStringAttributes NicknameAttribute = new UIStringAttributes
+			{
+				Font = UIFont.BoldSystemFontOfSize(13)
+			};
     }
 
 	public enum Networks

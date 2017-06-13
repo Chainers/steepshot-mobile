@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
@@ -280,11 +281,13 @@ namespace Steepshot.iOS
 		Action ScrolledAction;
 		Action<NSIndexPath> CellClick;
 		public bool isGrid = true;
+		List<NSMutableAttributedString> _commentString;
 
-		public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null)
+		public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null)
 		{
 			ScrolledAction = scrolled;
 			CellClick = cellClick;
+			_commentString = commentString;
 		}
 
 		public override void Scrolled(UIScrollView scrollView)
@@ -302,6 +305,19 @@ namespace Steepshot.iOS
 
 			if (CellClick != null)
 				CellClick(indexPath);
+		}
+
+		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+		{
+			if (!isGrid)
+			{
+				//54 - margins sum
+				var textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
+				//165 => 485-320 cell height without image size
+				var cellHeight = 165 + UIScreen.MainScreen.Bounds.Width;
+				return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+			}
+			return Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
 		}
 	}
 }

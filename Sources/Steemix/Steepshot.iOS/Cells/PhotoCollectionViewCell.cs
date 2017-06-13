@@ -31,22 +31,21 @@ namespace Steepshot.iOS
 			Asset = asset;
 		}
 
-		public override void UpdateCell(Post post)
+		public override void UpdateCell(Post post, NSMutableAttributedString comment)
 		{
 			ImageUrl = post.Body;
 			photoImg.Image = null;
 			_scheduledWork?.Cancel();
 			_scheduledWork = ImageService.Instance.LoadUrl(post.Body, Constants.ImageCacheDuration)
 										 .Retry(2, 200)
-										 .FadeAnimation(false, false, 0)
 										 .DownSample(width: _downSampleWidth)
 										 .Into(photoImg);
 		}
-
+		/*
 		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)
 		{
 			layoutAttributes.Frame = new CGRect(layoutAttributes.Frame.Location, Constants.CellSize);
 			return layoutAttributes;
-		}
+		}*/
 	}
 }
