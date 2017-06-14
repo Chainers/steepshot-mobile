@@ -9,10 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot", "Steepshot\Steepshot.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
 EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Ditch", "..\..\..\Ditch\Sources\Ditch\Ditch.shproj", "{60F06DE7-AAC5-444F-841A-B1CCE1D159AE}"
-EndProject
-Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "Cryptography.ECDSA", "..\..\..\Cryptography.ECDSA\Sources\Cryptography.ECDSA\Cryptography.ECDSA.shproj", "{8A802014-0BA4-4C11-B416-E39F973AF0A1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweetshot.Tests", "Sweetshot.Tests\Sweetshot.Tests.csproj", "{D3CCF11D-1947-4CE4-9654-08276BABD863}"
 EndProject
 Global
