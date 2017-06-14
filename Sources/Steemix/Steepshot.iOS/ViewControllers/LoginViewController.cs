@@ -82,15 +82,16 @@ namespace Steepshot.iOS
 			{
 				UIApplication.SharedApplication.OpenUrl(new Uri(Constants.Pp));
 			};
-
-			tosSwitch.ValueChanged += (sender, e) =>
-			{
-				loginButton.Enabled = tosSwitch.On;
-			};
 		}
 
 		private async Task Login()
 		{
+			if (!tosSwitch.On)
+			{
+				ShowAlert("Make sure you accept the terms of service and privacy policy");
+				return;
+			}
+
 			activityIndicator.StartAnimating();
 			loginButton.Enabled = false;
 			tosSwitch.Enabled = false;
