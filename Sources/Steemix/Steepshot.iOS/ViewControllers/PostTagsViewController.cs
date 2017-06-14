@@ -102,7 +102,7 @@ namespace Steepshot.iOS
         private void AddTags(object sender, EventArgs e)
         {
             UserContext.Instanse.TagsList.AddRange(collectionviewSource.tagsCollection.Except(UserContext.Instanse.TagsList));
-            UserContext.Instanse.TagsList = UserContext.Instanse.TagsList.Take(3).ToList();
+            UserContext.Instanse.TagsList = UserContext.Instanse.TagsList.Take(4).ToList();
             this.NavigationController.PopViewController(true);
         }
 
