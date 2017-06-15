@@ -13,6 +13,9 @@ namespace Steepshot.iOS
 	partial class DescriptionViewController
 	{
 		[Outlet]
+		UIKit.NSLayoutConstraint collectionHeight { get; set; }
+
+		[Outlet]
 		UIKit.UITextField descriptionText { get; set; }
 
 		[Outlet]
@@ -28,13 +31,26 @@ namespace Steepshot.iOS
 		UIKit.UIButton postPhotoButton { get; set; }
 
 		[Outlet]
+		UIKit.UIScrollView scrollView { get; set; }
+
+		[Outlet]
 		UIKit.UICollectionView tagsCollectionView { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (collectionHeight != null) {
+				collectionHeight.Dispose ();
+				collectionHeight = null;
+			}
+
 			if (descriptionText != null) {
 				descriptionText.Dispose ();
 				descriptionText = null;
+			}
+
+			if (descriptionTextField != null) {
+				descriptionTextField.Dispose ();
+				descriptionTextField = null;
 			}
 
 			if (loadingView != null) {
@@ -57,9 +73,9 @@ namespace Steepshot.iOS
 				tagsCollectionView = null;
 			}
 
-			if (descriptionTextField != null) {
-				descriptionTextField.Dispose ();
-				descriptionTextField = null;
+			if (scrollView != null) {
+				scrollView.Dispose ();
+				scrollView = null;
 			}
 		}
 	}

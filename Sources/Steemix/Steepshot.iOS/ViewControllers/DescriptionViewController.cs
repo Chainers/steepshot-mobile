@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
@@ -26,7 +24,7 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			photoView.Image = ImageAsset;
 			postPhotoButton.TouchDown += (sender, e) => PostPhoto();
-
+			activeview = descriptionTextField;
 			//Collection view initialization
 			tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
 			tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
@@ -68,6 +66,8 @@ namespace Steepshot.iOS
 			collectionviewSource.tagsCollection.Add("");
 			collectionviewSource.tagsCollection.AddRange(UserContext.Instanse.TagsList);
 			tagsCollectionView.ReloadData();
+			tagsCollectionView.LayoutIfNeeded();
+			collectionHeight.Constant = tagsCollectionView.ContentSize.Height;
 		}
 
 		public override void ViewDidDisappear(bool animated)
@@ -127,6 +127,11 @@ namespace Steepshot.iOS
 			collectionviewSource.tagsCollection.RemoveAt(row);
 			UserContext.Instanse.TagsList.RemoveAt(row - 1);
             tagsCollectionView.ReloadData();
+		}
+
+		protected override void CalculateBottom()
+		{
+			bottom = (activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y  + activeview.Frame.Height + offset);
 		}
 	}
 }

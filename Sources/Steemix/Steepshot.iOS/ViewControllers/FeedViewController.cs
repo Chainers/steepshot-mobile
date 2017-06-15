@@ -172,6 +172,7 @@ namespace Steepshot.iOS
 		private async Task RefreshTable()
 		{
 			collectionViewSource.PhotoList.Clear();
+			collectionViewSource.FeedStrings.Clear();
 			_hasItems = true;
 			await GetPosts(false);
 		}

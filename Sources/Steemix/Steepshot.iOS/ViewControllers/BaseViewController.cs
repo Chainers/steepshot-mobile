@@ -14,10 +14,10 @@ namespace Steepshot.iOS
 		}
 
 		protected UIView activeview;
-		private nfloat scroll_amount = 0.0f;
-		private nfloat bottom = 0.0f;
-		private nfloat offset = 10.0f;
-		private bool moveViewUp = false;
+		protected nfloat scroll_amount = 0.0f;
+		protected nfloat bottom = 0.0f;
+		protected nfloat offset = 10.0f;
+		protected bool moveViewUp = false;
 		protected NSObject showKeyboardToken;
 		protected NSObject closeKeyboardToken;
 		protected NSObject foregroundToken;
@@ -91,12 +91,15 @@ namespace Steepshot.iOS
 				return;
 
 			CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
-			foreach (UIView view in this.View.Subviews)
+			if (activeview == null)
 			{
-				if (view.IsFirstResponder)
-					activeview = view;
+				foreach (UIView view in this.View.Subviews)
+				{
+					if (view.IsFirstResponder)
+						activeview = view;
+				}
 			}
-			bottom = (activeview.Frame.Y + activeview.Frame.Height + offset);
+			CalculateBottom();
 			scroll_amount = (r.Height - (View.Frame.Size.Height - bottom));
 			if (scroll_amount > 0)
 			{
@@ -105,6 +108,11 @@ namespace Steepshot.iOS
 			}
 			else
 				moveViewUp = false;
+		}
+
+		protected virtual void CalculateBottom()
+		{
+			bottom = (activeview.Frame.Y + activeview.Frame.Height + offset);
 		}
 
 		public override void ViewDidUnload()

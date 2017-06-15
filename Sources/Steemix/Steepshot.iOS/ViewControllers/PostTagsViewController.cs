@@ -115,9 +115,6 @@ namespace Steepshot.iOS
 
         private void AddTag(string tag)
         {
-            if (!tag.StartsWith("#", StringComparison.CurrentCulture))
-                tag = tag.Insert(0, "#");
-
             if (!collectionviewSource.tagsCollection.Contains(tag) &&!string.IsNullOrEmpty(tag))
             {
                 collectionviewSource.tagsCollection.Add(tag);
