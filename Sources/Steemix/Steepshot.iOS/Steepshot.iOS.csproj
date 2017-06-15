@@ -316,7 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\" />
-    <Folder Include="Logging\" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

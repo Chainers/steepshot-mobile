@@ -11,16 +11,10 @@ namespace Steepshot.iOS
 {
 	public partial class CommentsViewController : BaseViewController
 	{
-		protected CommentsViewController(IntPtr handle) : base(handle)
-		{
-			// Note: this .ctor should not contain any initialization logic
-		}
+		protected CommentsViewController(IntPtr handle) : base(handle) { }
 
 		private CommentsTableViewSource tableSource = new CommentsTableViewSource();
 		public string PostUrl;
-
-		private nfloat scroll_amount = 0.0f;
-		private bool moveViewUp = false;
 
 		public override void ViewDidLoad()
 		{
@@ -31,7 +25,7 @@ namespace Steepshot.iOS
 			commentsTable.LayoutMargins = UIEdgeInsets.Zero;
 			commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 			commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
-
+			activeview = commentTextView;
 			tableSource.Voted += (vote, url, action)  =>
             {
 				Vote(vote, url, action);
@@ -121,40 +115,9 @@ namespace Steepshot.iOS
 				
 			}
 		}
-
-		protected override void KeyBoardUpNotification(NSNotification notification)
+		protected override void CalculateBottom()
 		{
-			CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
-			scroll_amount = r.Height;
-			if (scroll_amount > 0)
-			{
-				moveViewUp = true;
-				ScrollTheView(moveViewUp);
-			}
-			else
-				moveViewUp = false;
-		}
-
-		protected override void KeyBoardDownNotification(NSNotification notification)
-		{
-			if (moveViewUp)
-				ScrollTheView(false);
-		}
-
-		protected override void ScrollTheView(bool move)
-		{
-			UIView.BeginAnimations(string.Empty, System.IntPtr.Zero);
-			UIView.SetAnimationDuration(0.1);
-			CGRect frame = View.Frame;
-			if (move)
-				frame.Y -= scroll_amount;
-			else
-			{
-				frame.Y += scroll_amount;
-				scroll_amount = 0;
-			}
-			View.Frame = frame;
-			UIView.CommitAnimations();
+			bottom = (activeview.Frame.Y + bottomView.Frame.Y + activeview.Frame.Height + offset);
 		}
 
 		class TextViewDelegate : UITextViewDelegate
