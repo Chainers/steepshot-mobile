@@ -116,7 +116,9 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="aboveConstant" destination="9y2-Bw-dXw" id="aaK-yu-qxf"/>
                         <outlet property="activityIndicator" destination="CsO-HV-4F3" id="0Z2-ES-geK"/>
+                        <outlet property="belowConstant" destination="N9Q-D3-wjw" id="Odo-y2-jps"/>
                         <outlet property="devSwitch" destination="Kh0-xI-Odi" id="7zc-SN-yfW"/>
                         <outlet property="loginButton" destination="Vzb-ZW-lJJ" id="CKy-Ir-Qwf"/>
                         <outlet property="loginLabel" destination="5oX-5a-jqC" id="kwB-8x-OCQ"/>
