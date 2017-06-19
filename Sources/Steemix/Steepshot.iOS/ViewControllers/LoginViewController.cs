@@ -131,7 +131,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{

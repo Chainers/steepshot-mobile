@@ -62,17 +62,13 @@ namespace Steepshot.iOS
 			},
 			() =>
 			{
-				try
+				if (collectionView.IndexPathsForVisibleItems.Count() != 0)
 				{
 					var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
 
 					if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
 						GetUserPosts();
 					_lastRow = newlastRow;
-				}
-				catch (InvalidOperationException ex)
-				{
-					//ignore
 				}
 			}, collectionViewSource.FeedStrings);
 
@@ -272,6 +268,7 @@ namespace Steepshot.iOS
 			catch (Exception ex)
 			{
 				errorMessage.Hidden = false;
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -320,12 +317,13 @@ namespace Steepshot.iOS
 				}
 				else
 				{
+					Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0]);
 					ShowAlert(response.Errors[0]);
 				}
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -364,13 +362,14 @@ namespace Steepshot.iOS
 				}
 				else
 				{
+					Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0]);
                     ShowAlert(voteResponse.Errors[0]);
 				}
 				success.Invoke(postUri, voteResponse);
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -396,13 +395,14 @@ namespace Steepshot.iOS
 				}
 				else
 				{
+					Reporter.SendCrash("Profile page flag error: " + flagResponse.Errors[0]);
                     ShowAlert(flagResponse.Errors[0]);
 				}
 				action.Invoke(postUrl, flagResponse);
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -415,6 +415,9 @@ namespace Steepshot.iOS
 				userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
 				ToogleFollowButton();
 			}
+			else
+				Reporter.SendCrash("Profile page follow error: " + resp.Errors[0]);
+			
 		}
 
 		private void ToogleFollowButton()
