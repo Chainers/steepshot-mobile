@@ -4,6 +4,7 @@ using Android.Content.PM;
 using Android.OS;
 using HockeyApp.Android;
 using Android.Widget;
+using System.Threading.Tasks;
 
 namespace Steepshot
 {
@@ -21,10 +22,19 @@ namespace Steepshot
 		{
 			base.OnCreate(savedInstanceState);
 
-            CrashManager.Register(this, "fc38d51000bc469a8451c722528d4c55");
+			//CrashManager.Register(this, "fc38d51000bc469a8451c722528d4c55");
 
-            Toast.MakeText(this, string.Format("Alpha release. Version {0}",
-                PackageManager.GetPackageInfo(PackageName,0).VersionName),ToastLength.Long).Show();
+			//Toast.MakeText(this, string.Format("Alpha release. Version {0}",
+			//PackageManager.GetPackageInfo(PackageName,0).VersionName),ToastLength.Long).Show();
+			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+			{
+				
+			};
+
+			TaskScheduler.UnobservedTaskException += (sender, e) =>
+			{
+				
+			};
 
             if (presenter.IsGuest)
 			{

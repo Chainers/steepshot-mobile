@@ -6,6 +6,7 @@ using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
 using Sweetshot.Library.Models.Common;
 using System.Linq;
+using Android.App;
 
 namespace Steepshot
 {
@@ -23,6 +24,8 @@ namespace Steepshot
 
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
+
+		public event EventHandler PostsLoaded;
 
 		public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
 		{
@@ -62,10 +65,19 @@ namespace Steepshot
 
 				postsData = response.Result;
 
-				foreach (var item in response.Result.Results)
+				try
 				{
-					UserPosts.Add(item);
+					foreach (var item in response.Result.Results)
+					{
+						UserPosts.Add(item);
+					   
+					}
 				}
+				catch (Exception ex)
+				{
+					
+				}
+				PostsLoaded?.Invoke(null, null);
 			}
 		}
 

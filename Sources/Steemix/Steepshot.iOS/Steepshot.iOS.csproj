@@ -83,6 +83,7 @@
     <CodesignProvision>
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
+    <MtouchProfiling>true</MtouchProfiling>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

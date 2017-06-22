@@ -38,22 +38,14 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="10.0dp" />
     </RelativeLayout>
-  <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="250dp">
-    <ImageView
-      android:src="@drawable/ic_photo_holder"
-      android:layout_width="match_parent"
-      android:scaleType="center"
-      android:layout_height="250dp"
-      />
-    <ImageView
-        android:id="@+id/photo"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:layout_height="250dp" />
-  </RelativeLayout>
+        android:layout_height="250dp">
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="match_parent"
+            android:layout_height="250dp" />
+    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/subtitle"
         android:layout_width="match_parent"
