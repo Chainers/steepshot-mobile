@@ -7,7 +7,6 @@ using Android.Content;
 using Android.Text;
 using System.Collections.ObjectModel;
 using Sweetshot.Library.Models.Responses;
-using Android.Support.V4.Content;
 
 namespace Steepshot
 {
@@ -24,12 +23,6 @@ namespace Steepshot
         {
             this.context = context;
             this.Posts = Posts;
-        }
-
-        public void Clear()
-        {
-            Posts.Clear();
-            NotifyDataSetChanged();
         }
 
         public Post GetItem(int position)
@@ -71,7 +64,7 @@ namespace Steepshot
             vh.UpdateData(post, context);
 			try
 			{
-				Picasso.With(context).Load(post.Body).Into(vh.Photo);
+				Picasso.With(context).Load(post.Body).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
 			}
 			catch (Exception e)
 			{
@@ -80,7 +73,7 @@ namespace Steepshot
             {
 				try
 				{
-					Picasso.With(context).Load(post.Avatar).Into(vh.Avatar);
+					Picasso.With(context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
 				}
 				catch (Exception e)
 				{ 

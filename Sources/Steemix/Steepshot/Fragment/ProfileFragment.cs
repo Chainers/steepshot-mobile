@@ -16,7 +16,7 @@ namespace Steepshot
 	public class ProfileFragment : BaseFragment, UserProfileView
 	{
 		UserProfilePresenter presenter;
-
+#pragma warning disable 0649, 4014
 		[InjectView(Resource.Id.btn_back)]ImageButton backButton;
 		[InjectView(Resource.Id.profile_name)]TextView ProfileName;
 		[InjectView(Resource.Id.joined_text)]TextView JoinedText;
@@ -34,6 +34,8 @@ namespace Steepshot
 		[InjectView(Resource.Id.posts_list)]RecyclerView PostsList;
 		[InjectView(Resource.Id.loading_spinner)]ProgressBar spinner;
 		[InjectView(Resource.Id.cl_profile)]CoordinatorLayout Content;
+		[InjectView(Resource.Id.refresher)] SwipeRefreshLayout refresher;
+#pragma warning restore 0649
 
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
@@ -51,12 +53,12 @@ namespace Steepshot
 			PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 			PostsList.AddOnScrollListener(new FeedsScrollListener(presenter));
 
-			var refresher = Activity.FindViewById<SwipeRefreshLayout>(Resource.Id.refresher);
 			refresher.Refresh += async delegate
 			{
 				await LoadProfile(true);
 				refresher.Refreshing = false;
 			};
+            LoadProfile();
 		}
 
 		[InjectOnClick(Resource.Id.btn_settings)]
@@ -65,16 +67,6 @@ namespace Steepshot
 			var intent = new Intent(Context, typeof(SettingsActivity));
 			StartActivity(intent);
 		}
-
-        public override void OnResume()
-        {
-            base.OnResume();
-
-            if(PostsList.GetAdapter()!=null)
-                PostsList.GetAdapter().NotifyDataSetChanged();
-			presenter.UserPosts.CollectionChanged += CollectionChanged;
-            LoadProfile();
-        }
 
         [InjectOnClick(Resource.Id.following_btn)]
 		public void OnFollowingClick(object sender, EventArgs e)
@@ -172,8 +164,6 @@ namespace Steepshot
 				await presenter.GetUserPosts(needRefresh);
                 if (PostsList.GetAdapter() == null)
                     PostsList.SetAdapter(GridAdapter);
-                else
-                    PostsList.GetAdapter().NotifyDataSetChanged();
             }
             else
             {
@@ -190,6 +180,13 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new UserProfilePresenter(this);
+			presenter.PostsLoaded += (sender, e) =>
+			{
+				Activity.RunOnUiThread(() =>
+				{
+					PostsList.GetAdapter()?.NotifyDataSetChanged();
+				});
+			};
 		}
 
         void FeedAdapter_CommentAction(int position)
@@ -229,12 +226,6 @@ namespace Steepshot
             }
         }
 
-		void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			FeedAdapter.NotifyDataSetChanged();
-			GridAdapter.NotifyDataSetChanged();
-		}
-
 		private class FeedsScrollListener : RecyclerView.OnScrollListener
 		{
 			UserProfilePresenter presenter;
@@ -252,16 +243,12 @@ namespace Steepshot
 					{
 						if (pos < (recyclerView.GetAdapter()).ItemCount)
 						{
-							Task.Run(() => presenter.GetUserPosts());
+							presenter.GetUserPosts();
+							//Task.Run(() => presenter.GetUserPosts());
 							prevPos = pos;
 						}
 					}
 				}
-			}
-
-			public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
-			{
-
 			}
 		}
     }

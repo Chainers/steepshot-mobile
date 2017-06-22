@@ -279,13 +279,13 @@ namespace Steepshot
 
 		void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			RunOnUiThread(() =>
-			{
+			//RunOnUiThread(() =>
+			//{
 				/*if (_bar.Visibility == ViewStates.Visible)
 					_bar.Visibility = ViewStates.Gone;*/
 				FeedAdapter.NotifyDataSetChanged();
 				GridAdapter.NotifyDataSetChanged();
-			});
+			//});
 		}
 	
 

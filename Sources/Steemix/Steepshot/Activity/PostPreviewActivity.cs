@@ -1,3 +1,4 @@
+using System;
 using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
@@ -27,8 +28,20 @@ namespace Steepshot
             Cheeseknife.Inject(this);
 
             path = Intent.GetStringExtra("PhotoURL");
-
-            Picasso.With(this).Load(path).Into(photo);
+			try
+			{
+				Picasso.With(this).Load(path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(photo);
+			}
+			catch (Exception ex)
+			{
+				
+			}
         }
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
+		}
     }
 }

@@ -155,10 +155,11 @@ namespace Steepshot
 
 		private void RemoveNetwork(string network)
 		{
+			presenter.Logout();
 			var accounts = UserPrincipal.Instance.GetAllAccounts();
 			if (accounts.Count == 0)
 			{
-				presenter.Logout();
+				UserPrincipal.Instance.ClearUser();
 				Intent i = new Intent(ApplicationContext, typeof(GuestActivity));
 				i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
 				StartActivity(i);

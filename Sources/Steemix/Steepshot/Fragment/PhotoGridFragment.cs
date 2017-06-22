@@ -56,19 +56,19 @@ namespace Steepshot
 			base.OnDestroyView();
 			Cheeseknife.Reset(this);
 		}
-
+		/*
 		public override void OnResume()
 		{
 			base.OnResume();
-			Adapter.Reset(GetAllShownImagesPaths());
+			//Adapter.Reset(GetAllShownImagesPaths());
 		}
 
 		public override void OnPause()
 		{
-			Adapter.Clear();
+			//Adapter.Clear();
 			base.OnPause();
 		}
-
+*/
 		private Java.IO.File GetDirectoryForPictures()
 		{
 			var _dir = new Java.IO.File(
