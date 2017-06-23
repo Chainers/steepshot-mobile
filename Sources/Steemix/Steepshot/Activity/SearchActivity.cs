@@ -14,15 +14,11 @@ namespace Steepshot
 	public class SearchActivity : BaseActivity,SearchView
     {
 		SearchPresenter presenter;
-
-        [InjectView(Resource.Id.categories)]
-        RecyclerView categories;
-
-        [InjectView(Resource.Id.search_view)]
-		Android.Support.V7.Widget.SearchView searchView;
-
-        [InjectView(Resource.Id.loading_spinner)]
-        Android.Widget.ProgressBar spinner;
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.categories)] RecyclerView categories;
+        [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView searchView;
+        [InjectView(Resource.Id.loading_spinner)] Android.Widget.ProgressBar spinner;
+#pragma warning restore 0649
 
         CategoriesAdapter Adapter;
 
@@ -71,6 +67,12 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new SearchPresenter(this);
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 	}
 }

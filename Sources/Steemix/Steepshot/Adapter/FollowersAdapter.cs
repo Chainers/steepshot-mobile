@@ -51,7 +51,7 @@ namespace Steepshot
             vh.FriendName.Text = item.Author;
             vh.Reputation.Text = item.Reputation.ToString();
             if (!string.IsNullOrEmpty(item.Avatar))
-                Picasso.With(_context).Load(item.Avatar).Into(vh.FriendAvatar);
+                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
             else
                 vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 

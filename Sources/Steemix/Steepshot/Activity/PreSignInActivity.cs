@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -19,26 +13,15 @@ namespace Steepshot
 	{
 		PreSignInPresenter presenter;
 
-		[InjectView(Resource.Id.loading_spinner)]
-		ProgressBar spinner;
-
-		[InjectView(Resource.Id.input_username)]
-		private EditText username;
-
-		[InjectView(Resource.Id.network_switch)]
-		private SwitchCompat switcher;
-
-		[InjectView(Resource.Id.login_label)]
-		private TextView loginLabel;
-
-		[InjectView(Resource.Id.sign_up_label)]
-		private TextView signupLabel;
-
-		[InjectView(Resource.Id.steem_logo)]
-		ImageView steem_logo;
-
-		[InjectView(Resource.Id.golos_logo)]
-		ImageView golos_logo;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
+		[InjectView(Resource.Id.input_username)] private EditText username;
+		[InjectView(Resource.Id.network_switch)] private SwitchCompat switcher;
+		[InjectView(Resource.Id.login_label)] private TextView loginLabel;
+		[InjectView(Resource.Id.sign_up_label)] private TextView signupLabel;
+		[InjectView(Resource.Id.steem_logo)] ImageView steem_logo;
+		[InjectView(Resource.Id.golos_logo)] ImageView golos_logo;
+#pragma warning restore 0649
 
 		private string _newAccountNetwork;
 
@@ -85,6 +68,7 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 			}
 			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 
 		[InjectOnClick(Resource.Id.sign_in_btn)]

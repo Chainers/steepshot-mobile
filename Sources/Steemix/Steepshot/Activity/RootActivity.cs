@@ -12,15 +12,14 @@ using Com.Lilarcor.Cheeseknife;
 namespace Steepshot
 {
 	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
-	public class RootActivity : BaseActivity,ViewPager.IOnPageChangeListener, RootView
+	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, RootView
 	{
 		RootPresenter presenter;
 
-		[InjectView(Resource.Id.view_pager)]
-		ViewPager viewPager;
-
-		[InjectView(Resource.Id.tab_layout)]
-		TabLayout tabLayout;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.view_pager)] ViewPager viewPager;
+		[InjectView(Resource.Id.tab_layout)] TabLayout tabLayout;
+#pragma warning restore 0649
 
 		PagerAdapter Adapter;
 
@@ -36,6 +35,12 @@ namespace Steepshot
 			InitTabs();
 		}
 
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
+		}
+
 		private void InitTabs()
 		{
 			for (int i = 0; i < tabLayout.TabCount; i++)
@@ -48,13 +53,9 @@ namespace Steepshot
 			}
 
 			viewPager.AddOnPageChangeListener(this);
-			tabLayout.GetTabAt(0).Icon.SetColorFilter(Color.Black, PorterDuff.Mode.SrcIn);
+			OnPageSelected(0);
 			viewPager.SetCurrentItem(0, false);
 			viewPager.OffscreenPageLimit = 2;
-		}
-
-		public void OnPageScrollStateChanged(int state)
-		{
 		}
 
 		private void CheckLogin()
@@ -64,11 +65,6 @@ namespace Steepshot
 				Intent loginItent = new Intent(this, typeof(SignInActivity));
 				StartActivity(loginItent);
 			}
-		}
-
-		public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-		{
-			
 		}
 
 		public void OnPageSelected(int position)
@@ -93,6 +89,16 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new RootPresenter(this);
+		}
+
+		public void OnPageScrollStateChanged(int state)
+		{
+			
+		}
+
+		public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+		{
+			
 		}
 	}
 }

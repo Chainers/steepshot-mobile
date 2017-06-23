@@ -1,7 +1,6 @@
 using System;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -21,14 +20,11 @@ namespace Steepshot
 		private string _username;
         private EditText _password;
 
-		[InjectView(Resource.Id.profile_image)]
-		CircleImageView ProfileImage;
-
-		[InjectView(Resource.Id.loading_spinner)]
-		ProgressBar spinner;
-
-		[InjectView(Resource.Id.title)]
-		TextView title;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
+		[InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
+		[InjectView(Resource.Id.title)] TextView title;
+#pragma warning restore 0649
 
 		MobileBarcodeScanner scanner;
 		private string _newAccountNetwork;
@@ -45,8 +41,6 @@ namespace Steepshot
 			var profileImage = Intent.GetStringExtra("avatar_url");
             _newAccountNetwork = Intent.GetStringExtra("newNetwork");
             _password = FindViewById<EditText>(Resource.Id.input_password);
-
-            // TODO:KOA: Stub Login/Pass for test
             
 #if DEBUG
             _password.Text = "***REMOVED***";
@@ -154,6 +148,7 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 			}
 			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 
 		protected override void CreatePresenter()

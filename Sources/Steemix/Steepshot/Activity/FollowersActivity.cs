@@ -16,18 +16,14 @@ namespace Steepshot
     public class FollowersActivity : BaseActivity, FollowersView
     {
 		FollowersPresenter presenter;
-
         private FollowType _friendsType;
-
         private FollowersAdapter _followersAdapter;
-        
         private RecyclerView _followersList;
 
-        [InjectView(Resource.Id.loading_spinner)]
-        private ProgressBar _bar;
-
-        [InjectView(Resource.Id.Title)]
-        TextView ViewTitle;
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [InjectView(Resource.Id.Title)] TextView ViewTitle;
+#pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
         {

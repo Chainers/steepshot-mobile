@@ -153,6 +153,7 @@ namespace Steepshot
                     presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
                         presenter.Posts[position].NetVotes + 1 :
                         presenter.Posts[position].NetVotes - 1;
+					presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 }
                 else
                 {
