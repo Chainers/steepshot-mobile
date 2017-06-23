@@ -108,27 +108,26 @@ namespace Steepshot
             Post post;
             Action<int> LikeAction;
 
-            public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction,Action<int> CommentAction
-                ,Action<int> PhotoAction) : base(itemView)
-            {
-                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
-                Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-                Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
-                FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
-                CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
-                Time = itemView.FindViewById<TextView>(Resource.Id.time);
-                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
-                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-                Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+			public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction) : base(itemView)
+			{
+				Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+				Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
+				Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+				FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
+				CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
+				Time = itemView.FindViewById<TextView>(Resource.Id.time);
+				Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
 
-                this.LikeAction = LikeAction;
+				this.LikeAction = LikeAction;
 
-                Like.Click += Like_Click;
+				Like.Click += Like_Click;
 				Avatar.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
 				Author.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
-                CommentSubtitle.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
-                Photo.Click += (sender, e) => PhotoAction?.Invoke(AdapterPosition);
-            }
+				CommentSubtitle.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
+				Photo.Click += (sender, e) => PhotoAction?.Invoke(AdapterPosition);
+			}
 
             void Like_Click(object sender, EventArgs e)
             {

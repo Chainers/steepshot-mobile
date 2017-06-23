@@ -34,7 +34,7 @@ namespace Steepshot
 				case 1:
 					return new PhotoFragment();
 				case 2:
-					return new ProfileFragment();
+					return new ProfileFragment(UserPrincipal.Instance.CurrentUser.Login);
 			}
 			return null;
 		}

@@ -6,35 +6,40 @@ using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
 using Sweetshot.Library.Models.Common;
 using System.Linq;
-using Android.App;
 
 namespace Steepshot
 {
 	public class UserProfilePresenter : BasePresenter
 	{
-		public UserProfilePresenter(UserProfileView view) : base(view)
-		{
-		}
-
-		private UserProfileResponse userData;
-
+		private string _username;
 		private UserPostResponse postsData;
 
 		public ObservableCollection<Post> UserPosts = new ObservableCollection<Post>();
 
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
+		private const int postsCount = 40;
+		public event VoidDelegate PostsLoaded;
+		public event VoidDelegate PostsCleared;
 
-		public event EventHandler PostsLoaded;
+		public UserProfilePresenter(UserProfileView view, string username) : base(view)
+		{
+			_username = username;
+		}
+
+		public void ClearPosts()
+		{
+			UserPosts.Clear();
+			_hasItems = true;
+			_offsetUrl = string.Empty;
+			PostsCleared?.Invoke();
+		}
 
 		public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
 		{
-			if (requireUpdate || userData == null)
-			{
-				var req = new UserProfileRequest(user) {SessionId = UserPrincipal.Instance.Cookie};
-				var response = await Api.GetUserProfile(req);
-				userData = response.Result;
-			}
+			var req = new UserProfileRequest(user) {SessionId = UserPrincipal.Instance.Cookie};
+			var response = await Api.GetUserProfile(req);
+			var userData = response.Result;
 			return userData;
 		}
 
@@ -50,13 +55,18 @@ namespace Steepshot
 			if (!_hasItems)
 				return;
 
-			var req = new UserPostsRequest(userData.Username) { Offset = _offsetUrl, Limit=20, SessionId = UserPrincipal.Instance.Cookie };
+			var req = new UserPostsRequest(_username)
+			{
+				Offset = _offsetUrl,
+				Limit = postsCount,
+				SessionId = UserPrincipal.Instance.Cookie
+			};
 			var response = await Api.GetUserPosts(req);
 
 			if (response.Success)
 			{
 				var lastItem = response.Result.Results.Last();
-				if (response.Result.Results.Count == 20)
+				if (response.Result.Results.Count > postsCount/2)
 					response.Result.Results.Remove(lastItem);
 				else
 					_hasItems = false;
@@ -77,16 +87,8 @@ namespace Steepshot
 				{
 					
 				}
-				PostsLoaded?.Invoke(null, null);
+				PostsLoaded?.Invoke();
 			}
-		}
-
-		public string GetPostsOffset()
-		{
-			if (postsData != null)
-				return postsData.Offset;
-
-			return null;
 		}
 
         public async Task<OperationResult<VoteResponse>> Vote(Post post)
@@ -98,13 +100,13 @@ namespace Steepshot
             return await Api.Vote(voteRequest);
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow()
+        public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
         {
-            var request = new FollowRequest(UserPrincipal.Instance.CurrentUser.SessionId, (userData.HasFollowed==0) ? FollowType.Follow : FollowType.UnFollow, userData.Username);
+			var request = new FollowRequest(UserPrincipal.Instance.CurrentUser.SessionId, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
-                userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
+                //userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
             }
             return resp;
         }

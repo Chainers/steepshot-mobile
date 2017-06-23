@@ -15,9 +15,9 @@ namespace Steepshot
 	public class PhotoGridFragment : BaseFragment, PhotoGridView
 	{
 		PhotoGridPresenter presenter;
-
-		[InjectView(Resource.Id.images_list)]
-		RecyclerView ImagesList;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.images_list)] RecyclerView ImagesList;
+#pragma warning restore 0649
 
 		GalleryAdapter Adapter;
 		
@@ -35,7 +35,7 @@ namespace Steepshot
 			ImagesList.AddItemDecoration(new GridItemdecoration(2, 3));
 			Adapter = new GalleryAdapter(Context);
 			ImagesList.SetAdapter(Adapter);
-
+			Adapter.Reset(GetAllShownImagesPaths());
 			Adapter.PhotoClick += Adapter_Click;
 		}
 
@@ -87,7 +87,7 @@ namespace Steepshot
 			File sdCardRoot = GetDirectoryForPictures();
 			foreach (File f in sdCardRoot.ListFiles())
 			{
-				if (f.IsFile)
+				if (f.IsFile && f.AbsolutePath.Contains(".jpg"))
 					listOfAllImages.Insert(0,f.AbsolutePath);
 			}
 		}
@@ -104,20 +104,26 @@ namespace Steepshot
 
 			uri = MediaStore.Images.Media.ExternalContentUri;
 
-			string[] projection = { MediaStore.MediaColumns.Data,MediaStore.Images.Media.InterfaceConsts.BucketDisplayName};
+			//String selection = MediaStore.Images.Media.InterfaceConsts.BucketDisplayName;
+			//String[] selectionArgs = new String[] {"DCIM"};
 
-			cursor = Context.ContentResolver.Query(uri, projection, null, null, null);
-
+			string[] projection = { MediaStore.MediaColumns.Data, MediaStore.Images.Media.InterfaceConsts.BucketDisplayName };
+			var loader = new CursorLoader(Context, uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
+			//cursor = Context.ContentResolver.Query(uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
+			cursor = (ICursor)loader.LoadInBackground();
 			column_index_data = cursor.GetColumnIndexOrThrow(MediaStore.MediaColumns.Data);
 			Column_index_folder_name = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.BucketDisplayName);
 			while (cursor.MoveToNext())
 			{
 				AbsolutePathOfImage = cursor.GetString(column_index_data);
-				listOfAllImages.Add(AbsolutePathOfImage);
+				//if (AbsolutePathOfImage.)
+				//{
+					listOfAllImages.Add(AbsolutePathOfImage);
+				//}
 			}
             listOfAllImages.Reverse();
             GetAppPictures(listOfAllImages);
-            return listOfAllImages ;
+            return listOfAllImages;
 		}
 
 		protected override void CreatePresenter()

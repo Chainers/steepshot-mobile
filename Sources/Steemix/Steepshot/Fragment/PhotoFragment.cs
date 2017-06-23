@@ -14,19 +14,15 @@ namespace Steepshot
 	{
 		PhotoPresenter presenter;
 
-		[InjectView(Resource.Id.container)]
-		FrameLayout Container;
-
-		[InjectView(Resource.Id.Title)]
-		TextView ViewTitle;
-
-		[InjectView(Resource.Id.btn_switch)]
-		ImageButton SwitchButton;
+#pragma warning disable 0649,4014
+		//[InjectView(Resource.Id.container)] FrameLayout Container;
+		//[InjectView(Resource.Id.Title)] TextView ViewTitle;
+		[InjectView(Resource.Id.btn_switch)] ImageButton SwitchButton;
+#pragma warning restore 0649
 
 		private Java.IO.File photo;
-		public event VoidDelegate UpdateProfile;
-
-		private string stringPath;
+		//public event VoidDelegate UpdateProfile;
+		//private string stringPath;
 
 		[InjectOnClick(Resource.Id.btn_switch)]
 		public void OnSwitcherClick(object sender, EventArgs e)

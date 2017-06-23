@@ -38,14 +38,14 @@ namespace Steepshot
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-			Picasso.With(context).Load(Posts[position].Body).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels / 3, context.Resources.DisplayMetrics.WidthPixels / 3).CenterCrop().Into(((ImageViewHolder)holder).Photo);
+			Picasso.With(context).Load(Posts[position].Body).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels / 3 - 2, context.Resources.DisplayMetrics.WidthPixels / 3 - 2).CenterCrop().Into(((ImageViewHolder)holder).Photo);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
 			ImageView view = new ImageView(context);
 			view.SetScaleType(ImageView.ScaleType.CenterInside);
-			view.LayoutParameters = new ViewGroup.LayoutParams(context.Resources.DisplayMetrics.WidthPixels / 3, context.Resources.DisplayMetrics.WidthPixels / 3);
+			view.LayoutParameters = new ViewGroup.LayoutParams(context.Resources.DisplayMetrics.WidthPixels / 3 - 1, context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
 
 			ImageViewHolder vh = new ImageViewHolder(view,Click);
             return vh;
