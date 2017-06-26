@@ -7,12 +7,17 @@ using Android.Support.V7.Widget;
 using Android.Views.InputMethods;
 using Android.Views;
 using Android.Content;
+using System.Threading;
+using System.Threading.Tasks;
+using Sweetshot.Library.Models.Common;
+using Sweetshot.Library.Models.Responses;
 
 namespace Steepshot
 {
     [Activity(Label = "SearchActivity", ScreenOrientation = ScreenOrientation.Portrait)]
 	public class SearchActivity : BaseActivity,SearchView
     {
+		private Timer _timer;
 		SearchPresenter presenter;
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView categories;
@@ -29,7 +34,10 @@ namespace Steepshot
             SetContentView(Resource.Layout.lyt_search);
             Cheeseknife.Inject(this);
 
-            searchView.QueryTextChange += SearchView_QueryTextChange;
+			searchView.QueryTextChange += (sender, e) =>
+			{
+				_timer.Change(1000, Timeout.Infinite);
+			};
 
             categories.SetLayoutManager(new LinearLayoutManager(this));
 
@@ -38,9 +46,10 @@ namespace Steepshot
             categories.SetAdapter(Adapter);
 
             Adapter.Click += OnClick;
-
+			_timer = new Timer(onTimer);
             searchView.Iconified = false;
             searchView.ClearFocus();
+            GetTags();
         }
 
         public void OnClick(int pos)
@@ -53,15 +62,34 @@ namespace Steepshot
             Finish();
         }
 
-        private async void SearchView_QueryTextChange(object sender,Android.Support.V7.Widget.SearchView.QueryTextChangeEventArgs e)
+		private void onTimer(object state)
+		{
+			RunOnUiThread(() =>
+		   {
+			   GetTags();
+		   });
+		}
+
+
+		Task<OperationResult<SearchResponse>> tagsTask;
+        private async Task GetTags()
         {
-            if (e.NewText.Length > 2) {
-                spinner.Visibility = Android.Views.ViewStates.Visible;
-				var cats = await presenter.SearchCategories(e.NewText);
-                Adapter.Reset(cats.Result.Results);
-                Adapter.NotifyDataSetChanged();
-                spinner.Visibility = Android.Views.ViewStates.Gone;
-            }
+			try
+			{
+				if (searchView.Query.Length != 1)
+				{
+					spinner.Visibility = ViewStates.Visible;
+					tagsTask = presenter.SearchCategories(searchView.Query);
+					var tags = await tagsTask;
+
+					Adapter.Reset(tags.Result.Results);
+					Adapter.NotifyDataSetChanged();
+				}
+			}
+			finally
+			{
+				spinner.Visibility = ViewStates.Gone;
+			}
         }
 
 		protected override void CreatePresenter()

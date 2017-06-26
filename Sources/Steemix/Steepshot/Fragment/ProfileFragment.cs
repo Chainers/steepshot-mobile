@@ -92,6 +92,8 @@ namespace Steepshot
 			FollowSpinner.Visibility = ViewStates.Visible;
 			FollowBtn.Visibility = ViewStates.Invisible;
 			var resp = await presenter.Follow(_profile.HasFollowed);
+			if (FollowBtn == null)
+				return;
 			if (resp.Errors.Count == 0)
 			{
 				FollowBtn.Text = (resp.Result.IsFollowed) ? GetString(
@@ -232,14 +234,14 @@ namespace Steepshot
 			{
 				Activity.RunOnUiThread(() =>
 				{
-					PostsList.GetAdapter()?.NotifyDataSetChanged();
+					PostsList?.GetAdapter()?.NotifyDataSetChanged();
 				});
 			};
 			presenter.PostsCleared += () =>
 			{
 				Activity.RunOnUiThread(() =>
 				{
-					PostsList.GetAdapter()?.NotifyDataSetChanged();
+					PostsList?.GetAdapter()?.NotifyDataSetChanged();
 				});
 			};
 		}
@@ -275,7 +277,7 @@ namespace Steepshot
 					else
 						presenter.UserPosts[position].NetVotes--;
 					presenter.UserPosts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-					PostsList.GetAdapter()?.NotifyDataSetChanged();
+					PostsList?.GetAdapter()?.NotifyDataSetChanged();
 				}
 				else
 				{
