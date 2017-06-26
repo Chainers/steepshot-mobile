@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -15,7 +16,7 @@ namespace Steepshot
 		public event VoidDelegate PostsLoaded;
 		public event VoidDelegate PostsCleared;
 		public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
-
+		private CancellationTokenSource cts;
 		private PostType type = PostType.Top;
 
 		private bool _hasItems = true;
@@ -43,85 +44,111 @@ namespace Steepshot
 			PostsCleared?.Invoke();
 		}
 
+
+
 		public async Task GetTopPosts(PostType type, bool clearOld = false)
 		{
 			if (!_hasItems)
 				return;
-			
-			this.type = type;
-			processing = true;
-
-			var postrequest = new PostsRequest(type)
+			try
 			{
-                SessionId = UserPrincipal.Instance.Cookie,
-                Limit = postsCount,
-				Offset = _offsetUrl
-			};
-
-			var response = await Api.GetPosts(postrequest);
-			//TODO:KOA -- Errors not processed
-			if (response.Success)
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
 			{
-				if (response.Result.Results.Count != 0)
+				
+			}
+
+			using (cts = new CancellationTokenSource())
+			{
+				this.type = type;
+				processing = true;
+
+				var postrequest = new PostsRequest(type)
 				{
-					var lastItem = response.Result.Results.Last();
-					if (response.Result.Results.Count == postsCount)
-						response.Result.Results.Remove(lastItem);
-					else
-						_hasItems = false;
+					SessionId = UserPrincipal.Instance.Cookie,
+					Limit = postsCount,
+					Offset = _offsetUrl
+				};
 
-					_offsetUrl = lastItem.Url;
+				var response = await Api.GetPosts(postrequest, cts);
+				//TODO:KOA -- Errors not processed
+				if (response.Success)
+				{
+					if (response.Result.Results.Count != 0)
+					{
+						var lastItem = response.Result.Results.Last();
+						if (response.Result.Results.Count == postsCount)
+							response.Result.Results.Remove(lastItem);
+						else
+							_hasItems = false;
 
-					if (clearOld)
-					{
-						Posts.Clear();
+						_offsetUrl = lastItem.Url;
+
+						if (clearOld)
+						{
+							Posts.Clear();
+						}
+						foreach (var item in response.Result.Results)
+						{
+							Posts.Add(item);
+						}
 					}
-					foreach (var item in response.Result.Results)
-					{
-						Posts.Add(item);
-					}
+					PostsLoaded?.Invoke();
 				}
 			}
 			processing = false;
-			PostsLoaded?.Invoke();
 		}
 
 		public async Task GetSearchedPosts(string query)
 		{
 			if (!_hasItems)
 				return;
-			processing = true;
-			var postrequest = new PostsByCategoryRequest(type, query)
-			{
-				SessionId = UserPrincipal.Instance.Cookie,
-                Limit = postsCount,
-				Offset = _offsetUrl
-			};
 
-			var posts = await Api.GetPostsByCategory(postrequest);
-			//TODO:KOA -- Errors not processed
-			if (posts.Success)
+			try
 			{
-				if (posts.Result.Results.Count != 0)
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
+				
+			}
+
+			using (cts = new CancellationTokenSource())
+			{
+				processing = true;
+				var postrequest = new PostsByCategoryRequest(type, query)
 				{
-					var lastItem = posts.Result.Results.Last();
-					if (posts.Result.Results.Count == postsCount)
-						posts.Result.Results.Remove(lastItem);
-					else
-						_hasItems = false;
+					SessionId = UserPrincipal.Instance.Cookie,
+					Limit = postsCount,
+					Offset = _offsetUrl
+				};
 
-					_offsetUrl = lastItem.Url;
-
-					Posts.Clear();
-
-					foreach (var item in posts.Result.Results)
+				var posts = await Api.GetPostsByCategory(postrequest, cts);
+				//TODO:KOA -- Errors not processed
+				if (posts.Success)
+				{
+					if (posts.Result.Results.Count != 0)
 					{
-						Posts.Add(item);
+						var lastItem = posts.Result.Results.Last();
+						if (posts.Result.Results.Count == postsCount)
+							posts.Result.Results.Remove(lastItem);
+						else
+							_hasItems = false;
+
+						_offsetUrl = lastItem.Url;
+
+						Posts.Clear();
+
+						foreach (var item in posts.Result.Results)
+						{
+							Posts.Add(item);
+						}
 					}
+					PostsLoaded?.Invoke();
 				}
 			}
 			processing = false;
-			PostsLoaded?.Invoke();
 		}
 
 		public async Task<OperationResult<VoteResponse>> Vote(Post post)

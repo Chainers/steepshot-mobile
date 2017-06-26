@@ -159,7 +159,7 @@ namespace Steepshot
                 {
                     Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
                 }
-                FeedAdapter.NotifyDataSetChanged();
+                FeedAdapter?.NotifyDataSetChanged();
             }
             else
             {
@@ -195,8 +195,9 @@ namespace Steepshot
 		{
 			Activity.RunOnUiThread(() =>
 				{
-					Bar.Visibility = ViewStates.Gone;
-					FeedAdapter.NotifyDataSetChanged();
+					if(Bar != null)
+						Bar.Visibility = ViewStates.Gone;
+					FeedAdapter?.NotifyDataSetChanged();
 				});
 		}
 
@@ -204,7 +205,7 @@ namespace Steepshot
 		{
 			Activity.RunOnUiThread(() =>
 				{
-					FeedAdapter.NotifyDataSetChanged();
+					FeedAdapter?.NotifyDataSetChanged();
 				});
 		}
 

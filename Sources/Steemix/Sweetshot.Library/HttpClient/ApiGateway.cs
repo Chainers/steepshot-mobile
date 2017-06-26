@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using RestSharp;
 
@@ -14,7 +15,7 @@ namespace Sweetshot.Library.HttpClient
 
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters);
+		Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null);
         Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters);
         Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
     }
@@ -33,10 +34,14 @@ namespace Sweetshot.Library.HttpClient
             _restClient = new RestClient(url);
         }
 
-        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters)
+		public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null)
         {
             var request = CreateRequest(endpoint, parameters);
-            var response = _restClient.ExecuteGetTaskAsync(request);
+			Task<IRestResponse> response;
+			if (cts != null)
+				response = _restClient.ExecuteGetTaskAsync(request, cts.Token);
+			else
+				response = _restClient.ExecuteGetTaskAsync(request);
             return response;
         }
 
