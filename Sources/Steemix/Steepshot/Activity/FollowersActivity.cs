@@ -6,7 +6,6 @@ using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Sweetshot.Library.Models.Requests;
-using Android.Support.V4.Content;
 using System.Threading.Tasks;
 using Android.Content;
 
@@ -18,11 +17,11 @@ namespace Steepshot
 		FollowersPresenter presenter;
         private FollowType _friendsType;
         private FollowersAdapter _followersAdapter;
-        private RecyclerView _followersList;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.Title)] TextView ViewTitle;
+		[InjectView(Resource.Id.followers_list)] RecyclerView _followersList;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -40,7 +39,6 @@ namespace Steepshot
             ViewTitle.Text = isFollowers ? GetString(Resource.String.text_followers) : GetString(Resource.String.text_following);
 
             _followersAdapter = new FollowersAdapter(this, presenter.Collection);
-            _followersList = FindViewById<RecyclerView>(Resource.Id.followers_list);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(this));
 			_followersList.AddOnScrollListener(new FollowersScrollListener(presenter, username, _friendsType));
@@ -155,6 +153,12 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new FollowersPresenter(this);
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 	}
 }

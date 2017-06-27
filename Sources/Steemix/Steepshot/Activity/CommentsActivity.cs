@@ -17,29 +17,18 @@ namespace Steepshot
 	public class CommentsActivity : BaseActivity, CommentsView
     {
 		CommentsPresenter presenter;
-
 		List<Post> posts;
-
 		CommentAdapter Adapter;
-
 		string uid;
-
 		LinearLayoutManager manager;
 
-        [InjectView(Resource.Id.comments_list)]
-        RecyclerView comments;
-
-        [InjectView(Resource.Id.loading_spinner)]
-        ProgressBar spinner;
-
-        [InjectView(Resource.Id.text_input)]
-        EditText textInput;
-
-        [InjectView(Resource.Id.btn_post)]
-        ImageButton post;
-
-        [InjectView(Resource.Id.send_spinner)]
-        ProgressBar sendSpinner;
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.comments_list)] RecyclerView comments;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
+        [InjectView(Resource.Id.text_input)] EditText textInput;
+        [InjectView(Resource.Id.btn_post)] ImageButton post;
+        [InjectView(Resource.Id.send_spinner)] ProgressBar sendSpinner;
+#pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_back)]
         public void OnBack(object sender, EventArgs e)
@@ -59,12 +48,15 @@ namespace Steepshot
                         sendSpinner.Visibility = Android.Views.ViewStates.Visible;
                         post.Visibility = Android.Views.ViewStates.Invisible;
                         var resp = await presenter.CreateComment(textInput.Text, uid);
-                        if (resp.Result != null && resp.Result.IsCreated)
+						if (resp?.Result != null && resp.Result.IsCreated)
                         {
-                            textInput.Text = string.Empty;
-                            var posts = await presenter.GetComments(uid);
-                            Adapter.Reload(posts);
-                            manager.ScrollToPosition(posts.Count - 1);
+							if (textInput != null)
+							{
+								textInput.Text = string.Empty;
+								var posts = await presenter.GetComments(uid);
+								Adapter?.Reload(posts);
+								manager?.ScrollToPosition(posts.Count - 1);
+							}
                         }
                         else
                         {
@@ -76,8 +68,11 @@ namespace Steepshot
                 {
                     Toast.MakeText(this, "Unknown error. Try again", ToastLength.Short).Show();
                 }
-                sendSpinner.Visibility = Android.Views.ViewStates.Invisible;
-                post.Visibility = Android.Views.ViewStates.Visible;
+				if (sendSpinner == null && post != null)
+				{
+					sendSpinner.Visibility = Android.Views.ViewStates.Invisible;
+					post.Visibility = Android.Views.ViewStates.Visible;
+				}
             }
             else
             {
@@ -120,7 +115,7 @@ namespace Steepshot
                 if (response.Success)
                 {
 					presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
-                    Adapter.NotifyDataSetChanged();
+                    Adapter?.NotifyDataSetChanged();
                 }
                 else
                 {
@@ -137,6 +132,12 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new CommentsPresenter(this);
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 	}
 }

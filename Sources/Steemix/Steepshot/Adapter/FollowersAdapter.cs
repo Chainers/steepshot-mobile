@@ -50,10 +50,11 @@ namespace Steepshot
             vh.FriendAvatar.SetImageResource(0);
             vh.FriendName.Text = item.Author;
             vh.Reputation.Text = item.Reputation.ToString();
-            if (!string.IsNullOrEmpty(item.Avatar))
-                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-            else
-                vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
+			if (!string.IsNullOrEmpty(item.Avatar))
+				Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
+			else
+				Picasso.With(_context).Load(Resource.Drawable.ic_user_placeholder).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
+                //vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
             vh.UpdateData(item);
         }
@@ -105,7 +106,7 @@ namespace Steepshot
 
             private void CheckFollow(UserFriendViewMode item, FollowersViewHolder vh,bool follow)
             {
-                if (follow)
+                if (!follow)
                 {
                     vh.FollowUnfollow.Text = "Follow";
                     vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));

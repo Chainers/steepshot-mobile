@@ -1,4 +1,3 @@
-using System;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -28,7 +27,6 @@ namespace Steepshot
 			base.OnCreate(savedInstanceState);
 			SetContentView(Resource.Layout.lyt_tab_host);
 			Cheeseknife.Inject(this);
-
 			Adapter = new PagerAdapter(SupportFragmentManager, this);
 			viewPager.Adapter = Adapter;
 			tabLayout.SetupWithViewPager(viewPager);

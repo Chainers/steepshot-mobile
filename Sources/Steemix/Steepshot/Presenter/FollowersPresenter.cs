@@ -48,14 +48,13 @@ namespace Steepshot
 				
 				_offsetUrl = lastItem.Author;
 				foreach (var item in responce.Result.Results)
-					Collection.Add(new UserFriendViewMode(item, followType == FollowType.Follow));
-				
+					Collection.Add(new UserFriendViewMode(item, item.HasFollowed));
 			}
 		}
 
 		public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
 		{
-			var request = new FollowRequest(UserPrincipal.Instance.CurrentUser.SessionId, item.IsFollow ? FollowType.Follow : FollowType.UnFollow, item.Author);
+			var request = new FollowRequest(UserPrincipal.Instance.CurrentUser.SessionId, item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author);
 			return await Api.Follow(request);
 		}
 	}
