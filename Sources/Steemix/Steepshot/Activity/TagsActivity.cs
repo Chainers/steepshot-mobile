@@ -15,21 +15,13 @@ namespace Steepshot
 	public class TagsActivity : BaseActivity, TagsView
 	{
 		TagsPresenter presenter;
-
-		[InjectView(Resource.Id.ic_close)]
-		ImageButton Close;
-
-		[InjectView(Resource.Id.search_box)]
-		EditText SearchBox;
-
-		[InjectView(Resource.Id.tags_list)]
-		RecyclerView TagsList;
-
-		[InjectView(Resource.Id.tag_container)]
-		TagLayout tagLayout;
-
-		[InjectView(Resource.Id.scroll)]
-		ScrollView Scroll;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.ic_close)] ImageButton Close;
+		[InjectView(Resource.Id.search_box)] EditText SearchBox;
+		[InjectView(Resource.Id.tags_list)] RecyclerView TagsList;
+		[InjectView(Resource.Id.tag_container)] TagLayout tagLayout;
+		[InjectView(Resource.Id.scroll)] ScrollView Scroll;
+#pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_post)]
         public void PostTags(object sender, EventArgs e)
@@ -65,7 +57,7 @@ namespace Steepshot
 
 			SearchBox.TextChanged += (sender, e) =>
 			{
-				if (SearchBox.Text.Length > 3)
+				if (SearchBox.Text.Length > 1)
 				{
 					presenter.SearchTags(SearchBox.Text).ContinueWith((arg) => {
 							Adapter.Reset(arg.Result.Result.Results);
@@ -111,6 +103,12 @@ namespace Steepshot
 		protected override void CreatePresenter()
 		{
 			presenter = new TagsPresenter(this);
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 	}
 }

@@ -44,7 +44,8 @@ using Sqlite3Statement = Sqlite.Statement;
 using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
-
+//TODO: Nikita Remove SQLlite
+#pragma warning disable 0436, 4014
 namespace SQLite
 {
 	public class SQLiteException : Exception
