@@ -116,6 +116,16 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="MailKit">
+      <HintPath>..\packages\MailKit.1.16.1\lib\Xamarin.iOS10\MailKit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -252,6 +262,7 @@
     <Compile Include="ViewControllers\WebPageViewController.designer.cs">
       <DependentUpon>WebPageViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Reporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -320,4 +331,5 @@
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
 </Project>

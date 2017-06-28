@@ -129,7 +129,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -152,7 +152,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -176,7 +176,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -199,7 +199,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -213,10 +213,10 @@ namespace Steepshot.iOS
 				return;
 
 			UserContext.Instanse.Network = network;
-			//HighlightView();
+			HighlightView();
 			SwitchApiAddress();
 
-			//SetAddButton();
+			SetAddButton();
 			UserContext.Save();
 
 			UserContext.Instanse.IsHomeFeedLoaded = false;
@@ -286,9 +286,9 @@ namespace Steepshot.iOS
 		private void SetAddButton()
 		{
 			addAccountButton.Hidden = UserContext.Instanse.Accounts.Count == 2;
-#if !DEBUG
-			addAccountButton.Hidden = true;
-#endif
+//#if !DEBUG
+			//addAccountButton.Hidden = true;
+//#endif
 		}
 
 		public override void ViewDidDisappear(bool animated)

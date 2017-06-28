@@ -80,9 +80,12 @@ namespace Steepshot.iOS
 						tagsTable.Hidden = false;
 					}
 				}
+				else
+					Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
 			{
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{

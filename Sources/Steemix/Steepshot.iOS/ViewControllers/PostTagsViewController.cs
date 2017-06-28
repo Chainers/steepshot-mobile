@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
@@ -20,11 +21,12 @@ namespace Steepshot.iOS
         private TagsCollectionViewSource collectionviewSource;
 
         private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
+		private Timer _timer;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
+			_timer = new Timer(onTimer);
             //Table initialization
             tagsTable.Source = tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
@@ -55,7 +57,7 @@ namespace Steepshot.iOS
 
             searchText.EditingChanged += (sender, e) =>
             {
-                GetTags(((UITextField)sender).Text);
+                _timer.Change(1500, Timeout.Infinite);
             };
 
 			activeview = searchText;
@@ -71,6 +73,14 @@ namespace Steepshot.iOS
             collectionviewSource.tagsCollection.RemoveAt(row);
             tagsCollectionView.ReloadData();
         }
+
+		private void onTimer(object state)
+		{
+			InvokeOnMainThread(() =>
+		   {
+			   GetTags(searchText.Text);
+		   });
+		}
 
         private async Task GetTags(string query)
         {
@@ -93,9 +103,12 @@ namespace Steepshot.iOS
 					tagsSource.Tags = response.Result.Results;
 					tagsTable.ReloadData();
 				}
+				else
+					Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
-			{ 
+			{
+				Reporter.SendCrash(ex);
 			}
         }
 
