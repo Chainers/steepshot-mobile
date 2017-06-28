@@ -52,68 +52,78 @@ namespace Steepshot
 
 		public async Task GetTopPosts(PostType type, bool clearOld = false)
 		{
-			if (!_hasItems)
-				return;
 			try
 			{
-				cts?.Cancel();
-			}
-			catch (ObjectDisposedException)
-			{
-				
-			}
-
-			using (cts = new CancellationTokenSource())
-			{
-				this.type = type;
-				processing = true;
-
-				OperationResult<UserPostResponse> response;
-				if (_isFeed)
+				if (!_hasItems)
+					return;
+				try
 				{
-					var f = new UserRecentPostsRequest(UserPrincipal.Instance.Cookie)
-					{
-						Limit = postsCount,
-						Offset = _offsetUrl
-					};
-					response = await Api.GetUserRecentPosts(f);
+					cts?.Cancel();
 				}
-				else
+				catch (ObjectDisposedException)
 				{
-					var postrequest = new PostsRequest(type)
-					{
-						SessionId = UserPrincipal.Instance.Cookie,
-						Limit = postsCount,
-						Offset = _offsetUrl
-					};
-					response = await Api.GetPosts(postrequest, cts);
+
 				}
-				//TODO:KOA -- Errors not processed
-				if (response.Success)
+
+				using (cts = new CancellationTokenSource())
 				{
-					if (response.Result.Results.Count != 0)
+					this.type = type;
+					processing = true;
+
+					OperationResult<UserPostResponse> response;
+					if (_isFeed)
 					{
-						var lastItem = response.Result.Results.Last();
-						if (response.Result.Results.Count == postsCount)
-							response.Result.Results.Remove(lastItem);
-						else
-							_hasItems = false;
-
-						_offsetUrl = lastItem.Url;
-
-						if (clearOld)
+						var f = new UserRecentPostsRequest(UserPrincipal.Instance.Cookie)
 						{
-							Posts.Clear();
-						}
-						foreach (var item in response.Result.Results)
-						{
-							Posts.Add(item);
-						}
+							Limit = postsCount,
+							Offset = _offsetUrl
+						};
+						response = await Api.GetUserRecentPosts(f);
 					}
-					PostsLoaded?.Invoke();
+					else
+					{
+						var postrequest = new PostsRequest(type)
+						{
+							SessionId = UserPrincipal.Instance.Cookie,
+							Limit = postsCount,
+							Offset = _offsetUrl
+						};
+						response = await Api.GetPosts(postrequest, cts);
+					}
+					//TODO:KOA -- Errors not processed
+					if (response.Success)
+					{
+						if (response.Result.Results.Count != 0)
+						{
+							var lastItem = response.Result.Results.Last();
+							if (response.Result.Results.Count == postsCount)
+								response.Result.Results.Remove(lastItem);
+							else
+								_hasItems = false;
+
+							_offsetUrl = lastItem.Url;
+
+							if (clearOld)
+							{
+								Posts.Clear();
+							}
+							foreach (var item in response.Result.Results)
+							{
+								Posts.Add(item);
+							}
+						}
+						PostsLoaded?.Invoke();
+					}
 				}
 			}
-			processing = false;
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+			finally
+			{
+				processing = false;
+			}
 		}
 
 		public async Task GetSearchedPosts(string query)
@@ -129,42 +139,51 @@ namespace Steepshot
 			{
 				
 			}
-
-			using (cts = new CancellationTokenSource())
+			try
 			{
-				processing = true;
-				var postrequest = new PostsByCategoryRequest(type, query)
+				using (cts = new CancellationTokenSource())
 				{
-					SessionId = UserPrincipal.Instance.Cookie,
-					Limit = postsCount,
-					Offset = _offsetUrl
-				};
-
-				var posts = await Api.GetPostsByCategory(postrequest, cts);
-				//TODO:KOA -- Errors not processed
-				if (posts.Success)
-				{
-					if (posts.Result.Results.Count != 0)
+					processing = true;
+					var postrequest = new PostsByCategoryRequest(type, query)
 					{
-						var lastItem = posts.Result.Results.Last();
-						if (posts.Result.Results.Count == postsCount)
-							posts.Result.Results.Remove(lastItem);
-						else
-							_hasItems = false;
+						SessionId = UserPrincipal.Instance.Cookie,
+						Limit = postsCount,
+						Offset = _offsetUrl
+					};
 
-						_offsetUrl = lastItem.Url;
-
-						Posts.Clear();
-
-						foreach (var item in posts.Result.Results)
+					var posts = await Api.GetPostsByCategory(postrequest, cts);
+					//TODO:KOA -- Errors not processed
+					if (posts.Success)
+					{
+						if (posts.Result.Results.Count != 0)
 						{
-							Posts.Add(item);
+							var lastItem = posts.Result.Results.Last();
+							if (posts.Result.Results.Count == postsCount)
+								posts.Result.Results.Remove(lastItem);
+							else
+								_hasItems = false;
+
+							_offsetUrl = lastItem.Url;
+
+							Posts.Clear();
+
+							foreach (var item in posts.Result.Results)
+							{
+								Posts.Add(item);
+							}
 						}
+						PostsLoaded?.Invoke();
 					}
-					PostsLoaded?.Invoke();
 				}
 			}
-			processing = false;
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+			finally
+			{
+				processing = false;
+			}
 		}
 
 		public async Task<OperationResult<VoteResponse>> Vote(Post post)

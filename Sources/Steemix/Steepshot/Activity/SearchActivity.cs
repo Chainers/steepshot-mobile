@@ -86,6 +86,10 @@ namespace Steepshot
 					Adapter.NotifyDataSetChanged();
 				}
 			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
 			finally
 			{
 				spinner.Visibility = ViewStates.Gone;

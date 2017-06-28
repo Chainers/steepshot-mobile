@@ -31,12 +31,12 @@ namespace Steepshot
 
 			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
 			{
-				
+				Reporter.SendCrash((Exception)e.ExceptionObject);
 			};
 
 			TaskScheduler.UnobservedTaskException += (sender, e) =>
 			{
-				
+				Reporter.SendCrash(e.Exception);
 			};
 
             if (presenter.IsGuest)

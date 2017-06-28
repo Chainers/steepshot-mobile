@@ -71,7 +71,7 @@ namespace Steepshot
 				}
 				catch (Exception ex)
 				{
-					
+					Reporter.SendCrash(ex);
 				}
 			};
         }
@@ -91,46 +91,53 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, System.EventArgs e)
         {
-            var login = _username;
-            var pass = _password.Text;
+			try
+			{
+				var login = _username;
+				var pass = _password.Text;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-            {
-                Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
-                return;
-            }
+				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+				{
+					Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+					return;
+				}
 
-			spinner.Visibility = ViewStates.Visible;
-			((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				spinner.Visibility = ViewStates.Visible;
+				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-                return;
+				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+					return;
 
-			var response = await presenter.SignIn(login, pass);
+				var response = await presenter.SignIn(login, pass);
 
-            if (response != null)
-            {
-                if (response.Success)
-                {
-					_newAccountNetwork = null;
-					UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
-                    var intent = new Intent(this, typeof(RootActivity));
-                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                    StartActivity(intent);
-                }
-                else
-                {
-					ShowAlert(response.Errors[0]);
+				if (response != null)
+				{
+					if (response.Success)
+					{
+						_newAccountNetwork = null;
+						UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
+						var intent = new Intent(this, typeof(RootActivity));
+						intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+						StartActivity(intent);
+					}
+					else
+					{
+						ShowAlert(response.Errors[0]);
+						spinner.Visibility = ViewStates.Invisible;
+						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+					}
+				}
+				else
+				{
+					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                }
-            }
-            else
-            {
-                ShowAlert(Resource.String.error_connect_to_server);
-				spinner.Visibility = ViewStates.Invisible;
-				((AppCompatButton)sender).Visibility = ViewStates.Visible;
-            }
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
 
         [InjectOnClick(Resource.Id.sign_up_btn)]

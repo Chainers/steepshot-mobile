@@ -79,7 +79,7 @@ namespace Steepshot
 			}
 			catch(Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -159,29 +159,36 @@ namespace Steepshot
 
 		async void FeedAdapter_LikeAction(int position)
         {
-            if (UserPrincipal.Instance.IsAuthenticated)
-            {
-				var response = await presenter.Vote(presenter.Posts[position]);
+			try
+			{
+				if (UserPrincipal.Instance.IsAuthenticated)
+				{
+					var response = await presenter.Vote(presenter.Posts[position]);
 
-                if (response.Success)
-                {
-                    presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
+					if (response.Success)
+					{
+						presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
 
-                    presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
-                        presenter.Posts[position].NetVotes + 1 :
-                        presenter.Posts[position].NetVotes - 1;
-					presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-                }
-                else
-                {
-                    Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-                }
-                FeedAdapter?.NotifyDataSetChanged();
-            }
-            else
-            {
-				OpenLogin();
-            }
+						presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
+							presenter.Posts[position].NetVotes + 1 :
+							presenter.Posts[position].NetVotes - 1;
+						presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+					}
+					else
+					{
+						Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
+					}
+					FeedAdapter?.NotifyDataSetChanged();
+				}
+				else
+				{
+					OpenLogin();
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
 
         public void ShowFollowing()

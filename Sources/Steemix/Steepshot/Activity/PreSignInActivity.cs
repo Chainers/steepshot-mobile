@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -74,45 +75,52 @@ namespace Steepshot
 		[InjectOnClick(Resource.Id.sign_in_btn)]
 		private async void SignInBtn_Click(object sender, System.EventArgs e)
 		{
-			var login = username.Text.ToLower();
-
-			if (string.IsNullOrEmpty(login))
+			try
 			{
-				Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
-				return;
-			}
+				var login = username.Text.ToLower();
 
-			spinner.Visibility = ViewStates.Visible;
-			((AppCompatButton)sender).Visibility = ViewStates.Invisible;
-
-			if (string.IsNullOrEmpty(login))
-				return;
-
-			var response = await presenter.GetAccountInfo(login);
-
-			if (response != null)
-			{
-				if (response.Success)
+				if (string.IsNullOrEmpty(login))
 				{
-					var intent = new Intent(this, typeof(SignInActivity));
-					intent.PutExtra("login", login);
-					intent.PutExtra("avatar_url", response.Result.ProfileImage);
-					intent.PutExtra("newNetwork", _newAccountNetwork);
-					_newAccountNetwork = null;
-					StartActivity(intent);
+					Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+					return;
+				}
+
+				spinner.Visibility = ViewStates.Visible;
+				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+
+				if (string.IsNullOrEmpty(login))
+					return;
+
+				var response = await presenter.GetAccountInfo(login);
+
+				if (response != null)
+				{
+					if (response.Success)
+					{
+						var intent = new Intent(this, typeof(SignInActivity));
+						intent.PutExtra("login", login);
+						intent.PutExtra("avatar_url", response.Result.ProfileImage);
+						intent.PutExtra("newNetwork", _newAccountNetwork);
+						_newAccountNetwork = null;
+						StartActivity(intent);
+					}
+					else
+					{
+						ShowAlert(response.Errors[0]);
+						spinner.Visibility = ViewStates.Invisible;
+						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+					}
 				}
 				else
 				{
-					ShowAlert(response.Errors[0]);
+					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowAlert(Resource.String.error_connect_to_server);
-				spinner.Visibility = ViewStates.Invisible;
-				((AppCompatButton)sender).Visibility = ViewStates.Visible;
+				Reporter.SendCrash(ex);
 			}
 		}
 

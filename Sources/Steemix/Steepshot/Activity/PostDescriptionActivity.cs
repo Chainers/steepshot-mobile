@@ -19,18 +19,18 @@ using System.Threading;
 namespace Steepshot
 {
 	[Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-	public class PostDescriptionActivity : BaseActivity, PostDescriptionView, ITarget
+	public class PostDescriptionActivity : BaseActivity, PostDescriptionView//, ITarget
 	{
 		private PostDescriptionPresenter presenter;
 		public static int TagRequestCode = 1225;
 		private string Path;
 
 		private List<string> tags = new List<string>();
-		private Task<byte[]> photoComressionTask;
+		//private Task<byte[]> photoComressionTask;
 		private Bitmap bitmapToUpload;
 
-		private CancellationTokenSource _tokenSource = new CancellationTokenSource();
-		private CancellationToken ct;
+		//private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+		//private CancellationToken ct;
 		private FrameLayout _add;
 
 #pragma warning disable 0649, 4014
@@ -126,8 +126,8 @@ namespace Steepshot
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
-			_tokenSource.Cancel();
-			_tokenSource.Dispose();
+			//_tokenSource.Cancel();
+			//_tokenSource.Dispose();
 			if (bitmapToUpload != null)
 			{
 				bitmapToUpload.Recycle();
@@ -137,7 +137,7 @@ namespace Steepshot
 			Cheeseknife.Reset(this);
 			GC.Collect();
 		}
-
+		/*
 		public void OnBitmapFailed(Drawable p0)
 		{
 
@@ -151,7 +151,7 @@ namespace Steepshot
 				postButton.Enabled = true;
 			});
 			photoComressionTask = Task.Factory.StartNew(CompressPhoto, ct);
-		}
+		}*/
 
 		private async Task OnPostAsync()
 		{
@@ -181,31 +181,32 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
-				loadLayout.Visibility = ViewStates.Gone;
+				if(loadLayout != null)
+					loadLayout.Visibility = ViewStates.Gone;
 			}
 		}
 
 		private byte[] CompressPhoto()
 		{
 			try
-			{
+			{/*
 				if (ct.IsCancellationRequested)
 				{
 					ct.ThrowIfCancellationRequested();
 					photoComressionTask.Dispose();
-				}
+				}*/
 				bitmapToUpload = ((BitmapDrawable)photoFrame.Drawable).Bitmap;
 				using (var stream = new MemoryStream())
-				{
+				{/*
 					if (ct.IsCancellationRequested)
 					{
 						ct.ThrowIfCancellationRequested();
 						photoComressionTask.Dispose();
-					}
+					}*/
 					bitmapToUpload.Compress(Bitmap.CompressFormat.Jpeg, 80, stream);
 					var streamArray = stream.ToArray();
 					//var photoSize = streamArray.Length / 1024f / 1024f;
@@ -214,6 +215,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
+				Reporter.SendCrash(ex);
 				return new byte[0];
 			}
 		}
