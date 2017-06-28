@@ -10,6 +10,7 @@ using Com.Lilarcor.Cheeseknife;
 using Android.Support.V7.Widget;
 using Sweetshot.Library.Models.Responses;
 using Android.Widget;
+using Android.Views;
 
 namespace Steepshot
 {
@@ -64,14 +65,15 @@ namespace Steepshot
                         }
                     }
                 }
-                catch (Exception ee)
+                catch (Exception ex)
                 {
+					Reporter.SendCrash(ex);
                     Toast.MakeText(this, "Unknown error. Try again", ToastLength.Short).Show();
                 }
-				if (sendSpinner == null && post != null)
+				if (sendSpinner != null && post != null)
 				{
-					sendSpinner.Visibility = Android.Views.ViewStates.Invisible;
-					post.Visibility = Android.Views.ViewStates.Visible;
+					sendSpinner.Visibility = ViewStates.Invisible;
+					post.Visibility = ViewStates.Visible;
 				}
             }
             else
@@ -108,25 +110,32 @@ namespace Steepshot
 
         async void FeedAdapter_LikeAction(int position)
         {
-            if (UserPrincipal.Instance.CurrentUser!=null)
-            {
-                var response = await presenter.Vote(presenter.Posts[position]);
+			try
+			{
+				if (UserPrincipal.Instance.CurrentUser != null)
+				{
+					var response = await presenter.Vote(presenter.Posts[position]);
 
-                if (response.Success)
-                {
-					presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
-                    Adapter?.NotifyDataSetChanged();
-                }
-                else
-                {
-                    Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
-                }
-            }
-            else
-            {
-                var intent = new Intent(this, typeof(SignInActivity));
-                StartActivity(intent);
-            }
+					if (response.Success)
+					{
+						presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
+						Adapter?.NotifyDataSetChanged();
+					}
+					else
+					{
+						Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
+					}
+				}
+				else
+				{
+					var intent = new Intent(this, typeof(SignInActivity));
+					StartActivity(intent);
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
 
 		protected override void CreatePresenter()

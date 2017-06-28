@@ -143,6 +143,7 @@
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\Reporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -459,6 +460,15 @@
     </Reference>
     <Reference Include="HockeySDK">
       <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\MonoAndroid10\BouncyCastle.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\MonoAndroid10\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit">
+      <HintPath>..\packages\MailKit.1.16.1\lib\MonoAndroid10\MailKit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

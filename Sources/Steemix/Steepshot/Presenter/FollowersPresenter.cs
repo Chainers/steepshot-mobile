@@ -25,30 +25,37 @@ namespace Steepshot
 
 		public async Task GetItems(int limit, FollowType followType, string username)
 		{
-			if (!_hasItems)
-				return;
-			var request = new UserFriendsRequest(username,
-                followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
+			try
 			{
-                SessionId = UserPrincipal.Instance.Cookie,
-                Offset = _offsetUrl,
-				Limit = limit
-			};
+				if (!_hasItems)
+					return;
+				var request = new UserFriendsRequest(username,
+					followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
+				{
+					SessionId = UserPrincipal.Instance.Cookie,
+					Offset = _offsetUrl,
+					Limit = limit
+				};
 
-			var responce = await Api.GetUserFriends(request);
-			//TODO:KOA -- Errors not processed
-			if (responce.Success)
+				var responce = await Api.GetUserFriends(request);
+				//TODO:KOA -- Errors not processed
+				if (responce.Success)
+				{
+					var lastItem = responce.Result.Results.Last();
+					if (responce.Result.Results.Count == 20)
+						responce.Result.Results.Remove(lastItem);
+
+					else
+						_hasItems = false;
+
+					_offsetUrl = lastItem.Author;
+					foreach (var item in responce.Result.Results)
+						Collection.Add(new UserFriendViewMode(item, item.HasFollowed));
+				}
+			}
+			catch (Exception ex)
 			{
-				var lastItem = responce.Result.Results.Last();
-				if (responce.Result.Results.Count == 20)
-					responce.Result.Results.Remove(lastItem);
-				
-				else
-					_hasItems = false;
-				
-				_offsetUrl = lastItem.Author;
-				foreach (var item in responce.Result.Results)
-					Collection.Add(new UserFriendViewMode(item, item.HasFollowed));
+				Reporter.SendCrash(ex);
 			}
 		}
 

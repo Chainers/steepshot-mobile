@@ -89,22 +89,29 @@ namespace Steepshot
 		[InjectOnClick(Resource.Id.follow_btn)]
 		public async void OnFollowClick(object sender, EventArgs e)
 		{
-			FollowSpinner.Visibility = ViewStates.Visible;
-			FollowBtn.Visibility = ViewStates.Invisible;
-			var resp = await presenter.Follow(_profile.HasFollowed);
-			if (FollowBtn == null)
-				return;
-			if (resp.Errors.Count == 0)
+			try
 			{
-				FollowBtn.Text = (resp.Result.IsFollowed) ? GetString(
-					Resource.String.text_unfollow) : GetString(Resource.String.text_follow);
+				FollowSpinner.Visibility = ViewStates.Visible;
+				FollowBtn.Visibility = ViewStates.Invisible;
+				var resp = await presenter.Follow(_profile.HasFollowed);
+				if (FollowBtn == null)
+					return;
+				if (resp.Errors.Count == 0)
+				{
+					FollowBtn.Text = (resp.Result.IsFollowed) ? GetString(
+						Resource.String.text_unfollow) : GetString(Resource.String.text_follow);
+				}
+				else
+				{
+					Toast.MakeText(Activity, resp.Errors[0], ToastLength.Long).Show();
+				}
+				FollowSpinner.Visibility = ViewStates.Invisible;
+				FollowBtn.Visibility = ViewStates.Visible;
 			}
-			else
+			catch (Exception ex)
 			{
-				Toast.MakeText(Activity, resp.Errors[0], ToastLength.Long).Show();
+				Reporter.SendCrash(ex);
 			}
-			FollowSpinner.Visibility = ViewStates.Invisible;
-			FollowBtn.Visibility = ViewStates.Visible;
 		}
 
         [InjectOnClick(Resource.Id.following_btn)]
@@ -217,6 +224,7 @@ namespace Steepshot
             }
             else
             {
+				Reporter.SendCrash("Profile data = null(Profile fragment)");
                 Toast.MakeText(this.Context, "Profile loading error. Try relaunch app", ToastLength.Short).Show();
             }
 		}
@@ -265,30 +273,37 @@ namespace Steepshot
 
         async void FeedAdapter_LikeAction(int position)
         {
-			if (UserPrincipal.Instance.IsAuthenticated)
+			try
 			{
-				var response = await presenter.Vote(presenter.UserPosts[position]);
-
-				if (response.Success)
+				if (UserPrincipal.Instance.IsAuthenticated)
 				{
-					presenter.UserPosts[position].Vote = !presenter.UserPosts[position].Vote;
-					if (response.Result.IsVoted)
-						presenter.UserPosts[position].NetVotes++;
+					var response = await presenter.Vote(presenter.UserPosts[position]);
+
+					if (response.Success)
+					{
+						presenter.UserPosts[position].Vote = !presenter.UserPosts[position].Vote;
+						if (response.Result.IsVoted)
+							presenter.UserPosts[position].NetVotes++;
+						else
+							presenter.UserPosts[position].NetVotes--;
+						presenter.UserPosts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+						PostsList?.GetAdapter()?.NotifyDataSetChanged();
+					}
 					else
-						presenter.UserPosts[position].NetVotes--;
-					presenter.UserPosts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-					PostsList?.GetAdapter()?.NotifyDataSetChanged();
+					{
+						//TODO:KOA Show error
+					}
 				}
 				else
 				{
-					//TODO:KOA Show error
+					var intent = new Intent(Context, typeof(SignInActivity));
+					StartActivity(intent);
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				var intent = new Intent(Context, typeof(SignInActivity));
-                StartActivity(intent);
-            }
+				Reporter.SendCrash(ex);
+			}
         }
 
 		private class FeedsScrollListener : RecyclerView.OnScrollListener

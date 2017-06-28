@@ -45,49 +45,49 @@ namespace Steepshot
 
 		public async Task GetUserPosts(bool needRefresh = false)
 		{
-			if (needRefresh)
+			try
 			{
-				_offsetUrl = string.Empty;
-				_hasItems = true;
-				UserPosts.Clear();
-			}
-
-			if (!_hasItems)
-				return;
-
-			var req = new UserPostsRequest(_username)
-			{
-				Offset = _offsetUrl,
-				Limit = postsCount,
-				SessionId = UserPrincipal.Instance.Cookie
-			};
-			var response = await Api.GetUserPosts(req);
-
-			if (response.Success)
-			{
-				var lastItem = response.Result.Results.Last();
-				if (response.Result.Results.Count > postsCount/2)
-					response.Result.Results.Remove(lastItem);
-				else
-					_hasItems = false;
-
-				_offsetUrl = lastItem.Url;
-
-				postsData = response.Result;
-
-				try
+				if (needRefresh)
 				{
+					_offsetUrl = string.Empty;
+					_hasItems = true;
+					UserPosts.Clear();
+				}
+
+				if (!_hasItems)
+					return;
+
+				var req = new UserPostsRequest(_username)
+				{
+					Offset = _offsetUrl,
+					Limit = postsCount,
+					SessionId = UserPrincipal.Instance.Cookie
+				};
+				var response = await Api.GetUserPosts(req);
+
+				if (response.Success)
+				{
+					var lastItem = response.Result.Results.Last();
+					if (response.Result.Results.Count > postsCount / 2)
+						response.Result.Results.Remove(lastItem);
+					else
+						_hasItems = false;
+
+					_offsetUrl = lastItem.Url;
+
+					postsData = response.Result;
+
 					foreach (var item in response.Result.Results)
 					{
 						UserPosts.Add(item);
-					   
 					}
-				}
-				catch (Exception ex)
-				{
 					
+					PostsLoaded?.Invoke();
 				}
-				PostsLoaded?.Invoke();
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
 			}
 		}
 

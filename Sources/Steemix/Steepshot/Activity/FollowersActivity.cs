@@ -83,21 +83,28 @@ namespace Steepshot
 
         async void FollowersAdapter_FollowAction(int position)
         {
-			var response = await presenter.Follow(presenter.Collection[position]);
-            if (response.Success)
-            {
-				presenter.Collection[position].IsFollow = !presenter.Collection[position].IsFollow;
-                _followersAdapter.NotifyDataSetChanged();
-            }
-            else
-            {
-                Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
-                _followersAdapter.InverseFollow(position);
-                _followersAdapter.NotifyDataSetChanged();
-            }
+			try
+			{
+				var response = await presenter.Follow(presenter.Collection[position]);
+				if (response.Success)
+				{
+					presenter.Collection[position].IsFollow = !presenter.Collection[position].IsFollow;
+					_followersAdapter.NotifyDataSetChanged();
+				}
+				else
+				{
+					Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
+					_followersAdapter.InverseFollow(position);
+					_followersAdapter.NotifyDataSetChanged();
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
 
-		async void FollowersAdapter_UserAction(int position)
+		private void FollowersAdapter_UserAction(int position)
 		{
 			Intent intent = new Intent(this, typeof(ProfileActivity));
 			intent.PutExtra("ID", presenter.Collection[position].Author);
@@ -133,7 +140,7 @@ namespace Steepshot
             });
         }
 
-        int _prevPos;
+        
         public void OnScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY)
         {
             //int pos = ((LinearLayoutManager)_followersList.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
