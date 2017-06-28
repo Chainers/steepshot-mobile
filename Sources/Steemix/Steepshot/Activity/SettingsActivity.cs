@@ -33,6 +33,10 @@ namespace Steepshot
 		UserInfo steemAcc;
 		UserInfo golosAcc;
 
+		private bool _isNSFWInitialiazed;
+		private bool _isLowRatedInitialiazed;
+		public bool _isSwitchersInitialiazed => _isNSFWInitialiazed && _isLowRatedInitialiazed;
+
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
@@ -67,6 +71,11 @@ namespace Steepshot
 			nsfwSwitcher.CheckedChange += (sender, e) =>
 			{
 				SwitchNsfw();
+			};
+
+			lowRatedSwitcher.CheckedChange += (sender, e) =>
+			{
+				SwitchLowRated();
 			};
 
 			HighlightView();
@@ -205,12 +214,14 @@ namespace Steepshot
 
 		private async Task SwitchNsfw()
 		{
+			if (!_isSwitchersInitialiazed)
+				return;
 			try
 			{
 				nsfwSwitcher.Enabled = false;
-				var response = await presenter.SetNsfw(!nsfwSwitcher.Checked);
-				if (response.Success)
-					nsfwSwitcher.Checked = response.Result.IsSet;
+				var response = await presenter.SetNsfw(nsfwSwitcher.Checked);
+				if (!response.Success)
+					nsfwSwitcher.Checked = !nsfwSwitcher.Checked;
 			}
 			catch (Exception ex)
 			{
@@ -224,14 +235,15 @@ namespace Steepshot
 
 		private async Task SwitchLowRated()
 		{
+			if (!_isSwitchersInitialiazed)
+				return;
 			try
 			{
 				lowRatedSwitcher.Enabled = false;
-				var response = await presenter.SetLowRated(!lowRatedSwitcher.Checked);
-				if (response.Success)
-				{
-					lowRatedSwitcher.Checked = response.Result.IsSet;
-				}
+				var response = await presenter.SetLowRated(lowRatedSwitcher.Checked);
+				if (!response.Success)
+					lowRatedSwitcher.Checked = !lowRatedSwitcher.Checked;
+				
 			}
 			catch (Exception ex)
 			{
@@ -260,6 +272,7 @@ namespace Steepshot
 			}
 			finally
 			{
+				_isLowRatedInitialiazed = true;
 				lowRatedSwitcher.Enabled = true;
 			}
 		}
@@ -279,6 +292,7 @@ namespace Steepshot
 			}
 			finally
 			{
+				_isNSFWInitialiazed = true;
 				nsfwSwitcher.Enabled = true;
 			}
 		}
