@@ -124,9 +124,43 @@
             <LinearLayout
                 android:layout_below="@+id/golosView"
                 android:orientation="vertical"
-                android:background="#ECEFF1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="20dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Show nsfw content"
+                        android:layout_centerVertical="true"
+                        android:maxLines="1" />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/nsfw_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Show low rated content"
+                        android:layout_centerVertical="true"
+                        android:maxLines="1" />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/low_switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true" />
+                </RelativeLayout>
             <!--Add Account-->
                 <android.support.v7.widget.AppCompatButton
                     android:text="Add account"

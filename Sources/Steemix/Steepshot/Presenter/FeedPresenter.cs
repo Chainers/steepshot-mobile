@@ -12,7 +12,11 @@ namespace Steepshot
 {
 	public class FeedPresenter : BasePresenter
 	{
-		public FeedPresenter(FeedView view):base(view) {}
+		public FeedPresenter(FeedView view, bool isFeed) : base(view)
+		{
+			_isFeed = isFeed;
+		}
+		private bool _isFeed;
 		public event VoidDelegate PostsLoaded;
 		public event VoidDelegate PostsCleared;
 		public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
@@ -64,14 +68,26 @@ namespace Steepshot
 				this.type = type;
 				processing = true;
 
-				var postrequest = new PostsRequest(type)
+				OperationResult<UserPostResponse> response;
+				if (_isFeed)
 				{
-					SessionId = UserPrincipal.Instance.Cookie,
-					Limit = postsCount,
-					Offset = _offsetUrl
-				};
-
-				var response = await Api.GetPosts(postrequest, cts);
+					var f = new UserRecentPostsRequest(UserPrincipal.Instance.Cookie)
+					{
+						Limit = postsCount,
+						Offset = _offsetUrl
+					};
+					response = await Api.GetUserRecentPosts(f);
+				}
+				else
+				{
+					var postrequest = new PostsRequest(type)
+					{
+						SessionId = UserPrincipal.Instance.Cookie,
+						Limit = postsCount,
+						Offset = _offsetUrl
+					};
+					response = await Api.GetPosts(postrequest, cts);
+				}
 				//TODO:KOA -- Errors not processed
 				if (response.Success)
 				{

@@ -13,13 +13,12 @@ namespace Steepshot
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        ObservableCollection<Post> Posts;
+        private ObservableCollection<Post> Posts;
         private Context context;
-        string CommentPattern = "<b>{0}</b> {1}";
-
+        private string CommentPattern = "<b>{0}</b> {1}";
         public Action<int> LikeAction,UserAction,CommentAction,PhotoClick;
 
-        public FeedAdapter(Context context, ObservableCollection<Post> Posts)
+		public FeedAdapter(Context context, ObservableCollection<Post> Posts, bool isFeed = false)
         {
             this.context = context;
             this.Posts = Posts;
@@ -76,7 +75,7 @@ namespace Steepshot
 					Picasso.With(context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
 				}
 				catch (Exception e)
-				{ 
+				{
 				}
             }
             else
@@ -90,7 +89,8 @@ namespace Steepshot
         {
             View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
-			FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction,CommentAction,PhotoClick);
+			
+			FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction,CommentAction,PhotoClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
             return vh;
         }
 
@@ -108,11 +108,16 @@ namespace Steepshot
             Post post;
             Action<int> LikeAction;
 
-			public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction) : base(itemView)
+			public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction, int height) : base(itemView)
 			{
 				Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
 				Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
 				Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+
+				var parameters = Photo.LayoutParameters;
+				parameters.Height = height;
+				Photo.LayoutParameters = parameters;
+
 				FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
 				CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
 				Time = itemView.FindViewById<TextView>(Resource.Id.time);
@@ -141,29 +146,10 @@ namespace Steepshot
             public void UpdateData(Post post, Context context)
             {
                 this.post = post;
-                TimeSpan span = DateTime.Now - post.Created;
-
                 Likes.Text = string.Format("{0} likes", post.NetVotes);
                 Cost.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
-
-                if (span.TotalDays > 1)
-                {
-                    Time.Text = string.Format(context.GetString(Resource.String.time_days), (int)span.TotalDays);
-                }
-                else if (span.TotalHours > 1)
-                {
-                    Time.Text = string.Format(context.GetString(Resource.String.time_hours), (int)span.TotalHours);
-                }
-                else if (span.TotalMinutes > 1)
-                {
-                    Time.Text = string.Format(context.GetString(Resource.String.time_mins), (int)span.TotalMinutes);
-                }
-                else if (span.TotalSeconds > 1)
-                {
-                    Time.Text = string.Format(context.GetString(Resource.String.time_seconds), (int)span.TotalSeconds);
-                }
+				Time.Text = post.Created.ToPostTime();
             }
-
         }
     }
 }

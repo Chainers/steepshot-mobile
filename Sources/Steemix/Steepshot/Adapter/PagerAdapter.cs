@@ -6,9 +6,10 @@ namespace Steepshot
 	public class PagerAdapter : FragmentPagerAdapter
 	{
 		public int[] tabIcos = new int[] {
-			Resource.Drawable.ic_feed,
-			Resource.Drawable.ic_camera,
-			Resource.Drawable.ic_profile
+			Resource.Drawable.ic_home,
+			Resource.Drawable.ic_browse,
+			Resource.Drawable.ic_camera_new,
+			Resource.Drawable.ic_profile_new
 		};
 		Context context;
 
@@ -30,10 +31,12 @@ namespace Steepshot
 			switch (position)
 			{
 				case 0:
-					return new FeedFragment();
+					return new FeedFragment(true);
 				case 1:
-					return new PhotoFragment();
+					return new FeedFragment();
 				case 2:
+					return new PhotoFragment();
+				case 3:
 					return new ProfileFragment(UserPrincipal.Instance.CurrentUser.Login);
 			}
 			return null;

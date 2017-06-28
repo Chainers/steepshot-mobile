@@ -15,11 +15,12 @@ namespace Steepshot
 {
 	public class FeedFragment : BaseFragment, FeedView
 	{
-		FeedPresenter presenter;
-		FeedAdapter FeedAdapter;
+		private FeedPresenter presenter;
+		private FeedAdapter FeedAdapter;
 		public static int SearchRequestCode = 1336;
 		public const string FollowingFragmentId = "FollowingFragment";
 		public string CustomTag;
+		private bool _isFeed;
 
 #pragma warning disable 0649,4014
 		[InjectView(Resource.Id.feed_list)] RecyclerView FeedList;
@@ -29,7 +30,13 @@ namespace Steepshot
 		[InjectView(Resource.Id.logo_login)] ImageView LogoImage;
 		[InjectView(Resource.Id.Title)] public TextView Title;
 		[InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout refresher;
+		[InjectView(Resource.Id.btn_search)] ImageButton search;
 #pragma warning restore 0649
+
+		public FeedFragment(bool isFeed = false)
+		{
+			_isFeed = isFeed;
+		}
 
 		[InjectOnClick(Resource.Id.btn_search)]
 		public void OnSearch(object sender, EventArgs e)
@@ -47,6 +54,8 @@ namespace Steepshot
 		[InjectOnClick(Resource.Id.Title)]
 		public void OnTitleClick(object sender, EventArgs e)
 		{
+			if (_isFeed)
+				return;
 			if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
 				ShowFollowing();
 			else
@@ -90,7 +99,15 @@ namespace Steepshot
 				LogoImage.Visibility = ViewStates.Visible;
 			}
 
-			Title.Text = "Trending";
+			if (_isFeed)
+			{
+				Title.Text = "Feed";
+				arrow.Visibility = ViewStates.Gone;
+				search.Visibility = ViewStates.Gone;
+			}
+			else
+				Title.Text = "Trending";
+			
 			FeedAdapter = new FeedAdapter(Context, presenter.Posts);
 			FeedList.SetAdapter(FeedAdapter);
 			FeedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
@@ -186,7 +203,7 @@ namespace Steepshot
 
 		protected override void CreatePresenter()
 		{
-			presenter = new FeedPresenter(this);
+			presenter = new FeedPresenter(this, _isFeed);
 			presenter.PostsLoaded += OnPostLoaded;
 			presenter.PostsCleared += OnPostCleared;
 		}
