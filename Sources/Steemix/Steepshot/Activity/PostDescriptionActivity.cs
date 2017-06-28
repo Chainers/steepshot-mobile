@@ -46,10 +46,7 @@ namespace Steepshot
 		public void OnPost(object sender, EventArgs e)
 		{
 			loadLayout.Visibility = ViewStates.Visible;
-			Task.Run(async () =>
-			   {
-				   await OnPostAsync();
-			   });
+			OnPostAsync();
 		}
 
 		[InjectOnClick(Resource.Id.btn_back)]
@@ -190,7 +187,7 @@ namespace Steepshot
 			}
 		}
 
-		private byte[] CompressPhoto()
+		private async Task<byte[]> CompressPhoto()
 		{
 			try
 			{/*
@@ -207,7 +204,7 @@ namespace Steepshot
 						ct.ThrowIfCancellationRequested();
 						photoComressionTask.Dispose();
 					}*/
-					bitmapToUpload.Compress(Bitmap.CompressFormat.Jpeg, 80, stream);
+					await bitmapToUpload.CompressAsync(Bitmap.CompressFormat.Jpeg, 80, stream);
 					var streamArray = stream.ToArray();
 					//var photoSize = streamArray.Length / 1024f / 1024f;
 					return streamArray;
