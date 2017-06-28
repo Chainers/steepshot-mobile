@@ -232,8 +232,8 @@ namespace Steepshot.iOS
 			if(shouldStartAnimating)
             	activityIndicator.StartAnimating();
 			noFeedLabel.Hidden = true;
-            try
-            {
+			try
+			{
 				OperationResult<UserPostResponse> posts;
 				string offset = collectionViewSource.PhotoList.Count == 0 ? "0" : _offsetUrl;
 
@@ -316,11 +316,11 @@ namespace Steepshot.iOS
 				{
 					ShowAlert(posts.Errors[0]);
 				}
-				
-            }
-            catch (Exception ex)
-            {
-                //logging
+
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
             }
             finally
             {
@@ -330,6 +330,7 @@ namespace Steepshot.iOS
 
 		private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
+			
 			if (UserContext.Instanse.Token == null)
 			{
 				LoginTapped(null, null);
@@ -363,7 +364,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                //logging
+				Reporter.SendCrash(ex);
             }
         }
 
@@ -432,7 +433,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -498,6 +499,7 @@ namespace Steepshot.iOS
                        return;
                    ToogleDropDownList();
                    collectionViewSource.PhotoList.Clear();
+				   collectionViewSource.FeedStrings.Clear();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -515,6 +517,7 @@ namespace Steepshot.iOS
 					   return;
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
+				   collectionViewSource.FeedStrings.Clear();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -532,6 +535,7 @@ namespace Steepshot.iOS
 					   return;
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
+				   collectionViewSource.FeedStrings.Clear();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;

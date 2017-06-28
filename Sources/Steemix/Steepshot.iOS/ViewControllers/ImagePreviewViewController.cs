@@ -22,11 +22,6 @@ namespace Steepshot.iOS
 			if (imageForPreview != null)
 			{
 				imageView.Image = imageForPreview;
-				var lil = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
-													 .Retry(2, 200)
-													 .Into(imageView);
-				
-				
 				imageScrollView.MinimumZoomScale = 1f;
 				imageScrollView.MaximumZoomScale = 6.0f;
 				imageScrollView.ViewForZoomingInScrollView += (UIScrollView sv) => { return imageView; };
@@ -36,6 +31,9 @@ namespace Steepshot.iOS
 				backgroundView.BackgroundColor = UIColor.White;
 				imageView.Image = UIImage.FromBundle("ic_photo_holder");
 			}
+			ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
+													 .Retry(2, 200)
+													 .Into(imageView);
 			imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
 			imageScrollView.ContentSize = imageView.Image.Size;
 			imageScrollView.AddSubview(imageView);

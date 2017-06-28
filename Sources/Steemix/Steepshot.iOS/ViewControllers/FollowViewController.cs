@@ -74,29 +74,31 @@ namespace Steepshot.iOS
 					Limit = 20
 				};
 
-				var responce = await Api.GetUserFriends(request);
-				if (responce.Success)
+				var response = await Api.GetUserFriends(request);
+				if (response.Success)
 				{
-					var lastItem = responce.Result.Results.Last();
+					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Author;
 
-					if (responce.Result.Results.Count == 1)
+					if (response.Result.Results.Count == 1)
 						_hasItems = false;
 					else
-						responce.Result.Results.Remove(lastItem);
+						response.Result.Results.Remove(lastItem);
 					
-					if (responce.Result.Results.Count != 0)
+					if (response.Result.Results.Count != 0)
 					{
-						tableSource.TableItems.AddRange(responce.Result.Results);
+						tableSource.TableItems.AddRange(response.Result.Results);
 						followTableView.ReloadData();
 					}
 					else
 						_hasItems = false;
 				}
+				else
+					Reporter.SendCrash("Follow page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -118,10 +120,13 @@ namespace Steepshot.iOS
 					if (user != null)
 						success = user.HasFollowed = response.Result.IsFollowed;
 				}
+				else
+					Reporter.SendCrash("Follow page follow error: " + response.Errors[0]);
+				
 			}
 			catch (Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{

@@ -102,18 +102,13 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					//logging
-					UIAlertView alert = new UIAlertView()
-					{
-						Message = imageUploadResponse.Errors[0]
-					};
-					alert.AddButton("OK");
-					alert.Show();
+					Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0]);
+					ShowAlert(imageUploadResponse.Errors[0]);
 				}
 			}
 			catch (Exception ex)
 			{
-				//show alert + logging
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
