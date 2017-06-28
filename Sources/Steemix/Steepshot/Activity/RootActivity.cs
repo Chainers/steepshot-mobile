@@ -53,7 +53,7 @@ namespace Steepshot
 			viewPager.AddOnPageChangeListener(this);
 			OnPageSelected(0);
 			viewPager.SetCurrentItem(0, false);
-			viewPager.OffscreenPageLimit = 2;
+			viewPager.OffscreenPageLimit = 3;
 		}
 
 		private void CheckLogin()

@@ -142,6 +142,7 @@
     <Compile Include="View\PreSignInView.cs" />
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
+    <Compile Include="Utils\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -180,6 +181,18 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_qr.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_qr.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_qr.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_new.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_new.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />

@@ -168,13 +168,13 @@ namespace Steepshot
 		{
 			if (PostsList.GetLayoutManager() is GridLayoutManager)
 			{
-				Switcher.SetImageResource(Resource.Drawable.ic_gray_grid);
+				Switcher.SetImageResource(Resource.Drawable.ic_grid_new);
 				PostsList.SetLayoutManager(new LinearLayoutManager(Context));
 				PostsList.SetAdapter(FeedAdapter);
 			}
 			else
 			{ 
-				Switcher.SetImageResource(Resource.Drawable.ic_gray_list);
+				Switcher.SetImageResource(Resource.Drawable.ic_list);
 				PostsList.SetLayoutManager(new GridLayoutManager(Context, 3));
 				PostsList.AddItemDecoration(new GridItemdecoration(2, 3));
 				PostsList.SetAdapter(GridAdapter);
@@ -201,7 +201,7 @@ namespace Steepshot
 
 				ProfileName.Text = string.IsNullOrEmpty(_profile.Name) ? _profile.Username : _profile.Name;
                 if(!string.IsNullOrEmpty(_profile.ProfileImage))
-                    Picasso.With(this.Context).Load(_profile.ProfileImage).Resize(ProfileImage.Width, 0).Into(ProfileImage);
+					Picasso.With(this.Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(ProfileImage.Width, 0).Into(ProfileImage);
                 else
                     Picasso.With(this.Context).Load(Resource.Drawable.ic_user_placeholder).Resize(ProfileImage.Width, 0).Into(ProfileImage);
 				CostButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, Constants.Currency));
