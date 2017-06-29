@@ -57,7 +57,7 @@ namespace Steepshot.iOS
 			_scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Constants.ImageCacheDuration)
 													 .WithCache(FFImageLoading.Cache.CacheType.All)
 													 .Retry(2, 200)
-													 .DownSample(width: 200)
+			                                 		.DownSample((int)UIScreen.MainScreen.Bounds.Width)
 													 .Into(bodyImage);
 
 			cellText.Text = _currentPost.Author;

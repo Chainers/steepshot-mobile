@@ -16,7 +16,7 @@ namespace Steepshot.iOS
 {
 	public partial class ProfileViewController : BaseViewController
 	{
-		protected ProfileViewController(IntPtr handle) : base(handle) {}
+		protected ProfileViewController(IntPtr handle) : base(handle) { }
 		private UserProfileResponse userData;
 		public string Username = UserContext.Instanse.Username;
 		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
@@ -38,7 +38,7 @@ namespace Steepshot.iOS
 
 			collectionViewSource.PhotoList = photosList;
 			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
-			collectionViewSource.Flagged += (vote, url, action)  => Flagged(vote, url, action);
+			collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
 			collectionViewSource.GoToComments += (postUrl) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
@@ -88,7 +88,7 @@ namespace Steepshot.iOS
 
 		async void RefreshControl_ValueChanged(object sender, EventArgs e)
 		{
-            await RefreshPage();
+			await RefreshPage();
 			RefreshControl.EndRefreshing();
 		}
 
@@ -169,7 +169,7 @@ namespace Steepshot.iOS
 			await GetUserPosts();
 		}
 
-		private void PreviewPhoto(UIImage image,string url)
+		private void PreviewPhoto(UIImage image, string url)
 		{
 			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 			myViewController.imageForPreview = image;
@@ -197,10 +197,10 @@ namespace Steepshot.iOS
 
 					if (!string.IsNullOrEmpty(userData.ProfileImage))
 						ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
-				                             .Retry(2, 200)
-				                             .FadeAnimation(false, false, 0)
-							        		 .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
-				                             .Into(_profileHeader.Avatar);
+											 .Retry(2, 200)
+											 .FadeAnimation(false, false, 0)
+											 .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
+											 .Into(_profileHeader.Avatar);
 					else
 						_profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
@@ -261,7 +261,8 @@ namespace Steepshot.iOS
 						collectionView.Hidden = false;
 					}
 				}
-				else {
+				else
+				{
 					throw new Exception();
 				}
 			}
@@ -334,6 +335,12 @@ namespace Steepshot.iOS
 
 		private async Task Vote(bool vote, string postUri, Action<string, OperationResult<VoteResponse>> success)
 		{
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
+
 			try
 			{
 				if (UserContext.Instanse.Token == null)
@@ -363,7 +370,7 @@ namespace Steepshot.iOS
 				else
 				{
 					Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0]);
-                    ShowAlert(voteResponse.Errors[0]);
+					ShowAlert(voteResponse.Errors[0]);
 				}
 				success.Invoke(postUri, voteResponse);
 			}
@@ -373,7 +380,45 @@ namespace Steepshot.iOS
 			}
 		}
 
-		private async Task Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		{
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
+			UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+			actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>()
+			{
+				Success = false
+			})));
+			this.PresentViewController(actionSheetAlert, true, null);
+		}
+
+		private void HidePhoto(string url)
+		{
+			try
+			{
+				if (UserContext.Instanse.CurrentAccount.Postblacklist == null)
+					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
+				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
+				UserContext.Save();
+				var postToHide = collectionViewSource.PhotoList.First(p => p.Url == url);
+				var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
+				collectionViewSource.PhotoList.Remove(postToHide);
+				collectionViewSource.FeedStrings.RemoveAt(postIndex);
+				collectionView.ReloadData();
+				collectionView.CollectionViewLayout.InvalidateLayout();
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+		}
+
+		private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
 			try
 			{
@@ -381,8 +426,8 @@ namespace Steepshot.iOS
 				var flagResponse = await Api.Flag(flagRequest);
 				if (flagResponse.Success)
 				{
-					var u = photosList.First(p => p.Url == postUrl);
-					u.Flag = vote;
+					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
+					u.Flag = flagResponse.Result.IsFlagged;
 					if (flagResponse.Result.IsFlagged)
 					{
 						if (u.Vote)
@@ -395,8 +440,7 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					Reporter.SendCrash("Profile page flag error: " + flagResponse.Errors[0]);
-                    ShowAlert(flagResponse.Errors[0]);
+					ShowAlert(flagResponse.Errors[0]);
 				}
 				action.Invoke(postUrl, flagResponse);
 			}
@@ -417,12 +461,18 @@ namespace Steepshot.iOS
 			}
 			else
 				Reporter.SendCrash("Profile page follow error: " + resp.Errors[0]);
-			
+
+		}
+
+		void LoginTapped()
+		{
+			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			NavigationController.PushViewController(myViewController, true);
 		}
 
 		private void ToogleFollowButton()
 		{
-			if (Username == UserContext.Instanse.Username || Convert.ToBoolean(userData.HasFollowed))
+			if (!UserContext.Instanse.IsAuthorized || Username == UserContext.Instanse.Username || Convert.ToBoolean(userData.HasFollowed))
 			{
 				_profileHeader.FollowButtonWidth.Constant = 0;
 				_profileHeader.FollowButtonMargin.Constant = 0;

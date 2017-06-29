@@ -12,7 +12,7 @@ namespace Steepshot.iOS
 	{
 		private Timer _timer;
 		private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
-
+		private CancellationTokenSource cts;
 		protected TagsSearchViewController(IntPtr handle) : base(handle)
 		{
 		}
@@ -50,38 +50,52 @@ namespace Steepshot.iOS
 
 		private async Task GetTags(string query)
 		{
+			if (query != null && query.Length == 1)
+				return;
 			activityIndicator.StartAnimating();
 			try
+				{
+					cts?.Cancel();
+				}
+				catch (ObjectDisposedException)
+				{
+
+				}
+			try
 			{
-				OperationResult<SearchResponse> response;
-				if (string.IsNullOrEmpty(query))
+				using (cts = new CancellationTokenSource())
 				{
-					var request = new SearchRequest() { };
-					response = await Api.GetCategories(request);
-				}
-				else
-				{
-					var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
-					response = await Api.SearchCategories(request);
-				}
-				if (response.Success)
-				{
-					tagsSource.Tags.Clear();
-					tagsSource.Tags = response.Result.Results;
-					tagsTable.ReloadData();
-					if (response.Result.Results.Count == 0)
+					OperationResult<SearchResponse> response;
+					if (string.IsNullOrEmpty(query))
 					{
-						noTagsLabel.Hidden = false;
-						tagsTable.Hidden = true;
+						var request = new SearchRequest() { };
+						response = await Api.GetCategories(request, cts);
 					}
 					else
 					{
-						noTagsLabel.Hidden = true;
-						tagsTable.Hidden = false;
+						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
+						response = await Api.SearchCategories(request, cts);
 					}
+
+					if (response.Success)
+					{
+						tagsSource.Tags.Clear();
+						tagsSource.Tags = response.Result.Results;
+						tagsTable.ReloadData();
+						if (response.Result.Results.Count == 0)
+						{
+							noTagsLabel.Hidden = false;
+							tagsTable.Hidden = true;
+						}
+						else
+						{
+							noTagsLabel.Hidden = true;
+							tagsTable.Hidden = false;
+						}
+					}
+					else
+						Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
 				}
-				else
-					Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
 			{

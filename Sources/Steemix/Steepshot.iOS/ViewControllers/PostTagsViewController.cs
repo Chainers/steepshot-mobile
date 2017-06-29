@@ -19,7 +19,7 @@ namespace Steepshot.iOS
         }
 
         private TagsCollectionViewSource collectionviewSource;
-
+		private CancellationTokenSource cts;
         private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
 		private Timer _timer;
 
@@ -84,27 +84,42 @@ namespace Steepshot.iOS
 
         private async Task GetTags(string query)
         {
+			if (query != null && query.Length == 1)
+				return;
+
 			try
 			{
-				OperationResult<SearchResponse> response;
-				if (string.IsNullOrEmpty(query))
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
+
+			}
+
+			try
+			{
+				using (cts = new CancellationTokenSource())
 				{
-					var request = new SearchRequest() { };
-					response = await Api.GetCategories(request);
+					OperationResult<SearchResponse> response;
+					if (string.IsNullOrEmpty(query))
+					{
+						var request = new SearchRequest() { };
+						response = await Api.GetCategories(request, cts);
+					}
+					else
+					{
+						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
+						response = await Api.SearchCategories(request, cts);
+					}
+					if (response.Success)
+					{
+						tagsSource.Tags.Clear();
+						tagsSource.Tags = response.Result.Results;
+						tagsTable.ReloadData();
+					}
+					else
+						Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
 				}
-				else
-				{
-					var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
-					response = await Api.SearchCategories(request);
-				}
-				if (response.Success)
-				{
-					tagsSource.Tags.Clear();
-					tagsSource.Tags = response.Result.Results;
-					tagsTable.ReloadData();
-				}
-				else
-					Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
 			{
