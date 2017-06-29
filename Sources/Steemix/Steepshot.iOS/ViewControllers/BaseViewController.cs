@@ -99,6 +99,8 @@ namespace Steepshot.iOS
 						activeview = view;
 				}
 			}
+			if (activeview == null)
+				return;
 			CalculateBottom();
 			scroll_amount = (r.Height - (View.Frame.Size.Height - bottom));
 			if (scroll_amount > 0)
