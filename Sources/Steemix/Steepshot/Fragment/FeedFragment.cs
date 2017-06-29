@@ -27,7 +27,6 @@ namespace Steepshot
 		[InjectView(Resource.Id.loading_spinner)] ProgressBar Bar;
 		[InjectView(Resource.Id.pop_up_arrow)] ImageView arrow;
 		[InjectView(Resource.Id.btn_login)] Button Login;
-		[InjectView(Resource.Id.logo_login)] ImageView LogoImage;
 		[InjectView(Resource.Id.Title)] public TextView Title;
 		[InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout refresher;
 		[InjectView(Resource.Id.btn_search)] ImageButton search;
@@ -94,10 +93,7 @@ namespace Steepshot
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			if (UserPrincipal.Instance.IsAuthenticated)
-			{
 				Login.Visibility = ViewStates.Gone;
-				LogoImage.Visibility = ViewStates.Visible;
-			}
 
 			if (_isFeed)
 			{

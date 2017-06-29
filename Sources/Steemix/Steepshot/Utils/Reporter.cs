@@ -9,7 +9,6 @@ namespace Steepshot
 	{
 		public static void SendCrash(Exception ex)
 		{
-#if DEBUG
 			var mimeMessage = NewMimeMessage();
 
 			StringBuilder sb = new StringBuilder();
@@ -28,7 +27,6 @@ namespace Steepshot
 			};
 
 			SendReport(mimeMessage);
-#endif
 		}
 
 		public static void SendCrash(string message)

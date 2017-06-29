@@ -155,7 +155,7 @@ namespace Steepshot
 			try
 			{
 				//photoComressionTask.Wait();
-				var bitmapData = CompressPhoto();
+				var bitmapData = await CompressPhoto();
 				var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
 					UserPrincipal.Instance.CurrentUser.SessionId,
 					description.Text,

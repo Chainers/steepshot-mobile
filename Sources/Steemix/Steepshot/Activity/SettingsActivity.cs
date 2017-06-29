@@ -108,8 +108,9 @@ namespace Steepshot
 		[InjectOnClick(Resource.Id.dtn_terms_of_service)]
 		public void TermsOfServiceClick(object sender, EventArgs e)
 		{
-			var intent = new Intent(this, typeof(TermsOfServiceActivity));
-			StartActivity(intent);
+			var uri = Android.Net.Uri.Parse("https://steepshot.org/terms-of-service");
+			var intent = new Intent(Intent.ActionView, uri);
+	   		StartActivity(intent);
 		}
 
 		[InjectOnClick(Resource.Id.add_account)]
