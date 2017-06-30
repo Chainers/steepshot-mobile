@@ -500,6 +500,7 @@ namespace Steepshot.iOS
                    ToogleDropDownList();
                    collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -518,6 +519,7 @@ namespace Steepshot.iOS
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -536,6 +538,7 @@ namespace Steepshot.iOS
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
