@@ -263,7 +263,7 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					throw new Exception();
+					Reporter.SendCrash(response.Errors[0]);
 				}
 			}
 			catch (Exception ex)
@@ -354,18 +354,21 @@ namespace Steepshot.iOS
 				var voteResponse = await Api.Vote(voteRequest);
 				if (voteResponse.Success)
 				{
-					var u = photosList.First(p => p.Url == postUri);
-					u.Vote = vote;
-					if (vote)
+					var u = photosList.FirstOrDefault(p => p.Url == postUri);
+					if (u != null)
 					{
-						u.Flag = false;
-						if (u.NetVotes == -1)
-							u.NetVotes = 1;
+						u.Vote = vote;
+						if (vote)
+						{
+							u.Flag = false;
+							if (u.NetVotes == -1)
+								u.NetVotes = 1;
+							else
+								u.NetVotes++;
+						}
 						else
-							u.NetVotes++;
+							u.NetVotes--;
 					}
-					else
-						u.NetVotes--;
 				}
 				else
 				{
@@ -405,12 +408,15 @@ namespace Steepshot.iOS
 					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
 				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
 				UserContext.Save();
-				var postToHide = collectionViewSource.PhotoList.First(p => p.Url == url);
-				var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
-				collectionViewSource.PhotoList.Remove(postToHide);
-				collectionViewSource.FeedStrings.RemoveAt(postIndex);
-				collectionView.ReloadData();
-				collectionView.CollectionViewLayout.InvalidateLayout();
+				var postToHide = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
+				if (postToHide != null)
+				{
+					var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
+					collectionViewSource.PhotoList.Remove(postToHide);
+					collectionViewSource.FeedStrings.RemoveAt(postIndex);
+					collectionView.ReloadData();
+					collectionView.CollectionViewLayout.InvalidateLayout();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -426,16 +432,19 @@ namespace Steepshot.iOS
 				var flagResponse = await Api.Flag(flagRequest);
 				if (flagResponse.Success)
 				{
-					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
-					u.Flag = flagResponse.Result.IsFlagged;
-					if (flagResponse.Result.IsFlagged)
+					var u = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
+					if (u != null)
 					{
-						if (u.Vote)
-							if (u.NetVotes == 1)
-								u.NetVotes = -1;
-							else
-								u.NetVotes--;
-						u.Vote = false;
+						u.Flag = flagResponse.Result.IsFlagged;
+						if (flagResponse.Result.IsFlagged)
+						{
+							if (u.Vote)
+								if (u.NetVotes == 1)
+									u.NetVotes = -1;
+								else
+									u.NetVotes--;
+							u.Vote = false;
+						}
 					}
 				}
 				else

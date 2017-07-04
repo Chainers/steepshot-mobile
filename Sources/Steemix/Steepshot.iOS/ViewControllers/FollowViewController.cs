@@ -75,7 +75,7 @@ namespace Steepshot.iOS
 				};
 
 				var response = await Api.GetUserFriends(request);
-				if (response.Success)
+				if (response.Success && response.Result?.Results != null && response.Result?.Results.Count() != 0)
 				{
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Author;
