@@ -223,9 +223,12 @@ namespace Steepshot.iOS
 				{
 					m.RequestImageData(collectionCell.Asset, new PHImageRequestOptions(), (data, dataUti, orientation, info) =>
 					   {
-						   var photo = UIImage.LoadFromData(data);
-						   UIImage cropped = NormalizeImage(photo);
-						   GoToDescription(cropped);
+						   if (data != null)
+						   {
+							   var photo = UIImage.LoadFromData(data);
+							   UIImage cropped = NormalizeImage(photo);
+							   GoToDescription(cropped);
+						   }
 					   });
 				}
 			}
