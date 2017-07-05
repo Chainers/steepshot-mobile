@@ -2,6 +2,7 @@ using System;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -18,12 +19,13 @@ namespace Steepshot
 		SignInPresenter presenter;
 
 		private string _username;
-        private EditText _password;
 
 #pragma warning disable 0649, 4014
 		[InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
 		[InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
 		[InjectView(Resource.Id.title)] TextView title;
+		[InjectView(Resource.Id.input_password)] EditText _password;
+		[InjectView(Resource.Id.qr_button)] Button buttonScanDefaultView;
 #pragma warning restore 0649
 
 		MobileBarcodeScanner scanner;
@@ -40,7 +42,6 @@ namespace Steepshot
 			title.Text = $"Hello, {_username}";
 			var profileImage = Intent.GetStringExtra("avatar_url");
             _newAccountNetwork = Intent.GetStringExtra("newNetwork");
-            _password = FindViewById<EditText>(Resource.Id.input_password);
             
 #if DEBUG
             _password.Text = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
@@ -53,7 +54,6 @@ namespace Steepshot
                 else
                     Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
 			
-			var buttonScanDefaultView = this.FindViewById<Button>(Resource.Id.qr_button);
 			buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
 			{
 				try
@@ -67,7 +67,8 @@ namespace Steepshot
 
 					//Start scanning
 					var result = await scanner.Scan();
-					_password.Text = result.Text;
+					if(result != null)
+						_password.Text = result.Text;
 				}
 				catch (Exception ex)
 				{
@@ -79,10 +80,10 @@ namespace Steepshot
         private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
         {
             var typedsender = (EditText)sender;
-            if (string.IsNullOrWhiteSpace(e.Text.ToString()))
+            if (string.IsNullOrWhiteSpace(e?.Text.ToString()))
             {
                 var message = GetString(Resource.String.error_empty_field);
-                var d = GetDrawable(Resource.Drawable.ic_error);
+                var d = ContextCompat.GetDrawable(this, Resource.Drawable.ic_error);
                 d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
                 typedsender.SetError(message, d);
             }
@@ -104,6 +105,7 @@ namespace Steepshot
 
 				spinner.Visibility = ViewStates.Visible;
 				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				((AppCompatButton)sender).Enabled = false;
 
 				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
 					return;
@@ -125,6 +127,7 @@ namespace Steepshot
 						ShowAlert(response.Errors[0]);
 						spinner.Visibility = ViewStates.Invisible;
 						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+						((AppCompatButton)sender).Enabled = true;
 					}
 				}
 				else
@@ -132,6 +135,7 @@ namespace Steepshot
 					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
+					((AppCompatButton)sender).Enabled = true;
 				}
 			}
 			catch (Exception ex)

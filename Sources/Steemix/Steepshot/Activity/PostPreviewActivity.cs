@@ -10,16 +10,18 @@ namespace Steepshot
     [Activity(Label = "PostPreviewActivity", ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
     public class PostPreviewActivity : BaseActivity, PostPreviewView
     {
-        PostPreviewPresenter presenter;
+        private PostPreviewPresenter presenter;
+		private string path;
+
         protected override void CreatePresenter()
         {
             presenter = new PostPreviewPresenter(this);
         }
 
-        [InjectView(Resource.Id.photo)]
-        ScaleImageView photo;
-
-        string path;
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.photo)] ScaleImageView photo;
+#pragma warning restore 0649
+        
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -34,7 +36,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
         }
 

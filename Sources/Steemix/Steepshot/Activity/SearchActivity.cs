@@ -4,7 +4,6 @@ using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Android.Support.V7.Widget;
-using Android.Views.InputMethods;
 using Android.Views;
 using Android.Content;
 using System.Threading;
@@ -70,20 +69,21 @@ namespace Steepshot
 		   });
 		}
 
-
 		Task<OperationResult<SearchResponse>> tagsTask;
         private async Task GetTags()
         {
 			try
 			{
-				if (searchView.Query.Length != 1)
+				if (searchView?.Query?.Length != 1 && spinner != null)
 				{
 					spinner.Visibility = ViewStates.Visible;
 					tagsTask = presenter.SearchCategories(searchView.Query);
 					var tags = await tagsTask;
-
-					Adapter.Reset(tags.Result.Results);
-					Adapter.NotifyDataSetChanged();
+					if (tags?.Result?.Results != null)
+					{
+						Adapter.Reset(tags.Result.Results);
+						Adapter.NotifyDataSetChanged();
+					}
 				}
 			}
 			catch (Exception ex)
@@ -92,7 +92,8 @@ namespace Steepshot
 			}
 			finally
 			{
-				spinner.Visibility = ViewStates.Gone;
+				if(spinner != null)
+					spinner.Visibility = ViewStates.Gone;
 			}
         }
 
