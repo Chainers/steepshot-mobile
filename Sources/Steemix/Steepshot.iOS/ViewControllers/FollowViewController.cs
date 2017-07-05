@@ -75,7 +75,7 @@ namespace Steepshot.iOS
 				};
 
 				var response = await Api.GetUserFriends(request);
-				if (response.Success)
+				if (response.Success && response.Result?.Results != null && response.Result.Results.Count != 0)
 				{
 					var lastItem = response.Result.Results.Last();
 					_offsetUrl = lastItem.Author;
@@ -93,7 +93,7 @@ namespace Steepshot.iOS
 					else
 						_hasItems = false;
 				}
-				else
+				else if(response.Errors.Count != 0)
 					Reporter.SendCrash("Follow page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)

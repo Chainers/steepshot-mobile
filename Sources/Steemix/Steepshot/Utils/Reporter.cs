@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
+using Android.Content.PM;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -7,36 +9,43 @@ namespace Steepshot
 {
 	public class Reporter
 	{
-		public static void SendCrash(Exception ex)
+		public async static Task SendCrash(Exception ex)
 		{
 			var mimeMessage = NewMimeMessage();
-
-			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(ex.GetType().ToString());
-			sb.AppendLine(ex.StackTrace);
-			sb.Append("Exception message: ");
-			sb.AppendLine(ex.Message);
-			sb.Append("Inner exception message: ");
-			sb.AppendLine(ex.InnerException?.ToString());
-			sb.Append("UTC time: ");
-			sb.AppendLine(DateTime.UtcNow.ToString());
-
-			mimeMessage.Body = new TextPart("plain")
+			await Task.Run(() =>
 			{
-				Text = sb.ToString()
-			};
+				StringBuilder sb = new StringBuilder();
+				sb.AppendLine(ex.GetType().ToString());
+				sb.AppendLine(ex.StackTrace);
+				sb.Append("Exception message: ");
+				sb.AppendLine(ex.Message);
+				sb.Append("Inner exception message: ");
+				sb.AppendLine(ex.InnerException?.ToString());
+				sb.Append("UTC time: ");
+				sb.AppendLine(DateTime.UtcNow.ToString());
+				sb.Append("App version: ");
+				sb.AppendLine(UserPrincipal.Instance.AppVersion);
 
-			SendReport(mimeMessage);
+				mimeMessage.Body = new TextPart("plain")
+				{
+					Text = sb.ToString()
+				};
+			});
+			await SendReport(mimeMessage);
 		}
 
-		public static void SendCrash(string message)
+		public async static Task SendCrash(string message)
 		{
 			var mimeMessage = NewMimeMessage();
-			mimeMessage.Body = new TextPart("plain")
-			{
-				Text = message
-			};
-			SendReport(mimeMessage);
+			await Task.Run(() =>
+						{
+							message += $" UTC time: {DateTime.UtcNow.ToString()}";
+							mimeMessage.Body = new TextPart("plain")
+							{
+								Text = message
+							};
+						});
+			await SendReport(mimeMessage);
 		}
 
 		private static MimeMessage NewMimeMessage()
@@ -53,7 +62,7 @@ namespace Steepshot
 		}
 
 
-		private static void SendReport(MimeMessage message)
+		private static async Task SendReport(MimeMessage message)
 		{
 			using (var client = new SmtpClient())
 			{
@@ -61,7 +70,7 @@ namespace Steepshot
 				client.Connect("smtp.gmail.com", 587, false);
 				client.AuthenticationMechanisms.Remove("XOAUTH2");
 				client.Authenticate(Constants.ReportLogin, Constants.ReportPassword);
-				client.Send(message);
+				await client.SendAsync(message);
 				client.Disconnect(true);
 			}
 		}

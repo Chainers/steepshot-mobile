@@ -60,7 +60,7 @@ namespace Steepshot
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			backButton.Visibility = ViewStates.Gone;
-			if (_profileId == UserPrincipal.Instance.CurrentUser.Login)
+			if (_profileId == UserPrincipal.Instance.CurrentUser?.Login)
 				FollowCont.Visibility = ViewStates.Gone;
 			else
 				Settings.Visibility = ViewStates.Gone;

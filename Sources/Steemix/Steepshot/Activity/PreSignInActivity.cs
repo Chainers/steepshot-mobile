@@ -87,6 +87,7 @@ namespace Steepshot
 
 				spinner.Visibility = ViewStates.Visible;
 				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				((AppCompatButton)sender).Enabled = false;
 
 				if (string.IsNullOrEmpty(login))
 					return;
@@ -109,6 +110,7 @@ namespace Steepshot
 						ShowAlert(response.Errors[0]);
 						spinner.Visibility = ViewStates.Invisible;
 						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+						((AppCompatButton)sender).Enabled = true;
 					}
 				}
 				else
@@ -116,6 +118,7 @@ namespace Steepshot
 					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
+					((AppCompatButton)sender).Enabled = true;
 				}
 			}
 			catch (Exception ex)
