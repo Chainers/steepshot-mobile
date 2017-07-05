@@ -17,13 +17,15 @@ namespace Steepshot
 		public readonly ObservableCollection<UserFriendViewMode> Collection = new ObservableCollection<UserFriendViewMode>();
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
+		private int _itemsLimit = 60;
+
 		public void ViewLoad(FollowType friendsType, string username)
 		{
 			if (Collection.Count == 0)
-				Task.Run(() => GetItems(20, friendsType, username));
+				Task.Run(() => GetItems(friendsType, username));
 		}
 
-		public async Task GetItems(int limit, FollowType followType, string username)
+		public async Task GetItems(FollowType followType, string username)
 		{
 			try
 			{
@@ -34,17 +36,16 @@ namespace Steepshot
 				{
 					SessionId = UserPrincipal.Instance.Cookie,
 					Offset = _offsetUrl,
-					Limit = limit
+					Limit = _itemsLimit
 				};
 
 				var responce = await Api.GetUserFriends(request);
 				//TODO:KOA -- Errors not processed
-				if (responce.Success)
+				if (responce.Success && responce?.Result?.Results != null && responce.Result.Results.Count > 0)
 				{
 					var lastItem = responce.Result.Results.Last();
-					if (responce.Result.Results.Count == 20)
+					if (lastItem.Author != _offsetUrl)
 						responce.Result.Results.Remove(lastItem);
-
 					else
 						_hasItems = false;
 
