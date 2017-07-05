@@ -72,8 +72,7 @@ namespace Steepshot
 
 			refresher.Refresh += async delegate
 			{
-				presenter.ClearPosts();
-				await LoadProfile(true);
+				await UpdateProfile();
 				refresher.Refreshing = false;
 			};
             LoadProfile();
@@ -163,12 +162,35 @@ namespace Steepshot
             }
         }
 
+		public override bool UserVisibleHint
+		{
+			get
+			{
+				return base.UserVisibleHint;
+			}
+			set
+			{
+				if (value && UserPrincipal.Instance.ShouldUpdateProfile)
+				{
+					UpdateProfile();
+					UserPrincipal.Instance.ShouldUpdateProfile = false;
+				}
+				base.UserVisibleHint = value;
+			}
+		}
+
         public void OnClick(int position)
         {
             Intent intent = new Intent(this.Context,typeof(PostPreviewActivity));
             intent.PutExtra("PhotoURL", presenter.UserPosts[position].Body);
             StartActivity(intent);
         }
+
+		public async Task UpdateProfile()
+		{
+			presenter.ClearPosts();
+			await LoadProfile(true);
+		}
 
         [InjectOnClick(Resource.Id.btn_switcher)]
 		public void OnSwitcherClick(object sender, EventArgs e)

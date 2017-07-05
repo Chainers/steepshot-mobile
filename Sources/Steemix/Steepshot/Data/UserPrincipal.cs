@@ -26,6 +26,7 @@ namespace Steepshot
 		private SQLiteConnection db;
 
 		public string AppVersion;
+		public bool ShouldUpdateProfile;
 
 		public string CurrentNetwork {
 			get

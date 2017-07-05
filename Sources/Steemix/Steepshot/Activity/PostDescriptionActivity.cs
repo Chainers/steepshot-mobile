@@ -180,6 +180,7 @@ namespace Steepshot
 					bitmapToUpload.Recycle();
 					bitmapToUpload.Dispose();
 					bitmapToUpload = null;
+					UserPrincipal.Instance.ShouldUpdateProfile = true;
 					Finish();
 				}
 			}
