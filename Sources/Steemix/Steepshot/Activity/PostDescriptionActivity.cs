@@ -89,7 +89,7 @@ namespace Steepshot
 			foreach (var item in tags)
 			{
 				FrameLayout tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-				tag.FindViewById<TextView>(Resource.Id.text).Text = string.Format("#{0}", item);
+				tag.FindViewById<TextView>(Resource.Id.text).Text = item;
 				tag.Click += (sender, e) => tagLayout.RemoveView(tag);
 				tagLayout.AddView(tag);
 				tagLayout.RequestLayout();
