@@ -2,8 +2,6 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using HockeyApp.Android;
-using Android.Widget;
 using System.Threading.Tasks;
 
 namespace Steepshot
