@@ -331,9 +331,9 @@ namespace Steepshot.iOS
 		private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
 			
-			if (UserContext.Instanse.Token == null)
+			if (!UserContext.Instanse.IsAuthorized)
 			{
-				LoginTapped(null, null);
+                LoginTapped(null, null);
 				return;
 			}
             try
@@ -370,6 +370,11 @@ namespace Steepshot.iOS
 
 		private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
+            if (!UserContext.Instanse.IsAuthorized)
+			{
+                LoginTapped(null, null);
+				return;
+			}
 			UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
 			actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo",UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
 			actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo",UIAlertActionStyle.Default, (obj) =>  HidePhoto(postUrl)));
@@ -402,11 +407,6 @@ namespace Steepshot.iOS
 
 		private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
-			if (UserContext.Instanse.Token == null)
-			{
-				LoginTapped(null, null);
-				return;
-			}
 			try
 			{
 				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl);
@@ -500,6 +500,7 @@ namespace Steepshot.iOS
                    ToogleDropDownList();
                    collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
                    currentPostType = PostType.New;
                    tw.Text = newPhotosButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -518,6 +519,7 @@ namespace Steepshot.iOS
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Hot;
 				   tw.Text = hotButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
@@ -536,6 +538,7 @@ namespace Steepshot.iOS
 				   ToogleDropDownList();
 				   collectionViewSource.PhotoList.Clear();
 				   collectionViewSource.FeedStrings.Clear();
+				   feedCollection.ReloadData();
 				   currentPostType = PostType.Top;
 				   tw.Text = trendingButton.TitleLabel.Text;
 				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;

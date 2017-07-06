@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
@@ -12,6 +13,9 @@ namespace Steepshot.iOS
 	{
 		private Timer _timer;
 		private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
+		private CancellationTokenSource cts;
+		private SearchType _searchType = SearchType.Tags;
+		private string _prevQuery;
 
 		protected TagsSearchViewController(IntPtr handle) : base(handle)
 		{
@@ -24,9 +28,8 @@ namespace Steepshot.iOS
 
 			tagsTable.Source = tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
-            GetTags(null);
+            Search(null);
 			tagsSource.RowSelectedEvent += TableTagSelected;
-
 
 			searchTextField.ShouldReturn += (textField) =>
 			{
@@ -36,52 +39,89 @@ namespace Steepshot.iOS
 
 			searchTextField.EditingChanged += (sender, e) =>
 			{
-				_timer.Change(1500, Timeout.Infinite);
+				_timer.Change(500, Timeout.Infinite);
 			};
+			tagsButton.TouchDown += (sender, e) =>
+			{
+				_searchType = SearchType.Tags;
+                SwitchSearchType();
+			};
+			peopleButton.TouchDown += (sender, e) =>
+			{
+				_searchType = SearchType.People;
+                SwitchSearchType();
+			};
+			SwitchSearchType();
 		}
 
 		private void onTimer(object state)
 		{
 			InvokeOnMainThread(() =>
 		   {
-			   GetTags(searchTextField.Text);
+			   Search(searchTextField.Text);
 		   });
 		}
 
-		private async Task GetTags(string query)
+		private async Task Search(string query)
 		{
+			if (_prevQuery == query)
+				return;
+			if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
+				return;
+			
+			_prevQuery = query;
+			noTagsLabel.Hidden = true;
 			activityIndicator.StartAnimating();
 			try
+				{
+					cts?.Cancel();
+				}
+				catch (ObjectDisposedException)
+				{
+
+				}
+			try
 			{
-				OperationResult<SearchResponse> response;
-				if (string.IsNullOrEmpty(query))
+				using (cts = new CancellationTokenSource())
 				{
-					var request = new SearchRequest() { };
-					response = await Api.GetCategories(request);
-				}
-				else
-				{
-					var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
-					response = await Api.SearchCategories(request);
-				}
-				if (response.Success)
-				{
-					tagsSource.Tags.Clear();
-					tagsSource.Tags = response.Result.Results;
-					tagsTable.ReloadData();
-					if (response.Result.Results.Count == 0)
+					OperationResult<SearchResponse> response;
+					if (string.IsNullOrEmpty(query))
 					{
-						noTagsLabel.Hidden = false;
-						tagsTable.Hidden = true;
+						var request = new SearchRequest() { };
+						response = await Api.GetCategories(request, cts);
 					}
 					else
 					{
-						noTagsLabel.Hidden = true;
-						tagsTable.Hidden = false;
+						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
+						if (_searchType == SearchType.Tags)
+						{
+							response = await Api.SearchCategories(request, cts);
+						}
+						else
+						{
+							response = await Api.SearchUser(request, cts);
+						}
 					}
+
+					if ((bool)response?.Success)
+					{
+						tagsSource.Tags.Clear();
+						tagsSource.Tags = response.Result.Results;
+						tagsTable.ReloadData();
+						if (response.Result.Results.Count == 0)
+						{
+							noTagsLabel.Hidden = false;
+							tagsTable.Hidden = true;
+						}
+						else
+						{
+							noTagsLabel.Hidden = true;
+							tagsTable.Hidden = false;
+						}
+					}
+					else if(response?.Errors.Count > 0)
+						Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
 				}
-				else
-					Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
 			{
@@ -95,9 +135,45 @@ namespace Steepshot.iOS
 
 		private void TableTagSelected(int row)
 		{
-			UserContext.Instanse.CurrentPostCategory = tagsSource.Tags[row].Name;
-			NavigationController.PopViewController(true);
+			if (_searchType == SearchType.Tags)
+			{
+				UserContext.Instanse.CurrentPostCategory = tagsSource.Tags[row].Name;
+				NavigationController.PopViewController(true);
+			}
+			else
+			{
+				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
+				myViewController.Username = tagsSource.Tags[row].Name;
+				NavigationController.PushViewController(myViewController, true);
+			}
 		}
+
+		private void SwitchSearchType()
+		{
+			tagsSource.Tags.Clear();
+			_prevQuery = null;
+			tagsTable.ReloadData();
+			Search(searchTextField.Text);
+			if (_searchType == SearchType.Tags)
+			{
+				searchTextField.Placeholder = "Please type a tag";
+				peopleButton.Font = Constants.Regular15;
+				tagsButton.Font = Constants.Bold175;
+			}
+			else
+			{
+				searchTextField.Placeholder = "Please type an username";
+				tagsButton.Font = Constants.Regular15;
+				peopleButton.Font = Constants.Bold175;
+			}
+            
+		}
+	}
+
+	public enum SearchType
+	{
+		Tags,
+		People
 	}
 }
 

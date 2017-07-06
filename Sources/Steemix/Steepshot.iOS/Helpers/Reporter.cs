@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -49,7 +50,7 @@ namespace Steepshot.iOS
 		}
 
 
-		private static void SendReport(MimeMessage message)
+		private static async Task SendReport(MimeMessage message)
 		{
 			using (var client = new SmtpClient())
 			{
@@ -57,7 +58,7 @@ namespace Steepshot.iOS
 				client.Connect("smtp.gmail.com", 587, false);
 				client.AuthenticationMechanisms.Remove("XOAUTH2");
 				client.Authenticate(Constants.ReportLogin, Constants.ReportPassword);
-				client.Send(message);
+				await client.SendAsync(message);
 				client.Disconnect(true);
 			}
 		}

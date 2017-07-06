@@ -22,7 +22,7 @@ namespace Steepshot.iOS
         {
             var cell = (UITableViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
             cell.SelectionStyle = UITableViewCellSelectionStyle.None;
-            cell.TextLabel.Text = $"#{Tags[indexPath.Row].Name}";
+			cell.TextLabel.Text = Tags[indexPath.Row].Name;
             return cell;
         }
 
