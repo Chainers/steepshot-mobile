@@ -169,7 +169,7 @@ namespace Steepshot.iOS
 
 			var videoPreviewLayer = new AVCaptureVideoPreviewLayer(captureSession)
 			{
-				Frame = new CGRect(0, 0, liveCameraStream.Frame.Width, liveCameraStream.Frame.Height) //liveCameraStream.Frame
+				Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width) //liveCameraStream.Frame
 			};
 			videoPreviewLayer.VideoGravity = AVLayerVideoGravity.ResizeAspectFill;
 			liveCameraStream.Layer.AddSublayer(videoPreviewLayer);
