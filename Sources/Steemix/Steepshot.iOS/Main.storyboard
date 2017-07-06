@@ -1252,7 +1252,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="hBA-6e-5Y6">
-                                <rect key="frame" x="0.0" y="71" width="414" height="665"/>
+                                <rect key="frame" x="0.0" y="110" width="414" height="626"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tags not found" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1u-7k-GQb">
@@ -1265,7 +1265,7 @@
                                 <rect key="frame" x="188.66666666666666" y="349.66666666666669" width="37" height="37"/>
                                 <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </activityIndicatorView>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Please type a tag" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="G0N-yX-wZS">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Please type a tag" textAlignment="natural" adjustsFontSizeToFit="NO" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="G0N-yX-wZS">
                                 <rect key="frame" x="8" y="28" width="398" height="35"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="35" id="4NM-Ql-mZQ"/>
@@ -1274,16 +1274,36 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vul-t7-gr2">
+                                <rect key="frame" x="8" y="73" width="57" height="32"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <state key="normal" title="by Tags">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="selected" title="by Tags"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3uB-XT-jYs">
+                                <rect key="frame" x="95" y="73" width="72" height="32"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <state key="normal" title="by People">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="selected" title="by People"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hBA-6e-5Y6" firstAttribute="top" secondItem="G0N-yX-wZS" secondAttribute="bottom" constant="8" id="8Jg-L1-rNF"/>
                             <constraint firstAttribute="trailing" secondItem="hBA-6e-5Y6" secondAttribute="trailing" id="Fi8-m0-MC5"/>
                             <constraint firstAttribute="trailing" secondItem="G0N-yX-wZS" secondAttribute="trailing" constant="8" id="WQg-rn-MQB"/>
                             <constraint firstItem="R1u-7k-GQb" firstAttribute="centerY" secondItem="hXw-Yf-EnA" secondAttribute="centerY" id="X1i-lZ-6rk"/>
+                            <constraint firstItem="3uB-XT-jYs" firstAttribute="leading" secondItem="vul-t7-gr2" secondAttribute="trailing" constant="30" id="afw-Ub-saZ"/>
+                            <constraint firstItem="vul-t7-gr2" firstAttribute="leading" secondItem="G0N-yX-wZS" secondAttribute="leading" id="b4Q-dv-GMk"/>
                             <constraint firstItem="G0N-yX-wZS" firstAttribute="leading" secondItem="hXw-Yf-EnA" secondAttribute="leading" constant="8" id="fJn-7d-vz1"/>
                             <constraint firstItem="G0N-yX-wZS" firstAttribute="top" secondItem="oqK-5H-AS9" secondAttribute="bottom" constant="8" id="fiG-iV-XpM"/>
                             <constraint firstItem="R1u-7k-GQb" firstAttribute="leading" secondItem="hXw-Yf-EnA" secondAttribute="leading" id="obq-cO-gju"/>
+                            <constraint firstItem="vul-t7-gr2" firstAttribute="top" secondItem="G0N-yX-wZS" secondAttribute="bottom" constant="10" id="obw-HJ-KpZ"/>
+                            <constraint firstItem="3uB-XT-jYs" firstAttribute="centerY" secondItem="vul-t7-gr2" secondAttribute="centerY" id="q6d-f4-FX5"/>
+                            <constraint firstItem="hBA-6e-5Y6" firstAttribute="top" secondItem="G0N-yX-wZS" secondAttribute="bottom" constant="47" id="sAf-fA-qph"/>
                             <constraint firstItem="RRu-kr-CL1" firstAttribute="top" secondItem="hBA-6e-5Y6" secondAttribute="bottom" id="syH-fZ-YNR"/>
                             <constraint firstItem="hBA-6e-5Y6" firstAttribute="leading" secondItem="hXw-Yf-EnA" secondAttribute="leading" id="tpd-9W-qKr"/>
                             <constraint firstItem="3gR-M9-uZ2" firstAttribute="centerX" secondItem="hXw-Yf-EnA" secondAttribute="centerX" id="unP-Tj-3Wf"/>
@@ -1294,13 +1314,15 @@
                     <connections>
                         <outlet property="activityIndicator" destination="3gR-M9-uZ2" id="5zh-4z-aal"/>
                         <outlet property="noTagsLabel" destination="R1u-7k-GQb" id="gIo-EG-OXF"/>
+                        <outlet property="peopleButton" destination="3uB-XT-jYs" id="V9Y-hW-eZh"/>
                         <outlet property="searchTextField" destination="G0N-yX-wZS" id="u6O-Kv-Rna"/>
+                        <outlet property="tagsButton" destination="vul-t7-gr2" id="O7p-aO-Ej1"/>
                         <outlet property="tagsTable" destination="hBA-6e-5Y6" id="bis-u6-Ri6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7R8-P9-IIw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2988.75" y="-640.14084507042253"/>
+            <point key="canvasLocation" x="2988.4057971014495" y="-640.76086956521749"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="u4Y-nu-868">

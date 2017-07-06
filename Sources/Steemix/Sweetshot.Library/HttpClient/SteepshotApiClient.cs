@@ -395,14 +395,14 @@ namespace Sweetshot.Library.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> SearchUser(SearchWithQueryRequest request)
+        public async Task<OperationResult<SearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
             parameters2.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await _gateway.Get("user/search", parameters2);
+            var response = await _gateway.Get("user/search", parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<SearchResponse>(response.Content, errorResult);
         }
