@@ -77,8 +77,11 @@ namespace Steepshot.iOS
 
 		public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
 		{
-			/*if (!UserPrincipal.Instance.IsAuthenticated)
-			return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };*/
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
 			try
 			{
 				int diezid = postUrl.IndexOf('#');
@@ -102,6 +105,11 @@ namespace Steepshot.iOS
 		{
 			try
 			{
+				if (!UserContext.Instanse.IsAuthorized)
+				{
+					LoginTapped();
+					return;
+				}
 				var reqv = new CreateCommentRequest(UserContext.Instanse.Token, PostUrl, commentTextView.Text, commentTextView.Text);
 				var response = await Api.CreateComment(reqv);
 				if (response.Success)
@@ -115,6 +123,13 @@ namespace Steepshot.iOS
 				Reporter.SendCrash(ex);
 			}
 		}
+
+		void LoginTapped()
+		{
+			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			NavigationController.PushViewController(myViewController, true);
+		}
+
 		protected override void CalculateBottom()
 		{
 			bottom = (activeview.Frame.Y + bottomView.Frame.Y + activeview.Frame.Height + offset);

@@ -37,7 +37,7 @@ namespace Steepshot.iOS
 			followButton.Layer.BorderWidth = 2;
 			followButton.Layer.BorderColor = Constants.Blue.CGColor;
 			followButton.ContentEdgeInsets = new UIEdgeInsets(10, 10, 10, 10);
-			followButton.Hidden = UserContext.Instanse.Username == null;
+			followButton.Hidden = UserContext.Instanse.Username == null || _currentUser.Author == UserContext.Instanse.Username;
 			base.LayoutSubviews();
 		}
 
