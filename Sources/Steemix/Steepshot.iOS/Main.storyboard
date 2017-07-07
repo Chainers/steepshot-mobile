@@ -1251,11 +1251,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="qtk-Z3-4gl">
+                                <rect key="frame" x="0.0" y="110" width="414" height="626"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
                             <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="hBA-6e-5Y6">
                                 <rect key="frame" x="0.0" y="110" width="414" height="626"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
-                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tags not found" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1u-7k-GQb">
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No results" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1u-7k-GQb">
                                 <rect key="frame" x="0.0" y="358" width="414" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -1293,6 +1297,8 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="qtk-Z3-4gl" firstAttribute="trailing" secondItem="hBA-6e-5Y6" secondAttribute="trailing" id="6SR-kt-00t"/>
+                            <constraint firstItem="qtk-Z3-4gl" firstAttribute="bottom" secondItem="hBA-6e-5Y6" secondAttribute="bottom" id="CGm-0X-wB7"/>
                             <constraint firstAttribute="trailing" secondItem="hBA-6e-5Y6" secondAttribute="trailing" id="Fi8-m0-MC5"/>
                             <constraint firstAttribute="trailing" secondItem="G0N-yX-wZS" secondAttribute="trailing" constant="8" id="WQg-rn-MQB"/>
                             <constraint firstItem="R1u-7k-GQb" firstAttribute="centerY" secondItem="hXw-Yf-EnA" secondAttribute="centerY" id="X1i-lZ-6rk"/>
@@ -1300,6 +1306,7 @@
                             <constraint firstItem="vul-t7-gr2" firstAttribute="leading" secondItem="G0N-yX-wZS" secondAttribute="leading" id="b4Q-dv-GMk"/>
                             <constraint firstItem="G0N-yX-wZS" firstAttribute="leading" secondItem="hXw-Yf-EnA" secondAttribute="leading" constant="8" id="fJn-7d-vz1"/>
                             <constraint firstItem="G0N-yX-wZS" firstAttribute="top" secondItem="oqK-5H-AS9" secondAttribute="bottom" constant="8" id="fiG-iV-XpM"/>
+                            <constraint firstItem="qtk-Z3-4gl" firstAttribute="leading" secondItem="hBA-6e-5Y6" secondAttribute="leading" id="i1W-Vo-Koo"/>
                             <constraint firstItem="R1u-7k-GQb" firstAttribute="leading" secondItem="hXw-Yf-EnA" secondAttribute="leading" id="obq-cO-gju"/>
                             <constraint firstItem="vul-t7-gr2" firstAttribute="top" secondItem="G0N-yX-wZS" secondAttribute="bottom" constant="10" id="obw-HJ-KpZ"/>
                             <constraint firstItem="3uB-XT-jYs" firstAttribute="centerY" secondItem="vul-t7-gr2" secondAttribute="centerY" id="q6d-f4-FX5"/>
@@ -1309,6 +1316,7 @@
                             <constraint firstItem="3gR-M9-uZ2" firstAttribute="centerX" secondItem="hXw-Yf-EnA" secondAttribute="centerX" id="unP-Tj-3Wf"/>
                             <constraint firstAttribute="trailing" secondItem="R1u-7k-GQb" secondAttribute="trailing" id="xvW-1P-xzh"/>
                             <constraint firstItem="3gR-M9-uZ2" firstAttribute="centerY" secondItem="hXw-Yf-EnA" secondAttribute="centerY" id="yzX-xt-hEc"/>
+                            <constraint firstItem="qtk-Z3-4gl" firstAttribute="top" secondItem="hBA-6e-5Y6" secondAttribute="top" id="zCC-Dm-lxY"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1318,6 +1326,7 @@
                         <outlet property="searchTextField" destination="G0N-yX-wZS" id="u6O-Kv-Rna"/>
                         <outlet property="tagsButton" destination="vul-t7-gr2" id="O7p-aO-Ej1"/>
                         <outlet property="tagsTable" destination="hBA-6e-5Y6" id="bis-u6-Ri6"/>
+                        <outlet property="usersTable" destination="qtk-Z3-4gl" id="QXl-OZ-bli"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7R8-P9-IIw" userLabel="First Responder" sceneMemberID="firstResponder"/>

@@ -151,6 +151,7 @@
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -263,6 +264,11 @@
       <DependentUpon>WebPageViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Reporter.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.designer.cs">
+      <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

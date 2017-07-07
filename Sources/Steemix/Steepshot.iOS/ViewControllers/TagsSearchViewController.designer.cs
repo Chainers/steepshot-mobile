@@ -29,6 +29,9 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UITableView tagsTable { get; set; }
+
+		[Outlet]
+		UIKit.UITableView usersTable { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -42,9 +45,19 @@ namespace Steepshot.iOS
 				noTagsLabel = null;
 			}
 
+			if (peopleButton != null) {
+				peopleButton.Dispose ();
+				peopleButton = null;
+			}
+
 			if (searchTextField != null) {
 				searchTextField.Dispose ();
 				searchTextField = null;
+			}
+
+			if (tagsButton != null) {
+				tagsButton.Dispose ();
+				tagsButton = null;
 			}
 
 			if (tagsTable != null) {
@@ -52,14 +65,9 @@ namespace Steepshot.iOS
 				tagsTable = null;
 			}
 
-			if (peopleButton != null) {
-				peopleButton.Dispose ();
-				peopleButton = null;
-			}
-
-			if (tagsButton != null) {
-				tagsButton.Dispose ();
-				tagsButton = null;
+			if (usersTable != null) {
+				usersTable.Dispose ();
+				usersTable = null;
 			}
 		}
 	}
