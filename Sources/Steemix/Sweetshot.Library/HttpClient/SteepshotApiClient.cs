@@ -292,7 +292,7 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> GetCategories(SearchRequest request, CancellationTokenSource cts)
+		public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
@@ -300,7 +300,7 @@ namespace Sweetshot.Library.HttpClient
 
 			var response = await _gateway.Get("categories/top", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
@@ -317,7 +317,7 @@ namespace Sweetshot.Library.HttpClient
 
 			var response = await _gateway.Get("categories/search", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace Sweetshot.Library.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
@@ -404,7 +404,7 @@ namespace Sweetshot.Library.HttpClient
 
             var response = await _gateway.Get("user/search", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<UserSearchResponse>(response.Content, errorResult);
         }
 
         /// <summary>

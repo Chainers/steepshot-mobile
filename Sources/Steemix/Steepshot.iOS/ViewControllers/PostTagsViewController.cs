@@ -100,7 +100,7 @@ namespace Steepshot.iOS
 			{
 				using (cts = new CancellationTokenSource())
 				{
-					OperationResult<SearchResponse> response;
+					OperationResult<SearchResponse<SearchResult>> response;
 					if (string.IsNullOrEmpty(query))
 					{
 						var request = new SearchRequest() { };
