@@ -10,20 +10,28 @@ namespace Steepshot
 	{
 		public SearchPresenter(SearchView view):base(view) { }
 		private CancellationTokenSource cts;
-		private string _prevQuery;
 
-		public async Task<OperationResult<SearchResponse>> SearchCategories(string s)
+		public async Task<OperationResult<SearchResponse>> SearchCategories(string s, SearchType searchType)
 		{
-			if (_prevQuery == s)
-				return new OperationResult<SearchResponse>();
-				
-			_prevQuery = s;
 			using (cts = new CancellationTokenSource())
 			{
-				var request = new SearchWithQueryRequest(s);
-				if(!string.IsNullOrEmpty(s))
-					return await Api.SearchCategories(request, cts);
-				return await Api.GetCategories(request, cts);
+				if (string.IsNullOrEmpty(s))
+				{
+					var request = new SearchRequest() { };
+					return await Api.GetCategories(request, cts);
+				}
+				else
+				{
+					var request = new SearchWithQueryRequest(s) { SessionId = UserPrincipal.Instance.Cookie };
+					if (searchType == SearchType.Tags)
+					{
+						return await Api.SearchCategories(request, cts);
+					}
+					else
+					{
+						return await Api.SearchUser(request, cts);
+					}
+				}
 			}
 		}
 	}

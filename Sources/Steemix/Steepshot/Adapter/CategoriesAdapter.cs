@@ -45,7 +45,7 @@ namespace Steepshot
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            ((TagViewHolder)holder).Tag.Text = string.Format("#{0}", Items[position].Name);
+			((TagViewHolder)holder).Tag.Text = Items[position].Name;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

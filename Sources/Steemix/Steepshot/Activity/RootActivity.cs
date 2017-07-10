@@ -69,7 +69,7 @@ namespace Steepshot
 		{
 			for (int i = 0; i < tabLayout.TabCount; i++)
 			{
-				TabLayout.Tab tab = tabLayout.GetTabAt(i);
+				var tab = tabLayout.GetTabAt(i);
 				if (null != tab)
 				{
 					if (i == position)

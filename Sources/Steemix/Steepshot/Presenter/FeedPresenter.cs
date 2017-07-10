@@ -91,12 +91,12 @@ namespace Steepshot
 						response = await Api.GetPosts(postrequest, cts);
 					}
 					//TODO:KOA -- Errors not processed
-					if (response.Success)
+					if (response.Success && response?.Result?.Results != null)
 					{
 						if (response.Result.Results.Count != 0)
 						{
 							var lastItem = response.Result.Results.Last();
-							if (response.Result.Results.Count == postsCount)
+							if (lastItem.Url != _offsetUrl)
 								response.Result.Results.Remove(lastItem);
 							else
 								_hasItems = false;
@@ -153,12 +153,12 @@ namespace Steepshot
 
 					var posts = await Api.GetPostsByCategory(postrequest, cts);
 					//TODO:KOA -- Errors not processed
-					if (posts.Success)
+					if (posts.Success && posts?.Result?.Results != null)
 					{
 						if (posts.Result.Results.Count != 0)
 						{
 							var lastItem = posts.Result.Results.Last();
-							if (posts.Result.Results.Count == postsCount)
+							if (lastItem.Url != _offsetUrl)
 								posts.Result.Results.Remove(lastItem);
 							else
 								_hasItems = false;
