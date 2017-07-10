@@ -65,10 +65,10 @@ namespace Steepshot
 				};
 				var response = await Api.GetUserPosts(req);
 
-				if (response.Success)
+				if (response.Success && response?.Result?.Results != null && response?.Result?.Results.Count != 0)
 				{
 					var lastItem = response.Result.Results.Last();
-					if (response.Result.Results.Count > postsCount / 2)
+					if (lastItem.Url != _offsetUrl)
 						response.Result.Results.Remove(lastItem);
 					else
 						_hasItems = false;

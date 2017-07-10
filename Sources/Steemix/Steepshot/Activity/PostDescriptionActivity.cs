@@ -26,7 +26,7 @@ namespace Steepshot
 		private string Path;
 
 		private List<string> tags = new List<string>();
-		//private Task<byte[]> photoComressionTask;
+		private byte[] arrayToUpload;
 		private Bitmap bitmapToUpload;
 
 		//private CancellationTokenSource _tokenSource = new CancellationTokenSource();
@@ -68,6 +68,11 @@ namespace Steepshot
 			photoFrame.LayoutParameters = parameters;
 			postButton.Enabled = true;
 			Path = Intent.GetStringExtra("FILEPATH");
+
+			Picasso.With(this).Load(new Java.IO.File(Path))
+			       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
+			       .Resize(this.Resources.DisplayMetrics.WidthPixels, 0)
+			       .Into(photoFrame);
 		}
 
 
@@ -84,7 +89,7 @@ namespace Steepshot
 			foreach (var item in tags)
 			{
 				FrameLayout tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-				tag.FindViewById<TextView>(Resource.Id.text).Text = string.Format("#{0}", item);
+				tag.FindViewById<TextView>(Resource.Id.text).Text = item;
 				tag.Click += (sender, e) => tagLayout.RemoveView(tag);
 				tagLayout.AddView(tag);
 				tagLayout.RequestLayout();
@@ -111,7 +116,7 @@ namespace Steepshot
 		protected override void OnPostCreate(Bundle savedInstanceState)
 		{
 			base.OnPostCreate(savedInstanceState);
-			Picasso.With(this).Load(new Java.IO.File(Path)).Into(photoFrame);
+
 			AddTags(tags);
 		}
 
@@ -155,11 +160,13 @@ namespace Steepshot
 			try
 			{
 				//photoComressionTask.Wait();
-				var bitmapData = await CompressPhoto();
+				var success = await CompressPhoto();
+				if (!success)
+					ShowAlert("Photo upload error, please try again");
 				var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
 					UserPrincipal.Instance.CurrentUser.SessionId,
 					description.Text,
-					bitmapData,
+					arrayToUpload,
 					tags.ToArray()));
 				if (resp.Errors.Count > 0)
 				{
@@ -173,6 +180,7 @@ namespace Steepshot
 					bitmapToUpload.Recycle();
 					bitmapToUpload.Dispose();
 					bitmapToUpload = null;
+					UserPrincipal.Instance.ShouldUpdateProfile = true;
 					Finish();
 				}
 			}
@@ -187,37 +195,35 @@ namespace Steepshot
 			}
 		}
 
-		private async Task<byte[]> CompressPhoto()
+		private async Task<bool> CompressPhoto()
 		{
 			try
-			{/*
-				if (ct.IsCancellationRequested)
-				{
-					ct.ThrowIfCancellationRequested();
-					photoComressionTask.Dispose();
-				}*/
-				bitmapToUpload = ((BitmapDrawable)photoFrame.Drawable).Bitmap;
+			{
+				await Task.Run(() =>
+			  {
+				  var absolutePath = (new Java.IO.File(Path)).AbsolutePath;
+				  bitmapToUpload = BitmapFactory.DecodeFile(absolutePath);
+				  bitmapToUpload = RotateImageIfRequired(bitmapToUpload, absolutePath);
+			  });
+				if (bitmapToUpload == null)
+					return false;
+
 				using (var stream = new MemoryStream())
-				{/*
-					if (ct.IsCancellationRequested)
-					{
-						ct.ThrowIfCancellationRequested();
-						photoComressionTask.Dispose();
-					}*/
+				{
 					await bitmapToUpload.CompressAsync(Bitmap.CompressFormat.Jpeg, 80, stream);
-					var streamArray = stream.ToArray();
+					arrayToUpload = stream.ToArray();
 					//var photoSize = streamArray.Length / 1024f / 1024f;
-					return streamArray;
 				}
+				return true;
 			}
 			catch (Exception ex)
 			{
 				Reporter.SendCrash(ex);
-				return new byte[0];
+				return false;
 			}
 		}
 
-		/*private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
+		private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
 		{
 			ExifInterface ei = new ExifInterface(selectedImage);
 			int orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
@@ -241,7 +247,7 @@ namespace Steepshot
 			matrix.PostRotate(degree);
 			Bitmap rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
 			return rotatedImg;
-		}*/
+		}
 
 		protected override void CreatePresenter()
 		{

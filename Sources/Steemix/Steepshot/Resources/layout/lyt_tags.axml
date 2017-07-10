@@ -43,9 +43,20 @@
             android:textColor="@color/black"
             android:textSize="14sp"
             android:paddingLeft="10dp"
+            android:paddingRight="30dp"
             android:drawableLeft="@drawable/ic_search_gray"
             android:drawablePadding="10dp"
             android:background="@drawable/white_corner" />
+        <Button
+            android:id="@+id/add_custom_tag"
+            android:layout_width="30dp"
+            android:textSize="30sp"
+            android:layout_height="match_parent"
+            android:text="+"
+            android:visibility="gone"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            style="?android:attr/borderlessButtonStyle" />
     </RelativeLayout>
     <ScrollView
         android:id="@+id/scroll"

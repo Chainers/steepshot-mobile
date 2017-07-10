@@ -68,7 +68,7 @@ namespace Steepshot
 					{
 						if (pos < ((FollowersAdapter)recyclerView.GetAdapter()).ItemCount)
 						{
-							Task.Run(() => presenter.GetItems(20, _followType, _username));
+							Task.Run(() => presenter.GetItems(_followType, _username));
 							prevPos = pos;
 						}
 					}

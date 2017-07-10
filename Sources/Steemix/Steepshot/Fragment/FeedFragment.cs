@@ -68,12 +68,15 @@ namespace Steepshot
 			{
 				if (requestCode == SearchRequestCode)
 				{
-					var s = data.GetBundleExtra("SEARCH").GetString("SEARCH");
-					Title.Text = s;
-					CustomTag = s;
-					presenter.ClearPosts();
-					Bar.Visibility = ViewStates.Visible;
-					presenter.GetSearchedPosts(CustomTag);
+					var s = data?.GetBundleExtra("SEARCH")?.GetString("SEARCH");
+					if (s != null && Bar != null)
+					{
+						Title.Text = s;
+						CustomTag = s;
+						presenter.ClearPosts();
+						Bar.Visibility = ViewStates.Visible;
+						presenter.GetSearchedPosts(CustomTag);
+					}
 				}
 			}
 			catch(Exception ex)
@@ -163,12 +166,15 @@ namespace Steepshot
 
 					if (response.Success)
 					{
-						presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
+						if (presenter.Posts.Count >= position)
+						{
+							presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
 
-						presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
-							presenter.Posts[position].NetVotes + 1 :
-							presenter.Posts[position].NetVotes - 1;
-						presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+							presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
+								presenter.Posts[position].NetVotes + 1 :
+								presenter.Posts[position].NetVotes - 1;
+							presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+						}
 					}
 					else
 					{
