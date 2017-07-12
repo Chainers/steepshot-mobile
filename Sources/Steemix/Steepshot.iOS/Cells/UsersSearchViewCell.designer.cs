@@ -19,6 +19,9 @@ namespace Steepshot.iOS
 		UIKit.UILabel login { get; set; }
 
 		[Outlet]
+		UIKit.UILabel powerLabel { get; set; }
+
+		[Outlet]
 		UIKit.UILabel username { get; set; }
 
 		[Outlet]
@@ -44,6 +47,11 @@ namespace Steepshot.iOS
 			if (usernameHeight != null) {
 				usernameHeight.Dispose ();
 				usernameHeight = null;
+			}
+
+			if (powerLabel != null) {
+				powerLabel.Dispose ();
+				powerLabel = null;
 			}
 		}
 	}

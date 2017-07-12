@@ -17,6 +17,7 @@ namespace Steepshot.iOS
 		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
+		public event HeaderTappedHandler GoToVoters;
 		public event ImagePreviewHandler ImagePreview;
 
 		public ProfileCollectionViewSource()
@@ -64,6 +65,14 @@ namespace Steepshot.iOS
 					{
 						if (GoToComments != null)
 							GoToComments(postUrl);
+					};
+				}
+				if (!((FeedCollectionViewCell)cell).IsGoToVotersSet)
+				{
+					((FeedCollectionViewCell)cell).GoToVoters += (postUrl) =>
+					{
+						if (GoToVoters != null)
+                            GoToVoters(postUrl);
 					};
 				}
 				if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)

@@ -269,6 +269,11 @@
       <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
+    <Compile Include="ViewControllers\VotersViewController.cs" />
+    <Compile Include="ViewControllers\VotersViewController.designer.cs">
+      <DependentUpon>VotersViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\VotersTableViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

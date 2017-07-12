@@ -20,7 +20,7 @@ namespace Sweetshot.Library.Models.Requests
         public string Title { get; private set; }
     }
 
-    public class GetCommentsRequest : SessionIdField
+    public class GetCommentsRequest : SessionIdOffsetLimitFields
     {
         public GetCommentsRequest(string url)
         {
@@ -31,4 +31,12 @@ namespace Sweetshot.Library.Models.Requests
 
         public string Url { get; private set; }
     }
+
+	public class GetVotesRequest : GetCommentsRequest
+	{
+		public GetVotesRequest(string url) : base(url)
+		{
+			
+		}
+	}
 }

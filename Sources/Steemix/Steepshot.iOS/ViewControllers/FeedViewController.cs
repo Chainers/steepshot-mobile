@@ -131,6 +131,13 @@ namespace Steepshot.iOS
 				navController.PushViewController(myViewController, true);
             };
 
+			collectionViewSource.GoToVoters += (postUrl) =>
+			{
+				var myViewController = Storyboard.InstantiateViewController(nameof(VotersViewController)) as VotersViewController;
+				myViewController.PostUrl = postUrl;
+				navController.PushViewController(myViewController, true);
+			};
+
 			collectionViewSource.ImagePreview += (image, url) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
