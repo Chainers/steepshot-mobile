@@ -144,6 +144,7 @@
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Reporter.cs" />
+    <Compile Include="Adapter\UsersSearchAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -194,6 +195,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_list.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_new.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_new.png" />
+    <AndroidResource Include="Resources\layout\lyt_users_search_item.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />

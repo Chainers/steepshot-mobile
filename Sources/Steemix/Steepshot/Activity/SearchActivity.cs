@@ -23,16 +23,19 @@ namespace Steepshot
 		private SearchType _searchType = SearchType.Tags;
 		private string _prevQuery;
 		private CancellationTokenSource cts;
+		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView categories;
+		[InjectView(Resource.Id.users)] RecyclerView users;
         [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView searchView;
         [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
 		[InjectView(Resource.Id.tags_button)] Button tagsButton;
 		[InjectView(Resource.Id.people_button)] Button peopleButton;
 #pragma warning restore 0649
 
-        CategoriesAdapter Adapter;
+        CategoriesAdapter _categoriesAdapter;
+		UsersSearchAdapter _usersSearchAdapter;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -47,17 +50,19 @@ namespace Steepshot
 			};
 
             categories.SetLayoutManager(new LinearLayoutManager(this));
+			users.SetLayoutManager(new LinearLayoutManager(this));
 
-            Adapter = new CategoriesAdapter(this);
+            _categoriesAdapter = new CategoriesAdapter(this);
+			_usersSearchAdapter = new UsersSearchAdapter(this);
+            categories.SetAdapter(_categoriesAdapter);
+			users.SetAdapter(_usersSearchAdapter);
 
-            categories.SetAdapter(Adapter);
-
-            Adapter.Click += OnClick;
+            _categoriesAdapter.Click += OnClick;
+			_usersSearchAdapter.Click += OnClick;
 			_timer = new Timer(onTimer);
             searchView.Iconified = false;
             searchView.ClearFocus();
 			SwitchSearchType();
-            GetTags();
         }
 
 		[InjectOnClick(Resource.Id.tags_button)]
@@ -80,7 +85,7 @@ namespace Steepshot
 			{
 				Intent returnIntent = new Intent();
 				Bundle b = new Bundle();
-				b.PutString("SEARCH", Adapter.GetItem(pos).Name);
+				b.PutString("SEARCH", _categoriesAdapter.GetItem(pos).Name);
 				returnIntent.PutExtra("SEARCH", b);
 				SetResult(Result.Ok, returnIntent);
 				Finish();
@@ -88,7 +93,7 @@ namespace Steepshot
 			else
 			{
 				Intent intent = new Intent(this, typeof(ProfileActivity));
-				intent.PutExtra("ID", Adapter.GetItem(pos).Name);
+				intent.PutExtra("ID", _usersSearchAdapter.Items[pos].Username);
 				this.StartActivity(intent);
 			}
         }
@@ -97,28 +102,42 @@ namespace Steepshot
 		{
 			RunOnUiThread(() =>
 		   {
+			   _usersSearchAdapter.Items.Clear();
 			   GetTags();
 		   });
 		}
 
-		Task<OperationResult<SearchResponse>> tagsTask;
+		Task<OperationResult> tagsTask;
 		private async Task GetTags()
 		{
 			try
 			{
 				var query = searchView.Query;
-				if (_prevQuery == query)
+				if (prevQuery[_searchType] == query)
 					return;
 				if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
 					return;
-				_prevQuery = query;
+				prevQuery[_searchType] = query;
 				spinner.Visibility = ViewStates.Visible;
 				tagsTask = presenter.SearchCategories(searchView.Query, _searchType);
-				var tags = await tagsTask;
-				if (tags?.Result?.Results != null)
+
+				if (_searchType == SearchType.Tags)
 				{
-					Adapter.Reset(tags.Result.Results);
-					Adapter.NotifyDataSetChanged();
+					var tags = (OperationResult<SearchResponse<SearchResult>>)await tagsTask;
+					if (tags?.Result?.Results != null)
+					{
+						_categoriesAdapter.Reset(tags.Result.Results);
+						_categoriesAdapter.NotifyDataSetChanged();
+					}
+				}
+				else
+				{
+					var usersList = (OperationResult<UserSearchResponse>)await tagsTask;
+					if (usersList?.Result?.Results != null)
+					{
+						_usersSearchAdapter.Items = usersList.Result.Results;
+						_usersSearchAdapter.NotifyDataSetChanged();
+					}
 				}
 			}
 			catch (Exception ex)
@@ -139,12 +158,11 @@ namespace Steepshot
 
 		private void SwitchSearchType()
 		{
-			Adapter.Reset(new List<SearchResult>());
-			_prevQuery = null;
-			Adapter.NotifyDataSetChanged();
 			GetTags();
 			if (_searchType == SearchType.Tags)
 			{
+				users.Visibility = ViewStates.Gone;
+				categories.Visibility = ViewStates.Visible;
 				tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
 				tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
@@ -153,6 +171,8 @@ namespace Steepshot
 			}
 			else
 			{
+				users.Visibility = ViewStates.Visible;
+				categories.Visibility = ViewStates.Gone;
 				peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
 				peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
