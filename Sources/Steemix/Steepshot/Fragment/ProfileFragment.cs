@@ -217,7 +217,7 @@ namespace Steepshot
             if (_profile != null)
             {
 				var culture = new CultureInfo("en-US");
-				JoinedText.Text = $"Joined {_profile.LastAccountUpdate.ToString("Y", culture)}";
+				JoinedText.Text = $"Joined {_profile.Created.ToString("Y", culture)}";
 				if (!string.IsNullOrEmpty(_profile.Location))
 					Place.Text = _profile.Location;
 				else
