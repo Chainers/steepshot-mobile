@@ -34,4 +34,14 @@ namespace Sweetshot.Library.Models.Responses
 		public string Username { get; set; }
 		public string ProfileImage { get; set; }
 	}
+
+	public class GetVotersResponse : SearchResponse<VotersResult>
+	{
+		
+	}
+
+	public class VotersResult : UserSearchResult
+	{
+		public double Percent { get; set; }
+	}
 }

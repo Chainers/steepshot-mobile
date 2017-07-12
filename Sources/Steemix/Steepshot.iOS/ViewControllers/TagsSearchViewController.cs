@@ -120,14 +120,14 @@ namespace Steepshot.iOS
 						if (_searchType == SearchType.Tags)
 						{
 							tagsSource.Tags.Clear();
-							tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result.Results;
+							tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results;
 							tagsTable.ReloadData();
 							shouldHide = tagsSource.Tags.Count == 0;
 						}
 						else
 						{
 							usersSource.Users.Clear();
-							usersSource.Users = ((OperationResult<UserSearchResponse>)response).Result.Results;
+							usersSource.Users = ((OperationResult<UserSearchResponse>)response).Result?.Results;
 							usersTable.ReloadData();
 							shouldHide = usersSource.Users.Count == 0;
 						}

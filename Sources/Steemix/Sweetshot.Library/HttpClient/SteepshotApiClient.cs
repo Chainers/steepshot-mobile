@@ -185,6 +185,23 @@ namespace Sweetshot.Library.HttpClient
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
+		/// <summary>
+		///     Examples:
+		///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
+		/// </summary>
+		/// 
+		public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
+		{
+			var parameters = CreateSessionParameter(request.SessionId);
+			var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
+			parameters2.AddRange(parameters);
+
+			var endpoint = $"post/{request.Url}/voters";
+			var response = await _gateway.Get(endpoint, parameters2);
+			var errorResult = CheckErrors(response);
+			return CreateResult<GetVotersResponse>(response.Content, errorResult);
+		}
+
         /// <summary>
         ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/post/cat1/@joseph.kalu/cat636206825039716128/upvote HTTP/1.1

@@ -114,7 +114,7 @@ namespace Steepshot.iOS
 					if (response.Success)
 					{
 						tagsSource.Tags.Clear();
-						tagsSource.Tags = response.Result.Results;
+						tagsSource.Tags = response.Result?.Results;
 						tagsTable.ReloadData();
 					}
 					else
