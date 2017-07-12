@@ -189,7 +189,7 @@ namespace Steepshot.iOS
 					userData = response.Result;
 					_profileHeader.Username.Text = !string.IsNullOrEmpty(userData.Name) ? userData.Name : userData.Username;
 					var culture = new CultureInfo("en-US");
-					_profileHeader.Date.Text = $"Joined {userData.LastAccountUpdate.ToString("Y", culture)}";
+					_profileHeader.Date.Text = $"Joined {userData.Created.ToString("Y", culture)}";
 					if (!string.IsNullOrEmpty(userData.Location))
 						_profileHeader.Location.Text = userData.Location;
 					if (!string.IsNullOrEmpty(userData.About))
