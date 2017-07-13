@@ -114,6 +114,7 @@ namespace Steepshot
 			FeedAdapter.LikeAction += FeedAdapter_LikeAction;
 			FeedAdapter.UserAction += FeedAdapter_UserAction;
 			FeedAdapter.CommentAction += FeedAdapter_CommentAction;
+			FeedAdapter.VotersClick += FeedAdapter_VotersAction;
 			FeedAdapter.PhotoClick += PhotoClick;
 			presenter.ViewLoad();
 			refresher.Refresh += async delegate
@@ -148,6 +149,13 @@ namespace Steepshot
 			intent.PutExtra("uid", presenter.Posts[position].Url);
             this.Context.StartActivity(intent);
         }
+
+		void FeedAdapter_VotersAction(int position)
+		{
+			Intent intent = new Intent(this.Context, typeof(VotersActivity));
+			intent.PutExtra("url", presenter.Posts[position].Url);
+			this.Context.StartActivity(intent);
+		}
 
         void FeedAdapter_UserAction(int position)
 		{

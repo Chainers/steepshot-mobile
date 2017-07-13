@@ -21,7 +21,6 @@ namespace Steepshot
 		private Timer _timer;
 		SearchPresenter presenter;
 		private SearchType _searchType = SearchType.Tags;
-		private string _prevQuery;
 		private CancellationTokenSource cts;
 		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
