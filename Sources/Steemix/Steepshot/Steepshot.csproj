@@ -145,6 +145,9 @@
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Reporter.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
+    <Compile Include="Activity\VotersActivity.cs" />
+    <Compile Include="Presenter\VotersPresenter.cs" />
+    <Compile Include="Adapter\VotersAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
