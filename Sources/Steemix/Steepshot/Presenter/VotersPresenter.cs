@@ -49,8 +49,8 @@ namespace Steepshot
 
 					_offsetUrl = lastItem.Username;
 					Users.AddRange(responce.Result.Results);
-					VotersLoaded?.Invoke();
 				}
+				VotersLoaded?.Invoke();
 			}
 			catch (Exception ex)
 			{
