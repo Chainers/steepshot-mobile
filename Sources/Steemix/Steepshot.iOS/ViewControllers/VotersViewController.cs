@@ -60,8 +60,7 @@ namespace Steepshot.iOS
 				};
 
 				var response = await Api.GetPostVoters(request);
-
-				if (response.Success && response.Result?.Results != null && response.Result?.Results.Count() != 0)
+				if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
 				{
 					var lastItem = response.Result.Results.Last();
 
@@ -74,7 +73,7 @@ namespace Steepshot.iOS
 					tableSource.TableItems.AddRange(response.Result.Results);
 					votersTable.ReloadData();
 				}
-				else
+				else if(response.Errors.Count > 0)
 					Reporter.SendCrash("Voters page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)

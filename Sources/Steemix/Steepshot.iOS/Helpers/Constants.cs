@@ -7,7 +7,7 @@ namespace Steepshot.iOS
     public class Constants
     {
 		public const string ReportLogin = "crash.steepshot.org@gmail.com";
-		public const string ReportPassword = "steep778899";
+		public const string ReportPassword = "steep7788";
         public const string UserContextKey = "UserContext";
 		public static readonly UIColor NavBlue = UIColor.FromRGB(55, 176, 233);
 		public static readonly UIColor Blue = UIColor.FromRGB(66, 165, 245);
