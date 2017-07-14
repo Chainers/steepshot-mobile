@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using Foundation;
 using MailKit.Net.Smtp;
 using MimeKit;
 
@@ -21,6 +22,10 @@ namespace Steepshot.iOS
 			sb.AppendLine(ex.InnerException?.ToString());
 			sb.Append("UTC time: ");
 			sb.AppendLine(DateTime.UtcNow.ToString());
+			sb.Append("App version: ");
+			sb.Append(NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString());
+			sb.Append("  ");
+			sb.Append(NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString());
 
 			mimeMessage.Body = new TextPart("plain")
 			{
@@ -50,7 +55,7 @@ namespace Steepshot.iOS
 		}
 
 
-		private static async Task SendReport(MimeMessage message)
+		private static void SendReport(MimeMessage message)
 		{
 			using (var client = new SmtpClient())
 			{
@@ -58,7 +63,7 @@ namespace Steepshot.iOS
 				client.Connect("smtp.gmail.com", 587, false);
 				client.AuthenticationMechanisms.Remove("XOAUTH2");
 				client.Authenticate(Constants.ReportLogin, Constants.ReportPassword);
-				await client.SendAsync(message);
+				client.Send(message);
 				client.Disconnect(true);
 			}
 		}
