@@ -26,11 +26,11 @@ namespace Steepshot.iOS
         {
 			AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 			{
-				 Reporter.SendCrash((Exception)e.ExceptionObject);
+				Reporter.SendCrash((Exception)e.ExceptionObject);
 			};
 			TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
 			{
-				//Reporter.SendCrash(ex);
+				Reporter.SendCrash(e.Exception);
 			};
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);

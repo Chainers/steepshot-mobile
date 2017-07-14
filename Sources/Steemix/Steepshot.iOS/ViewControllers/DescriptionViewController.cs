@@ -102,8 +102,8 @@ namespace Steepshot.iOS
 				}
 				else
 				{
+                    ShowAlert(imageUploadResponse.Errors[0]);
 					Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0]);
-					ShowAlert(imageUploadResponse.Errors[0]);
 				}
 			}
 			catch (Exception ex)
