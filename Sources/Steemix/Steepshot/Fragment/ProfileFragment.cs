@@ -143,6 +143,7 @@ namespace Steepshot
                     _feedAdapter.LikeAction += FeedAdapter_LikeAction;
                     _feedAdapter.UserAction += FeedAdapter_UserAction;
                     _feedAdapter.CommentAction += FeedAdapter_CommentAction;
+					_feedAdapter.VotersClick += FeedAdapter_VotersAction;
                 }
                 return _feedAdapter;
             }
@@ -282,6 +283,13 @@ namespace Steepshot
             intent.PutExtra("uid", presenter.UserPosts[position].Url);
             this.Context.StartActivity(intent);
         }
+
+		void FeedAdapter_VotersAction(int position)
+		{
+			Intent intent = new Intent(this.Context, typeof(VotersActivity));
+			intent.PutExtra("url", presenter.UserPosts[position].Url);
+			this.Context.StartActivity(intent);
+		}
 
         void FeedAdapter_UserAction(int position)
         {
