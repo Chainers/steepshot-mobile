@@ -175,36 +175,6 @@
                     android:layout_marginTop="1dp"
                     android:id="@+id/add_account"
                     style="?android:attr/borderlessButtonStyle" />
-            <!--Change Avatar-->
-                <android.support.v7.widget.AppCompatButton
-                    android:visibility="gone"
-                    android:text="@string/change_avatar"
-                    android:textSize="@dimen/dp_button_text"
-                    android:textAllCaps="false"
-                    android:textColor="@color/light_gray"
-                    android:background="@android:color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:layout_marginTop="1dp"
-                    android:id="@+id/dtn_change_avatar"
-                    style="?android:attr/borderlessButtonStyle" />
-            <!--Change Password-->
-                <android.support.v7.widget.AppCompatButton
-                    android:visibility="gone"
-                    android:text="@string/change_password"
-                    android:textSize="@dimen/dp_button_text"
-                    android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:background="@android:color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:layout_marginTop="1dp"
-                    android:id="@+id/dtn_change_password"
-                    style="?android:attr/borderlessButtonStyle" />
             <!--Terms of Service-->
                 <android.support.v7.widget.AppCompatButton
                     android:text="@string/terms_of_service"
@@ -218,21 +188,6 @@
                     android:padding="10dp"
                     android:layout_marginTop="1dp"
                     android:id="@+id/dtn_terms_of_service"
-                    style="?android:attr/borderlessButtonStyle" />
-            <!--Delete Steemix Account-->
-                <android.support.v7.widget.AppCompatButton
-                    android:visibility="gone"
-                    android:text="@string/delete_steemix_account"
-                    android:textSize="@dimen/dp_button_text"
-                    android:textAllCaps="false"
-                    android:textColor="@color/black"
-                    android:background="@android:color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:layout_marginTop="1dp"
-                    android:id="@+id/dtn_delete_steemix_account"
                     style="?android:attr/borderlessButtonStyle" />
             </LinearLayout>
         </RelativeLayout>

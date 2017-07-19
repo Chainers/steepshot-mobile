@@ -164,7 +164,7 @@ namespace Steepshot
 				if (!success)
 					ShowAlert("Photo upload error, please try again");
 				var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
-					UserPrincipal.Instance.CurrentUser.SessionId,
+					User.SessionId,
 					description.Text,
 					arrayToUpload,
 					tags.ToArray()));
@@ -180,7 +180,7 @@ namespace Steepshot
 					bitmapToUpload.Recycle();
 					bitmapToUpload.Dispose();
 					bitmapToUpload = null;
-					UserPrincipal.Instance.ShouldUpdateProfile = true;
+					User.ShouldUpdateProfile = true;
 					Finish();
 				}
 			}

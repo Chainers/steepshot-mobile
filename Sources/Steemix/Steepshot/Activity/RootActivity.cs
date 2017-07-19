@@ -58,7 +58,7 @@ namespace Steepshot
 
 		private void CheckLogin()
 		{ 
-			if (!UserPrincipal.Instance.IsAuthenticated && viewPager.CurrentItem>0)
+			if (!User.IsAuthenticated && viewPager.CurrentItem>0)
 			{
 				Intent loginItent = new Intent(this, typeof(SignInActivity));
 				StartActivity(loginItent);

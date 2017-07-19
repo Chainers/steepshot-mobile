@@ -17,7 +17,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp" />
         <android.support.v7.widget.SwitchCompat
-            android:id="@+id/network_switch"
+            android:id="@+id/chain_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -103,28 +103,4 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:visibility="gone" />
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/sign_up_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Haven't Steem account yet?"
-        android:layout_above="@+id/sign_up_btn"
-        android:layout_marginBottom="22dp"
-        android:layout_centerHorizontal="true"
-        android:textSize="12sp"
-        android:textColor="@color/black" />
-    <Button
-        android:visibility="gone"
-        android:id="@+id/sign_up_btn"
-        android:text="sign up for free"
-        android:textColor="@color/rgb55_176_233"
-        android:textSize="@dimen/dp_button_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAllCaps="true"
-        android:background="@android:color/transparent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="40dp" />
 </RelativeLayout>

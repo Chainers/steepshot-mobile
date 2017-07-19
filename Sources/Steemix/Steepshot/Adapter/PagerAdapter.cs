@@ -52,7 +52,7 @@ namespace Steepshot
 						frag = HostFragment.NewInstance(new PhotoFragment());
 						break;
 					case 3:
-						frag = HostFragment.NewInstance(new ProfileFragment(UserPrincipal.Instance.CurrentUser.Login));
+						frag = HostFragment.NewInstance(new ProfileFragment(User.Login));
 						break;
 					default:
 						frag = null;

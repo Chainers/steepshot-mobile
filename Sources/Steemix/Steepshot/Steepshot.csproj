@@ -54,13 +54,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Activity\PostPreviewActivity.cs" />
+    <Compile Include="Data\KnownChains.cs" />
+    <Compile Include="Data\User.cs" />
     <Compile Include="Presenter\PostPreviewPresenter.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
     <Compile Include="Base\BaseView.cs" />
     <Compile Include="Base\BasePresenter.cs" />
-    <Compile Include="Activity\ChangePasswordActivity.cs" />
     <Compile Include="Activity\CommentsActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\PostDescriptionActivity.cs" />
@@ -68,19 +69,15 @@
     <Compile Include="Activity\RootActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
-    <Compile Include="Activity\SignUpActivity.cs" />
     <Compile Include="Activity\SplashActivity.cs" />
     <Compile Include="Activity\TagsActivity.cs" />
     <Compile Include="Activity\TermsOfServiceActivity.cs" />
-    <Compile Include="Presenter\ChangePasswordPresenter.cs" />
     <Compile Include="SQLite.cs" />
     <Compile Include="SQLiteAsync.cs" />
-    <Compile Include="View\ChangePasswordView.cs" />
     <Compile Include="Data\UserInfo.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\TagLayout.cs" />
-    <Compile Include="Data\UserPrincipal.cs" />
     <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="Adapter\CategoriesAdapter.cs" />
     <Compile Include="Adapter\CommentsAdapter.cs" />
@@ -108,7 +105,6 @@
     <Compile Include="View\SearchView.cs" />
     <Compile Include="View\SettingsView.cs" />
     <Compile Include="View\SignInView.cs" />
-    <Compile Include="View\SignUpView.cs" />
     <Compile Include="View\SplashView.cs" />
     <Compile Include="View\TagsView.cs" />
     <Compile Include="View\TermsView.cs" />
@@ -120,7 +116,6 @@
     <Compile Include="Presenter\SearchPresenter.cs" />
     <Compile Include="Presenter\SettingsPresenter.cs" />
     <Compile Include="Presenter\SignInPresenter.cs" />
-    <Compile Include="Presenter\SignUpPresenter.cs" />
     <Compile Include="Presenter\SplashPresenter.cs" />
     <Compile Include="Presenter\TagsPresenter.cs" />
     <Compile Include="Presenter\TermsPresenter.cs" />
@@ -325,7 +320,6 @@
     <AndroidResource Include="Resources\layout\lyr_search_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_add_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_category_item.axml" />
-    <AndroidResource Include="Resources\layout\lyt_change_password.axml" />
     <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
     <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
@@ -348,7 +342,6 @@
     <AndroidResource Include="Resources\layout\lyt_search.axml" />
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\layout\lyt_sign_in.axml" />
-    <AndroidResource Include="Resources\layout\lyt_sign_up.axml" />
     <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
     <AndroidResource Include="Resources\layout\lyt_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_tags.axml" />
