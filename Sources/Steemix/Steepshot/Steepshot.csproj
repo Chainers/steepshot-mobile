@@ -62,12 +62,10 @@
     <Compile Include="Base\BasePresenter.cs" />
     <Compile Include="Activity\ChangePasswordActivity.cs" />
     <Compile Include="Activity\CommentsActivity.cs" />
-    <Compile Include="Activity\FollowersActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\PostDescriptionActivity.cs" />
     <Compile Include="Activity\ProfileActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
-    <Compile Include="Activity\SearchActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
     <Compile Include="Activity\SignUpActivity.cs" />
@@ -145,9 +143,13 @@
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Reporter.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
-    <Compile Include="Activity\VotersActivity.cs" />
     <Compile Include="Presenter\VotersPresenter.cs" />
     <Compile Include="Adapter\VotersAdapter.cs" />
+    <Compile Include="Fragment\BackStackFragment.cs" />
+    <Compile Include="Fragment\HostFragment.cs" />
+    <Compile Include="Fragment\VotersFragment.cs" />
+    <Compile Include="Fragment\SearchFragment.cs" />
+    <Compile Include="Fragment\FollowersFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -199,6 +201,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_new.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_new.png" />
     <AndroidResource Include="Resources\layout\lyt_users_search_item.axml" />
+    <AndroidResource Include="Resources\layout\HostLayout.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />
@@ -457,15 +460,6 @@
     <Reference Include="ZXingNetMobile">
       <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\MonoAndroid403\ZXingNetMobile.dll</HintPath>
     </Reference>
-    <Reference Include="Cheeseknife">
-      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
-    </Reference>
-    <Reference Include="HockeySDK.AndroidBindings">
-      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
-    </Reference>
-    <Reference Include="HockeySDK">
-      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
-    </Reference>
     <Reference Include="BouncyCastle">
       <HintPath>..\packages\MimeKit.1.16.1\lib\MonoAndroid10\BouncyCastle.dll</HintPath>
     </Reference>
@@ -474,6 +468,15 @@
     </Reference>
     <Reference Include="MailKit">
       <HintPath>..\packages\MailKit.1.16.1\lib\MonoAndroid10\MailKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Cheeseknife">
+      <HintPath>Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeySDK.AndroidBindings">
+      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeySDK">
+      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

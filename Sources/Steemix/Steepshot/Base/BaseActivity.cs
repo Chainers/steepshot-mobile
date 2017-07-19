@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -10,6 +9,7 @@ namespace Steepshot
 {
 	public abstract class BaseActivity : AppCompatActivity, BaseView
 	{
+		protected HostFragment CurrentHostFragment;
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
@@ -26,6 +26,17 @@ namespace Steepshot
 		public Context GetContext()
 		{
 			return this;
+		}
+
+		public override void OnBackPressed()
+		{
+			if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
+				base.OnBackPressed();
+		}
+
+		public virtual void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+		{
+			CurrentHostFragment.ReplaceFragment(frag, true);
 		}
 
 		protected virtual void ShowAlert(int messageid)
