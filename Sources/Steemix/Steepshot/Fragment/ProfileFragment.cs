@@ -51,13 +51,18 @@ namespace Steepshot
 
 		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
-			var v = inflater.Inflate(Resource.Layout.lyt_fragment_profile, null);
-			Cheeseknife.Inject(this, v);
+			if (!_isInitialized)
+			{
+				v = inflater.Inflate(Resource.Layout.lyt_fragment_profile, null);
+				Cheeseknife.Inject(this, v);
+			}
 			return v;
 		}
 
 		public override void OnViewCreated(View view, Bundle savedInstanceState)
 		{
+			if (_isInitialized)
+				return;
 			base.OnViewCreated(view, savedInstanceState);
 			backButton.Visibility = ViewStates.Gone;
 			if (_profileId == UserPrincipal.Instance.CurrentUser?.Login)
@@ -116,19 +121,17 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.following_btn)]
 		public void OnFollowingClick(object sender, EventArgs e)
 		{
-			var intent = new Intent(Context, typeof(FollowersActivity));
-			intent.PutExtra("isFollowers", false);
-			intent.PutExtra("username", _profileId);
-			StartActivity(intent);
+			Activity.Intent.PutExtra("isFollowers", true);
+			Activity.Intent.PutExtra("username", _profileId);
+			((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
 		}
 
 		[InjectOnClick(Resource.Id.followers_btn)]
 		public void OnFollowersClick(object sender, EventArgs e)
 		{
-			var intent = new Intent(Context, typeof(FollowersActivity));
-			intent.PutExtra("isFollowers", true);
-			intent.PutExtra("username", _profileId);
-			StartActivity(intent);
+			Activity.Intent.PutExtra("isFollowers", true);
+			Activity.Intent.PutExtra("username", _profileId);
+			((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
 		}
 
         FeedAdapter _feedAdapter;
@@ -143,6 +146,7 @@ namespace Steepshot
                     _feedAdapter.LikeAction += FeedAdapter_LikeAction;
                     _feedAdapter.UserAction += FeedAdapter_UserAction;
                     _feedAdapter.CommentAction += FeedAdapter_CommentAction;
+					_feedAdapter.VotersClick += FeedAdapter_VotersAction;
                 }
                 return _feedAdapter;
             }
@@ -162,17 +166,17 @@ namespace Steepshot
             }
         }
 
-		public override bool UserVisibleHint
+		public override bool CustomUserVisibleHint
 		{
 			get
 			{
-				return base.UserVisibleHint;
+				return base.CustomUserVisibleHint;
 			}
 			set
 			{
 				if (value && UserPrincipal.Instance.ShouldUpdateProfile)
 				{
-					UpdateProfile();
+                    UpdateProfile();
 					UserPrincipal.Instance.ShouldUpdateProfile = false;
 				}
 				base.UserVisibleHint = value;
@@ -251,9 +255,9 @@ namespace Steepshot
             }
 		}
 
-		public override void OnDestroyView()
+		public override void OnDetach()
 		{
-			base.OnDestroyView();
+			base.OnDetach();
 			Cheeseknife.Reset(this);
 		}
 
@@ -283,14 +287,16 @@ namespace Steepshot
             this.Context.StartActivity(intent);
         }
 
+		void FeedAdapter_VotersAction(int position)
+		{
+			Activity.Intent.PutExtra("url", presenter.UserPosts[position].Url);
+			((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+		}
+
         void FeedAdapter_UserAction(int position)
         {
 			if (_profileId != presenter.UserPosts[position].Author)
-			{
-				Intent intent = new Intent(this.Context, typeof(ProfileActivity));
-				intent.PutExtra("ID", presenter.UserPosts[position].Author);
-				this.Context.StartActivity(intent);
-			}
+				((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(presenter.UserPosts[position].Author));
         }
 
         async void FeedAdapter_LikeAction(int position)

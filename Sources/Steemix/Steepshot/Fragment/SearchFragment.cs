@@ -1,6 +1,4 @@
 using System;
-using Android.Content.PM;
-using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Android.Support.V7.Widget;
@@ -12,53 +10,65 @@ using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 using Android.Widget;
 using System.Collections.Generic;
+using Android.Views.InputMethods;
 
 namespace Steepshot
 {
-    [Activity(Label = "SearchActivity", ScreenOrientation = ScreenOrientation.Portrait)]
-	public class SearchActivity : BaseActivity,SearchView
+	public class SearchFragment : BaseFragment, SearchView
     {
 		private Timer _timer;
 		SearchPresenter presenter;
 		private SearchType _searchType = SearchType.Tags;
-		private string _prevQuery;
 		private CancellationTokenSource cts;
+		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView categories;
+		[InjectView(Resource.Id.users)] RecyclerView users;
         [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView searchView;
         [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
 		[InjectView(Resource.Id.tags_button)] Button tagsButton;
 		[InjectView(Resource.Id.people_button)] Button peopleButton;
 #pragma warning restore 0649
 
-        CategoriesAdapter Adapter;
+        CategoriesAdapter _categoriesAdapter;
+		UsersSearchAdapter _usersSearchAdapter;
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		{
+			if (!_isInitialized)
+			{
+				v = inflater.Inflate(Resource.Layout.lyt_search, null);
+				Cheeseknife.Inject(this, v);
+			}
+			return v;
+		}
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-
-            SetContentView(Resource.Layout.lyt_search);
-            Cheeseknife.Inject(this);
-
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		{
+			if (_isInitialized)
+				return;
+			
+			base.OnViewCreated(view, savedInstanceState);
 			searchView.QueryTextChange += (sender, e) =>
 			{
 				_timer.Change(500, Timeout.Infinite);
 			};
 
-            categories.SetLayoutManager(new LinearLayoutManager(this));
+			categories.SetLayoutManager(new LinearLayoutManager(Activity));
+			users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            Adapter = new CategoriesAdapter(this);
+			_categoriesAdapter = new CategoriesAdapter(Activity);
+			_usersSearchAdapter = new UsersSearchAdapter(Activity);
+			categories.SetAdapter(_categoriesAdapter);
+			users.SetAdapter(_usersSearchAdapter);
 
-            categories.SetAdapter(Adapter);
-
-            Adapter.Click += OnClick;
+			_categoriesAdapter.Click += OnClick;
+			_usersSearchAdapter.Click += OnClick;
 			_timer = new Timer(onTimer);
-            searchView.Iconified = false;
-            searchView.ClearFocus();
+			searchView.Iconified = false;
+			searchView.ClearFocus();
 			SwitchSearchType();
-            GetTags();
-        }
+		}
 
 		[InjectOnClick(Resource.Id.tags_button)]
 		public void TagsClick(object sender, EventArgs e)
@@ -78,47 +88,61 @@ namespace Steepshot
         {
 			if (_searchType == SearchType.Tags)
 			{
-				Intent returnIntent = new Intent();
-				Bundle b = new Bundle();
-				b.PutString("SEARCH", Adapter.GetItem(pos).Name);
-				returnIntent.PutExtra("SEARCH", b);
-				SetResult(Result.Ok, returnIntent);
-				Finish();
+				Activity.Intent.PutExtra("SEARCH", _categoriesAdapter.GetItem(pos).Name);
+
+				if (Activity.CurrentFocus != null)
+				{
+					InputMethodManager imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+					imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
+				}
+				Activity.OnBackPressed();
 			}
 			else
 			{
-				Intent intent = new Intent(this, typeof(ProfileActivity));
-				intent.PutExtra("ID", Adapter.GetItem(pos).Name);
-				this.StartActivity(intent);
+				((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_usersSearchAdapter.Items[pos].Username));
 			}
         }
 
 		private void onTimer(object state)
 		{
-			RunOnUiThread(() =>
+			Activity.RunOnUiThread(() =>
 		   {
+			   _usersSearchAdapter.Items.Clear();
 			   GetTags();
 		   });
 		}
 
-		Task<OperationResult<SearchResponse>> tagsTask;
+		Task<OperationResult> tagsTask;
 		private async Task GetTags()
 		{
 			try
 			{
 				var query = searchView.Query;
-				if (_prevQuery == query)
+				if (prevQuery[_searchType] == query)
 					return;
 				if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
 					return;
-				_prevQuery = query;
+				prevQuery[_searchType] = query;
 				spinner.Visibility = ViewStates.Visible;
 				tagsTask = presenter.SearchCategories(searchView.Query, _searchType);
-				var tags = await tagsTask;
-				if (tags?.Result?.Results != null)
+
+				if (_searchType == SearchType.Tags)
 				{
-					Adapter.Reset(tags.Result.Results);
-					Adapter.NotifyDataSetChanged();
+					var tags = (OperationResult<SearchResponse<SearchResult>>)await tagsTask;
+					if (tags?.Result?.Results != null)
+					{
+						_categoriesAdapter.Reset(tags.Result.Results);
+						_categoriesAdapter.NotifyDataSetChanged();
+					}
+				}
+				else
+				{
+					var usersList = (OperationResult<UserSearchResponse>)await tagsTask;
+					if (usersList?.Result?.Results != null)
+					{
+						_usersSearchAdapter.Items = usersList.Result.Results;
+						_usersSearchAdapter.NotifyDataSetChanged();
+					}
 				}
 			}
 			catch (Exception ex)
@@ -139,12 +163,11 @@ namespace Steepshot
 
 		private void SwitchSearchType()
 		{
-			Adapter.Reset(new List<SearchResult>());
-			_prevQuery = null;
-			Adapter.NotifyDataSetChanged();
 			GetTags();
 			if (_searchType == SearchType.Tags)
 			{
+				users.Visibility = ViewStates.Gone;
+				categories.Visibility = ViewStates.Visible;
 				tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
 				tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
@@ -153,6 +176,8 @@ namespace Steepshot
 			}
 			else
 			{
+				users.Visibility = ViewStates.Visible;
+				categories.Visibility = ViewStates.Gone;
 				peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
 				peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
@@ -161,9 +186,9 @@ namespace Steepshot
 			}
 		}
 
-		protected override void OnDestroy()
+		public override void OnDetach()
 		{
-			base.OnDestroy();
+			base.OnDetach();
 			Cheeseknife.Reset(this);
 		}
 	}

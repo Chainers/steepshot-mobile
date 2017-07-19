@@ -11,7 +11,7 @@ namespace Steepshot
 		public SearchPresenter(SearchView view):base(view) { }
 		private CancellationTokenSource cts;
 
-		public async Task<OperationResult<SearchResponse>> SearchCategories(string s, SearchType searchType)
+		public async Task<OperationResult> SearchCategories(string s, SearchType searchType)
 		{
 			using (cts = new CancellationTokenSource())
 			{

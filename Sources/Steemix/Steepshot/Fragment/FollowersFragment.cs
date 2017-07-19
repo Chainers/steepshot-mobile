@@ -11,8 +11,7 @@ using Android.Content;
 
 namespace Steepshot
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class FollowersActivity : BaseActivity, FollowersView
+    public class FollowersFragment : BaseFragment, FollowersView
     {
 		FollowersPresenter presenter;
         private FollowType _friendsType;
@@ -24,27 +23,37 @@ namespace Steepshot
 		[InjectView(Resource.Id.followers_list)] RecyclerView _followersList;
 #pragma warning restore 0649
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-            var isFollowers = Intent.GetBooleanExtra("isFollowers", false);
-			var username = Intent.GetStringExtra("username") ?? UserPrincipal.Instance.CurrentUser.Login ;
-            _friendsType = isFollowers ? FollowType.Follow : FollowType.UnFollow;
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		{
+			if (!_isInitialized)
+			{
+				v = inflater.Inflate(Resource.Layout.lyt_followers, null);
+				Cheeseknife.Inject(this, v);
+			}
+			return v;
+		}
 
-            presenter.Collection.Clear();
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		{
+			if (_isInitialized)
+				return;
+			base.OnViewCreated(view, savedInstanceState);
+			var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+			var username = Activity.Intent.GetStringExtra("username") ?? UserPrincipal.Instance.CurrentUser.Login;
+			_friendsType = isFollowers ? FollowType.Follow : FollowType.UnFollow;
+
+			presenter.Collection.Clear();
 			presenter.ViewLoad(_friendsType, username);
-            SetContentView(Resource.Layout.lyt_followers);
-            Cheeseknife.Inject(this);
 
-            ViewTitle.Text = isFollowers ? GetString(Resource.String.text_followers) : GetString(Resource.String.text_following);
+			ViewTitle.Text = isFollowers ? GetString(Resource.String.text_followers) : GetString(Resource.String.text_following);
 
-            _followersAdapter = new FollowersAdapter(this, presenter.Collection);
-            _followersList.SetAdapter(_followersAdapter);
-            _followersList.SetLayoutManager(new LinearLayoutManager(this));
+			_followersAdapter = new FollowersAdapter(Activity, presenter.Collection);
+			_followersList.SetAdapter(_followersAdapter);
+			_followersList.SetLayoutManager(new LinearLayoutManager(Activity));
 			_followersList.AddOnScrollListener(new FollowersScrollListener(presenter, username, _friendsType));
-            _followersAdapter.FollowAction += FollowersAdapter_FollowAction;
+			_followersAdapter.FollowAction += FollowersAdapter_FollowAction;
 			_followersAdapter.UserAction += FollowersAdapter_UserAction;
-        }
+		}
 
         public class FollowersScrollListener : RecyclerView.OnScrollListener
         {
@@ -93,7 +102,7 @@ namespace Steepshot
 				}
 				else
 				{
-					Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
+					Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
 					_followersAdapter.InverseFollow(position);
 					_followersAdapter.NotifyDataSetChanged();
 				}
@@ -106,33 +115,32 @@ namespace Steepshot
 
 		private void FollowersAdapter_UserAction(int position)
 		{
-			Intent intent = new Intent(this, typeof(ProfileActivity));
-			intent.PutExtra("ID", presenter.Collection[position].Author);
-			this.StartActivity(intent);
+			((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(presenter.Collection[position].Author));
 		}
 
         [InjectOnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
         {
-            OnBackPressed();
+            Activity.OnBackPressed();
         }
 
-        protected override void OnResume()
-        {
-            base.OnResume();
-            _followersAdapter.NotifyDataSetChanged();
+		public override void OnResume()
+		{
+			base.OnResume();
+			_followersAdapter.NotifyDataSetChanged();
             presenter.Collection.CollectionChanged += CollectionChanged;
-        }
+		}
 
-        protected override void OnPause()
-        {
-            presenter.Collection.CollectionChanged -= CollectionChanged;
-            base.OnPause();
-        }
+		public override void OnPause()
+		{
+			base.OnPause();
+			_followersAdapter.NotifyDataSetChanged();
+            presenter.Collection.CollectionChanged += CollectionChanged;
+		}
 
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            RunOnUiThread(() =>
+            Activity.RunOnUiThread(() =>
             {
                 if (_bar.Visibility == ViewStates.Visible)
                     _bar.Visibility = ViewStates.Gone;
@@ -140,31 +148,14 @@ namespace Steepshot
             });
         }
 
-        
-        public void OnScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY)
-        {
-            //int pos = ((LinearLayoutManager)_followersList.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
-            //if (pos > _prevPos && pos != _prevPos)
-            //{
-            //    if (pos == _followersList.GetAdapter().ItemCount - 1)
-            //    {
-            //        if (pos < _followersAdapter.ItemCount)
-            //        {
-            //            Task.Run(() => ViewModel.GetItems(_followersAdapter.GetItem(_followersAdapter.ItemCount - 1).Author, 10, _friendsType));
-            //            _prevPos = pos;
-            //        }
-            //    }
-            //}
-        }
-
 		protected override void CreatePresenter()
 		{
 			presenter = new FollowersPresenter(this);
 		}
 
-		protected override void OnDestroy()
+		public override void OnDetach()
 		{
-			base.OnDestroy();
+			base.OnDetach();
 			Cheeseknife.Reset(this);
 		}
 	}
