@@ -85,7 +85,7 @@ namespace Steepshot
 
             void Like_Click(object sender, EventArgs e)
             {
-                if (UserPrincipal.Instance.CurrentUser != null)
+                if (User.IsAuthenticated)
                 {
                     Like.SetImageResource(!post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
 

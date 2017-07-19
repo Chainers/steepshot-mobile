@@ -65,7 +65,7 @@ namespace Steepshot
 				return;
 			base.OnViewCreated(view, savedInstanceState);
 			backButton.Visibility = ViewStates.Gone;
-			if (_profileId == UserPrincipal.Instance.CurrentUser?.Login)
+			if (_profileId == User.Login)
 				FollowCont.Visibility = ViewStates.Gone;
 			else
 				Settings.Visibility = ViewStates.Gone;
@@ -174,10 +174,10 @@ namespace Steepshot
 			}
 			set
 			{
-				if (value && UserPrincipal.Instance.ShouldUpdateProfile)
+				if (value && User.ShouldUpdateProfile)
 				{
                     UpdateProfile();
-					UserPrincipal.Instance.ShouldUpdateProfile = false;
+					User.ShouldUpdateProfile = false;
 				}
 				base.UserVisibleHint = value;
 			}
@@ -303,7 +303,7 @@ namespace Steepshot
         {
 			try
 			{
-				if (UserPrincipal.Instance.IsAuthenticated)
+				if (User.IsAuthenticated)
 				{
 					var response = await presenter.Vote(presenter.UserPosts[position]);
 

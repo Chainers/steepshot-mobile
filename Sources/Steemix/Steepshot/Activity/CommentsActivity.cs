@@ -40,7 +40,7 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
-            if (UserPrincipal.Instance.CurrentUser != null)
+            if (User.IsAuthenticated)
             {
                 try
                 {
@@ -115,7 +115,7 @@ namespace Steepshot
         {
 			try
 			{
-				if (UserPrincipal.Instance.CurrentUser != null)
+				if (User.IsAuthenticated)
 				{
 					var response = await presenter.Vote(presenter.Posts[position]);
 

@@ -34,7 +34,7 @@ namespace Steepshot
 				var request = new UserFriendsRequest(username,
 					followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
 				{
-					SessionId = UserPrincipal.Instance.Cookie,
+					SessionId = User.SessionId,
 					Offset = _offsetUrl,
 					Limit = _itemsLimit
 				};
@@ -62,7 +62,7 @@ namespace Steepshot
 
 		public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
 		{
-			var request = new FollowRequest(UserPrincipal.Instance.CurrentUser.SessionId, item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author);
+			var request = new FollowRequest(User.SessionId, item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author);
 			return await Api.Follow(request);
 		}
 	}

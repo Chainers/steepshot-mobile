@@ -74,7 +74,7 @@ namespace Steepshot
 					OperationResult<UserPostResponse> response;
 					if (_isFeed)
 					{
-						var f = new UserRecentPostsRequest(UserPrincipal.Instance.Cookie)
+						var f = new UserRecentPostsRequest(User.SessionId)
 						{
 							Limit = postsCount,
 							Offset = _offsetUrl
@@ -85,7 +85,7 @@ namespace Steepshot
 					{
 						var postrequest = new PostsRequest(type)
 						{
-							SessionId = UserPrincipal.Instance.Cookie,
+							SessionId = User.SessionId,
 							Limit = postsCount,
 							Offset = _offsetUrl
 						};
@@ -147,7 +147,7 @@ namespace Steepshot
 					processing = true;
 					var postrequest = new PostsByCategoryRequest(type, Tag)
 					{
-						SessionId = UserPrincipal.Instance.Cookie,
+						SessionId = User.SessionId,
 						Limit = postsCount,
 						Offset = _offsetUrl
 					};
@@ -187,16 +187,16 @@ namespace Steepshot
 
 		public async Task<OperationResult<VoteResponse>> Vote(Post post)
 		{
-			if (!UserPrincipal.Instance.IsAuthenticated)
-				return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };
+			if (!User.IsAuthenticated)
+				return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }};
 
-			var voteRequest = new VoteRequest(UserPrincipal.Instance.CurrentUser.SessionId, !post.Vote, post.Url);
+			var voteRequest = new VoteRequest(User.SessionId, !post.Vote, post.Url);
 			return await Api.Vote(voteRequest);
 		}
 
         public async Task<OperationResult<LogoutResponse>> Logout()
         {
-            var request = new LogoutRequest(UserPrincipal.Instance.CurrentUser.SessionId);
+            var request = new LogoutRequest(User.SessionId);
             return await Api.Logout(request);
         }
     }
