@@ -130,6 +130,7 @@ namespace Steepshot
 				Like.Click += Like_Click;
 				Avatar.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
 				Author.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
+				FirstComment.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
 				CommentSubtitle.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
 				Likes.Click += (sender, e) => VotersAction?.Invoke(AdapterPosition);
 				Photo.Click += (sender, e) => PhotoAction?.Invoke(AdapterPosition);
