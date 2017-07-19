@@ -13,14 +13,14 @@ namespace Steepshot
 	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
 	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, RootView
 	{
-		RootPresenter presenter;
+		private RootPresenter presenter;
+		private PagerAdapter Adapter;
+		public string VoterUrl;
 
 #pragma warning disable 0649, 4014
 		[InjectView(Resource.Id.view_pager)] ViewPager viewPager;
 		[InjectView(Resource.Id.tab_layout)] TabLayout tabLayout;
 #pragma warning restore 0649
-
-		PagerAdapter Adapter;
 
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
@@ -82,6 +82,12 @@ namespace Steepshot
 					}
 				}
 			}
+		}
+
+		public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+		{
+			CurrentHostFragment = (HostFragment)Adapter.GetItem(viewPager.CurrentItem);
+			base.OpenNewContentFragment(frag);
 		}
 
 		protected override void CreatePresenter()

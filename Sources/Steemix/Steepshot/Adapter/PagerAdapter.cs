@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V4.App;
 
@@ -13,9 +14,12 @@ namespace Steepshot
 		};
 		Context context;
 
+		private List<Fragment> tabs = new List<Fragment>();
+
 		public PagerAdapter(FragmentManager fm, Context context) : base(fm)
 		{
 			this.context = context;
+			InitializeTabs();
 		}
 
 		public override int Count
@@ -28,18 +32,34 @@ namespace Steepshot
 
 		public override Fragment GetItem(int position)
 		{
-			switch (position)
+			return tabs[position];
+		}
+
+		private void InitializeTabs()
+		{
+			for (int i = 0; i < tabIcos.Length; i++)
 			{
-				case 0:
-					return new FeedFragment(true);
-				case 1:
-					return new FeedFragment();
-				case 2:
-					return new PhotoFragment();
-				case 3:
-					return new ProfileFragment(UserPrincipal.Instance.CurrentUser.Login);
+				Fragment frag;
+				switch (i)
+				{
+					case 0:
+						frag = HostFragment.NewInstance(new FeedFragment(true));
+						break;
+					case 1:
+						frag = HostFragment.NewInstance(new FeedFragment());
+						break;
+					case 2:
+						frag = HostFragment.NewInstance(new PhotoFragment());
+						break;
+					case 3:
+						frag = HostFragment.NewInstance(new ProfileFragment(UserPrincipal.Instance.CurrentUser.Login));
+						break;
+					default:
+						frag = null;
+						break;
+				}
+				tabs.Add(frag);
 			}
-			return null;
 		}
 	}
 }
