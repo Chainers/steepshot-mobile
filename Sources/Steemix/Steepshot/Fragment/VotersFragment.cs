@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -9,21 +10,16 @@ using Com.Lilarcor.Cheeseknife;
 
 namespace Steepshot
 {
-	[Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-	public class VotersActivity : BaseActivity, FollowersView
+	public class VotersFragment : BaseFragment, FollowersView
 	{
 		private VotersPresenter presenter;
 		private VotersAdapter _votersAdapter;
 
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.loading_spinner)]
-		private ProgressBar _bar;
-		[InjectView(Resource.Id.followers_list)]
-		private RecyclerView _votersList;
-		[InjectView(Resource.Id.Title)]
-		private TextView _viewTitle;
-		[InjectView(Resource.Id.btn_back)]
-		private ImageButton _backButton;
+		[InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+		[InjectView(Resource.Id.followers_list)] private RecyclerView _votersList;
+		[InjectView(Resource.Id.Title)] private TextView _viewTitle;
+		[InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
 		protected override void CreatePresenter()
@@ -31,26 +27,41 @@ namespace Steepshot
 			presenter = new VotersPresenter(this);
 		}
 
-		protected override void OnCreate(Bundle savedInstanceState)
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
-			base.OnCreate(savedInstanceState);
-			SetContentView(Resource.Layout.lyt_followers);
-			Cheeseknife.Inject(this);
-			_backButton.Visibility = ViewStates.Gone;
+			if (!_isInitialized)
+			{
+				v = inflater.Inflate(Resource.Layout.lyt_followers, null);
+				Cheeseknife.Inject(this, v);
+			}
+			return v;
+		}
+
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		{
+			if (_isInitialized)
+				return;
+			 base.OnViewCreated(view, savedInstanceState);
 			_viewTitle.Text = "Voters";
-			var url = Intent.GetStringExtra("url");
-			_votersAdapter = new VotersAdapter(this, presenter.Users);
+			var url = Activity.Intent.GetStringExtra("url");
+			_votersAdapter = new VotersAdapter(Activity, presenter.Users);
 			_votersAdapter.Click += OnClick;
 			_votersList.SetAdapter(_votersAdapter);
 			_votersList.AddOnScrollListener(new VotersScrollListener(presenter, url));
-			_votersList.SetLayoutManager(new LinearLayoutManager(this));
+			_votersList.SetLayoutManager(new LinearLayoutManager(Activity));
 			presenter.VotersLoaded += OnPostLoaded;
 			presenter.GetItems(url);
 		}
 
+        [InjectOnClick(Resource.Id.btn_back)]
+        public void GoBackClick(object sender, EventArgs e)
+		{
+			Activity.OnBackPressed();
+		}
+
 		private void OnPostLoaded()
 		{
-			RunOnUiThread(() =>
+			Activity.RunOnUiThread(() =>
 				{
 					if (_bar != null)
 						_bar.Visibility = ViewStates.Gone;
@@ -60,9 +71,13 @@ namespace Steepshot
 
 		private void OnClick(int pos)
 		{
-			Intent intent = new Intent(this, typeof(ProfileActivity));
-			intent.PutExtra("ID", _votersAdapter.Items[pos].Username);
-			this.StartActivity(intent);
+			((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_votersAdapter.Items[pos].Username));
+		}
+
+		public override void OnDetach()
+		{
+			base.OnDetach();
+			Cheeseknife.Reset(this);
 		}
 	}
 

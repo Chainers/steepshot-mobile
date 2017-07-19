@@ -1,6 +1,4 @@
 using System;
-using Android.Content.PM;
-using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Android.Support.V7.Widget;
@@ -12,11 +10,11 @@ using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Responses;
 using Android.Widget;
 using System.Collections.Generic;
+using Android.Views.InputMethods;
 
 namespace Steepshot
 {
-    [Activity(Label = "SearchActivity", ScreenOrientation = ScreenOrientation.Portrait)]
-	public class SearchActivity : BaseActivity,SearchView
+	public class SearchFragment : BaseFragment, SearchView
     {
 		private Timer _timer;
 		SearchPresenter presenter;
@@ -35,34 +33,42 @@ namespace Steepshot
 
         CategoriesAdapter _categoriesAdapter;
 		UsersSearchAdapter _usersSearchAdapter;
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		{
+			if (!_isInitialized)
+			{
+				v = inflater.Inflate(Resource.Layout.lyt_search, null);
+				Cheeseknife.Inject(this, v);
+			}
+			return v;
+		}
 
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-
-            SetContentView(Resource.Layout.lyt_search);
-            Cheeseknife.Inject(this);
-
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		{
+			if (_isInitialized)
+				return;
+			
+			base.OnViewCreated(view, savedInstanceState);
 			searchView.QueryTextChange += (sender, e) =>
 			{
 				_timer.Change(500, Timeout.Infinite);
 			};
 
-            categories.SetLayoutManager(new LinearLayoutManager(this));
-			users.SetLayoutManager(new LinearLayoutManager(this));
+			categories.SetLayoutManager(new LinearLayoutManager(Activity));
+			users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _categoriesAdapter = new CategoriesAdapter(this);
-			_usersSearchAdapter = new UsersSearchAdapter(this);
-            categories.SetAdapter(_categoriesAdapter);
+			_categoriesAdapter = new CategoriesAdapter(Activity);
+			_usersSearchAdapter = new UsersSearchAdapter(Activity);
+			categories.SetAdapter(_categoriesAdapter);
 			users.SetAdapter(_usersSearchAdapter);
 
-            _categoriesAdapter.Click += OnClick;
+			_categoriesAdapter.Click += OnClick;
 			_usersSearchAdapter.Click += OnClick;
 			_timer = new Timer(onTimer);
-            searchView.Iconified = false;
-            searchView.ClearFocus();
+			searchView.Iconified = false;
+			searchView.ClearFocus();
 			SwitchSearchType();
-        }
+		}
 
 		[InjectOnClick(Resource.Id.tags_button)]
 		public void TagsClick(object sender, EventArgs e)
@@ -82,24 +88,24 @@ namespace Steepshot
         {
 			if (_searchType == SearchType.Tags)
 			{
-				Intent returnIntent = new Intent();
-				Bundle b = new Bundle();
-				b.PutString("SEARCH", _categoriesAdapter.GetItem(pos).Name);
-				returnIntent.PutExtra("SEARCH", b);
-				SetResult(Result.Ok, returnIntent);
-				Finish();
+				Activity.Intent.PutExtra("SEARCH", _categoriesAdapter.GetItem(pos).Name);
+
+				if (Activity.CurrentFocus != null)
+				{
+					InputMethodManager imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+					imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
+				}
+				Activity.OnBackPressed();
 			}
 			else
 			{
-				Intent intent = new Intent(this, typeof(ProfileActivity));
-				intent.PutExtra("ID", _usersSearchAdapter.Items[pos].Username);
-				this.StartActivity(intent);
+				((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_usersSearchAdapter.Items[pos].Username));
 			}
         }
 
 		private void onTimer(object state)
 		{
-			RunOnUiThread(() =>
+			Activity.RunOnUiThread(() =>
 		   {
 			   _usersSearchAdapter.Items.Clear();
 			   GetTags();
@@ -180,9 +186,9 @@ namespace Steepshot
 			}
 		}
 
-		protected override void OnDestroy()
+		public override void OnDetach()
 		{
-			base.OnDestroy();
+			base.OnDetach();
 			Cheeseknife.Reset(this);
 		}
 	}

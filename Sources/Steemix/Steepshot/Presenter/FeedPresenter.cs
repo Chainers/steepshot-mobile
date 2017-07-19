@@ -26,6 +26,7 @@ namespace Steepshot
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
 		private const int postsCount = 20;
+		public string Tag;
 
 		public PostType GetCurrentType()
 		{
@@ -126,7 +127,7 @@ namespace Steepshot
 			}
 		}
 
-		public async Task GetSearchedPosts(string query)
+		public async Task GetSearchedPosts()
 		{
 			if (!_hasItems)
 				return;
@@ -144,7 +145,7 @@ namespace Steepshot
 				using (cts = new CancellationTokenSource())
 				{
 					processing = true;
-					var postrequest = new PostsByCategoryRequest(type, query)
+					var postrequest = new PostsByCategoryRequest(type, Tag)
 					{
 						SessionId = UserPrincipal.Instance.Cookie,
 						Limit = postsCount,
@@ -164,8 +165,6 @@ namespace Steepshot
 								_hasItems = false;
 
 							_offsetUrl = lastItem.Url;
-
-							Posts.Clear();
 
 							foreach (var item in posts.Result.Results)
 							{
