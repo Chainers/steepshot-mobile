@@ -95,10 +95,13 @@ namespace Steepshot
             comments.SetLayoutManager(manager);
             posts = await presenter.GetComments(uid);
             Adapter = new CommentAdapter(this, posts);
-            comments.SetAdapter(Adapter);
-            spinner.Visibility = Android.Views.ViewStates.Gone;
-            Adapter.LikeAction += FeedAdapter_LikeAction;
-            Adapter.UserAction += FeedAdapter_UserAction;
+			if (comments != null)
+			{
+				comments.SetAdapter(Adapter);
+				spinner.Visibility = ViewStates.Gone;
+				Adapter.LikeAction += FeedAdapter_LikeAction;
+				Adapter.UserAction += FeedAdapter_UserAction;
+			}
         }
 
         void FeedAdapter_UserAction(int position)
