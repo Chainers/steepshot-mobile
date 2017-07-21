@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FeedViewController">
+            <connections>
+                <outlet property="activityIndicator" destination="Nz4-E8-bmW" id="NQz-Io-5RF"/>
+                <outlet property="feedCollection" destination="YmX-Vb-FuF" id="PAN-kB-cZv"/>
+                <outlet property="flowLayout" destination="NA2-gD-SsK" id="7vd-Lf-GwU"/>
+                <outlet property="noFeedLabel" destination="NMt-fB-f6U" id="onh-Cu-uyo"/>
+                <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="2">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <collectionView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="YmX-Vb-FuF">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="NA2-gD-SsK">
+                        <size key="itemSize" width="320" height="500"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <cells/>
+                </collectionView>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Nz4-E8-bmW">
+                    <rect key="frame" x="169" y="315" width="37" height="37"/>
+                    <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </activityIndicatorView>
+                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please follow more people to see posts in your feed" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NMt-fB-f6U">
+                    <rect key="frame" x="0.0" y="306" width="375" height="55"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="55" id="AnX-Aq-nyD"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="YmX-Vb-FuF" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="4DX-4d-iNa"/>
+                <constraint firstItem="NMt-fB-f6U" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="9V1-e1-xcs"/>
+                <constraint firstAttribute="trailing" secondItem="YmX-Vb-FuF" secondAttribute="trailing" id="Aoa-d2-Ldi"/>
+                <constraint firstItem="NMt-fB-f6U" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="j1c-Vs-rNm"/>
+                <constraint firstAttribute="bottom" secondItem="YmX-Vb-FuF" secondAttribute="bottom" id="kcB-7w-Hps"/>
+                <constraint firstItem="NMt-fB-f6U" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="la2-Qd-5VD"/>
+                <constraint firstItem="Nz4-E8-bmW" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="n4C-dW-zEh"/>
+                <constraint firstItem="YmX-Vb-FuF" firstAttribute="top" secondItem="2" secondAttribute="top" id="pBZ-mM-LHB"/>
+                <constraint firstItem="Nz4-E8-bmW" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="tfx-L2-gvm"/>
+                <constraint firstAttribute="trailing" secondItem="NMt-fB-f6U" secondAttribute="trailing" id="y6L-3x-QON"/>
+            </constraints>
+            <point key="canvasLocation" x="25.5" y="52.5"/>
+        </view>
+    </objects>
+</document>
