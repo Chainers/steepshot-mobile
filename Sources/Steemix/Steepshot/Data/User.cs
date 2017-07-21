@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Preferences;
@@ -47,6 +48,7 @@ namespace Steepshot
                 ISharedPreferencesEditor editor = prefs.Edit();
                 editor.PutInt("chain", (int)value);
                 editor.Apply();
+				UpdateCurrentUser();
             }
         }
 
@@ -82,7 +84,7 @@ namespace Steepshot
 
         public static string SessionId
         {
-            get { return CurrentUser.SessionId; }
+            get { return CurrentUser?.SessionId; }
             set
             {
                 CurrentUser.SessionId = value;
@@ -101,6 +103,11 @@ namespace Steepshot
                 CurrentUser = user;
             }
         }
+
+		private static void UpdateCurrentUser()
+		{
+			CurrentUser = GetAllAccounts().FirstOrDefault(a => a.Chain == Chain);
+		}
 
         private static bool TryLoadFromDb(out UserInfo userInfo)
         {
@@ -138,6 +145,7 @@ namespace Steepshot
         private static void SaveChanges()
         {
             Db.Insert(CurrentUser);
+			UpdateCurrentUser();
         }
 
         public static void Delete()
@@ -145,12 +153,14 @@ namespace Steepshot
             if (CurrentUser != null)
             {
                 Db.Delete(CurrentUser);
+				UpdateCurrentUser();
             }
         }
 
         public static void Delete(UserInfo user)
         {
             Db.Delete(user);
+            UpdateCurrentUser();
         }
 
         public static List<UserInfo> GetAllAccounts()

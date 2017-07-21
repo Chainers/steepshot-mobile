@@ -147,10 +147,10 @@ namespace Steepshot
         protected override void OnDestroy()
         {
             if (_newChain != KnownChains.None)
-            {
-                User.Chain = _newChain;
-                BasePresenter.SwitchChain();
-            }
+			{
+				User.Chain = _newChain == KnownChains.Steem? KnownChains.Golos : KnownChains.Steem;
+				BasePresenter.SwitchChain();
+			}
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
