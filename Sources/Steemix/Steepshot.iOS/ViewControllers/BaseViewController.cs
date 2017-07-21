@@ -13,6 +13,8 @@ namespace Steepshot.iOS
 		{
 		}
 
+		public BaseViewController() { }
+
 		protected UIView activeview;
 		protected nfloat scroll_amount = 0.0f;
 		protected nfloat bottom = 0.0f;

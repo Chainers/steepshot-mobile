@@ -37,12 +37,13 @@ namespace Steepshot.iOS
             UserContext.Load();
             if (UserContext.Instanse.Token != null)
             {
-                initialViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+				initialViewController = new FeedViewController(); //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-                initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
+				initialViewController = new FeedViewController();
+                //initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
             var navController = new UINavigationController(initialViewController);
             Window.RootViewController = navController;

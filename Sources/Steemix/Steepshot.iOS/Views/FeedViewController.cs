@@ -19,6 +19,10 @@ namespace Steepshot.iOS
 			// Note: this .ctor should not contain any initialization logic.
 		}
 
+		public FeedViewController()
+		{
+		}
+
 		private PostType currentPostType = PostType.Top;
 		private string currentPostCategory;
 

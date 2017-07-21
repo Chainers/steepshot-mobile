@@ -152,6 +152,7 @@
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
+    <InterfaceDefinition Include="Views\FeedViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -174,10 +175,6 @@
     </Compile>
     <Compile Include="ViewSources\FeedTableViewSource.cs" />
     <Compile Include="ViewControllers\BaseViewController.cs" />
-    <Compile Include="ViewControllers\FeedViewController.cs" />
-    <Compile Include="ViewControllers\FeedViewController.designer.cs">
-      <DependentUpon>FeedViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewControllers\PhotoViewController.cs" />
     <Compile Include="ViewControllers\PhotoViewController.designer.cs">
       <DependentUpon>PhotoViewController.cs</DependentUpon>
@@ -274,6 +271,10 @@
       <DependentUpon>VotersViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\VotersTableViewSource.cs" />
+    <Compile Include="Views\FeedViewController.cs" />
+    <Compile Include="Views\FeedViewController.designer.cs">
+      <DependentUpon>FeedViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
