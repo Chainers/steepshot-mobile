@@ -1,5 +1,6 @@
-﻿using SQLite;
+﻿using Steepshot.SQLite;
 using System;
+
 namespace Steepshot
 {
     public class UserInfo
