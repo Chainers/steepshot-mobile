@@ -103,7 +103,7 @@ namespace Steepshot
         public void AddAccountClick(object sender, EventArgs e)
         {
             Intent intent = new Intent(this, typeof(PreSignInActivity));
-            intent.PutExtra("newChain", (int)User.Chain);
+			intent.PutExtra("newChain", (int)(User.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem));
             StartActivity(intent);
         }
 
@@ -149,11 +149,10 @@ namespace Steepshot
 
         private void RemoveChain(KnownChains chain)
         {
-            _presenter.Logout();
+            //_presenter.Logout();
             var accounts = User.GetAllAccounts();
             if (accounts.Count == 0)
             {
-                User.Delete();
                 Intent i = new Intent(ApplicationContext, typeof(GuestActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
@@ -163,6 +162,8 @@ namespace Steepshot
             {
                 if (User.Chain == chain)
                 {
+					User.Chain = chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+					BasePresenter.SwitchChain();
                     Intent i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
@@ -170,9 +171,7 @@ namespace Steepshot
                 }
                 else
                 {
-                    User.Chain = chain;
                     HighlightView();
-                    BasePresenter.SwitchChain();
                     SetAddButton(accounts.Count);
                 }
             }
