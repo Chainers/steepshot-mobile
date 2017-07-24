@@ -114,7 +114,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 		}
 
@@ -250,7 +250,7 @@ namespace Steepshot
             }
             else
             {
-				Reporter.SendCrash("Profile data = null(Profile fragment)");
+				Reporter.SendCrash("Profile data = null(Profile fragment)", BasePresenter.User.Login, BasePresenter.AppVersion);
                 Toast.MakeText(this.Context, "Profile loading error. Try relaunch app", ToastLength.Short).Show();
             }
 		}
@@ -330,7 +330,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
         }
 

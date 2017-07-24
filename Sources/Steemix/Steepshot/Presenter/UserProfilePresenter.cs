@@ -87,7 +87,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, User.Login, AppVersion);
 			}
 		}
 
