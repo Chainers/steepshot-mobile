@@ -188,42 +188,22 @@ namespace Sweetshot.Tests
             Assert.That(logoutResponse.Result.Message, Is.EqualTo("User is logged out"));
         }
 
-        [Test, Sequential]
-        public void Nsfw_Tests([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var sessionId = Authenticate("joseph.kalu", "***REMOVED***", Api(name));
-            var setRequest = new SetNsfwRequest(sessionId, true);
-            var checkRequest = new IsNsfwRequest(sessionId);
-
-            // Act
-            var setResponse = Api(name).SetNsfw(setRequest).Result;
-            var checkResponse = Api(name).IsNsfw(checkRequest).Result;
-
-            // Assert
-            AssertResult(setResponse);
-            Assert.That(setResponse.Result.IsSet, Is.True);
-
-            AssertResult(checkResponse);
-            Assert.That(checkResponse.Result.ShowNsfw, Is.True);
-        }
-
         //[Ignore("Ingoring...")]
         //public void Upload_Throttling()
         //{
-            //// Arrange
-            //var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
-            //var file = File.ReadAllBytes(path);
-            //var request = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+        //// Arrange
+        //var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Data\cat.jpg");
+        //var file = File.ReadAllBytes(path);
+        //var request = new UploadImageRequest(_sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
 
-            //// Act
-            //var response = _api.Upload(request).Result;
-            //var response2 = _api.Upload(request).Result;
-            //var response3 = _api.Upload(request).Result;
+        //// Act
+        //var response = _api.Upload(request).Result;
+        //var response2 = _api.Upload(request).Result;
+        //var response3 = _api.Upload(request).Result;
 
-            //// Assert
-            //AssertFailedResult(response3);
-            //Assert.That(response3.Errors.Contains("Creating post is impossible. Please try 10 minutes later."));
+        //// Assert
+        //AssertFailedResult(response3);
+        //Assert.That(response3.Errors.Contains("Creating post is impossible. Please try 10 minutes later."));
         //}
 
         private void AssertResult<T>(OperationResult<T> response)

@@ -10,6 +10,8 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Core;
+using Steepshot.Core.Authority;
 
 namespace Steepshot
 {
@@ -37,7 +39,7 @@ namespace Steepshot
             Cheeseknife.Inject(this);
             LoadAvatar();
 
-            var accounts = User.GetAllAccounts();
+            var accounts = BasePresenter.User.GetAllAccounts();
 
             SetAddButton(accounts.Count);
 
@@ -63,17 +65,17 @@ namespace Steepshot
 
             _nsfwSwitcher.CheckedChange += (sender, e) =>
             {
-                User.IsNsfw = _nsfwSwitcher.Checked;
+                BasePresenter.User.IsNsfw = _nsfwSwitcher.Checked;
             };
 
             _lowRatedSwitcher.CheckedChange += (sender, e) =>
             {
-                User.IsLowRated = _lowRatedSwitcher.Checked;
+                BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;
             };
 
             HighlightView();
-            _nsfwSwitcher.Checked = User.IsNsfw;
-            _lowRatedSwitcher.Checked = User.IsLowRated;
+            _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
+            _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
         }
 
         private async void LoadAvatar()
@@ -103,7 +105,7 @@ namespace Steepshot
         public void AddAccountClick(object sender, EventArgs e)
         {
             Intent intent = new Intent(this, typeof(PreSignInActivity));
-			intent.PutExtra("newChain", (int)(User.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem));
+            intent.PutExtra("newChain", (int)(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem));
             StartActivity(intent);
         }
 
@@ -122,7 +124,7 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.remove_steem)]
         public void RemoveSteem(object sender, EventArgs e)
         {
-            User.Delete(_steemAcc);
+            BasePresenter.User.Delete(_steemAcc);
             _steemView.Visibility = ViewStates.Gone;
             RemoveChain(KnownChains.Steem);
         }
@@ -130,17 +132,16 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.remove_golos)]
         public void RemoveGolos(object sender, EventArgs e)
         {
-            User.Delete(_golosAcc);
+            BasePresenter.User.Delete(_golosAcc);
             _golosView.Visibility = ViewStates.Gone;
             RemoveChain(KnownChains.Golos);
         }
 
         private void SwitchChain(KnownChains chain)
         {
-            if (User.Chain != chain)
+            if (BasePresenter.Chain != chain)
             {
-                User.Chain = chain;
-                BasePresenter.SwitchChain();
+                BasePresenter.SwitchChain(chain);
                 Intent i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
@@ -150,7 +151,7 @@ namespace Steepshot
         private void RemoveChain(KnownChains chain)
         {
             //_presenter.Logout();
-            var accounts = User.GetAllAccounts();
+            var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
             {
                 Intent i = new Intent(ApplicationContext, typeof(GuestActivity));
@@ -160,10 +161,9 @@ namespace Steepshot
             }
             else
             {
-                if (User.Chain == chain)
+                if (BasePresenter.Chain == chain)
                 {
-					User.Chain = chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-					BasePresenter.SwitchChain();
+                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
                     Intent i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
@@ -179,7 +179,7 @@ namespace Steepshot
 
         private void HighlightView()
         {
-            if (User.Chain == KnownChains.Steem)
+            if (BasePresenter.Chain == KnownChains.Steem)
                 _steemView.SetBackgroundColor(Color.Cyan);
             else
                 _golosView.SetBackgroundColor(Color.Cyan);

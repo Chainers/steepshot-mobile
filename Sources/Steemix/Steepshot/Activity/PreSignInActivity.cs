@@ -6,6 +6,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Core;
 
 namespace Steepshot
 {
@@ -41,29 +42,25 @@ namespace Steepshot
             username.Text = "joseph.kalu";
 #endif
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
-            if (_newChain == KnownChains.Steem || _newChain == KnownChains.Golos)
+            if (_newChain != KnownChains.None)
             {
                 switcher.Visibility = ViewStates.Gone;
                 steem_logo.Visibility = ViewStates.Gone;
                 golos_logo.Visibility = ViewStates.Gone;
-                User.Chain = _newChain;
-
-                BasePresenter.SwitchChain();
+                BasePresenter.SwitchChain(_newChain);
             }
 
-            switcher.Checked = User.Chain == KnownChains.Steem;
+            switcher.Checked = BasePresenter.Chain == KnownChains.Steem;
             switcher.CheckedChange += (sender, e) =>
             {
-                User.Chain = e.IsChecked ? KnownChains.Steem : KnownChains.Golos;
-                BasePresenter.SwitchChain();
+                BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
                 SetLabelsText();
             };
 
-            dev_switcher.Checked = User.IsDev;
+            dev_switcher.Checked = BasePresenter.User.IsDev;
             dev_switcher.CheckedChange += (sender, e) =>
             {
-                User.IsDev = e.IsChecked;
-                BasePresenter.SwitchChain();
+                BasePresenter.SwitchChain(e.IsChecked);
             };
 
             SetLabelsText();
@@ -86,11 +83,10 @@ namespace Steepshot
 
         protected override void OnDestroy()
         {
-			if (_newChain != KnownChains.None)
-			{
-				User.Chain = _newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-				BasePresenter.SwitchChain();
-			}
+            if (_newChain != KnownChains.None)
+            {
+                BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+            }
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
@@ -152,7 +148,7 @@ namespace Steepshot
 
         private void SetLabelsText()
         {
-            loginLabel.Text = $"Log in with your {User.Chain} Account";
+            loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
         }
     }
 }

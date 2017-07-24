@@ -1,5 +1,4 @@
-﻿using System;
-using Sweetshot.Library.Models.Responses;
+﻿using Sweetshot.Library.Models.Responses;
 
 namespace Steepshot
 {

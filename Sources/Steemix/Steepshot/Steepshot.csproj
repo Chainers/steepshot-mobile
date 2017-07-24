@@ -52,10 +52,17 @@
     <Debugger>Xamarin</Debugger>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Activity\PostPreviewActivity.cs" />
-    <Compile Include="Data\KnownChains.cs" />
-    <Compile Include="Data\User.cs" />
+    <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Presenter\PostPreviewPresenter.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,7 +81,6 @@
     <Compile Include="Activity\TermsOfServiceActivity.cs" />
     <Compile Include="SQLite.cs" />
     <Compile Include="SQLiteAsync.cs" />
-    <Compile Include="Data\UserInfo.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\TagLayout.cs" />
@@ -133,7 +139,6 @@
     <Compile Include="Activity\PreSignInActivity.cs" />
     <Compile Include="Presenter\PreSignInPresenter.cs" />
     <Compile Include="View\PreSignInView.cs" />
-    <Compile Include="Data\Constants.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Utils\Reporter.cs" />
@@ -463,13 +468,13 @@
       <HintPath>..\packages\MailKit.1.16.1\lib\MonoAndroid10\MailKit.dll</HintPath>
     </Reference>
     <Reference Include="Cheeseknife">
-      <HintPath>Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
+      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
     <Reference Include="HockeySDK.AndroidBindings">
-      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
     </Reference>
     <Reference Include="HockeySDK">
-      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -558,7 +563,12 @@
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_user_placeholder.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{ab0ff429-7d59-495d-b814-ed265ffaecd7}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Logging\" />
   </ItemGroup>

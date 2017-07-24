@@ -1,4 +1,4 @@
-﻿namespace Steepshot
+﻿namespace Steepshot.Core
 {
     public enum KnownChains
     {
