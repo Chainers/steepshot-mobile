@@ -91,7 +91,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 			if (_isInitialized)
 				return;
@@ -195,7 +195,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 		}
 

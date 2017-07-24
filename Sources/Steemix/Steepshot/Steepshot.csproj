@@ -141,7 +141,6 @@
     <Compile Include="View\PreSignInView.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
-    <Compile Include="Utils\Reporter.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
     <Compile Include="Presenter\VotersPresenter.cs" />
     <Compile Include="Adapter\VotersAdapter.cs" />

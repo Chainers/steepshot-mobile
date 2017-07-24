@@ -140,7 +140,12 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png" />
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{ab0ff429-7d59-495d-b814-ed265ffaecd7}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Main.storyboard" />
@@ -161,6 +166,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="MySecondViewController.cs" />
