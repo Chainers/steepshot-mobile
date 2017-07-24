@@ -138,7 +138,7 @@ namespace Steepshot
 
             void Like_Click(object sender, EventArgs e)
             {
-                if (User.IsAuthenticated)
+                if (BasePresenter.User.IsAuthenticated)
                 {
                     Like.SetImageResource(!post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
                 }
@@ -148,8 +148,8 @@ namespace Steepshot
             public void UpdateData(Post post, Context context)
             {
                 this.post = post;
-                Likes.Text = string.Format("{0} likes", post.NetVotes);
-                Cost.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
+                Likes.Text = $"{post.NetVotes} likes";
+                Cost.Text = $"{BasePresenter.Currency}{post.TotalPayoutReward}";
 				Time.Text = post.Created.ToPostTime();
             }
         }

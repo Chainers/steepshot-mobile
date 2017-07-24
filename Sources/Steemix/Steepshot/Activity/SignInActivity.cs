@@ -9,6 +9,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Core;
 using ZXing.Mobile;
 
 namespace Steepshot
@@ -117,7 +118,8 @@ namespace Steepshot
                     if (response.Success)
                     {
                         _newChain = KnownChains.None;
-                        User.UpdateAndSave(response.Result, login, pass, User.Chain);
+                        var userInfo = BasePresenter.User.AddUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
+                        BasePresenter.User.SwitchUser(userInfo);
                         var intent = new Intent(this, typeof(RootActivity));
                         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                         StartActivity(intent);
@@ -148,8 +150,7 @@ namespace Steepshot
         {
             if (_newChain != KnownChains.None)
 			{
-				User.Chain = _newChain == KnownChains.Steem? KnownChains.Golos : KnownChains.Steem;
-				BasePresenter.SwitchChain();
+				BasePresenter.SwitchChain(_newChain == KnownChains.Steem? KnownChains.Golos : KnownChains.Steem);
 			}
             base.OnDestroy();
             Cheeseknife.Reset(this);

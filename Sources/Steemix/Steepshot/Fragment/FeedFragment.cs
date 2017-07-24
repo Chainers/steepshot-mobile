@@ -96,7 +96,7 @@ namespace Steepshot
 			if (_isInitialized)
 				return;
 			base.OnViewCreated(view, savedInstanceState);
-			if (User.IsAuthenticated)
+			if (BasePresenter.User.IsAuthenticated)
 				Login.Visibility = ViewStates.Gone;
 
 			if (_isFeed)
@@ -166,7 +166,7 @@ namespace Steepshot
 		{
 			try
 			{
-				if (User.IsAuthenticated)
+				if (BasePresenter.User.IsAuthenticated)
 				{
 					var response = await presenter.Vote(presenter.Posts[position]);
 

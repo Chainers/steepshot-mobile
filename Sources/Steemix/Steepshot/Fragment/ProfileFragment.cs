@@ -65,7 +65,7 @@ namespace Steepshot
 				return;
 			base.OnViewCreated(view, savedInstanceState);
 			backButton.Visibility = ViewStates.Gone;
-			if (_profileId == User.Login)
+			if (_profileId == BasePresenter.User.Login)
 				FollowCont.Visibility = ViewStates.Gone;
 			else
 				Settings.Visibility = ViewStates.Gone;
@@ -174,10 +174,10 @@ namespace Steepshot
 			}
 			set
 			{
-				if (value && User.ShouldUpdateProfile)
+				if (value && BasePresenter.ShouldUpdateProfile)
 				{
                     UpdateProfile();
-					User.ShouldUpdateProfile = false;
+				    BasePresenter.ShouldUpdateProfile = false;
 				}
 				base.UserVisibleHint = value;
 			}
@@ -237,7 +237,7 @@ namespace Steepshot
 					Picasso.With(this.Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(ProfileImage.Width, 0).Into(ProfileImage);
                 else
                     Picasso.With(this.Context).Load(Resource.Drawable.ic_user_placeholder).Resize(ProfileImage.Width, 0).Into(ProfileImage);
-				CostButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, Constants.Currency));
+				CostButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, BasePresenter.Currency));
                 PhotosCount.Text = _profile.PostCount.ToString();
                 Site.Text = _profile.Website;
                 if(!string.IsNullOrEmpty(_profile.Location))
@@ -303,7 +303,7 @@ namespace Steepshot
         {
 			try
 			{
-				if (User.IsAuthenticated)
+				if (BasePresenter.User.IsAuthenticated)
 				{
 					var response = await presenter.Vote(presenter.UserPosts[position]);
 

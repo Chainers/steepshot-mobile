@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
+using Steepshot.Core;
 
 namespace Steepshot
 {
@@ -23,7 +24,7 @@ namespace Steepshot
                 sb.Append("UTC time: ");
                 sb.AppendLine(DateTime.UtcNow.ToString());
                 sb.Append("App version: ");
-                sb.AppendLine(User.AppVersion);
+                sb.AppendLine(BasePresenter.AppVersion);
 
                 mimeMessage.Body = new TextPart("plain")
                 {
@@ -52,7 +53,7 @@ namespace Steepshot
             var customMessage = new MimeMessage();
             customMessage.From.Add(new MailboxAddress(Constants.ReportLogin));
             customMessage.To.Add(new MailboxAddress(Constants.ReportLogin));
-            customMessage.Subject = string.IsNullOrEmpty(User.Login) ? string.Empty : User.Login;
+            customMessage.Subject = string.IsNullOrEmpty(BasePresenter.User.Login) ? string.Empty : BasePresenter.User.Login;
             customMessage.Subject += " [Android]";
             return customMessage;
         }
