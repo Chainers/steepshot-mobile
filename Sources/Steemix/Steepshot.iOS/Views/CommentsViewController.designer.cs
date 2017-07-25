@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -30,11 +29,6 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (bottomView != null) {
-				bottomView.Dispose ();
-				bottomView = null;
-			}
-
 			if (commentsTable != null) {
 				commentsTable.Dispose ();
 				commentsTable = null;
@@ -54,7 +48,11 @@ namespace Steepshot.iOS
 				progressBar.Dispose ();
 				progressBar = null;
 			}
+
+			if (bottomView != null) {
+				bottomView.Dispose ();
+				bottomView = null;
+			}
 		}
 	}
 }
-*/

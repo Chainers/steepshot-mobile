@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -13,6 +13,10 @@ namespace Steepshot.iOS
 	{
 		protected CommentsViewController(IntPtr handle) : base(handle) { }
 
+		public CommentsViewController()
+		{
+		}
+
 		private CommentsTableViewSource tableSource = new CommentsTableViewSource();
 		public string PostUrl;
 
@@ -26,17 +30,17 @@ namespace Steepshot.iOS
 			commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 			commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
 			activeview = commentTextView;
-			tableSource.Voted += (vote, url, action)  =>
-            {
+			tableSource.Voted += (vote, url, action) =>
+			{
 				Vote(vote, url, action);
-            };
+			};
 
-			tableSource.GoToProfile += (username)  =>
-            {
+			tableSource.GoToProfile += (username) =>
+			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
 				myViewController.Username = username;
 				NavigationController.PushViewController(myViewController, true);
-            };
+			};
 
 			commentsTable.RowHeight = UITableView.AutomaticDimension;
 			commentsTable.EstimatedRowHeight = 150f;
@@ -149,4 +153,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-*/
+

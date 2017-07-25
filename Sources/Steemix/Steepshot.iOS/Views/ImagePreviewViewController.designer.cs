@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -15,6 +14,9 @@ namespace Steepshot.iOS
 	{
 		[Outlet]
 		UIKit.UIView backgroundView { get; set; }
+
+		[Outlet]
+		UIKit.UIScrollView scrollView { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -22,7 +24,11 @@ namespace Steepshot.iOS
 				backgroundView.Dispose ();
 				backgroundView = null;
 			}
+
+			if (scrollView != null) {
+				scrollView.Dispose ();
+				scrollView = null;
+			}
 		}
 	}
 }
-*/

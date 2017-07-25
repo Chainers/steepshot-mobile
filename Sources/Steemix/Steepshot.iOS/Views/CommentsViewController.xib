@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CommentsViewController">
+            <connections>
+                <outlet property="bottomView" destination="CqV-Ix-w9T" id="s48-IY-S1O"/>
+                <outlet property="commentTextView" destination="rRy-dE-yUH" id="prl-Tt-EBf"/>
+                <outlet property="commentsTable" destination="Zj7-Mx-9CR" id="0fK-2x-hDb"/>
+                <outlet property="progressBar" destination="59K-N4-elf" id="yZB-Jx-fH0"/>
+                <outlet property="sendButton" destination="exz-HT-nQD" id="k4r-Ws-EKQ"/>
+                <outlet property="view" destination="fRY-1N-NIl" id="fis-6X-oO2"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="fRY-1N-NIl">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zj7-Mx-9CR">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="676"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CqV-Ix-w9T">
+                    <rect key="frame" x="0.0" y="676" width="414" height="60"/>
+                    <subviews>
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rRy-dE-yUH">
+                            <rect key="frame" x="8" y="8" width="343" height="44"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        </textView>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="exz-HT-nQD">
+                            <rect key="frame" x="371" y="13" width="35" height="35"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="35" id="1Iz-Ru-E9b"/>
+                                <constraint firstAttribute="width" constant="35" id="JAq-o9-Im6"/>
+                            </constraints>
+                            <state key="normal" backgroundImage="ic_send.png"/>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="exz-HT-nQD" firstAttribute="centerY" secondItem="rRy-dE-yUH" secondAttribute="centerY" id="3r0-aZ-Tzm"/>
+                        <constraint firstItem="exz-HT-nQD" firstAttribute="leading" secondItem="rRy-dE-yUH" secondAttribute="trailing" constant="20" id="4TM-ec-u0Z"/>
+                        <constraint firstItem="rRy-dE-yUH" firstAttribute="leading" secondItem="CqV-Ix-w9T" secondAttribute="leading" constant="8" id="92B-ja-a77"/>
+                        <constraint firstAttribute="height" constant="60" id="Aql-sw-HHx"/>
+                        <constraint firstItem="rRy-dE-yUH" firstAttribute="top" secondItem="CqV-Ix-w9T" secondAttribute="top" constant="8" id="Kaq-ac-TvG"/>
+                        <constraint firstAttribute="bottom" secondItem="rRy-dE-yUH" secondAttribute="bottom" constant="8" id="VbI-Y5-J1h"/>
+                        <constraint firstAttribute="trailing" secondItem="exz-HT-nQD" secondAttribute="trailing" constant="8" id="be8-Bv-LB5"/>
+                    </constraints>
+                </view>
+                <activityIndicatorView hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="59K-N4-elf">
+                    <rect key="frame" x="189" y="350" width="37" height="37"/>
+                    <color key="color" cocoaTouchSystemColor="darkTextColor"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="CqV-Ix-w9T" firstAttribute="top" secondItem="Zj7-Mx-9CR" secondAttribute="bottom" id="6T0-GN-IhC"/>
+                <constraint firstItem="Zj7-Mx-9CR" firstAttribute="leading" secondItem="fRY-1N-NIl" secondAttribute="leading" id="LWi-xu-emb"/>
+                <constraint firstItem="CqV-Ix-w9T" firstAttribute="leading" secondItem="fRY-1N-NIl" secondAttribute="leading" id="Olv-LA-rLX"/>
+                <constraint firstAttribute="trailing" secondItem="CqV-Ix-w9T" secondAttribute="trailing" id="bdm-rl-cig"/>
+                <constraint firstItem="59K-N4-elf" firstAttribute="centerX" secondItem="fRY-1N-NIl" secondAttribute="centerX" id="eM0-xt-YhK"/>
+                <constraint firstAttribute="trailing" secondItem="Zj7-Mx-9CR" secondAttribute="trailing" id="q8d-ep-txy"/>
+                <constraint firstAttribute="bottom" secondItem="CqV-Ix-w9T" secondAttribute="bottom" id="r9U-Td-JKL"/>
+                <constraint firstItem="Zj7-Mx-9CR" firstAttribute="top" secondItem="fRY-1N-NIl" secondAttribute="top" id="t7b-c3-xVr"/>
+                <constraint firstItem="59K-N4-elf" firstAttribute="centerY" secondItem="fRY-1N-NIl" secondAttribute="centerY" id="ulA-LS-WCt"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="ic_send.png" width="52" height="52"/>
+    </resources>
+</document>

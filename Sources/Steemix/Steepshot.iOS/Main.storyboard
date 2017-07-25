@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -1079,9 +1079,9 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Jx1-BG-KHn" secondAttribute="trailing" id="5j5-vF-eqv"/>
-                            <constraint firstItem="Jx1-BG-KHn" firstAttribute="top" secondItem="Jt9-f1-Oh5" secondAttribute="bottom" id="dby-4E-mBC"/>
+                            <constraint firstItem="Jx1-BG-KHn" firstAttribute="top" secondItem="Jt9-f1-Oh5" secondAttribute="bottom" id="QQm-hX-s4J"/>
+                            <constraint firstItem="ieR-Og-8Yg" firstAttribute="top" secondItem="Jx1-BG-KHn" secondAttribute="bottom" id="Zue-qf-x1y"/>
                             <constraint firstItem="Jx1-BG-KHn" firstAttribute="leading" secondItem="JK4-Ur-ike" secondAttribute="leading" id="oac-Wk-vSo"/>
-                            <constraint firstItem="ieR-Og-8Yg" firstAttribute="top" secondItem="Jx1-BG-KHn" secondAttribute="bottom" id="tXQ-9D-2ra"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1219,10 +1219,10 @@
                             <constraint firstItem="xQa-GP-4Po" firstAttribute="leading" secondItem="kmK-90-UI3" secondAttribute="leading" id="91W-ug-6Z6"/>
                             <constraint firstItem="zNp-NE-3pS" firstAttribute="centerY" secondItem="kmK-90-UI3" secondAttribute="centerY" id="Odw-jA-p16"/>
                             <constraint firstAttribute="trailing" secondItem="xQa-GP-4Po" secondAttribute="trailing" id="USa-3D-ZBa"/>
-                            <constraint firstItem="ysI-xb-ePf" firstAttribute="top" secondItem="fjZ-LJ-VOL" secondAttribute="bottom" id="XsI-cr-poX"/>
                             <constraint firstItem="zNp-NE-3pS" firstAttribute="centerX" secondItem="kmK-90-UI3" secondAttribute="centerX" id="a5r-Ng-0Vv"/>
                             <constraint firstItem="ysI-xb-ePf" firstAttribute="leading" secondItem="kmK-90-UI3" secondAttribute="leading" id="dEj-UF-v6M"/>
-                            <constraint firstItem="8Vz-QG-n4S" firstAttribute="top" secondItem="xQa-GP-4Po" secondAttribute="bottom" id="pO5-Nc-CXl"/>
+                            <constraint firstItem="8Vz-QG-n4S" firstAttribute="top" secondItem="xQa-GP-4Po" secondAttribute="bottom" id="etg-y3-JqM"/>
+                            <constraint firstItem="ysI-xb-ePf" firstAttribute="top" secondItem="fjZ-LJ-VOL" secondAttribute="bottom" id="jLl-zx-Yg1"/>
                             <constraint firstItem="xQa-GP-4Po" firstAttribute="top" secondItem="ysI-xb-ePf" secondAttribute="bottom" id="z7g-6u-C0D"/>
                         </constraints>
                     </view>
@@ -1431,8 +1431,8 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="edU-yK-LF4" firstAttribute="leading" secondItem="leN-Ja-Qc0" secondAttribute="leading" id="1Gn-Cj-wts"/>
-                            <constraint firstItem="edU-yK-LF4" firstAttribute="top" secondItem="2HP-Gw-Vga" secondAttribute="bottom" id="eGg-rO-nDd"/>
-                            <constraint firstItem="5zD-yN-Sui" firstAttribute="top" secondItem="edU-yK-LF4" secondAttribute="bottom" id="gYb-HR-Aof"/>
+                            <constraint firstItem="5zD-yN-Sui" firstAttribute="top" secondItem="edU-yK-LF4" secondAttribute="bottom" id="ANx-hL-nt9"/>
+                            <constraint firstItem="edU-yK-LF4" firstAttribute="top" secondItem="2HP-Gw-Vga" secondAttribute="bottom" id="e1u-2m-6PL"/>
                             <constraint firstAttribute="trailing" secondItem="edU-yK-LF4" secondAttribute="trailing" id="keS-Y6-m6l"/>
                         </constraints>
                     </view>

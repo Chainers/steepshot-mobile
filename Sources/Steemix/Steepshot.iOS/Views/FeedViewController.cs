@@ -126,9 +126,12 @@ namespace Steepshot.iOS
 
 			collectionViewSource.GoToComments += (postUrl)  =>
             {
-				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
+				var myViewController = new CommentsViewController();
 				myViewController.PostUrl = postUrl;
-				navController.PushViewController(myViewController, true);
+				if(TabBarController != null)
+					TabBarController.NavigationController.PushViewController(myViewController, true);
+				else
+					NavigationController.PushViewController(myViewController, true);
             };
 
 			collectionViewSource.GoToVoters += (postUrl) =>
@@ -140,11 +143,13 @@ namespace Steepshot.iOS
 
 			collectionViewSource.ImagePreview += (image, url) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
+				var myViewController = new ImagePreviewViewController();
 				myViewController.imageForPreview = image;
 				myViewController.ImageUrl = url;
-
-				NavigationController.PushViewController(myViewController, true);
+				if(TabBarController != null)
+					TabBarController.NavigationController.PushViewController(myViewController, true);
+				else
+					NavigationController.PushViewController(myViewController, true);
 			};
 
 			if (!isHomeFeed)
@@ -223,7 +228,7 @@ namespace Steepshot.iOS
                 UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseIn,
                     () =>
                     {
-                        dropdown.Frame = new CGRect(dropdown.Frame.X, dropDownListOffsetFromTop, dropdown.Frame.Width, dropdown.Frame.Height);
+                        dropdown.Frame = new CGRect(dropdown.Frame.X, 0, dropdown.Frame.Width, dropdown.Frame.Height);
                         arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(-180 * (Math.PI/ 180)));
                 }, null);
             }
@@ -232,7 +237,7 @@ namespace Steepshot.iOS
                 UIView.Animate(0.2,
                     () =>
                     {
-                        dropdown.Frame = new CGRect(dropdown.Frame.X, dropdown.Frame.Y - dropdown.Frame.Height, dropdown.Frame.Width, dropdown.Frame.Height);
+                        dropdown.Frame = new CGRect(dropdown.Frame.X, -dropdown.Frame.Height, dropdown.Frame.Width, dropdown.Frame.Height);
                         arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(0 * (Math.PI / 180)));
                     }
                 );
@@ -563,7 +568,7 @@ namespace Steepshot.iOS
             view.Add(newPhotosButton);
             view.Add(hotButton);
             view.Add(trendingButton);
-            view.Frame = new CGRect(0, dropDownListOffsetFromTop - navController.NavigationBar.Frame.Width, navController.NavigationBar.Frame.Width, trendingButton.Frame.Bottom);
+            view.Frame = new CGRect(0, -trendingButton.Frame.Bottom, navController.NavigationBar.Frame.Width, trendingButton.Frame.Bottom);
 
             View.Add(view);
             return view;
