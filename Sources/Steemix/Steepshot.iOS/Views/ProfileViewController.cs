@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -17,6 +17,11 @@ namespace Steepshot.iOS
 	public partial class ProfileViewController : BaseViewController
 	{
 		protected ProfileViewController(IntPtr handle) : base(handle) { }
+
+		public ProfileViewController()
+		{
+		}
+
 		private UserProfileResponse userData;
 		public string Username = UserContext.Instanse.Username;
 		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
@@ -494,4 +499,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-*/
+

@@ -68,6 +68,8 @@ namespace Steepshot.iOS
 				 }
 				 catch (Exception ex) { }
 			}, commentString: collectionViewSource.FeedStrings);
+			if(navController != null)
+				navController.NavigationBar.Translucent = false;
 			collectionViewSource.IsGrid = false;
 			gridDelegate.isGrid = false;
 			feedCollection.Source = collectionViewSource;
@@ -110,14 +112,8 @@ namespace Steepshot.iOS
 			{
 				isHomeFeed = true;
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-				NavigationController.TabBarItem.Image = UIImage.FromBundle("home");
-				NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("home");
-			}
-			if (TabBarController != null)
-			{
-				TabBarController.NavigationController.NavigationBarHidden = true;
-				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+				//NavigationController.TabBarItem.Image = UIImage.FromBundle("home");
+				//NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("home");
 			}
 			collectionViewSource.GoToProfile += (username)  =>
             {
@@ -161,6 +157,13 @@ namespace Steepshot.iOS
 
 		public override void ViewWillAppear(bool animated)
 		{
+			if (TabBarController != null)
+			{
+				TabBarController.NavigationController.NavigationBarHidden = true;
+				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+			}
+
 			if (UserContext.Instanse.CurrentPostCategory != currentPostCategory && !isHomeFeed)
 			{
 				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
@@ -190,8 +193,8 @@ namespace Steepshot.iOS
 
         void LoginTapped(object sender, EventArgs e)
         {
-			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
-            navController.PushViewController(myViewController, true);
+			//var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			navController.PushViewController(new PreLoginViewController(), true);
         }
 
 		void SearchTapped(object sender, EventArgs e)

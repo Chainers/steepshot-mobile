@@ -153,6 +153,10 @@
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
     <InterfaceDefinition Include="Views\FeedViewController.xib" />
+    <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
+    <InterfaceDefinition Include="Views\LoginViewController.xib" />
+    <InterfaceDefinition Include="Views\PhotoViewController.xib" />
+    <InterfaceDefinition Include="Views\ProfileViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -274,6 +278,22 @@
     <Compile Include="Views\FeedViewController.cs" />
     <Compile Include="Views\FeedViewController.designer.cs">
       <DependentUpon>FeedViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreLoginViewController.cs" />
+    <Compile Include="Views\PreLoginViewController.designer.cs">
+      <DependentUpon>PreLoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginViewController.cs" />
+    <Compile Include="Views\LoginViewController.designer.cs">
+      <DependentUpon>LoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PhotoViewController.cs" />
+    <Compile Include="Views\PhotoViewController.designer.cs">
+      <DependentUpon>PhotoViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfileViewController.cs" />
+    <Compile Include="Views\ProfileViewController.designer.cs">
+      <DependentUpon>ProfileViewController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

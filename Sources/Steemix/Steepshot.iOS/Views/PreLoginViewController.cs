@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Threading.Tasks;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
@@ -12,6 +12,11 @@ namespace Steepshot.iOS
 		{
 			// Note: this .ctor should not contain any initialization logi  
 		}
+
+		public PreLoginViewController()
+		{
+		}
+
 		public string newAccountNetwork;
 
 		public override void ViewDidLoad()
@@ -63,14 +68,14 @@ namespace Steepshot.iOS
 
 			picker.Model = new NetworkPickerViewModel(NetworkSwithed);
 			picker.Select(Convert.ToInt32(UserContext.Instanse.Network != Constants.Steem), 0, true);
-			        
+
 			if (!string.IsNullOrEmpty(newAccountNetwork))
 			{
 				picker.Hidden = true;
 				//steemImg.Hidden = true;
 				//golosImg.Hidden = true;
 				UserContext.Instanse.Network = newAccountNetwork;
-                SwitchApiAddress();
+				SwitchApiAddress();
 			}
 
 			UITapGestureRecognizer logoTap = new UITapGestureRecognizer(
@@ -123,17 +128,17 @@ namespace Steepshot.iOS
 				var response = await Api.GetUserProfile(req);
 				if (response.Success)
 				{
-					var myViewController = Storyboard.InstantiateViewController(nameof(LoginViewController)) as LoginViewController;
+					var myViewController = new LoginViewController(); //Storyboard.InstantiateViewController(nameof(LoginViewController)) as LoginViewController;
 					myViewController.AvatarLink = response.Result.ProfileImage;
 					myViewController.Username = response.Result.Username;
 					this.NavigationController.PushViewController(myViewController, true);
 				}
 				else
 				{
-                    ShowAlert(response.Errors[0]);
+					ShowAlert(response.Errors[0]);
 				}
 			}
-			catch (ArgumentNullException ex)
+			catch (ArgumentNullException)
 			{
 				ShowAlert("Login cannot be empty");
 			}
@@ -193,4 +198,3 @@ namespace Steepshot.iOS
 	}
 }
 
-*/

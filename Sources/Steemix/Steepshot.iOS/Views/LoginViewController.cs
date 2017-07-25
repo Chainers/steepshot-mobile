@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -15,6 +15,8 @@ namespace Steepshot.iOS
 			// Note: this .ctor should not contain any initialization logic.
 		}
 
+		public LoginViewController() { }
+
 		public string AvatarLink { get; set; }
 		public string Username { get; set; }
 
@@ -27,6 +29,11 @@ namespace Steepshot.iOS
 				bottomMargin.Constant = 5;
 				photoMargin.Constant = 5;
 				photoBottomMargin.Constant = 5;
+			}
+			if ((float)UIScreen.MainScreen.Bounds.Height == 568)
+			{
+				topMargin.Constant = 15;
+				bottomMargin.Constant = 15;
 			}
 			loginButton.TouchDown += (object sender, EventArgs e) => Login();
 			avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
@@ -116,18 +123,22 @@ namespace Steepshot.iOS
 					UserContext.Save();
 
 					UserContext.Instanse.IsHomeFeedLoaded = false;
-					var myViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController; // MainTabBar to const
+					var myViewController = new MainTabBarController(); //new UITabBarController(); //new UINavigationController(new UITabBarController());//Storyboard.InstantiateViewController("MainTabBar") as UITabBarController; // MainTabBar to const
+					//var feed = new UINavigationController(new FeedViewController());
+					//myViewController.ViewControllers = new UIViewController[] { feed };
+					//var lil = new UINavigationController(myViewController);
+
 					this.NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 					this.NavigationController.PopViewController(true);
 				}
 				else
 				{
-                    ShowAlert(response.Errors[0]);
+					ShowAlert(response.Errors[0]);
 				}
 			}
-			catch (ArgumentNullException ex)
+			catch (ArgumentNullException)
 			{
-                ShowAlert("Password cannot be empty");
+				ShowAlert("Password cannot be empty");
 			}
 			catch (Exception ex)
 			{
@@ -144,4 +155,3 @@ namespace Steepshot.iOS
 	}
 }
 
-*/
