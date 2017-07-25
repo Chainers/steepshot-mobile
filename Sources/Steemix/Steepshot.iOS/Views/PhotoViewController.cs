@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,6 +23,10 @@ namespace Steepshot.iOS
 		protected PhotoViewController(IntPtr handle) : base(handle)
 		{
 			// Note: this .ctor should not contain any initialization logic.
+		}
+
+		public PhotoViewController()
+		{
 		}
 
 		public override void ViewDidLoad()
@@ -323,4 +327,3 @@ namespace Steepshot.iOS
 		}
 	}
 }
-*/

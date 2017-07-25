@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -63,9 +62,9 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
+			if (loginButton != null) {
+				loginButton.Dispose ();
+				loginButton = null;
 			}
 
 			if (avatar != null) {
@@ -73,19 +72,9 @@ namespace Steepshot.iOS
 				avatar = null;
 			}
 
-			if (bottomMargin != null) {
-				bottomMargin.Dispose ();
-				bottomMargin = null;
-			}
-
 			if (eyeButton != null) {
 				eyeButton.Dispose ();
 				eyeButton = null;
-			}
-
-			if (loginButton != null) {
-				loginButton.Dispose ();
-				loginButton = null;
 			}
 
 			if (loginTitle != null) {
@@ -93,29 +82,14 @@ namespace Steepshot.iOS
 				loginTitle = null;
 			}
 
-			if (password != null) {
-				password.Dispose ();
-				password = null;
-			}
-
-			if (photoBottomMargin != null) {
-				photoBottomMargin.Dispose ();
-				photoBottomMargin = null;
-			}
-
-			if (photoMargin != null) {
-				photoMargin.Dispose ();
-				photoMargin = null;
-			}
-
-			if (postingKeyButton != null) {
-				postingKeyButton.Dispose ();
-				postingKeyButton = null;
-			}
-
 			if (postingLabel != null) {
 				postingLabel.Dispose ();
 				postingLabel = null;
+			}
+
+			if (password != null) {
+				password.Dispose ();
+				password = null;
 			}
 
 			if (qrButton != null) {
@@ -123,9 +97,9 @@ namespace Steepshot.iOS
 				qrButton = null;
 			}
 
-			if (topMargin != null) {
-				topMargin.Dispose ();
-				topMargin = null;
+			if (postingKeyButton != null) {
+				postingKeyButton.Dispose ();
+				postingKeyButton = null;
 			}
 
 			if (tosButton != null) {
@@ -133,16 +107,40 @@ namespace Steepshot.iOS
 				tosButton = null;
 			}
 
+			if (ppButton != null) {
+				ppButton.Dispose ();
+				ppButton = null;
+			}
+
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (tosSwitch != null) {
 				tosSwitch.Dispose ();
 				tosSwitch = null;
 			}
 
-			if (ppButton != null) {
-				ppButton.Dispose ();
-				ppButton = null;
+			if (topMargin != null) {
+				topMargin.Dispose ();
+				topMargin = null;
+			}
+
+			if (bottomMargin != null) {
+				bottomMargin.Dispose ();
+				bottomMargin = null;
+			}
+
+			if (photoMargin != null) {
+				photoMargin.Dispose ();
+				photoMargin = null;
+			}
+
+			if (photoBottomMargin != null) {
+				photoBottomMargin.Dispose ();
+				photoBottomMargin = null;
 			}
 		}
 	}
 }
-*/

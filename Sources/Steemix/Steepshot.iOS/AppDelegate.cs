@@ -37,7 +37,7 @@ namespace Steepshot.iOS
             UserContext.Load();
             if (UserContext.Instanse.Token != null)
             {
-				initialViewController = new FeedViewController(); //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+				initialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {

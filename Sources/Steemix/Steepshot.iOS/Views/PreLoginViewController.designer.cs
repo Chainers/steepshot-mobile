@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -26,9 +25,6 @@ namespace Steepshot.iOS
 		UIKit.UISwitch devSwitch { get; set; }
 
 		[Outlet]
-		UIKit.UIImageView golosImg { get; set; }
-
-		[Outlet]
 		UIKit.UIButton loginButton { get; set; }
 
 		[Outlet]
@@ -41,9 +37,6 @@ namespace Steepshot.iOS
 		UIKit.UIImageView logo { get; set; }
 
 		[Outlet]
-		UIKit.UISwitch networkSwitch { get; set; }
-
-		[Outlet]
 		UIKit.UIPickerView picker { get; set; }
 
 		[Outlet]
@@ -54,9 +47,6 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UIButton signUpButton { get; set; }
-
-		[Outlet]
-		UIKit.UIImageView steemImg { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -80,11 +70,6 @@ namespace Steepshot.iOS
 				devSwitch = null;
 			}
 
-			if (golosImg != null) {
-				golosImg.Dispose ();
-				golosImg = null;
-			}
-
 			if (loginButton != null) {
 				loginButton.Dispose ();
 				loginButton = null;
@@ -105,11 +90,6 @@ namespace Steepshot.iOS
 				logo = null;
 			}
 
-			if (networkSwitch != null) {
-				networkSwitch.Dispose ();
-				networkSwitch = null;
-			}
-
 			if (picker != null) {
 				picker.Dispose ();
 				picker = null;
@@ -125,11 +105,6 @@ namespace Steepshot.iOS
 				signUpButton = null;
 			}
 
-			if (steemImg != null) {
-				steemImg.Dispose ();
-				steemImg = null;
-			}
-
 			if (pickerHeight != null) {
 				pickerHeight.Dispose ();
 				pickerHeight = null;
@@ -137,4 +112,3 @@ namespace Steepshot.iOS
 		}
 	}
 }
-*/
