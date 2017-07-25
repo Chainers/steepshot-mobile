@@ -9,7 +9,7 @@ namespace Steepshot.iOS
     {
         public static readonly NSString Key = new NSString("TagCollectionViewCell");
         public static readonly UINib Nib;
-        private bool isButtonSetted;
+        private bool _isButtonSetted;
 
         public string TagText
         {
@@ -26,14 +26,14 @@ namespace Steepshot.iOS
             // Note: this .ctor should not contain any initialization logic.
         }
 
-        public void SetButton(EventHandler ButtonAction)
+        public void SetButton(EventHandler buttonAction)
         {
             addTagsButton.Hidden = false;
             closeImage.Hidden = true;
-            if (!isButtonSetted)
+            if (!_isButtonSetted)
             {
-                addTagsButton.TouchDown += ButtonAction;
-                isButtonSetted = true;
+                addTagsButton.TouchDown += buttonAction;
+                _isButtonSetted = true;
             }
         }
 

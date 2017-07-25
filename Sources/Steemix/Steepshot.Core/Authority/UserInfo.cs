@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Steepshot.Core.Authority
 {
@@ -21,5 +22,7 @@ namespace Steepshot.Core.Authority
         public bool IsLowRated { get; set; } = false;
 
         public bool IsDev { get; set; } = false;
+
+        public List<string> Postblacklist { get; set; } = new List<string>();
     }
 }

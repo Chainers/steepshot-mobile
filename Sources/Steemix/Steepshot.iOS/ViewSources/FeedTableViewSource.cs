@@ -10,7 +10,7 @@ namespace Steepshot.iOS
     
 	public class FeedTableViewSource : BaseTableSource<Post>
     {
-		string CellIdentifier = nameof(FeedTableViewCell);
+		string _cellIdentifier = nameof(FeedTableViewCell);
 		//public event VoteEventHandler<VoteResponse> Voted;
 		//public event VoteEventHandler<FlagResponse> Flagged;
 		public event HeaderTappedHandler GoToProfile;
@@ -19,7 +19,7 @@ namespace Steepshot.iOS
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var cell = (FeedTableViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
+            var cell = (FeedTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
             if (!cell.IsVotedSet)
             {
                 cell.Voted += (vote, url, action) =>

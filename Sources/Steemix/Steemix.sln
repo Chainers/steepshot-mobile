@@ -15,6 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Steepshot.Core", "Steepshot
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Sweetshot.Library\Sweetshot.Library.projitems*{1a6a26c2-067b-40ed-a717-7509b633a345}*SharedItemsImports = 4
 		Sweetshot.Library\Sweetshot.Library.projitems*{4b259270-7f8d-4132-91c4-ad144d025a30}*SharedItemsImports = 4
 		Sweetshot.Library\Sweetshot.Library.projitems*{d00f0d15-a2d0-4fdd-ba54-c750eaaeea18}*SharedItemsImports = 13
 		Sweetshot.Library\Sweetshot.Library.projitems*{d3ccf11d-1947-4ce4-9654-08276babd863}*SharedItemsImports = 4

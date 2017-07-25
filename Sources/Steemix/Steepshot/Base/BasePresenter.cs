@@ -31,17 +31,7 @@ namespace Steepshot
         static BasePresenter()
         {
             User = new User(new DataProvider());
-            var users = User.GetAllAccounts();
-            if (users.Any())
-            {
-                var last = users[0];
-                for (var i = 1; i < users.Count; i++)
-                {
-                    if (last.LoginTime < users[i].LoginTime)
-                        last = users[i];
-                }
-                User.SwitchUser(last);
-            }
+            User.Load();
             Chain = User.Chain;
         }
 

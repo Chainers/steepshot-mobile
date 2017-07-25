@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using CoreGraphics;
 using Foundation;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -18,20 +16,20 @@ namespace Steepshot.iOS
             // Note: this .ctor should not contain any initialization logic.
         }
 
-        private TagsCollectionViewSource collectionviewSource;
-		private CancellationTokenSource cts;
-        private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
-		private Timer _timer;
+        private TagsCollectionViewSource _collectionviewSource;
+        private CancellationTokenSource _cts;
+        private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
+        private Timer _timer;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-			_timer = new Timer(onTimer);
+            _timer = new Timer(OnTimer);
             //Table initialization
-            tagsTable.Source = tagsSource;
+            tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
             GetTags(null);
-            tagsSource.RowSelectedEvent += TableTagSelected;
+            _tagsSource.RowSelectedEvent += TableTagSelected;
 
             //Collection view initialization
             tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
@@ -42,9 +40,9 @@ namespace Steepshot.iOS
                 EstimatedItemSize = new CGSize(100, 50),
                 
             }, false);*/
-            collectionviewSource = new TagsCollectionViewSource();
-            collectionviewSource.RowSelectedEvent += CollectionTagSelected;
-            tagsCollectionView.Source = collectionviewSource;
+            _collectionviewSource = new TagsCollectionViewSource();
+            _collectionviewSource.RowSelectedEvent += CollectionTagSelected;
+            tagsCollectionView.Source = _collectionviewSource;
 
             addTagButton.TouchDown += AddTagButtonClick;
             addTagsButton.TouchDown += AddTags;
@@ -60,78 +58,78 @@ namespace Steepshot.iOS
                 _timer.Change(1500, Timeout.Infinite);
             };
 
-			activeview = searchText;
+            Activeview = searchText;
         }
 
         private void TableTagSelected(int row)
         {
-            AddTag(tagsSource.Tags[row].Name);
+            AddTag(_tagsSource.Tags[row].Name);
         }
 
         private void CollectionTagSelected(int row)
         {
-            collectionviewSource.tagsCollection.RemoveAt(row);
+            _collectionviewSource.TagsCollection.RemoveAt(row);
             tagsCollectionView.ReloadData();
         }
 
-		private void onTimer(object state)
-		{
-			InvokeOnMainThread(() =>
-		   {
-			   GetTags(searchText.Text);
-		   });
-		}
-
-        private async Task GetTags(string query)
+        private void OnTimer(object state)
         {
-			if (query != null && query.Length == 1)
-				return;
+            InvokeOnMainThread(() =>
+           {
+               GetTags(searchText.Text);
+           });
+        }
 
-			try
-			{
-				cts?.Cancel();
-			}
-			catch (ObjectDisposedException)
-			{
+        private async void GetTags(string query)
+        {
+            if (query != null && query.Length == 1)
+                return;
 
-			}
+            try
+            {
+                _cts?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
 
-			try
-			{
-				using (cts = new CancellationTokenSource())
-				{
-					OperationResult<SearchResponse<SearchResult>> response;
-					if (string.IsNullOrEmpty(query))
-					{
-						var request = new SearchRequest() { };
-						response = await Api.GetCategories(request, cts);
-					}
-					else
-					{
-						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
-						response = await Api.SearchCategories(request, cts);
-					}
-					if (response.Success)
-					{
-						tagsSource.Tags.Clear();
-						tagsSource.Tags = response.Result?.Results;
-						tagsTable.ReloadData();
-					}
-					else
-						Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
-				}
-			}
-			catch (Exception ex)
-			{
-				Reporter.SendCrash(ex);
-			}
+            }
+
+            try
+            {
+                using (_cts = new CancellationTokenSource())
+                {
+                    OperationResult<SearchResponse<SearchResult>> response;
+                    if (string.IsNullOrEmpty(query))
+                    {
+                        var request = new SearchRequest();
+                        response = await Api.GetCategories(request, _cts);
+                    }
+                    else
+                    {
+                        var request = new SearchWithQueryRequest(query) { SessionId = User.SessionId };
+                        response = await Api.SearchCategories(request, _cts);
+                    }
+                    if (response.Success)
+                    {
+                        _tagsSource.Tags.Clear();
+                        _tagsSource.Tags = response.Result?.Results;
+                        tagsTable.ReloadData();
+                    }
+                    else
+                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex);
+            }
         }
 
         private void AddTags(object sender, EventArgs e)
         {
-            UserContext.Instanse.TagsList.AddRange(collectionviewSource.tagsCollection.Except(UserContext.Instanse.TagsList));
-            UserContext.Instanse.TagsList = UserContext.Instanse.TagsList.Take(4).ToList();
-            this.NavigationController.PopViewController(true);
+            TagsList.AddRange(_collectionviewSource.TagsCollection.Except(TagsList));
+            TagsList = TagsList.Take(4).ToList();
+            NavigationController.PopViewController(true);
         }
 
         private void AddTagButtonClick(object sender, EventArgs e)
@@ -143,9 +141,9 @@ namespace Steepshot.iOS
 
         private void AddTag(string tag)
         {
-            if (!collectionviewSource.tagsCollection.Contains(tag) &&!string.IsNullOrEmpty(tag))
+            if (!_collectionviewSource.TagsCollection.Contains(tag) && !string.IsNullOrEmpty(tag))
             {
-                collectionviewSource.tagsCollection.Add(tag);
+                _collectionviewSource.TagsCollection.Add(tag);
                 tagsCollectionView.ReloadData();
             }
         }

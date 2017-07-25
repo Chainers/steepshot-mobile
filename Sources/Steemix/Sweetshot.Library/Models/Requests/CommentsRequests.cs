@@ -9,7 +9,7 @@ namespace Sweetshot.Library.Models.Requests
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
 
-            base.SessionId = sessionId;
+            SessionId = sessionId;
             Url = url;
             Body = body;
             Title = title;
@@ -32,11 +32,11 @@ namespace Sweetshot.Library.Models.Requests
         public string Url { get; private set; }
     }
 
-	public class GetVotesRequest : GetCommentsRequest
-	{
-		public GetVotesRequest(string url) : base(url)
-		{
-			
-		}
-	}
+    public class GetVotesRequest : GetCommentsRequest
+    {
+        public GetVotesRequest(string url) : base(url)
+        {
+
+        }
+    }
 }

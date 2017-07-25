@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Steepshot.Core.Authority
 {
     public class User
     {
-        private IDataProvider _data;
+        private readonly IDataProvider _data;
 
-        private UserInfo CurrentUser { get; set; } = new UserInfo();
+        private UserInfo CurrentUser { get; set; }
 
         public bool IsDev
         {
@@ -41,6 +42,9 @@ namespace Steepshot.Core.Authority
             }
         }
 
+
+        public List<string> Postblacklist => CurrentUser.Postblacklist;
+
         public string Login => CurrentUser.Login;
 
         public KnownChains Chain => CurrentUser.Chain;
@@ -49,20 +53,31 @@ namespace Steepshot.Core.Authority
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUser.Login);
 
-
         public User(IDataProvider data)
         {
             _data = data;
         }
 
-
-        public void SwitchUser(UserInfo userInfo)
+        public void Load()
         {
-            CurrentUser = userInfo;
+            var users = GetAllAccounts();
+            if (users.Any())
+            {
+                var last = users[0];
+                for (var i = 1; i < users.Count; i++)
+                {
+                    if (last.LoginTime < users[i].LoginTime)
+                        last = users[i];
+                }
+                CurrentUser = last;
+            }
+            else
+            {
+                CurrentUser = new UserInfo();
+            }
         }
 
-
-        public UserInfo AddUser(string sessionId, string login, string pass, KnownChains chain)
+        public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain)
         {
             var userInfo = new UserInfo
             {
@@ -72,8 +87,8 @@ namespace Steepshot.Core.Authority
                 SessionId = sessionId
             };
 
-            _data.Insert(CurrentUser);
-            return userInfo;
+            _data.Insert(userInfo);
+            CurrentUser = userInfo;
         }
 
         public void Delete()
@@ -96,6 +111,11 @@ namespace Steepshot.Core.Authority
         {
             var items = _data.Select();
             return items;
+        }
+
+        public void Save()
+        {
+            _data.Update(CurrentUser);
         }
     }
 }

@@ -19,32 +19,32 @@ namespace Steepshot.iOS
         }
 
         public static UIStoryboard Storyboard = UIStoryboard.FromName("Main", null);
-        public static UIViewController initialViewController;
+        public static UIViewController InitialViewController;
 
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-			AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
-			{
-				 Reporter.SendCrash((Exception)e.ExceptionObject);
-			};
-			TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
-			{
-				//Reporter.SendCrash(ex);
-			};
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                Reporter.SendCrash((Exception)e.ExceptionObject);
+            };
+            TaskScheduler.UnobservedTaskException += (sender, e) =>
+            {
+                //Reporter.SendCrash(ex);
+            };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            UserContext.Load();
-            if (UserContext.Instanse.Token != null)
+
+            if (BaseViewController.User.IsAuthenticated)
             {
-                initialViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+                InitialViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {
-				UserContext.Instanse.IsHomeFeedLoaded = true;
-                initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
+                BaseViewController.IsHomeFeedLoaded = true;
+                InitialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
-            var navController = new UINavigationController(initialViewController);
+            var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
             return true;
@@ -52,7 +52,7 @@ namespace Steepshot.iOS
 
         public override void OnResignActivation(UIApplication application)
         {
-			/*
+            /*
 			try
 			{
 				NSNotificationCenter.DefaultCenter.PostNotification(new NSNotification(new NSCoder()));

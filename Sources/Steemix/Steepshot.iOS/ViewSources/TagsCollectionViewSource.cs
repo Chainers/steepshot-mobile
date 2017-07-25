@@ -6,10 +6,10 @@ namespace Steepshot.iOS
 {
     public class TagsCollectionViewSource : UICollectionViewSource
     {
-        public List<string> tagsCollection = new List<string>();
+        public List<string> TagsCollection = new List<string>();
         public event RowSelectedHandler RowSelectedEvent;
-        private bool _isButtonNeed;
-        private EventHandler _buttonHandler;
+        private readonly bool _isButtonNeed;
+        private readonly EventHandler _buttonHandler;
 
         public TagsCollectionViewSource(EventHandler buttonEventHandler = null)
         {
@@ -22,13 +22,13 @@ namespace Steepshot.iOS
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return tagsCollection.Count;
+            return TagsCollection.Count;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
         {
             var tagCell = (TagCollectionViewCell)collectionView.DequeueReusableCell(nameof(TagCollectionViewCell), indexPath);
-            tagCell.TagText = tagsCollection[indexPath.Row];
+            tagCell.TagText = TagsCollection[indexPath.Row];
             if (_isButtonNeed && indexPath.Item == 0)
                 tagCell.SetButton(_buttonHandler);
             else
@@ -38,8 +38,7 @@ namespace Steepshot.iOS
 
         public override void ItemHighlighted(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
         {
-            if(RowSelectedEvent != null)
-                RowSelectedEvent((int)indexPath.Item);
+            RowSelectedEvent?.Invoke((int)indexPath.Item);
         }
     }
 }

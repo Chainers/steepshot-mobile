@@ -7,54 +7,54 @@ using UIKit;
 
 namespace Steepshot.iOS
 {
-	public delegate void HeaderTappedHandler(string username);
-	public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
-	public delegate void VoteEventHandler<T>(bool vote, string postUri, Action<string, T> success);
+    public delegate void HeaderTappedHandler(string username);
+    public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
+    public delegate void VoteEventHandler<T>(bool vote, string postUri, Action<string, T> success);
 
     public partial class FeedTableViewCell : UITableViewCell
     {
         public static readonly NSString Key = new NSString("FeedTableViewCell");
         public static readonly UINib Nib;
 
-        private bool isButtonBinded = false;
-        private List<WebClient> webClients = new List<WebClient>();
-		public event VoteEventHandler<VoteResponse> Voted;
-		public event HeaderTappedHandler GoToProfile;
-		public event HeaderTappedHandler GoToComments;
-		public event ImagePreviewHandler ImagePreview;
-		private Post _currentPost;
+        private bool _isButtonBinded = false;
+        private List<WebClient> _webClients = new List<WebClient>();
+        public event VoteEventHandler<VoteResponse> Voted;
+        public event HeaderTappedHandler GoToProfile;
+        public event HeaderTappedHandler GoToComments;
+        public event ImagePreviewHandler ImagePreview;
+        private Post _currentPost;
 
         public bool IsVotedSet
         {
             get
-			{
+            {
                 return Voted != null;
             }
         }
 
-		public bool IsGoToProfileSet
-		{
-			get
-			{
-				return GoToProfile != null;
-			}
-		}
+        public bool IsGoToProfileSet
+        {
+            get
+            {
+                return GoToProfile != null;
+            }
+        }
 
-		public bool IsGoToCommentsSet
-		{
-			get
-			{
-				return GoToComments != null;
-			}
-		}
+        public bool IsGoToCommentsSet
+        {
+            get
+            {
+                return GoToComments != null;
+            }
+        }
 
-		public bool IsImagePreviewSet
-		{
-			get
-			{
-				return ImagePreview != null;
-			}
-		}
+        public bool IsImagePreviewSet
+        {
+            get
+            {
+                return ImagePreview != null;
+            }
+        }
 
         static FeedTableViewCell()
         {
@@ -74,9 +74,9 @@ namespace Steepshot.iOS
 
         public void UpdateCell(Post post)
         {
-			_currentPost = post;
+            _currentPost = post;
             cellText.Text = post.Author;
-			rewards.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
+            rewards.Text = $"{Constants.Currency}{post.TotalPayoutReward.ToString()}";
             netVotes.Text = $"{post.NetVotes.ToString()} likes";
             likeButton.Selected = post.Vote;
             var nicknameAttribute = new UIStringAttributes
@@ -92,45 +92,45 @@ namespace Steepshot.iOS
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
 
-			if (!isButtonBinded)
-			{
-				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-				{
-					ImagePreview(bodyImage.Image, "");
-				});
-				bodyImage.AddGestureRecognizer(tap);
-			}
-
-			if (!isButtonBinded)
-			{
-				UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
-				{
-					GoToProfile(_currentPost.Author);
-				});
-				UITapGestureRecognizer textTap = new UITapGestureRecognizer(() =>
-				{
-					GoToProfile(_currentPost.Author);
-				});
-				avatarImage.AddGestureRecognizer(imageTap);
-				cellText.AddGestureRecognizer(textTap);
-			}
-
-			if (!isButtonBinded)
-			{
-				UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-				{
-					GoToComments(_currentPost.Url);
-				});
-				commentView.AddGestureRecognizer(tap);
-			}
-
-            if (!isButtonBinded)
+            if (!_isButtonBinded)
             {
-                likeButton.TouchDown += LikeTap;
-                isButtonBinded = true;
+                UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+                {
+                    ImagePreview(bodyImage.Image, "");
+                });
+                bodyImage.AddGestureRecognizer(tap);
             }
 
-            foreach (var webClient in webClients)
+            if (!_isButtonBinded)
+            {
+                UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
+                {
+                    GoToProfile(_currentPost.Author);
+                });
+                UITapGestureRecognizer textTap = new UITapGestureRecognizer(() =>
+                {
+                    GoToProfile(_currentPost.Author);
+                });
+                avatarImage.AddGestureRecognizer(imageTap);
+                cellText.AddGestureRecognizer(textTap);
+            }
+
+            if (!_isButtonBinded)
+            {
+                UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+                {
+                    GoToComments(_currentPost.Url);
+                });
+                commentView.AddGestureRecognizer(tap);
+            }
+
+            if (!_isButtonBinded)
+            {
+                likeButton.TouchDown += LikeTap;
+                _isButtonBinded = true;
+            }
+
+            foreach (var webClient in _webClients)
             {
                 if (webClient != null)
                 {
@@ -139,8 +139,8 @@ namespace Steepshot.iOS
                 }
             }
 
-			//ImageDownloader.Download(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"), webClients);
-			//ImageDownloader.Download(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"), webClients);
+            //ImageDownloader.Download(post.Avatar, avatarImage, UIImage.FromBundle("ic_user_placeholder"), webClients);
+            //ImageDownloader.Download(post.Body, bodyImage, UIImage.FromBundle("ic_photo_holder"), webClients);
         }
 
         private void LikeTap(object sender, EventArgs e)
@@ -148,14 +148,14 @@ namespace Steepshot.iOS
             likeButton.Enabled = false;
             Voted(!likeButton.Selected, _currentPost.Url, (url, post) =>
             {
-				if (url == _currentPost.Url)
+                if (url == _currentPost.Url)
                 {
-					likeButton.Selected = post.IsVoted;
+                    likeButton.Selected = post.IsVoted;
                     likeButton.Enabled = true;
-					rewards.Text = $"{Constants.Currency}{post.NewTotalPayoutReward.ToString()}";
+                    rewards.Text = $"{Constants.Currency}{post.NewTotalPayoutReward.ToString()}";
 
-					_currentPost.NetVotes++;
-					netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+                    _currentPost.NetVotes++;
+                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
                 }
             });
         }

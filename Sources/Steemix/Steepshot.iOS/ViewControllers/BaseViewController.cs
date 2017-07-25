@@ -1,157 +1,182 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core;
+using Steepshot.Core.Authority;
+using Steepshot.iOS.Data;
 using Sweetshot.Library.HttpClient;
 using UIKit;
 
 namespace Steepshot.iOS
 {
-	public class BaseViewController : UIViewController
-	{
-		protected BaseViewController(IntPtr handle) : base(handle)
-		{
-		}
+    public class BaseViewController : UIViewController
+    {
+        public static User User { get; set; }
+        public static KnownChains Chain { get; set; }
+        public static List<string> TagsList { get; set; }
 
-		protected UIView activeview;
-		protected nfloat scroll_amount = 0.0f;
-		protected nfloat bottom = 0.0f;
-		protected nfloat offset = 10.0f;
-		protected bool moveViewUp = false;
-		protected NSObject showKeyboardToken;
-		protected NSObject closeKeyboardToken;
-		protected NSObject foregroundToken;
+        protected UIView Activeview;
+        protected nfloat ScrollAmount = 0.0f;
+        protected nfloat Bottom = 0.0f;
+        protected nfloat Offset = 10.0f;
+        protected bool MoveViewUp;
+        protected NSObject ShowKeyboardToken;
+        protected NSObject CloseKeyboardToken;
+        protected NSObject ForegroundToken;
 
-		private static SteepshotApiClient _apiClient;
+        private static SteepshotApiClient _apiClient;
 
-		public override void ViewWillAppear(bool animated)
-		{
-			if (TabBarController != null)
-				TabBarController.TabBar.Hidden = false;
-			
-			base.ViewWillAppear(animated);
-		}
+        public static bool IsHomeFeedLoaded { get; internal set; }
 
-		public override void ViewDidAppear(bool animated)
-		{
-			base.ViewDidAppear(animated);
-			showKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
-			(UIKeyboard.DidShowNotification, KeyBoardUpNotification);
-			foregroundToken = NSNotificationCenter.DefaultCenter.AddObserver
-												  (UIApplication.WillResignActiveNotification, (g) =>
-												  {
-													  if (activeview != null)
-														  activeview.ResignFirstResponder();
-												  });
+        public static bool ShouldProfileUpdate { get; set; }
 
-			closeKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
-			(UIKeyboard.WillHideNotification, KeyBoardDownNotification);
-		}
+        public static bool NetworkChanged { get; set; }
 
-		public override void ViewDidDisappear(bool animated)
-		{
-			NSNotificationCenter.DefaultCenter.RemoveObservers(new NSObject[3] { closeKeyboardToken, showKeyboardToken, foregroundToken });
-			showKeyboardToken.Dispose();
-			closeKeyboardToken.Dispose();
-			foregroundToken.Dispose();
-			base.ViewDidDisappear(animated);
-		}
+        protected static SteepshotApiClient Api
+        {
+            get
+            {
+                if (_apiClient == null)
+                    SwitchApiAddress();
+                return _apiClient;
+            }
+        }
 
-		protected static SteepshotApiClient Api
-		{
-			get
-			{
-				if (_apiClient == null)
-					SwitchApiAddress();
-				return _apiClient;
-			}
-		}
+        public static string CurrentPostCategory { get; set; }
 
-		protected static void SwitchApiAddress()
-		{
-			if (UserContext.Instanse.Network == Constants.Steem)
-			{
-				if(UserContext.Instanse.Dev)
-					_apiClient = new SteepshotApiClient("https://qa.steepshot.org/api/v1/");
-				else
-					_apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
-			}
-			else
-			{
-				if(UserContext.Instanse.Dev)
-					_apiClient = new SteepshotApiClient("https://qa.golos.steepshot.org/api/v1/");
-				else
-					_apiClient = new SteepshotApiClient("https://golos.steepshot.org/api/v1/");
-			}
-		}
 
-		protected virtual void KeyBoardUpNotification(NSNotification notification)
-		{
-			if (scroll_amount > 0)
-				return;
+        static BaseViewController()
+        {
+            User = new User(new DataProvider());
+            User.Load();
+            Chain = User.Chain;
+            TagsList = new List<string>();
+        }
 
-			CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
-			if (activeview == null)
-			{
-				foreach (UIView view in this.View.Subviews)
-				{
-					if (view.IsFirstResponder)
-						activeview = view;
-				}
-			}
-			if (activeview == null)
-				return;
-			CalculateBottom();
-			scroll_amount = (r.Height - (View.Frame.Size.Height - bottom));
-			if (scroll_amount > 0)
-			{
-				moveViewUp = true;
-				ScrollTheView(moveViewUp);
-			}
-			else
-				moveViewUp = false;
-		}
 
-		protected virtual void CalculateBottom()
-		{
-			bottom = (activeview.Frame.Y + activeview.Frame.Height + offset);
-		}
+        protected BaseViewController(IntPtr handle) : base(handle)
+        {
+        }
 
-		public override void ViewDidUnload()
-		{
-			base.ViewDidUnload();
-		}
 
-		protected virtual void KeyBoardDownNotification(NSNotification notification)
-		{
-			if (moveViewUp)
-				ScrollTheView(false);
-		}
+        public override void ViewWillAppear(bool animated)
+        {
+            if (TabBarController != null)
+                TabBarController.TabBar.Hidden = false;
 
-		protected virtual void ScrollTheView(bool move)
-		{
-			UIView.BeginAnimations(string.Empty, System.IntPtr.Zero);
-			UIView.SetAnimationDuration(0.1);
-			CGRect frame = View.Frame;
-			if (move)
-				frame.Y -= scroll_amount;
-			else
-			{
-				frame.Y += scroll_amount;
-				scroll_amount = 0;
-			}
-			View.Frame = frame;
-			UIView.CommitAnimations(); 
-		}
+            base.ViewWillAppear(animated);
+        }
 
-		protected void ShowAlert(string message)
-		{
-			UIAlertView alert = new UIAlertView()
-			{
-				Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
-			};
-			alert.AddButton("OK");
-			alert.Show();
-		}
-	}
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            ShowKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
+            (UIKeyboard.DidShowNotification, KeyBoardUpNotification);
+            ForegroundToken = NSNotificationCenter.DefaultCenter.AddObserver
+                                                  (UIApplication.WillResignActiveNotification, (g) =>
+                                                  {
+                                                      if (Activeview != null)
+                                                          Activeview.ResignFirstResponder();
+                                                  });
+
+            CloseKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
+            (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
+            ShowKeyboardToken.Dispose();
+            CloseKeyboardToken.Dispose();
+            ForegroundToken.Dispose();
+            base.ViewDidDisappear(animated);
+        }
+
+        protected static void SwitchApiAddress()
+        {
+            if (User.Chain == KnownChains.Steem)
+            {
+                if (User.IsDev)
+                    _apiClient = new SteepshotApiClient("https://qa.steepshot.org/api/v1/");
+                else
+                    _apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
+            }
+            else
+            {
+                if (User.IsDev)
+                    _apiClient = new SteepshotApiClient("https://qa.golos.steepshot.org/api/v1/");
+                else
+                    _apiClient = new SteepshotApiClient("https://golos.steepshot.org/api/v1/");
+            }
+        }
+
+        protected virtual void KeyBoardUpNotification(NSNotification notification)
+        {
+            if (ScrollAmount > 0)
+                return;
+
+            CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
+            if (Activeview == null)
+            {
+                foreach (UIView view in View.Subviews)
+                {
+                    if (view.IsFirstResponder)
+                        Activeview = view;
+                }
+            }
+            if (Activeview == null)
+                return;
+            CalculateBottom();
+            ScrollAmount = (r.Height - (View.Frame.Size.Height - Bottom));
+            if (ScrollAmount > 0)
+            {
+                MoveViewUp = true;
+                ScrollTheView(MoveViewUp);
+            }
+            else
+                MoveViewUp = false;
+        }
+
+        protected virtual void CalculateBottom()
+        {
+            Bottom = (Activeview.Frame.Y + Activeview.Frame.Height + Offset);
+        }
+
+
+        protected virtual void KeyBoardDownNotification(NSNotification notification)
+        {
+            if (MoveViewUp)
+                ScrollTheView(false);
+        }
+
+        protected virtual void ScrollTheView(bool move)
+        {
+            UIView.BeginAnimations(string.Empty, IntPtr.Zero);
+            UIView.SetAnimationDuration(0.1);
+            CGRect frame = View.Frame;
+            if (move)
+                frame.Y -= ScrollAmount;
+            else
+            {
+                frame.Y += ScrollAmount;
+                ScrollAmount = 0;
+            }
+            View.Frame = frame;
+            UIView.CommitAnimations();
+        }
+
+        protected void ShowAlert(string message)
+        {
+            UIAlertView alert = new UIAlertView()
+            {
+                Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
+            };
+            alert.AddButton("OK");
+            alert.Show();
+        }
+
+
+    }
 }
