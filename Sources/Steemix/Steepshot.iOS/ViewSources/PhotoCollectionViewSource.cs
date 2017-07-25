@@ -7,29 +7,31 @@ namespace Steepshot.iOS
 {
     public class PhotoCollectionViewSource : UICollectionViewSource
     {
-        PHFetchResult fetchResults;
-        PHImageManager m;
+        readonly PHFetchResult _fetchResults;
+        readonly PHImageManager _m;
         public PhotoCollectionViewSource()
         {
-			PHFetchOptions options = new PHFetchOptions();
-			options.SortDescriptors = new NSSortDescriptor[] { new NSSortDescriptor("creationDate", false) };
-            fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
-            m = new PHImageManager();
+            PHFetchOptions options = new PHFetchOptions
+            {
+                SortDescriptors = new[] { new NSSortDescriptor("creationDate", false) }
+            };
+            _fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
+            _m = new PHImageManager();
         }
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return fetchResults.Count;
+            return _fetchResults.Count;
         }
 
-        public override UICollectionViewCell GetCell(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
+        public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell("PhotoCollectionViewCell", indexPath);
 
-            m.RequestImageForAsset((PHAsset)fetchResults[indexPath.Item], new CoreGraphics.CGSize(150, 150),
+            _m.RequestImageForAsset((PHAsset)_fetchResults[indexPath.Item], new CoreGraphics.CGSize(150, 150),
                                    PHImageContentMode.AspectFit, new PHImageRequestOptions(), (img, info) =>
               {
-                imageCell.UpdateImage(img, (PHAsset)fetchResults[indexPath.Item]);
+                  imageCell.UpdateImage(img, (PHAsset)_fetchResults[indexPath.Item]);
               });
             return imageCell;
         }

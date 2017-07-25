@@ -89,6 +89,7 @@ namespace Sweetshot.Library.HttpClient
                     if (cookie.Name == "sessionid")
                     {
                         result.Result.SessionId = cookie.Value;
+                        break;
                     }
                 }
 

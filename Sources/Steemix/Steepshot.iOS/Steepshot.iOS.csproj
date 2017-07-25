@@ -134,11 +134,21 @@
     <ImageAsset Include="Assets.xcassets\Contents.json">
       <InProject>false</InProject>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png">
+      <InProject>false</InProject>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
@@ -201,7 +211,6 @@
     <Compile Include="ViewControllers\LoginViewController.designer.cs">
       <DependentUpon>LoginViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\UserContext.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="ViewControllers\PostTagsViewController.cs" />
     <Compile Include="ViewControllers\PostTagsViewController.designer.cs">
@@ -250,7 +259,6 @@
     <Compile Include="ViewControllers\SettingsViewController.designer.cs">
       <DependentUpon>SettingsViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\Account.cs" />
     <Compile Include="ViewControllers\TagsSearchViewController.cs" />
     <Compile Include="ViewControllers\TagsSearchViewController.designer.cs">
       <DependentUpon>TagsSearchViewController.cs</DependentUpon>
@@ -343,9 +351,7 @@
     <BundleResource Include="Resources\flag_active%402x.png" />
     <BundleResource Include="Resources\flag_active%403x.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />

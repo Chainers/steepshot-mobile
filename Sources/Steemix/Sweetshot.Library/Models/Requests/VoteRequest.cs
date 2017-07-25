@@ -17,7 +17,7 @@ namespace Sweetshot.Library.Models.Requests
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            base.SessionId = sessionId;
+            SessionId = sessionId;
             Type = isUp ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }

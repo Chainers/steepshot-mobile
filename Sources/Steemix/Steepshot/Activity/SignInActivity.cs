@@ -118,8 +118,7 @@ namespace Steepshot
                     if (response.Success)
                     {
                         _newChain = KnownChains.None;
-                        var userInfo = BasePresenter.User.AddUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
-                        BasePresenter.User.SwitchUser(userInfo);
+                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
                         var intent = new Intent(this, typeof(RootActivity));
                         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                         StartActivity(intent);
