@@ -89,7 +89,7 @@ namespace Steepshot.iOS
 
 			signUpButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(WebPageViewController)) as WebPageViewController;
+				var myViewController = new WebPageViewController(); //Storyboard.InstantiateViewController(nameof(WebPageViewController)) as WebPageViewController;
 				this.NavigationController.PushViewController(myViewController, true);
 			};
 		}
