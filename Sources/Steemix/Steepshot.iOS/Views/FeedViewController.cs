@@ -106,20 +106,21 @@ namespace Steepshot.iOS
 				{
 					controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
 				};
+
+				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
 			}
 
 			if (!UserContext.Instanse.IsHomeFeedLoaded)
 			{
 				isHomeFeed = true;
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-				//NavigationController.TabBarItem.Image = UIImage.FromBundle("home");
-				//NavigationController.TabBarItem.SelectedImage = UIImage.FromBundle("home");
 			}
 			collectionViewSource.GoToProfile += (username)  =>
             {
 				if (username == UserContext.Instanse?.Username)
 					return;
-				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
+				var myViewController = new ProfileViewController();
 				myViewController.Username = username;
 				NavigationController.PushViewController(myViewController, true);
             };
@@ -162,12 +163,13 @@ namespace Steepshot.iOS
 
 		public override void ViewWillAppear(bool animated)
 		{
-			if (TabBarController != null)
+			//navController.SetNavigationBarHidden(false, true);
+			/*if (TabBarController != null)
 			{
-				TabBarController.NavigationController.NavigationBarHidden = true;
+				TabBarController.NavigationController.SetNavigationBarHidden(true, false);
 				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
 				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
-			}
+			}*/
 
 			if (UserContext.Instanse.CurrentPostCategory != currentPostCategory && !isHomeFeed)
 			{
@@ -198,7 +200,6 @@ namespace Steepshot.iOS
 
         void LoginTapped(object sender, EventArgs e)
         {
-			//var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
 			navController.PushViewController(new PreLoginViewController(), true);
         }
 
@@ -458,7 +459,6 @@ namespace Steepshot.iOS
 
 		private void SetNavBar()
 		{
-			navController.SetNavigationBarHidden(false, false);
 			var barHeight = navController.NavigationBar.Frame.Height;
 			UIView titleView = new UIView();
 

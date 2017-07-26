@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -16,6 +15,10 @@ namespace Steepshot.iOS
 			// Note: this .ctor should not contain any initialization logic.
 		}
 
+		public DescriptionViewController()
+		{
+		}
+
 		public UIImage ImageAsset;
 
 		private TagsCollectionViewSource collectionviewSource;
@@ -30,11 +33,11 @@ namespace Steepshot.iOS
 			tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
 			tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
 			// research flow layout
-			//tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-            //{
-                //EstimatedItemSize = new CGSize(100, 50),
+			/*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            {
+                EstimatedItemSize = new CGSize(100, 50),
                 
-            //}, false);
+            }, false);*/
 			collectionviewSource = new TagsCollectionViewSource((sender, e) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(PostTagsViewController)) as PostTagsViewController;
@@ -103,7 +106,7 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-                    ShowAlert(imageUploadResponse.Errors[0]);
+					ShowAlert(imageUploadResponse.Errors[0]);
 					Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0]);
 				}
 			}
@@ -122,13 +125,12 @@ namespace Steepshot.iOS
 		{
 			collectionviewSource.tagsCollection.RemoveAt(row);
 			UserContext.Instanse.TagsList.RemoveAt(row - 1);
-            tagsCollectionView.ReloadData();
+			tagsCollectionView.ReloadData();
 		}
 
 		protected override void CalculateBottom()
 		{
-			bottom = (activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y  + activeview.Frame.Height + offset);
+			bottom = (activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + activeview.Frame.Height + offset);
 		}
 	}
 }
-*/

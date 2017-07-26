@@ -160,6 +160,9 @@
     <InterfaceDefinition Include="Views\CommentsViewController.xib" />
     <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
+    <InterfaceDefinition Include="Views\DescriptionViewController.xib" />
+    <InterfaceDefinition Include="Views\FollowViewController.xib" />
+    <InterfaceDefinition Include="Views\SettingsViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -309,6 +312,18 @@
     <Compile Include="Views\ImagePreviewViewController.cs" />
     <Compile Include="Views\ImagePreviewViewController.designer.cs">
       <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DescriptionViewController.cs" />
+    <Compile Include="Views\DescriptionViewController.designer.cs">
+      <DependentUpon>DescriptionViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FollowViewController.cs" />
+    <Compile Include="Views\FollowViewController.designer.cs">
+      <DependentUpon>FollowViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsViewController.cs" />
+    <Compile Include="Views\SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

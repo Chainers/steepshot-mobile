@@ -430,11 +430,11 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Em8-bM-Txm" firstAttribute="leading" secondItem="Pml-WD-erI" secondAttribute="leading" id="6mV-Ii-C4D"/>
-                            <constraint firstItem="Em8-bM-Txm" firstAttribute="top" secondItem="mHb-Zs-gKF" secondAttribute="bottom" id="G7Z-0g-vNX"/>
+                            <constraint firstItem="Em8-bM-Txm" firstAttribute="top" secondItem="mHb-Zs-gKF" secondAttribute="bottom" id="9ux-7n-QW7"/>
                             <constraint firstItem="GKU-zX-woF" firstAttribute="centerX" secondItem="Pml-WD-erI" secondAttribute="centerX" id="KU6-U2-YMi"/>
                             <constraint firstItem="GKU-zX-woF" firstAttribute="centerY" secondItem="Pml-WD-erI" secondAttribute="centerY" id="NNz-bj-heT"/>
+                            <constraint firstItem="G1T-Fw-Kbo" firstAttribute="top" secondItem="Em8-bM-Txm" secondAttribute="bottom" id="V6k-bc-5fG"/>
                             <constraint firstAttribute="trailing" secondItem="Em8-bM-Txm" secondAttribute="trailing" id="hsV-Fl-b30"/>
-                            <constraint firstItem="G1T-Fw-Kbo" firstAttribute="top" secondItem="Em8-bM-Txm" secondAttribute="bottom" id="p8M-gr-myZ"/>
                         </constraints>
                     </view>
                     <connections>
@@ -566,7 +566,6 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="EgW-iv-rRT" firstAttribute="top" secondItem="4tf-nJ-0dJ" secondAttribute="bottom" id="2YA-Jq-bfn"/>
                             <constraint firstItem="kHc-4P-q4Y" firstAttribute="leading" secondItem="Vzb-MT-ARg" secondAttribute="leading" id="7Ev-Zh-dFL"/>
                             <constraint firstItem="x2b-A1-hKw" firstAttribute="top" secondItem="pQh-C1-qdY" secondAttribute="bottom" constant="20" id="ETi-ub-ZaW"/>
                             <constraint firstItem="pvH-ft-4RK" firstAttribute="top" secondItem="EgW-iv-rRT" secondAttribute="bottom" constant="2" id="GAm-V9-8y6"/>
@@ -577,6 +576,7 @@
                             <constraint firstItem="ZbS-TU-Ku0" firstAttribute="leading" secondItem="hkN-N5-mo2" secondAttribute="leading" id="RvH-bB-hjz"/>
                             <constraint firstAttribute="trailing" secondItem="EgW-iv-rRT" secondAttribute="trailing" id="SPR-rm-wJH"/>
                             <constraint firstItem="pQh-C1-qdY" firstAttribute="centerX" secondItem="Vzb-MT-ARg" secondAttribute="centerX" id="TBH-mE-DPq"/>
+                            <constraint firstItem="EgW-iv-rRT" firstAttribute="top" secondItem="4tf-nJ-0dJ" secondAttribute="bottom" id="U2P-Td-QJ5"/>
                             <constraint firstItem="kHc-4P-q4Y" firstAttribute="top" secondItem="dxr-nr-JdW" secondAttribute="bottom" constant="15" id="UPb-Gn-RKt"/>
                             <constraint firstItem="EgW-iv-rRT" firstAttribute="leading" secondItem="Vzb-MT-ARg" secondAttribute="leading" id="UVC-RK-dRR"/>
                             <constraint firstItem="x2b-A1-hKw" firstAttribute="centerX" secondItem="Vzb-MT-ARg" secondAttribute="centerX" id="XCT-7h-LYp"/>
@@ -795,7 +795,7 @@
                                                 </view>
                                             </collectionViewCell>
                                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="X8Q-61-H5T">
-                                                <rect key="frame" x="104.66666666666667" y="0.0" width="100" height="50"/>
+                                                <rect key="frame" x="105" y="0.0" width="100" height="50"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
@@ -803,7 +803,7 @@
                                                 </view>
                                             </collectionViewCell>
                                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="0y8-v2-uYw">
-                                                <rect key="frame" x="209.33333333333334" y="0.0" width="100" height="50"/>
+                                                <rect key="frame" x="209" y="0.0" width="100" height="50"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                                     <rect key="frame" x="0.0" y="0.0" width="100" height="50"/>
@@ -870,17 +870,17 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="19S-wB-C5q" firstAttribute="top" secondItem="14e-mg-pHW" secondAttribute="bottom" id="1Ya-Iw-HvS"/>
                             <constraint firstItem="akY-f4-LOO" firstAttribute="leading" secondItem="Cv7-b7-Za0" secondAttribute="leading" id="34e-ZE-vR1"/>
+                            <constraint firstItem="2jA-E4-kRd" firstAttribute="top" secondItem="14e-mg-pHW" secondAttribute="bottom" id="7yw-wC-sHG"/>
                             <constraint firstItem="2jA-E4-kRd" firstAttribute="leading" secondItem="Cv7-b7-Za0" secondAttribute="leading" id="BjH-gB-wQc"/>
-                            <constraint firstItem="3Ah-6f-EK9" firstAttribute="top" secondItem="2jA-E4-kRd" secondAttribute="bottom" id="DGc-Vs-2Re"/>
                             <constraint firstItem="akY-f4-LOO" firstAttribute="top" secondItem="19S-wB-C5q" secondAttribute="bottom" id="Psc-nH-Blw"/>
                             <constraint firstItem="19S-wB-C5q" firstAttribute="leading" secondItem="Cv7-b7-Za0" secondAttribute="leading" id="Rvm-vb-elW"/>
-                            <constraint firstItem="3Ah-6f-EK9" firstAttribute="top" secondItem="akY-f4-LOO" secondAttribute="bottom" id="Ul5-rO-iBO"/>
-                            <constraint firstItem="2jA-E4-kRd" firstAttribute="top" secondItem="14e-mg-pHW" secondAttribute="bottom" id="b0b-Ed-ATo"/>
+                            <constraint firstItem="3Ah-6f-EK9" firstAttribute="top" secondItem="2jA-E4-kRd" secondAttribute="bottom" id="Xdg-Rv-OJ5"/>
+                            <constraint firstItem="19S-wB-C5q" firstAttribute="top" secondItem="14e-mg-pHW" secondAttribute="bottom" id="jhJ-Rc-JqB"/>
                             <constraint firstAttribute="trailing" secondItem="akY-f4-LOO" secondAttribute="trailing" id="umv-c9-v0b"/>
                             <constraint firstAttribute="trailing" secondItem="2jA-E4-kRd" secondAttribute="trailing" id="vnO-Ld-8DI"/>
                             <constraint firstAttribute="trailing" secondItem="19S-wB-C5q" secondAttribute="trailing" id="wu7-Dm-GWu"/>
+                            <constraint firstItem="3Ah-6f-EK9" firstAttribute="top" secondItem="akY-f4-LOO" secondAttribute="bottom" id="xDo-5n-LKI"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ejp-fj-sxK"/>
