@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using Steepshot.Core.Authority;
 using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -13,11 +14,11 @@ namespace Sweetshot.Tests
     [TestFixture]
     public class IntegrationTestsChangingState
     {
-        private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
+        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
         //private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
-        private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
+        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
         //private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
-        private SteepshotApiClient Api(string name)
+        private ISteepshotApiClient Api(string name)
         {
             switch (name)
             {
@@ -30,11 +31,11 @@ namespace Sweetshot.Tests
             }
         }
 
-        private string Authenticate(string name, string postingKey, SteepshotApiClient api)
+        private UserInfo Authenticate(string name, string postingKey, ISteepshotApiClient api)
         {
             var request = new LoginWithPostingKeyRequest(name, postingKey);
             var response = api.LoginWithPostingKey(request).Result;
-            return response.Result.SessionId;
+            return new UserInfo() { Login = name, PostingKey = postingKey, SessionId = response.Result.SessionId };
         }
 
         [Test, Sequential]
@@ -43,14 +44,14 @@ namespace Sweetshot.Tests
             const string Name = "joseph.kalu";
             const string PostingKey = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
 
-            var sessionId = Authenticate(Name, PostingKey, Api(apiName));
+            var userInfo = Authenticate(Name, PostingKey, Api(apiName));
 
             // 1) Create new post
             var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             var path = Path.Combine(dir.Parent.Parent.FullName, @"Data/cat.jpg");
             var file = File.ReadAllBytes(path);
 
-            var createPostRequest = new UploadImageRequest(sessionId, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var createPostRequest = new UploadImageRequest(userInfo, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
             var createPostResponse = Api(apiName).Upload(createPostRequest).Result;
 
             AssertResult(createPostResponse);
@@ -73,7 +74,7 @@ namespace Sweetshot.Tests
             Thread.Sleep(TimeSpan.FromSeconds(20));
             const string body = "Ллойс!";
             const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(sessionId, lastPost.Url, body, title);
+            var createCommentRequest = new CreateCommentRequest(userInfo, lastPost.Url, body, title);
             var createCommentResponse = Api(apiName).CreateComment(createCommentRequest).Result;
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);
@@ -90,7 +91,7 @@ namespace Sweetshot.Tests
             Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
 
             // 3) Vote up
-            var voteUpRequest = new VoteRequest(sessionId, true, lastPost.Url);
+            var voteUpRequest = new VoteRequest(userInfo, true, lastPost.Url);
             var voteUpResponse = Api(apiName).Vote(voteUpRequest).Result;
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.Result.IsVoted, Is.True);
@@ -101,14 +102,14 @@ namespace Sweetshot.Tests
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
-            userPostsRequest.SessionId = sessionId;
+            userPostsRequest.SessionId = userInfo.SessionId;
             var userPostsResponse2 = Api(apiName).GetUserPosts(userPostsRequest).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse2);
             Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.True);
 
             // 4) Vote down
-            var voteDownRequest = new VoteRequest(sessionId, false, lastPost.Url);
+            var voteDownRequest = new VoteRequest(userInfo, false, lastPost.Url);
             var voteDownResponse = Api(apiName).Vote(voteDownRequest).Result;
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.Result.IsVoted, Is.False);
@@ -119,7 +120,7 @@ namespace Sweetshot.Tests
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
-            userPostsRequest.SessionId = sessionId;
+            userPostsRequest.SessionId = userInfo.SessionId;
             var userPostsResponse3 = Api(apiName).GetUserPosts(userPostsRequest).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse3);
@@ -127,7 +128,7 @@ namespace Sweetshot.Tests
 
             // 5) Vote up comment
             var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var voteUpCommentRequest = new VoteRequest(sessionId, true, commentUrl);
+            var voteUpCommentRequest = new VoteRequest(userInfo, true, commentUrl);
             var voteUpCommentResponse = Api(apiName).Vote(voteUpCommentRequest).Result;
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.Result.IsVoted, Is.True);
@@ -138,14 +139,14 @@ namespace Sweetshot.Tests
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
-            getCommentsRequest.SessionId = sessionId;
+            getCommentsRequest.SessionId = userInfo.SessionId;
             var commentsResponse2 = Api(apiName).GetComments(getCommentsRequest).Result;
             // Check if last comment was voted
             AssertResult(commentsResponse2);
             Assert.That(commentsResponse2.Result.Results.First().Vote, Is.True);
 
             // 6) Vote down comment
-            var voteDownCommentRequest = new VoteRequest(sessionId, false, commentUrl);
+            var voteDownCommentRequest = new VoteRequest(userInfo, false, commentUrl);
             var voteDownCommentResponse = Api(apiName).Vote(voteDownCommentRequest).Result;
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.Result.IsVoted, Is.False);
@@ -156,7 +157,7 @@ namespace Sweetshot.Tests
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
-            getCommentsRequest.SessionId = sessionId;
+            getCommentsRequest.SessionId = userInfo.SessionId;
             var commentsResponse3 = Api(apiName).GetComments(getCommentsRequest).Result;
             // Check if last comment was voted
             AssertResult(commentsResponse3);
@@ -165,7 +166,7 @@ namespace Sweetshot.Tests
             // 7) Follow
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            var followRequest = new FollowRequest(sessionId, FollowType.Follow, user);
+            var followRequest = new FollowRequest(userInfo, FollowType.Follow, user);
             var followResponse = Api(apiName).Follow(followRequest).Result;
             AssertResult(followResponse);
             Assert.That(followResponse.Result.IsFollowed, Is.True);
@@ -174,14 +175,14 @@ namespace Sweetshot.Tests
             // 8) UnFollow
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            var unfollowRequest = new FollowRequest(sessionId, FollowType.UnFollow, user);
+            var unfollowRequest = new FollowRequest(userInfo, FollowType.UnFollow, user);
             var unfollowResponse = Api(apiName).Follow(unfollowRequest).Result;
             AssertResult(unfollowResponse);
             Assert.That(unfollowResponse.Result.IsFollowed, Is.False);
             Assert.That(unfollowResponse.Result.Message, Is.EqualTo("User is unfollowed"));
 
             // 9) Logout
-            var logoutRequest = new LogoutRequest(sessionId);
+            var logoutRequest = new LogoutRequest(userInfo);
             var logoutResponse = Api(apiName).Logout(logoutRequest).Result;
             AssertResult(logoutResponse);
             Assert.That(logoutResponse.Result.IsLoggedOut, Is.True);

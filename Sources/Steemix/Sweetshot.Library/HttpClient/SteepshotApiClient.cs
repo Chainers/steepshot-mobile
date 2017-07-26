@@ -13,7 +13,7 @@ using Sweetshot.Library.Serializing;
 
 namespace Sweetshot.Library.HttpClient
 {
-    public class SteepshotApiClient
+    public class SteepshotApiClient : ISteepshotApiClient
     {
         private readonly IJsonConverter _jsonConverter;
 
@@ -41,32 +41,10 @@ namespace Sweetshot.Library.HttpClient
 
         /// <summary>
         ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/login HTTP/1.1
-        ///             {"username":"joseph.kalu","password":"test1234"}
-        /// </summary>
-        [Obsolete]
-        public async Task<OperationResult<LoginResponse>> Login(LoginRequest request)
-        {
-            return await Authenticate("login", request);
-        }
-
-        [Obsolete]
-        public async Task<OperationResult<LoginResponse>> Register(RegisterRequest request)
-        {
-            return await Authenticate("register", request);
-        }
-
-        /// <summary>
-        ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/login-with-posting HTTP/1.1
         ///             {"username":"joseph.kalu","posting_key":"test1234"}
         /// </summary>
         public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request)
-        {
-            return await Authenticate("login-with-posting", request);
-        }
-
-        private async Task<OperationResult<LoginResponse>> Authenticate(string endpoint, ILoginRequest request)
         {
             var parameters = new List<RequestParameter>
             {
@@ -78,7 +56,7 @@ namespace Sweetshot.Library.HttpClient
                 }
             };
 
-            var response = await Gateway.Post(endpoint, parameters);
+            var response = await Gateway.Post("login-with-posting", parameters);
 
             var errorResult = CheckErrors(response);
             var result = CreateResult<LoginResponse>(response.Content, errorResult);

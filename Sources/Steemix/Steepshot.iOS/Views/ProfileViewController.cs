@@ -196,7 +196,7 @@ namespace Steepshot.iOS
             errorMessage.Hidden = true;
             try
             {
-                var req = new UserProfileRequest(Username) { SessionId = User.SessionId };
+                var req = new UserProfileRequest(Username, User.CurrentUser);
                 var response = await Api.GetUserProfile(req);
                 if (response.Success)
                 {
@@ -298,11 +298,10 @@ namespace Steepshot.iOS
             _isPostsLoading = true;
             try
             {
-                var req = new UserPostsRequest(Username)
+                var req = new UserPostsRequest(Username, User.CurrentUser)
                 {
                     Limit = _limit,
-                    Offset = photosList.Count == 0 ? "0" : _offsetUrl,
-                    SessionId = User.SessionId
+                    Offset = photosList.Count == 0 ? "0" : _offsetUrl
                 };
                 var response = await Api.GetUserPosts(req);
                 if (response.Success)
@@ -357,14 +356,14 @@ namespace Steepshot.iOS
 
             try
             {
-                if (User.SessionId == null)
+                if (!User.IsAuthenticated)
                 {
                     var myViewController = new LoginViewController();
                     NavigationController.PushViewController(myViewController, true);
                     return;
                 }
 
-                var voteRequest = new VoteRequest(User.SessionId, vote, postUri);
+                var voteRequest = new VoteRequest(User.CurrentUser, vote, postUri);
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -437,7 +436,7 @@ namespace Steepshot.iOS
         {
             try
             {
-                var flagRequest = new FlagRequest(User.SessionId, vote, postUrl);
+                var flagRequest = new FlagRequest(User.CurrentUser, vote, postUrl);
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {
@@ -470,7 +469,7 @@ namespace Steepshot.iOS
 
         public async Task Follow()
         {
-            var request = new FollowRequest(User.SessionId, (userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, userData.Username);
+            var request = new FollowRequest(User.CurrentUser, (userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, userData.Username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {

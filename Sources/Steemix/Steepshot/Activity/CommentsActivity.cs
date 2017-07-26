@@ -46,7 +46,7 @@ namespace Steepshot
                         sendSpinner.Visibility = Android.Views.ViewStates.Visible;
                         post.Visibility = Android.Views.ViewStates.Invisible;
                         var resp = await presenter.CreateComment(textInput.Text, uid);
-                        if (resp?.Result != null && resp.Result.IsCreated)
+                        if (resp.Success)
                         {
                             if (textInput != null)
                             {

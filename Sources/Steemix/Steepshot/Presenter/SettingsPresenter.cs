@@ -13,14 +13,14 @@ namespace Steepshot
 
 		public async Task<OperationResult<UserProfileResponse>> GetUserInfo()
 		{
-			var req = new UserProfileRequest(User.Login) {SessionId = User.SessionId};
+			var req = new UserProfileRequest(User.Login, User.CurrentUser);
 			var response = await Api.GetUserProfile(req);
 			return response;
 		}
 
 		public async Task<OperationResult<LogoutResponse>> Logout()
 		{
-			var request = new LogoutRequest(User.SessionId);
+			var request = new LogoutRequest(User.CurrentUser);
 			return await Api.Logout(request);
 		}
 	}

@@ -1,10 +1,10 @@
 namespace Sweetshot.Library.Models.Responses
 {
     ///{
-    ///  "message": "Password was changed"
+    ///  "message": "PostingKey was changed"
     ///}
     public class ChangePasswordResponse : MessageField
     {
-        public bool IsChanged => Message.Equals("Password was changed");
+        public bool IsChanged => Message.Equals("PostingKey was changed");
     }
 }

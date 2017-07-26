@@ -8,7 +8,7 @@ namespace Steepshot
 {
     public class BasePresenter
     {
-        private static SteepshotApiClient _apiClient;
+        private static ISteepshotApiClient _apiClient;
         public static string AppVersion { get; set; }
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
 
@@ -18,7 +18,7 @@ namespace Steepshot
 
         protected BaseView view;
 
-        protected static SteepshotApiClient Api
+        protected static ISteepshotApiClient Api
         {
             get
             {
@@ -67,10 +67,7 @@ namespace Steepshot
             else
                 serverUrl = User.IsDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            if (_apiClient == null)
-                _apiClient = new SteepshotApiClient(serverUrl);
-            else
-                _apiClient.ChangeServerUrl(serverUrl);
+            _apiClient = new SteepshotApiClient(serverUrl);
         }
     }
 }

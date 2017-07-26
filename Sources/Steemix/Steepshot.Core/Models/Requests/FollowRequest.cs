@@ -1,4 +1,5 @@
 using System;
+using Steepshot.Core.Authority;
 
 namespace Sweetshot.Library.Models.Requests
 {
@@ -8,14 +9,13 @@ namespace Sweetshot.Library.Models.Requests
         UnFollow
     }
 
-    public class FollowRequest : SessionIdField
+    public class FollowRequest : LoginRequest
     {
-        public FollowRequest(string sessionId, FollowType type, string username)
+        public FollowRequest(UserInfo user, FollowType type, string username)
+            : base(user)
         {
-            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
-            SessionId = sessionId;
             Type = type;
             Username = username;
         }

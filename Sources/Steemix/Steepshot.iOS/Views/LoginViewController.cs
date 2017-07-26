@@ -127,7 +127,7 @@ namespace Steepshot.iOS
             }
             catch (ArgumentNullException)
             {
-                ShowAlert("Password cannot be empty");
+                ShowAlert("PostingKey cannot be empty");
             }
             catch (Exception ex)
             {

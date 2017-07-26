@@ -112,7 +112,7 @@ namespace Steepshot.iOS
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query) { SessionId = User.SessionId };
+                        var request = new SearchWithQueryRequest(query, User.CurrentUser);
                         response = await Api.SearchCategories(request, cts);
                     }
                     if (response.Success)
