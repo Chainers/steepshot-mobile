@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using CoreGraphics;
 using FFImageLoading;
 using UIKit;
@@ -43,4 +43,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-
+*/

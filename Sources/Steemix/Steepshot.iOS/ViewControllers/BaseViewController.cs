@@ -13,6 +13,8 @@ namespace Steepshot.iOS
 		{
 		}
 
+		public BaseViewController() { }
+
 		protected UIView activeview;
 		protected nfloat scroll_amount = 0.0f;
 		protected nfloat bottom = 0.0f;
@@ -23,6 +25,14 @@ namespace Steepshot.iOS
 		protected NSObject foregroundToken;
 
 		private static SteepshotApiClient _apiClient;
+
+		/*
+		public override void ViewDidLoad()
+		{
+			base.ViewDidLoad();
+			if (NavigationController != null)
+				NavigationController.NavigationBar.Translucent = false;
+		}*/
 
 		public override void ViewWillAppear(bool animated)
 		{
