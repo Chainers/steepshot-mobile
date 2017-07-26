@@ -83,6 +83,7 @@
     <CodesignProvision>
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
+    <MtouchProfiling>true</MtouchProfiling>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -115,6 +116,16 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="MailKit">
+      <HintPath>..\packages\MailKit.1.16.1\lib\Xamarin.iOS10\MailKit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -140,6 +151,21 @@
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
     <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
     <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
+    <InterfaceDefinition Include="Views\FeedViewController.xib" />
+    <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
+    <InterfaceDefinition Include="Views\LoginViewController.xib" />
+    <InterfaceDefinition Include="Views\PhotoViewController.xib" />
+    <InterfaceDefinition Include="Views\ProfileViewController.xib" />
+    <InterfaceDefinition Include="Views\CommentsViewController.xib" />
+    <InterfaceDefinition Include="Views\WebPageViewController.xib" />
+    <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
+    <InterfaceDefinition Include="Views\DescriptionViewController.xib" />
+    <InterfaceDefinition Include="Views\FollowViewController.xib" />
+    <InterfaceDefinition Include="Views\SettingsViewController.xib" />
+    <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
+    <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
+    <InterfaceDefinition Include="Views\VotersViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -151,10 +177,6 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <Compile Include="MySecondViewController.cs" />
-    <Compile Include="MySecondViewController.designer.cs">
-      <DependentUpon>MySecondViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewControllers\MainTabBarController.cs" />
     <Compile Include="Cells\FeedTableViewCell.cs" />
     <Compile Include="Cells\FeedTableViewCell.designer.cs">
@@ -162,10 +184,6 @@
     </Compile>
     <Compile Include="ViewSources\FeedTableViewSource.cs" />
     <Compile Include="ViewControllers\BaseViewController.cs" />
-    <Compile Include="ViewControllers\FeedViewController.cs" />
-    <Compile Include="ViewControllers\FeedViewController.designer.cs">
-      <DependentUpon>FeedViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewControllers\PhotoViewController.cs" />
     <Compile Include="ViewControllers\PhotoViewController.designer.cs">
       <DependentUpon>PhotoViewController.cs</DependentUpon>
@@ -251,6 +269,73 @@
     <Compile Include="ViewControllers\WebPageViewController.designer.cs">
       <DependentUpon>WebPageViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\Reporter.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.designer.cs">
+      <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
+    <Compile Include="ViewControllers\VotersViewController.cs" />
+    <Compile Include="ViewControllers\VotersViewController.designer.cs">
+      <DependentUpon>VotersViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\VotersTableViewSource.cs" />
+    <Compile Include="Views\FeedViewController.cs" />
+    <Compile Include="Views\FeedViewController.designer.cs">
+      <DependentUpon>FeedViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreLoginViewController.cs" />
+    <Compile Include="Views\PreLoginViewController.designer.cs">
+      <DependentUpon>PreLoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginViewController.cs" />
+    <Compile Include="Views\LoginViewController.designer.cs">
+      <DependentUpon>LoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PhotoViewController.cs" />
+    <Compile Include="Views\PhotoViewController.designer.cs">
+      <DependentUpon>PhotoViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfileViewController.cs" />
+    <Compile Include="Views\ProfileViewController.designer.cs">
+      <DependentUpon>ProfileViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommentsViewController.cs" />
+    <Compile Include="Views\CommentsViewController.designer.cs">
+      <DependentUpon>CommentsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WebPageViewController.cs" />
+    <Compile Include="Views\WebPageViewController.designer.cs">
+      <DependentUpon>WebPageViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ImagePreviewViewController.cs" />
+    <Compile Include="Views\ImagePreviewViewController.designer.cs">
+      <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DescriptionViewController.cs" />
+    <Compile Include="Views\DescriptionViewController.designer.cs">
+      <DependentUpon>DescriptionViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FollowViewController.cs" />
+    <Compile Include="Views\FollowViewController.designer.cs">
+      <DependentUpon>FollowViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsViewController.cs" />
+    <Compile Include="Views\SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PostTagsViewController.cs" />
+    <Compile Include="Views\PostTagsViewController.designer.cs">
+      <DependentUpon>PostTagsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TagsSearchViewController.cs" />
+    <Compile Include="Views\TagsSearchViewController.designer.cs">
+      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VotersViewController.cs" />
+    <Compile Include="Views\VotersViewController.designer.cs">
+      <DependentUpon>VotersViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -316,8 +401,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\" />
-    <Folder Include="Logging\" />
   </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
 </Project>

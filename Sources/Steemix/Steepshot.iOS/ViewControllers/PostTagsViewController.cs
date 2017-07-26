@@ -1,5 +1,7 @@
-﻿using System;
+﻿/*
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
@@ -18,13 +20,14 @@ namespace Steepshot.iOS
         }
 
         private TagsCollectionViewSource collectionviewSource;
-
+		private CancellationTokenSource cts;
         private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
+		private Timer _timer;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-
+			_timer = new Timer(onTimer);
             //Table initialization
             tagsTable.Source = tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
@@ -35,11 +38,11 @@ namespace Steepshot.iOS
             tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
             // research flow layout
-            /*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-            {
-                EstimatedItemSize = new CGSize(100, 50),
+            //tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            //{
+                //EstimatedItemSize = new CGSize(100, 50),
                 
-            }, false);*/
+            //}, false);
             collectionviewSource = new TagsCollectionViewSource();
             collectionviewSource.RowSelectedEvent += CollectionTagSelected;
             tagsCollectionView.Source = collectionviewSource;
@@ -55,7 +58,7 @@ namespace Steepshot.iOS
 
             searchText.EditingChanged += (sender, e) =>
             {
-                GetTags(((UITextField)sender).Text);
+                _timer.Change(1500, Timeout.Infinite);
             };
 
 			activeview = searchText;
@@ -72,30 +75,56 @@ namespace Steepshot.iOS
             tagsCollectionView.ReloadData();
         }
 
+		private void onTimer(object state)
+		{
+			InvokeOnMainThread(() =>
+		   {
+			   GetTags(searchText.Text);
+		   });
+		}
+
         private async Task GetTags(string query)
         {
+			if (query != null && query.Length == 1)
+				return;
+
 			try
 			{
-				OperationResult<SearchResponse> response;
-				if (string.IsNullOrEmpty(query))
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
+
+			}
+
+			try
+			{
+				using (cts = new CancellationTokenSource())
 				{
-					var request = new SearchRequest() { };
-					response = await Api.GetCategories(request);
-				}
-				else
-				{
-					var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
-					response = await Api.SearchCategories(request);
-				}
-				if (response.Success)
-				{
-					tagsSource.Tags.Clear();
-					tagsSource.Tags = response.Result.Results;
-					tagsTable.ReloadData();
+					OperationResult<SearchResponse<SearchResult>> response;
+					if (string.IsNullOrEmpty(query))
+					{
+						var request = new SearchRequest() { };
+						response = await Api.GetCategories(request, cts);
+					}
+					else
+					{
+						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
+						response = await Api.SearchCategories(request, cts);
+					}
+					if (response.Success)
+					{
+						tagsSource.Tags.Clear();
+						tagsSource.Tags = response.Result?.Results;
+						tagsTable.ReloadData();
+					}
+					else
+						Reporter.SendCrash("Post tags page get items error: " + response.Errors[0]);
 				}
 			}
 			catch (Exception ex)
-			{ 
+			{
+				Reporter.SendCrash(ex);
 			}
         }
 
@@ -115,9 +144,6 @@ namespace Steepshot.iOS
 
         private void AddTag(string tag)
         {
-            if (!tag.StartsWith("#", StringComparison.CurrentCulture))
-                tag = tag.Insert(0, "#");
-
             if (!collectionviewSource.tagsCollection.Contains(tag) &&!string.IsNullOrEmpty(tag))
             {
                 collectionviewSource.tagsCollection.Add(tag);
@@ -126,4 +152,4 @@ namespace Steepshot.iOS
         }
     }
 }
-
+*/

@@ -9,5 +9,7 @@ namespace Steepshot
 		{
 			get { return UserPrincipal.Instance.CurrentNetwork == Constants.Steem ? "$" : "₽"; }
 		}
+		public const string ReportLogin = "crash.steepshot.org@gmail.com";
+		public const string ReportPassword = "steep7788";
 	}
 }

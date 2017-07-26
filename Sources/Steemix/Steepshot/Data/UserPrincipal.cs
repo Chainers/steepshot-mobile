@@ -25,6 +25,26 @@ namespace Steepshot
 
 		private SQLiteConnection db;
 
+		public string AppVersion;
+		public bool ShouldUpdateProfile;
+
+		public bool IsDev
+		{
+			get
+			{
+				ISharedPreferences prefs = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+				var isdev = prefs.GetBoolean("isdev", false);
+				return isdev;
+			}
+			set
+			{
+				ISharedPreferences prefs = PreferenceManager.GetDefaultSharedPreferences(Application.Context);
+				ISharedPreferencesEditor editor = prefs.Edit();
+				editor.PutBoolean("isdev", value);
+				editor.Apply();
+			}
+		}
+
 		public string CurrentNetwork {
 			get
 			{

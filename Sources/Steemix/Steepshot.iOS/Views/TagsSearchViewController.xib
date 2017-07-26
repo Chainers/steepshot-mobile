@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="TagsSearchViewController">
+            <connections>
+                <outlet property="activityIndicator" destination="ePO-sg-mWU" id="I0U-3C-ok5"/>
+                <outlet property="noTagsLabel" destination="mog-9n-Cj8" id="3L8-nK-eSr"/>
+                <outlet property="peopleButton" destination="23V-ge-Rdc" id="oyZ-a0-h6M"/>
+                <outlet property="searchTextField" destination="9Bh-qb-pvV" id="dqy-8F-CkC"/>
+                <outlet property="tagsButton" destination="vfz-I4-Fsk" id="9Dt-1Q-Pri"/>
+                <outlet property="tagsTable" destination="uxg-xw-LuH" id="38F-YV-2iz"/>
+                <outlet property="usersTable" destination="JCn-cE-i0j" id="xxM-9s-bTK"/>
+                <outlet property="view" destination="aQK-JL-JDU" id="oVR-x2-vJ2"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="aQK-JL-JDU">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="uxg-xw-LuH">
+                    <rect key="frame" x="0.0" y="110" width="414" height="626"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="JCn-cE-i0j">
+                    <rect key="frame" x="0.0" y="110" width="414" height="626"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No results" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mog-9n-Cj8">
+                    <rect key="frame" x="0.0" y="358" width="414" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="ePO-sg-mWU">
+                    <rect key="frame" x="189" y="350" width="37" height="37"/>
+                    <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </activityIndicatorView>
+                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Please type a tag" textAlignment="natural" adjustsFontSizeToFit="NO" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="9Bh-qb-pvV">
+                    <rect key="frame" x="8" y="28" width="398" height="35"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="35" id="hqd-sa-fH7"/>
+                    </constraints>
+                    <nil key="textColor"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no"/>
+                </textField>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vfz-I4-Fsk">
+                    <rect key="frame" x="8" y="73" width="57" height="32"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="by Tags">
+                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <state key="selected" title="by Tags"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="23V-ge-Rdc">
+                    <rect key="frame" x="95" y="73" width="72" height="32"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="by People">
+                        <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                    </state>
+                    <state key="selected" title="by People"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="mog-9n-Cj8" secondAttribute="trailing" id="6Xo-Wy-pDK"/>
+                <constraint firstItem="23V-ge-Rdc" firstAttribute="centerY" secondItem="vfz-I4-Fsk" secondAttribute="centerY" id="9Xd-cx-yt7"/>
+                <constraint firstItem="JCn-cE-i0j" firstAttribute="top" secondItem="9Bh-qb-pvV" secondAttribute="bottom" constant="47" id="DB1-RO-vlk"/>
+                <constraint firstItem="vfz-I4-Fsk" firstAttribute="leading" secondItem="9Bh-qb-pvV" secondAttribute="leading" id="FuJ-Oq-AdL"/>
+                <constraint firstAttribute="bottom" secondItem="JCn-cE-i0j" secondAttribute="bottom" id="J7V-P3-p4q"/>
+                <constraint firstItem="uxg-xw-LuH" firstAttribute="leading" secondItem="JCn-cE-i0j" secondAttribute="leading" id="KIH-Mg-kTQ"/>
+                <constraint firstAttribute="trailing" secondItem="JCn-cE-i0j" secondAttribute="trailing" id="ODg-1L-Rcw"/>
+                <constraint firstItem="ePO-sg-mWU" firstAttribute="centerX" secondItem="aQK-JL-JDU" secondAttribute="centerX" id="TDo-aB-j1w"/>
+                <constraint firstItem="uxg-xw-LuH" firstAttribute="trailing" secondItem="JCn-cE-i0j" secondAttribute="trailing" id="WP1-yX-3Y4"/>
+                <constraint firstItem="9Bh-qb-pvV" firstAttribute="leading" secondItem="aQK-JL-JDU" secondAttribute="leading" constant="8" id="ZGe-W2-AOw"/>
+                <constraint firstItem="JCn-cE-i0j" firstAttribute="leading" secondItem="aQK-JL-JDU" secondAttribute="leading" id="aNp-Xo-4Ab"/>
+                <constraint firstItem="mog-9n-Cj8" firstAttribute="centerY" secondItem="aQK-JL-JDU" secondAttribute="centerY" id="b42-Ar-SvS"/>
+                <constraint firstItem="uxg-xw-LuH" firstAttribute="top" secondItem="JCn-cE-i0j" secondAttribute="top" id="bpZ-mg-03d"/>
+                <constraint firstItem="ePO-sg-mWU" firstAttribute="centerY" secondItem="aQK-JL-JDU" secondAttribute="centerY" id="bvP-eq-eUj"/>
+                <constraint firstItem="9Bh-qb-pvV" firstAttribute="top" secondItem="aQK-JL-JDU" secondAttribute="top" constant="28" id="dFt-P0-I6g"/>
+                <constraint firstItem="mog-9n-Cj8" firstAttribute="leading" secondItem="aQK-JL-JDU" secondAttribute="leading" id="jgq-WF-xsI"/>
+                <constraint firstItem="vfz-I4-Fsk" firstAttribute="top" secondItem="9Bh-qb-pvV" secondAttribute="bottom" constant="10" id="jra-ye-Dtd"/>
+                <constraint firstItem="23V-ge-Rdc" firstAttribute="leading" secondItem="vfz-I4-Fsk" secondAttribute="trailing" constant="30" id="low-e8-Wwj"/>
+                <constraint firstAttribute="trailing" secondItem="9Bh-qb-pvV" secondAttribute="trailing" constant="8" id="uEv-Jd-ZTR"/>
+                <constraint firstItem="uxg-xw-LuH" firstAttribute="bottom" secondItem="JCn-cE-i0j" secondAttribute="bottom" id="xx0-Kz-SSD"/>
+            </constraints>
+        </view>
+    </objects>
+</document>

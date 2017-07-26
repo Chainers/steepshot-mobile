@@ -54,8 +54,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Activity\PostPreviewActivity.cs" />
-    <Compile Include="Logging\ILog.cs" />
-    <Compile Include="Logging\LogManager.cs" />
     <Compile Include="Presenter\PostPreviewPresenter.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,12 +62,10 @@
     <Compile Include="Base\BasePresenter.cs" />
     <Compile Include="Activity\ChangePasswordActivity.cs" />
     <Compile Include="Activity\CommentsActivity.cs" />
-    <Compile Include="Activity\FollowersActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\PostDescriptionActivity.cs" />
     <Compile Include="Activity\ProfileActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
-    <Compile Include="Activity\SearchActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
     <Compile Include="Activity\SignUpActivity.cs" />
@@ -144,6 +140,16 @@
     <Compile Include="View\PreSignInView.cs" />
     <Compile Include="Data\Constants.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="Utils\Reporter.cs" />
+    <Compile Include="Adapter\UsersSearchAdapter.cs" />
+    <Compile Include="Presenter\VotersPresenter.cs" />
+    <Compile Include="Adapter\VotersAdapter.cs" />
+    <Compile Include="Fragment\BackStackFragment.cs" />
+    <Compile Include="Fragment\HostFragment.cs" />
+    <Compile Include="Fragment\VotersFragment.cs" />
+    <Compile Include="Fragment\SearchFragment.cs" />
+    <Compile Include="Fragment\FollowersFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -182,6 +188,20 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_qr.png" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_qr.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_qr.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_home.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_browse.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_camera_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_camera_new.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_profile_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_profile_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_list.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_grid_new.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_grid_new.png" />
+    <AndroidResource Include="Resources\layout\lyt_users_search_item.axml" />
+    <AndroidResource Include="Resources\layout\HostLayout.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />
@@ -336,12 +356,6 @@
     <AndroidResource Include="Resources\layout\tab_main.axml" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Cheeseknife">
-      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\netstandard1.3\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -391,12 +405,6 @@
     </Reference>
     <Reference Include="System.Xml.Linq">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Xml.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="HockeySDK.AndroidBindings">
-      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
-    </Reference>
-    <Reference Include="HockeySDK">
-      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
     </Reference>
     <Reference Include="websocket-sharp, Version=1.0.2.59611, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
       <HintPath>..\packages\WebSocketSharp.1.0.3-rc11\lib\websocket-sharp.dll</HintPath>
@@ -451,6 +459,24 @@
     </Reference>
     <Reference Include="ZXingNetMobile">
       <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\MonoAndroid403\ZXingNetMobile.dll</HintPath>
+    </Reference>
+    <Reference Include="BouncyCastle">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\MonoAndroid10\BouncyCastle.dll</HintPath>
+    </Reference>
+    <Reference Include="MimeKit">
+      <HintPath>..\packages\MimeKit.1.16.1\lib\MonoAndroid10\MimeKit.dll</HintPath>
+    </Reference>
+    <Reference Include="MailKit">
+      <HintPath>..\packages\MailKit.1.16.1\lib\MonoAndroid10\MailKit.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeySDK.AndroidBindings">
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
+    </Reference>
+    <Reference Include="HockeySDK">
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Cheeseknife">
+      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -540,6 +566,9 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_user_placeholder.png" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Logging\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Android.Support.Core.Utils.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Core.Utils.targets" Condition="Exists('..\packages\Xamarin.Android.Support.Core.Utils.25.1.0\build\MonoAndroid70\Xamarin.Android.Support.Core.Utils.targets')" />

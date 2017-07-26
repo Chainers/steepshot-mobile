@@ -12,18 +12,18 @@ namespace Steepshot
 		{
 		}
 
-		public async Task<OperationResult<SearchResponse>> SearchTags(string s)
+		public async Task<OperationResult<SearchResponse<SearchResult>>> SearchTags(string s)
 		{
 
 			var request = new SearchWithQueryRequest(s);
 
-			return await Api.SearchCategories(request);
+			return await Api.SearchCategories(request, null);
 		}
 
-		public async Task<OperationResult<SearchResponse>> GetTopTags()
+		public async Task<OperationResult<SearchResponse<SearchResult>>> GetTopTags()
 		{
 			var request = new SearchRequest();
-			return await Api.GetCategories(request);
+			return await Api.GetCategories(request, null);
 		}
 	}
 }

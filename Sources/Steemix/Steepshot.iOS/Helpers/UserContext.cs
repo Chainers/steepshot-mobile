@@ -40,6 +40,9 @@ namespace Steepshot.iOS
 		}
 
 		[JsonIgnore]
+		public bool IsAuthorized => Token != null;
+
+		[JsonIgnore]
 		public Account CurrentAccount => Accounts.FirstOrDefault(a => a.Network == Network);
 
 		[JsonIgnore]

@@ -24,11 +24,39 @@
             app:showAsAction="always"
             app:iconifiedByDefault="true" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/search_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar">
+        <Button
+            android:id="@+id/tags_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="by Tags"
+            android:background="@android:color/transparent"
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/people_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="by People"
+            android:textAllCaps="false"
+            android:background="@android:color/transparent"
+            android:layout_toRightOf="@+id/tags_button" />
+    </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/categories"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/search_type"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="0.0dp" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/users"
+        android:layout_below="@+id/search_type"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0.0dp" />
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="30dp"

@@ -2,8 +2,7 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using HockeyApp.Android;
-using Android.Widget;
+using System.Threading.Tasks;
 
 namespace Steepshot
 {
@@ -21,10 +20,22 @@ namespace Steepshot
 		{
 			base.OnCreate(savedInstanceState);
 
-            CrashManager.Register(this, "fc38d51000bc469a8451c722528d4c55");
+			//CrashManager.Register(this, "fc38d51000bc469a8451c722528d4c55");
+			//Toast.MakeText(this, string.Format("Alpha release. Version {0}",
+			UserPrincipal.Instance.AppVersion = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
+			//var _dir = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), "SteepShot");
+			//Picasso p = new Picasso.Builder(this).Downloader(new OkHttpDownloader(_dir, 1073741824)).Build();
+			//Picasso.SetSingletonInstance(p);
 
-            Toast.MakeText(this, string.Format("Alpha release. Version {0}",
-                PackageManager.GetPackageInfo(PackageName,0).VersionName),ToastLength.Long).Show();
+			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+			{
+				Reporter.SendCrash((Exception)e.ExceptionObject);
+			};
+
+			TaskScheduler.UnobservedTaskException += (sender, e) =>
+			{
+				Reporter.SendCrash(e.Exception);
+			};
 
             if (presenter.IsGuest)
 			{

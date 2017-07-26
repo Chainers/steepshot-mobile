@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
-
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
@@ -21,11 +19,35 @@ using System.Threading;
 namespace Steepshot
 {
 	[Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-	public class PostDescriptionActivity : BaseActivity, ITarget, PostDescriptionView
+	public class PostDescriptionActivity : BaseActivity, PostDescriptionView//, ITarget
 	{
-		PostDescriptionPresenter presenter;
-
+		private PostDescriptionPresenter presenter;
 		public static int TagRequestCode = 1225;
+		private string Path;
+
+		private List<string> tags = new List<string>();
+		private byte[] arrayToUpload;
+		private Bitmap bitmapToUpload;
+
+		//private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+		//private CancellationToken ct;
+		private FrameLayout _add;
+
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.d_edit)] EditText description;
+		[InjectView(Resource.Id.load_layout)] RelativeLayout loadLayout;
+		[InjectView(Resource.Id.btn_post)] Button postButton;
+		[InjectView(Resource.Id.description_scroll)] ScrollView descriptionScroll;
+		[InjectView(Resource.Id.tag_container)] TagLayout tagLayout;
+		[InjectView(Resource.Id.photo)] ImageView photoFrame;
+#pragma warning restore 0649
+
+		[InjectOnClick(Resource.Id.btn_post)]
+		public void OnPost(object sender, EventArgs e)
+		{
+			loadLayout.Visibility = ViewStates.Visible;
+			OnPostAsync();
+		}
 
 		[InjectOnClick(Resource.Id.btn_back)]
 		public void OnBack(object sender, EventArgs e)
@@ -33,61 +55,27 @@ namespace Steepshot
 			OnBackPressed();
 		}
 
-		[InjectView(Resource.Id.d_edit)]
-		EditText description;
-
-		[InjectView(Resource.Id.load_layout)]
-		RelativeLayout loadLayout;
-
-		[InjectView(Resource.Id.btn_post)]
-		Button postButton;
-
-		[InjectView(Resource.Id.description_scroll)]
-		ScrollView descriptionScroll;
-
-		[InjectOnClick(Resource.Id.btn_post)]
-		public void OnPost(object sender, EventArgs e)
-		{
-			loadLayout.Visibility = ViewStates.Visible;
-			Task.Run(async () =>
-			   {
-				   await OnPostAsync();
-			   });
-		}
-
-		[InjectView(Resource.Id.tag_container)]
-		TagLayout tagLayout;
-
-		[InjectView(Resource.Id.photo)]
-		ImageView PhotoView;
-
-		private string Path;
-
-		private List<string> tags = new List<string>();
-		private Task<byte[]> photoComressionTask;
-		private Bitmap bitmapToUpload;
-
-		private CancellationTokenSource _tokenSource = new CancellationTokenSource();
-		private CancellationToken ct;
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
-			ct = _tokenSource.Token;
 
 			SetContentView(Resource.Layout.lyt_post_description);
 			Cheeseknife.Inject(this);
 
-			PhotoView.SetBackgroundColor(Color.Black);
-
-			var photoFrame = FindViewById<ImageView>(Resource.Id.photo);
+			photoFrame.SetBackgroundColor(Color.Black);
 			var parameters = photoFrame.LayoutParameters;
 			parameters.Height = Resources.DisplayMetrics.WidthPixels;
 			photoFrame.LayoutParameters = parameters;
-
+			postButton.Enabled = true;
 			Path = Intent.GetStringExtra("FILEPATH");
+
+			Picasso.With(this).Load(new Java.IO.File(Path))
+			       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
+			       .Resize(this.Resources.DisplayMetrics.WidthPixels, 0)
+			       .Into(photoFrame);
 		}
 
-		FrameLayout _add;
+
 		public void AddTags(List<string> tags)
 		{
 			this.tags = tags;
@@ -101,7 +89,7 @@ namespace Steepshot
 			foreach (var item in tags)
 			{
 				FrameLayout tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-				tag.FindViewById<TextView>(Resource.Id.text).Text = string.Format("#{0}", item);
+				tag.FindViewById<TextView>(Resource.Id.text).Text = item;
 				tag.Click += (sender, e) => tagLayout.RemoveView(tag);
 				tagLayout.AddView(tag);
 				tagLayout.RequestLayout();
@@ -129,27 +117,29 @@ namespace Steepshot
 		{
 			base.OnPostCreate(savedInstanceState);
 
-			Picasso.With(this).Load(new Java.IO.File(Path)).Into(this);
-
 			AddTags(tags);
+		}
+
+		void HandleAction()
+		{
+
 		}
 
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
-			_tokenSource.Cancel();
-			_tokenSource.Dispose();
-			PhotoView?.Dispose();
-			PhotoView = null;
+			//_tokenSource.Cancel();
+			//_tokenSource.Dispose();
 			if (bitmapToUpload != null)
 			{
 				bitmapToUpload.Recycle();
 				bitmapToUpload.Dispose();
 				bitmapToUpload = null;
 			}
+			Cheeseknife.Reset(this);
 			GC.Collect();
 		}
-
+		/*
 		public void OnBitmapFailed(Drawable p0)
 		{
 
@@ -159,22 +149,24 @@ namespace Steepshot
 		{
 			RunOnUiThread(() =>
 			{
-				PhotoView?.SetImageBitmap(p0);
+				photoFrame?.SetImageBitmap(p0);
 				postButton.Enabled = true;
 			});
 			photoComressionTask = Task.Factory.StartNew(CompressPhoto, ct);
-		}
+		}*/
 
 		private async Task OnPostAsync()
 		{
 			try
 			{
-				photoComressionTask.Wait();
-				var bitmapData = photoComressionTask.Result;
+				//photoComressionTask.Wait();
+				var success = await CompressPhoto();
+				if (!success)
+					ShowAlert("Photo upload error, please try again");
 				var resp = await presenter.Upload(new Sweetshot.Library.Models.Requests.UploadImageRequest(
 					UserPrincipal.Instance.CurrentUser.SessionId,
 					description.Text,
-					bitmapData,
+					arrayToUpload,
 					tags.ToArray()));
 				if (resp.Errors.Count > 0)
 				{
@@ -188,49 +180,50 @@ namespace Steepshot
 					bitmapToUpload.Recycle();
 					bitmapToUpload.Dispose();
 					bitmapToUpload = null;
+					UserPrincipal.Instance.ShouldUpdateProfile = true;
 					Finish();
 				}
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
-				loadLayout.Visibility = ViewStates.Gone;
+				if(loadLayout != null)
+					loadLayout.Visibility = ViewStates.Gone;
 			}
 		}
 
-		private byte[] CompressPhoto()
+		private async Task<bool> CompressPhoto()
 		{
 			try
 			{
-				if (ct.IsCancellationRequested)
-				{
-					ct.ThrowIfCancellationRequested();
-					photoComressionTask.Dispose();
-				}
-				bitmapToUpload = ((BitmapDrawable)PhotoView.Drawable).Bitmap;
+				await Task.Run(() =>
+			  {
+				  var absolutePath = (new Java.IO.File(Path)).AbsolutePath;
+				  bitmapToUpload = BitmapFactory.DecodeFile(absolutePath);
+				  bitmapToUpload = RotateImageIfRequired(bitmapToUpload, absolutePath);
+			  });
+				if (bitmapToUpload == null)
+					return false;
+
 				using (var stream = new MemoryStream())
 				{
-					if (ct.IsCancellationRequested)
-					{
-						ct.ThrowIfCancellationRequested();
-						photoComressionTask.Dispose();
-					}
-					bitmapToUpload.Compress(Bitmap.CompressFormat.Jpeg, 80, stream);
-					var streamArray = stream.ToArray();
+					await bitmapToUpload.CompressAsync(Bitmap.CompressFormat.Jpeg, 80, stream);
+					arrayToUpload = stream.ToArray();
 					//var photoSize = streamArray.Length / 1024f / 1024f;
-					return streamArray;
 				}
+				return true;
 			}
 			catch (Exception ex)
 			{
-				return new byte[0];
+				Reporter.SendCrash(ex);
+				return false;
 			}
 		}
 
-		/*private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
+		private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
 		{
 			ExifInterface ei = new ExifInterface(selectedImage);
 			int orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
@@ -254,16 +247,16 @@ namespace Steepshot
 			matrix.PostRotate(degree);
 			Bitmap rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
 			return rotatedImg;
-		}*/
-
-		public void OnPrepareLoad(Drawable p0)
-		{
-
 		}
 
 		protected override void CreatePresenter()
 		{
 			presenter = new PostDescriptionPresenter(this);
+		}
+
+		public void OnPrepareLoad(Drawable p0)
+		{
+			
 		}
 	}
 }

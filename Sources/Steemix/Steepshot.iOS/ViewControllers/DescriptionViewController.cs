@@ -1,8 +1,7 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
@@ -26,16 +25,16 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			photoView.Image = ImageAsset;
 			postPhotoButton.TouchDown += (sender, e) => PostPhoto();
-
+			activeview = descriptionTextField;
 			//Collection view initialization
 			tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
 			tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
 			// research flow layout
-			/*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-            {
-                EstimatedItemSize = new CGSize(100, 50),
+			//tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            //{
+                //EstimatedItemSize = new CGSize(100, 50),
                 
-            }, false);*/
+            //}, false);
 			collectionviewSource = new TagsCollectionViewSource((sender, e) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(PostTagsViewController)) as PostTagsViewController;
@@ -68,6 +67,8 @@ namespace Steepshot.iOS
 			collectionviewSource.tagsCollection.Add("");
 			collectionviewSource.tagsCollection.AddRange(UserContext.Instanse.TagsList);
 			tagsCollectionView.ReloadData();
+			tagsCollectionView.LayoutIfNeeded();
+			collectionHeight.Constant = tagsCollectionView.ContentSize.Height;
 		}
 
 		public override void ViewDidDisappear(bool animated)
@@ -102,18 +103,13 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-					//logging
-					UIAlertView alert = new UIAlertView()
-					{
-						Message = imageUploadResponse.Errors[0]
-					};
-					alert.AddButton("OK");
-					alert.Show();
+                    ShowAlert(imageUploadResponse.Errors[0]);
+					Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0]);
 				}
 			}
 			catch (Exception ex)
 			{
-				//show alert + logging
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -128,5 +124,11 @@ namespace Steepshot.iOS
 			UserContext.Instanse.TagsList.RemoveAt(row - 1);
             tagsCollectionView.ReloadData();
 		}
+
+		protected override void CalculateBottom()
+		{
+			bottom = (activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y  + activeview.Frame.Height + offset);
+		}
 	}
 }
+*/

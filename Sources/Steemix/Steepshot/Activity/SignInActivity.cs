@@ -1,8 +1,8 @@
 using System;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -19,16 +19,14 @@ namespace Steepshot
 		SignInPresenter presenter;
 
 		private string _username;
-        private EditText _password;
 
-		[InjectView(Resource.Id.profile_image)]
-		CircleImageView ProfileImage;
-
-		[InjectView(Resource.Id.loading_spinner)]
-		ProgressBar spinner;
-
-		[InjectView(Resource.Id.title)]
-		TextView title;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
+		[InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
+		[InjectView(Resource.Id.title)] TextView title;
+		[InjectView(Resource.Id.input_password)] EditText _password;
+		[InjectView(Resource.Id.qr_button)] Button buttonScanDefaultView;
+#pragma warning restore 0649
 
 		MobileBarcodeScanner scanner;
 		private string _newAccountNetwork;
@@ -44,9 +42,6 @@ namespace Steepshot
 			title.Text = $"Hello, {_username}";
 			var profileImage = Intent.GetStringExtra("avatar_url");
             _newAccountNetwork = Intent.GetStringExtra("newNetwork");
-            _password = FindViewById<EditText>(Resource.Id.input_password);
-
-            // TODO:KOA: Stub Login/Pass for test
             
 #if DEBUG
             _password.Text = "***REMOVED***";
@@ -59,7 +54,6 @@ namespace Steepshot
                 else
                     Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
 			
-			var buttonScanDefaultView = this.FindViewById<Button>(Resource.Id.qr_button);
 			buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
 			{
 				try
@@ -73,11 +67,12 @@ namespace Steepshot
 
 					//Start scanning
 					var result = await scanner.Scan();
-					_password.Text = result.Text;
+					if(result != null)
+						_password.Text = result.Text;
 				}
 				catch (Exception ex)
 				{
-					
+					Reporter.SendCrash(ex);
 				}
 			};
         }
@@ -85,10 +80,10 @@ namespace Steepshot
         private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
         {
             var typedsender = (EditText)sender;
-            if (string.IsNullOrWhiteSpace(e.Text.ToString()))
+            if (string.IsNullOrWhiteSpace(e?.Text.ToString()))
             {
                 var message = GetString(Resource.String.error_empty_field);
-                var d = GetDrawable(Resource.Drawable.ic_error);
+                var d = ContextCompat.GetDrawable(this, Resource.Drawable.ic_error);
                 d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
                 typedsender.SetError(message, d);
             }
@@ -97,46 +92,56 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, System.EventArgs e)
         {
-            var login = _username;
-            var pass = _password.Text;
+			try
+			{
+				var login = _username;
+				var pass = _password.Text;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-            {
-                Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
-                return;
-            }
+				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+				{
+					Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+					return;
+				}
 
-			spinner.Visibility = ViewStates.Visible;
-			((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				spinner.Visibility = ViewStates.Visible;
+				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				((AppCompatButton)sender).Enabled = false;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-                return;
+				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+					return;
 
-			var response = await presenter.SignIn(login, pass);
+				var response = await presenter.SignIn(login, pass);
 
-            if (response != null)
-            {
-                if (response.Success)
-                {
-					_newAccountNetwork = null;
-					UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
-                    var intent = new Intent(this, typeof(RootActivity));
-                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                    StartActivity(intent);
-                }
-                else
-                {
-					ShowAlert(response.Errors[0]);
+				if (response != null)
+				{
+					if (response.Success)
+					{
+						_newAccountNetwork = null;
+						UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
+						var intent = new Intent(this, typeof(RootActivity));
+						intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+						StartActivity(intent);
+					}
+					else
+					{
+						ShowAlert(response.Errors[0]);
+						spinner.Visibility = ViewStates.Invisible;
+						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+						((AppCompatButton)sender).Enabled = true;
+					}
+				}
+				else
+				{
+					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                }
-            }
-            else
-            {
-                ShowAlert(Resource.String.error_connect_to_server);
-				spinner.Visibility = ViewStates.Invisible;
-				((AppCompatButton)sender).Visibility = ViewStates.Visible;
-            }
+					((AppCompatButton)sender).Enabled = true;
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
 
         [InjectOnClick(Resource.Id.sign_up_btn)]
@@ -154,6 +159,7 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 			}
 			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 
 		protected override void CreatePresenter()

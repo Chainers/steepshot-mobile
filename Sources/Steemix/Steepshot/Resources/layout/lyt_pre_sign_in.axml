@@ -95,6 +95,14 @@
             android:indeterminateTint="@color/color_primary"
             android:layout_centerInParent="true" />
     </RelativeLayout>
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/dev_switch"
+        android:layout_below="@+id/sign_in_cont"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
     <TextView
         android:visibility="gone"
         android:id="@+id/sign_up_label"

@@ -1,4 +1,3 @@
-using System;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -12,28 +11,32 @@ using Com.Lilarcor.Cheeseknife;
 namespace Steepshot
 {
 	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
-	public class RootActivity : BaseActivity,ViewPager.IOnPageChangeListener, RootView
+	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, RootView
 	{
-		RootPresenter presenter;
+		private RootPresenter presenter;
+		private PagerAdapter Adapter;
+		public string VoterUrl;
 
-		[InjectView(Resource.Id.view_pager)]
-		ViewPager viewPager;
-
-		[InjectView(Resource.Id.tab_layout)]
-		TabLayout tabLayout;
-
-		PagerAdapter Adapter;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.view_pager)] ViewPager viewPager;
+		[InjectView(Resource.Id.tab_layout)] TabLayout tabLayout;
+#pragma warning restore 0649
 
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
 			SetContentView(Resource.Layout.lyt_tab_host);
 			Cheeseknife.Inject(this);
-
 			Adapter = new PagerAdapter(SupportFragmentManager, this);
 			viewPager.Adapter = Adapter;
 			tabLayout.SetupWithViewPager(viewPager);
 			InitTabs();
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 
 		private void InitTabs()
@@ -48,13 +51,9 @@ namespace Steepshot
 			}
 
 			viewPager.AddOnPageChangeListener(this);
-			tabLayout.GetTabAt(0).Icon.SetColorFilter(Color.Black, PorterDuff.Mode.SrcIn);
+			OnPageSelected(0);
 			viewPager.SetCurrentItem(0, false);
-			viewPager.OffscreenPageLimit = 2;
-		}
-
-		public void OnPageScrollStateChanged(int state)
-		{
+			viewPager.OffscreenPageLimit = 3;
 		}
 
 		private void CheckLogin()
@@ -66,16 +65,11 @@ namespace Steepshot
 			}
 		}
 
-		public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-		{
-			
-		}
-
 		public void OnPageSelected(int position)
 		{
 			for (int i = 0; i < tabLayout.TabCount; i++)
 			{
-				TabLayout.Tab tab = tabLayout.GetTabAt(i);
+				var tab = tabLayout.GetTabAt(i);
 				if (null != tab)
 				{
 					if (i == position)
@@ -90,9 +84,25 @@ namespace Steepshot
 			}
 		}
 
+		public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+		{
+			CurrentHostFragment = (HostFragment)Adapter.GetItem(viewPager.CurrentItem);
+			base.OpenNewContentFragment(frag);
+		}
+
 		protected override void CreatePresenter()
 		{
 			presenter = new RootPresenter(this);
+		}
+
+		public void OnPageScrollStateChanged(int state)
+		{
+			
+		}
+
+		public void OnPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+		{
+			
 		}
 	}
 }

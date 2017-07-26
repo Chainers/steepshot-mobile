@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -19,29 +14,20 @@ namespace Steepshot
 	{
 		PreSignInPresenter presenter;
 
-		[InjectView(Resource.Id.loading_spinner)]
-		ProgressBar spinner;
-
-		[InjectView(Resource.Id.input_username)]
-		private EditText username;
-
-		[InjectView(Resource.Id.network_switch)]
-		private SwitchCompat switcher;
-
-		[InjectView(Resource.Id.login_label)]
-		private TextView loginLabel;
-
-		[InjectView(Resource.Id.sign_up_label)]
-		private TextView signupLabel;
-
-		[InjectView(Resource.Id.steem_logo)]
-		ImageView steem_logo;
-
-		[InjectView(Resource.Id.golos_logo)]
-		ImageView golos_logo;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.loading_spinner)] private ProgressBar spinner;
+		[InjectView(Resource.Id.input_username)] private EditText username;
+		[InjectView(Resource.Id.network_switch)] private SwitchCompat switcher;
+		[InjectView(Resource.Id.login_label)] private TextView loginLabel;
+		[InjectView(Resource.Id.sign_up_label)] private TextView signupLabel;
+		[InjectView(Resource.Id.steem_logo)] private ImageView steem_logo;
+		[InjectView(Resource.Id.golos_logo)] private ImageView golos_logo;
+		[InjectView(Resource.Id.dev_switch)] private SwitchCompat dev_switcher;
+		[InjectView(Resource.Id.ic_logo)] private ImageView logo;
+#pragma warning restore 0649
 
 		private string _newAccountNetwork;
-
+		private int _clickCount;
 		protected override void CreatePresenter()
 		{
 			presenter = new PreSignInPresenter(this);
@@ -66,7 +52,6 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 			}
 
-
 			switcher.Checked = UserPrincipal.Instance.CurrentNetwork == Constants.Steem;
 			switcher.CheckedChange += (sender, e) =>
 			{
@@ -74,7 +59,30 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 				SetLabelsText();
 			};
+
+			dev_switcher.Checked = UserPrincipal.Instance.IsDev;
+			dev_switcher.CheckedChange += (sender, e) =>
+			{
+				UserPrincipal.Instance.IsDev = e.IsChecked;
+				BasePresenter.SwitchNetwork();
+			};
+
 			SetLabelsText();
+		}
+
+		[InjectOnClick(Resource.Id.ic_logo)]
+		private void Logo_Click(object sender, System.EventArgs e)
+		{
+			_clickCount++;
+			if (_clickCount == 5)
+			{
+				dev_switcher.Visibility = ViewStates.Visible;
+				_clickCount = 0;
+			}
+			else
+			{
+				dev_switcher.Visibility = ViewStates.Gone;
+			}
 		}
 
 		protected override void OnDestroy()
@@ -85,50 +93,61 @@ namespace Steepshot
 				BasePresenter.SwitchNetwork();
 			}
 			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 
 		[InjectOnClick(Resource.Id.sign_in_btn)]
 		private async void SignInBtn_Click(object sender, System.EventArgs e)
 		{
-			var login = username.Text.ToLower();
-
-			if (string.IsNullOrEmpty(login))
+			try
 			{
-				Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
-				return;
-			}
+				var login = username.Text.ToLower();
 
-			spinner.Visibility = ViewStates.Visible;
-			((AppCompatButton)sender).Visibility = ViewStates.Invisible;
-
-			if (string.IsNullOrEmpty(login))
-				return;
-
-			var response = await presenter.GetAccountInfo(login);
-
-			if (response != null)
-			{
-				if (response.Success)
+				if (string.IsNullOrEmpty(login))
 				{
-					var intent = new Intent(this, typeof(SignInActivity));
-					intent.PutExtra("login", login);
-					intent.PutExtra("avatar_url", response.Result.ProfileImage);
-					intent.PutExtra("newNetwork", _newAccountNetwork);
-					_newAccountNetwork = null;
-					StartActivity(intent);
+					Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+					return;
+				}
+
+				spinner.Visibility = ViewStates.Visible;
+				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+				((AppCompatButton)sender).Enabled = false;
+
+				if (string.IsNullOrEmpty(login))
+					return;
+
+				var response = await presenter.GetAccountInfo(login);
+
+				if (response != null)
+				{
+					if (response.Success)
+					{
+						var intent = new Intent(this, typeof(SignInActivity));
+						intent.PutExtra("login", login);
+						intent.PutExtra("avatar_url", response.Result.ProfileImage);
+						intent.PutExtra("newNetwork", _newAccountNetwork);
+						_newAccountNetwork = null;
+						StartActivity(intent);
+					}
+					else
+					{
+						ShowAlert(response.Errors[0]);
+						spinner.Visibility = ViewStates.Invisible;
+						((AppCompatButton)sender).Visibility = ViewStates.Visible;
+						((AppCompatButton)sender).Enabled = true;
+					}
 				}
 				else
 				{
-					ShowAlert(response.Errors[0]);
+					ShowAlert(Resource.String.error_connect_to_server);
 					spinner.Visibility = ViewStates.Invisible;
 					((AppCompatButton)sender).Visibility = ViewStates.Visible;
+					((AppCompatButton)sender).Enabled = true;
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				ShowAlert(Resource.String.error_connect_to_server);
-				spinner.Visibility = ViewStates.Invisible;
-				((AppCompatButton)sender).Visibility = ViewStates.Visible;
+				Reporter.SendCrash(ex);
 			}
 		}
 

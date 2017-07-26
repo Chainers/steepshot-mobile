@@ -1,3 +1,4 @@
+using System;
 using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
@@ -9,16 +10,18 @@ namespace Steepshot
     [Activity(Label = "PostPreviewActivity", ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
     public class PostPreviewActivity : BaseActivity, PostPreviewView
     {
-        PostPreviewPresenter presenter;
+        private PostPreviewPresenter presenter;
+		private string path;
+
         protected override void CreatePresenter()
         {
             presenter = new PostPreviewPresenter(this);
         }
 
-        [InjectView(Resource.Id.photo)]
-        ScaleImageView photo;
-
-        string path;
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.photo)] ScaleImageView photo;
+#pragma warning restore 0649
+        
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -27,8 +30,20 @@ namespace Steepshot
             Cheeseknife.Inject(this);
 
             path = Intent.GetStringExtra("PhotoURL");
-
-            Picasso.With(this).Load(path).Into(photo);
+			try
+			{
+				Picasso.With(this).Load(path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(photo);
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
         }
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
+		}
     }
 }

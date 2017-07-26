@@ -15,21 +15,14 @@ namespace Steepshot
 	public class TagsActivity : BaseActivity, TagsView
 	{
 		TagsPresenter presenter;
-
-		[InjectView(Resource.Id.ic_close)]
-		ImageButton Close;
-
-		[InjectView(Resource.Id.search_box)]
-		EditText SearchBox;
-
-		[InjectView(Resource.Id.tags_list)]
-		RecyclerView TagsList;
-
-		[InjectView(Resource.Id.tag_container)]
-		TagLayout tagLayout;
-
-		[InjectView(Resource.Id.scroll)]
-		ScrollView Scroll;
+#pragma warning disable 0649, 4014
+		[InjectView(Resource.Id.ic_close)] ImageButton Close;
+		[InjectView(Resource.Id.search_box)] EditText SearchBox;
+		[InjectView(Resource.Id.tags_list)] RecyclerView TagsList;
+		[InjectView(Resource.Id.tag_container)] TagLayout tagLayout;
+		[InjectView(Resource.Id.scroll)] ScrollView Scroll;
+		[InjectView(Resource.Id.add_custom_tag)] Button AddCustomTagButton;
+#pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_post)]
         public void PostTags(object sender, EventArgs e)
@@ -40,10 +33,20 @@ namespace Steepshot
                 Bundle b = new Bundle();
                 b.PutStringArray("TAGS", SelectedCategories.Select(o => o.Name).ToArray<string>());
                 returnIntent.PutExtra("TAGS", b);
-                SetResult(Android.App.Result.Ok,returnIntent);
+                SetResult(Result.Ok,returnIntent);
                 Finish();
             }
         }
+
+        [InjectOnClick(Resource.Id.add_custom_tag)]
+		public void AddTag(object sender, EventArgs e)
+		{
+			var trimmedString = SearchBox.Text.Trim();
+			if (string.IsNullOrEmpty(trimmedString))
+			   return;
+			AddTag(new SearchResult() { Name = trimmedString });
+			SearchBox.Text = string.Empty;
+		}
 
 		TagsAdapter Adapter;
 
@@ -65,14 +68,21 @@ namespace Steepshot
 
 			SearchBox.TextChanged += (sender, e) =>
 			{
-				if (SearchBox.Text.Length > 3)
+				if (SearchBox.Text.Length > 1)
 				{
-					presenter.SearchTags(SearchBox.Text).ContinueWith((arg) => {
-							Adapter.Reset(arg.Result.Result.Results);
-							RunOnUiThread(() => Adapter.NotifyDataSetChanged());
+					AddCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
+					presenter.SearchTags(SearchBox.Text).ContinueWith((arg) =>
+					{
+						Adapter.Reset(arg.Result.Result.Results);
+						RunOnUiThread(() => Adapter.NotifyDataSetChanged());
 					});
 				}
+				else
+				{
+					AddCustomTagButton.Visibility = Android.Views.ViewStates.Gone;
+				}
 			};
+
 
 			Adapter.Click += Adapter_Click;
 
@@ -84,33 +94,38 @@ namespace Steepshot
 
 		void Adapter_Click(int obj)
 		{
-			if (SelectedCategories.Count < 4 && SelectedCategories.Find((finded) => finded.Name.Equals(Adapter.GetItem(obj).Name)) == null)
-			{
-				SelectedCategories.Add(Adapter.GetItem(obj));
-				AddTag(Adapter.GetItem(obj).Name);
-			}
+			AddTag(Adapter.GetItem(obj));
 		}
 
-		public void AddTag(string s)
+		public void AddTag(SearchResult s)
 		{
-			FrameLayout _add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-			var text = _add.FindViewById<TextView>(Resource.Id.text);
-			text.Text = string.Format("#{0}", s);
-			text.Click += (sender, e) => DeleteTag(text);
-			tagLayout.AddView(_add);
-			Scroll.RequestLayout();
-
+			if (s.Name.Length > 1 && SelectedCategories.Count < 4 && SelectedCategories.Find((finded) => finded.Name.Equals(s.Name)) == null)
+			{
+				SelectedCategories.Add(s);
+				FrameLayout _add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
+				var text = _add.FindViewById<TextView>(Resource.Id.text);
+				text.Text = s.Name;
+				text.Click += (sender, e) => DeleteTag(text);
+				tagLayout.AddView(_add);
+				Scroll.RequestLayout();
+			}
 		}
 
 		void DeleteTag(TextView t)
 		{ 
-			SelectedCategories.RemoveAt(SelectedCategories.FindIndex((obj) => obj.Name.Equals(t.Text.Remove(0,1))));
+			SelectedCategories.RemoveAt(SelectedCategories.FindIndex((obj) => obj.Name.Equals(t.Text)));
 			tagLayout.RemoveView((FrameLayout)t.Parent);
 		}
 
 		protected override void CreatePresenter()
 		{
 			presenter = new TagsPresenter(this);
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			Cheeseknife.Reset(this);
 		}
 	}
 }

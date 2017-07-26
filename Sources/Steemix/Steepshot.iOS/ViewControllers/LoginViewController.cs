@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -131,7 +131,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -144,3 +144,4 @@ namespace Steepshot.iOS
 	}
 }
 
+*/

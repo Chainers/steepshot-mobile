@@ -26,25 +26,24 @@ namespace Steepshot.iOS
         {
 			AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
 			{
-				
+				Reporter.SendCrash((Exception)e.ExceptionObject);
 			};
 			TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
 			{
-				
-			};  
+				Reporter.SendCrash(e.Exception);
+			};
 
-            // Override point for customization after application launch.
-            // If not required for your application you can safely delete this method
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             UserContext.Load();
             if (UserContext.Instanse.Token != null)
             {
-                initialViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+				initialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {
 				UserContext.Instanse.IsHomeFeedLoaded = true;
-                initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
+				initialViewController = new FeedViewController();
+                //initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
             var navController = new UINavigationController(initialViewController);
             Window.RootViewController = navController;

@@ -11,7 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>chainartsoft.Steepshot</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.1</string>
+	<string>0.0.4</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -35,7 +35,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>24.0.0</string>
+	<string>31.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/Lato-Bold.ttf</string>

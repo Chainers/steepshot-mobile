@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -11,16 +11,10 @@ namespace Steepshot.iOS
 {
 	public partial class CommentsViewController : BaseViewController
 	{
-		protected CommentsViewController(IntPtr handle) : base(handle)
-		{
-			// Note: this .ctor should not contain any initialization logic
-		}
+		protected CommentsViewController(IntPtr handle) : base(handle) { }
 
 		private CommentsTableViewSource tableSource = new CommentsTableViewSource();
 		public string PostUrl;
-
-		private nfloat scroll_amount = 0.0f;
-		private bool moveViewUp = false;
 
 		public override void ViewDidLoad()
 		{
@@ -31,7 +25,7 @@ namespace Steepshot.iOS
 			commentsTable.LayoutMargins = UIEdgeInsets.Zero;
 			commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
 			commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
-
+			activeview = commentTextView;
 			tableSource.Voted += (vote, url, action)  =>
             {
 				Vote(vote, url, action);
@@ -73,7 +67,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -83,8 +77,11 @@ namespace Steepshot.iOS
 
 		public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
 		{
-			/*if (!UserPrincipal.Instance.IsAuthenticated)
-			return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };*/
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
 			try
 			{
 				int diezid = postUrl.IndexOf('#');
@@ -100,7 +97,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -108,6 +105,11 @@ namespace Steepshot.iOS
 		{
 			try
 			{
+				if (!UserContext.Instanse.IsAuthorized)
+				{
+					LoginTapped();
+					return;
+				}
 				var reqv = new CreateCommentRequest(UserContext.Instanse.Token, PostUrl, commentTextView.Text, commentTextView.Text);
 				var response = await Api.CreateComment(reqv);
 				if (response.Success)
@@ -118,43 +120,19 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-				
+				Reporter.SendCrash(ex);
 			}
 		}
 
-		protected override void KeyBoardUpNotification(NSNotification notification)
+		void LoginTapped()
 		{
-			CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
-			scroll_amount = r.Height;
-			if (scroll_amount > 0)
-			{
-				moveViewUp = true;
-				ScrollTheView(moveViewUp);
-			}
-			else
-				moveViewUp = false;
+			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			NavigationController.PushViewController(myViewController, true);
 		}
 
-		protected override void KeyBoardDownNotification(NSNotification notification)
+		protected override void CalculateBottom()
 		{
-			if (moveViewUp)
-				ScrollTheView(false);
-		}
-
-		protected override void ScrollTheView(bool move)
-		{
-			UIView.BeginAnimations(string.Empty, System.IntPtr.Zero);
-			UIView.SetAnimationDuration(0.1);
-			CGRect frame = View.Frame;
-			if (move)
-				frame.Y -= scroll_amount;
-			else
-			{
-				frame.Y += scroll_amount;
-				scroll_amount = 0;
-			}
-			View.Frame = frame;
-			UIView.CommitAnimations();
+			bottom = (activeview.Frame.Y + bottomView.Frame.Y + activeview.Frame.Height + offset);
 		}
 
 		class TextViewDelegate : UITextViewDelegate
@@ -171,4 +149,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-
+*/

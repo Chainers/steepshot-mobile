@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using RestSharp;
 using Sweetshot.Library.Extensions;
@@ -154,14 +155,14 @@ namespace Sweetshot.Library.HttpClient
         ///     3) GET https://steepshot.org/api/v1/posts/top HTTP/1.1
         ///     4) GET https://steepshot.org/api/v1/posts/top?offset=%2Fsteemit%2F%40heiditravels%2Felevate-your-social-media-experience-with-steemit&limit=3 HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts = null)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
             var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await _gateway.Get(endpoint, parameters2);
+			var response = await _gateway.Get(endpoint, parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -172,17 +173,34 @@ namespace Sweetshot.Library.HttpClient
         ///     2) GET https://steepshot.org/api/v1/posts/food/top?offset=%2Ftravel%2F%40sweetsssj%2Ftravel-with-me-39-my-appointment-with-gulangyu&limit=5 HTTP/1.1
         /// </summary>
         /// 
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
             var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await _gateway.Get(endpoint, parameters2);
+			var response = await _gateway.Get(endpoint, parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
+
+		/// <summary>
+		///     Examples:
+		///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
+		/// </summary>
+		/// 
+		public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
+		{
+			var parameters = CreateSessionParameter(request.SessionId);
+			var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
+			parameters2.AddRange(parameters);
+
+			var endpoint = $"post/{request.Url}/voters";
+			var response = await _gateway.Get(endpoint, parameters2);
+			var errorResult = CheckErrors(response);
+			return CreateResult<GetVotersResponse>(response.Content, errorResult);
+		}
 
         /// <summary>
         ///     Examples:
@@ -222,7 +240,7 @@ namespace Sweetshot.Library.HttpClient
 
             var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
             var response = await _gateway.Post(endpoint, parameters);
-            var errorResult = CheckErrors(response);
+			var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
         }
 
@@ -231,21 +249,21 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
-        {
-            var parameters = CreateSessionParameter(request.SessionId);
+		{
+			var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Get($"post/{request.Url}/comments", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<GetCommentResponse>(response.Content, errorResult);
-        }
+			var response = await _gateway.Get($"post/{request.Url}/comments", parameters);
+			var errorResult = CheckErrors(response);
+			return CreateResult<GetCommentResponse>(response.Content, errorResult);
+		}
 
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
-        ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
-        ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
-        /// </summary>
-        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
+		/// <summary>
+		///     Examples:
+		///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
+		///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
+		///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
+		/// </summary>
+		public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter
@@ -291,15 +309,15 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> GetCategories(SearchRequest request)
+		public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var response = await _gateway.Get("categories/top", parameters2);
+			var response = await _gateway.Get("categories/top", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -307,16 +325,16 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> SearchCategories(SearchWithQueryRequest request)
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
             parameters2.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
 
-            var response = await _gateway.Get("categories/search", parameters2);
+			var response = await _gateway.Get("categories/search", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -394,16 +412,16 @@ namespace Sweetshot.Library.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse>> SearchUser(SearchWithQueryRequest request)
+        public async Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
             parameters2.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await _gateway.Get("user/search", parameters2);
+            var response = await _gateway.Get("user/search", parameters2, cts);
             var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse>(response.Content, errorResult);
+            return CreateResult<UserSearchResponse>(response.Content, errorResult);
         }
 
         /// <summary>

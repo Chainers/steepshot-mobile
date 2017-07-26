@@ -8,9 +8,9 @@ using Android.App;
 [assembly: AssemblyTitle("Steepshot")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Steepshot")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("(c) Kirill Volkov")]
+[assembly: AssemblyCopyright("(c) Paul Martynov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

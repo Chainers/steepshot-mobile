@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Steepshot.iOS
 {
 	public partial class ProfileViewController : BaseViewController
 	{
-		protected ProfileViewController(IntPtr handle) : base(handle) {}
+		protected ProfileViewController(IntPtr handle) : base(handle) { }
 		private UserProfileResponse userData;
 		public string Username = UserContext.Instanse.Username;
 		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
@@ -38,14 +38,19 @@ namespace Steepshot.iOS
 
 			collectionViewSource.PhotoList = photosList;
 			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
-			collectionViewSource.Flagged += (vote, url, action)  => Flagged(vote, url, action);
+			collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
 			collectionViewSource.GoToComments += (postUrl) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
 				myViewController.PostUrl = postUrl;
 				NavigationController.PushViewController(myViewController, true);
 			};
-
+			collectionViewSource.GoToVoters += (postUrl) =>
+			{
+				var myViewController = Storyboard.InstantiateViewController(nameof(VotersViewController)) as VotersViewController;
+				myViewController.PostUrl = postUrl;
+				NavigationController.PushViewController(myViewController, true);
+			};
 			collectionViewSource.ImagePreview += PreviewPhoto;
 
 			collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -62,17 +67,13 @@ namespace Steepshot.iOS
 			},
 			() =>
 			{
-				try
+				if (collectionView.IndexPathsForVisibleItems.Count() != 0)
 				{
 					var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
 
 					if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
 						GetUserPosts();
 					_lastRow = newlastRow;
-				}
-				catch (InvalidOperationException ex)
-				{
-					//ignore
 				}
 			}, collectionViewSource.FeedStrings);
 
@@ -92,7 +93,7 @@ namespace Steepshot.iOS
 
 		async void RefreshControl_ValueChanged(object sender, EventArgs e)
 		{
-            await RefreshPage();
+			await RefreshPage();
 			RefreshControl.EndRefreshing();
 		}
 
@@ -173,7 +174,7 @@ namespace Steepshot.iOS
 			await GetUserPosts();
 		}
 
-		private void PreviewPhoto(UIImage image,string url)
+		private void PreviewPhoto(UIImage image, string url)
 		{
 			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
 			myViewController.imageForPreview = image;
@@ -193,7 +194,7 @@ namespace Steepshot.iOS
 					userData = response.Result;
 					_profileHeader.Username.Text = !string.IsNullOrEmpty(userData.Name) ? userData.Name : userData.Username;
 					var culture = new CultureInfo("en-US");
-					_profileHeader.Date.Text = $"Joined {userData.LastAccountUpdate.ToString("Y", culture)}";
+					_profileHeader.Date.Text = $"Joined {userData.Created.ToString("Y", culture)}";
 					if (!string.IsNullOrEmpty(userData.Location))
 						_profileHeader.Location.Text = userData.Location;
 					if (!string.IsNullOrEmpty(userData.About))
@@ -201,10 +202,10 @@ namespace Steepshot.iOS
 
 					if (!string.IsNullOrEmpty(userData.ProfileImage))
 						ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
-				                             .Retry(2, 200)
-				                             .FadeAnimation(false, false, 0)
-							        		 .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
-				                             .Into(_profileHeader.Avatar);
+											 .Retry(2, 200)
+											 .FadeAnimation(false, false, 0)
+											 .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
+											 .Into(_profileHeader.Avatar);
 					else
 						_profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
@@ -265,13 +266,15 @@ namespace Steepshot.iOS
 						collectionView.Hidden = false;
 					}
 				}
-				else {
-					throw new Exception();
+				else
+				{
+					Reporter.SendCrash(response.Errors[0]);
 				}
 			}
 			catch (Exception ex)
 			{
 				errorMessage.Hidden = false;
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -320,12 +323,13 @@ namespace Steepshot.iOS
 				}
 				else
 				{
+					Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0]);
 					ShowAlert(response.Errors[0]);
 				}
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -336,6 +340,12 @@ namespace Steepshot.iOS
 
 		private async Task Vote(bool vote, string postUri, Action<string, OperationResult<VoteResponse>> success)
 		{
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
+
 			try
 			{
 				if (UserContext.Instanse.Token == null)
@@ -349,32 +359,77 @@ namespace Steepshot.iOS
 				var voteResponse = await Api.Vote(voteRequest);
 				if (voteResponse.Success)
 				{
-					var u = photosList.First(p => p.Url == postUri);
-					u.Vote = vote;
-					if (vote)
+					var u = photosList.FirstOrDefault(p => p.Url == postUri);
+					if (u != null)
 					{
-						u.Flag = false;
-						if (u.NetVotes == -1)
-							u.NetVotes = 1;
+						u.Vote = vote;
+						if (vote)
+						{
+							u.Flag = false;
+							if (u.NetVotes == -1)
+								u.NetVotes = 1;
+							else
+								u.NetVotes++;
+						}
 						else
-							u.NetVotes++;
+							u.NetVotes--;
 					}
-					else
-						u.NetVotes--;
 				}
 				else
 				{
-                    ShowAlert(voteResponse.Errors[0]);
+					Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0]);
+					ShowAlert(voteResponse.Errors[0]);
 				}
 				success.Invoke(postUri, voteResponse);
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 		}
 
-		private async Task Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+		{
+			if (!UserContext.Instanse.IsAuthorized)
+			{
+				LoginTapped();
+				return;
+			}
+			UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+			actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
+			actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>()
+			{
+				Success = false
+			})));
+			this.PresentViewController(actionSheetAlert, true, null);
+		}
+
+		private void HidePhoto(string url)
+		{
+			try
+			{
+				if (UserContext.Instanse.CurrentAccount.Postblacklist == null)
+					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
+				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
+				UserContext.Save();
+				var postToHide = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
+				if (postToHide != null)
+				{
+					var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
+					collectionViewSource.PhotoList.Remove(postToHide);
+					collectionViewSource.FeedStrings.RemoveAt(postIndex);
+					collectionView.ReloadData();
+					collectionView.CollectionViewLayout.InvalidateLayout();
+				}
+			}
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+		}
+
+		private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
 		{
 			try
 			{
@@ -382,27 +437,30 @@ namespace Steepshot.iOS
 				var flagResponse = await Api.Flag(flagRequest);
 				if (flagResponse.Success)
 				{
-					var u = photosList.First(p => p.Url == postUrl);
-					u.Flag = vote;
-					if (flagResponse.Result.IsFlagged)
+					var u = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
+					if (u != null)
 					{
-						if (u.Vote)
-							if (u.NetVotes == 1)
-								u.NetVotes = -1;
-							else
-								u.NetVotes--;
-						u.Vote = false;
+						u.Flag = flagResponse.Result.IsFlagged;
+						if (flagResponse.Result.IsFlagged)
+						{
+							if (u.Vote)
+								if (u.NetVotes == 1)
+									u.NetVotes = -1;
+								else
+									u.NetVotes--;
+							u.Vote = false;
+						}
 					}
 				}
 				else
 				{
-                    ShowAlert(flagResponse.Errors[0]);
+					ShowAlert(flagResponse.Errors[0]);
 				}
 				action.Invoke(postUrl, flagResponse);
 			}
 			catch (Exception ex)
 			{
-				//logging
+				Reporter.SendCrash(ex);
 			}
 		}
 
@@ -415,11 +473,20 @@ namespace Steepshot.iOS
 				userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
 				ToogleFollowButton();
 			}
+			else
+				Reporter.SendCrash("Profile page follow error: " + resp.Errors[0]);
+
+		}
+
+		void LoginTapped()
+		{
+			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			NavigationController.PushViewController(myViewController, true);
 		}
 
 		private void ToogleFollowButton()
 		{
-			if (Username == UserContext.Instanse.Username || Convert.ToBoolean(userData.HasFollowed))
+			if (!UserContext.Instanse.IsAuthorized || Username == UserContext.Instanse.Username || Convert.ToBoolean(userData.HasFollowed))
 			{
 				_profileHeader.FollowButtonWidth.Constant = 0;
 				_profileHeader.FollowButtonMargin.Constant = 0;
@@ -427,4 +494,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-
+*/

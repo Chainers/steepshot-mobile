@@ -1,9 +1,8 @@
-﻿
-using System;
-
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -13,16 +12,21 @@ namespace Steepshot
 {
 	public class FeedPresenter : BasePresenter
 	{
-		public FeedPresenter(FeedView view):base(view)
+		public FeedPresenter(FeedView view, bool isFeed) : base(view)
 		{
+			_isFeed = isFeed;
 		}
-
+		private bool _isFeed;
+		public event VoidDelegate PostsLoaded;
+		public event VoidDelegate PostsCleared;
 		public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
-
+		private CancellationTokenSource cts;
 		private PostType type = PostType.Top;
 
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
+		private const int postsCount = 20;
+		public string Tag;
 
 		public PostType GetCurrentType()
 		{
@@ -32,7 +36,7 @@ namespace Steepshot
 		public void ViewLoad()
 		{
 			if (Posts.Count == 0)
-				Task.Run(() => GetTopPosts(20, type, true));
+				Task.Run(() => GetTopPosts(type, true));
 		}
 
 		public bool processing = false;
@@ -42,62 +46,143 @@ namespace Steepshot
 			Posts.Clear();
 			_hasItems = true;
 			_offsetUrl = string.Empty;
+			PostsCleared?.Invoke();
 		}
 
-		public async Task GetTopPosts(int limit, PostType type, bool clearOld = false)
+
+
+		public async Task GetTopPosts(PostType type, bool clearOld = false)
 		{
-			this.type = type;
-			processing = true;
-
-			var postrequest = new PostsRequest(type)
+			try
 			{
-                SessionId = UserPrincipal.Instance.Cookie,
-                Limit = limit,
-				Offset = _offsetUrl
-			};
-
-			var response = await Api.GetPosts(postrequest);
-			//TODO:KOA -- Errors not processed
-			if (response.Success)
-			{
-
-				var lastItem = response.Result.Results.Last();
-				if (response.Result.Results.Count == limit)
-					response.Result.Results.Remove(lastItem);
-				else
-					_hasItems = false;
-
-				_offsetUrl = lastItem.Url;
-
-				if (clearOld)
+				if (!_hasItems)
+					return;
+				try
 				{
-					Posts.Clear();
+					cts?.Cancel();
 				}
-				foreach (var item in response.Result.Results)
+				catch (ObjectDisposedException)
 				{
-					Posts.Add(item);
+
+				}
+
+				using (cts = new CancellationTokenSource())
+				{
+					this.type = type;
+					processing = true;
+
+					OperationResult<UserPostResponse> response;
+					if (_isFeed)
+					{
+						var f = new UserRecentPostsRequest(UserPrincipal.Instance.Cookie)
+						{
+							Limit = postsCount,
+							Offset = _offsetUrl
+						};
+						response = await Api.GetUserRecentPosts(f);
+					}
+					else
+					{
+						var postrequest = new PostsRequest(type)
+						{
+							SessionId = UserPrincipal.Instance.Cookie,
+							Limit = postsCount,
+							Offset = _offsetUrl
+						};
+						response = await Api.GetPosts(postrequest, cts);
+					}
+					//TODO:KOA -- Errors not processed
+					if (response.Success && response?.Result?.Results != null)
+					{
+						if (response.Result.Results.Count != 0)
+						{
+							var lastItem = response.Result.Results.Last();
+							if (lastItem.Url != _offsetUrl)
+								response.Result.Results.Remove(lastItem);
+							else
+								_hasItems = false;
+
+							_offsetUrl = lastItem.Url;
+
+							if (clearOld)
+							{
+								Posts.Clear();
+							}
+							foreach (var item in response.Result.Results)
+							{
+								Posts.Add(item);
+							}
+						}
+						PostsLoaded?.Invoke();
+					}
 				}
 			}
-			processing = false;
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+			finally
+			{
+				processing = false;
+			}
 		}
 
-		public async Task GetSearchedPosts(string query)
+		public async Task GetSearchedPosts()
 		{
-			processing = true;
-			var postrequest = new PostsByCategoryRequest(type, query);
+			if (!_hasItems)
+				return;
 
-			var posts = await Api.GetPostsByCategory(postrequest);
-			//TODO:KOA -- Errors not processed
-			if (posts.Success)
+			try
 			{
-				Posts.Clear();
-
-				foreach (var item in posts.Result.Results)
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
+				
+			}
+			try
+			{
+				using (cts = new CancellationTokenSource())
 				{
-					Posts.Add(item);
+					processing = true;
+					var postrequest = new PostsByCategoryRequest(type, Tag)
+					{
+						SessionId = UserPrincipal.Instance.Cookie,
+						Limit = postsCount,
+						Offset = _offsetUrl
+					};
+
+					var posts = await Api.GetPostsByCategory(postrequest, cts);
+					//TODO:KOA -- Errors not processed
+					if (posts.Success && posts?.Result?.Results != null)
+					{
+						if (posts.Result.Results.Count != 0)
+						{
+							var lastItem = posts.Result.Results.Last();
+							if (lastItem.Url != _offsetUrl)
+								posts.Result.Results.Remove(lastItem);
+							else
+								_hasItems = false;
+
+							_offsetUrl = lastItem.Url;
+
+							foreach (var item in posts.Result.Results)
+							{
+								Posts.Add(item);
+							}
+						}
+						PostsLoaded?.Invoke();
+					}
 				}
 			}
-			processing = false;
+			catch (Exception ex)
+			{
+				Reporter.SendCrash(ex);
+			}
+			finally
+			{
+				processing = false;
+			}
 		}
 
 		public async Task<OperationResult<VoteResponse>> Vote(Post post)
@@ -114,6 +199,5 @@ namespace Steepshot
             var request = new LogoutRequest(UserPrincipal.Instance.CurrentUser.SessionId);
             return await Api.Logout(request);
         }
-
     }
 }

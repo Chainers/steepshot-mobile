@@ -27,6 +27,7 @@ namespace Steepshot.iOS
 		public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
 		public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
+		public event HeaderTappedHandler GoToVoters;
 		public event ImagePreviewHandler ImagePreview;
 		private Post _currentPost;
 
@@ -34,6 +35,7 @@ namespace Steepshot.iOS
 		public bool IsFlaggedSet => Flagged != null;
 		public bool IsGoToProfileSet => GoToProfile != null;
 		public bool IsGoToCommentsSet => GoToComments != null;
+		public bool IsGoToVotersSet => GoToVoters != null;
 		public bool IsImagePreviewSet => ImagePreview != null;
 		private IScheduledWork _scheduledWorkAvatar;
 		private IScheduledWork _scheduledWorkBody;
@@ -57,7 +59,7 @@ namespace Steepshot.iOS
 			_scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Constants.ImageCacheDuration)
 													 .WithCache(FFImageLoading.Cache.CacheType.All)
 													 .Retry(2, 200)
-													 .DownSample(width: 200)
+			                                 		.DownSample((int)UIScreen.MainScreen.Bounds.Width)
 													 .Into(bodyImage);
 
 			cellText.Text = _currentPost.Author;
@@ -98,6 +100,12 @@ namespace Steepshot.iOS
 					GoToComments(_currentPost.Url);
 				});
 				commentView.AddGestureRecognizer(commentTap);
+
+				UITapGestureRecognizer netVotesTap = new UITapGestureRecognizer(() =>
+				{
+					GoToVoters(_currentPost.Url);
+				});
+				netVotes.AddGestureRecognizer(netVotesTap);
 
 				flagButton.TouchDown += FlagButton_TouchDown;
 				likeButton.TouchDown += LikeTap;

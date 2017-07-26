@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
 using Sweetshot.Library.Models.Responses;
@@ -23,6 +22,26 @@ namespace Steepshot
 		{
 			var request = new LogoutRequest(UserPrincipal.Instance.CurrentUser.SessionId);
 			return await Api.Logout(request);
+		}
+
+		public async Task<OperationResult<SetNsfwResponse>> SetNsfw(bool value)
+		{
+			return await Api.SetNsfw(new SetNsfwRequest(UserPrincipal.Instance.Cookie, value));
+		}
+
+		public async Task<OperationResult<SetLowRatedResponse>> SetLowRated(bool value)
+		{
+			return await Api.SetLowRated(new SetLowRatedRequest(UserPrincipal.Instance.Cookie, value));
+		}
+
+		public async Task<OperationResult<IsLowRatedResponse>> IsLowRated()
+		{
+			return await Api.IsLowRated(new IsLowRatedRequest(UserPrincipal.Instance.Cookie));
+		}
+
+		public async Task<OperationResult<IsNsfwResponse>> IsNsfw()
+		{
+			return await Api.IsNsfw(new IsNsfwRequest(UserPrincipal.Instance.Cookie));
 		}
 	}
 }

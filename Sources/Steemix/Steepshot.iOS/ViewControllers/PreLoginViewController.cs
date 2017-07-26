@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Threading.Tasks;
 using Foundation;
 using Sweetshot.Library.Models.Requests;
@@ -40,14 +40,18 @@ namespace Steepshot.iOS
 				return true;
 			};
 
+			if ((float)UIScreen.MainScreen.Bounds.Height < 500)
+			{
+				aboveConstant.Constant = 2;
+				belowConstant.Constant = 2;
+			}
+
 #if DEBUG
 			loginText.Text = "joseph.kalu";
 #endif
 
-#if !DEBUG
-			picker.Hidden = true;
-			pickerHeight.Constant = 0;
-#endif
+			//picker.Hidden = true;
+			//pickerHeight.Constant = 0;
 
 			var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
 			tw.TextColor = UIColor.White;
@@ -135,7 +139,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-
+				Reporter.SendCrash(ex);
 			}
 			finally
 			{
@@ -189,3 +193,4 @@ namespace Steepshot.iOS
 	}
 }
 
+*/

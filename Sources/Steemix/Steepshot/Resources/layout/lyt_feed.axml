@@ -18,14 +18,6 @@
             android:textSize="14sp"
             android:text="@string/text_login"
             android:id="@+id/btn_login" />
-        <ImageView
-            android:id="@+id/logo_login"
-            android:layout_width="35dp"
-            android:visibility="gone"
-            android:layout_height="35dp"
-            android:src="@drawable/logo_login"
-            android:layout_marginLeft="15dp"
-            android:layout_centerVertical="true" />
         <TextView
             android:text="@string/following"
             android:layout_width="wrap_content"
