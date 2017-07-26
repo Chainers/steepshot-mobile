@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using NUnit.Framework;
+using Steepshot.Core.Authority;
 using Sweetshot.Library.Models.Requests;
 
 namespace Sweetshot.Tests
@@ -13,7 +14,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new VoteRequest("sessionId", true, "");
+                new VoteRequest(new UserInfo() { SessionId = "sessionId", PostingKey = "" }, true, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("identifier"));
         }
@@ -23,7 +24,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new FollowRequest("sessionId", FollowType.Follow, "");
+                new FollowRequest(new UserInfo() { SessionId = "sessionId", PostingKey = "" }, FollowType.Follow, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("username"));
         }
@@ -43,7 +44,7 @@ namespace Sweetshot.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new CreateCommentRequest("sessionId", "", "test", "test");
+                new CreateCommentRequest(new UserInfo() { SessionId = "sessionId", PostingKey = "" }, "", "test", "test");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -57,9 +58,9 @@ namespace Sweetshot.Tests
             var file = File.ReadAllBytes(path);
 
             // Act
-            var requestArray = new UploadImageRequest("sessionId", "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var requestArray = new UploadImageRequest(new UserInfo() { SessionId = "sessionId", PostingKey = "" }, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
             var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageRequest("sessionId", "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
+            var requestBase64 = new UploadImageRequest(new UserInfo() { SessionId = "sessionId", PostingKey = "" }, "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
 
             // Assert
             Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));

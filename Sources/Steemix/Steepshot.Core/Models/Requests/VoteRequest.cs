@@ -1,24 +1,24 @@
 ﻿using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using Steepshot.Core.Authority;
 
 namespace Sweetshot.Library.Models.Requests
 {
-    public enum FlagType
+    public enum VoteType
     {
-        [Description("flag")] Up,
+        [Description("upvote")] Up,
         [Description("downvote")] Down
     }
 
-    public class FlagRequest : SessionIdField
+    public class VoteRequest : LoginRequest
     {
-        public FlagRequest(string sessionId, bool isUp, string identifier)
+        public VoteRequest(UserInfo user, bool isUp, string identifier) 
+            : base(user)
         {
-            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            SessionId = sessionId;
-            Type = isUp ? FlagType.Up : FlagType.Down;
+            Type = isUp ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }
 
@@ -26,6 +26,6 @@ namespace Sweetshot.Library.Models.Requests
         public string Identifier { get; private set; }
 
         [JsonIgnore]
-        public FlagType Type { get; private set; }
+        public VoteType Type { get; private set; }
     }
 }

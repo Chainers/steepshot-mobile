@@ -7,7 +7,7 @@ namespace Steepshot.Core.Authority
     {
         private readonly IDataProvider _data;
 
-        private UserInfo CurrentUser { get; set; }
+        public UserInfo CurrentUser { get; private set; }
 
         public bool IsDev
         {
@@ -83,7 +83,7 @@ namespace Steepshot.Core.Authority
             {
                 Login = login,
                 Chain = chain,
-                Password = pass,
+                PostingKey = pass,
                 SessionId = sessionId
             };
 

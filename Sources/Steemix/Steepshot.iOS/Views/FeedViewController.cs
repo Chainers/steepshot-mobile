@@ -243,9 +243,8 @@ namespace Steepshot.iOS
                 {
                     if (CurrentPostCategory == null)
                     {
-                        var postrequest = new PostsRequest(_currentPostType)
+                        var postrequest = new PostsRequest(_currentPostType, User.CurrentUser)
                         {
-                            SessionId = User.SessionId,
                             Limit = Limit,
                             Offset = offset
                         };
@@ -253,9 +252,8 @@ namespace Steepshot.iOS
                     }
                     else
                     {
-                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory)
+                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory, User.CurrentUser)
                         {
-                            SessionId = User.SessionId,
                             Limit = Limit,
                             Offset = offset
                         };
@@ -264,7 +262,7 @@ namespace Steepshot.iOS
                 }
                 else
                 {
-                    var f = new UserRecentPostsRequest(User.SessionId)
+                    var f = new UserRecentPostsRequest(User.CurrentUser)
                     {
                         Limit = Limit,
                         Offset = offset
@@ -340,7 +338,7 @@ namespace Steepshot.iOS
             }
             try
             {
-                var voteRequest = new VoteRequest(User.SessionId, vote, postUrl);
+                var voteRequest = new VoteRequest(User.CurrentUser, vote, postUrl);
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -407,7 +405,7 @@ namespace Steepshot.iOS
         {
             try
             {
-                var flagRequest = new FlagRequest(User.SessionId, vote, postUrl);
+                var flagRequest = new FlagRequest(User.CurrentUser, vote, postUrl);
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {
@@ -467,7 +465,7 @@ namespace Steepshot.iOS
             }
 
             _navItem.TitleView = titleView;
-            if (User.SessionId == null)
+            if (!User.IsAuthenticated)
             {
                 var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
                 _navItem.SetLeftBarButtonItem(leftBarButton, true);

@@ -94,7 +94,7 @@ namespace Steepshot.iOS
                     Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
                 }
 
-                var request = new UploadImageRequest(User.SessionId, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
+                var request = new UploadImageRequest(User.CurrentUser, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
                 var imageUploadResponse = await Api.Upload(request);
 
                 if (imageUploadResponse.Success)

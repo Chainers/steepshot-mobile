@@ -14,7 +14,7 @@ namespace Steepshot.Core.Authority
 
         public string Login { get; set; } = string.Empty;
 
-        public string Password { get; set; } = string.Empty;
+        public string PostingKey { get; set; } = string.Empty;
 
         public DateTimeOffset LoginTime { get; set; } = DateTime.Now;
 

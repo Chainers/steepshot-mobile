@@ -31,9 +31,8 @@ namespace Steepshot
 			{
 				if (!_hasItems)
 					return;
-				var request = new GetVotesRequest(url)
+				var request = new GetVotesRequest(url, User.CurrentUser)
 				{
-					SessionId = User.SessionId,
 					Offset = _offsetUrl,
 					Limit = _itemsLimit
 				};

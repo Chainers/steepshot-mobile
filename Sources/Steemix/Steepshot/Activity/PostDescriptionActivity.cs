@@ -164,7 +164,7 @@ namespace Steepshot
                 if (!success)
                     ShowAlert("Photo upload error, please try again");
 
-                var request = new Sweetshot.Library.Models.Requests.UploadImageRequest(BasePresenter.User.SessionId, description.Text, arrayToUpload, tags.ToArray());
+                var request = new Sweetshot.Library.Models.Requests.UploadImageRequest(BasePresenter.User.CurrentUser, description.Text, arrayToUpload, tags.ToArray());
                 var resp = await presenter.Upload(request);
                 if (resp.Errors.Count > 0)
                 {

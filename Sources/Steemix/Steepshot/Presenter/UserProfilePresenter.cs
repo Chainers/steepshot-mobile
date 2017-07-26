@@ -37,7 +37,7 @@ namespace Steepshot
 
 		public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
 		{
-			var req = new UserProfileRequest(user) {SessionId = User.SessionId};
+			var req = new UserProfileRequest(user, User.CurrentUser);
 			var response = await Api.GetUserProfile(req);
 			var userData = response.Result;
 			return userData;
@@ -57,11 +57,10 @@ namespace Steepshot
 				if (!_hasItems)
 					return;
 
-				var req = new UserPostsRequest(_username)
+				var req = new UserPostsRequest(_username, User.CurrentUser)
 				{
 					Offset = _offsetUrl,
-					Limit = postsCount,
-					SessionId = User.SessionId
+					Limit = postsCount
 				};
 				var response = await Api.GetUserPosts(req);
 
@@ -96,13 +95,13 @@ namespace Steepshot
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }};
 
-            var voteRequest = new VoteRequest(User.SessionId, !post.Vote, post.Url);
+            var voteRequest = new VoteRequest(User.CurrentUser, !post.Vote, post.Url);
             return await Api.Vote(voteRequest);
         }
 
         public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
         {
-			var request = new FollowRequest(User.SessionId, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
+			var request = new FollowRequest(User.CurrentUser, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
