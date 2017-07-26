@@ -24,7 +24,7 @@ namespace Steepshot.iOS
             base.ViewDidLoad();
             //networkSwitch.Layer.CornerRadius = 16;
             //networkSwitch.On = Chain == KnownChains.Steem;
-            SetText();
+            SetText(Chain);
             //networkSwitch.ValueChanged += NetworkSwithed;
             loginButton.TouchDown += (sender, e) => GetUserInfo();
             loginLabel.Font = Constants.Bold175;
@@ -35,8 +35,7 @@ namespace Steepshot.iOS
             devSwitch.On = User.IsDev;
             devSwitch.ValueChanged += (sender, e) =>
             {
-                User.IsDev = ((UISwitch)sender).On;
-                SwitchApiAddress();
+                SwitchChain(((UISwitch)sender).On);
             };
             loginText.ShouldReturn += (textField) =>
             {
@@ -73,8 +72,7 @@ namespace Steepshot.iOS
                 picker.Hidden = true;
                 //steemImg.Hidden = true;
                 //golosImg.Hidden = true;
-                Chain = newAccountNetwork;
-                SwitchApiAddress();
+                SwitchChain(newAccountNetwork);
             }
 
             UITapGestureRecognizer logoTap = new UITapGestureRecognizer(
@@ -98,22 +96,20 @@ namespace Steepshot.iOS
             base.ViewDidDisappear(animated);
             if (IsMovingFromParentViewController && newAccountNetwork != KnownChains.None)
             {
-                Chain = newAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-                SwitchApiAddress();
+                SwitchChain(newAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
         }
 
         private void NetworkSwithed(KnownChains network)
         {
-            Chain = network;
-            SetText();
-            SwitchApiAddress();
+            SetText(network);
+            SwitchChain(network);
         }
 
-        private void SetText()
+        private void SetText(KnownChains network)
         {
-            loginLabel.Text = $"Log in with your {(newAccountNetwork == KnownChains.None ? Chain : newAccountNetwork)} Account";
-            signLabel.Text = $"Haven't {(newAccountNetwork == KnownChains.None ? Chain : newAccountNetwork)} account yet?";
+            loginLabel.Text = $"Log in with your {(newAccountNetwork == KnownChains.None ? network : newAccountNetwork)} Account";
+            signLabel.Text = $"Haven't {(newAccountNetwork == KnownChains.None ? network : newAccountNetwork)} account yet?";
         }
 
         private async Task GetUserInfo()

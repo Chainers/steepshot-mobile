@@ -62,7 +62,7 @@ namespace Steepshot.iOS
             else
                 golosViewHeight.Constant = 0;
 
-            HighlightView();
+            HighlightView(Chain);
             SetAddButton();
 
             addAccountButton.TouchDown += (sender, e) =>
@@ -137,9 +137,8 @@ namespace Steepshot.iOS
             if (Chain == network)
                 return;
 
-            Chain = network;
-            HighlightView();
-            SwitchApiAddress();
+            HighlightView(network);
+            SwitchChain(network);
 
             SetAddButton();
 
@@ -182,7 +181,7 @@ namespace Steepshot.iOS
             {
                 if (Chain != network)
                 {
-                    HighlightView();
+                    HighlightView(Chain);
                     SetAddButton();
                 }
                 else
@@ -193,9 +192,9 @@ namespace Steepshot.iOS
             User.Save();
         }
 
-        private void HighlightView()
+        private void HighlightView(KnownChains network)
         {
-            if (Chain == KnownChains.Golos)
+            if (network == KnownChains.Golos)
             {
                 golosView.BackgroundColor = UIColor.Cyan;//Constants.Blue;
                 steemView.BackgroundColor = UIColor.White;

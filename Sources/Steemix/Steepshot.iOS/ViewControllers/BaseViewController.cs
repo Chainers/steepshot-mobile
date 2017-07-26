@@ -47,7 +47,7 @@ namespace Steepshot.iOS
             get
             {
                 if (_apiClient == null)
-                    SwitchApiAddress();
+                    SwitchChain(Chain);
                 return _apiClient;
             }
         }
@@ -102,23 +102,38 @@ namespace Steepshot.iOS
             ForegroundToken.Dispose();
             base.ViewDidDisappear(animated);
         }
-
-        protected static void SwitchApiAddress()
+        
+        public static void SwitchChain(bool isDev)
         {
+            if (User.IsDev == isDev && _apiClient != null)
+                return;
+
+            User.IsDev = isDev;
+            string serverUrl;
             if (Chain == KnownChains.Steem)
-            {
-                if (User.IsDev)
-                    _apiClient = new SteepshotApiClient("https://qa.steepshot.org/api/v1/");
-                else
-                    _apiClient = new SteepshotApiClient("https://steepshot.org/api/v1/");
-            }
+                serverUrl = isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
             else
-            {
-                if (User.IsDev)
-                    _apiClient = new SteepshotApiClient("https://qa.golos.steepshot.org/api/v1/");
-                else
-                    _apiClient = new SteepshotApiClient("https://golos.steepshot.org/api/v1/");
-            }
+                serverUrl = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
+
+            _apiClient = new SteepshotApiClient(serverUrl);
+        }
+
+        public static void SwitchChain(KnownChains chain)
+        {
+            if (Chain == chain && _apiClient != null)
+                return;
+
+            Chain = chain;
+            string serverUrl;
+            if (chain == KnownChains.Steem)
+                serverUrl = User.IsDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
+            else
+                serverUrl = User.IsDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
+
+            if (_apiClient == null)
+                _apiClient = new SteepshotApiClient(serverUrl);
+            else
+                _apiClient.ChangeServerUrl(serverUrl);
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)
