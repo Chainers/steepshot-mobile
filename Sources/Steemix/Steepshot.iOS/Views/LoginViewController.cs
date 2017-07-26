@@ -152,6 +152,12 @@ namespace Steepshot.iOS
 				activityIndicator.StopAnimating();
 			}
 		}
+
+		public override void ViewWillDisappear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(true, true);
+			base.ViewDidDisappear(animated);
+		}
 	}
 }
 

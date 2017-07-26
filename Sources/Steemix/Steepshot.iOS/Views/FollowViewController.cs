@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
@@ -20,8 +19,12 @@ namespace Steepshot.iOS
 		private bool _hasItems = true;
 
 		protected FollowViewController(IntPtr handle) : base(handle)
-        {
+		{
 			// Note: this .ctor should not contain any initialization logi
+		}
+
+		public FollowViewController()
+		{
 		}
 
 		public override void ViewDidLoad()
@@ -29,19 +32,19 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 
 			followTableView.Source = tableSource;
-            followTableView.LayoutMargins = UIEdgeInsets.Zero;
+			followTableView.LayoutMargins = UIEdgeInsets.Zero;
 			followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
-            followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
+			followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
 
-			tableSource.Follow += (vote, url, action)  =>
-            {
-                Follow(vote, url, action);
-            };
+			tableSource.Follow += (vote, url, action) =>
+			{
+				Follow(vote, url, action);
+			};
 
 			tableSource.ScrolledToBottom += () =>
 			{
-				if(_hasItems)
-                	GetItems();
+				if (_hasItems)
+					GetItems();
 			};
 
 			tableSource.GoToProfile += (username) =>
@@ -56,15 +59,21 @@ namespace Steepshot.iOS
 
 		public override void ViewWillAppear(bool animated)
 		{
-			NavigationController.SetNavigationBarHidden(false, false);
+			NavigationController.SetNavigationBarHidden(false, true);
 			base.ViewWillAppear(animated);
+		}
+
+		public override void ViewWillDisappear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(true, true);
+			base.ViewWillDisappear(animated);
 		}
 
 		public async Task GetItems()
 		{
 			if (progressBar.IsAnimating)
 				return;
-			
+
 			try
 			{
 				progressBar.StartAnimating();
@@ -85,7 +94,7 @@ namespace Steepshot.iOS
 						_hasItems = false;
 					else
 						response.Result.Results.Remove(lastItem);
-					
+
 					if (response.Result.Results.Count != 0)
 					{
 						tableSource.TableItems.AddRange(response.Result.Results);
@@ -123,7 +132,7 @@ namespace Steepshot.iOS
 				}
 				else
 					Reporter.SendCrash("Follow page follow error: " + response.Errors[0]);
-				
+
 			}
 			catch (Exception ex)
 			{
@@ -131,10 +140,9 @@ namespace Steepshot.iOS
 			}
 			finally
 			{
-                callback(author, success);
+				callback(author, success);
 			}
 		}
 	}
 }
 
-*/

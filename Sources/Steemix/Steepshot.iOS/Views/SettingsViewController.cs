@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -18,6 +17,10 @@ namespace Steepshot.iOS
 			// Note: this .ctor should not contain any initialization logi   
 		}
 
+		public SettingsViewController()
+		{
+		}
+
 		private Account steemAcc;
 		private Account golosAcc;
 
@@ -26,6 +29,7 @@ namespace Steepshot.iOS
 
 		public override void ViewDidLoad()
 		{
+			NavigationController.NavigationBar.Translucent = false;
 			base.ViewDidLoad();
 			nsfwSwitch.On = UserContext.Instanse.NSFW;
 			CheckNsfw();
@@ -45,7 +49,7 @@ namespace Steepshot.iOS
 			}
 			else
 				steemViewHeight.Constant = 0;
-			
+
 
 			if (golosAcc != null)
 			{
@@ -60,7 +64,7 @@ namespace Steepshot.iOS
 
 			addAccountButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+				var myViewController = new PreLoginViewController();//Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
 				myViewController.newAccountNetwork = UserContext.Instanse.Network == Constants.Steem ? Constants.Golos : Constants.Steem;
 				NavigationController.PushViewController(myViewController, true);
 			};
@@ -112,7 +116,7 @@ namespace Steepshot.iOS
 			};
 			nsfwSwitch.ValueChanged += (sender, e) =>
 			{
-                SwitchNsfw();
+				SwitchNsfw();
 			};
 		}
 
@@ -225,35 +229,35 @@ namespace Steepshot.iOS
 			NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 			NavigationController.PopViewController(false);
 
-			
-			//var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
+			/*
+			var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
 
-			///alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
-			//alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
-			//{
-				//if (UserContext.Instanse.Network != network)
-				//{
-					//try
-					//{
+			alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
+			alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
+			{
+				if (UserContext.Instanse.Network != network)
+				{
+					try
+					{
 
-					//}
-					//catch (Exception ex)
-					//{
+					}
+					catch (Exception ex)
+					{
 
-					//}
-				//}
-			//}));
+					}
+				}
+			}));
 
-			//PresentViewController(alert, animated: true, completionHandler: null); 
+			PresentViewController(alert, animated: true, completionHandler: null); */
 		}
 
 		private void RemoveNetwork(string network)
 		{
 			if (UserContext.Instanse.Accounts.Count == 0)
 			{
-	            var myViewController = Storyboard.InstantiateViewController(nameof(FeedViewController)) as FeedViewController;
+				var myViewController = Storyboard.InstantiateViewController(nameof(FeedViewController)) as FeedViewController;
 				NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
-	            NavigationController.PopViewController(false);
+				NavigationController.PopViewController(false);
 			}
 			else
 			{
@@ -264,7 +268,7 @@ namespace Steepshot.iOS
 				}
 				else
 				{
-                    SwitchNetwork(UserContext.Instanse.Network == Constants.Steem ? Constants.Golos : Constants.Steem);
+					SwitchNetwork(UserContext.Instanse.Network == Constants.Steem ? Constants.Golos : Constants.Steem);
 				}
 			}
 			UserContext.Save();
@@ -287,9 +291,9 @@ namespace Steepshot.iOS
 		private void SetAddButton()
 		{
 			addAccountButton.Hidden = UserContext.Instanse.Accounts.Count == 2;
-//#if !DEBUG
+			//#if !DEBUG
 			//addAccountButton.Hidden = true;
-//#endif
+			//#endif
 		}
 
 		public override void ViewDidDisappear(bool animated)
@@ -301,4 +305,3 @@ namespace Steepshot.iOS
 	}
 }
 
-*/

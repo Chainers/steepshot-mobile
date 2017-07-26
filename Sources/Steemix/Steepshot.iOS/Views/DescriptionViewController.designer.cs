@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -15,9 +14,6 @@ namespace Steepshot.iOS
 	{
 		[Outlet]
 		UIKit.NSLayoutConstraint collectionHeight { get; set; }
-
-		[Outlet]
-		UIKit.UITextField descriptionText { get; set; }
 
 		[Outlet]
 		UIKit.UITextView descriptionTextField { get; set; }
@@ -39,24 +35,9 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (collectionHeight != null) {
-				collectionHeight.Dispose ();
-				collectionHeight = null;
-			}
-
-			if (descriptionText != null) {
-				descriptionText.Dispose ();
-				descriptionText = null;
-			}
-
-			if (descriptionTextField != null) {
-				descriptionTextField.Dispose ();
-				descriptionTextField = null;
-			}
-
-			if (loadingView != null) {
-				loadingView.Dispose ();
-				loadingView = null;
+			if (tagsCollectionView != null) {
+				tagsCollectionView.Dispose ();
+				tagsCollectionView = null;
 			}
 
 			if (photoView != null) {
@@ -69,16 +50,25 @@ namespace Steepshot.iOS
 				postPhotoButton = null;
 			}
 
-			if (tagsCollectionView != null) {
-				tagsCollectionView.Dispose ();
-				tagsCollectionView = null;
+			if (descriptionTextField != null) {
+				descriptionTextField.Dispose ();
+				descriptionTextField = null;
 			}
 
 			if (scrollView != null) {
 				scrollView.Dispose ();
 				scrollView = null;
 			}
+
+			if (collectionHeight != null) {
+				collectionHeight.Dispose ();
+				collectionHeight = null;
+			}
+
+			if (loadingView != null) {
+				loadingView.Dispose ();
+				loadingView = null;
+			}
 		}
 	}
 }
-*/

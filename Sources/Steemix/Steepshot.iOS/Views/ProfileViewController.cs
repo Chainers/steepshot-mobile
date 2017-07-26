@@ -46,7 +46,7 @@ namespace Steepshot.iOS
 			collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
 			collectionViewSource.GoToComments += (postUrl) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(CommentsViewController)) as CommentsViewController;
+				var myViewController = new CommentsViewController();
 				myViewController.PostUrl = postUrl;
 				NavigationController.PushViewController(myViewController, true);
 			};
@@ -139,13 +139,13 @@ namespace Steepshot.iOS
 
 			_profileHeader.SettingsButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(SettingsViewController)) as SettingsViewController;
+				var myViewController = new SettingsViewController();
 				TabBarController.NavigationController.PushViewController(myViewController, true);
 			};
 
 			_profileHeader.FollowingButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(FollowViewController)) as FollowViewController;
+				var myViewController = new FollowViewController();
 				myViewController.Username = Username;
 				myViewController.FriendsType = FriendsType.Following;
 				NavigationController.PushViewController(myViewController, true);
@@ -153,7 +153,7 @@ namespace Steepshot.iOS
 
 			_profileHeader.FollowersButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(FollowViewController)) as FollowViewController;
+				var myViewController = new FollowViewController();
 				myViewController.Username = Username;
 				myViewController.FriendsType = FriendsType.Followers;
 				NavigationController.PushViewController(myViewController, true);
@@ -181,7 +181,7 @@ namespace Steepshot.iOS
 
 		private void PreviewPhoto(UIImage image, string url)
 		{
-			var myViewController = Storyboard.InstantiateViewController(nameof(ImagePreviewViewController)) as ImagePreviewViewController;
+			var myViewController = new ImagePreviewViewController();
 			myViewController.imageForPreview = image;
 			myViewController.ImageUrl = url;
 			NavigationController.PushViewController(myViewController, true);
