@@ -4,6 +4,10 @@
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
+
   <ItemGroup>
     <PackageReference Include="MailKit" Version="1.16.2" />
     <PackageReference Include="MimeKit" Version="1.16.2" />
