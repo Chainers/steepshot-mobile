@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Steepshot.Core.Authority
 {
@@ -24,5 +25,12 @@ namespace Steepshot.Core.Authority
         public bool IsDev { get; set; } = false;
 
         public List<string> Postblacklist { get; set; } = new List<string>();
+
+        //TODO:KOA: Needed for SQLite only
+        public string PostblacklistStr
+        {
+            get { return string.Join("; ", Postblacklist); }
+            set { Postblacklist = value.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
+        }
     }
 }
