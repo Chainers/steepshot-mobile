@@ -167,7 +167,7 @@ namespace Sweetshot.Tests
         public void UserPosts_With_SessionId_Some_Votes_True([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserPostsRequest(Name) {SessionId = Authenticate(Api(name))};
+            var request = new UserPostsRequest(Name) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetUserPosts(request).Result;
@@ -280,7 +280,7 @@ namespace Sweetshot.Tests
         public void Posts_Top_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new PostsRequest(PostType.Top) {SessionId = Authenticate(Api(name))};
+            var request = new PostsRequest(PostType.Top) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetPosts(request).Result;
@@ -435,7 +435,7 @@ namespace Sweetshot.Tests
         public void Posts_By_Category_With_SessionId([Values("Steem", "Golos")] string name, [Values("food", "ru--golos")] string category)
         {
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, category) {SessionId = Authenticate(Api(name))};
+            var request = new PostsByCategoryRequest(PostType.Top, category) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetPostsByCategory(request).Result;
@@ -688,7 +688,7 @@ namespace Sweetshot.Tests
             [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/hi-golos")] string url)
         {
             // Arrange
-            var request = new GetCommentsRequest(url) {SessionId = Authenticate(Api(name))};
+            var request = new GetCommentsRequest(url) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetComments(request).Result;
@@ -833,7 +833,7 @@ namespace Sweetshot.Tests
         public void Categories_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchRequest {Offset = "qweqweqwe"};
+            var request = new SearchRequest { Offset = "qweqweqwe" };
 
             // Act
             var response = Api(name).GetCategories(request).Result;
@@ -849,7 +849,7 @@ namespace Sweetshot.Tests
         public void Categories_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchRequest {SessionId = Authenticate(Api(name))};
+            var request = new SearchRequest { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetCategories(request).Result;
@@ -950,7 +950,7 @@ namespace Sweetshot.Tests
         public void Categories_Search_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("life") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("life") { Offset = "qweqweqwe" };
 
             // Act
             var response = Api(name).SearchCategories(request).Result;
@@ -1027,7 +1027,7 @@ namespace Sweetshot.Tests
         public void UserProfile_With_SessionId([Values("Steem", "Golos")] string name, [Values("thecryptofiend", "phoenix")] string user)
         {
             // Arrange
-            var request = new UserProfileRequest(Name) {SessionId = Authenticate(Api(name))};
+            var request = new UserProfileRequest(Name) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetUserProfile(request).Result;
@@ -1139,7 +1139,7 @@ namespace Sweetshot.Tests
         public void UserFriends_Followers_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers) {SessionId = Authenticate(Api(name))};
+            var request = new UserFriendsRequest(Name, FriendsType.Followers) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetUserFriends(request).Result;
@@ -1203,7 +1203,7 @@ namespace Sweetshot.Tests
             [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
-            var request = new PostsInfoRequest(url) {SessionId = Authenticate(Api(name))};
+            var request = new PostsInfoRequest(url) { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).GetPostInfo(request).Result;
@@ -1381,7 +1381,7 @@ namespace Sweetshot.Tests
         public void User_Search_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("aar") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("aar") { Offset = "qweqweqwe" };
 
             // Act
             var response = Api(name).SearchUser(request).Result;
@@ -1395,7 +1395,7 @@ namespace Sweetshot.Tests
         public void User_Search_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("aar") {SessionId = Authenticate(Api(name))};
+            var request = new SearchWithQueryRequest("aar") { SessionId = Authenticate(Api(name)) };
 
             // Act
             var response = Api(name).SearchUser(request).Result;
@@ -1463,24 +1463,6 @@ namespace Sweetshot.Tests
             // Act
             var response = Api(name).Register(request).Result;
 
-
-            // Assert
-            AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Your version of Steepshot is too old. Please download an update."));
-        }
-
-        [Test, Sequential]
-        public void Obsolete_ChangePassword([Values("Steem", "Golos")] string name)
-        {
-            const string password = "test12345";
-            const string newPassword = "test123456";
-            const string postingKey = "***REMOVED***";
-
-            // Arrange
-            var request = new ChangePasswordRequest(Authenticate(Api(name)), password, newPassword);
-
-            // Act
-            var response = Api(name).ChangePassword(request).Result;
 
             // Assert
             AssertFailedResult(response);

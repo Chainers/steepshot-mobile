@@ -107,7 +107,7 @@ namespace Steepshot.iOS
 					}
 					else
 					{
-						var request = new SearchWithQueryRequest(query) { SessionId = UserContext.Instanse.Token };
+						var request = new SearchWithQueryRequest(query) { SessionId = User.SessionId };
 						if (_searchType == SearchType.Tags)
 						{
 							response = await Api.SearchCategories(request, cts);
@@ -152,7 +152,7 @@ namespace Steepshot.iOS
 						}
 					}
 					else if (response?.Errors.Count > 0)
-						Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0]);
+						Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
 				}
 			}
 			catch (TaskCanceledException)
@@ -162,7 +162,7 @@ namespace Steepshot.iOS
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, User.Login, AppVersion);
 			}
 			finally
 			{
@@ -175,7 +175,7 @@ namespace Steepshot.iOS
 		{
 			if (_searchType == SearchType.Tags)
 			{
-				UserContext.Instanse.CurrentPostCategory = tagsSource.Tags[row].Name;
+				CurrentPostCategory = tagsSource.Tags[row].Name;
 				NavigationController.PopViewController(true);
 			}
 			else

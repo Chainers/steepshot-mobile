@@ -46,7 +46,7 @@ using Sqlite3Statement = System.IntPtr;
 #endif
 //TODO: Nikita Remove SQLlite
 #pragma warning disable 0436, 4014
-namespace SQLite
+namespace Steepshot.SQLite
 {
 	public class SQLiteException : Exception
 	{

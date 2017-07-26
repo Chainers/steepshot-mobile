@@ -8,7 +8,7 @@ namespace Steepshot.iOS
 {
 	public class FollowTableViewSource : BaseTableSource<UserFriend>
 	{
-		string CellIdentifier = nameof(FollowViewCell);
+		string _cellIdentifier = nameof(FollowViewCell);
 		public event FollowEventHandler Follow;
 		public event HeaderTappedHandler GoToProfile;
 
@@ -18,7 +18,7 @@ namespace Steepshot.iOS
 
 		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
 		{
-			var cell = (FollowViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
+			var cell = (FollowViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
 			if (!cell.IsFollowSet)
 			{
 				cell.Follow += (followType, authorName, success) =>

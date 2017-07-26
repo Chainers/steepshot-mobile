@@ -15,7 +15,7 @@ namespace Sweetshot.Library.Models.Requests
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
-            base.SessionId = sessionId;
+            SessionId = sessionId;
             Type = type;
             Username = username;
         }

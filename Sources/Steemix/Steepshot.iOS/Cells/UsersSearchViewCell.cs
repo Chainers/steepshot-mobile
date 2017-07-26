@@ -24,7 +24,7 @@ namespace Steepshot.iOS
 		public override void LayoutSubviews()
 		{
 			avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
-			this.SelectionStyle = UITableViewCellSelectionStyle.None;
+			SelectionStyle = UITableViewCellSelectionStyle.None;
 		}
 
 		public void UpdateCell(VotersResult user)

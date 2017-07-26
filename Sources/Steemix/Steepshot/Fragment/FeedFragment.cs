@@ -91,12 +91,12 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 			if (_isInitialized)
 				return;
 			base.OnViewCreated(view, savedInstanceState);
-			if (UserPrincipal.Instance.IsAuthenticated)
+			if (BasePresenter.User.IsAuthenticated)
 				Login.Visibility = ViewStates.Gone;
 
 			if (_isFeed)
@@ -166,7 +166,7 @@ namespace Steepshot
 		{
 			try
 			{
-				if (UserPrincipal.Instance.IsAuthenticated)
+				if (BasePresenter.User.IsAuthenticated)
 				{
 					var response = await presenter.Vote(presenter.Posts[position]);
 
@@ -195,7 +195,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 		}
 

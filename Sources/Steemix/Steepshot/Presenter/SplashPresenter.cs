@@ -7,6 +7,6 @@ namespace Steepshot
 		{
 		}
 
-		public bool IsGuest { get { return !UserPrincipal.Instance.IsAuthenticated; } }
+		public bool IsGuest { get { return !User.IsAuthenticated; } }
 	}
 }
