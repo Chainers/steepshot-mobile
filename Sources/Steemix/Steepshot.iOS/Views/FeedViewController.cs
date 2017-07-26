@@ -53,7 +53,7 @@ namespace Steepshot.iOS
         {
             base.ViewDidLoad();
 
-			navController = NavigationController; //TabBarController != null ? TabBarController.NavigationController : NavigationController;
+			navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 			navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
 
 			gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
@@ -130,17 +130,14 @@ namespace Steepshot.iOS
             {
 				var myViewController = new CommentsViewController();
 				myViewController.PostUrl = postUrl;
-				if(TabBarController != null)
-					TabBarController.NavigationController.PushViewController(myViewController, true);
-				else
-					NavigationController.PushViewController(myViewController, true);
+				navController.PushViewController(myViewController, true);
             };
 
 			collectionViewSource.GoToVoters += (postUrl) =>
 			{
 				var myViewController = new VotersViewController();
 				myViewController.PostUrl = postUrl;
-				navController.PushViewController(myViewController, true);
+				NavigationController.PushViewController(myViewController, true);
 			};
 
 			collectionViewSource.ImagePreview += (image, url) =>
@@ -148,10 +145,7 @@ namespace Steepshot.iOS
 				var myViewController = new ImagePreviewViewController();
 				myViewController.imageForPreview = image;
 				myViewController.ImageUrl = url;
-				if(TabBarController != null)
-					TabBarController.NavigationController.PushViewController(myViewController, true);
-				else
-					NavigationController.PushViewController(myViewController, true);
+				navController.PushViewController(myViewController, true);
 			};
 
 			if (!isHomeFeed)
@@ -447,7 +441,7 @@ namespace Steepshot.iOS
 
 		private void SetNavBar()
 		{
-			var barHeight = navController.NavigationBar.Frame.Height;
+			var barHeight = NavigationController.NavigationBar.Frame.Height;
 			UIView titleView = new UIView();
 
 			tw = new UILabel(new CGRect(0, 0, 120, barHeight));
@@ -485,8 +479,8 @@ namespace Steepshot.iOS
 			else
 				navItem.SetLeftBarButtonItem(null, false);
 
-            navController.NavigationBar.TintColor = UIColor.White;
-			navController.NavigationBar.BarTintColor = Constants.NavBlue;
+            NavigationController.NavigationBar.TintColor = UIColor.White;
+			NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
         }
 
         private UIView CreateDropDownList()
