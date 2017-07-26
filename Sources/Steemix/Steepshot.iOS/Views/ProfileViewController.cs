@@ -34,6 +34,7 @@ namespace Steepshot.iOS
 		private CollectionViewFlowDelegate gridDelegate;
 		private int _lastRow;
 		private const int _limit = 40;
+		private UINavigationController navController;
 
 		public override void ViewDidLoad()
 		{
@@ -43,7 +44,7 @@ namespace Steepshot.iOS
 			if (Username != UserContext.Instanse.Username)
 				topViewHeight.Constant = 0;
 			
-			
+			navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 			collectionViewSource.PhotoList = photosList;
 			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
 			collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
@@ -51,7 +52,7 @@ namespace Steepshot.iOS
 			{
 				var myViewController = new CommentsViewController();
 				myViewController.PostUrl = postUrl;
-				NavigationController.PushViewController(myViewController, true);
+				navController.PushViewController(myViewController, true);
 			};
 			collectionViewSource.GoToVoters += (postUrl) =>
 			{
@@ -187,7 +188,7 @@ namespace Steepshot.iOS
 			var myViewController = new ImagePreviewViewController();
 			myViewController.imageForPreview = image;
 			myViewController.ImageUrl = url;
-			NavigationController.PushViewController(myViewController, true);
+			navController.PushViewController(myViewController, true);
 		}
 
 		private async Task GetUserInfo()

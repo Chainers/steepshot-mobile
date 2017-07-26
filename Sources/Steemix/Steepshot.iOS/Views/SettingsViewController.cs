@@ -120,6 +120,12 @@ namespace Steepshot.iOS
 			};
 		}
 
+		public override void ViewWillDisappear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(true, true);
+			base.ViewWillDisappear(animated);
+		}
+
 		private async Task SwitchNsfw()
 		{
 			try

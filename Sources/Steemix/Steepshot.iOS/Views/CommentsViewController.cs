@@ -54,6 +54,12 @@ namespace Steepshot.iOS
 			GetComments();
 		}
 
+		public override void ViewWillDisappear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(true, true);
+			base.ViewWillDisappear(animated);
+		}
+
 		public async Task GetComments()
 		{
 			progressBar.StartAnimating();
