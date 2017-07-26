@@ -40,7 +40,7 @@ namespace Steepshot.iOS
             }, false);*/
 			collectionviewSource = new TagsCollectionViewSource((sender, e) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(PostTagsViewController)) as PostTagsViewController;
+				var myViewController = new PostTagsViewController();
 				this.NavigationController.PushViewController(myViewController, true);
 			});
 			collectionviewSource.tagsCollection = new List<string>() { "" }; //UserContext.Instanse.TagsList;

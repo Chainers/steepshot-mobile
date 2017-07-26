@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="VotersViewController">
+            <connections>
+                <outlet property="progressBar" destination="7Mn-VH-sGh" id="bbm-ac-WBJ"/>
+                <outlet property="view" destination="5JA-OP-egy" id="6ty-zw-ZKV"/>
+                <outlet property="votersTable" destination="Ln8-8e-qnr" id="l6D-HK-Mwc"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="5JA-OP-egy">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="70" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Ln8-8e-qnr">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="7Mn-VH-sGh">
+                    <rect key="frame" x="189" y="350" width="37" height="37"/>
+                    <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="Ln8-8e-qnr" firstAttribute="leading" secondItem="5JA-OP-egy" secondAttribute="leading" id="5Hn-fg-PPH"/>
+                <constraint firstAttribute="trailing" secondItem="Ln8-8e-qnr" secondAttribute="trailing" id="AK6-Ls-5o7"/>
+                <constraint firstItem="7Mn-VH-sGh" firstAttribute="centerY" secondItem="5JA-OP-egy" secondAttribute="centerY" id="J6p-hU-1dO"/>
+                <constraint firstAttribute="bottom" secondItem="Ln8-8e-qnr" secondAttribute="bottom" id="TGF-lU-sdD"/>
+                <constraint firstItem="7Mn-VH-sGh" firstAttribute="centerX" secondItem="5JA-OP-egy" secondAttribute="centerX" id="TNl-6P-lI8"/>
+                <constraint firstItem="Ln8-8e-qnr" firstAttribute="top" secondItem="5JA-OP-egy" secondAttribute="top" id="cHD-Am-7WV"/>
+            </constraints>
+        </view>
+    </objects>
+</document>

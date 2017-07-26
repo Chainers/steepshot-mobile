@@ -89,7 +89,7 @@ namespace Steepshot.iOS
 
 			signUpButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = new WebPageViewController(); //Storyboard.InstantiateViewController(nameof(WebPageViewController)) as WebPageViewController;
+				var myViewController = new WebPageViewController();
 				this.NavigationController.PushViewController(myViewController, true);
 			};
 		}
@@ -128,7 +128,7 @@ namespace Steepshot.iOS
 				var response = await Api.GetUserProfile(req);
 				if (response.Success)
 				{
-					var myViewController = new LoginViewController(); //Storyboard.InstantiateViewController(nameof(LoginViewController)) as LoginViewController;
+					var myViewController = new LoginViewController();
 					myViewController.AvatarLink = response.Result.ProfileImage;
 					myViewController.Username = response.Result.Username;
 					this.NavigationController.PushViewController(myViewController, true);

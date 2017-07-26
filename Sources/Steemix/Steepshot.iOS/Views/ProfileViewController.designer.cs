@@ -20,6 +20,9 @@ namespace Steepshot.iOS
 
 		[Outlet]
 		UIKit.UIActivityIndicatorView loading { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint topViewHeight { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -36,6 +39,11 @@ namespace Steepshot.iOS
 			if (loading != null) {
 				loading.Dispose ();
 				loading = null;
+			}
+
+			if (topViewHeight != null) {
+				topViewHeight.Dispose ();
+				topViewHeight = null;
 			}
 		}
 	}

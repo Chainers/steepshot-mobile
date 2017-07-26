@@ -26,6 +26,14 @@ namespace Steepshot.iOS
 
 		private static SteepshotApiClient _apiClient;
 
+		/*
+		public override void ViewDidLoad()
+		{
+			base.ViewDidLoad();
+			if (NavigationController != null)
+				NavigationController.NavigationBar.Translucent = false;
+		}*/
+
 		public override void ViewWillAppear(bool animated)
 		{
 			if (TabBarController != null)

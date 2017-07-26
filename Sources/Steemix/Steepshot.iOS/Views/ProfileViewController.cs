@@ -40,7 +40,10 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			if (TabBarController != null)
 				TabBarController.NavigationController.NavigationBarHidden = true;
-
+			if (Username != UserContext.Instanse.Username)
+				topViewHeight.Constant = 0;
+			
+			
 			collectionViewSource.PhotoList = photosList;
 			collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
 			collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
@@ -52,7 +55,7 @@ namespace Steepshot.iOS
 			};
 			collectionViewSource.GoToVoters += (postUrl) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(VotersViewController)) as VotersViewController;
+				var myViewController = new VotersViewController();
 				myViewController.PostUrl = postUrl;
 				NavigationController.PushViewController(myViewController, true);
 			};
@@ -355,7 +358,7 @@ namespace Steepshot.iOS
 			{
 				if (UserContext.Instanse.Token == null)
 				{
-					var myViewController = Storyboard.InstantiateViewController(nameof(LoginViewController)) as LoginViewController;
+					var myViewController = new LoginViewController();
 					NavigationController.PushViewController(myViewController, true);
 					return;
 				}
@@ -485,7 +488,7 @@ namespace Steepshot.iOS
 
 		void LoginTapped()
 		{
-			var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+			var myViewController = new PreLoginViewController();
 			NavigationController.PushViewController(myViewController, true);
 		}
 
