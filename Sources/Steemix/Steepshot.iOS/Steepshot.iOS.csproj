@@ -134,13 +134,28 @@
     <ImageAsset Include="Assets.xcassets\Contents.json">
       <InProject>false</InProject>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png">
+      <InProject>false</InProject>
+    </ImageAsset>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{ab0ff429-7d59-495d-b814-ed265ffaecd7}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Main.storyboard" />
@@ -175,6 +190,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />
@@ -184,77 +200,30 @@
     </Compile>
     <Compile Include="ViewSources\FeedTableViewSource.cs" />
     <Compile Include="ViewControllers\BaseViewController.cs" />
-    <Compile Include="ViewControllers\PhotoViewController.cs" />
-    <Compile Include="ViewControllers\PhotoViewController.designer.cs">
-      <DependentUpon>PhotoViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cells\PhotoCollectionViewCell.cs" />
     <Compile Include="Cells\PhotoCollectionViewCell.designer.cs">
       <DependentUpon>PhotoCollectionViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\PhotoCollectionViewSource.cs" />
-    <Compile Include="ViewControllers\DescriptionViewController.cs" />
-    <Compile Include="ViewControllers\DescriptionViewController.designer.cs">
-      <DependentUpon>DescriptionViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ViewControllers\LoginViewController.cs" />
-    <Compile Include="ViewControllers\LoginViewController.designer.cs">
-      <DependentUpon>LoginViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Helpers\UserContext.cs" />
     <Compile Include="Helpers\Constants.cs" />
-    <Compile Include="ViewControllers\PostTagsViewController.cs" />
-    <Compile Include="ViewControllers\PostTagsViewController.designer.cs">
-      <DependentUpon>PostTagsViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\PostTagsTableViewSource.cs" />
     <Compile Include="ViewSources\TagsCollectionViewSource.cs" />
     <Compile Include="Cells\TagCollectionViewCell.cs" />
     <Compile Include="Cells\TagCollectionViewCell.designer.cs">
       <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
     </Compile>
-    <Compile Include="ViewControllers\TagsCollectionViewController.cs" />
-    <Compile Include="ViewControllers\ProfileViewController.cs" />
-    <Compile Include="ViewControllers\ProfileViewController.designer.cs">
-      <DependentUpon>ProfileViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
-    <Compile Include="ViewControllers\ImagePreviewViewController.cs" />
-    <Compile Include="ViewControllers\ImagePreviewViewController.designer.cs">
-      <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ViewControllers\FollowViewController.cs" />
-    <Compile Include="ViewControllers\FollowViewController.designer.cs">
-      <DependentUpon>FollowViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cells\FollowViewCell.cs" />
     <Compile Include="Cells\FollowViewCell.designer.cs">
       <DependentUpon>FollowViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\FollowTableViewSource.cs" />
     <Compile Include="ViewSources\BaseTableSource.cs" />
-    <Compile Include="ViewControllers\CommentsViewController.cs" />
-    <Compile Include="ViewControllers\CommentsViewController.designer.cs">
-      <DependentUpon>CommentsViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Cells\CommentTableViewCell.cs" />
     <Compile Include="Cells\CommentTableViewCell.designer.cs">
       <DependentUpon>CommentTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\CommentsTableViewSource.cs" />
-    <Compile Include="ViewControllers\PreLoginViewController.cs" />
-    <Compile Include="ViewControllers\PreLoginViewController.designer.cs">
-      <DependentUpon>PreLoginViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ViewControllers\SettingsViewController.cs" />
-    <Compile Include="ViewControllers\SettingsViewController.designer.cs">
-      <DependentUpon>SettingsViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Account.cs" />
-    <Compile Include="ViewControllers\TagsSearchViewController.cs" />
-    <Compile Include="ViewControllers\TagsSearchViewController.designer.cs">
-      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\ProfileHeaderViewController.cs" />
     <Compile Include="Views\ProfileHeaderViewController.designer.cs">
       <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
@@ -265,20 +234,11 @@
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
     <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="ViewControllers\WebPageViewController.cs" />
-    <Compile Include="ViewControllers\WebPageViewController.designer.cs">
-      <DependentUpon>WebPageViewController.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Helpers\Reporter.cs" />
     <Compile Include="Cells\UsersSearchViewCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.designer.cs">
       <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
-    <Compile Include="ViewControllers\VotersViewController.cs" />
-    <Compile Include="ViewControllers\VotersViewController.designer.cs">
-      <DependentUpon>VotersViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewSources\VotersTableViewSource.cs" />
     <Compile Include="Views\FeedViewController.cs" />
     <Compile Include="Views\FeedViewController.designer.cs">
@@ -399,9 +359,7 @@
     <BundleResource Include="Resources\flag_active%402x.png" />
     <BundleResource Include="Resources\flag_active%403x.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />

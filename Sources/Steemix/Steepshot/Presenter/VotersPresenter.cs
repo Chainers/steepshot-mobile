@@ -33,7 +33,7 @@ namespace Steepshot
 					return;
 				var request = new GetVotesRequest(url)
 				{
-					SessionId = UserPrincipal.Instance.Cookie,
+					SessionId = User.SessionId,
 					Offset = _offsetUrl,
 					Limit = _itemsLimit
 				};
@@ -54,7 +54,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
 		}
 	}

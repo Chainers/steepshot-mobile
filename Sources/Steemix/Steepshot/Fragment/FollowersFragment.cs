@@ -39,7 +39,7 @@ namespace Steepshot
 				return;
 			base.OnViewCreated(view, savedInstanceState);
 			var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-			var username = Activity.Intent.GetStringExtra("username") ?? UserPrincipal.Instance.CurrentUser.Login;
+			var username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
 			_friendsType = isFollowers ? FollowType.Follow : FollowType.UnFollow;
 
 			presenter.Collection.Clear();
@@ -109,7 +109,7 @@ namespace Steepshot
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
         }
 

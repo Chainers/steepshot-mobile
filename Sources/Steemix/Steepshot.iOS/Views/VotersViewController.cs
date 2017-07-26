@@ -79,11 +79,11 @@ namespace Steepshot.iOS
 					votersTable.ReloadData();
 				}
 				else if (response.Errors.Count > 0)
-					Reporter.SendCrash("Voters page get items error: " + response.Errors[0]);
+					Reporter.SendCrash("Voters page get items error: " + response.Errors[0], User.Login, AppVersion);
 			}
 			catch (Exception ex)
 			{
-				Reporter.SendCrash(ex);
+				Reporter.SendCrash(ex, User.Login, AppVersion);
 			}
 			finally
 			{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core.Authority;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -24,25 +25,24 @@ namespace Steepshot.iOS
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-			AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
-			{
-				Reporter.SendCrash((Exception)e.ExceptionObject);
-			};
-			TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
-			{
-				Reporter.SendCrash(e.Exception);
-			};
+            AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
+            {
+                Reporter.SendCrash((Exception)e.ExceptionObject, BaseViewController.User.Login, BaseViewController.AppVersion);
+            };
+            TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
+            {
+                Reporter.SendCrash(e.Exception, BaseViewController.User.Login, BaseViewController.AppVersion);
+            };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            UserContext.Load();
-            if (UserContext.Instanse.Token != null)
+            if (BaseViewController.User.IsAuthenticated)
             {
-				initialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+                initialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {
-				UserContext.Instanse.IsHomeFeedLoaded = true;
-				initialViewController = new FeedViewController();
+                BaseViewController.IsHomeFeedLoaded = true;
+                initialViewController = new FeedViewController();
                 //initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
             var navController = new UINavigationController(initialViewController);
@@ -53,7 +53,7 @@ namespace Steepshot.iOS
 
         public override void OnResignActivation(UIApplication application)
         {
-			/*
+            /*
 			try
 			{
 				NSNotificationCenter.DefaultCenter.PostNotification(new NSNotification(new NSCoder()));

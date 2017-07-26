@@ -12,216 +12,216 @@ using UIKit;
 
 namespace Steepshot.iOS
 {
-	public partial class FeedViewController : BaseViewController
-	{
-		protected FeedViewController(IntPtr handle) : base(handle)
-		{
-			// Note: this .ctor should not contain any initialization logic.
-		}
+    public partial class FeedViewController : BaseViewController
+    {
+        protected FeedViewController(IntPtr handle) : base(handle)
+        {
+            // Note: this .ctor should not contain any initialization logic.
+        }
 
-		public FeedViewController()
-		{
-		}
+        public FeedViewController()
+        {
+        }
 
-		private PostType currentPostType = PostType.Top;
-		private string currentPostCategory;
+        private PostType _currentPostType = PostType.Top;
+        private string _currentPostCategory;
 
-		private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
-		//private FeedTableViewSource tableSource = new FeedTableViewSource();
-		private UIView dropdown;
-		private nfloat dropDownListOffsetFromTop;
-		private UILabel tw;
-		private UIImageView arrow;
-		private string _offsetUrl;
+        private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
+        //private FeedTableViewSource tableSource = new FeedTableViewSource();
+        private UIView _dropdown;
+        private nfloat _dropDownListOffsetFromTop;
+        private UILabel _tw;
+        private UIImageView _arrow;
+        private string _offsetUrl;
 
-		UINavigationController navController;
-		UINavigationItem navItem;
+        UINavigationController _navController;
+        UINavigationItem _navItem;
 
-		private bool _hasItems = true;
-		private bool isHomeFeed;
+        private bool _hasItems = true;
+        private bool _isHomeFeed;
 
-		UIRefreshControl RefreshControl;
+        UIRefreshControl _refreshControl;
 
-		private bool _isFeedRefreshing = false;
+        private bool _isFeedRefreshing = false;
 
-		private bool IsDropDownOpen => dropdown.Frame.Y > 0;
-		private CollectionViewFlowDelegate gridDelegate;
-		private int _lastRow;
-		private const int limit = 40;
+        private bool IsDropDownOpen => _dropdown.Frame.Y > 0;
+        private CollectionViewFlowDelegate _gridDelegate;
+        private int _lastRow;
+        private const int Limit = 40;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-			navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-			navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
+            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+            _navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
 
-			gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
-			 {
-				 try
-				 {
-					 var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-					 if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_isFeedRefreshing)
-						 GetPosts();
-					 _lastRow = newlastRow;
-			 
-				 }
-				 catch (Exception ex) { }
-			}, commentString: collectionViewSource.FeedStrings);
-			if(navController != null)
-				navController.NavigationBar.Translucent = false;
-			collectionViewSource.IsGrid = false;
-			gridDelegate.isGrid = false;
-			feedCollection.Source = collectionViewSource;
-			feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
-			feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-			//flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
-            
-            collectionViewSource.Voted += (vote, url, action)  =>
+            _gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
+             {
+                 try
+                 {
+                     var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
+                     if (_collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_isFeedRefreshing)
+                         GetPosts();
+                     _lastRow = newlastRow;
+
+                 }
+                 catch (Exception ex) { }
+             }, commentString: _collectionViewSource.FeedStrings);
+            if (_navController != null)
+                _navController.NavigationBar.Translucent = false;
+            _collectionViewSource.IsGrid = false;
+            _gridDelegate.IsGrid = false;
+            feedCollection.Source = _collectionViewSource;
+            feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
+            feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
+            //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
+
+            _collectionViewSource.Voted += (vote, url, action) =>
             {
                 Vote(vote, url, action);
             };
-			collectionViewSource.Flagged += Flagged;// (vote, url, action)  =>
-            //{
-                //Flagged(vote, url, action);
-            //};
+            _collectionViewSource.Flagged += Flagged;// (vote, url, action)  =>
+                                                     //{
+                                                     //Flagged(vote, url, action);
+                                                     //};
 
-			RefreshControl = new UIRefreshControl();
-			RefreshControl.ValueChanged += async (sender, e) =>
-			{
-				if (_isFeedRefreshing)
-					return;
-				_isFeedRefreshing = true;
-				await RefreshTable();
-				RefreshControl.EndRefreshing();
-				_isFeedRefreshing = false;
-			};
-			feedCollection.Add(RefreshControl);
-			feedCollection.Delegate = gridDelegate;
-
-			if (TabBarController != null)
-			{
-				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
-				TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-				TabBarController.TabBar.TintColor = Constants.NavBlue;
-
-				foreach(var controler in TabBarController.ViewControllers)
-				{
-					controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
-				};
-			}
-
-			if (!UserContext.Instanse.IsHomeFeedLoaded)
-			{
-				isHomeFeed = true;
-				UserContext.Instanse.IsHomeFeedLoaded = true;
-			}
-			collectionViewSource.GoToProfile += (username)  =>
+            _refreshControl = new UIRefreshControl();
+            _refreshControl.ValueChanged += async (sender, e) =>
             {
-				if (username == UserContext.Instanse?.Username)
-					return;
-				var myViewController = new ProfileViewController();
-				myViewController.Username = username;
-				NavigationController.PushViewController(myViewController, true);
+                if (_isFeedRefreshing)
+                    return;
+                _isFeedRefreshing = true;
+                await RefreshTable();
+                _refreshControl.EndRefreshing();
+                _isFeedRefreshing = false;
+            };
+            feedCollection.Add(_refreshControl);
+            feedCollection.Delegate = _gridDelegate;
+
+            if (TabBarController != null)
+            {
+                TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+                TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+                TabBarController.NavigationController.SetNavigationBarHidden(true, false);
+                TabBarController.TabBar.TintColor = Constants.NavBlue;
+
+                foreach (var controler in TabBarController.ViewControllers)
+                {
+                    controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
+                };
+            }
+
+            if (!IsHomeFeedLoaded)
+            {
+                _isHomeFeed = true;
+                IsHomeFeedLoaded = true;
+            }
+            _collectionViewSource.GoToProfile += (username) =>
+            {
+                if (username == User.Login)
+                    return;
+                var myViewController = new ProfileViewController();
+                myViewController.Username = username;
+                NavigationController.PushViewController(myViewController, true);
             };
 
-			collectionViewSource.GoToComments += (postUrl)  =>
+            _collectionViewSource.GoToComments += (postUrl) =>
             {
-				var myViewController = new CommentsViewController();
-				myViewController.PostUrl = postUrl;
-				navController.PushViewController(myViewController, true);
+                var myViewController = new CommentsViewController();
+                myViewController.PostUrl = postUrl;
+                _navController.PushViewController(myViewController, true);
             };
 
-			collectionViewSource.GoToVoters += (postUrl) =>
-			{
-				var myViewController = new VotersViewController();
-				myViewController.PostUrl = postUrl;
-				NavigationController.PushViewController(myViewController, true);
-			};
+            _collectionViewSource.GoToVoters += (postUrl) =>
+            {
+                var myViewController = new VotersViewController();
+                myViewController.PostUrl = postUrl;
+                NavigationController.PushViewController(myViewController, true);
+            };
 
-			collectionViewSource.ImagePreview += (image, url) =>
-			{
-				var myViewController = new ImagePreviewViewController();
-				myViewController.imageForPreview = image;
-				myViewController.ImageUrl = url;
-				navController.PushViewController(myViewController, true);
-			};
+            _collectionViewSource.ImagePreview += (image, url) =>
+            {
+                var myViewController = new ImagePreviewViewController();
+                myViewController.imageForPreview = image;
+                myViewController.ImageUrl = url;
+                _navController.PushViewController(myViewController, true);
+            };
 
-			if (!isHomeFeed)
-			{
-				dropdown = CreateDropDownList();
-			}
+            if (!_isHomeFeed)
+            {
+                _dropdown = CreateDropDownList();
+            }
             SetNavBar();
-			GetPosts();
+            GetPosts();
         }
 
-		public override void ViewWillAppear(bool animated)
-		{
-			//navController.SetNavigationBarHidden(false, true);
-			/*if (TabBarController != null)
+        public override void ViewWillAppear(bool animated)
+        {
+            //navController.SetNavigationBarHidden(false, true);
+            /*if (TabBarController != null)
 			{
 				TabBarController.NavigationController.SetNavigationBarHidden(true, false);
 				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
 				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
 			}*/
 
-			if (UserContext.Instanse.CurrentPostCategory != currentPostCategory && !isHomeFeed)
-			{
-				currentPostCategory = UserContext.Instanse.CurrentPostCategory;
-				collectionViewSource.PhotoList.Clear();
-				collectionViewSource.FeedStrings.Clear();
-				tw.Text = UserContext.Instanse.CurrentPostCategory;
-				GetPosts();
-			}
+            if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
+            {
+                _currentPostCategory = CurrentPostCategory;
+                _collectionViewSource.PhotoList.Clear();
+                _collectionViewSource.FeedStrings.Clear();
+                _tw.Text = CurrentPostCategory;
+                GetPosts();
+            }
 
-			base.ViewWillAppear(animated);
-		}
+            base.ViewWillAppear(animated);
+        }
 
-		public override void ViewWillDisappear(bool animated)
-		{
-			if(!isHomeFeed && IsDropDownOpen)
-				ToogleDropDownList();
-			base.ViewWillDisappear(animated);
-		}
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (!_isHomeFeed && IsDropDownOpen)
+                ToogleDropDownList();
+            base.ViewWillDisappear(animated);
+        }
 
-		private async Task RefreshTable()
-		{
-			collectionViewSource.PhotoList.Clear();
-			collectionViewSource.FeedStrings.Clear();
-			_hasItems = true;
-			await GetPosts(false);
-		}
+        private async Task RefreshTable()
+        {
+            _collectionViewSource.PhotoList.Clear();
+            _collectionViewSource.FeedStrings.Clear();
+            _hasItems = true;
+            await GetPosts(false);
+        }
 
         void LoginTapped(object sender, EventArgs e)
         {
-			navController.PushViewController(new PreLoginViewController(), true);
+            _navController.PushViewController(new PreLoginViewController(), true);
         }
 
-		void SearchTapped(object sender, EventArgs e)
-		{
-			var myViewController = new TagsSearchViewController();
-			navController.PushViewController(myViewController, true);
-		}
+        void SearchTapped(object sender, EventArgs e)
+        {
+            var myViewController = new TagsSearchViewController();
+            _navController.PushViewController(myViewController, true);
+        }
 
         private void ToogleDropDownList()
         {
-            if (dropdown.Frame.Y < 0)
+            if (_dropdown.Frame.Y < 0)
             {
                 UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseIn,
                     () =>
                     {
-                        dropdown.Frame = new CGRect(dropdown.Frame.X, 0, dropdown.Frame.Width, dropdown.Frame.Height);
-                        arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(-180 * (Math.PI/ 180)));
-                }, null);
+                        _dropdown.Frame = new CGRect(_dropdown.Frame.X, 0, _dropdown.Frame.Width, _dropdown.Frame.Height);
+                        _arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(-180 * (Math.PI / 180)));
+                    }, null);
             }
             else
             {
                 UIView.Animate(0.2,
                     () =>
                     {
-                        dropdown.Frame = new CGRect(dropdown.Frame.X, -dropdown.Frame.Height, dropdown.Frame.Width, dropdown.Frame.Height);
-                        arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(0 * (Math.PI / 180)));
+                        _dropdown.Frame = new CGRect(_dropdown.Frame.X, -_dropdown.Frame.Height, _dropdown.Frame.Width, _dropdown.Frame.Height);
+                        _arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(0 * (Math.PI / 180)));
                     }
                 );
             }
@@ -231,98 +231,98 @@ namespace Steepshot.iOS
         {
             if (activityIndicator.IsAnimating)
                 return;
-			if(shouldStartAnimating)
-            	activityIndicator.StartAnimating();
-			noFeedLabel.Hidden = true;
-			try
-			{
-				OperationResult<UserPostResponse> posts;
-				string offset = collectionViewSource.PhotoList.Count == 0 ? "0" : _offsetUrl;
+            if (shouldStartAnimating)
+                activityIndicator.StartAnimating();
+            noFeedLabel.Hidden = true;
+            try
+            {
+                OperationResult<UserPostResponse> posts;
+                string offset = _collectionViewSource.PhotoList.Count == 0 ? "0" : _offsetUrl;
 
-				if (!isHomeFeed)
-				{
-					if (UserContext.Instanse.CurrentPostCategory == null)
-					{
-						var postrequest = new PostsRequest(currentPostType)
-						{
-							SessionId = UserContext.Instanse.Token,
-							Limit = limit,
-							Offset = offset
-						};
-						posts = await Api.GetPosts(postrequest);
-					}
-					else
-					{
-						var postrequest = new PostsByCategoryRequest(currentPostType, UserContext.Instanse.CurrentPostCategory)
-						{
-							SessionId = UserContext.Instanse.Token,
-							Limit = limit,
-							Offset = offset
-						};
-						posts = await Api.GetPostsByCategory(postrequest);
-					}
-				}
-				else
-				{
-					var f = new UserRecentPostsRequest(UserContext.Instanse.Token)
-					{
-						Limit = limit,
-						Offset = offset
-					};
-					posts = await Api.GetUserRecentPosts(f);
-				}
+                if (!_isHomeFeed)
+                {
+                    if (CurrentPostCategory == null)
+                    {
+                        var postrequest = new PostsRequest(_currentPostType)
+                        {
+                            SessionId = User.SessionId,
+                            Limit = Limit,
+                            Offset = offset
+                        };
+                        posts = await Api.GetPosts(postrequest);
+                    }
+                    else
+                    {
+                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory)
+                        {
+                            SessionId = User.SessionId,
+                            Limit = Limit,
+                            Offset = offset
+                        };
+                        posts = await Api.GetPostsByCategory(postrequest);
+                    }
+                }
+                else
+                {
+                    var f = new UserRecentPostsRequest(User.SessionId)
+                    {
+                        Limit = Limit,
+                        Offset = offset
+                    };
+                    posts = await Api.GetUserRecentPosts(f);
+                }
 
-				if (posts.Success)
-				{
-					if (posts.Result == null || posts.Result.Results == null)
-					{
-						_hasItems = false;
-						collectionViewSource.PhotoList.Clear();
-						collectionViewSource.FeedStrings.Clear();
-						feedCollection.ReloadData();
-						feedCollection.CollectionViewLayout.InvalidateLayout();
-						return;
-					}
+                if (posts.Success)
+                {
+                    if (posts.Result == null || posts.Result.Results == null)
+                    {
+                        _hasItems = false;
+                        _collectionViewSource.PhotoList.Clear();
+                        _collectionViewSource.FeedStrings.Clear();
+                        feedCollection.ReloadData();
+                        feedCollection.CollectionViewLayout.InvalidateLayout();
+                        return;
+                    }
 
-					if (posts.Result.Results.Count == 0 && isHomeFeed)
-						noFeedLabel.Hidden = false;
+                    if (posts.Result.Results.Count == 0 && _isHomeFeed)
+                        noFeedLabel.Hidden = false;
 
-					if (posts.Result.Results.Count != 0)
-					{
-						posts.Result.Results.FilterHided();
-						var lastItem = posts.Result.Results.Last();
-						_offsetUrl = lastItem.Url;
+                    if (posts.Result.Results.Count != 0)
+                    {
+                        posts.Result.Results.FilterHided();
+                        var lastItem = posts.Result.Results.Last();
+                        _offsetUrl = lastItem.Url;
 
-						if (posts.Result.Results.Count < limit / 2)
-							_hasItems = false;
-						else
-							posts.Result.Results.Remove(lastItem);
+                        if (posts.Result.Results.Count < Limit / 2)
+                            _hasItems = false;
+                        else
+                            posts.Result.Results.Remove(lastItem);
 
-						foreach (var r in posts.Result.Results)
-						{
-							var at = new NSMutableAttributedString();
-							at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
-							at.Append(new NSAttributedString($" {r.Title}"));
-							collectionViewSource.FeedStrings.Add(at);
-						}
+                        foreach (var r in posts.Result.Results)
+                        {
+                            var at = new NSMutableAttributedString();
+                            at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
+                            at.Append(new NSAttributedString($" {r.Title}"));
+                            _collectionViewSource.FeedStrings.Add(at);
+                        }
 
-						collectionViewSource.PhotoList.AddRange(posts.Result.Results);
-					}
-					else
-						_hasItems = false;
+                        _collectionViewSource.PhotoList.AddRange(posts.Result.Results);
+                    }
+                    else
+                        _hasItems = false;
 
-					feedCollection.ReloadData();
-					feedCollection.CollectionViewLayout.InvalidateLayout();
-				}
-				else
-				{
-					ShowAlert(posts.Errors[0]);
-				}
+                    feedCollection.ReloadData();
+                    feedCollection.CollectionViewLayout.InvalidateLayout();
+                }
+                else
+                {
+                    ShowAlert(posts.Errors[0]);
+                }
 
-			}
-			catch (Exception ex)
-			{
-				Reporter.SendCrash(ex);
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex, User.Login, AppVersion);
             }
             finally
             {
@@ -330,284 +330,280 @@ namespace Steepshot.iOS
             }
         }
 
-		private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
+        private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-			
-			if (!UserContext.Instanse.IsAuthorized)
-			{
+
+            if (!User.IsAuthenticated)
+            {
                 LoginTapped(null, null);
-				return;
-			}
+                return;
+            }
             try
             {
-                var voteRequest = new VoteRequest(UserContext.Instanse.Token, vote, postUrl);
+                var voteRequest = new VoteRequest(User.SessionId, vote, postUrl);
                 var voteResponse = await Api.Vote(voteRequest);
-				if (voteResponse.Success)
+                if (voteResponse.Success)
                 {
-					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
-					u.Vote = vote;
-					if (vote)
-					{
-						u.Flag = false;
-						if (u.NetVotes == -1)
-							u.NetVotes = 1;
-						else
-							u.NetVotes++;
-					}
-					else
-						u.NetVotes--;
+                    var u = _collectionViewSource.PhotoList.First(p => p.Url == postUrl);
+                    u.Vote = vote;
+                    if (vote)
+                    {
+                        u.Flag = false;
+                        if (u.NetVotes == -1)
+                            u.NetVotes = 1;
+                        else
+                            u.NetVotes++;
+                    }
+                    else
+                        u.NetVotes--;
                 }
-				else
-				{
+                else
+                {
                     ShowAlert(voteResponse.Errors[0]);
-				}
+                }
 
-				action.Invoke(postUrl, voteResponse);
+                action.Invoke(postUrl, voteResponse);
             }
             catch (Exception ex)
             {
-				Reporter.SendCrash(ex);
+                Reporter.SendCrash(ex, User.Login, AppVersion);
             }
         }
 
-		private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
-		{
-            if (!UserContext.Instanse.IsAuthorized)
-			{
+        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        {
+            if (!User.IsAuthenticated)
+            {
                 LoginTapped(null, null);
-				return;
-			}
-			UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-			actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo",UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
-			actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo",UIAlertActionStyle.Default, (obj) =>  HidePhoto(postUrl)));
-			actionSheetAlert.AddAction(UIAlertAction.Create("Cancel",UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>() {
-				Success = false
-			})));
-			this.PresentViewController(actionSheetAlert,true,null);
-		}
+                return;
+            }
+            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+            actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>())));
+            this.PresentViewController(actionSheetAlert, true, null);
+        }
 
-		private void HidePhoto(string url)
-		{
-			try
-			{
-				if (UserContext.Instanse.CurrentAccount.Postblacklist == null)
-					UserContext.Instanse.CurrentAccount.Postblacklist = new List<string>();
-				UserContext.Instanse.CurrentAccount.Postblacklist.Add(url);
-				UserContext.Save();
-				var postToHide = collectionViewSource.PhotoList.First(p => p.Url == url);
-				var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
-				collectionViewSource.PhotoList.Remove(postToHide);
-				collectionViewSource.FeedStrings.RemoveAt(postIndex);
-				feedCollection.ReloadData();
-				flowLayout.InvalidateLayout();
-			}
-			catch (Exception ex)
-			{
-				
-			}
-		}
+        private void HidePhoto(string url)
+        {
+            try
+            {
+                User.Postblacklist.Add(url);
+                User.Save();
+                var postToHide = _collectionViewSource.PhotoList.First(p => p.Url == url);
+                var postIndex = _collectionViewSource.PhotoList.IndexOf(postToHide);
+                _collectionViewSource.PhotoList.Remove(postToHide);
+                _collectionViewSource.FeedStrings.RemoveAt(postIndex);
+                feedCollection.ReloadData();
+                flowLayout.InvalidateLayout();
+            }
+            catch (Exception ex)
+            {
 
-		private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
-		{
-			try
-			{
-				var flagRequest = new FlagRequest(UserContext.Instanse.Token, vote, postUrl);
-				var flagResponse = await Api.Flag(flagRequest);
-				if (flagResponse.Success)
-				{
-					var u = collectionViewSource.PhotoList.First(p => p.Url == postUrl);
-					u.Flag = flagResponse.Result.IsFlagged;
-					if (flagResponse.Result.IsFlagged)
-					{
-						if (u.Vote)
-							if (u.NetVotes == 1)
-								u.NetVotes = -1;
-							else
-								u.NetVotes--;
-						u.Vote = false;
-					}
-				}
-				else
-				{
+            }
+        }
+
+        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        {
+            try
+            {
+                var flagRequest = new FlagRequest(User.SessionId, vote, postUrl);
+                var flagResponse = await Api.Flag(flagRequest);
+                if (flagResponse.Success)
+                {
+                    var u = _collectionViewSource.PhotoList.First(p => p.Url == postUrl);
+                    u.Flag = flagResponse.Result.IsFlagged;
+                    if (flagResponse.Result.IsFlagged)
+                    {
+                        if (u.Vote)
+                            if (u.NetVotes == 1)
+                                u.NetVotes = -1;
+                            else
+                                u.NetVotes--;
+                        u.Vote = false;
+                    }
+                }
+                else
+                {
                     ShowAlert(flagResponse.Errors[0]);
-				}
-				action.Invoke(postUrl, flagResponse);
-			}
-			catch (Exception ex)
-			{
-				Reporter.SendCrash(ex);
-			}
-		}
+                }
+                action.Invoke(postUrl, flagResponse);
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex, User.Login, AppVersion);
+            }
+        }
 
-		private void SetNavBar()
-		{
-			var barHeight = NavigationController.NavigationBar.Frame.Height;
-			UIView titleView = new UIView();
+        private void SetNavBar()
+        {
+            var barHeight = NavigationController.NavigationBar.Frame.Height;
+            UIView titleView = new UIView();
 
-			tw = new UILabel(new CGRect(0, 0, 120, barHeight));
-			tw.TextColor = UIColor.White;
-			tw.Text = "FEED"; //ToConstants name
-			tw.BackgroundColor = UIColor.Clear;
-			tw.TextAlignment = UITextAlignment.Center;
-			tw.Font = UIFont.SystemFontOfSize(17);
-			titleView.Frame = new CoreGraphics.CGRect(0, 0, tw.Frame.Right, barHeight);
+            _tw = new UILabel(new CGRect(0, 0, 120, barHeight));
+            _tw.TextColor = UIColor.White;
+            _tw.Text = "FEED"; //ToConstants name
+            _tw.BackgroundColor = UIColor.Clear;
+            _tw.TextAlignment = UITextAlignment.Center;
+            _tw.Font = UIFont.SystemFontOfSize(17);
+            titleView.Frame = new CoreGraphics.CGRect(0, 0, _tw.Frame.Right, barHeight);
 
-			titleView.Add(tw);
-			if (!isHomeFeed)
-			{
-				tw.Text = "TRENDING"; // SET current post type
-				UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
-				titleView.AddGestureRecognizer(tapGesture);
-				titleView.UserInteractionEnabled = true;
+            titleView.Add(_tw);
+            if (!_isHomeFeed)
+            {
+                _tw.Text = "TRENDING"; // SET current post type
+                UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
+                titleView.AddGestureRecognizer(tapGesture);
+                titleView.UserInteractionEnabled = true;
 
-				var arrowSize = 15;
-				arrow = new UIImageView(new CoreGraphics.CGRect(tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
-				arrow.Image = UIImage.FromBundle("white-arrow-down");
-				titleView.Add(arrow);
-				titleView.Frame = new CGRect(0, 0, arrow.Frame.Right, barHeight);
+                var arrowSize = 15;
+                _arrow = new UIImageView(new CoreGraphics.CGRect(_tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
+                _arrow.Image = UIImage.FromBundle("white-arrow-down");
+                titleView.Add(_arrow);
+                titleView.Frame = new CGRect(0, 0, _arrow.Frame.Right, barHeight);
 
-				var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("search"), UIBarButtonItemStyle.Plain, SearchTapped);
-				navItem.SetRightBarButtonItem(rightBarButton, true);
-			}
+                var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("search"), UIBarButtonItemStyle.Plain, SearchTapped);
+                _navItem.SetRightBarButtonItem(rightBarButton, true);
+            }
 
-			navItem.TitleView = titleView;
-			if (UserContext.Instanse.Token == null)
-			{
-				var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
-				navItem.SetLeftBarButtonItem(leftBarButton, true);
-			}
-			else
-				navItem.SetLeftBarButtonItem(null, false);
+            _navItem.TitleView = titleView;
+            if (User.SessionId == null)
+            {
+                var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
+                _navItem.SetLeftBarButtonItem(leftBarButton, true);
+            }
+            else
+                _navItem.SetLeftBarButtonItem(null, false);
 
             NavigationController.NavigationBar.TintColor = UIColor.White;
-			NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+            NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
         }
 
         private UIView CreateDropDownList()
         {
-            dropDownListOffsetFromTop = navController.NavigationBar.Frame.Height + UIApplication.SharedApplication.StatusBarFrame.Height;
+            _dropDownListOffsetFromTop = _navController.NavigationBar.Frame.Height + UIApplication.SharedApplication.StatusBarFrame.Height;
             var view = new UIView();
             view.BackgroundColor = UIColor.White;
 
             var buttonColor = UIColor.FromRGB(66, 165, 245); // To constants
 
-            var newPhotosButton = new UIButton(new CGRect(0, 0, navController.NavigationBar.Frame.Width, 50));
+            var newPhotosButton = new UIButton(new CGRect(0, 0, _navController.NavigationBar.Frame.Width, 50));
             newPhotosButton.SetTitle("NEW PHOTOS", UIControlState.Normal); //ToConstants name
             newPhotosButton.BackgroundColor = buttonColor;
             newPhotosButton.TouchDown += ((e, obj) =>
                {
-                   if(currentPostType == PostType.New && UserContext.Instanse.CurrentPostCategory != null)
+                   if (_currentPostType == PostType.New && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   collectionViewSource.PhotoList.Clear();
-				   collectionViewSource.FeedStrings.Clear();
-				   feedCollection.ReloadData();
-                   currentPostType = PostType.New;
-                   tw.Text = newPhotosButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
+                   _collectionViewSource.PhotoList.Clear();
+                   _collectionViewSource.FeedStrings.Clear();
+                   feedCollection.ReloadData();
+                   _currentPostType = PostType.New;
+                   _tw.Text = newPhotosButton.TitleLabel.Text;
+                   CurrentPostCategory = _currentPostCategory = null;
                    GetPosts();
-				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
+                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
 
-            var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, navController.NavigationBar.Frame.Width, 50));
+            var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, _navController.NavigationBar.Frame.Width, 50));
             hotButton.SetTitle("HOT", UIControlState.Normal); //ToConstants name
             hotButton.BackgroundColor = buttonColor;
 
-			hotButton.TouchDown += ((e, obj) =>
-			   {
-				   if (currentPostType == PostType.Hot && UserContext.Instanse.CurrentPostCategory != null)
-					   return;
-				   ToogleDropDownList();
-				   collectionViewSource.PhotoList.Clear();
-				   collectionViewSource.FeedStrings.Clear();
-				   feedCollection.ReloadData();
-				   currentPostType = PostType.Hot;
-				   tw.Text = hotButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
-				   GetPosts();
-				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-			   });
+            hotButton.TouchDown += ((e, obj) =>
+               {
+                   if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
+                       return;
+                   ToogleDropDownList();
+                   _collectionViewSource.PhotoList.Clear();
+                   _collectionViewSource.FeedStrings.Clear();
+                   feedCollection.ReloadData();
+                   _currentPostType = PostType.Hot;
+                   _tw.Text = hotButton.TitleLabel.Text;
+                   CurrentPostCategory = _currentPostCategory = null;
+                   GetPosts();
+                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
+               });
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
             trendingButton.SetTitle("TRENDING", UIControlState.Normal); //ToConstants name
             trendingButton.BackgroundColor = buttonColor;
 
-			trendingButton.TouchDown += ((e, obj) =>
-			   {
-				   if (currentPostType == PostType.Top && UserContext.Instanse.CurrentPostCategory != null)
-					   return;
-				   ToogleDropDownList();
-				   collectionViewSource.PhotoList.Clear();
-				   collectionViewSource.FeedStrings.Clear();
-				   feedCollection.ReloadData();
-				   currentPostType = PostType.Top;
-				   tw.Text = trendingButton.TitleLabel.Text;
-				   UserContext.Instanse.CurrentPostCategory = currentPostCategory = null;
-				   GetPosts();
-				   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-			   });
+            trendingButton.TouchDown += ((e, obj) =>
+               {
+                   if (_currentPostType == PostType.Top && CurrentPostCategory != null)
+                       return;
+                   ToogleDropDownList();
+                   _collectionViewSource.PhotoList.Clear();
+                   _collectionViewSource.FeedStrings.Clear();
+                   feedCollection.ReloadData();
+                   _currentPostType = PostType.Top;
+                   _tw.Text = trendingButton.TitleLabel.Text;
+                   CurrentPostCategory = _currentPostCategory = null;
+                   GetPosts();
+                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
+               });
 
             view.Add(newPhotosButton);
             view.Add(hotButton);
             view.Add(trendingButton);
-            view.Frame = new CGRect(0, -trendingButton.Frame.Bottom, navController.NavigationBar.Frame.Width, trendingButton.Frame.Bottom);
+            view.Frame = new CGRect(0, -trendingButton.Frame.Bottom, _navController.NavigationBar.Frame.Width, trendingButton.Frame.Bottom);
 
             View.Add(view);
             return view;
         }
     }
 
-	public class lilLayout : UICollectionViewFlowLayout
-	{
-		public override CGPoint TargetContentOffsetForProposedContentOffset(CGPoint proposedContentOffset)
-		{
-			return new CGPoint();
-		}
+    public class LilLayout : UICollectionViewFlowLayout
+    {
+        public override CGPoint TargetContentOffsetForProposedContentOffset(CGPoint proposedContentOffset)
+        {
+            return new CGPoint();
+        }
 
-		public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
-		{
-			var bob = base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
-			return bob;
-		}
+        public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
+        {
+            var bob = base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
+            return bob;
+        }
 
-		public override UICollectionViewLayoutAttributes[] LayoutAttributesForElementsInRect(CGRect rect)
-		{
-			var allAttributes = base.LayoutAttributesForElementsInRect(rect).ToList();
-			var f = new List<UICollectionViewLayoutAttributes>();
-			foreach (UICollectionViewLayoutAttributes att in allAttributes)
-			{
-				if (att.RepresentedElementCategory == UICollectionElementCategory.Cell)
-				{
-					f.Add(LayoutAttributesForItem(att.IndexPath));
-				}
-				//f.Add(att);
-			}
-			return f.ToArray();
-			/*return allAttributes.FlatMap { attributes in
+        public override UICollectionViewLayoutAttributes[] LayoutAttributesForElementsInRect(CGRect rect)
+        {
+            var allAttributes = base.LayoutAttributesForElementsInRect(rect).ToList();
+            var f = new List<UICollectionViewLayoutAttributes>();
+            foreach (UICollectionViewLayoutAttributes att in allAttributes)
+            {
+                if (att.RepresentedElementCategory == UICollectionElementCategory.Cell)
+                {
+                    f.Add(LayoutAttributesForItem(att.IndexPath));
+                }
+                //f.Add(att);
+            }
+            return f.ToArray();
+            /*return allAttributes.FlatMap { attributes in
 				switch attributes.representedElementCategory {
 				case .Cell: return LayoutAttributesForItem(attributes.indexPath)
 				default: return attributes
 				}*/
-		}
+        }
 
-		public override UICollectionViewLayoutAttributes LayoutAttributesForItem(NSIndexPath indexPath)
-		{
-			var attributes = base.LayoutAttributesForItem(indexPath);
+        public override UICollectionViewLayoutAttributes LayoutAttributesForItem(NSIndexPath indexPath)
+        {
+            var attributes = base.LayoutAttributesForItem(indexPath);
 
-			//guard let collectionView = collectionView else { return attributes }
-			attributes.Bounds = new RectangleF((PointF)attributes.Bounds.Location, new SizeF((float)(CollectionView.Bounds.Width - SectionInset.Left - SectionInset.Right), (float)attributes.Bounds.Size.Height));
-			return attributes;
-		}
-	}
+            //guard let collectionView = collectionView else { return attributes }
+            attributes.Bounds = new RectangleF((PointF)attributes.Bounds.Location, new SizeF((float)(CollectionView.Bounds.Width - SectionInset.Left - SectionInset.Right), (float)attributes.Bounds.Size.Height));
+            return attributes;
+        }
+    }
 
 
-		/*public override CGSize CollectionViewContentSize
-		{
-			get
-			{
-				return new CGSize(320,0);
-			}
-		}*/
-	
+    /*public override CGSize CollectionViewContentSize
+    {
+        get
+        {
+            return new CGSize(320,0);
+        }
+    }*/
+
 }
 

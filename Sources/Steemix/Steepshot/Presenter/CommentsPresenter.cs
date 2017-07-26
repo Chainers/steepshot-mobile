@@ -17,7 +17,7 @@ namespace Steepshot
 
 		public async Task<List<Post>> GetComments(string postUrl)
 		{
-			var request = new GetCommentsRequest(postUrl) {SessionId = UserPrincipal.Instance.Cookie };
+			var request = new GetCommentsRequest(postUrl) {SessionId = User.SessionId };
 
 			var result = await Api.GetComments(request);
 			this.Posts = result.Result.Results;
@@ -26,19 +26,19 @@ namespace Steepshot
 
 		public async Task<OperationResult<VoteResponse>> Vote(Post post)
 		{
-			if (!UserPrincipal.Instance.IsAuthenticated)
-				return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }, Success = false };
+			if (!User.IsAuthenticated)
+				return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }};
 
             int diezid = post.Url.IndexOf('#');
             string posturl = post.Url.Substring(diezid+1);
 
-			var voteRequest = new VoteRequest(UserPrincipal.Instance.CurrentUser.SessionId, !post.Vote, posturl);
+			var voteRequest = new VoteRequest(User.SessionId, !post.Vote, posturl);
 			return await Api.Vote(voteRequest);
 		}
 
 		public async Task<OperationResult<CreateCommentResponse>> CreateComment(string comment, string url)
 		{
-			var reqv = new CreateCommentRequest(UserPrincipal.Instance.CurrentUser.SessionId,
+			var reqv = new CreateCommentRequest(User.SessionId,
 				url, comment, comment);
 			return await Api.CreateComment(reqv);
 		}

@@ -22,7 +22,7 @@ namespace Steepshot
 				}
 				else
 				{
-					var request = new SearchWithQueryRequest(s) { SessionId = UserPrincipal.Instance.Cookie };
+					var request = new SearchWithQueryRequest(s) { SessionId = User.SessionId };
 					if (searchType == SearchType.Tags)
 					{
 						return await Api.SearchCategories(request, cts);

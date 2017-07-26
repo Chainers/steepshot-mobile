@@ -9,72 +9,73 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Core;
 using ZXing.Mobile;
 
 namespace Steepshot
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-	public class SignInActivity : BaseActivity, SignInView
+    public class SignInActivity : BaseActivity, SignInView
     {
-		SignInPresenter presenter;
+        SignInPresenter presenter;
 
-		private string _username;
+        private string _username;
 
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
-		[InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
-		[InjectView(Resource.Id.title)] TextView title;
-		[InjectView(Resource.Id.input_password)] EditText _password;
-		[InjectView(Resource.Id.qr_button)] Button buttonScanDefaultView;
+        [InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
+        [InjectView(Resource.Id.title)] TextView title;
+        [InjectView(Resource.Id.input_password)] EditText _password;
+        [InjectView(Resource.Id.qr_button)] Button buttonScanDefaultView;
 #pragma warning restore 0649
 
-		MobileBarcodeScanner scanner;
-		private string _newAccountNetwork;
+        MobileBarcodeScanner scanner;
+        private KnownChains _newChain;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
-            MobileBarcodeScanner.Initialize (Application);
-			scanner = new MobileBarcodeScanner();
-			_username = Intent.GetStringExtra("login");
-			title.Text = $"Hello, {_username}";
-			var profileImage = Intent.GetStringExtra("avatar_url");
-            _newAccountNetwork = Intent.GetStringExtra("newNetwork");
-            
+            MobileBarcodeScanner.Initialize(Application);
+            scanner = new MobileBarcodeScanner();
+            _username = Intent.GetStringExtra("login");
+            title.Text = $"Hello, {_username}";
+            var profileImage = Intent.GetStringExtra("avatar_url");
+            _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
+
 #if DEBUG
             _password.Text = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
 #endif
-            
+
             _password.TextChanged += TextChanged;
 
-			if (!string.IsNullOrEmpty(profileImage))
-                    Picasso.With(this).Load(profileImage).Into(ProfileImage);
-                else
-                    Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
-			
-			buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
-			{
-				try
-				{
-					//Tell our scanner to use the default overlay
-					scanner.UseCustomOverlay = false;
+            if (!string.IsNullOrEmpty(profileImage))
+                Picasso.With(this).Load(profileImage).Into(ProfileImage);
+            else
+                Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
 
-					//We can customize the top and bottom text of the default overlay
-					scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
-					scanner.BottomText = "Wait for the barcode to automatically scan!";
+            buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
+            {
+                try
+                {
+                    //Tell our scanner to use the default overlay
+                    scanner.UseCustomOverlay = false;
 
-					//Start scanning
-					var result = await scanner.Scan();
-					if(result != null)
-						_password.Text = result.Text;
-				}
-				catch (Exception ex)
-				{
-					Reporter.SendCrash(ex);
-				}
-			};
+                    //We can customize the top and bottom text of the default overlay
+                    scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
+                    scanner.BottomText = "Wait for the barcode to automatically scan!";
+
+                    //Start scanning
+                    var result = await scanner.Scan();
+                    if (result != null)
+                        _password.Text = result.Text;
+                }
+                catch (Exception ex)
+                {
+                    Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                }
+            };
         }
 
         private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
@@ -92,79 +93,71 @@ namespace Steepshot
         [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, System.EventArgs e)
         {
-			try
-			{
-				var login = _username;
-				var pass = _password.Text;
+            try
+            {
+                var login = _username;
+                var pass = _password.Text;
 
-				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-				{
-					Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
-					return;
-				}
+                if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+                {
+                    Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+                    return;
+                }
 
-				spinner.Visibility = ViewStates.Visible;
-				((AppCompatButton)sender).Visibility = ViewStates.Invisible;
-				((AppCompatButton)sender).Enabled = false;
+                spinner.Visibility = ViewStates.Visible;
+                ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+                ((AppCompatButton)sender).Enabled = false;
 
-				if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-					return;
+                if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+                    return;
 
-				var response = await presenter.SignIn(login, pass);
+                var response = await presenter.SignIn(login, pass);
 
-				if (response != null)
-				{
-					if (response.Success)
-					{
-						_newAccountNetwork = null;
-						UserPrincipal.Instance.CreatePrincipal(response.Result, login, pass, UserPrincipal.Instance.CurrentNetwork);
-						var intent = new Intent(this, typeof(RootActivity));
-						intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-						StartActivity(intent);
-					}
-					else
-					{
-						ShowAlert(response.Errors[0]);
-						spinner.Visibility = ViewStates.Invisible;
-						((AppCompatButton)sender).Visibility = ViewStates.Visible;
-						((AppCompatButton)sender).Enabled = true;
-					}
-				}
-				else
-				{
-					ShowAlert(Resource.String.error_connect_to_server);
-					spinner.Visibility = ViewStates.Invisible;
-					((AppCompatButton)sender).Visibility = ViewStates.Visible;
-					((AppCompatButton)sender).Enabled = true;
-				}
-			}
-			catch (Exception ex)
-			{
-				Reporter.SendCrash(ex);
-			}
+                if (response != null)
+                {
+                    if (response.Success)
+                    {
+                        _newChain = KnownChains.None;
+                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
+                        var intent = new Intent(this, typeof(RootActivity));
+                        intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                        StartActivity(intent);
+                    }
+                    else
+                    {
+                        ShowAlert(response.Errors[0]);
+                        spinner.Visibility = ViewStates.Invisible;
+                        ((AppCompatButton)sender).Visibility = ViewStates.Visible;
+                        ((AppCompatButton)sender).Enabled = true;
+                    }
+                }
+                else
+                {
+                    ShowAlert(Resource.String.error_connect_to_server);
+                    spinner.Visibility = ViewStates.Invisible;
+                    ((AppCompatButton)sender).Visibility = ViewStates.Visible;
+                    ((AppCompatButton)sender).Enabled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+            }
         }
 
-        [InjectOnClick(Resource.Id.sign_up_btn)]
-        private void SignUpBtn_Click(object sender, System.EventArgs e)
+        protected override void OnDestroy()
         {
-            /*var intent = new Intent(this, typeof(SignUpActivity));
-            StartActivity(intent);*/
+            if (_newChain != KnownChains.None)
+			{
+				BasePresenter.SwitchChain(_newChain == KnownChains.Steem? KnownChains.Golos : KnownChains.Steem);
+			}
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
         }
 
-		protected override void OnDestroy()
-		{
-			if (!string.IsNullOrEmpty(_newAccountNetwork))
-			{
-				UserPrincipal.Instance.CurrentNetwork = _newAccountNetwork == Constants.Steem ? Constants.Golos : Constants.Steem;
-				BasePresenter.SwitchNetwork();
-			}
-			base.OnDestroy();
-			Cheeseknife.Reset(this);
-		}
-
-		protected override void CreatePresenter()
-		{
-			presenter = new SignInPresenter(this);
-		}
-	}
+        protected override void CreatePresenter()
+        {
+            presenter = new SignInPresenter(this);
+        }
+    }
 }

@@ -95,20 +95,4 @@
             android:indeterminateTint="@color/color_primary"
             android:layout_centerInParent="true" />
     </RelativeLayout>
-<!--Create an account-->
-    <Button
-        android:visibility="gone"
-        android:text="What is posting key?"
-        android:textColor="@color/light_blue"
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/dp_button_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:textAllCaps="true"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:id="@+id/sign_up_btn"
-        android:layout_marginBottom="37dp" />
 </RelativeLayout>

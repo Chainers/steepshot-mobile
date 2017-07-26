@@ -6,15 +6,15 @@ namespace Steepshot
 	{/*
 		public static void FilterNSFW(this List<Post> list)
 		{
-			if (!UserContext.Instanse.NSFW)
+			if (!BaseViewController.User.IsNsfw)
 				list.RemoveAll(p => p.Category.Contains("nsfw") || p.Tags.Any(t => t.Contains("nsfw")));
 		}
 
 		public static void FilterHided(this List<Post> list)
 		{
-			if (list == null || UserContext.Instanse.CurrentAccount == null || UserContext.Instanse.CurrentAccount.Postblacklist == null || UserContext.Instanse.CurrentAccount.Postblacklist.Count == 0)
+			if (list == null || BaseViewController.User == null || BaseViewController.User.Postblacklist == null || BaseViewController.User.Postblacklist.Count == 0)
 				return;
-			foreach (var blackPost in UserContext.Instanse.CurrentAccount.Postblacklist)
+			foreach (var blackPost in BaseViewController.User.Postblacklist)
 			{
 				var lil = list.FirstOrDefault(p => p.Url == blackPost);
 				if (lil != null)

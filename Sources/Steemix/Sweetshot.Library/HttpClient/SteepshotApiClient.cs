@@ -15,17 +15,28 @@ namespace Sweetshot.Library.HttpClient
 {
     public class SteepshotApiClient
     {
-        private readonly IApiGateway _gateway;
         private readonly IJsonConverter _jsonConverter;
 
-		private string _url;
-		public string Url => _url;
+        private string _url;
+        private IApiGateway _gateway;
+        public string Url => _url;
+
+        private IApiGateway Gateway
+        {
+            get { return _gateway ?? (_gateway = new ApiGateway(_url)); }
+        }
+
 
         public SteepshotApiClient(string url)
         {
-            _gateway = new ApiGateway(url);
             _jsonConverter = new JsonNetConverter();
-			_url = url;
+            _url = url;
+        }
+
+        public void ChangeServerUrl(string url)
+        {
+            _url = url;
+            _gateway = null;
         }
 
         /// <summary>
@@ -43,28 +54,6 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<LoginResponse>> Register(RegisterRequest request)
         {
             return await Authenticate("register", request);
-        }
-
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/user/change-password HTTP/1.1
-        ///             Cookie: sessionid=oh3f8vua8a5s2au5ovfqhsi6zvqgjfif
-        ///             {"old_password":"test1234","new_password":"test12345"}
-        /// </summary>
-        [Obsolete]
-        public async Task<OperationResult<ChangePasswordResponse>> ChangePassword(ChangePasswordRequest request)
-        {
-            var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter
-            {
-                Key = "application/json",
-                Value = _jsonConverter.Serialize(request),
-                Type = ParameterType.RequestBody
-            });
-
-            var response = await _gateway.Post("user/change-password", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<ChangePasswordResponse>(response.Content, errorResult);
         }
 
         /// <summary>
@@ -89,7 +78,7 @@ namespace Sweetshot.Library.HttpClient
                 }
             };
 
-            var response = await _gateway.Post(endpoint, parameters);
+            var response = await Gateway.Post(endpoint, parameters);
 
             var errorResult = CheckErrors(response);
             var result = CreateResult<LoginResponse>(response.Content, errorResult);
@@ -100,12 +89,12 @@ namespace Sweetshot.Library.HttpClient
                     if (cookie.Name == "sessionid")
                     {
                         result.Result.SessionId = cookie.Value;
+                        break;
                     }
                 }
 
                 if (string.IsNullOrWhiteSpace(result.Result.SessionId))
                 {
-                    result.Success = false;
                     result.Errors.Add("SessionId field is missing.");
                 }
             }
@@ -125,7 +114,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var response = await _gateway.Get($"/user/{request.Username}/posts", parameters2);
+            var response = await Gateway.Get($"/user/{request.Username}/posts", parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -143,7 +132,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-            var response = await _gateway.Get("/recent", parameters2);
+            var response = await Gateway.Get("/recent", parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -162,7 +151,7 @@ namespace Sweetshot.Library.HttpClient
             parameters2.AddRange(parameters);
 
             var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
-			var response = await _gateway.Get(endpoint, parameters2, cts);
+            var response = await Gateway.Get(endpoint, parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
@@ -180,27 +169,27 @@ namespace Sweetshot.Library.HttpClient
             parameters2.AddRange(parameters);
 
             var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-			var response = await _gateway.Get(endpoint, parameters2, cts);
+            var response = await Gateway.Get(endpoint, parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
-		/// <summary>
-		///     Examples:
-		///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
-		/// </summary>
-		/// 
-		public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
-			var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
-			parameters2.AddRange(parameters);
+        /// <summary>
+        ///     Examples:
+        ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
+        /// </summary>
+        /// 
+        public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
+        {
+            var parameters = CreateSessionParameter(request.SessionId);
+            var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
+            parameters2.AddRange(parameters);
 
-			var endpoint = $"post/{request.Url}/voters";
-			var response = await _gateway.Get(endpoint, parameters2);
-			var errorResult = CheckErrors(response);
-			return CreateResult<GetVotersResponse>(response.Content, errorResult);
-		}
+            var endpoint = $"post/{request.Url}/voters";
+            var response = await Gateway.Get(endpoint, parameters2);
+            var errorResult = CheckErrors(response);
+            return CreateResult<GetVotersResponse>(response.Content, errorResult);
+        }
 
         /// <summary>
         ///     Examples:
@@ -222,7 +211,7 @@ namespace Sweetshot.Library.HttpClient
             });
 
             var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
-            var response = await _gateway.Post(endpoint, parameters);
+            var response = await Gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
         }
@@ -239,8 +228,8 @@ namespace Sweetshot.Library.HttpClient
             var parameters = CreateSessionParameter(request.SessionId);
 
             var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await _gateway.Post(endpoint, parameters);
-			var errorResult = CheckErrors(response);
+            var response = await Gateway.Post(endpoint, parameters);
+            var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
         }
 
@@ -249,21 +238,21 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
         public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
+        {
+            var parameters = CreateSessionParameter(request.SessionId);
 
-			var response = await _gateway.Get($"post/{request.Url}/comments", parameters);
-			var errorResult = CheckErrors(response);
-			return CreateResult<GetCommentResponse>(response.Content, errorResult);
-		}
+            var response = await Gateway.Get($"post/{request.Url}/comments", parameters);
+            var errorResult = CheckErrors(response);
+            return CreateResult<GetCommentResponse>(response.Content, errorResult);
+        }
 
-		/// <summary>
-		///     Examples:
-		///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
-		///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
-		///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
-		/// </summary>
-		public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
+        /// <summary>
+        ///     Examples:
+        ///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
+        ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
+        ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
+        /// </summary>
+        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             parameters.Add(new RequestParameter
@@ -273,7 +262,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var response = await _gateway.Post($"post/{request.Url}/comment", parameters);
+            var response = await Gateway.Post($"post/{request.Url}/comment", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
         }
@@ -299,7 +288,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags);
+            var response = await Gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
         }
@@ -309,13 +298,13 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-		public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts)
+		public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
 
-			var response = await _gateway.Get("categories/top", parameters2, cts);
+            var response = await Gateway.Get("categories/top", parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
@@ -325,14 +314,14 @@ namespace Sweetshot.Library.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
-            parameters2.Add(new RequestParameter {Key = "query", Value = request.Query, Type = ParameterType.QueryString});
+            parameters2.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-			var response = await _gateway.Get("categories/search", parameters2, cts);
+            var response = await Gateway.Get("categories/search", parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
         }
@@ -346,7 +335,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Post("logout", parameters);
+            var response = await Gateway.Post("logout", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<LogoutResponse>(response.Content, errorResult);
         }
@@ -359,7 +348,7 @@ namespace Sweetshot.Library.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Get($"/user/{request.Username}/info", parameters);
+            var response = await Gateway.Get($"/user/{request.Username}/info", parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<UserProfileResponse>(response.Content, errorResult);
         }
@@ -377,7 +366,7 @@ namespace Sweetshot.Library.HttpClient
             parameters2.AddRange(parameters);
 
             var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await _gateway.Get(endpoint, parameters2);
+            var response = await Gateway.Get(endpoint, parameters2);
             var errorResult = CheckErrors(response);
             return CreateResult<UserFriendsResponse>(response.Content, errorResult);
         }
@@ -389,7 +378,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<TermOfServiceResponse>> TermsOfService()
         {
             const string endpoint = "/tos";
-            var response = await _gateway.Get(endpoint, new List<RequestParameter>());
+            var response = await Gateway.Get(endpoint, new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
         }
@@ -403,7 +392,7 @@ namespace Sweetshot.Library.HttpClient
             var parameters = CreateSessionParameter(request.SessionId);
 
             var endpoint = $"post/{request.Url}/info";
-            var response = await _gateway.Get(endpoint, parameters);
+            var response = await Gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<Post>(response.Content, errorResult);
         }
@@ -412,14 +401,14 @@ namespace Sweetshot.Library.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
             parameters2.AddRange(parameters);
             parameters2.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await _gateway.Get("user/search", parameters2, cts);
+            var response = await Gateway.Get("user/search", parameters2, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserSearchResponse>(response.Content, errorResult);
         }
@@ -431,7 +420,7 @@ namespace Sweetshot.Library.HttpClient
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
         {
             var endpoint = $"user/{request.Username}/exists";
-            var response = await _gateway.Get(endpoint, new List<RequestParameter>());
+            var response = await Gateway.Get(endpoint, new List<RequestParameter>());
             var errorResult = CheckErrors(response);
             return CreateResult<UserExistsResponse>(response.Content, errorResult);
         }
@@ -447,55 +436,10 @@ namespace Sweetshot.Library.HttpClient
             });
 
             var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
-            var response = await _gateway.Post(endpoint, parameters);
+            var response = await Gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<FlagResponse>(response.Content, errorResult);
         }
-
-		public async Task<OperationResult<IsLowRatedResponse>> IsLowRated(IsLowRatedRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
-			var response = await _gateway.Get("user/low-rated", parameters);
-			var errorResult = CheckErrors(response);
-			return CreateResult<IsLowRatedResponse>(response.Content, errorResult);
-		}
-
-		public async Task<OperationResult<IsNsfwResponse>> IsNsfw(IsNsfwRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
-			var response = await _gateway.Get("user/nsfw", parameters);
-			var errorResult = CheckErrors(response);
-			return CreateResult<IsNsfwResponse>(response.Content, errorResult);
-		}
-
-		public async Task<OperationResult<SetLowRatedResponse>> SetLowRated(SetLowRatedRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
-			parameters.Add(new RequestParameter
-			{
-				Key = "application/json",
-				Value = _jsonConverter.Serialize(request),
-				Type = ParameterType.RequestBody
-			});
-
-			var response = await _gateway.Post("user/low-rated", parameters);
-			var errorResult = CheckErrors(response);
-			return CreateResult<SetLowRatedResponse>(response.Content, errorResult);
-		}
-
-		public async Task<OperationResult<SetNsfwResponse>> SetNsfw(SetNsfwRequest request)
-		{
-			var parameters = CreateSessionParameter(request.SessionId);
-			parameters.Add(new RequestParameter
-			{
-				Key = "application/json",
-				Value = _jsonConverter.Serialize(request),
-				Type = ParameterType.RequestBody
-			});
-
-			var response = await _gateway.Post("user/nsfw", parameters);
-			var errorResult = CheckErrors(response);
-			return CreateResult<SetNsfwResponse>(response.Content, errorResult); 		} 
 
         private List<RequestParameter> CreateSessionParameter(string sessionId)
         {
@@ -556,10 +500,6 @@ namespace Sweetshot.Library.HttpClient
             {
                 result.Errors.Add(response.StatusDescription);
             }
-            else
-            {
-                result.Success = true;
-            }
 
             if (!result.Success)
             {
@@ -592,7 +532,6 @@ namespace Sweetshot.Library.HttpClient
             else
             {
                 result.Errors.AddRange(error.Errors);
-                result.Success = false;
             }
 
             return result;

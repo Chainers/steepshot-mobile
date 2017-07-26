@@ -6,8 +6,6 @@ namespace Steepshot.iOS
 {
     public class Constants
     {
-		public const string ReportLogin = "crash.steepshot.org@gmail.com";
-		public const string ReportPassword = "steep7788";
         public const string UserContextKey = "UserContext";
 		public static readonly UIColor NavBlue = UIColor.FromRGB(55, 176, 233);
 		public static readonly UIColor Blue = UIColor.FromRGB(66, 165, 245);
@@ -26,17 +24,12 @@ namespace Steepshot.iOS
 		public static readonly UIFont Heavy165 = UIFont.FromName("Lato-Heavy", 16.5f);
 		public static readonly UIFont Heavy115 = UIFont.FromName("Lato-Heavy", 11.5f);
 		public static readonly UIFont Heavy135 = UIFont.FromName("Lato-Heavy", 13.5f);
-		public const string Steem = "Steem";
-		public const string Golos = "Golos";
-		public static string Currency => UserContext.Instanse.Network == Constants.Steem ? "$" : "₽";
 
-		public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
+        public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
 		public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
 
 		public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
-
-		public static string Tos => UserContext.Instanse.Dev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
-		public static string Pp => UserContext.Instanse.Dev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+        
 
 		public static readonly UIStringAttributes NicknameAttribute = new UIStringAttributes
 			{

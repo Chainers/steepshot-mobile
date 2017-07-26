@@ -9,7 +9,7 @@ namespace Sweetshot.Library.Models.Requests
         {
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
 
-            base.SessionId = sessionId;
+            SessionId = sessionId;
             Title = title;
             Tags = new List<string>(tags);
         }
