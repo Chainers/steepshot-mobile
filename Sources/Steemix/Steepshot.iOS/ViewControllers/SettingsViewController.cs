@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -224,26 +225,26 @@ namespace Steepshot.iOS
 			NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 			NavigationController.PopViewController(false);
 
-			/*
-			var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
+			
+			//var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
 
-			alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
-			alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
-			{
-				if (UserContext.Instanse.Network != network)
-				{
-					try
-					{
+			///alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
+			//alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
+			//{
+				//if (UserContext.Instanse.Network != network)
+				//{
+					//try
+					//{
 
-					}
-					catch (Exception ex)
-					{
+					//}
+					//catch (Exception ex)
+					//{
 
-					}
-				}
-			}));
+					//}
+				//}
+			//}));
 
-			PresentViewController(alert, animated: true, completionHandler: null); */
+			//PresentViewController(alert, animated: true, completionHandler: null); 
 		}
 
 		private void RemoveNetwork(string network)
@@ -300,3 +301,4 @@ namespace Steepshot.iOS
 	}
 }
 
+*/

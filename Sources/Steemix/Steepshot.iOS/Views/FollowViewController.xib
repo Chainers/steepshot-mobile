@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FollowViewController">
+            <connections>
+                <outlet property="followTableView" destination="MVb-Sa-Yxl" id="Ix1-Uf-Kz1"/>
+                <outlet property="progressBar" destination="vkV-aK-aMd" id="5pZ-6B-Cu0"/>
+                <outlet property="view" destination="uCv-aR-qSL" id="De6-ym-8XJ"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="uCv-aR-qSL">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="70" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="MVb-Sa-Yxl">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <activityIndicatorView hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="vkV-aK-aMd">
+                    <rect key="frame" x="189" y="350" width="37" height="37"/>
+                    <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="MVb-Sa-Yxl" firstAttribute="leading" secondItem="uCv-aR-qSL" secondAttribute="leading" id="HQB-W5-Pib"/>
+                <constraint firstItem="MVb-Sa-Yxl" firstAttribute="top" secondItem="uCv-aR-qSL" secondAttribute="top" id="PoF-eJ-Xru"/>
+                <constraint firstItem="vkV-aK-aMd" firstAttribute="centerY" secondItem="uCv-aR-qSL" secondAttribute="centerY" id="X5b-Z1-5Fk"/>
+                <constraint firstAttribute="trailing" secondItem="MVb-Sa-Yxl" secondAttribute="trailing" id="bZe-kw-bst"/>
+                <constraint firstItem="vkV-aK-aMd" firstAttribute="centerX" secondItem="uCv-aR-qSL" secondAttribute="centerX" id="eva-6P-F3b"/>
+                <constraint firstAttribute="bottom" secondItem="MVb-Sa-Yxl" secondAttribute="bottom" id="zEz-lH-MO3"/>
+            </constraints>
+        </view>
+    </objects>
+</document>

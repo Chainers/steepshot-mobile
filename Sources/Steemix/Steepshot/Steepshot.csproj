@@ -469,14 +469,14 @@
     <Reference Include="MailKit">
       <HintPath>..\packages\MailKit.1.16.1\lib\MonoAndroid10\MailKit.dll</HintPath>
     </Reference>
-    <Reference Include="Cheeseknife">
-      <HintPath>Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
-    </Reference>
     <Reference Include="HockeySDK.AndroidBindings">
-      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.AndroidBindings.dll</HintPath>
     </Reference>
     <Reference Include="HockeySDK">
-      <HintPath>Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
+      <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Cheeseknife">
+      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

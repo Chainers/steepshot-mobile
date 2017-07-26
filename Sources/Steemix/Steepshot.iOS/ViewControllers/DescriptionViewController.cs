@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -29,11 +30,11 @@ namespace Steepshot.iOS
 			tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
 			tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
 			// research flow layout
-			/*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-            {
-                EstimatedItemSize = new CGSize(100, 50),
+			//tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            //{
+                //EstimatedItemSize = new CGSize(100, 50),
                 
-            }, false);*/
+            //}, false);
 			collectionviewSource = new TagsCollectionViewSource((sender, e) =>
 			{
 				var myViewController = Storyboard.InstantiateViewController(nameof(PostTagsViewController)) as PostTagsViewController;
@@ -130,3 +131,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
+*/
