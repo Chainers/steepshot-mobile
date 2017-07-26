@@ -276,7 +276,7 @@ namespace Steepshot.iOS
 
 		private void GoToDescription(UIImage image)
 		{
-			var descriptionViewController = new DescriptionViewController(); //Storyboard.InstantiateViewController("DescriptionViewController") as DescriptionViewController;
+			var descriptionViewController = new DescriptionViewController();
 			descriptionViewController.ImageAsset = image;
 			TabBarController.NavigationController.PushViewController(descriptionViewController, true);
 		}

@@ -4,7 +4,6 @@
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-/*
 using Foundation;
 using System.CodeDom.Compiler;
 
@@ -36,19 +35,14 @@ namespace Steepshot.iOS
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
+			if (tagsTable != null) {
+				tagsTable.Dispose ();
+				tagsTable = null;
 			}
 
-			if (noTagsLabel != null) {
-				noTagsLabel.Dispose ();
-				noTagsLabel = null;
-			}
-
-			if (peopleButton != null) {
-				peopleButton.Dispose ();
-				peopleButton = null;
+			if (usersTable != null) {
+				usersTable.Dispose ();
+				usersTable = null;
 			}
 
 			if (searchTextField != null) {
@@ -61,16 +55,20 @@ namespace Steepshot.iOS
 				tagsButton = null;
 			}
 
-			if (tagsTable != null) {
-				tagsTable.Dispose ();
-				tagsTable = null;
+			if (peopleButton != null) {
+				peopleButton.Dispose ();
+				peopleButton = null;
 			}
 
-			if (usersTable != null) {
-				usersTable.Dispose ();
-				usersTable = null;
+			if (noTagsLabel != null) {
+				noTagsLabel.Dispose ();
+				noTagsLabel = null;
+			}
+
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
 			}
 		}
 	}
 }
-*/

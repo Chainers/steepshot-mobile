@@ -101,14 +101,15 @@ namespace Steepshot.iOS
 
 			if (TabBarController != null)
 			{
+				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
+				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+				TabBarController.NavigationController.SetNavigationBarHidden(true, false);
 				TabBarController.TabBar.TintColor = Constants.NavBlue;
+
 				foreach(var controler in TabBarController.ViewControllers)
 				{
 					controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
 				};
-
-				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
 			}
 
 			if (!UserContext.Instanse.IsHomeFeedLoaded)
@@ -137,7 +138,7 @@ namespace Steepshot.iOS
 
 			collectionViewSource.GoToVoters += (postUrl) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(VotersViewController)) as VotersViewController;
+				var myViewController = new VotersViewController();
 				myViewController.PostUrl = postUrl;
 				navController.PushViewController(myViewController, true);
 			};
@@ -205,22 +206,9 @@ namespace Steepshot.iOS
 
 		void SearchTapped(object sender, EventArgs e)
 		{
-			var myViewController = Storyboard.InstantiateViewController(nameof(TagsSearchViewController)) as TagsSearchViewController;
+			var myViewController = new TagsSearchViewController();
 			navController.PushViewController(myViewController, true);
 		}
-
-        private async Task LogoutTapped(object sender, EventArgs e)
-        {
-            //Handle logout
-            /*var request = new LogoutRequest(UserContext.Instanse.Token);
-            var lol = await Api.Logout(request);*/
-
-            //UserContext.Instanse.Token = null;
-            UserContext.Save();
-            var myViewController = Storyboard.InstantiateViewController(nameof(FeedViewController)) as FeedViewController;
-            this.NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
-            this.NavigationController.PopViewController(false);
-        }
 
         private void ToogleDropDownList()
         {

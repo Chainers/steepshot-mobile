@@ -15,7 +15,7 @@ namespace Steepshot.iOS
 
 			var browseTab = new UINavigationController(new FeedViewController());
 			browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), UIImage.FromBundle("browse"));
-			feedTab.NavigationBar.Translucent = false;
+			browseTab.NavigationBar.Translucent = false;
 
 			var photoTab = new UINavigationController(new PhotoViewController());
 			photoTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("camera"), UIImage.FromBundle("camera"));

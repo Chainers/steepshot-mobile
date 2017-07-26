@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
@@ -11,6 +10,11 @@ namespace Steepshot.iOS
 	public partial class VotersViewController : BaseViewController
 	{
 		protected VotersViewController(IntPtr handle) : base(handle) { }
+
+		public VotersViewController()
+		{
+		}
+
 		public string PostUrl;
 		private string _offsetUrl;
 		private bool _hasItems = true;
@@ -21,19 +25,19 @@ namespace Steepshot.iOS
 			base.ViewDidLoad();
 			votersTable.Source = tableSource;
 			votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
-            votersTable.LayoutMargins = UIEdgeInsets.Zero;
+			votersTable.LayoutMargins = UIEdgeInsets.Zero;
 			votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
-            votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
+			votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
 			tableSource.RowSelectedEvent += (row) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
+				var myViewController = new ProfileViewController();
 				myViewController.Username = tableSource.TableItems[row].Username;
 				NavigationController.PushViewController(myViewController, true);
 			};
 
 			tableSource.ScrolledToBottom += () =>
 			{
-				if(_hasItems)
+				if (_hasItems)
 					GetItems();
 			};
 
@@ -74,7 +78,7 @@ namespace Steepshot.iOS
 					tableSource.TableItems.AddRange(response.Result.Results);
 					votersTable.ReloadData();
 				}
-				else if(response.Errors.Count > 0)
+				else if (response.Errors.Count > 0)
 					Reporter.SendCrash("Voters page get items error: " + response.Errors[0]);
 			}
 			catch (Exception ex)
@@ -88,4 +92,4 @@ namespace Steepshot.iOS
 		}
 	}
 }
-*/
+

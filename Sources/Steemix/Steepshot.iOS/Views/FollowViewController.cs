@@ -49,7 +49,7 @@ namespace Steepshot.iOS
 
 			tableSource.GoToProfile += (username) =>
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
+				var myViewController = new ProfileViewController();
 				myViewController.Username = username;
 				NavigationController.PushViewController(myViewController, true);
 			};
@@ -65,7 +65,8 @@ namespace Steepshot.iOS
 
 		public override void ViewWillDisappear(bool animated)
 		{
-			NavigationController.SetNavigationBarHidden(true, true);
+			if(Username == UserContext.Instanse.Username)
+				NavigationController.SetNavigationBarHidden(true, true);
 			base.ViewWillDisappear(animated);
 		}
 

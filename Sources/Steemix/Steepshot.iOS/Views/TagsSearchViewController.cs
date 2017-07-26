@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +23,10 @@ namespace Steepshot.iOS
 		{
 		}
 
+		public TagsSearchViewController()
+		{
+		}
+
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
@@ -36,7 +39,7 @@ namespace Steepshot.iOS
 			usersTable.Source = usersSource;
 			usersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
 			usersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
-            usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
+			usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
 			usersSource.RowSelectedEvent += TableTagSelected;
 
 
@@ -53,12 +56,12 @@ namespace Steepshot.iOS
 			tagsButton.TouchDown += (sender, e) =>
 			{
 				_searchType = SearchType.Tags;
-                SwitchSearchType();
+				SwitchSearchType();
 			};
 			peopleButton.TouchDown += (sender, e) =>
 			{
 				_searchType = SearchType.People;
-                SwitchSearchType();
+				SwitchSearchType();
 			};
 			SwitchSearchType();
 		}
@@ -71,7 +74,7 @@ namespace Steepshot.iOS
 		   });
 		}
 
-		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { {SearchType.People, null }, { SearchType.Tags, null } };
+		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
 		private async Task Search(string query)
 		{
@@ -85,13 +88,13 @@ namespace Steepshot.iOS
 			activityIndicator.StartAnimating();
 			bool dontStop = false;
 			try
-				{
-					cts?.Cancel();
-				}
-				catch (ObjectDisposedException)
-				{
+			{
+				cts?.Cancel();
+			}
+			catch (ObjectDisposedException)
+			{
 
-				}
+			}
 			try
 			{
 				using (cts = new CancellationTokenSource())
@@ -142,7 +145,7 @@ namespace Steepshot.iOS
 						else
 						{
 							noTagsLabel.Hidden = true;
-							if(_searchType == SearchType.People)
+							if (_searchType == SearchType.People)
 								usersTable.Hidden = false;
 							else
 								tagsTable.Hidden = false;
@@ -163,8 +166,8 @@ namespace Steepshot.iOS
 			}
 			finally
 			{
-				if(!dontStop)
-				   activityIndicator.StopAnimating();
+				if (!dontStop)
+					activityIndicator.StopAnimating();
 			}
 		}
 
@@ -177,7 +180,7 @@ namespace Steepshot.iOS
 			}
 			else
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
+				var myViewController = new ProfileViewController();
 				myViewController.Username = usersSource.Users[row].Username;
 				NavigationController.PushViewController(myViewController, true);
 			}
@@ -212,4 +215,4 @@ namespace Steepshot.iOS
 		People
 	}
 }
-*/
+

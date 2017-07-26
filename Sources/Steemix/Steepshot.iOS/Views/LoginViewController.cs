@@ -123,10 +123,7 @@ namespace Steepshot.iOS
 					UserContext.Save();
 
 					UserContext.Instanse.IsHomeFeedLoaded = false;
-					var myViewController = new MainTabBarController(); //new UITabBarController(); //new UINavigationController(new UITabBarController());//Storyboard.InstantiateViewController("MainTabBar") as UITabBarController; // MainTabBar to const
-					//var feed = new UINavigationController(new FeedViewController());
-					//myViewController.ViewControllers = new UIViewController[] { feed };
-					//var lil = new UINavigationController(myViewController);
+					var myViewController = new MainTabBarController();
 
 					this.NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 					this.NavigationController.PopViewController(true);

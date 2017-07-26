@@ -64,7 +64,7 @@ namespace Steepshot.iOS
 
 			addAccountButton.TouchDown += (sender, e) =>
 			{
-				var myViewController = new PreLoginViewController();//Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
+				var myViewController = new PreLoginViewController();
 				myViewController.newAccountNetwork = UserContext.Instanse.Network == Constants.Steem ? Constants.Golos : Constants.Steem;
 				NavigationController.PushViewController(myViewController, true);
 			};
@@ -225,7 +225,7 @@ namespace Steepshot.iOS
 			UserContext.Save();
 
 			UserContext.Instanse.IsHomeFeedLoaded = false;
-			var myViewController = Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+			var myViewController = new MainTabBarController();
 			NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
 			NavigationController.PopViewController(false);
 
@@ -255,7 +255,7 @@ namespace Steepshot.iOS
 		{
 			if (UserContext.Instanse.Accounts.Count == 0)
 			{
-				var myViewController = Storyboard.InstantiateViewController(nameof(FeedViewController)) as FeedViewController;
+				var myViewController = new FeedViewController();
 				NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
 				NavigationController.PopViewController(false);
 			}
