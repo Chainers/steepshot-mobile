@@ -29,7 +29,7 @@ namespace Steepshot.iOS
         protected nfloat ScrollAmount = 0.0f;
         protected nfloat Bottom = 0.0f;
         protected nfloat Offset = 10.0f;
-        protected bool MoveViewUp = false;
+        protected bool MoveViewUp;
         protected NSObject ShowKeyboardToken;
         protected NSObject CloseKeyboardToken;
         protected NSObject ForegroundToken;
@@ -41,8 +41,6 @@ namespace Steepshot.iOS
         public static bool ShouldProfileUpdate { get; set; }
 
         public static bool NetworkChanged { get; set; }
-
-
 
         protected static SteepshotApiClient Api
         {
@@ -98,13 +96,12 @@ namespace Steepshot.iOS
 
         public override void ViewDidDisappear(bool animated)
         {
-            NSNotificationCenter.DefaultCenter.RemoveObservers(new NSObject[3] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
+            NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
             ShowKeyboardToken.Dispose();
             CloseKeyboardToken.Dispose();
             ForegroundToken.Dispose();
             base.ViewDidDisappear(animated);
         }
-
 
         protected static void SwitchApiAddress()
         {
@@ -132,7 +129,7 @@ namespace Steepshot.iOS
             CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
             if (Activeview == null)
             {
-                foreach (UIView view in this.View.Subviews)
+                foreach (UIView view in View.Subviews)
                 {
                     if (view.IsFirstResponder)
                         Activeview = view;
@@ -156,11 +153,6 @@ namespace Steepshot.iOS
             Bottom = (Activeview.Frame.Y + Activeview.Frame.Height + Offset);
         }
 
-        public override void ViewDidUnload()
-        {
-            base.ViewDidUnload();
-        }
-
         protected virtual void KeyBoardDownNotification(NSNotification notification)
         {
             if (MoveViewUp)
@@ -169,7 +161,7 @@ namespace Steepshot.iOS
 
         protected virtual void ScrollTheView(bool move)
         {
-            UIView.BeginAnimations(string.Empty, System.IntPtr.Zero);
+            UIView.BeginAnimations(string.Empty, IntPtr.Zero);
             UIView.SetAnimationDuration(0.1);
             CGRect frame = View.Frame;
             if (move)
@@ -185,7 +177,7 @@ namespace Steepshot.iOS
 
         protected void ShowAlert(string message)
         {
-            UIAlertView alert = new UIAlertView()
+            UIAlertView alert = new UIAlertView
             {
                 Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
             };

@@ -40,7 +40,7 @@ namespace Steepshot.iOS
             _collectionviewSource = new TagsCollectionViewSource((sender, e) =>
             {
                 var myViewController = new PostTagsViewController();
-                this.NavigationController.PushViewController(myViewController, true);
+                NavigationController.PushViewController(myViewController, true);
             });
             _collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
             _collectionviewSource.RowSelectedEvent += CollectionTagSelected;

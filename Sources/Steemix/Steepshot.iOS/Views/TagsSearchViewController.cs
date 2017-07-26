@@ -17,7 +17,6 @@ namespace Steepshot.iOS
 		private UserSearchTableViewSource usersSource = new UserSearchTableViewSource();
 		private CancellationTokenSource cts;
 		private SearchType _searchType = SearchType.Tags;
-		private string _prevQuery = string.Empty;
 
 		protected TagsSearchViewController(IntPtr handle) : base(handle)
 		{
