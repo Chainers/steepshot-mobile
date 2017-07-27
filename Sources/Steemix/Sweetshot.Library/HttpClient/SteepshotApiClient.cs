@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using RestSharp;
+using Steepshot.Core;
 using Sweetshot.Library.Extensions;
 using Sweetshot.Library.Models.Common;
 using Sweetshot.Library.Models.Requests;
@@ -27,16 +28,14 @@ namespace Sweetshot.Library.HttpClient
         }
 
 
-        public SteepshotApiClient(string url)
+        public SteepshotApiClient(KnownChains chain, bool isDev)
         {
-            _jsonConverter = new JsonNetConverter();
-            _url = url;
-        }
+            if (chain == KnownChains.Steem)
+                _url = isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
+            else
+                _url = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-        public void ChangeServerUrl(string url)
-        {
-            _url = url;
-            _gateway = null;
+            _jsonConverter = new JsonNetConverter();
         }
 
         /// <summary>

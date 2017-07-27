@@ -46,13 +46,8 @@ namespace Steepshot
                 return;
 
             User.IsDev = isDev;
-            string serverUrl;
-            if (Chain == KnownChains.Steem)
-                serverUrl = isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-            else
-                serverUrl = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            _apiClient = new SteepshotApiClient(serverUrl);
+            _apiClient = new SteepshotApiClient(Chain, isDev);
         }
 
         public static void SwitchChain(KnownChains chain)
@@ -61,13 +56,8 @@ namespace Steepshot
                 return;
 
             Chain = chain;
-            string serverUrl;
-            if (chain == KnownChains.Steem)
-                serverUrl = User.IsDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-            else
-                serverUrl = User.IsDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            _apiClient = new SteepshotApiClient(serverUrl);
+            _apiClient = new SteepshotApiClient(chain, User.IsDev);
         }
     }
 }

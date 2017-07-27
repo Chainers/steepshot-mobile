@@ -27,10 +27,7 @@ namespace Steepshot
                     {
                         return await Api.SearchCategories(request, cts);
                     }
-                    else
-                    {
-                        return await Api.SearchUser(request, cts);
-                    }
+                    return await Api.SearchUser(request, cts);
                 }
             }
         }
