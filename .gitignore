@@ -160,7 +160,7 @@ App_Data/*.ldf
 
 
 
-Sources/Steemix/Components/
+Sources/Steepshot/Components/
 
 # Business Intelligence projects
 *.rdl.data
@@ -213,5 +213,5 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 
 #project-specific
-Sources/Steemix/Steemix.Android/Resources/Resource.Designer.cs
+Sources/Steepshot/Steepshot.Android/Resources/Resource.Designer.cs
 packages/
