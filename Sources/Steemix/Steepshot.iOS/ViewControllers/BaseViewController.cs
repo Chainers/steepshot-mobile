@@ -34,7 +34,7 @@ namespace Steepshot.iOS
         protected NSObject CloseKeyboardToken;
         protected NSObject ForegroundToken;
 
-        private static SteepshotApiClient _apiClient;
+        private static ISteepshotApiClient _apiClient;
 
         public static bool IsHomeFeedLoaded { get; internal set; }
 
@@ -42,7 +42,7 @@ namespace Steepshot.iOS
 
         public static bool NetworkChanged { get; set; }
 
-        protected static SteepshotApiClient Api
+        protected static ISteepshotApiClient Api
         {
             get
             {
@@ -102,20 +102,15 @@ namespace Steepshot.iOS
             ForegroundToken.Dispose();
             base.ViewDidDisappear(animated);
         }
-        
+
         public static void SwitchChain(bool isDev)
         {
             if (User.IsDev == isDev && _apiClient != null)
                 return;
 
             User.IsDev = isDev;
-            string serverUrl;
-            if (Chain == KnownChains.Steem)
-                serverUrl = isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-            else
-                serverUrl = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            _apiClient = new SteepshotApiClient(serverUrl);
+            _apiClient = new SteepshotApiClient(Chain, isDev);
         }
 
         public static void SwitchChain(KnownChains chain)
@@ -124,16 +119,8 @@ namespace Steepshot.iOS
                 return;
 
             Chain = chain;
-            string serverUrl;
-            if (chain == KnownChains.Steem)
-                serverUrl = User.IsDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-            else
-                serverUrl = User.IsDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            if (_apiClient == null)
-                _apiClient = new SteepshotApiClient(serverUrl);
-            else
-                _apiClient.ChangeServerUrl(serverUrl);
+            _apiClient = new SteepshotApiClient(chain, User.IsDev);
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Sweetshot.Library.HttpClient;
 using Sweetshot.Library.Models.Common;
@@ -14,10 +14,8 @@ namespace Sweetshot.Tests
     [TestFixture]
     public class IntegrationTestsChangingState
     {
-        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url"]);
-        //private readonly SteepshotApiClient _steem = new SteepshotApiClient(ConfigurationManager.AppSettings["steepshot_url_qa"]);
-        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url"]);
-        //private readonly SteepshotApiClient _golos = new SteepshotApiClient(ConfigurationManager.AppSettings["golos_url_qa"]);
+        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(KnownChains.Steem, false);
+        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(KnownChains.Golos, false);
         private ISteepshotApiClient Api(string name)
         {
             switch (name)

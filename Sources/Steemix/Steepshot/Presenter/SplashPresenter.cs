@@ -1,12 +1,11 @@
-﻿using System;
-namespace Steepshot
+﻿namespace Steepshot
 {
-	public class SplashPresenter : BasePresenter
-	{
-		public SplashPresenter(SplashView view):base(view)
-		{
-		}
+    public class SplashPresenter : BasePresenter
+    {
+        public SplashPresenter(SplashView view) : base(view)
+        {
+        }
 
-		public bool IsGuest { get { return !User.IsAuthenticated; } }
-	}
+        public bool IsGuest { get { return !User.IsAuthenticated; } }
+    }
 }
