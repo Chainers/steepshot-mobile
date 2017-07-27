@@ -47,7 +47,7 @@ namespace Steepshot.iOS.Views
 
         UIRefreshControl _refreshControl;
 
-        private bool _isFeedRefreshing = false;
+        private bool _isFeedRefreshing;
 
         private bool IsDropDownOpen => _dropdown.Frame.Y > 0;
         private CollectionViewFlowDelegate _gridDelegate;

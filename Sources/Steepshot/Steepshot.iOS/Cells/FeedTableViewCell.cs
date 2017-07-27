@@ -17,7 +17,7 @@ namespace Steepshot.iOS.Cells
         public static readonly NSString Key = new NSString("FeedTableViewCell");
         public static readonly UINib Nib;
 
-        private bool _isButtonBinded = false;
+        private bool _isButtonBinded;
         private List<WebClient> _webClients = new List<WebClient>();
         public event VoteEventHandler<VoteResponse> Voted;
         public event HeaderTappedHandler GoToProfile;

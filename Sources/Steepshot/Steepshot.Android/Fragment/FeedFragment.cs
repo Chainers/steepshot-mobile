@@ -263,7 +263,7 @@ namespace Steepshot.Fragment
 		private class FeedsScrollListener : RecyclerView.OnScrollListener
 		{
 			FeedPresenter _presenter;
-			int _prevPos = 0;
+			int _prevPos;
 
 			public FeedsScrollListener(FeedPresenter presenter)
 			{

@@ -24,7 +24,7 @@ namespace Steepshot.iOS.Cells
             Nib = UINib.FromName("FeedCollectionViewCell", NSBundle.MainBundle);
         }
 
-        private bool _isButtonBinded = false;
+        private bool _isButtonBinded;
         public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
         public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
         public event HeaderTappedHandler GoToProfile;

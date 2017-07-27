@@ -84,8 +84,8 @@ namespace Steepshot.Utils
 
 		ScaleGestureDetector _scaleDetector;
 		GestureDetector _gestureDetector;
-		GestureDetector.IOnDoubleTapListener _doubleTapListener = null;
-		IOnTouchListener _touchListener = null;
+		GestureDetector.IOnDoubleTapListener _doubleTapListener;
+		IOnTouchListener _touchListener;
 
 		public ScaleImageView(Context context) : base(context)
 		{

@@ -345,7 +345,7 @@ namespace Steepshot.Fragment
 		private class FeedsScrollListener : RecyclerView.OnScrollListener
 		{
 			UserProfilePresenter _presenter;
-			int _prevPos = 0;
+			int _prevPos;
 			public FeedsScrollListener(UserProfilePresenter presenter)
 			{
 				_presenter = presenter;
