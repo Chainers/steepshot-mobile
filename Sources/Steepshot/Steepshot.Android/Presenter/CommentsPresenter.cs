@@ -10,7 +10,7 @@ namespace Steepshot.Presenter
 {
     public class CommentsPresenter : BasePresenter
     {
-        public CommentsPresenter(CommentsView view) : base(view)
+        public CommentsPresenter(ICommentsView view) : base(view)
         {
         }
 

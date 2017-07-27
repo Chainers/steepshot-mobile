@@ -9,7 +9,7 @@ namespace Steepshot.Presenter
 {
     public class SignInPresenter : BasePresenter
     {
-        public SignInPresenter(SignInView view) : base(view) { }
+        public SignInPresenter(ISignInView view) : base(view) { }
 
         public Task<OperationResult<LoginResponse>> SignIn(string login, string postingKey)
         {

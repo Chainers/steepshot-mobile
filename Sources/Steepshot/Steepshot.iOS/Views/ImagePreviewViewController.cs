@@ -14,7 +14,7 @@ namespace Steepshot.iOS.Views
 		{
 		}
 
-		public UIImage imageForPreview;
+		public UIImage ImageForPreview;
 		public string ImageUrl;
 
 		public override void ViewWillAppear(bool animated)
@@ -36,9 +36,9 @@ namespace Steepshot.iOS.Views
 			var imageScrollView = new UIScrollView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height - margin));
 			this.View.AddSubview(imageScrollView);
 			var imageView = new UIImageView(new CGRect(0, 0, imageScrollView.Frame.Width, imageScrollView.Frame.Height));
-			if (imageForPreview != null)
+			if (ImageForPreview != null)
 			{
-				imageView.Image = imageForPreview;
+				imageView.Image = ImageForPreview;
 				imageScrollView.MinimumZoomScale = 1f;
 				imageScrollView.MaximumZoomScale = 6.0f;
 				imageScrollView.ViewForZoomingInScrollView += (UIScrollView sv) => { return imageView; };

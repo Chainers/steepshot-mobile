@@ -7,7 +7,7 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class GuestActivity : BaseActivity, FeedView
+    public class GuestActivity : BaseActivity, IFeedView
     {
 		protected override void CreatePresenter() { }
 

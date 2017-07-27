@@ -20,7 +20,7 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SettingsActivity : BaseActivity, SettingsView
+    public class SettingsActivity : BaseActivity, ISettingsView
     {
         SettingsPresenter _presenter;
 #pragma warning disable 0649, 4014

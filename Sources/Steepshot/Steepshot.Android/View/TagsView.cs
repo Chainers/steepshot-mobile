@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface TagsView : BaseView
+	public interface ITagsView : IBaseView
 	{
 	}
 }

@@ -19,27 +19,27 @@ using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class FeedFragment : BaseFragment, FeedView
+	public class FeedFragment : BaseFragment, IFeedView
 	{
-		private FeedPresenter presenter;
-		private FeedAdapter FeedAdapter;
+		private FeedPresenter _presenter;
+		private FeedAdapter _feedAdapter;
 		public static int SearchRequestCode = 1336;
 		public const string FollowingFragmentId = "FollowingFragment";
 		public string CustomTag
 		{
-			get { return presenter.Tag; }
-			set { presenter.Tag = value; }
+			get { return _presenter.Tag; }
+			set { _presenter.Tag = value; }
 		}
 		private bool _isFeed;
 
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.feed_list)] RecyclerView FeedList;
-		[InjectView(Resource.Id.loading_spinner)] ProgressBar Bar;
-		[InjectView(Resource.Id.pop_up_arrow)] ImageView arrow;
-		[InjectView(Resource.Id.btn_login)] Button Login;
+		[InjectView(Resource.Id.feed_list)] RecyclerView _feedList;
+		[InjectView(Resource.Id.loading_spinner)] ProgressBar _bar;
+		[InjectView(Resource.Id.pop_up_arrow)] ImageView _arrow;
+		[InjectView(Resource.Id.btn_login)] Button _login;
 		[InjectView(Resource.Id.Title)] public TextView Title;
-		[InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout refresher;
-		[InjectView(Resource.Id.btn_search)] ImageButton search;
+		[InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout _refresher;
+		[InjectView(Resource.Id.btn_search)] ImageButton _search;
 #pragma warning restore 0649
 
 		public FeedFragment(bool isFeed = false)
@@ -72,12 +72,12 @@ namespace Steepshot.Fragment
 
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
-			if (!_isInitialized)
+			if (!IsInitialized)
 			{
-				v = inflater.Inflate(Resource.Layout.lyt_feed, null);
-				Cheeseknife.Inject(this, v);
+				V = inflater.Inflate(Resource.Layout.lyt_feed, null);
+				Cheeseknife.Inject(this, V);
 			}
-			return v;
+			return V;
 		}
 
 		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
@@ -85,86 +85,86 @@ namespace Steepshot.Fragment
 			try
 			{
 				var s = Activity.Intent.GetStringExtra("SEARCH");
-				if (s != null && s != CustomTag && Bar != null)
+				if (s != null && s != CustomTag && _bar != null)
 				{
 					Title.Text = s;
 					CustomTag = s;
-					presenter.ClearPosts();
-					Bar.Visibility = ViewStates.Visible;
-					presenter.GetSearchedPosts();
+					_presenter.ClearPosts();
+					_bar.Visibility = ViewStates.Visible;
+					_presenter.GetSearchedPosts();
 				}
 			}
 			catch (Exception ex)
 			{
 				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
 			}
-			if (_isInitialized)
+			if (IsInitialized)
 				return;
 			base.OnViewCreated(view, savedInstanceState);
 			if (BasePresenter.User.IsAuthenticated)
-				Login.Visibility = ViewStates.Gone;
+				_login.Visibility = ViewStates.Gone;
 
 			if (_isFeed)
 			{
 				Title.Text = "Feed";
-				arrow.Visibility = ViewStates.Gone;
-				search.Visibility = ViewStates.Gone;
+				_arrow.Visibility = ViewStates.Gone;
+				_search.Visibility = ViewStates.Gone;
 			}
 			else
 				Title.Text = "Trending";
 
-			FeedAdapter = new FeedAdapter(Context, presenter.Posts);
-			FeedList.SetAdapter(FeedAdapter);
-			FeedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-			FeedList.AddOnScrollListener(new FeedsScrollListener(presenter));
-			FeedAdapter.LikeAction += FeedAdapter_LikeAction;
-			FeedAdapter.UserAction += FeedAdapter_UserAction;
-			FeedAdapter.CommentAction += FeedAdapter_CommentAction;
-			FeedAdapter.VotersClick += FeedAdapter_VotersAction;
-			FeedAdapter.PhotoClick += PhotoClick;
-			presenter.ViewLoad();
-			refresher.Refresh += async delegate
+			_feedAdapter = new FeedAdapter(Context, _presenter.Posts);
+			_feedList.SetAdapter(_feedAdapter);
+			_feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+			_feedList.AddOnScrollListener(new FeedsScrollListener(_presenter));
+			_feedAdapter.LikeAction += FeedAdapter_LikeAction;
+			_feedAdapter.UserAction += FeedAdapter_UserAction;
+			_feedAdapter.CommentAction += FeedAdapter_CommentAction;
+			_feedAdapter.VotersClick += FeedAdapter_VotersAction;
+			_feedAdapter.PhotoClick += PhotoClick;
+			_presenter.ViewLoad();
+			_refresher.Refresh += async delegate
 				{
-					presenter.ClearPosts();
+					_presenter.ClearPosts();
 					if (string.IsNullOrEmpty(CustomTag))
-						await presenter.GetTopPosts(presenter.GetCurrentType());
+						await _presenter.GetTopPosts(_presenter.GetCurrentType());
 					else
-						await presenter.GetSearchedPosts();
-					refresher.Refreshing = false;
+						await _presenter.GetSearchedPosts();
+					_refresher.Refreshing = false;
 				};
 		}
 
 		public void OnSearchPosts(string title, PostType type)
 		{
 			Title.Text = title;
-			presenter.ClearPosts();
-			Bar.Visibility = ViewStates.Visible;
-			presenter.GetTopPosts(type, true);
+			_presenter.ClearPosts();
+			_bar.Visibility = ViewStates.Visible;
+			_presenter.GetTopPosts(type, true);
 		}
 
 		public void PhotoClick(int position)
 		{
 			Intent intent = new Intent(this.Context, typeof(PostPreviewActivity));
-			intent.PutExtra("PhotoURL", presenter.Posts[position].Body);
+			intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
 			StartActivity(intent);
 		}
 
 		void FeedAdapter_CommentAction(int position)
 		{
 			Intent intent = new Intent(this.Context, typeof(CommentsActivity));
-			intent.PutExtra("uid", presenter.Posts[position].Url);
+			intent.PutExtra("uid", _presenter.Posts[position].Url);
 			this.Context.StartActivity(intent);
 		}
 
 		void FeedAdapter_VotersAction(int position)
 		{
-			Activity.Intent.PutExtra("url", presenter.Posts[position].Url);
+			Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
 			((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
 		}
 
 		void FeedAdapter_UserAction(int position)
 		{
-			((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(presenter.Posts[position].Author));
+			((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
 		}
 
 		async void FeedAdapter_LikeAction(int position)
@@ -173,25 +173,25 @@ namespace Steepshot.Fragment
 			{
 				if (BasePresenter.User.IsAuthenticated)
 				{
-					var response = await presenter.Vote(presenter.Posts[position]);
+					var response = await _presenter.Vote(_presenter.Posts[position]);
 
 					if (response.Success)
 					{
-						if (presenter.Posts.Count >= position)
+						if (_presenter.Posts.Count >= position)
 						{
-							presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
+							_presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
 
-							presenter.Posts[position].NetVotes = (presenter.Posts[position].Vote) ?
-								presenter.Posts[position].NetVotes + 1 :
-								presenter.Posts[position].NetVotes - 1;
-							presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+							_presenter.Posts[position].NetVotes = (_presenter.Posts[position].Vote) ?
+								_presenter.Posts[position].NetVotes + 1 :
+								_presenter.Posts[position].NetVotes - 1;
+							_presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
 						}
 					}
 					else
 					{
 						Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
 					}
-					FeedAdapter?.NotifyDataSetChanged();
+					_feedAdapter?.NotifyDataSetChanged();
 				}
 				else
 				{
@@ -206,7 +206,7 @@ namespace Steepshot.Fragment
 
 		public void ShowFollowing()
 		{
-			arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate180));
+			_arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate180));
 			ChildFragmentManager.BeginTransaction()
 								.SetCustomAnimations(Resource.Animation.up_down, Resource.Animation.down_up, Resource.Animation.up_down, Resource.Animation.down_up)
 								.Add(Resource.Id.fragment_container, new FollowingFragment(this), FollowingFragmentId)
@@ -215,7 +215,7 @@ namespace Steepshot.Fragment
 
 		public void HideFollowing()
 		{
-			arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate0));
+			_arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate0));
 			ChildFragmentManager.BeginTransaction()
 								.Remove(ChildFragmentManager.FindFragmentByTag(FollowingFragmentId))
 								.Commit();
@@ -223,18 +223,18 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			presenter = new FeedPresenter(this, _isFeed);
-			presenter.PostsLoaded += OnPostLoaded;
-			presenter.PostsCleared += OnPostCleared;
+			_presenter = new FeedPresenter(this, _isFeed);
+			_presenter.PostsLoaded += OnPostLoaded;
+			_presenter.PostsCleared += OnPostCleared;
 		}
 
 		private void OnPostLoaded()
 		{
 			Activity.RunOnUiThread(() =>
 				{
-					if (Bar != null)
-						Bar.Visibility = ViewStates.Gone;
-					FeedAdapter?.NotifyDataSetChanged();
+					if (_bar != null)
+						_bar.Visibility = ViewStates.Gone;
+					_feedAdapter?.NotifyDataSetChanged();
 				});
 		}
 
@@ -242,7 +242,7 @@ namespace Steepshot.Fragment
 		{
 			Activity.RunOnUiThread(() =>
 				{
-					FeedAdapter?.NotifyDataSetChanged();
+					_feedAdapter?.NotifyDataSetChanged();
 				});
 		}
 
@@ -255,22 +255,22 @@ namespace Steepshot.Fragment
 		public override void OnDetach()
 		{
 			base.OnDetach();
-			presenter.PostsLoaded -= OnPostLoaded;
-			presenter.PostsCleared -= OnPostCleared;
+			_presenter.PostsLoaded -= OnPostLoaded;
+			_presenter.PostsCleared -= OnPostCleared;
 			Cheeseknife.Reset(this);
 		}
 
 		private class FeedsScrollListener : RecyclerView.OnScrollListener
 		{
-			FeedPresenter presenter;
-			int prevPos = 0;
+			FeedPresenter _presenter;
+			int _prevPos = 0;
 
 			public FeedsScrollListener(FeedPresenter presenter)
 			{
-				this.presenter = presenter;
-				this.presenter.PostsCleared += () =>
+				this._presenter = presenter;
+				this._presenter.PostsCleared += () =>
 				{
-					prevPos = 0;
+					_prevPos = 0;
 				};
 			}
 
@@ -278,21 +278,21 @@ namespace Steepshot.Fragment
 			{
 				//int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
 				var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
-				if (pos > prevPos && pos != prevPos)
+				if (pos > _prevPos && pos != _prevPos)
 				{
 					if (pos == recyclerView.GetAdapter().ItemCount - 1)
 					{
 						if (pos < ((FeedAdapter)recyclerView.GetAdapter()).ItemCount)
 						{
-							if (string.IsNullOrEmpty(presenter.Tag))
+							if (string.IsNullOrEmpty(_presenter.Tag))
 							{
-								Task.Run(() => presenter.GetTopPosts(presenter.GetCurrentType()));
+								Task.Run(() => _presenter.GetTopPosts(_presenter.GetCurrentType()));
 							}
 							else
 							{
-								Task.Run(() => presenter.GetSearchedPosts());
+								Task.Run(() => _presenter.GetSearchedPosts());
 							}
-							prevPos = pos;
+							_prevPos = pos;
 						}
 					}
 				}

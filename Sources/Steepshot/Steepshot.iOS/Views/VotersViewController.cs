@@ -22,24 +22,24 @@ namespace Steepshot.iOS.Views
 		public string PostUrl;
 		private string _offsetUrl;
 		private bool _hasItems = true;
-		private VotersTableViewSource tableSource = new VotersTableViewSource();
+		private VotersTableViewSource _tableSource = new VotersTableViewSource();
 
 		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
-			votersTable.Source = tableSource;
+			votersTable.Source = _tableSource;
 			votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
 			votersTable.LayoutMargins = UIEdgeInsets.Zero;
 			votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
 			votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
-			tableSource.RowSelectedEvent += (row) =>
+			_tableSource.RowSelectedEvent += (row) =>
 			{
 				var myViewController = new ProfileViewController();
-				myViewController.Username = tableSource.TableItems[row].Username;
+				myViewController.Username = _tableSource.TableItems[row].Username;
 				NavigationController.PushViewController(myViewController, true);
 			};
 
-			tableSource.ScrolledToBottom += () =>
+			_tableSource.ScrolledToBottom += () =>
 			{
 				if (_hasItems)
 					GetItems();
@@ -79,7 +79,7 @@ namespace Steepshot.iOS.Views
 						response.Result.Results.Remove(lastItem);
 
 					_offsetUrl = lastItem.Username;
-					tableSource.TableItems.AddRange(response.Result.Results);
+					_tableSource.TableItems.AddRange(response.Result.Results);
 					votersTable.ReloadData();
 				}
 				else if (response.Errors.Count > 0)

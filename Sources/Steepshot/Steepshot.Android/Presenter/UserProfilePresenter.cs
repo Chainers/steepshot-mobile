@@ -16,17 +16,17 @@ namespace Steepshot.Presenter
 	public class UserProfilePresenter : BasePresenter
 	{
 		private string _username;
-		private UserPostResponse postsData;
+		private UserPostResponse _postsData;
 
 		public ObservableCollection<Post> UserPosts = new ObservableCollection<Post>();
 
 		private bool _hasItems = true;
 		private string _offsetUrl = string.Empty;
-		private const int postsCount = 40;
+		private const int PostsCount = 40;
 		public event VoidDelegate PostsLoaded;
 		public event VoidDelegate PostsCleared;
 
-		public UserProfilePresenter(UserProfileView view, string username) : base(view)
+		public UserProfilePresenter(IUserProfileView view, string username) : base(view)
 		{
 			_username = username;
 		}
@@ -64,7 +64,7 @@ namespace Steepshot.Presenter
 				var req = new UserPostsRequest(_username, User.CurrentUser)
 				{
 					Offset = _offsetUrl,
-					Limit = postsCount
+					Limit = PostsCount
 				};
 				var response = await Api.GetUserPosts(req);
 
@@ -78,7 +78,7 @@ namespace Steepshot.Presenter
 
 					_offsetUrl = lastItem.Url;
 
-					postsData = response.Result;
+					_postsData = response.Result;
 
 					foreach (var item in response.Result.Results)
 					{

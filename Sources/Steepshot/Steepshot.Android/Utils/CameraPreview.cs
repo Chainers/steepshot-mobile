@@ -13,20 +13,20 @@ namespace Steepshot.Utils
 	#pragma warning disable CS0618 // Type or member is obsolete (class uses in pre-lollipop versions)
 	public class CameraPreview : SurfaceView, ISurfaceHolderCallback, Android.Hardware.Camera.IShutterCallback, Android.Hardware.Camera.IPictureCallback
 	{
-		private Android.Hardware.Camera mCamera;
+		private Android.Hardware.Camera _mCamera;
 		public event EventHandler<string> PictureTaken;
 
-		private List<Android.Hardware.Camera.Size> mSupportedPreviewSizes;
-		private List<Android.Hardware.Camera.Size> mSupportedPictureSizes;
-		private Android.Hardware.Camera.Size mPreviewSize, mPictureSize;
+		private List<Android.Hardware.Camera.Size> _mSupportedPreviewSizes;
+		private List<Android.Hardware.Camera.Size> _mSupportedPictureSizes;
+		private Android.Hardware.Camera.Size _mPreviewSize, _mPictureSize;
 
 		public CameraPreview(Context context, Android.Hardware.Camera camera) : base(context)
 		{
-			this.mCamera = camera;
+			this._mCamera = camera;
 			Holder.AddCallback(this);
 
-			mSupportedPreviewSizes = mCamera.GetParameters().SupportedPreviewSizes.ToList();
-			mSupportedPictureSizes = mCamera.GetParameters().SupportedPictureSizes.ToList();
+			_mSupportedPreviewSizes = _mCamera.GetParameters().SupportedPreviewSizes.ToList();
+			_mSupportedPictureSizes = _mCamera.GetParameters().SupportedPictureSizes.ToList();
 			Holder.SetType(SurfaceType.PushBuffers);
 		}
 
@@ -37,7 +37,7 @@ namespace Steepshot.Utils
 
 			try
 			{
-				mCamera.StopPreview();
+				_mCamera.StopPreview();
 			}
 			catch (Exception e)
 			{
@@ -47,36 +47,36 @@ namespace Steepshot.Utils
 			try
 			{
 
-				var p = mCamera.GetParameters();
-				p.SetPreviewSize(mPreviewSize.Width, mPreviewSize.Height);
+				var p = _mCamera.GetParameters();
+				p.SetPreviewSize(_mPreviewSize.Width, _mPreviewSize.Height);
 				if (p.SupportedFocusModes.Contains(Android.Hardware.Camera.Parameters.FocusModeContinuousVideo))
 				{
 					p.FocusMode = Android.Hardware.Camera.Parameters.FocusModeContinuousVideo;
-					mCamera.SetParameters(p);
+					_mCamera.SetParameters(p);
 				}
 				switch (Display.Rotation)
 				{
 					case SurfaceOrientation.Rotation0:
-						mCamera.SetDisplayOrientation(90);
+						_mCamera.SetDisplayOrientation(90);
 						break;
 					case SurfaceOrientation.Rotation90:
 						break;
 					case SurfaceOrientation.Rotation180:
 						break;
 					case SurfaceOrientation.Rotation270:
-						mCamera.SetDisplayOrientation(180);
+						_mCamera.SetDisplayOrientation(180);
 						break;
 				}
-				p.SetPreviewSize(mPreviewSize.Width, mPreviewSize.Height);
+				p.SetPreviewSize(_mPreviewSize.Width, _mPreviewSize.Height);
 
-				if (mPictureSize != null)
+				if (_mPictureSize != null)
 				{
-					p.SetPictureSize(mPictureSize.Width, mPictureSize.Height);
+					p.SetPictureSize(_mPictureSize.Width, _mPictureSize.Height);
 				}
 				p.SetRotation(90);
-				mCamera.SetParameters(p);
-				mCamera.SetPreviewDisplay(holder);
-				mCamera.StartPreview();
+				_mCamera.SetParameters(p);
+				_mCamera.SetPreviewDisplay(holder);
+				_mCamera.StartPreview();
 			}
 			catch (Exception e)
 			{
@@ -88,8 +88,8 @@ namespace Steepshot.Utils
 		{
 			try
 			{
-				mCamera.SetPreviewDisplay(holder);
-				mCamera.StartPreview();
+				_mCamera.SetPreviewDisplay(holder);
+				_mCamera.StartPreview();
 			}
 			catch (Exception e)
 			{
@@ -107,16 +107,16 @@ namespace Steepshot.Utils
 			int width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
 			int height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
 
-			if (mSupportedPreviewSizes != null)
+			if (_mSupportedPreviewSizes != null)
 			{
-				mPreviewSize = getOptimalPreviewSize(mSupportedPreviewSizes, width, height);
+				_mPreviewSize = GetOptimalPreviewSize(_mSupportedPreviewSizes, width, height);
 			}
 
 			float ratio;
-			if (mPreviewSize.Height >= mPreviewSize.Width)
-				ratio = (float)mPreviewSize.Height / (float)mPreviewSize.Width;
+			if (_mPreviewSize.Height >= _mPreviewSize.Width)
+				ratio = (float)_mPreviewSize.Height / (float)_mPreviewSize.Width;
 			else
-				ratio = (float)mPreviewSize.Width / (float)mPreviewSize.Height;
+				ratio = (float)_mPreviewSize.Width / (float)_mPreviewSize.Height;
 
 			// One of these methods should be used, second method squishes preview slightly
 			SetMeasuredDimension(width, (int)(width * ratio));
@@ -125,19 +125,19 @@ namespace Steepshot.Utils
 
 		private void InitPictureSize()
 		{
-			if (mSupportedPictureSizes != null)
+			if (_mSupportedPictureSizes != null)
 			{
-				for (int i = mSupportedPictureSizes.Count - 1; i >= 0; i--)
+				for (int i = _mSupportedPictureSizes.Count - 1; i >= 0; i--)
 				{
-					if (mSupportedPictureSizes[i].Width > Width)
-						mPictureSize = mSupportedPictureSizes[i];
+					if (_mSupportedPictureSizes[i].Width > Width)
+						_mPictureSize = _mSupportedPictureSizes[i];
 				}
 			}
 		}
 
-		private Android.Hardware.Camera.Size getOptimalPreviewSize(List<Android.Hardware.Camera.Size> sizes, int w, int h)
+		private Android.Hardware.Camera.Size GetOptimalPreviewSize(List<Android.Hardware.Camera.Size> sizes, int w, int h)
 		{
-			double ASPECT_TOLERANCE = 0.1;
+			double aspectTolerance = 0.1;
 			double targetRatio = (double)h / w;
 
 			if (sizes == null)
@@ -151,7 +151,7 @@ namespace Steepshot.Utils
 			foreach (Android.Hardware.Camera.Size size in sizes)
 			{
 				double ratio = (double)size.Height / size.Width;
-				if (Math.Abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+				if (Math.Abs(ratio - targetRatio) > aspectTolerance)
 					continue;
 
 				if (Math.Abs(size.Height - targetHeight) < minDiff)
@@ -179,18 +179,18 @@ namespace Steepshot.Utils
 
 		private Java.IO.File GetDirectoryForPictures()
 		{
-			var _dir = new Java.IO.File(
+			var dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
 					Android.OS.Environment.DirectoryPictures), "Steepshot");
-			if (!_dir.Exists())
+			if (!dir.Exists())
 			{
-				_dir.Mkdirs();
+				dir.Mkdirs();
 			}
 
-			return _dir;
+			return dir;
 		}
 
-		string ExportBitmapAsPNG(byte[] data)
+		string ExportBitmapAsPng(byte[] data)
 		{
 			var pP = GetDirectoryForPictures().AbsolutePath;
 			string filePath = System.IO.Path.Combine(pP, string.Format("{0}.jpg", Guid.NewGuid()));
@@ -205,7 +205,7 @@ namespace Steepshot.Utils
 		{
 			try
 			{
-				PictureTaken?.Invoke(this, ExportBitmapAsPNG(data));
+				PictureTaken?.Invoke(this, ExportBitmapAsPng(data));
                 Toast.MakeText(Context, "PICTURE TAKEN SUCESSFULLY", ToastLength.Long).Show();
             }
 			catch (Exception e)
@@ -214,7 +214,7 @@ namespace Steepshot.Utils
 			}
 			try
 			{
-				mCamera?.StartPreview();
+				_mCamera?.StartPreview();
 			}
 			catch { }
 		}

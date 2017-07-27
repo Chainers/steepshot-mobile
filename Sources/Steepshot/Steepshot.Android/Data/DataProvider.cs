@@ -8,38 +8,38 @@ namespace Steepshot.Data
 {
     internal class DataProvider : IDataProvider
     {
-        private SQLiteConnection Db;
+        private SQLiteConnection _db;
 
         public DataProvider()
         {
             var folder = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            Db = new SQLiteConnection(System.IO.Path.Combine(folder, "user.db"));
-            Db.CreateTable<UserInfo>(CreateFlags.ImplicitPK | CreateFlags.AutoIncPK);
+            _db = new SQLiteConnection(System.IO.Path.Combine(folder, "user.db"));
+            _db.CreateTable<UserInfo>(CreateFlags.ImplicitPK | CreateFlags.AutoIncPK);
         }
         
         public void Delete(UserInfo userInfo)
         {
-            Db.Delete(userInfo);
+            _db.Delete(userInfo);
         }
 
         public void Insert(UserInfo userInfo)
         {
-            Db.Insert(userInfo);
+            _db.Insert(userInfo);
         }
 
         public List<UserInfo> Select()
         {
-            return Db.Query<UserInfo>("select * FROM UserInfo");
+            return _db.Query<UserInfo>("select * FROM UserInfo");
         }
 
         public List<UserInfo> Select(KnownChains chain)
         {
-            return Db.Query<UserInfo>($"SELECT * FROM UserInfo WHERE Chain=\"{(int)chain}\"");
+            return _db.Query<UserInfo>($"SELECT * FROM UserInfo WHERE Chain=\"{(int)chain}\"");
         }
 
         public void Update(UserInfo currentUser)
         {
-            Db.Update(currentUser);
+            _db.Update(currentUser);
         }
     }
 }

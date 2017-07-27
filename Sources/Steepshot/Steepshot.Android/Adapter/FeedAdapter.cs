@@ -16,26 +16,26 @@ namespace Steepshot.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        private ObservableCollection<Post> Posts;
-        private Context context;
-        private string CommentPattern = "<b>{0}</b> {1}";
+        private ObservableCollection<Post> _posts;
+        private Context _context;
+        private string _commentPattern = "<b>{0}</b> {1}";
 		public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-		public FeedAdapter(Context context, ObservableCollection<Post> Posts, bool isFeed = false)
+		public FeedAdapter(Context context, ObservableCollection<Post> posts, bool isFeed = false)
         {
-            this.context = context;
-            this.Posts = Posts;
+            this._context = context;
+            this._posts = posts;
         }
 
         public Post GetItem(int position)
         {
-            return Posts[position];
+            return _posts[position];
         }
         public override int ItemCount
         {
             get
             {
-                return Posts.Count;
+                return _posts.Count;
             }
         }
 
@@ -43,12 +43,12 @@ namespace Steepshot.Adapter
         {
             FeedViewHolder vh = holder as FeedViewHolder;
             vh.Photo.SetImageResource(0);
-            var post = Posts[position];
+            var post = _posts[position];
             vh.Author.Text = post.Author;
             if (post.Title != null)
             {
                 vh.FirstComment.Visibility = ViewStates.Visible;
-                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(CommentPattern, post.Author, post.Title));
+                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
             }
             else
             {
@@ -57,16 +57,16 @@ namespace Steepshot.Adapter
 
             if (post.Children > 0)
             {
-                vh.CommentSubtitle.Text = string.Format(context.GetString(Resource.String.view_n_comments), post.Children);
+                vh.CommentSubtitle.Text = string.Format(_context.GetString(Resource.String.view_n_comments), post.Children);
             }
             else
             {
-                vh.CommentSubtitle.Text = context.GetString(Resource.String.first_title_comment);
+                vh.CommentSubtitle.Text = _context.GetString(Resource.String.first_title_comment);
             }
-            vh.UpdateData(post, context);
+            vh.UpdateData(post, _context);
 			try
 			{
-				Picasso.With(context).Load(post.Body).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
+				Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
 			}
 			catch (Exception e)
 			{
@@ -75,7 +75,7 @@ namespace Steepshot.Adapter
             {
 				try
 				{
-					Picasso.With(context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
+					Picasso.With(_context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
 				}
 				catch (Exception e)
 				{
@@ -108,10 +108,10 @@ namespace Steepshot.Adapter
             public TextView Likes { get; private set; }
             public TextView Cost { get; private set; }
             public ImageButton Like { get; private set; }
-            Post post;
-            Action<int> LikeAction;
+            Post _post;
+            Action<int> _likeAction;
 
-			public FeedViewHolder(Android.Views.View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction, Action<int> VotersAction, int height) : base(itemView)
+			public FeedViewHolder(Android.Views.View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
 			{
 				Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
 				Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -128,29 +128,29 @@ namespace Steepshot.Adapter
 				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
 				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
 
-				this.LikeAction = LikeAction;
+				this._likeAction = likeAction;
 
 				Like.Click += Like_Click;
-				Avatar.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
-				Author.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
-				FirstComment.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
-				CommentSubtitle.Click += (sender, e) => CommentAction?.Invoke(AdapterPosition);
-				Likes.Click += (sender, e) => VotersAction?.Invoke(AdapterPosition);
-				Photo.Click += (sender, e) => PhotoAction?.Invoke(AdapterPosition);
+				Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+				Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+				FirstComment.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
+				CommentSubtitle.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
+				Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
+				Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
 			}
 
             void Like_Click(object sender, EventArgs e)
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    Like.SetImageResource(!post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
                 }
-                LikeAction?.Invoke(AdapterPosition);
+                _likeAction?.Invoke(AdapterPosition);
             }
 
             public void UpdateData(Post post, Context context)
             {
-                this.post = post;
+                this._post = post;
                 Likes.Text = $"{post.NetVotes} likes";
                 Cost.Text = $"{BasePresenter.Currency}{post.TotalPayoutReward}";
 				Time.Text = post.Created.ToPostTime();

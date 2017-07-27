@@ -11,13 +11,13 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(Label = "Steepshot", MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
-    public class SplashActivity : BaseActivity, SplashView
+    public class SplashActivity : BaseActivity, ISplashView
     {
-        SplashPresenter presenter;
+        SplashPresenter _presenter;
 
         protected override void CreatePresenter()
         {
-            presenter = new SplashPresenter(this);
+            _presenter = new SplashPresenter(this);
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -41,7 +41,7 @@ namespace Steepshot.Activity
                 Reporter.SendCrash(e.Exception, BasePresenter.User.Login, BasePresenter.AppVersion);
             };
 
-            if (presenter.IsGuest)
+            if (_presenter.IsGuest)
             {
                 StartActivity(typeof(GuestActivity));
             }

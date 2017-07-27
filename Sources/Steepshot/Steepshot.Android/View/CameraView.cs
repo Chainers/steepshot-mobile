@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface CameraView : BaseView
+	public interface ICameraView : IBaseView
 	{
 	}
 }

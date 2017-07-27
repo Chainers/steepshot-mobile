@@ -13,7 +13,7 @@ namespace Steepshot.Presenter
 {
 	public class VotersPresenter : BasePresenter
 	{
-		public VotersPresenter(FollowersView view):base(view)
+		public VotersPresenter(IFollowersView view):base(view)
 		{
 		}
 

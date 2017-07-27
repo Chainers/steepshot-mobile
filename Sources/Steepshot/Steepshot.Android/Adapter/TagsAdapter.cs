@@ -11,45 +11,45 @@ namespace Steepshot.Adapter
 
 	public class TagsAdapter : RecyclerView.Adapter
 	{
-		List<SearchResult> Items = new List<SearchResult>();
-		private Context context;
+		List<SearchResult> _items = new List<SearchResult>();
+		private Context _context;
 
 		public System.Action<int> Click;
 
 		public TagsAdapter(Context context)
 		{
-			this.context = context;
+			this._context = context;
 		}
 
 		public void Clear()
 		{
-			Items.Clear();
+			_items.Clear();
 		}
 
-		public void Reset(List<SearchResult> Items)
+		public void Reset(List<SearchResult> items)
 		{
-			this.Items = Items;
+			this._items = items;
 		}
 
 		public SearchResult GetItem(int position)
 		{
             if (position > 0)
-                return Items[position];
+                return _items[position];
             else
-                return Items[0];
+                return _items[0];
 		}
 
 		public override int ItemCount
 		{
 			get
 			{
-				return Items.Count;
+				return _items.Count;
 			}
 		}
 
 		public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
 		{
-			((TagViewHolder)holder).Tag.Text = Items[position].Name;
+			((TagViewHolder)holder).Tag.Text = _items[position].Name;
 		}
 
 		public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -62,15 +62,15 @@ namespace Steepshot.Adapter
 		public class TagViewHolder : RecyclerView.ViewHolder
 		{
 			public TextView Tag { get; private set; }
-			System.Action<int> Click;
+			System.Action<int> _click;
 
-			public TagViewHolder(Android.Views.View itemView, System.Action<int> Click) : base(itemView)
+			public TagViewHolder(Android.Views.View itemView, System.Action<int> click) : base(itemView)
 			{
-				this.Click = Click;
+				this._click = click;
 				Tag = itemView.FindViewById<TextView>(Resource.Id.tag);
 
 				Tag.Clickable = true;
-				Tag.Click += (sender, e) => Click?.Invoke(AdapterPosition);
+				Tag.Click += (sender, e) => click?.Invoke(AdapterPosition);
 			}
 
 		}

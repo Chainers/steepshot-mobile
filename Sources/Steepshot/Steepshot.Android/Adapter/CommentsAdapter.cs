@@ -14,40 +14,40 @@ namespace Steepshot.Adapter
 
     public class CommentAdapter : RecyclerView.Adapter
     {
-        List<Post> Posts;
-        Context context;
+        List<Post> _posts;
+        Context _context;
 
         public Action<int> LikeAction, UserAction;
 
-        public CommentAdapter(Context context, List<Post> Posts)
+        public CommentAdapter(Context context, List<Post> posts)
         {
-            this.context = context;
-            this.Posts = Posts;
+            this._context = context;
+            this._posts = posts;
         }
 
         public void Reload(List<Post> posts)
         {
-            this.Posts = posts;
+            this._posts = posts;
             NotifyDataSetChanged();
         }
 
         public Post GetItem(int position)
         {
-            return Posts[position];
+            return _posts[position];
         }
         public override int ItemCount
         {
             get
             {
-                return Posts.Count;
+                return _posts.Count;
             }
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             CommentViewHolder vh = holder as CommentViewHolder;
-            var post = Posts[position];
-            vh.UpdateData(post, context); 
+            var post = _posts[position];
+            vh.UpdateData(post, _context); 
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -66,10 +66,10 @@ namespace Steepshot.Adapter
             public TextView Likes { get; private set; }
             public TextView Cost { get; private set; }
             public ImageButton Like { get; private set; }
-            Post post;
-            Action<int> LikeAction;
+            Post _post;
+            Action<int> _likeAction;
 
-            public CommentViewHolder(Android.Views.View itemView, Action<int> LikeAction, Action<int> UserAction) : base(itemView)
+            public CommentViewHolder(Android.Views.View itemView, Action<int> likeAction, Action<int> userAction) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
                 Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -78,32 +78,32 @@ namespace Steepshot.Adapter
                 Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
                 Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
 
-                this.LikeAction = LikeAction;
+                this._likeAction = likeAction;
 
                 Like.Click += Like_Click;
-                Avatar.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
-                Author.Click += (sender, e) => UserAction?.Invoke(AdapterPosition);
+                Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+                Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
             }
 
             void Like_Click(object sender, EventArgs e)
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    Like.SetImageResource(!post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
 
-                    if (!post.Vote)
+                    if (!_post.Vote)
                     {
-                        post.NetVotes++;
+                        _post.NetVotes++;
                     }
                     else
                     {
-                        post.NetVotes--;
+                        _post.NetVotes--;
                     }
-                    post.Vote = !post.Vote;
-                    Likes.Text = post.NetVotes.ToString();
-                    CheckLikeVisibility(post.NetVotes);
+                    _post.Vote = !_post.Vote;
+                    Likes.Text = _post.NetVotes.ToString();
+                    CheckLikeVisibility(_post.NetVotes);
                 }
-                LikeAction?.Invoke(AdapterPosition);
+                _likeAction?.Invoke(AdapterPosition);
 
             }
 
@@ -114,7 +114,7 @@ namespace Steepshot.Adapter
 
             public void UpdateData(Post post, Context context)
             {
-                this.post = post;
+                this._post = post;
                 Author.Text = post.Author;
                 Comment.Text = post.Body;
 

@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface UserProfileView : BaseView
+	public interface IUserProfileView : IBaseView
 	{
 	}
 }

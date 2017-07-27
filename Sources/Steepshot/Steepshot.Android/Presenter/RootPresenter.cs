@@ -5,7 +5,7 @@ namespace Steepshot.Presenter
 {
 	public class RootPresenter : BasePresenter
 	{
-		public RootPresenter(RootView view) : base(view)
+		public RootPresenter(IRootView view) : base(view)
 		{
 		}
 	}

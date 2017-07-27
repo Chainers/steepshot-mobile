@@ -11,54 +11,54 @@ namespace Steepshot.Adapter
 
 	public class GalleryAdapter : RecyclerView.Adapter
 	{
-		List<string> Posts = new List<string>();
-		private Context context;
-		string CommentPattern ="<b>{0}</b> {1}";
+		List<string> _posts = new List<string>();
+		private Context _context;
+		string _commentPattern ="<b>{0}</b> {1}";
 
 		public System.Action<int> PhotoClick;
 
         public GalleryAdapter(Context context)
         {
-            this.context = context;
+            this._context = context;
         }
 
 		public void Clear()
 		{
-			Posts.Clear();
+			_posts.Clear();
 		}
 
-		public void Reset(List<string> Posts)
+		public void Reset(List<string> posts)
 		{
-			this.Posts = Posts;
+			this._posts = posts;
 		}
 
         public string GetItem(int position)
         {
-             return Posts[position];
+             return _posts[position];
         }
 
         public override int ItemCount
         {
             get
             {
-                return Posts.Count;
+                return _posts.Count;
             }
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-			Picasso.With(context).Load(new File(Posts[position]))
+			Picasso.With(_context).Load(new File(_posts[position]))
 			       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
-			       .Resize(context.Resources.DisplayMetrics.WidthPixels / 3, context.Resources.DisplayMetrics.WidthPixels / 3)
+			       .Resize(_context.Resources.DisplayMetrics.WidthPixels / 3, _context.Resources.DisplayMetrics.WidthPixels / 3)
 			       .CenterCrop()
 			       .Into(((ImageViewHolder)holder).Photo);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-			ImageView view = new ImageView(context);
+			ImageView view = new ImageView(_context);
 			view.SetScaleType(ImageView.ScaleType.CenterInside);
-			view.LayoutParameters = new ViewGroup.LayoutParams(context.Resources.DisplayMetrics.WidthPixels / 3, context.Resources.DisplayMetrics.WidthPixels / 3);
+			view.LayoutParameters = new ViewGroup.LayoutParams(_context.Resources.DisplayMetrics.WidthPixels / 3, _context.Resources.DisplayMetrics.WidthPixels / 3);
 
 			ImageViewHolder vh = new ImageViewHolder(view,PhotoClick);
             return vh;
@@ -67,15 +67,15 @@ namespace Steepshot.Adapter
 		public class ImageViewHolder : RecyclerView.ViewHolder
         {
             public ImageView Photo { get; private set; }
-			System.Action<int> Click;
+			System.Action<int> _click;
 
-			public ImageViewHolder(Android.Views.View itemView,System.Action<int> Click) : base(itemView)
+			public ImageViewHolder(Android.Views.View itemView,System.Action<int> click) : base(itemView)
             {
-				this.Click = Click;
+				this._click = click;
 				Photo = (ImageView)itemView;
 
 				Photo.Clickable = true;
-				Photo.Click += (sender, e) => Click.Invoke(AdapterPosition);
+				Photo.Click += (sender, e) => click.Invoke(AdapterPosition);
             }
 
 		}

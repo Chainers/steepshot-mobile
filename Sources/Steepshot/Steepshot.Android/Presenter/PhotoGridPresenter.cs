@@ -5,7 +5,7 @@ namespace Steepshot.Presenter
 {
 	public class PhotoGridPresenter : BasePresenter
 	{
-		public PhotoGridPresenter(PhotoGridView view):base(view)
+		public PhotoGridPresenter(IPhotoGridView view):base(view)
 		{
 		}
 	}

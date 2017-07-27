@@ -8,7 +8,7 @@ using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace Steepshot.Base
 {
-	public abstract class BaseActivity : AppCompatActivity, BaseView
+	public abstract class BaseActivity : AppCompatActivity, IBaseView
 	{
 		protected HostFragment CurrentHostFragment;
 		protected override void OnCreate(Bundle savedInstanceState)
