@@ -7,7 +7,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sweetshot.Library", "Sweets
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.iOS\Steepshot.iOS.csproj", "{4B259270-7F8D-4132-91C4-AD144D025A30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Android", "Steepshot\Steepshot.Android.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Android", "Steepshot.Android\Steepshot.Android.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweetshot.Tests", "Sweetshot.Tests\Sweetshot.Tests.csproj", "{D3CCF11D-1947-4CE4-9654-08276BABD863}"
 EndProject

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sweetshot.Library", "Sweetshot.Library\Sweetshot.Library.shproj", "{D00F0D15-A2D0-4FDD-BA54-C750EAAEEA18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Android", "Steepshot\Steepshot.Android.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Android", "Steepshot.Android\Steepshot.Android.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Steepshot.Core", "Steepshot.Core\Steepshot.Core.csproj", "{99CE9F0F-5267-4C7D-9046-369841146257}"
 EndProject
