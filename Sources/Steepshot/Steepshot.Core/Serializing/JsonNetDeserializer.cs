@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Sweetshot.Library.Serializing
+namespace Steepshot.Core.Serializing
 {
     public interface IJsonConverter
     {

@@ -2,17 +2,22 @@ using System;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Sweetshot.Library.Models.Requests;
+using Steepshot.Activity;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Fragment
 {
 	public class FeedFragment : BaseFragment, FeedView
 	{
@@ -65,7 +70,7 @@ namespace Steepshot
 				HideFollowing();
 		}
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!_isInitialized)
 			{
@@ -75,7 +80,7 @@ namespace Steepshot
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			try
 			{

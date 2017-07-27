@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Steepshot.Core.Authority;
 
-namespace Sweetshot.Library.Models.Requests
+namespace Steepshot.Core.Models.Requests
 {
     public class UploadImageRequest : LoginRequest
     {

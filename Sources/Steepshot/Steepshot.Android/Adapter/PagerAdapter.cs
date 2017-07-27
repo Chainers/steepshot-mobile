@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V4.App;
+using Steepshot.Base;
+using Steepshot.Fragment;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
@@ -14,7 +17,7 @@ namespace Steepshot
         };
         Context context;
 
-        private List<Fragment> tabs = new List<Fragment>();
+        private List<Android.Support.V4.App.Fragment> tabs = new List<Android.Support.V4.App.Fragment>();
 
         public PagerAdapter(FragmentManager fm, Context context) : base(fm)
         {
@@ -30,7 +33,7 @@ namespace Steepshot
             }
         }
 
-        public override Fragment GetItem(int position)
+        public override Android.Support.V4.App.Fragment GetItem(int position)
         {
             return tabs[position];
         }
@@ -45,7 +48,7 @@ namespace Steepshot
 
             for (var i = 0; i < tabIcos.Length; i++)
             {
-                Fragment frag;
+                Android.Support.V4.App.Fragment frag;
                 switch (i)
                 {
                     case 0:

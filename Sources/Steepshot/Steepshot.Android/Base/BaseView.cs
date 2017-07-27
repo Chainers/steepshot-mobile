@@ -1,7 +1,6 @@
-﻿using System;
-using Android.Content;
+﻿using Android.Content;
 
-namespace Steepshot
+namespace Steepshot.Base
 {
 	public interface BaseView
 	{

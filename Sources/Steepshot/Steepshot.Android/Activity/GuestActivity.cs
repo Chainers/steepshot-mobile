@@ -1,7 +1,10 @@
 ﻿using Android.App;
 using Android.OS;
+using Steepshot.Base;
+using Steepshot.Fragment;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class GuestActivity : BaseActivity, FeedView

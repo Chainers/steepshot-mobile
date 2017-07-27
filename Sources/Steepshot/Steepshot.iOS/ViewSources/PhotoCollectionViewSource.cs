@@ -1,9 +1,10 @@
 ﻿using System;
 using Foundation;
 using Photos;
+using Steepshot.iOS.Cells;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewSources
 {
     public class PhotoCollectionViewSource : UICollectionViewSource
     {

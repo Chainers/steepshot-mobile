@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Sweetshot.Library.Models.Common
+namespace Steepshot.Core.Models.Common
 {
     public class OperationResult
     {

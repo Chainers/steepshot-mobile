@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Foundation;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewSources
 {
 	public abstract class BaseTableSource<T> : UITableViewSource
 	{

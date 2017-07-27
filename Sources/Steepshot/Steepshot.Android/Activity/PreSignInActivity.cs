@@ -6,9 +6,14 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class PreSignInActivity : BaseActivity, PreSignInView

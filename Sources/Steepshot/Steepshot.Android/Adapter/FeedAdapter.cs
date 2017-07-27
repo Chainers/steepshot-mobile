@@ -1,14 +1,17 @@
 using System;
+using System.Collections.ObjectModel;
+using Android.Content;
 using Android.Support.V7.Widget;
+using Android.Text;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Android.Content;
-using Android.Text;
-using System.Collections.ObjectModel;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Base;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot
+using Steepshot.Utils;
+
+namespace Steepshot.Adapter
 {
 
     public class FeedAdapter : RecyclerView.Adapter
@@ -87,7 +90,7 @@ namespace Steepshot
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View itemView = LayoutInflater.From(parent.Context).
+            Android.Views.View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
 
 			FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
@@ -108,7 +111,7 @@ namespace Steepshot
             Post post;
             Action<int> LikeAction;
 
-			public FeedViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction, Action<int> VotersAction, int height) : base(itemView)
+			public FeedViewHolder(Android.Views.View itemView, Action<int> LikeAction, Action<int> UserAction, Action<int> CommentAction, Action<int> PhotoAction, Action<int> VotersAction, int height) : base(itemView)
 			{
 				Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
 				Author = itemView.FindViewById<TextView>(Resource.Id.author_name);

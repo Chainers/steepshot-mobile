@@ -3,9 +3,10 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
+using Steepshot.Fragment;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
-namespace Steepshot
+namespace Steepshot.Base
 {
 	public abstract class BaseActivity : AppCompatActivity, BaseView
 	{

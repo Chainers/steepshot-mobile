@@ -5,9 +5,10 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
 	public class UsersSearchAdapter : RecyclerView.Adapter
 	{
@@ -78,7 +79,7 @@ namespace Steepshot
 		public TextView Percent { get; private set; }
 		//Action<int> Click;
 
-		public UsersSearchViewHolder(View itemView) : base(itemView)
+		public UsersSearchViewHolder(Android.Views.View itemView) : base(itemView)
 		{
 			//this.Click = Click;
 			Name = itemView.FindViewById<TextView>(Resource.Id.name);

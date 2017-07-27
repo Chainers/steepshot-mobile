@@ -9,10 +9,14 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
+using Steepshot.View;
 using ZXing.Mobile;
 
-namespace Steepshot
+namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class SignInActivity : BaseActivity, SignInView

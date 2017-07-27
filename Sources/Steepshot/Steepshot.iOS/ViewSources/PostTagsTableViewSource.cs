@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Foundation;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewSources
 {
     public delegate void RowSelectedHandler(int row);
     public class PostTagsTableViewSource : UITableViewSource

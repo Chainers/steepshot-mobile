@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
-namespace Sweetshot.Library.HttpClient
+namespace Steepshot.Core.HttpClient
 {
     public interface ISteepshotApiClient
     {

@@ -1,18 +1,18 @@
 ﻿using System;
 using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
-using Java.Lang;
-using Android.Views.Animations;
-using Math = System.Math;
+using Android.OS;
+using Android.Runtime;
 using Android.Util;
-using Android.Content.Res;
+using Android.Views;
+using Android.Views.Animations;
+using Android.Widget;
+using Java.Lang;
+using Math = System.Math;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	public class ScaleImageView : ImageView
 	{
@@ -842,7 +842,7 @@ namespace Steepshot
 				this.view = view;
 			}
 
-			public bool OnTouch(View v, MotionEvent evt)
+			public bool OnTouch(Android.Views.View v, MotionEvent evt)
 			{
 				if (view.touchListener != null)
 				{

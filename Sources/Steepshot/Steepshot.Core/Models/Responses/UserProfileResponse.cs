@@ -1,6 +1,6 @@
 using System;
 
-namespace Sweetshot.Library.Models.Responses
+namespace Steepshot.Core.Models.Responses
 {
     /// {
     ///   "posting_rewards": 601,

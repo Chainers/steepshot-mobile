@@ -5,11 +5,12 @@ using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.HttpClient;
 using Steepshot.iOS.Data;
 using Sweetshot.Library.HttpClient;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {

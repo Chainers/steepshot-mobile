@@ -4,9 +4,10 @@ using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Square.Picasso;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
 	public class VotersAdapter : RecyclerView.Adapter
 	{

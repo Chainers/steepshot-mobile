@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Sweetshot.Library.Models.Responses
+namespace Steepshot.Core.Models.Responses
 {
     ///{
     ///  "offset": "qweqweqwe",

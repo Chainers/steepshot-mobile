@@ -4,7 +4,7 @@
   <string name = "hint_password">Posting key</string>
 
   <string name = "hint_posting_key">Posting key</string>
-  <string name = "text_logo">SteepShot</string>
+  <string name = "text_logo">Steepshot</string>
   <string name = "text_login">Login</string>
   <string name = "text_signup">Sign Up</string>
   <string name = "text_logout">Logout</string>

@@ -1,11 +1,12 @@
+using System.Collections.Generic;
+using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Android.Content;
-using System.Collections.Generic;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
 
     public class CategoriesAdapter : RecyclerView.Adapter
@@ -60,7 +61,7 @@ namespace Steepshot
             public TextView Tag { get; private set; }
             System.Action<int> Click;
 
-            public TagViewHolder(View itemView, System.Action<int> Click) : base(itemView)
+            public TagViewHolder(Android.Views.View itemView, System.Action<int> Click) : base(itemView)
             {
                 this.Click = Click;
                 Tag = itemView.FindViewById<TextView>(Resource.Id.tag);

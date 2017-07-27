@@ -1,9 +1,8 @@
 ﻿using System;
-
 using Foundation;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
     public partial class TagCollectionViewCell : UICollectionViewCell
     {

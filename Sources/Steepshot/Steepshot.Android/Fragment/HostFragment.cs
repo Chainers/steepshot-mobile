@@ -1,10 +1,11 @@
-﻿using Android.Support.V4.App;
+﻿using Steepshot.Base;
 
-namespace Steepshot
+
+namespace Steepshot.Fragment
 {
 	public class HostFragment : BackStackFragment
 	{
-		private Fragment fragment;
+		private Android.Support.V4.App.Fragment fragment;
 
 		public override Android.Views.View OnCreateView(Android.Views.LayoutInflater inflater, Android.Views.ViewGroup container, Android.OS.Bundle savedInstanceState)
 		{
@@ -17,7 +18,7 @@ namespace Steepshot
 			return view;
 		}
 
-		public void ReplaceFragment(Fragment fragment, bool addToBackstack)
+		public void ReplaceFragment(Android.Support.V4.App.Fragment fragment, bool addToBackstack)
 		{
 			if (addToBackstack)
 			{
@@ -29,7 +30,7 @@ namespace Steepshot
 			}
 		}
 
-		public static HostFragment NewInstance(Fragment fragment)
+		public static HostFragment NewInstance(Android.Support.V4.App.Fragment fragment)
 		{
 			HostFragment hostFragment = new HostFragment();
 			hostFragment.fragment = fragment;

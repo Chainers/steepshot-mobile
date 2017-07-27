@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Android.Content;
+using Android.Graphics;
 using Android.Runtime;
 using Android.Views;
-using Android.Graphics;
-using System.Collections.Generic;
-using System.Linq;
 using Android.Widget;
-using Java.IO;
-using System.IO;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	#pragma warning disable CS0618 // Type or member is obsolete (class uses in pre-lollipop versions)
 	public class CameraPreview : SurfaceView, ISurfaceHolderCallback, Android.Hardware.Camera.IShutterCallback, Android.Hardware.Camera.IPictureCallback
@@ -182,7 +181,7 @@ namespace Steepshot
 		{
 			var _dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
-					Android.OS.Environment.DirectoryPictures), "SteepShot");
+					Android.OS.Environment.DirectoryPictures), "Steepshot");
 			if (!_dir.Exists())
 			{
 				_dir.Mkdirs();

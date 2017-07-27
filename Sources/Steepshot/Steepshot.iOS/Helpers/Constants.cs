@@ -2,7 +2,7 @@
 using CoreGraphics;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Helpers
 {
     public class Constants
     {

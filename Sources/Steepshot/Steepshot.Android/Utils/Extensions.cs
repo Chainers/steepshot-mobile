@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	public static class Extensions
 	{/*

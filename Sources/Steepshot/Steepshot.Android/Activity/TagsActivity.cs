@@ -1,15 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using System;
-using Android.Content;
-using System.Linq;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.Utils;
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
 	[Activity(Label = "TagsActivity",ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode=Android.Views.SoftInput.AdjustNothing)]
 	public class TagsActivity : BaseActivity, TagsView

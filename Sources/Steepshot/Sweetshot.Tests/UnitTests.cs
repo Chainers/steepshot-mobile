@@ -2,7 +2,7 @@
 using System.IO;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
-using Sweetshot.Library.Models.Requests;
+using Steepshot.Core.Models.Requests;
 
 namespace Sweetshot.Tests
 {

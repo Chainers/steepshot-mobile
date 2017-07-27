@@ -1,10 +1,12 @@
-﻿using Sweetshot.Library.Models.Common;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Responses;
-using Sweetshot.Library.Models.Requests;
-using System.Threading;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Fragment;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
     public class SearchPresenter : BasePresenter
     {

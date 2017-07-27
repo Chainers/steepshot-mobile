@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using CoreData;
 using CoreGraphics;
 using FFImageLoading;
-using Sweetshot.Library.Models.Requests;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class LoginViewController : BaseViewController
     {

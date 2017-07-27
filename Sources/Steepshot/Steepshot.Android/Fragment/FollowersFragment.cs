@@ -1,15 +1,19 @@
 using System;
-using Android.App;
+using System.Threading.Tasks;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Sweetshot.Library.Models.Requests;
-using System.Threading.Tasks;
-using Android.Content;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Fragment
 {
     public class FollowersFragment : BaseFragment, FollowersView
     {
@@ -23,7 +27,7 @@ namespace Steepshot
 		[InjectView(Resource.Id.followers_list)] RecyclerView _followersList;
 #pragma warning restore 0649
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!_isInitialized)
 			{
@@ -33,7 +37,7 @@ namespace Steepshot
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			if (_isInitialized)
 				return;

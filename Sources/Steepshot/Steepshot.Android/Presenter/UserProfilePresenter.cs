@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
-using Sweetshot.Library.Models.Common;
 using System.Linq;
+using System.Threading.Tasks;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Fragment;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
 	public class UserProfilePresenter : BasePresenter
 	{

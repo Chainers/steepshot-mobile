@@ -7,10 +7,16 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Base;
+using Steepshot.Fragment;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+using PagerAdapter = Steepshot.Adapter.PagerAdapter;
+
+namespace Steepshot.Activity
 {
-	[Activity(Label = "SteepShot",ScreenOrientation = ScreenOrientation.Portrait)]
+	[Activity(Label = "Steepshot",ScreenOrientation = ScreenOrientation.Portrait)]
 	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, RootView
 	{
 		private RootPresenter presenter;

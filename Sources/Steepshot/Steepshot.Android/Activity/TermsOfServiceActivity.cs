@@ -3,8 +3,12 @@ using Android.App;
 using Android.OS;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Base;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
 	public class TermsOfServiceActivity : BaseActivity, TermsView

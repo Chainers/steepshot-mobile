@@ -2,13 +2,18 @@ using System;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
-using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Android.Support.V4.Content;
+using Steepshot.Activity;
+using Steepshot.Base;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.Utils;
+using Steepshot.View;
+
+namespace Steepshot.Fragment
 {
 	public class CameraFragment: BaseFragment, CameraView
 	{
@@ -31,14 +36,14 @@ namespace Steepshot
 			Camera.TakePicture(CameraPreview, null, null, CameraPreview);
 		}
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			var v = inflater.Inflate(Resource.Layout.lyt_fragment_take_photo, null);
 			Cheeseknife.Inject(this, v);
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			if ((int)Build.VERSION.SdkInt >= 23 && ((ContextCompat.CheckSelfPermission(Context,CameraPermission) != (int)Permission.Granted) || (ContextCompat.CheckSelfPermission(Context,WritePermission) != (int)Permission.Granted)))

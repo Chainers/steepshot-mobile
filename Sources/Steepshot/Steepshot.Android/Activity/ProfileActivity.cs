@@ -1,8 +1,10 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.OS;
+using Steepshot.Base;
+using Steepshot.Fragment;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Activity
 {
 	[Activity(Label = "ProfileActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
 	public class ProfileActivity : BaseActivity, UserProfileView

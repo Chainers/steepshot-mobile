@@ -1,7 +1,6 @@
-﻿using System;
-using Android.Support.V7.Widget;
+﻿using Android.Support.V7.Widget;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	public class GridItemdecoration : RecyclerView.ItemDecoration
 	{

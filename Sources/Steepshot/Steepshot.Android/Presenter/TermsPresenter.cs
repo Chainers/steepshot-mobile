@@ -1,9 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Responses;
+﻿using System.Threading.Tasks;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
 	public class TermsPresenter : BasePresenter
 	{

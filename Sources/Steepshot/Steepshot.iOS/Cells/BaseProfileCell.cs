@@ -1,9 +1,9 @@
 ﻿using System;
 using Foundation;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
 	public abstract class BaseProfileCell : UICollectionViewCell
 	{

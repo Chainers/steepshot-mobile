@@ -1,13 +1,13 @@
 ﻿using System;
-using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Photos;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.Helpers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
 	public partial class PhotoCollectionViewCell : BaseProfileCell
 	{

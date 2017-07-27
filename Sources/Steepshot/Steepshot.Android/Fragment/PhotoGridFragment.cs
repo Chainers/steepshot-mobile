@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Android.Content;
 using Android.Database;
@@ -8,9 +7,14 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 using Java.IO;
-using System.Linq;
+using Steepshot.Activity;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Presenter;
+using Steepshot.Utils;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Fragment
 {
 	public class PhotoGridFragment : BaseFragment, PhotoGridView
 	{
@@ -21,14 +25,14 @@ namespace Steepshot
 
 		GalleryAdapter Adapter;
 		
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			var v = inflater.Inflate(Resource.Layout.lyt_fragment_photo_grid, null);
 			Cheeseknife.Inject(this, v);
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			ImagesList.SetLayoutManager(new GridLayoutManager(Context,3));
@@ -73,7 +77,7 @@ namespace Steepshot
 		{
 			var _dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
-					Android.OS.Environment.DirectoryPictures), "SteepShot");
+					Android.OS.Environment.DirectoryPictures), "Steepshot");
 			if (!_dir.Exists())
 			{
 				_dir.Mkdirs();

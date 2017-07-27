@@ -11,9 +11,17 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Activity;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.Utils;
+using Steepshot.View;
+
+namespace Steepshot.Fragment
 {
 	public class ProfileFragment : BaseFragment, UserProfileView
 	{
@@ -49,7 +57,7 @@ namespace Steepshot
 			_profileId = profileId;
 		}
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!_isInitialized)
 			{
@@ -59,7 +67,7 @@ namespace Steepshot
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			if (_isInitialized)
 				return;

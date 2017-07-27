@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 using Foundation;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
     public delegate void HeaderTappedHandler(string username);
     public delegate void ImagePreviewHandler(UIImage image, string imageUrl);

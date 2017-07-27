@@ -1,8 +1,9 @@
 ﻿using System;
 using CoreGraphics;
+using Steepshot.iOS.Helpers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class ProfileHeaderViewController : UIViewController
     {

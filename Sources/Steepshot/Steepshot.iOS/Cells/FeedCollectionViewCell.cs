@@ -2,11 +2,13 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.Helpers;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
     public partial class FeedCollectionViewCell : BaseProfileCell
     {

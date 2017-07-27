@@ -6,8 +6,13 @@ using Android.Provider;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Activity;
+using Steepshot.Base;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Fragment
 {
 	public delegate void VoidDelegate(); 
 	public class PhotoFragment : BaseFragment, PhotoView
@@ -47,7 +52,7 @@ namespace Steepshot
 		public const string CameraFragmentId = "CameraFragmentId";
 		public const string GridFragmentId = "GridFragmentId";
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			var v = inflater.Inflate(Resource.Layout.lyt_fragment_photo, null);
 			Cheeseknife.Inject(this, v);
@@ -65,7 +70,7 @@ namespace Steepshot
 			}
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			OpenGrid();
@@ -95,7 +100,7 @@ namespace Steepshot
 		{
 			var _dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
-					Android.OS.Environment.DirectoryPictures), "SteepShot");
+					Android.OS.Environment.DirectoryPictures), "Steepshot");
 			if (!_dir.Exists())
 				_dir.Mkdirs();
 			

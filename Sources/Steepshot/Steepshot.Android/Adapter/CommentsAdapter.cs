@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Android.Content;
-using Sweetshot.Library.Models.Responses;
-using System.Collections.Generic;
+using Steepshot.Base;
+using Steepshot.Core.Models.Responses;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
 
     public class CommentAdapter : RecyclerView.Adapter
@@ -50,7 +52,7 @@ namespace Steepshot
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View itemView = LayoutInflater.From(parent.Context).
+            Android.Views.View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_comment_item, parent, false);
             CommentViewHolder vh = new CommentViewHolder(itemView, LikeAction, UserAction);
             return vh;
@@ -67,7 +69,7 @@ namespace Steepshot
             Post post;
             Action<int> LikeAction;
 
-            public CommentViewHolder(View itemView, Action<int> LikeAction, Action<int> UserAction) : base(itemView)
+            public CommentViewHolder(Android.Views.View itemView, Action<int> LikeAction, Action<int> UserAction) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
                 Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
