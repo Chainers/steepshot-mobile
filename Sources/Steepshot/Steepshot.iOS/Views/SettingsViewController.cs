@@ -99,7 +99,7 @@ namespace Steepshot.iOS.Views
                     {
                         args.Controller.DismissViewController(true, null);
                     };
-                    this.PresentViewController(_mailController, true, null);
+                    PresentViewController(_mailController, true, null);
                 }
                 else
                     ShowAlert("Setup your mail please");

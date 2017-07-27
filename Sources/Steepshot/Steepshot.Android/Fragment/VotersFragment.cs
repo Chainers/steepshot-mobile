@@ -91,7 +91,7 @@ namespace Steepshot.Fragment
 
 		public VotersScrollListener(VotersPresenter presenter, string url)
 		{
-			this._presenter = presenter;
+			_presenter = presenter;
 			_url = url;
 		}
 		int _prevPos = 0;

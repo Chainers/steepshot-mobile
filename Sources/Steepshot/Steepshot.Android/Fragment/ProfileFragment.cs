@@ -187,13 +187,13 @@ namespace Steepshot.Fragment
                     UpdateProfile();
 				    BasePresenter.ShouldUpdateProfile = false;
 				}
-				base.UserVisibleHint = value;
+				UserVisibleHint = value;
 			}
 		}
 
         public void OnClick(int position)
         {
-            Intent intent = new Intent(this.Context,typeof(PostPreviewActivity));
+            Intent intent = new Intent(Context,typeof(PostPreviewActivity));
             intent.PutExtra("PhotoURL", _presenter.UserPosts[position].Body);
             StartActivity(intent);
         }
@@ -242,9 +242,9 @@ namespace Steepshot.Fragment
 
 				_profileName.Text = string.IsNullOrEmpty(_profile.Name) ? _profile.Username : _profile.Name;
                 if(!string.IsNullOrEmpty(_profile.ProfileImage))
-					Picasso.With(this.Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
+					Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
                 else
-                    Picasso.With(this.Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
+                    Picasso.With(Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
 				_costButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, BasePresenter.Currency));
                 _photosCount.Text = _profile.PostCount.ToString();
                 _site.Text = _profile.Website;
@@ -259,7 +259,7 @@ namespace Steepshot.Fragment
             else
             {
 				Reporter.SendCrash("Profile data = null(Profile fragment)", BasePresenter.User.Login, BasePresenter.AppVersion);
-                Toast.MakeText(this.Context, "Profile loading error. Try relaunch app", ToastLength.Short).Show();
+                Toast.MakeText(Context, "Profile loading error. Try relaunch app", ToastLength.Short).Show();
             }
 		}
 
@@ -290,9 +290,9 @@ namespace Steepshot.Fragment
 
         void FeedAdapter_CommentAction(int position)
         {
-            Intent intent = new Intent(this.Context, typeof(CommentsActivity));
+            Intent intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra("uid", _presenter.UserPosts[position].Url);
-            this.Context.StartActivity(intent);
+            Context.StartActivity(intent);
         }
 
 		void FeedAdapter_VotersAction(int position)
@@ -348,7 +348,7 @@ namespace Steepshot.Fragment
 			int _prevPos = 0;
 			public FeedsScrollListener(UserProfilePresenter presenter)
 			{
-				this._presenter = presenter;
+				_presenter = presenter;
 				presenter.PostsCleared += () =>
 				{
 					_prevPos = 0;

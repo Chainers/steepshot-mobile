@@ -34,7 +34,7 @@ namespace Steepshot.iOS.Views
 			base.ViewDidLoad();
 			var margin = NavigationController.NavigationBar.Frame.Height + UIApplication.SharedApplication.StatusBarFrame.Height;
 			var imageScrollView = new UIScrollView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height - margin));
-			this.View.AddSubview(imageScrollView);
+			View.AddSubview(imageScrollView);
 			var imageView = new UIImageView(new CGRect(0, 0, imageScrollView.Frame.Width, imageScrollView.Frame.Height));
 			if (ImageForPreview != null)
 			{
@@ -45,7 +45,7 @@ namespace Steepshot.iOS.Views
 			}
 			else
 			{
-				this.View.BackgroundColor = UIColor.White;
+				View.BackgroundColor = UIColor.White;
 				imageView.Image = UIImage.FromBundle("ic_photo_holder");
 			}
 			ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)

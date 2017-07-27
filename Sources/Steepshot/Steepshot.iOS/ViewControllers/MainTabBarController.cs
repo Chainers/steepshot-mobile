@@ -25,7 +25,7 @@ namespace Steepshot.iOS.ViewControllers
 			profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("profile"), UIImage.FromBundle("profile"));
 			profileTab.NavigationBar.Translucent = false;
 
-			this.ViewControllers = new UIViewController[] {
+			ViewControllers = new UIViewController[] {
 				feedTab,
 				browseTab,
 				photoTab,

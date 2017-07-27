@@ -75,14 +75,14 @@ namespace Steepshot.Activity
 
             Picasso.With(this).Load(new Java.IO.File(_path))
                    .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
-                   .Resize(this.Resources.DisplayMetrics.WidthPixels, 0)
+                   .Resize(Resources.DisplayMetrics.WidthPixels, 0)
                    .Into(_photoFrame);
         }
 
 
         public void AddTags(List<string> tags)
         {
-            this._tags = tags;
+            _tags = tags;
             _tagLayout.RemoveAllViews();
 
             _add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_add_tag, null, false);

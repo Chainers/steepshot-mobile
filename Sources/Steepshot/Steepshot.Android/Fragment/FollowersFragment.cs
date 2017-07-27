@@ -67,7 +67,7 @@ namespace Steepshot.Fragment
 
 			public FollowersScrollListener(FollowersPresenter presenter, string username, FollowType followType)
 			{
-				this._presenter = presenter;
+				_presenter = presenter;
 				_username = username;
 				_followType = followType;
 			}

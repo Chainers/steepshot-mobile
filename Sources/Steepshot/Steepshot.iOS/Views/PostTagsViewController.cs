@@ -125,7 +125,7 @@ namespace Steepshot.iOS.Views
                         tagsTable.ReloadData();
                     }
                     else
-                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
+                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0], User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
@@ -138,7 +138,7 @@ namespace Steepshot.iOS.Views
         {
             TagsList.AddRange(_collectionviewSource.TagsCollection.Except(TagsList));
             TagsList = TagsList.Take(4).ToList();
-            this.NavigationController.PopViewController(true);
+            NavigationController.PopViewController(true);
         }
 
         private void AddTagButtonClick(object sender, EventArgs e)

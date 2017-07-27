@@ -73,11 +73,11 @@ namespace Steepshot.Fragment
 			base.OnPause();
 		}
 */
-		private Java.IO.File GetDirectoryForPictures()
+		private File GetDirectoryForPictures()
 		{
-			var dir = new Java.IO.File(
-				Android.OS.Environment.GetExternalStoragePublicDirectory(
-					Android.OS.Environment.DirectoryPictures), "Steepshot");
+			var dir = new File(
+				Environment.GetExternalStoragePublicDirectory(
+					Environment.DirectoryPictures), "Steepshot");
 			if (!dir.Exists())
 			{
 				dir.Mkdirs();

@@ -23,8 +23,8 @@ namespace Steepshot.Adapter
 
 		public FeedAdapter(Context context, ObservableCollection<Post> posts, bool isFeed = false)
         {
-            this._context = context;
-            this._posts = posts;
+            _context = context;
+            _posts = posts;
         }
 
         public Post GetItem(int position)
@@ -128,7 +128,7 @@ namespace Steepshot.Adapter
 				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
 				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
 
-				this._likeAction = likeAction;
+				_likeAction = likeAction;
 
 				Like.Click += Like_Click;
 				Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
@@ -150,7 +150,7 @@ namespace Steepshot.Adapter
 
             public void UpdateData(Post post, Context context)
             {
-                this._post = post;
+                _post = post;
                 Likes.Text = $"{post.NetVotes} likes";
                 Cost.Text = $"{BasePresenter.Currency}{post.TotalPayoutReward}";
 				Time.Text = post.Created.ToPostTime();

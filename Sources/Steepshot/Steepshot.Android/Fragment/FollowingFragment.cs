@@ -19,14 +19,14 @@ namespace Steepshot.Fragment
         FeedFragment _parent;
         public FollowingFragment(FeedFragment parent)
         {
-            this._parent = parent;
+            _parent = parent;
         }
 
 		[InjectOnClick(Resource.Id.btn_new)]
 		public void OnNewClick(object sender, EventArgs e)
 		{
 			_parent.CustomTag = null;
-			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.New);
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.New);
             _parent.HideFollowing();
 		}
 
@@ -34,7 +34,7 @@ namespace Steepshot.Fragment
 		public void OnHotClick(object sender, EventArgs e)
 		{
 			_parent.CustomTag = null;
-			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Hot);
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.Hot);
             _parent.HideFollowing();
         }
 
@@ -42,7 +42,7 @@ namespace Steepshot.Fragment
 		public void OnTrendingClick(object sender, EventArgs e)
 		{
 			_parent.CustomTag = null;
-			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Top);
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.Top);
             _parent.HideFollowing();
         }
 

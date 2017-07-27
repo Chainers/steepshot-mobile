@@ -21,7 +21,7 @@ namespace Steepshot.Presenter
             var request = new GetCommentsRequest(postUrl, User.CurrentUser);
 
             var result = await Api.GetComments(request);
-            this.Posts = result.Result.Results;
+            Posts = result.Result.Results;
             return Posts;
         }
 

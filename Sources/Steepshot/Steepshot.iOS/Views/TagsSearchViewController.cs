@@ -156,7 +156,7 @@ namespace Steepshot.iOS.Views
                         }
                     }
                     else if (response?.Errors.Count > 0)
-                        Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
+                        Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0], User.Login, AppVersion);
                 }
             }
             catch (TaskCanceledException)

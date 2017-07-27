@@ -25,11 +25,11 @@ namespace Steepshot.Utils
 			int curWidth, curHeight, curLeft, curTop, maxHeight;
 
 			//get the available size of child view
-			int childLeft = this.PaddingLeft;
-			int childTop = this.PaddingTop;
+			int childLeft = PaddingLeft;
+			int childTop = PaddingTop;
 
-			int childRight = this.MeasuredWidth - this.PaddingRight;
-			int childBottom = this.MeasuredHeight - this.PaddingBottom;
+			int childRight = MeasuredWidth - PaddingRight;
+			int childBottom = MeasuredHeight - PaddingBottom;
 
 			int childWidth = childRight - childLeft;
 			int childHeight = childBottom - childTop;

@@ -21,7 +21,7 @@ namespace Steepshot.Adapter
 
         public PagerAdapter(FragmentManager fm, Context context) : base(fm)
         {
-            this._context = context;
+            _context = context;
             InitializeTabs();
         }
 

@@ -69,7 +69,7 @@ namespace Steepshot.Fragment
 			Context.StartActivity(i);
 		}
 
-		public override void OnActivityResult(int requestCode, int resultCode, Android.Content.Intent data)
+		public override void OnActivityResult(int requestCode, int resultCode, Intent data)
 		{
 			base.OnActivityResult(requestCode, resultCode, data);
 			if (requestCode == CameraRequestCode)

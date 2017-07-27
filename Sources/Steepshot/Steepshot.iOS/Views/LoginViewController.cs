@@ -65,7 +65,7 @@ namespace Steepshot.iOS.Views
             };
             password.RightView = new UIView(new CGRect(0, 0, eyeButton.Frame.Width + 10, 0));
             password.RightViewMode = UITextFieldViewMode.Always;
-            var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
+            var tw = new UILabel(new CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
             tw.TextColor = UIColor.White;
             tw.Text = "PROFILE"; // to constants
             tw.BackgroundColor = UIColor.Clear;
@@ -118,8 +118,8 @@ namespace Steepshot.iOS.Views
                     IsHomeFeedLoaded = false;
                     var myViewController = new MainTabBarController();
 
-                    this.NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                    this.NavigationController.PopViewController(true);
+                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                    NavigationController.PopViewController(true);
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace Steepshot.iOS.Views
         public override void ViewWillDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(true, true);
-            base.ViewDidDisappear(animated);
+            ViewDidDisappear(animated);
         }
     }
 }

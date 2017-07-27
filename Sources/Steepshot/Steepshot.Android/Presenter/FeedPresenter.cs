@@ -72,7 +72,7 @@ namespace Steepshot.Presenter
 
                 using (_cts = new CancellationTokenSource())
                 {
-                    this._type = type;
+                    _type = type;
                     Processing = true;
 
                     OperationResult<UserPostResponse> response;
@@ -122,7 +122,7 @@ namespace Steepshot.Presenter
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                Reporter.SendCrash(ex, User.Login, AppVersion);
             }
             finally
             {
@@ -179,7 +179,7 @@ namespace Steepshot.Presenter
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                Reporter.SendCrash(ex, User.Login, AppVersion);
             }
             finally
             {

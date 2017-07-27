@@ -384,7 +384,7 @@ namespace Steepshot.iOS.Views
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>())));
-            this.PresentViewController(actionSheetAlert, true, null);
+            PresentViewController(actionSheetAlert, true, null);
         }
 
         private void HidePhoto(string url)
@@ -449,7 +449,7 @@ namespace Steepshot.iOS.Views
             _tw.BackgroundColor = UIColor.Clear;
             _tw.TextAlignment = UITextAlignment.Center;
             _tw.Font = UIFont.SystemFontOfSize(17);
-            titleView.Frame = new CoreGraphics.CGRect(0, 0, _tw.Frame.Right, barHeight);
+            titleView.Frame = new CGRect(0, 0, _tw.Frame.Right, barHeight);
 
             titleView.Add(_tw);
             if (!_isHomeFeed)
@@ -460,7 +460,7 @@ namespace Steepshot.iOS.Views
                 titleView.UserInteractionEnabled = true;
 
                 var arrowSize = 15;
-                _arrow = new UIImageView(new CoreGraphics.CGRect(_tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
+                _arrow = new UIImageView(new CGRect(_tw.Frame.Right, barHeight / 2 - arrowSize / 2, arrowSize, arrowSize));
                 _arrow.Image = UIImage.FromBundle("white-arrow-down");
                 titleView.Add(_arrow);
                 titleView.Frame = new CGRect(0, 0, _arrow.Frame.Right, barHeight);

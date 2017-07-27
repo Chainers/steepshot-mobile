@@ -13,7 +13,7 @@ namespace Steepshot.iOS.Data
 
         public DataProvider()
         {
-            var appSettings = NSUserDefaults.StandardUserDefaults.StringForKey(Steepshot.iOS.Helpers.Constants.UserContextKey);
+            var appSettings = NSUserDefaults.StandardUserDefaults.StringForKey(Helpers.Constants.UserContextKey);
             _set = appSettings != null ? JsonConvert.DeserializeObject<List<UserInfo>>(appSettings) : new List<UserInfo>();
         }
 
@@ -64,7 +64,7 @@ namespace Steepshot.iOS.Data
         private void Save()
         {
             var context = JsonConvert.SerializeObject(_set);
-            NSUserDefaults.StandardUserDefaults.SetString(context, Steepshot.iOS.Helpers.Constants.UserContextKey);
+            NSUserDefaults.StandardUserDefaults.SetString(context, Helpers.Constants.UserContextKey);
             NSUserDefaults.StandardUserDefaults.Synchronize();
         }
     }

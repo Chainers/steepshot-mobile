@@ -21,13 +21,13 @@ namespace Steepshot.Adapter
 
         public CommentAdapter(Context context, List<Post> posts)
         {
-            this._context = context;
-            this._posts = posts;
+            _context = context;
+            _posts = posts;
         }
 
         public void Reload(List<Post> posts)
         {
-            this._posts = posts;
+            _posts = posts;
             NotifyDataSetChanged();
         }
 
@@ -78,7 +78,7 @@ namespace Steepshot.Adapter
                 Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
                 Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
 
-                this._likeAction = likeAction;
+                _likeAction = likeAction;
 
                 Like.Click += Like_Click;
                 Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
@@ -114,7 +114,7 @@ namespace Steepshot.Adapter
 
             public void UpdateData(Post post, Context context)
             {
-                this._post = post;
+                _post = post;
                 Author.Text = post.Author;
                 Comment.Text = post.Body;
 
