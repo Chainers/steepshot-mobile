@@ -15,6 +15,8 @@
             set => _isLoggedIn = value;
         }
 
+        public LoginResponse() {}
+
         public LoginResponse(string msg)
         {
             Message = msg;
