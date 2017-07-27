@@ -37,7 +37,7 @@ namespace Steepshot.Base
 
         public BasePresenter(IBaseView view)
         {
-            this.View = view;
+            View = view;
         }
 
         public static void SwitchChain(bool isDev)

@@ -72,7 +72,7 @@ namespace Steepshot.Activity
         }
 
         [InjectOnClick(Resource.Id.ic_logo)]
-        private void Logo_Click(object sender, System.EventArgs e)
+        private void Logo_Click(object sender, EventArgs e)
         {
             _clickCount++;
             if (_clickCount == 5)
@@ -97,7 +97,7 @@ namespace Steepshot.Activity
         }
 
         [InjectOnClick(Resource.Id.sign_in_btn)]
-        private async void SignInBtn_Click(object sender, System.EventArgs e)
+        private async void SignInBtn_Click(object sender, EventArgs e)
         {
             try
             {

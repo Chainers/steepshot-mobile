@@ -18,7 +18,7 @@ namespace Steepshot.Adapter
 
 		public TagsAdapter(Context context)
 		{
-			this._context = context;
+			_context = context;
 		}
 
 		public void Clear()
@@ -28,7 +28,7 @@ namespace Steepshot.Adapter
 
 		public void Reset(List<SearchResult> items)
 		{
-			this._items = items;
+			_items = items;
 		}
 
 		public SearchResult GetItem(int position)
@@ -66,7 +66,7 @@ namespace Steepshot.Adapter
 
 			public TagViewHolder(Android.Views.View itemView, System.Action<int> click) : base(itemView)
 			{
-				this._click = click;
+				_click = click;
 				Tag = itemView.FindViewById<TextView>(Resource.Id.tag);
 
 				Tag.Clickable = true;

@@ -335,7 +335,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
+                    Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0], User.Login, AppVersion);
                     ShowAlert(response.Errors[0]);
                 }
             }
@@ -389,7 +389,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
+                    Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0], User.Login, AppVersion);
                     ShowAlert(voteResponse.Errors[0]);
                 }
                 success.Invoke(postUri, voteResponse);
@@ -411,7 +411,7 @@ namespace Steepshot.iOS.Views
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>())));
-            this.PresentViewController(actionSheetAlert, true, null);
+            PresentViewController(actionSheetAlert, true, null);
         }
 
         private void HidePhoto(string url)
@@ -481,7 +481,7 @@ namespace Steepshot.iOS.Views
                 ToogleFollowButton();
             }
             else
-                Reporter.SendCrash("Profile page follow error: " + resp.Errors[0], BaseViewController.User.Login, BaseViewController.AppVersion);
+                Reporter.SendCrash("Profile page follow error: " + resp.Errors[0], User.Login, AppVersion);
 
         }
 

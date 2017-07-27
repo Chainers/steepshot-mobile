@@ -107,7 +107,7 @@ namespace Steepshot.Utils
 		void SharedConstructing(Context context)
 		{
 			Clickable = true;
-			this._context = context;
+			_context = context;
 			_scaleDetector = new ScaleGestureDetector(context, new ScaleListener(this));
 			_gestureDetector = new GestureDetector(context, new GestureListener(this));
 			matrix = new Matrix();
@@ -746,7 +746,7 @@ namespace Steepshot.Utils
 
 		void SetState(TouchState state)
 		{
-			this._state = state;
+			_state = state;
 		}
 
 		//
@@ -760,7 +760,7 @@ namespace Steepshot.Utils
 
 			public GestureListener(ScaleImageView view)
 			{
-				this._view = view;
+				_view = view;
 			}
 
 			public override bool OnSingleTapConfirmed(MotionEvent e)
@@ -839,7 +839,7 @@ namespace Steepshot.Utils
 
 			public ScaleImageViewListener(ScaleImageView view)
 			{
-				this._view = view;
+				_view = view;
 			}
 
 			public bool OnTouch(Android.Views.View v, MotionEvent evt)
@@ -909,7 +909,7 @@ namespace Steepshot.Utils
 
 			public ScaleListener(ScaleImageView view)
 			{
-				this._view = view;
+				_view = view;
 			}
 
 			public override bool OnScaleBegin(ScaleGestureDetector detector)
@@ -998,12 +998,12 @@ namespace Steepshot.Utils
 
 			public DoubleTapZoom(ScaleImageView view, float targetZoom, float focusX, float focusY, bool stretchImageToSuper)
 			{
-				this._view = view;
+				_view = view;
 				view.SetState(TouchState.AnimateZoom);
 				_startTime = DateTime.Now.Ticks;
 				_startZoom = view.NormalizedScale;
-				this._targetZoom = targetZoom;
-				this._stretchImageToSuper = stretchImageToSuper;
+				_targetZoom = targetZoom;
+				_stretchImageToSuper = stretchImageToSuper;
 				var bitmapPoint = view.TransformCoordTouchToBitmap(focusX, focusY, false);
 				_bitmapX = bitmapPoint.X;
 				_bitmapY = bitmapPoint.Y;
@@ -1138,7 +1138,7 @@ namespace Steepshot.Utils
 			{
 				try
 				{
-					this._view = view;
+					_view = view;
 					view.SetState(TouchState.Fling);
 					_scroller = new Scroller(view._context);
 					view.matrix.GetValues(view._m);
@@ -1310,10 +1310,10 @@ namespace Steepshot.Utils
 
 			public ZoomVariables(float scale, float focusX, float focusY, ScaleType scaleType)
 			{
-				this.Scale = scale;
-				this.FocusX = focusX;
-				this.FocusY = focusY;
-				this.ScaleType = scaleType;
+				Scale = scale;
+				FocusX = focusX;
+				FocusY = focusY;
+				ScaleType = scaleType;
 			}
 		}
 

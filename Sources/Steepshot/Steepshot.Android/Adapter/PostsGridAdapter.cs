@@ -17,8 +17,8 @@ namespace Steepshot.Adapter
 
         public PostsGridAdapter(Context context, ObservableCollection<Post> posts)
         {
-            this._context = context;
-            this._posts = posts;
+            _context = context;
+            _posts = posts;
         }
 
         public Post GetItem(int position)
@@ -56,7 +56,7 @@ namespace Steepshot.Adapter
 
 			public ImageViewHolder(Android.Views.View itemView,System.Action<int> click) : base(itemView)
             {
-				this._click = click;
+				_click = click;
 				Photo = (ImageView)itemView;
                 Photo.Clickable = true;
                 Photo.Click += OnClick;

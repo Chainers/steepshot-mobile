@@ -22,7 +22,7 @@ namespace Steepshot.Utils
 
 		public CameraPreview(Context context, Android.Hardware.Camera camera) : base(context)
 		{
-			this._mCamera = camera;
+			_mCamera = camera;
 			Holder.AddCallback(this);
 
 			_mSupportedPreviewSizes = _mCamera.GetParameters().SupportedPreviewSizes.ToList();
@@ -41,7 +41,7 @@ namespace Steepshot.Utils
 			}
 			catch (Exception e)
 			{
-				System.Console.WriteLine("Error setting camera preview: " + e.Message);
+				Console.WriteLine("Error setting camera preview: " + e.Message);
 			}
 
 			try
@@ -80,7 +80,7 @@ namespace Steepshot.Utils
 			}
 			catch (Exception e)
 			{
-				System.Console.WriteLine("Error setting camera preview: " + e.Message);
+				Console.WriteLine("Error setting camera preview: " + e.Message);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace Steepshot.Utils
 			}
 			catch (Exception e)
 			{
-				System.Console.WriteLine("Error setting camera preview: " + e.Message);
+				Console.WriteLine("Error setting camera preview: " + e.Message);
 			}
 		}
 

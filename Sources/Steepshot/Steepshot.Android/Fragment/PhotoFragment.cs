@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
 		public void OnSwitcherClick(object sender, EventArgs e)
 		{
 			var directory = GetDirectoryForPictures();
-			_photo = new Java.IO.File(directory, System.Guid.NewGuid().ToString());
+			_photo = new Java.IO.File(directory, Guid.NewGuid().ToString());
 
 			Intent intent = new Intent(MediaStore.ActionImageCapture);
 			intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));

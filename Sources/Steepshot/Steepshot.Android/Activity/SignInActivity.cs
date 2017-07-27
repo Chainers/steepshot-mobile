@@ -82,7 +82,7 @@ namespace Steepshot.Activity
             };
         }
 
-        private void TextChanged(object sender, global::Android.Text.TextChangedEventArgs e)
+        private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)
         {
             var typedsender = (EditText)sender;
             if (string.IsNullOrWhiteSpace(e?.Text.ToString()))
@@ -95,7 +95,7 @@ namespace Steepshot.Activity
         }
 
         [InjectOnClick(Resource.Id.sign_in_btn)]
-        private async void SignInBtn_Click(object sender, System.EventArgs e)
+        private async void SignInBtn_Click(object sender, EventArgs e)
         {
             try
             {

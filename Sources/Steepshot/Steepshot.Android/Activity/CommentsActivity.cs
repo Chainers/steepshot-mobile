@@ -49,8 +49,8 @@ namespace Steepshot.Activity
                 {
                     if (_textInput.Text != string.Empty)
                     {
-                        _sendSpinner.Visibility = Android.Views.ViewStates.Visible;
-                        _post.Visibility = Android.Views.ViewStates.Invisible;
+                        _sendSpinner.Visibility = ViewStates.Visible;
+                        _post.Visibility = ViewStates.Invisible;
                         var resp = await _presenter.CreateComment(_textInput.Text, _uid);
                         if (resp.Success)
                         {

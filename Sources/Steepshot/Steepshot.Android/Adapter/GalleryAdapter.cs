@@ -19,7 +19,7 @@ namespace Steepshot.Adapter
 
         public GalleryAdapter(Context context)
         {
-            this._context = context;
+            _context = context;
         }
 
 		public void Clear()
@@ -29,7 +29,7 @@ namespace Steepshot.Adapter
 
 		public void Reset(List<string> posts)
 		{
-			this._posts = posts;
+			_posts = posts;
 		}
 
         public string GetItem(int position)
@@ -71,7 +71,7 @@ namespace Steepshot.Adapter
 
 			public ImageViewHolder(Android.Views.View itemView,System.Action<int> click) : base(itemView)
             {
-				this._click = click;
+				_click = click;
 				Photo = (ImageView)itemView;
 
 				Photo.Clickable = true;

@@ -144,16 +144,16 @@ namespace Steepshot.Fragment
 
 		public void PhotoClick(int position)
 		{
-			Intent intent = new Intent(this.Context, typeof(PostPreviewActivity));
+			Intent intent = new Intent(Context, typeof(PostPreviewActivity));
 			intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
 			StartActivity(intent);
 		}
 
 		void FeedAdapter_CommentAction(int position)
 		{
-			Intent intent = new Intent(this.Context, typeof(CommentsActivity));
+			Intent intent = new Intent(Context, typeof(CommentsActivity));
 			intent.PutExtra("uid", _presenter.Posts[position].Url);
-			this.Context.StartActivity(intent);
+			Context.StartActivity(intent);
 		}
 
 		void FeedAdapter_VotersAction(int position)
@@ -267,8 +267,8 @@ namespace Steepshot.Fragment
 
 			public FeedsScrollListener(FeedPresenter presenter)
 			{
-				this._presenter = presenter;
-				this._presenter.PostsCleared += () =>
+				_presenter = presenter;
+				_presenter.PostsCleared += () =>
 				{
 					_prevPos = 0;
 				};

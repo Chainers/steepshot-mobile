@@ -151,7 +151,7 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(false, false);
             var barHeight = NavigationController.NavigationBar.Frame.Height;
 
-            var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, barHeight));
+            var tw = new UILabel(new CGRect(0, 0, 120, barHeight));
             tw.TextColor = UIColor.White;
             tw.Text = "CHOOSE PHOTO"; // to constants
             tw.BackgroundColor = UIColor.Clear;
