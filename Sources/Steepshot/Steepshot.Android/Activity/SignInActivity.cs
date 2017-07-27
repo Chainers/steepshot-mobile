@@ -19,21 +19,21 @@ using ZXing.Mobile;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SignInActivity : BaseActivity, SignInView
+    public class SignInActivity : BaseActivity, ISignInView
     {
-        SignInPresenter presenter;
+        SignInPresenter _presenter;
 
         private string _username;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.profile_image)] CircleImageView ProfileImage;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
-        [InjectView(Resource.Id.title)] TextView title;
+        [InjectView(Resource.Id.profile_image)] CircleImageView _profileImage;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
+        [InjectView(Resource.Id.title)] TextView _title;
         [InjectView(Resource.Id.input_password)] EditText _password;
-        [InjectView(Resource.Id.qr_button)] Button buttonScanDefaultView;
+        [InjectView(Resource.Id.qr_button)] Button _buttonScanDefaultView;
 #pragma warning restore 0649
 
-        MobileBarcodeScanner scanner;
+        MobileBarcodeScanner _scanner;
         private KnownChains _newChain;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -42,9 +42,9 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
             MobileBarcodeScanner.Initialize(Application);
-            scanner = new MobileBarcodeScanner();
+            _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra("login");
-            title.Text = $"Hello, {_username}";
+            _title.Text = $"Hello, {_username}";
             var profileImage = Intent.GetStringExtra("avatar_url");
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
@@ -55,23 +55,23 @@ namespace Steepshot.Activity
             _password.TextChanged += TextChanged;
 
             if (!string.IsNullOrEmpty(profileImage))
-                Picasso.With(this).Load(profileImage).Into(ProfileImage);
+                Picasso.With(this).Load(profileImage).Into(_profileImage);
             else
-                Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(ProfileImage);
+                Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
 
-            buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
+            _buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
             {
                 try
                 {
                     //Tell our scanner to use the default overlay
-                    scanner.UseCustomOverlay = false;
+                    _scanner.UseCustomOverlay = false;
 
                     //We can customize the top and bottom text of the default overlay
-                    scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
-                    scanner.BottomText = "Wait for the barcode to automatically scan!";
+                    _scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
+                    _scanner.BottomText = "Wait for the barcode to automatically scan!";
 
                     //Start scanning
-                    var result = await scanner.Scan();
+                    var result = await _scanner.Scan();
                     if (result != null)
                         _password.Text = result.Text;
                 }
@@ -108,14 +108,14 @@ namespace Steepshot.Activity
                     return;
                 }
 
-                spinner.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Visible;
                 ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
                 ((AppCompatButton)sender).Enabled = false;
 
                 if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
                     return;
 
-                var response = await presenter.SignIn(login, pass);
+                var response = await _presenter.SignIn(login, pass);
 
                 if (response != null)
                 {
@@ -130,7 +130,7 @@ namespace Steepshot.Activity
                     else
                     {
                         ShowAlert(response.Errors[0]);
-                        spinner.Visibility = ViewStates.Invisible;
+                        _spinner.Visibility = ViewStates.Invisible;
                         ((AppCompatButton)sender).Visibility = ViewStates.Visible;
                         ((AppCompatButton)sender).Enabled = true;
                     }
@@ -138,7 +138,7 @@ namespace Steepshot.Activity
                 else
                 {
                     ShowAlert(Resource.String.error_connect_to_server);
-                    spinner.Visibility = ViewStates.Invisible;
+                    _spinner.Visibility = ViewStates.Invisible;
                     ((AppCompatButton)sender).Visibility = ViewStates.Visible;
                     ((AppCompatButton)sender).Enabled = true;
                 }
@@ -161,7 +161,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            presenter = new SignInPresenter(this);
+            _presenter = new SignInPresenter(this);
         }
     }
 }

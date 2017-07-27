@@ -5,15 +5,15 @@ namespace Steepshot.Fragment
 {
 	public class HostFragment : BackStackFragment
 	{
-		private Android.Support.V4.App.Fragment fragment;
+		private Android.Support.V4.App.Fragment _fragment;
 
 		public override Android.Views.View OnCreateView(Android.Views.LayoutInflater inflater, Android.Views.ViewGroup container, Android.OS.Bundle savedInstanceState)
 		{
 			base.OnCreateView(inflater, container, savedInstanceState);
 			var view = inflater.Inflate(Resource.Layout.HostLayout, container, false);
-			if (fragment != null)
+			if (_fragment != null)
 			{
-				ReplaceFragment(fragment, false);
+				ReplaceFragment(_fragment, false);
 			}
 			return view;
 		}
@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
 		public static HostFragment NewInstance(Android.Support.V4.App.Fragment fragment)
 		{
 			HostFragment hostFragment = new HostFragment();
-			hostFragment.fragment = fragment;
+			hostFragment._fragment = fragment;
 			return hostFragment;
 		}
 
@@ -45,7 +45,7 @@ namespace Steepshot.Fragment
 			}
 			set
 			{
-				((BaseFragment)fragment).CustomUserVisibleHint = value;
+				((BaseFragment)_fragment).CustomUserVisibleHint = value;
 				base.UserVisibleHint = value;
 			}
 		}

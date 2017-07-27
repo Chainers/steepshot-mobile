@@ -7,7 +7,7 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
 	[Activity(Label = "ProfileActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-	public class ProfileActivity : BaseActivity, UserProfileView
+	public class ProfileActivity : BaseActivity, IUserProfileView
 	{
 		protected override void CreatePresenter() { }
 

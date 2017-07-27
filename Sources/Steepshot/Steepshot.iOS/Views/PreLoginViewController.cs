@@ -20,7 +20,7 @@ namespace Steepshot.iOS.Views
         {
         }
 
-        public KnownChains newAccountNetwork;
+        public KnownChains NewAccountNetwork;
 
         public override void ViewDidLoad()
         {
@@ -70,12 +70,12 @@ namespace Steepshot.iOS.Views
             picker.Model = new NetworkPickerViewModel(NetworkSwithed);
             picker.Select(Convert.ToInt32(Chain != KnownChains.Steem), 0, true);
 
-            if (newAccountNetwork != KnownChains.None)
+            if (NewAccountNetwork != KnownChains.None)
             {
                 picker.Hidden = true;
                 //steemImg.Hidden = true;
                 //golosImg.Hidden = true;
-                SwitchChain(newAccountNetwork);
+                SwitchChain(NewAccountNetwork);
             }
 
             UITapGestureRecognizer logoTap = new UITapGestureRecognizer(
@@ -97,9 +97,9 @@ namespace Steepshot.iOS.Views
         public override void ViewDidDisappear(bool animated)
         {
             base.ViewDidDisappear(animated);
-            if (IsMovingFromParentViewController && newAccountNetwork != KnownChains.None)
+            if (IsMovingFromParentViewController && NewAccountNetwork != KnownChains.None)
             {
-                SwitchChain(newAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                SwitchChain(NewAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
         }
 
@@ -111,8 +111,8 @@ namespace Steepshot.iOS.Views
 
         private void SetText(KnownChains network)
         {
-            loginLabel.Text = $"Log in with your {(newAccountNetwork == KnownChains.None ? network : newAccountNetwork)} Account";
-            signLabel.Text = $"Haven't {(newAccountNetwork == KnownChains.None ? network : newAccountNetwork)} account yet?";
+            loginLabel.Text = $"Log in with your {(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork)} Account";
+            signLabel.Text = $"Haven't {(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork)} account yet?";
         }
 
         private async Task GetUserInfo()

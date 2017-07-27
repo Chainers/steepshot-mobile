@@ -25,20 +25,20 @@ namespace Steepshot.iOS.Views
         {
         }
 
-        private TagsCollectionViewSource collectionviewSource;
-        private CancellationTokenSource cts;
-        private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
+        private TagsCollectionViewSource _collectionviewSource;
+        private CancellationTokenSource _cts;
+        private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
         private Timer _timer;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            _timer = new Timer(onTimer);
+            _timer = new Timer(OnTimer);
             //Table initialization
-            tagsTable.Source = tagsSource;
+            tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
             GetTags(null);
-            tagsSource.RowSelectedEvent += TableTagSelected;
+            _tagsSource.RowSelectedEvent += TableTagSelected;
 
             //Collection view initialization
             tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
@@ -49,9 +49,9 @@ namespace Steepshot.iOS.Views
             //EstimatedItemSize = new CGSize(100, 50),
 
             //}, false);
-            collectionviewSource = new TagsCollectionViewSource();
-            collectionviewSource.RowSelectedEvent += CollectionTagSelected;
-            tagsCollectionView.Source = collectionviewSource;
+            _collectionviewSource = new TagsCollectionViewSource();
+            _collectionviewSource.RowSelectedEvent += CollectionTagSelected;
+            tagsCollectionView.Source = _collectionviewSource;
 
             addTagButton.TouchDown += AddTagButtonClick;
             addTagsButton.TouchDown += AddTags;
@@ -72,16 +72,16 @@ namespace Steepshot.iOS.Views
 
         private void TableTagSelected(int row)
         {
-            AddTag(tagsSource.Tags[row].Name);
+            AddTag(_tagsSource.Tags[row].Name);
         }
 
         private void CollectionTagSelected(int row)
         {
-            collectionviewSource.TagsCollection.RemoveAt(row);
+            _collectionviewSource.TagsCollection.RemoveAt(row);
             tagsCollectionView.ReloadData();
         }
 
-        private void onTimer(object state)
+        private void OnTimer(object state)
         {
             InvokeOnMainThread(() =>
            {
@@ -96,7 +96,7 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                cts?.Cancel();
+                _cts?.Cancel();
             }
             catch (ObjectDisposedException)
             {
@@ -105,23 +105,23 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                using (cts = new CancellationTokenSource())
+                using (_cts = new CancellationTokenSource())
                 {
                     OperationResult<SearchResponse<SearchResult>> response;
                     if (string.IsNullOrEmpty(query))
                     {
                         var request = new SearchRequest() { };
-                        response = await Api.GetCategories(request, cts);
+                        response = await Api.GetCategories(request, _cts);
                     }
                     else
                     {
                         var request = new SearchWithQueryRequest(query, User.CurrentUser);
-                        response = await Api.SearchCategories(request, cts);
+                        response = await Api.SearchCategories(request, _cts);
                     }
                     if (response.Success)
                     {
-                        tagsSource.Tags.Clear();
-                        tagsSource.Tags = response.Result?.Results;
+                        _tagsSource.Tags.Clear();
+                        _tagsSource.Tags = response.Result?.Results;
                         tagsTable.ReloadData();
                     }
                     else
@@ -136,7 +136,7 @@ namespace Steepshot.iOS.Views
 
         private void AddTags(object sender, EventArgs e)
         {
-            TagsList.AddRange(collectionviewSource.TagsCollection.Except(TagsList));
+            TagsList.AddRange(_collectionviewSource.TagsCollection.Except(TagsList));
             TagsList = TagsList.Take(4).ToList();
             this.NavigationController.PopViewController(true);
         }
@@ -150,9 +150,9 @@ namespace Steepshot.iOS.Views
 
         private void AddTag(string tag)
         {
-            if (!collectionviewSource.TagsCollection.Contains(tag) && !string.IsNullOrEmpty(tag))
+            if (!_collectionviewSource.TagsCollection.Contains(tag) && !string.IsNullOrEmpty(tag))
             {
-                collectionviewSource.TagsCollection.Add(tag);
+                _collectionviewSource.TagsCollection.Add(tag);
                 tagsCollectionView.ReloadData();
             }
         }

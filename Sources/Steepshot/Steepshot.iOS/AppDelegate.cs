@@ -23,7 +23,7 @@ namespace Steepshot.iOS
         }
 
         public static UIStoryboard Storyboard = UIStoryboard.FromName("Main", null);
-        public static UIViewController initialViewController;
+        public static UIViewController InitialViewController;
 
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
@@ -40,15 +40,15 @@ namespace Steepshot.iOS
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BaseViewController.User.IsAuthenticated)
             {
-                initialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+                InitialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
             }
             else
             {
                 BaseViewController.IsHomeFeedLoaded = true;
-                initialViewController = new FeedViewController();
+                InitialViewController = new FeedViewController();
                 //initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
-            var navController = new UINavigationController(initialViewController);
+            var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
             return true;

@@ -9,7 +9,7 @@ namespace Steepshot.Presenter
 {
 	public class SettingsPresenter : BasePresenter
 	{
-		public SettingsPresenter(SettingsView view):base(view)
+		public SettingsPresenter(ISettingsView view):base(view)
 		{
 		}
 

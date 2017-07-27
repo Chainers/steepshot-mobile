@@ -2,16 +2,16 @@
 
 namespace Steepshot.Base
 {
-	public abstract class BaseFragment : Android.Support.V4.App.Fragment, BaseView
+	public abstract class BaseFragment : Android.Support.V4.App.Fragment, IBaseView
 	{
-		protected bool _isInitialized;
-		protected Android.Views.View v;
+		protected bool IsInitialized;
+		protected Android.Views.View V;
 
 		public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			CreatePresenter();
-			_isInitialized = true;
+			IsInitialized = true;
 		}
 
 		protected abstract void CreatePresenter();

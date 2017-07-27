@@ -9,7 +9,7 @@ namespace Steepshot.Presenter
 {
     public class PreSignInPresenter : BasePresenter
     {
-        public PreSignInPresenter(PreSignInView view) : base(view)
+        public PreSignInPresenter(IPreSignInView view) : base(view)
         {
         }
 

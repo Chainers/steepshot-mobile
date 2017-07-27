@@ -5,7 +5,7 @@ namespace Steepshot.Presenter
 {
     public class SplashPresenter : BasePresenter
     {
-        public SplashPresenter(SplashView view) : base(view)
+        public SplashPresenter(ISplashView view) : base(view)
         {
         }
 

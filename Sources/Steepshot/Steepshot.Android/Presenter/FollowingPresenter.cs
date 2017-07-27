@@ -5,7 +5,7 @@ namespace Steepshot.Presenter
 {
 	public class FollowingPresenter :BasePresenter
 	{
-		public FollowingPresenter(FollowingView view) : base(view)
+		public FollowingPresenter(IFollowingView view) : base(view)
 		{
 		}
 	}

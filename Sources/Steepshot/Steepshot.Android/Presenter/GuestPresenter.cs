@@ -5,7 +5,7 @@ namespace Steepshot.Presenter
 {
 	public class GuestPresenter : BasePresenter
 	{
-		public GuestPresenter(GuestView view):base(view)
+		public GuestPresenter(IGuestView view):base(view)
 		{
 		}
 	}

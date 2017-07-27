@@ -16,7 +16,7 @@ namespace Steepshot.Base
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
 
-        protected BaseView view;
+        protected IBaseView View;
 
         protected static ISteepshotApiClient Api
         {
@@ -35,9 +35,9 @@ namespace Steepshot.Base
             Chain = User.Chain;
         }
 
-        public BasePresenter(BaseView view)
+        public BasePresenter(IBaseView view)
         {
-            this.view = view;
+            this.View = view;
         }
 
         public static void SwitchChain(bool isDev)

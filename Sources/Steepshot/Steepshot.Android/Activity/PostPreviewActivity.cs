@@ -13,18 +13,18 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostPreviewActivity", ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PostPreviewActivity : BaseActivity, PostPreviewView
+    public class PostPreviewActivity : BaseActivity, IPostPreviewView
     {
-        private PostPreviewPresenter presenter;
-		private string path;
+        private PostPreviewPresenter _presenter;
+		private string _path;
 
         protected override void CreatePresenter()
         {
-            presenter = new PostPreviewPresenter(this);
+            _presenter = new PostPreviewPresenter(this);
         }
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.photo)] ScaleImageView photo;
+        [InjectView(Resource.Id.photo)] ScaleImageView _photo;
 #pragma warning restore 0649
         
 
@@ -34,10 +34,10 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_preview);
             Cheeseknife.Inject(this);
 
-            path = Intent.GetStringExtra("PhotoURL");
+            _path = Intent.GetStringExtra("PhotoURL");
 			try
 			{
-				Picasso.With(this).Load(path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(photo);
+				Picasso.With(this).Load(_path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(_photo);
 			}
 			catch (Exception ex)
 			{

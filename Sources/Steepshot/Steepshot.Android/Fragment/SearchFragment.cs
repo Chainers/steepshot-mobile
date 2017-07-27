@@ -15,64 +15,63 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
-
-using SearchView = Steepshot.View.SearchView;
+using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class SearchFragment : BaseFragment, SearchView
+	public class SearchFragment : BaseFragment, ISearchView
     {
 		private Timer _timer;
-		SearchPresenter presenter;
+		SearchPresenter _presenter;
 		private SearchType _searchType = SearchType.Tags;
-		private CancellationTokenSource cts;
-		private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
+		private CancellationTokenSource _cts;
+		private Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.categories)] RecyclerView categories;
-		[InjectView(Resource.Id.users)] RecyclerView users;
-        [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView searchView;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
-		[InjectView(Resource.Id.tags_button)] Button tagsButton;
-		[InjectView(Resource.Id.people_button)] Button peopleButton;
+        [InjectView(Resource.Id.categories)] RecyclerView _categories;
+		[InjectView(Resource.Id.users)] RecyclerView _users;
+        [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView _searchView;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
+		[InjectView(Resource.Id.tags_button)] Button _tagsButton;
+		[InjectView(Resource.Id.people_button)] Button _peopleButton;
 #pragma warning restore 0649
 
         CategoriesAdapter _categoriesAdapter;
 		UsersSearchAdapter _usersSearchAdapter;
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
-			if (!_isInitialized)
+			if (!IsInitialized)
 			{
-				v = inflater.Inflate(Resource.Layout.lyt_search, null);
-				Cheeseknife.Inject(this, v);
+				V = inflater.Inflate(Resource.Layout.lyt_search, null);
+				Cheeseknife.Inject(this, V);
 			}
-			return v;
+			return V;
 		}
 
 		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
-			if (_isInitialized)
+			if (IsInitialized)
 				return;
 			
 			base.OnViewCreated(view, savedInstanceState);
-			searchView.QueryTextChange += (sender, e) =>
+			_searchView.QueryTextChange += (sender, e) =>
 			{
 				_timer.Change(500, Timeout.Infinite);
 			};
 
-			categories.SetLayoutManager(new LinearLayoutManager(Activity));
-			users.SetLayoutManager(new LinearLayoutManager(Activity));
+			_categories.SetLayoutManager(new LinearLayoutManager(Activity));
+			_users.SetLayoutManager(new LinearLayoutManager(Activity));
 
 			_categoriesAdapter = new CategoriesAdapter(Activity);
 			_usersSearchAdapter = new UsersSearchAdapter(Activity);
-			categories.SetAdapter(_categoriesAdapter);
-			users.SetAdapter(_usersSearchAdapter);
+			_categories.SetAdapter(_categoriesAdapter);
+			_users.SetAdapter(_usersSearchAdapter);
 
 			_categoriesAdapter.Click += OnClick;
 			_usersSearchAdapter.Click += OnClick;
-			_timer = new Timer(onTimer);
-			searchView.Iconified = false;
-			searchView.ClearFocus();
+			_timer = new Timer(OnTimer);
+			_searchView.Iconified = false;
+			_searchView.ClearFocus();
 			SwitchSearchType();
 		}
 
@@ -109,7 +108,7 @@ namespace Steepshot.Fragment
 			}
         }
 
-		private void onTimer(object state)
+		private void OnTimer(object state)
 		{
 			Activity.RunOnUiThread(() =>
 		   {
@@ -118,23 +117,23 @@ namespace Steepshot.Fragment
 		   });
 		}
 
-		Task<OperationResult> tagsTask;
+		Task<OperationResult> _tagsTask;
 		private async Task GetTags()
 		{
 			try
 			{
-				var query = searchView.Query;
-				if (prevQuery[_searchType] == query)
+				var query = _searchView.Query;
+				if (_prevQuery[_searchType] == query)
 					return;
 				if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
 					return;
-				prevQuery[_searchType] = query;
-				spinner.Visibility = ViewStates.Visible;
-				tagsTask = presenter.SearchCategories(searchView.Query, _searchType);
+				_prevQuery[_searchType] = query;
+				_spinner.Visibility = ViewStates.Visible;
+				_tagsTask = _presenter.SearchCategories(_searchView.Query, _searchType);
 
 				if (_searchType == SearchType.Tags)
 				{
-					var tags = (OperationResult<SearchResponse<SearchResult>>)await tagsTask;
+					var tags = (OperationResult<SearchResponse<SearchResult>>)await _tagsTask;
 					if (tags?.Result?.Results != null)
 					{
 						_categoriesAdapter.Reset(tags.Result.Results);
@@ -143,7 +142,7 @@ namespace Steepshot.Fragment
 				}
 				else
 				{
-					var usersList = (OperationResult<UserSearchResponse>)await tagsTask;
+					var usersList = (OperationResult<UserSearchResponse>)await _tagsTask;
 					if (usersList?.Result?.Results != null)
 					{
 						_usersSearchAdapter.Items = usersList.Result.Results;
@@ -157,14 +156,14 @@ namespace Steepshot.Fragment
 			}
 			finally
 			{
-				if (spinner != null)
-					spinner.Visibility = ViewStates.Gone;
+				if (_spinner != null)
+					_spinner.Visibility = ViewStates.Gone;
 			}
 		}
 
 		protected override void CreatePresenter()
 		{
-			presenter = new SearchPresenter(this);
+			_presenter = new SearchPresenter(this);
 		}
 
 		private void SwitchSearchType()
@@ -172,23 +171,23 @@ namespace Steepshot.Fragment
 			GetTags();
 			if (_searchType == SearchType.Tags)
 			{
-				users.Visibility = ViewStates.Gone;
-				categories.Visibility = ViewStates.Visible;
-				tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
-				tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
+				_users.Visibility = ViewStates.Gone;
+				_categories.Visibility = ViewStates.Visible;
+				_tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
+				_tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
-				peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
-				peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
+				_peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
+				_peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
 			}
 			else
 			{
-				users.Visibility = ViewStates.Visible;
-				categories.Visibility = ViewStates.Gone;
-				peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
-				peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
+				_users.Visibility = ViewStates.Visible;
+				_categories.Visibility = ViewStates.Gone;
+				_peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
+				_peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
 
-				tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
-				tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
+				_tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
+				_tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
 			}
 		}
 

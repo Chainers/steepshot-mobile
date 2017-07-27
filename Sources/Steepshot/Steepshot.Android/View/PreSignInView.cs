@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface PreSignInView : BaseView
+	public interface IPreSignInView : IBaseView
 	{
 		
 	}

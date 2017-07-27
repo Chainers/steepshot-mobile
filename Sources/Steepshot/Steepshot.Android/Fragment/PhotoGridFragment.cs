@@ -16,14 +16,14 @@ using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class PhotoGridFragment : BaseFragment, PhotoGridView
+	public class PhotoGridFragment : BaseFragment, IPhotoGridView
 	{
-		PhotoGridPresenter presenter;
+		PhotoGridPresenter _presenter;
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.images_list)] RecyclerView ImagesList;
+		[InjectView(Resource.Id.images_list)] RecyclerView _imagesList;
 #pragma warning restore 0649
 
-		GalleryAdapter Adapter;
+		GalleryAdapter _adapter;
 		
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
@@ -35,12 +35,12 @@ namespace Steepshot.Fragment
 		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
-			ImagesList.SetLayoutManager(new GridLayoutManager(Context,3));
-			ImagesList.AddItemDecoration(new GridItemdecoration(2, 3));
-			Adapter = new GalleryAdapter(Context);
-			ImagesList.SetAdapter(Adapter);
-			Adapter.Reset(GetAllShownImagesPaths());
-			Adapter.PhotoClick += Adapter_Click;
+			_imagesList.SetLayoutManager(new GridLayoutManager(Context,3));
+			_imagesList.AddItemDecoration(new GridItemdecoration(2, 3));
+			_adapter = new GalleryAdapter(Context);
+			_imagesList.SetAdapter(_adapter);
+			_adapter.Reset(GetAllShownImagesPaths());
+			_adapter.PhotoClick += Adapter_Click;
 		}
 
 		void Adapter_Click(int obj)
@@ -51,7 +51,7 @@ namespace Steepshot.Fragment
 		private void StartPost(int obj)
 		{
 			Intent i = new Intent(Context, typeof(PostDescriptionActivity));
-			i.PutExtra("FILEPATH", Adapter.GetItem(obj));
+			i.PutExtra("FILEPATH", _adapter.GetItem(obj));
 			Context.StartActivity(i);
 		}
 
@@ -75,15 +75,15 @@ namespace Steepshot.Fragment
 */
 		private Java.IO.File GetDirectoryForPictures()
 		{
-			var _dir = new Java.IO.File(
+			var dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
 					Android.OS.Environment.DirectoryPictures), "Steepshot");
-			if (!_dir.Exists())
+			if (!dir.Exists())
 			{
-				_dir.Mkdirs();
+				dir.Mkdirs();
 			}
 
-			return _dir;
+			return dir;
 		}
 
 		private void GetAppPictures(List<string> listOfAllImages)
@@ -100,11 +100,11 @@ namespace Steepshot.Fragment
 		{
 			Android.Net.Uri uri;
 			ICursor cursor;
-			int column_index_data, Column_index_folder_name;
+			int columnIndexData, columnIndexFolderName;
 
 			List<string> listOfAllImages = new List<string>();
 
-			string AbsolutePathOfImage = null;
+			string absolutePathOfImage = null;
 
 			uri = MediaStore.Images.Media.ExternalContentUri;
 
@@ -115,14 +115,14 @@ namespace Steepshot.Fragment
 			var loader = new CursorLoader(Context, uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
 			//cursor = Context.ContentResolver.Query(uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
 			cursor = (ICursor)loader.LoadInBackground();
-			column_index_data = cursor.GetColumnIndexOrThrow(MediaStore.MediaColumns.Data);
-			Column_index_folder_name = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.BucketDisplayName);
+			columnIndexData = cursor.GetColumnIndexOrThrow(MediaStore.MediaColumns.Data);
+			columnIndexFolderName = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.BucketDisplayName);
 			while (cursor.MoveToNext())
 			{
-				AbsolutePathOfImage = cursor.GetString(column_index_data);
+				absolutePathOfImage = cursor.GetString(columnIndexData);
 				//if (AbsolutePathOfImage.)
 				//{
-					listOfAllImages.Add(AbsolutePathOfImage);
+					listOfAllImages.Add(absolutePathOfImage);
 				//}
 			}
             listOfAllImages.Reverse();
@@ -132,7 +132,7 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			presenter = new PhotoGridPresenter(this);
+			_presenter = new PhotoGridPresenter(this);
 		}
 	}
 }

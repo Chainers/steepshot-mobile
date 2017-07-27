@@ -16,7 +16,7 @@ namespace Steepshot.Presenter
 {
     public class FeedPresenter : BasePresenter
     {
-        public FeedPresenter(FeedView view, bool isFeed) : base(view)
+        public FeedPresenter(IFeedView view, bool isFeed) : base(view)
         {
             _isFeed = isFeed;
         }
@@ -24,26 +24,26 @@ namespace Steepshot.Presenter
         public event VoidDelegate PostsLoaded;
         public event VoidDelegate PostsCleared;
         public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
-        private CancellationTokenSource cts;
-        private PostType type = PostType.Top;
+        private CancellationTokenSource _cts;
+        private PostType _type = PostType.Top;
 
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
-        private const int postsCount = 20;
+        private const int PostsCount = 20;
         public string Tag;
 
         public PostType GetCurrentType()
         {
-            return type;
+            return _type;
         }
 
         public void ViewLoad()
         {
             if (Posts.Count == 0)
-                Task.Run(() => GetTopPosts(type, true));
+                Task.Run(() => GetTopPosts(_type, true));
         }
 
-        public bool processing = false;
+        public bool Processing = false;
 
         public void ClearPosts()
         {
@@ -63,24 +63,24 @@ namespace Steepshot.Presenter
                     return;
                 try
                 {
-                    cts?.Cancel();
+                    _cts?.Cancel();
                 }
                 catch (ObjectDisposedException)
                 {
 
                 }
 
-                using (cts = new CancellationTokenSource())
+                using (_cts = new CancellationTokenSource())
                 {
-                    this.type = type;
-                    processing = true;
+                    this._type = type;
+                    Processing = true;
 
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
                         var f = new UserRecentPostsRequest(User.CurrentUser)
                         {
-                            Limit = postsCount,
+                            Limit = PostsCount,
                             Offset = _offsetUrl
                         };
                         response = await Api.GetUserRecentPosts(f);
@@ -89,10 +89,10 @@ namespace Steepshot.Presenter
                     {
                         var postrequest = new PostsRequest(type, User.CurrentUser)
                         {
-                            Limit = postsCount,
+                            Limit = PostsCount,
                             Offset = _offsetUrl
                         };
-                        response = await Api.GetPosts(postrequest, cts);
+                        response = await Api.GetPosts(postrequest, _cts);
                     }
                     //TODO:KOA -- Errors not processed
                     if (response.Success && response?.Result?.Results != null)
@@ -126,7 +126,7 @@ namespace Steepshot.Presenter
             }
             finally
             {
-                processing = false;
+                Processing = false;
             }
         }
 
@@ -137,7 +137,7 @@ namespace Steepshot.Presenter
 
             try
             {
-                cts?.Cancel();
+                _cts?.Cancel();
             }
             catch (ObjectDisposedException)
             {
@@ -145,16 +145,16 @@ namespace Steepshot.Presenter
             }
             try
             {
-                using (cts = new CancellationTokenSource())
+                using (_cts = new CancellationTokenSource())
                 {
-                    processing = true;
-                    var postrequest = new PostsByCategoryRequest(type, Tag, User.CurrentUser)
+                    Processing = true;
+                    var postrequest = new PostsByCategoryRequest(_type, Tag, User.CurrentUser)
                     {
-                        Limit = postsCount,
+                        Limit = PostsCount,
                         Offset = _offsetUrl
                     };
 
-                    var posts = await Api.GetPostsByCategory(postrequest, cts);
+                    var posts = await Api.GetPostsByCategory(postrequest, _cts);
                     //TODO:KOA -- Errors not processed
                     if (posts.Success && posts?.Result?.Results != null)
                     {
@@ -183,7 +183,7 @@ namespace Steepshot.Presenter
             }
             finally
             {
-                processing = false;
+                Processing = false;
             }
         }
 

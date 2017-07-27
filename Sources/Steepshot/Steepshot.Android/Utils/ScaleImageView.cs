@@ -16,7 +16,7 @@ namespace Steepshot.Utils
 {
 	public class ScaleImageView : ImageView
 	{
-		public enum TouchState { NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM, CLICK };
+		public enum TouchState { None, DRAG, Zoom, Fling, AnimateZoom, CLICK };
 
 		//static string DEBUG = "DEBUG";
 
@@ -25,51 +25,51 @@ namespace Steepshot.Utils
 		// zoomed below or above the zoom boundaries, before animating back to the
 		// min/max zoom boundary.
 		//
-		static float SUPER_MIN_MULTIPLIER = 0.5f;
-		static float SUPER_MAX_MULTIPLIER = 1f;
+		static float _superMinMultiplier = 0.5f;
+		static float _superMaxMultiplier = 1f;
 
 		//
 		// Scale of image ranges from minScale to maxScale, where minScale == 1
 		// when the image is stretched to fit view.
 		//
-		public float normalizedScale;
+		public float NormalizedScale;
 
 		//
 		// Matrix applied to image. MSCALE_X and MSCALE_Y should always be equal.
 		// MTRANS_X and MTRANS_Y are the other values used. prevMatrix is the matrix
 		// saved prior to the screen rotating.
 		//
-		public Matrix matrix, prevMatrix;
+		public Matrix matrix, PrevMatrix;
 
 		//
 		// Size of view and previous view size (ie before rotation)
 		//
-		public int viewWidth, viewHeight, prevViewWidth, prevViewHeight;
+		public int ViewWidth, ViewHeight, PrevViewWidth, PrevViewHeight;
 
-		ScaleImageViewListener listener;
+		ScaleImageViewListener _listener;
 
-		TouchState state;
+		TouchState _state;
 
-		float minScale;
-		float maxScale;
-		float superMinScale;
-		float superMaxScale;
-		float[] m;
+		float _minScale;
+		float _maxScale;
+		float _superMinScale;
+		float _superMaxScale;
+		float[] _m;
 
-		Context context;
-		Fling fling;
+		Context _context;
+		Fling _fling;
 
-		ScaleType mScaleType;
+		ScaleType _mScaleType;
 
-		bool imageRenderedAtLeastOnce;
-		bool onDrawReady;
+		bool _imageRenderedAtLeastOnce;
+		bool _onDrawReady;
 
-		ZoomVariables delayedZoomVariables;
+		ZoomVariables _delayedZoomVariables;
 
 		//
 		// Size of image when it is stretched to fit view. Before and After rotation.
 		//
-		float matchViewWidth, matchViewHeight, prevMatchViewWidth, prevMatchViewHeight;
+		float _matchViewWidth, _matchViewHeight, _prevMatchViewWidth, _prevMatchViewHeight;
 
 		//
 		// After setting image, a value of true means the new image should maintain
@@ -82,10 +82,10 @@ namespace Steepshot.Utils
 		//
 		//bool setImageCalledRecenterImage;
 
-		ScaleGestureDetector scaleDetector;
-		GestureDetector gestureDetector;
-		GestureDetector.IOnDoubleTapListener doubleTapListener = null;
-		IOnTouchListener touchListener = null;
+		ScaleGestureDetector _scaleDetector;
+		GestureDetector _gestureDetector;
+		GestureDetector.IOnDoubleTapListener _doubleTapListener = null;
+		IOnTouchListener _touchListener = null;
 
 		public ScaleImageView(Context context) : base(context)
 		{
@@ -107,28 +107,28 @@ namespace Steepshot.Utils
 		void SharedConstructing(Context context)
 		{
 			Clickable = true;
-			this.context = context;
-			scaleDetector = new ScaleGestureDetector(context, new ScaleListener(this));
-			gestureDetector = new GestureDetector(context, new GestureListener(this));
+			this._context = context;
+			_scaleDetector = new ScaleGestureDetector(context, new ScaleListener(this));
+			_gestureDetector = new GestureDetector(context, new GestureListener(this));
 			matrix = new Matrix();
-			prevMatrix = new Matrix();
-			m = new float[9];
-			normalizedScale = 1;
-			if (mScaleType == null)
+			PrevMatrix = new Matrix();
+			_m = new float[9];
+			NormalizedScale = 1;
+			if (_mScaleType == null)
 			{
-				mScaleType = ScaleType.CenterInside;
+				_mScaleType = ScaleType.CenterInside;
 			}
-			minScale = 1;
-			maxScale = 4;
-			superMinScale = SUPER_MIN_MULTIPLIER * minScale;
-			superMaxScale = SUPER_MAX_MULTIPLIER * maxScale;
+			_minScale = 1;
+			_maxScale = 4;
+			_superMinScale = _superMinMultiplier * _minScale;
+			_superMaxScale = _superMaxMultiplier * _maxScale;
 			ImageMatrix = matrix;
 			SetScaleType(ScaleType.Matrix);
-			SetState(TouchState.NONE);
+			SetState(TouchState.None);
 			//МЕНЯЛ
-			listener = new ScaleImageViewListener(this);
+			_listener = new ScaleImageViewListener(this);
 
-			base.SetOnTouchListener(listener);
+			base.SetOnTouchListener(_listener);
 		}
 
 		public bool CanScrollHorizontallyFroyo(int direction)
@@ -138,12 +138,12 @@ namespace Steepshot.Utils
 
 		public override void SetOnTouchListener(IOnTouchListener l)
 		{
-			touchListener = l;
+			_touchListener = l;
 		}
 
 		public void SetOnDoubleTapListener(GestureDetector.IOnDoubleTapListener l)
 		{
-			doubleTapListener = l;
+			_doubleTapListener = l;
 		}
 
 		public override void SetImageResource(int resId)
@@ -186,13 +186,13 @@ namespace Steepshot.Utils
 			}
 			else
 			{
-				mScaleType = scaleType;
+				_mScaleType = scaleType;
 			}
 		}
 
 		public override ScaleType GetScaleType()
 		{
-			return mScaleType;
+			return _mScaleType;
 		}
 
 		/*void SetImageCalled() {
@@ -207,7 +207,7 @@ namespace Steepshot.Utils
 		//
 		public bool IsZoomed()
 		{
-			return normalizedScale != 1f;
+			return NormalizedScale != 1f;
 		}
 
 		//
@@ -216,12 +216,12 @@ namespace Steepshot.Utils
 		//
 		public RectF GetZoomedRect()
 		{
-			if (mScaleType == ScaleType.FitXy)
+			if (_mScaleType == ScaleType.FitXy)
 			{
 				throw new UnsupportedOperationException("getZoomedRect() not supported with FitXy");
 			}
 			var topLeft = TransformCoordTouchToBitmap(0, 0, true);
-			var bottomRight = TransformCoordTouchToBitmap(viewWidth, viewHeight, true);
+			var bottomRight = TransformCoordTouchToBitmap(ViewWidth, ViewHeight, true);
 			float w = Drawable.IntrinsicWidth;
 			float h = Drawable.IntrinsicHeight;
 			return new RectF(topLeft.X / w, topLeft.Y / h, bottomRight.X / w, bottomRight.Y / h);
@@ -233,14 +233,14 @@ namespace Steepshot.Utils
 		//
 		void SavePreviousImageValues()
 		{
-			if (matrix != null && viewHeight != 0 && viewWidth != 0)
+			if (matrix != null && ViewHeight != 0 && ViewWidth != 0)
 			{
-				matrix.GetValues(m);
-				prevMatrix.SetValues(m);
-				prevMatchViewHeight = matchViewHeight;
-				prevMatchViewWidth = matchViewWidth;
-				prevViewHeight = viewHeight;
-				prevViewWidth = viewWidth;
+				matrix.GetValues(_m);
+				PrevMatrix.SetValues(_m);
+				_prevMatchViewHeight = _matchViewHeight;
+				_prevMatchViewWidth = _matchViewWidth;
+				PrevViewHeight = ViewHeight;
+				PrevViewWidth = ViewWidth;
 			}
 		}
 
@@ -248,14 +248,14 @@ namespace Steepshot.Utils
 		{
 			var bundle = new Bundle();
 			bundle.PutParcelable("instanceState", base.OnSaveInstanceState());
-			bundle.PutFloat("saveScale", normalizedScale);
-			bundle.PutFloat("matchViewHeight", matchViewHeight);
-			bundle.PutFloat("matchViewWidth", matchViewWidth);
-			bundle.PutInt("viewWidth", viewWidth);
-			bundle.PutInt("viewHeight", viewHeight);
-			matrix.GetValues(m);
-			bundle.PutFloatArray("matrix", m);
-			bundle.PutBoolean("imageRendered", imageRenderedAtLeastOnce);
+			bundle.PutFloat("saveScale", NormalizedScale);
+			bundle.PutFloat("matchViewHeight", _matchViewHeight);
+			bundle.PutFloat("matchViewWidth", _matchViewWidth);
+			bundle.PutInt("viewWidth", ViewWidth);
+			bundle.PutInt("viewHeight", ViewHeight);
+			matrix.GetValues(_m);
+			bundle.PutFloatArray("matrix", _m);
+			bundle.PutBoolean("imageRendered", _imageRenderedAtLeastOnce);
 			return bundle;
 		}
 
@@ -264,14 +264,14 @@ namespace Steepshot.Utils
 			if (state is Bundle)
 			{
 				var bundle = (Bundle)state;
-				normalizedScale = bundle.GetFloat("saveScale");
-				m = bundle.GetFloatArray("matrix");
-				prevMatrix.SetValues(m);
-				prevMatchViewHeight = bundle.GetFloat("matchViewHeight");
-				prevMatchViewWidth = bundle.GetFloat("matchViewWidth");
-				prevViewHeight = bundle.GetInt("viewHeight");
-				prevViewWidth = bundle.GetInt("viewWidth");
-				imageRenderedAtLeastOnce = bundle.GetBoolean("imageRendered");
+				NormalizedScale = bundle.GetFloat("saveScale");
+				_m = bundle.GetFloatArray("matrix");
+				PrevMatrix.SetValues(_m);
+				_prevMatchViewHeight = bundle.GetFloat("matchViewHeight");
+				_prevMatchViewWidth = bundle.GetFloat("matchViewWidth");
+				PrevViewHeight = bundle.GetInt("viewHeight");
+				PrevViewWidth = bundle.GetInt("viewWidth");
+				_imageRenderedAtLeastOnce = bundle.GetBoolean("imageRendered");
 				base.OnRestoreInstanceState((IParcelable)bundle.GetParcelable("instanceState"));
 				return;
 			}
@@ -280,12 +280,12 @@ namespace Steepshot.Utils
 
 		protected override void OnDraw(Canvas canvas)
 		{
-			onDrawReady = true;
-			imageRenderedAtLeastOnce = true;
-			if (delayedZoomVariables != null)
+			_onDrawReady = true;
+			_imageRenderedAtLeastOnce = true;
+			if (_delayedZoomVariables != null)
 			{
-				SetZoom(delayedZoomVariables.scale, delayedZoomVariables.focusX, delayedZoomVariables.focusY, delayedZoomVariables.scaleType);
-				delayedZoomVariables = null;
+				SetZoom(_delayedZoomVariables.Scale, _delayedZoomVariables.FocusX, _delayedZoomVariables.FocusY, _delayedZoomVariables.ScaleType);
+				_delayedZoomVariables = null;
 			}
 			try
 			{
@@ -310,7 +310,7 @@ namespace Steepshot.Utils
 		//
 		public float GetMaxZoom()
 		{
-			return maxScale;
+			return _maxScale;
 		}
 
 		//
@@ -319,8 +319,8 @@ namespace Steepshot.Utils
 		//
 		public void SetMaxZoom(float max)
 		{
-			maxScale = max;
-			superMaxScale = SUPER_MAX_MULTIPLIER * maxScale;
+			_maxScale = max;
+			_superMaxScale = _superMaxMultiplier * _maxScale;
 		}
 
 		//
@@ -329,7 +329,7 @@ namespace Steepshot.Utils
 		//
 		public float GetMinZoom()
 		{
-			return minScale;
+			return _minScale;
 		}
 
 		//
@@ -339,7 +339,7 @@ namespace Steepshot.Utils
 		//
 		public float GetCurrentZoom()
 		{
-			return normalizedScale;
+			return NormalizedScale;
 		}
 
 		//
@@ -348,8 +348,8 @@ namespace Steepshot.Utils
 		//
 		public void SetMinZoom(float min)
 		{
-			minScale = min;
-			superMinScale = SUPER_MIN_MULTIPLIER * minScale;
+			_minScale = min;
+			_superMinScale = _superMinMultiplier * _minScale;
 		}
 
 		//
@@ -357,7 +357,7 @@ namespace Steepshot.Utils
 		//
 		public void ResetZoom()
 		{
-			normalizedScale = 1;
+			NormalizedScale = 1;
 			FitImageToView();
 		}
 
@@ -381,7 +381,7 @@ namespace Steepshot.Utils
 		//
 		public void SetZoom(float scale, float focusX, float focusY)
 		{
-			SetZoom(scale, focusX, focusY, mScaleType);
+			SetZoom(scale, focusX, focusY, _mScaleType);
 		}
 
 		#region SetZoom
@@ -404,18 +404,18 @@ namespace Steepshot.Utils
 			// image and view sizes have not yet been calculated in onMeasure. Thus, we should
 			// delay calling setZoom until the view has been measured.
 			//
-			if (!onDrawReady)
+			if (!_onDrawReady)
 			{
-				delayedZoomVariables = new ZoomVariables(scale, focusX, focusY, scaleType);
+				_delayedZoomVariables = new ZoomVariables(scale, focusX, focusY, scaleType);
 				return;
 			}
 			SetScaleType(scaleType);
 			ResetZoom();
-			ScaleImage(scale, viewWidth / 2, viewHeight / 2, false);
-			matrix.GetValues(m);
-			m[Matrix.MtransX] = -((focusX * GetImageWidth()) - (viewWidth * 0.5f));
-			m[Matrix.MtransY] = -((focusY * GetImageHeight()) - (viewHeight * 0.5f));
-			matrix.SetValues(m);
+			ScaleImage(scale, ViewWidth / 2, ViewHeight / 2, false);
+			matrix.GetValues(_m);
+			_m[Matrix.MtransX] = -((focusX * GetImageWidth()) - (ViewWidth * 0.5f));
+			_m[Matrix.MtransY] = -((focusY * GetImageHeight()) - (ViewHeight * 0.5f));
+			matrix.SetValues(_m);
 			FixTrans();
 			ImageMatrix = matrix;
 		}
@@ -448,7 +448,7 @@ namespace Steepshot.Utils
 			}
 			var drawableWidth = drawable.IntrinsicWidth;
 			var drawableHeight = drawable.IntrinsicHeight;
-			var point = TransformCoordTouchToBitmap(viewWidth / 2, viewHeight / 2, true);
+			var point = TransformCoordTouchToBitmap(ViewWidth / 2, ViewHeight / 2, true);
 			point.X /= drawableWidth;
 			point.Y /= drawableHeight;
 			return point;
@@ -462,7 +462,7 @@ namespace Steepshot.Utils
 		//
 		public void SetScrollPosition(float focusX, float focusY)
 		{
-			SetZoom(normalizedScale, focusX, focusY);
+			SetZoom(NormalizedScale, focusX, focusY);
 		}
 
 		//
@@ -471,11 +471,11 @@ namespace Steepshot.Utils
 		//
 		public void FixTrans()
 		{
-			matrix.GetValues(m);
-			var transX = m[Matrix.MtransX];
-			var transY = m[Matrix.MtransY];
-			var fixTransX = GetFixTrans(transX, viewWidth, GetImageWidth());
-			var fixTransY = GetFixTrans(transY, viewHeight, GetImageHeight());
+			matrix.GetValues(_m);
+			var transX = _m[Matrix.MtransX];
+			var transY = _m[Matrix.MtransY];
+			var fixTransX = GetFixTrans(transX, ViewWidth, GetImageWidth());
+			var fixTransY = GetFixTrans(transY, ViewHeight, GetImageHeight());
 			if (fixTransX != 0f || fixTransY != 0f)
 			{
 				matrix.PostTranslate(fixTransX, fixTransY);
@@ -492,16 +492,16 @@ namespace Steepshot.Utils
 		void FixScaleTrans()
 		{
 			FixTrans();
-			matrix.GetValues(m);
-			if (GetImageWidth() < viewWidth)
+			matrix.GetValues(_m);
+			if (GetImageWidth() < ViewWidth)
 			{
-				m[Matrix.MtransX] = (viewWidth - GetImageWidth()) / 2;
+				_m[Matrix.MtransX] = (ViewWidth - GetImageWidth()) / 2;
 			}
-			if (GetImageHeight() < viewHeight)
+			if (GetImageHeight() < ViewHeight)
 			{
-				m[Matrix.MtransY] = (viewHeight - GetImageHeight()) / 2;
+				_m[Matrix.MtransY] = (ViewHeight - GetImageHeight()) / 2;
 			}
-			matrix.SetValues(m);
+			matrix.SetValues(_m);
 		}
 
 		float GetFixTrans(float trans, float viewSize, float contentSize)
@@ -540,12 +540,12 @@ namespace Steepshot.Utils
 
 		public float GetImageWidth()
 		{
-			return matchViewWidth * normalizedScale;
+			return _matchViewWidth * NormalizedScale;
 		}
 
 		public float GetImageHeight()
 		{
-			return matchViewHeight * normalizedScale;
+			return _matchViewHeight * NormalizedScale;
 		}
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -562,13 +562,13 @@ namespace Steepshot.Utils
 			var widthMode = (int)MeasureSpec.GetMode(widthMeasureSpec);
 			var heightSize = MeasureSpec.GetSize(heightMeasureSpec);
 			var heightMode = (int)MeasureSpec.GetMode(heightMeasureSpec);
-			viewWidth = SetViewSize(widthMode, widthSize, drawableWidth);
-			viewHeight = SetViewSize(heightMode, heightSize, drawableHeight);
+			ViewWidth = SetViewSize(widthMode, widthSize, drawableWidth);
+			ViewHeight = SetViewSize(heightMode, heightSize, drawableHeight);
 
 			//
 			// Set view dimensions
 			//
-			SetMeasuredDimension(viewWidth, viewHeight);
+			SetMeasuredDimension(ViewWidth, ViewHeight);
 
 			//
 			// Fit content within view
@@ -588,7 +588,7 @@ namespace Steepshot.Utils
 			{
 				return;
 			}
-			if (matrix == null || prevMatrix == null)
+			if (matrix == null || PrevMatrix == null)
 			{
 				return;
 			}
@@ -598,26 +598,26 @@ namespace Steepshot.Utils
 			//
 			// Scale image for view
 			//
-			float scaleX = (float)viewWidth / drawableWidth;
-			float scaleY = (float)viewHeight / drawableHeight;
+			float scaleX = (float)ViewWidth / drawableWidth;
+			float scaleY = (float)ViewHeight / drawableHeight;
 
-			if (mScaleType == ScaleType.Center)
+			if (_mScaleType == ScaleType.Center)
 			{
 				scaleX = scaleY = 1f;
 			}
-			else if (mScaleType == ScaleType.CenterCrop)
+			else if (_mScaleType == ScaleType.CenterCrop)
 			{
 				scaleX = scaleY = Math.Max(scaleX, scaleY);
 			}
-			else if (mScaleType == ScaleType.CenterInside)
+			else if (_mScaleType == ScaleType.CenterInside)
 			{
 				scaleX = scaleY = Math.Min(1f, Math.Min(scaleX, scaleY));
 			}
-			else if (mScaleType == ScaleType.FitCenter)
+			else if (_mScaleType == ScaleType.FitCenter)
 			{
 				scaleX = scaleY = Math.Min(scaleX, scaleY);
 			}
-			else if (mScaleType == ScaleType.FitXy)
+			else if (_mScaleType == ScaleType.FitXy)
 			{
 			}
 			else
@@ -628,57 +628,57 @@ namespace Steepshot.Utils
 			//
 			// Center the image
 			//
-			var redundantYSpace = viewHeight - (scaleX * drawableHeight);
-			var redundantXSpace = viewWidth - (scaleY * drawableWidth);
-			matchViewWidth = viewWidth - redundantXSpace;
-			matchViewHeight = viewHeight - redundantYSpace;
-			if (!IsZoomed() && !imageRenderedAtLeastOnce)
+			var redundantYSpace = ViewHeight - (scaleX * drawableHeight);
+			var redundantXSpace = ViewWidth - (scaleY * drawableWidth);
+			_matchViewWidth = ViewWidth - redundantXSpace;
+			_matchViewHeight = ViewHeight - redundantYSpace;
+			if (!IsZoomed() && !_imageRenderedAtLeastOnce)
 			{
 				//
 				// Stretch and center image to fit view
 				//
 				matrix.SetScale(scaleX, scaleY);
 				matrix.PostTranslate(redundantXSpace / 2, redundantYSpace / 2);
-				normalizedScale = 1;
+				NormalizedScale = 1;
 			}
 			else
 			{
-				if (prevMatchViewWidth == 0f || prevMatchViewHeight == 0f)
+				if (_prevMatchViewWidth == 0f || _prevMatchViewHeight == 0f)
 				{
 					SavePreviousImageValues();
 				}
-				prevMatrix.GetValues(m);
+				PrevMatrix.GetValues(_m);
 
 				//
 				// Rescale Matrix after rotation
 				//
-				m[Matrix.MscaleX] = matchViewWidth / drawableWidth * normalizedScale;
-				m[Matrix.MscaleY] = matchViewHeight / drawableHeight * normalizedScale;
+				_m[Matrix.MscaleX] = _matchViewWidth / drawableWidth * NormalizedScale;
+				_m[Matrix.MscaleY] = _matchViewHeight / drawableHeight * NormalizedScale;
 
 				//
 				// TransX and TransY from previous matrix
 				//
-				var transX = m[Matrix.MtransX];
-				var transY = m[Matrix.MtransY];
+				var transX = _m[Matrix.MtransX];
+				var transY = _m[Matrix.MtransY];
 
 				//
 				// Width
 				//
-				var prevActualWidth = prevMatchViewWidth * normalizedScale;
+				var prevActualWidth = _prevMatchViewWidth * NormalizedScale;
 				var actualWidth = GetImageWidth();
-				TranslateMatrixAfterRotate(Matrix.MtransX, transX, prevActualWidth, actualWidth, prevViewWidth, viewWidth, drawableWidth);
+				TranslateMatrixAfterRotate(Matrix.MtransX, transX, prevActualWidth, actualWidth, PrevViewWidth, ViewWidth, drawableWidth);
 
 				//
 				// Height
 				//
-				var prevActualHeight = prevMatchViewHeight * normalizedScale;
+				var prevActualHeight = _prevMatchViewHeight * NormalizedScale;
 				var actualHeight = GetImageHeight();
-				TranslateMatrixAfterRotate(Matrix.MtransY, transY, prevActualHeight, actualHeight, prevViewHeight, viewHeight, drawableHeight);
+				TranslateMatrixAfterRotate(Matrix.MtransY, transY, prevActualHeight, actualHeight, PrevViewHeight, ViewHeight, drawableHeight);
 
 				//
 				// Set the matrix to the adjusted scale and translate values.
 				//
-				matrix.SetValues(m);
+				matrix.SetValues(_m);
 			}
 			FixTrans();
 			ImageMatrix = matrix;
@@ -723,14 +723,14 @@ namespace Steepshot.Utils
 				//
 				// The width/height of image is less than the view's width/height. Center it.
 				//
-				m[axis] = (viewSize - (drawableSize * m[Matrix.MscaleX])) * 0.5f;
+				_m[axis] = (viewSize - (drawableSize * _m[Matrix.MscaleX])) * 0.5f;
 			}
 			else if (trans > 0)
 			{
 				//
 				// The image is larger than the view, but was not before rotation. Center it.
 				//
-				m[axis] = -((imageSize - viewSize) * 0.5f);
+				_m[axis] = -((imageSize - viewSize) * 0.5f);
 			}
 			else
 			{
@@ -740,13 +740,13 @@ namespace Steepshot.Utils
 				// to calculate the trans in the new view width/height.
 				//
 				float percentage = (Math.Abs(trans) + (0.5f * prevViewSize)) / prevImageSize;
-				m[axis] = -((percentage * imageSize) - (viewSize * 0.5f));
+				_m[axis] = -((percentage * imageSize) - (viewSize * 0.5f));
 			}
 		}
 
 		void SetState(TouchState state)
 		{
-			this.state = state;
+			this._state = state;
 		}
 
 		//
@@ -756,20 +756,20 @@ namespace Steepshot.Utils
 		//
 		class GestureListener : GestureDetector.SimpleOnGestureListener
 		{
-			ScaleImageView view;
+			ScaleImageView _view;
 
 			public GestureListener(ScaleImageView view)
 			{
-				this.view = view;
+				this._view = view;
 			}
 
 			public override bool OnSingleTapConfirmed(MotionEvent e)
 			{
-				if (view.doubleTapListener != null)
+				if (_view._doubleTapListener != null)
 				{
-					return view.doubleTapListener.OnSingleTapConfirmed(e);
+					return _view._doubleTapListener.OnSingleTapConfirmed(e);
 				}
-				return view.PerformClick();
+				return _view.PerformClick();
 			}
 
 			//public override bool OnSingleTapUp (MotionEvent e)
@@ -779,36 +779,36 @@ namespace Steepshot.Utils
 
 			public override void OnLongPress(MotionEvent e)
 			{
-				view.PerformLongClick();
+				_view.PerformLongClick();
 			}
 
 			public override bool OnFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 			{
-				if (view.fling != null)
+				if (_view._fling != null)
 				{
 					//
 					// If a previous fling is still active, it should be cancelled so that two flings
 					// are not run simultaenously.
 					//
-					view.fling.CancelFling();
+					_view._fling.CancelFling();
 				}
-				view.fling = new Fling(view, (int)velocityX, (int)velocityY);
-				view.CompatPostOnAnimation(view.fling);
+				_view._fling = new Fling(_view, (int)velocityX, (int)velocityY);
+				_view.CompatPostOnAnimation(_view._fling);
 				return base.OnFling(e1, e2, velocityX, velocityY);
 			}
 
 			public override bool OnDoubleTap(MotionEvent e)
 			{
 				var consumed = false;
-				if (view.doubleTapListener != null)
+				if (_view._doubleTapListener != null)
 				{
-					consumed = view.doubleTapListener.OnDoubleTap(e);
+					consumed = _view._doubleTapListener.OnDoubleTap(e);
 				}
-				if (view.state == TouchState.NONE)
+				if (_view._state == TouchState.None)
 				{
-					var targetZoom = (view.normalizedScale == view.minScale) ? view.maxScale : view.minScale;
-					var doubleTap = new DoubleTapZoom(view, targetZoom, e.GetX(), e.GetY(), false);
-					view.CompatPostOnAnimation(doubleTap);
+					var targetZoom = (_view.NormalizedScale == _view._minScale) ? _view._maxScale : _view._minScale;
+					var doubleTap = new DoubleTapZoom(_view, targetZoom, e.GetX(), e.GetY(), false);
+					_view.CompatPostOnAnimation(doubleTap);
 					consumed = true;
 				}
 				return consumed;
@@ -816,9 +816,9 @@ namespace Steepshot.Utils
 
 			public override bool OnDoubleTapEvent(MotionEvent e)
 			{
-				if (view.doubleTapListener != null)
+				if (_view._doubleTapListener != null)
 				{
-					return view.doubleTapListener.OnDoubleTapEvent(e);
+					return _view._doubleTapListener.OnDoubleTapEvent(e);
 				}
 				return false;
 			}
@@ -834,64 +834,64 @@ namespace Steepshot.Utils
 			//
 			// Remember last point position for dragging
 			//
-			float lastX, lastY;
-			ScaleImageView view;
+			float _lastX, _lastY;
+			ScaleImageView _view;
 
 			public ScaleImageViewListener(ScaleImageView view)
 			{
-				this.view = view;
+				this._view = view;
 			}
 
 			public bool OnTouch(Android.Views.View v, MotionEvent evt)
 			{
-				if (view.touchListener != null)
+				if (_view._touchListener != null)
 				{
-					view.touchListener.OnTouch(v, evt); // User-defined handler, maybe
+					_view._touchListener.OnTouch(v, evt); // User-defined handler, maybe
 				}
-				if (view.scaleDetector != null)
+				if (_view._scaleDetector != null)
 				{
-					view.scaleDetector.OnTouchEvent(evt);
+					_view._scaleDetector.OnTouchEvent(evt);
 				}
-				if (view.gestureDetector != null)
+				if (_view._gestureDetector != null)
 				{
-					view.gestureDetector.OnTouchEvent(evt);
+					_view._gestureDetector.OnTouchEvent(evt);
 				}
 				var currentX = evt.GetX();
 				var currentY = evt.GetY();
 
-				if (view.state == TouchState.NONE || view.state == TouchState.DRAG || view.state == TouchState.FLING)
+				if (_view._state == TouchState.None || _view._state == TouchState.DRAG || _view._state == TouchState.Fling)
 				{
 					switch (evt.Action)
 					{
 						case MotionEventActions.Down:
-							lastX = currentX;
-							lastY = currentY;
-							if (view.fling != null)
+							_lastX = currentX;
+							_lastY = currentY;
+							if (_view._fling != null)
 							{
-								view.fling.CancelFling();
+								_view._fling.CancelFling();
 							}
-							view.SetState(TouchState.DRAG);
+							_view.SetState(TouchState.DRAG);
 							break;
 						case MotionEventActions.Move:
-							if (view.state == TouchState.DRAG)
+							if (_view._state == TouchState.DRAG)
 							{
-								var deltaX = currentX - lastX;
-								var deltaY = currentY - lastY;
-								var fixTransX = view.GetFixDragTrans(deltaX, view.viewWidth, view.GetImageWidth());
-								var fixTransY = view.GetFixDragTrans(deltaY, view.viewHeight, view.GetImageHeight());
-								view.matrix.PostTranslate(fixTransX, fixTransY);
-								view.FixTrans();
-								lastX = currentX;
-								lastY = currentY;
+								var deltaX = currentX - _lastX;
+								var deltaY = currentY - _lastY;
+								var fixTransX = _view.GetFixDragTrans(deltaX, _view.ViewWidth, _view.GetImageWidth());
+								var fixTransY = _view.GetFixDragTrans(deltaY, _view.ViewHeight, _view.GetImageHeight());
+								_view.matrix.PostTranslate(fixTransX, fixTransY);
+								_view.FixTrans();
+								_lastX = currentX;
+								_lastY = currentY;
 							}
 							break;
 						case MotionEventActions.Up:
 						case MotionEventActions.PointerUp:
-							view.SetState(TouchState.NONE);
+							_view.SetState(TouchState.None);
 							break;
 					}
 				}
-				view.ImageMatrix = view.matrix;
+				_view.ImageMatrix = _view.matrix;
 				//
 				// indicate event was handled
 				//
@@ -905,45 +905,45 @@ namespace Steepshot.Utils
 		//
 		class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener
 		{
-			ScaleImageView view;
+			ScaleImageView _view;
 
 			public ScaleListener(ScaleImageView view)
 			{
-				this.view = view;
+				this._view = view;
 			}
 
 			public override bool OnScaleBegin(ScaleGestureDetector detector)
 			{
-				view.SetState(TouchState.ZOOM);
+				_view.SetState(TouchState.Zoom);
 				return true;
 			}
 
 			public override bool OnScale(ScaleGestureDetector detector)
 			{
-				view.ScaleImage(detector.ScaleFactor, detector.FocusX, detector.FocusY, true);
+				_view.ScaleImage(detector.ScaleFactor, detector.FocusX, detector.FocusY, true);
 				return true;
 			}
 
 			public override void OnScaleEnd(ScaleGestureDetector detector)
 			{
 				base.OnScaleEnd(detector);
-				view.SetState(TouchState.NONE);
+				_view.SetState(TouchState.None);
 				bool animateToZoomBoundary = false;
-				float targetZoom = view.normalizedScale;
-				if (view.normalizedScale > view.maxScale)
+				float targetZoom = _view.NormalizedScale;
+				if (_view.NormalizedScale > _view._maxScale)
 				{
-					targetZoom = view.maxScale;
+					targetZoom = _view._maxScale;
 					animateToZoomBoundary = true;
 				}
-				else if (view.normalizedScale < view.minScale)
+				else if (_view.NormalizedScale < _view._minScale)
 				{
-					targetZoom = view.minScale;
+					targetZoom = _view._minScale;
 					animateToZoomBoundary = true;
 				}
 				if (animateToZoomBoundary)
 				{
-					var doubleTap = new DoubleTapZoom(view, targetZoom, view.viewWidth / 2, view.viewHeight / 2, true);
-					view.CompatPostOnAnimation(doubleTap);
+					var doubleTap = new DoubleTapZoom(_view, targetZoom, _view.ViewWidth / 2, _view.ViewHeight / 2, true);
+					_view.CompatPostOnAnimation(doubleTap);
 				}
 			}
 		}
@@ -954,24 +954,24 @@ namespace Steepshot.Utils
 
 			if (stretchImageToSuper)
 			{
-				lowerScale = superMinScale;
-				upperScale = superMaxScale;
+				lowerScale = _superMinScale;
+				upperScale = _superMaxScale;
 			}
 			else
 			{
-				lowerScale = minScale;
-				upperScale = maxScale;
+				lowerScale = _minScale;
+				upperScale = _maxScale;
 			}
-			var origScale = normalizedScale;
-			normalizedScale *= deltaScale;
-			if (normalizedScale > upperScale)
+			var origScale = NormalizedScale;
+			NormalizedScale *= deltaScale;
+			if (NormalizedScale > upperScale)
 			{
-				normalizedScale = upperScale;
+				NormalizedScale = upperScale;
 				deltaScale = upperScale / origScale;
 			}
-			else if (normalizedScale < lowerScale)
+			else if (NormalizedScale < lowerScale)
 			{
-				normalizedScale = lowerScale;
+				NormalizedScale = lowerScale;
 				deltaScale = lowerScale / origScale;
 			}
 			matrix.PostScale(deltaScale, deltaScale, focusX, focusY);
@@ -985,57 +985,57 @@ namespace Steepshot.Utils
 		//
 		class DoubleTapZoom : Java.Lang.Object, IRunnable
 		{
-			static float ZOOM_TIME = 500;
+			static float _zoomTime = 500;
 
-			long startTime;
-			float startZoom, targetZoom;
-			float bitmapX, bitmapY;
-			bool stretchImageToSuper;
-			AccelerateDecelerateInterpolator interpolator = new AccelerateDecelerateInterpolator();
-			PointF startTouch;
-			PointF endTouch;
-			ScaleImageView view;
+			long _startTime;
+			float _startZoom, _targetZoom;
+			float _bitmapX, _bitmapY;
+			bool _stretchImageToSuper;
+			AccelerateDecelerateInterpolator _interpolator = new AccelerateDecelerateInterpolator();
+			PointF _startTouch;
+			PointF _endTouch;
+			ScaleImageView _view;
 
 			public DoubleTapZoom(ScaleImageView view, float targetZoom, float focusX, float focusY, bool stretchImageToSuper)
 			{
-				this.view = view;
-				view.SetState(TouchState.ANIMATE_ZOOM);
-				startTime = DateTime.Now.Ticks;
-				startZoom = view.normalizedScale;
-				this.targetZoom = targetZoom;
-				this.stretchImageToSuper = stretchImageToSuper;
+				this._view = view;
+				view.SetState(TouchState.AnimateZoom);
+				_startTime = DateTime.Now.Ticks;
+				_startZoom = view.NormalizedScale;
+				this._targetZoom = targetZoom;
+				this._stretchImageToSuper = stretchImageToSuper;
 				var bitmapPoint = view.TransformCoordTouchToBitmap(focusX, focusY, false);
-				bitmapX = bitmapPoint.X;
-				bitmapY = bitmapPoint.Y;
+				_bitmapX = bitmapPoint.X;
+				_bitmapY = bitmapPoint.Y;
 
 				//
 				// Used for translating image during scaling
 				//
-				startTouch = view.TransformCoordBitmapToTouch(bitmapX, bitmapY);
-				endTouch = new PointF((float)(view.viewWidth / 2), (float)(view.viewHeight / 2));
+				_startTouch = view.TransformCoordBitmapToTouch(_bitmapX, _bitmapY);
+				_endTouch = new PointF((float)(view.ViewWidth / 2), (float)(view.ViewHeight / 2));
 			}
 
 			public void Run()
 			{
 				var t = Interpolate();
 				var deltaScale = CalculateDeltaScale(t);
-				view.ScaleImage(deltaScale, bitmapX, bitmapY, stretchImageToSuper);
+				_view.ScaleImage(deltaScale, _bitmapX, _bitmapY, _stretchImageToSuper);
 				TranslateImageToCenterTouchPosition(t);
-				view.FixScaleTrans();
-				view.ImageMatrix = view.matrix;
+				_view.FixScaleTrans();
+				_view.ImageMatrix = _view.matrix;
 				if (t < 1f)
 				{
 					//
 					// We haven't finished zooming
 					//
-					view.CompatPostOnAnimation(this);
+					_view.CompatPostOnAnimation(this);
 				}
 				else
 				{
 					//
 					// Finished zooming
 					//
-					view.SetState(TouchState.NONE);
+					_view.SetState(TouchState.None);
 				}
 			}
 
@@ -1047,10 +1047,10 @@ namespace Steepshot.Utils
 			//
 			void TranslateImageToCenterTouchPosition(float t)
 			{
-				var targetX = startTouch.X + t * (endTouch.X - startTouch.X);
-				var targetY = startTouch.Y + t * (endTouch.Y - startTouch.Y);
-				var curr = view.TransformCoordBitmapToTouch(bitmapX, bitmapY);
-				view.matrix.PostTranslate(targetX - curr.X, targetY - curr.Y);
+				var targetX = _startTouch.X + t * (_endTouch.X - _startTouch.X);
+				var targetY = _startTouch.Y + t * (_endTouch.Y - _startTouch.Y);
+				var curr = _view.TransformCoordBitmapToTouch(_bitmapX, _bitmapY);
+				_view.matrix.PostTranslate(targetX - curr.X, targetY - curr.Y);
 			}
 
 			//
@@ -1060,9 +1060,9 @@ namespace Steepshot.Utils
 			float Interpolate()
 			{
 				var currTime = DateTime.Now.Ticks;
-				var elapsed = (currTime - startTime) / ZOOM_TIME;
+				var elapsed = (currTime - _startTime) / _zoomTime;
 				elapsed = Math.Min(1f, elapsed);
-				return interpolator.GetInterpolation(elapsed);
+				return _interpolator.GetInterpolation(elapsed);
 			}
 
 			//
@@ -1073,8 +1073,8 @@ namespace Steepshot.Utils
 			//
 			float CalculateDeltaScale(float t)
 			{
-				var zoom = startZoom + t * (targetZoom - startZoom);
-				return zoom / view.normalizedScale;
+				var zoom = _startZoom + t * (_targetZoom - _startZoom);
+				return zoom / _view.NormalizedScale;
 			}
 		}
 
@@ -1088,11 +1088,11 @@ namespace Steepshot.Utils
 		//
 		PointF TransformCoordTouchToBitmap(float x, float y, bool clipToBitmap)
 		{
-			matrix.GetValues(m);
+			matrix.GetValues(_m);
 			float origW = Drawable.IntrinsicWidth;
 			float origH = Drawable.IntrinsicHeight;
-			var transX = m[Matrix.MtransX];
-			var transY = m[Matrix.MtransY];
+			var transX = _m[Matrix.MtransX];
+			var transY = _m[Matrix.MtransY];
 			var finalX = ((x - transX) * origW) / GetImageWidth();
 			var finalY = ((y - transY) * origH) / GetImageHeight();
 			if (clipToBitmap)
@@ -1112,13 +1112,13 @@ namespace Steepshot.Utils
 		//
 		PointF TransformCoordBitmapToTouch(float bx, float by)
 		{
-			matrix.GetValues(m);
+			matrix.GetValues(_m);
 			float origW = Drawable.IntrinsicWidth;
 			float origH = Drawable.IntrinsicHeight;
 			var px = bx / origW;
 			var py = by / origH;
-			var finalX = m[Matrix.MtransX] + GetImageWidth() * px;
-			var finalY = m[Matrix.MtransY] + GetImageHeight() * py;
+			var finalX = _m[Matrix.MtransX] + GetImageWidth() * px;
+			var finalY = _m[Matrix.MtransY] + GetImageHeight() * py;
 			return new PointF(finalX, finalY);
 		}
 
@@ -1130,54 +1130,54 @@ namespace Steepshot.Utils
 		//
 		class Fling : Java.Lang.Object, IRunnable
 		{
-			ScaleImageView view;
-			Scroller scroller;
-			int currX, currY;
+			ScaleImageView _view;
+			Scroller _scroller;
+			int _currX, _currY;
 
 			public Fling(ScaleImageView view, int velocityX, int velocityY)
 			{
 				try
 				{
-					this.view = view;
-					view.SetState(TouchState.FLING);
-					scroller = new Scroller(view.context);
-					view.matrix.GetValues(view.m);
+					this._view = view;
+					view.SetState(TouchState.Fling);
+					_scroller = new Scroller(view._context);
+					view.matrix.GetValues(view._m);
 
-					var startX = (int)view.m[Matrix.MtransX];
-					var startY = (int)view.m[Matrix.MtransY];
+					var startX = (int)view._m[Matrix.MtransX];
+					var startY = (int)view._m[Matrix.MtransY];
 					int minX, maxX, minY, maxY;
 
-					if (view.GetImageWidth() > view.viewWidth)
+					if (view.GetImageWidth() > view.ViewWidth)
 					{
-						minX = view.viewWidth - (int)view.GetImageWidth();
+						minX = view.ViewWidth - (int)view.GetImageWidth();
 						maxX = 0;
 					}
 					else
 					{
 						minX = maxX = startX;
 					}
-					if (view.GetImageHeight() > view.viewHeight)
+					if (view.GetImageHeight() > view.ViewHeight)
 					{
-						minY = view.viewHeight - (int)view.GetImageHeight();
+						minY = view.ViewHeight - (int)view.GetImageHeight();
 						maxY = 0;
 					}
 					else
 					{
 						minY = maxY = startY;
 					}
-					scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
-					currX = startX;
-					currY = startY;
+					_scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+					_currX = startX;
+					_currY = startY;
 				}
 				catch { }
 			}
 
 			public void CancelFling()
 			{
-				if (scroller != null)
+				if (_scroller != null)
 				{
-					view.SetState(TouchState.NONE);
-					scroller.ForceFinished(true);
+					_view.SetState(TouchState.None);
+					_scroller.ForceFinished(true);
 				}
 			}
 
@@ -1185,23 +1185,23 @@ namespace Steepshot.Utils
 			{
 				try
 				{
-					if (scroller.IsFinished)
+					if (_scroller.IsFinished)
 					{
-						scroller = null;
+						_scroller = null;
 						return;
 					}
-					if (scroller.ComputeScrollOffset())
+					if (_scroller.ComputeScrollOffset())
 					{
-						var newX = scroller.CurrX;
-						var newY = scroller.CurrY;
-						var transX = newX - currX;
-						var transY = newY - currY;
-						currX = newX;
-						currY = newY;
-						view.matrix.PostTranslate(transX, transY);
-						view.FixTrans();
-						view.ImageMatrix = view.matrix;
-						view.CompatPostOnAnimation(this);
+						var newX = _scroller.CurrX;
+						var newY = _scroller.CurrY;
+						var transX = newX - _currX;
+						var transY = newY - _currY;
+						_currX = newX;
+						_currY = newY;
+						_view.matrix.PostTranslate(transX, transY);
+						_view.FixTrans();
+						_view.ImageMatrix = _view.matrix;
+						_view.CompatPostOnAnimation(this);
 					}
 				}
 				catch { }
@@ -1210,82 +1210,82 @@ namespace Steepshot.Utils
 
 		class CompatScroller
 		{
-			Scroller scroller;
-			OverScroller overScroller;
-			bool isPreGingerbread;
+			Scroller _scroller;
+			OverScroller _overScroller;
+			bool _isPreGingerbread;
 
 			public CompatScroller(Context context)
 			{
 				if (Build.VERSION.SdkInt < BuildVersionCodes.Gingerbread)
 				{
-					isPreGingerbread = true;
-					scroller = new Scroller(context);
+					_isPreGingerbread = true;
+					_scroller = new Scroller(context);
 				}
 				else
 				{
-					isPreGingerbread = false;
-					overScroller = new OverScroller(context);
+					_isPreGingerbread = false;
+					_overScroller = new OverScroller(context);
 				}
 			}
 
 			public void Fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX, int minY, int maxY)
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+					_scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
 				}
 				else
 				{
-					overScroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+					_overScroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
 				}
 			}
 
 			public void ForceFinished(bool finished)
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					scroller.ForceFinished(finished);
+					_scroller.ForceFinished(finished);
 				}
 				else
 				{
-					overScroller.ForceFinished(finished);
+					_overScroller.ForceFinished(finished);
 				}
 			}
 
 			public bool IsFinished()
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					return scroller.IsFinished;
+					return _scroller.IsFinished;
 				}
-				return overScroller.IsFinished;
+				return _overScroller.IsFinished;
 			}
 
 			public bool ComputeScrollOffset()
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					return scroller.ComputeScrollOffset();
+					return _scroller.ComputeScrollOffset();
 				}
-				return overScroller.ComputeScrollOffset();
+				return _overScroller.ComputeScrollOffset();
 			}
 
 			public int GetCurrX()
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					return scroller.CurrX;
+					return _scroller.CurrX;
 				}
-				return overScroller.CurrX;
+				return _overScroller.CurrX;
 			}
 
 			public int GetCurrY()
 			{
-				if (isPreGingerbread)
+				if (_isPreGingerbread)
 				{
-					return scroller.CurrY;
+					return _scroller.CurrY;
 				}
-				return overScroller.CurrY;
+				return _overScroller.CurrY;
 			}
 		}
 
@@ -1303,23 +1303,23 @@ namespace Steepshot.Utils
 
 		class ZoomVariables
 		{
-			public float scale;
-			public float focusX;
-			public float focusY;
-			public ScaleType scaleType;
+			public float Scale;
+			public float FocusX;
+			public float FocusY;
+			public ScaleType ScaleType;
 
 			public ZoomVariables(float scale, float focusX, float focusY, ScaleType scaleType)
 			{
-				this.scale = scale;
-				this.focusX = focusX;
-				this.focusY = focusY;
-				this.scaleType = scaleType;
+				this.Scale = scale;
+				this.FocusX = focusX;
+				this.FocusY = focusY;
+				this.ScaleType = scaleType;
 			}
 		}
 
 		void PrintMatrixInfo()
 		{
-			matrix.GetValues(m);
+			matrix.GetValues(_m);
 		}
 	}
 }

@@ -13,7 +13,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class FollowViewController : BaseViewController
     {
-        private FollowTableViewSource tableSource = new FollowTableViewSource();
+        private FollowTableViewSource _tableSource = new FollowTableViewSource();
         public string Username = User.Login;
         public FriendsType FriendsType = FriendsType.Followers;
 
@@ -33,23 +33,23 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            followTableView.Source = tableSource;
+            followTableView.Source = _tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
 
-            tableSource.Follow += (vote, url, action) =>
+            _tableSource.Follow += (vote, url, action) =>
             {
                 Follow(vote, url, action);
             };
 
-            tableSource.ScrolledToBottom += () =>
+            _tableSource.ScrolledToBottom += () =>
             {
                 if (_hasItems)
                     GetItems();
             };
 
-            tableSource.GoToProfile += (username) =>
+            _tableSource.GoToProfile += (username) =>
             {
                 var myViewController = new ProfileViewController();
                 myViewController.Username = username;
@@ -82,7 +82,7 @@ namespace Steepshot.iOS.Views
                 progressBar.StartAnimating();
                 var request = new UserFriendsRequest(Username, FriendsType, User.CurrentUser)
                 {
-                    Offset = tableSource.TableItems.Count == 0 ? "0" : _offsetUrl,
+                    Offset = _tableSource.TableItems.Count == 0 ? "0" : _offsetUrl,
                     Limit = 20
                 };
 
@@ -99,7 +99,7 @@ namespace Steepshot.iOS.Views
 
                     if (response.Result.Results.Count != 0)
                     {
-                        tableSource.TableItems.AddRange(response.Result.Results);
+                        _tableSource.TableItems.AddRange(response.Result.Results);
                         followTableView.ReloadData();
                     }
                     else
@@ -128,7 +128,7 @@ namespace Steepshot.iOS.Views
                 var response = await Api.Follow(request);
                 if (response.Success)
                 {
-                    var user = tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
+                    var user = _tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
                     if (user != null)
                         success = user.HasFollowed = response.Result.IsFollowed;
                 }

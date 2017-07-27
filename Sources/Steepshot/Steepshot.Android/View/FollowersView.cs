@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface FollowersView : BaseView
+	public interface IFollowersView : IBaseView
 	{
 	}
 }

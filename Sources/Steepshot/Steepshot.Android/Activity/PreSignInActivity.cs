@@ -16,26 +16,26 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PreSignInActivity : BaseActivity, PreSignInView
+    public class PreSignInActivity : BaseActivity, IPreSignInView
     {
-        PreSignInPresenter presenter;
+        PreSignInPresenter _presenter;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar spinner;
-        [InjectView(Resource.Id.input_username)] private EditText username;
-        [InjectView(Resource.Id.chain_switch)] private SwitchCompat switcher;
-        [InjectView(Resource.Id.login_label)] private TextView loginLabel;
-        [InjectView(Resource.Id.steem_logo)] private ImageView steem_logo;
-        [InjectView(Resource.Id.golos_logo)] private ImageView golos_logo;
-        [InjectView(Resource.Id.dev_switch)] private SwitchCompat dev_switcher;
-        [InjectView(Resource.Id.ic_logo)] private ImageView logo;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.input_username)] private EditText _username;
+        [InjectView(Resource.Id.chain_switch)] private SwitchCompat _switcher;
+        [InjectView(Resource.Id.login_label)] private TextView _loginLabel;
+        [InjectView(Resource.Id.steem_logo)] private ImageView _steemLogo;
+        [InjectView(Resource.Id.golos_logo)] private ImageView _golosLogo;
+        [InjectView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
+        [InjectView(Resource.Id.ic_logo)] private ImageView _logo;
 #pragma warning restore 0649
 
         private KnownChains _newChain;
         private int _clickCount;
         protected override void CreatePresenter()
         {
-            presenter = new PreSignInPresenter(this);
+            _presenter = new PreSignInPresenter(this);
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -44,26 +44,26 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Inject(this);
 #if DEBUG
-            username.Text = "joseph.kalu";
+            _username.Text = "joseph.kalu";
 #endif
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
             if (_newChain != KnownChains.None)
             {
-                switcher.Visibility = ViewStates.Gone;
-                steem_logo.Visibility = ViewStates.Gone;
-                golos_logo.Visibility = ViewStates.Gone;
+                _switcher.Visibility = ViewStates.Gone;
+                _steemLogo.Visibility = ViewStates.Gone;
+                _golosLogo.Visibility = ViewStates.Gone;
                 BasePresenter.SwitchChain(_newChain);
             }
 
-            switcher.Checked = BasePresenter.Chain == KnownChains.Steem;
-            switcher.CheckedChange += (sender, e) =>
+            _switcher.Checked = BasePresenter.Chain == KnownChains.Steem;
+            _switcher.CheckedChange += (sender, e) =>
             {
                 BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
                 SetLabelsText();
             };
 
-            dev_switcher.Checked = BasePresenter.User.IsDev;
-            dev_switcher.CheckedChange += (sender, e) =>
+            _devSwitcher.Checked = BasePresenter.User.IsDev;
+            _devSwitcher.CheckedChange += (sender, e) =>
             {
                 BasePresenter.SwitchChain(e.IsChecked);
             };
@@ -77,12 +77,12 @@ namespace Steepshot.Activity
             _clickCount++;
             if (_clickCount == 5)
             {
-                dev_switcher.Visibility = ViewStates.Visible;
+                _devSwitcher.Visibility = ViewStates.Visible;
                 _clickCount = 0;
             }
             else
             {
-                dev_switcher.Visibility = ViewStates.Gone;
+                _devSwitcher.Visibility = ViewStates.Gone;
             }
         }
 
@@ -101,7 +101,7 @@ namespace Steepshot.Activity
         {
             try
             {
-                var login = username.Text.ToLower();
+                var login = _username.Text.ToLower();
 
                 if (string.IsNullOrEmpty(login))
                 {
@@ -109,14 +109,14 @@ namespace Steepshot.Activity
                     return;
                 }
 
-                spinner.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Visible;
                 ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
                 ((AppCompatButton)sender).Enabled = false;
 
                 if (string.IsNullOrEmpty(login))
                     return;
 
-                var response = await presenter.GetAccountInfo(login);
+                var response = await _presenter.GetAccountInfo(login);
 
                 if (response != null)
                 {
@@ -132,7 +132,7 @@ namespace Steepshot.Activity
                     else
                     {
                         ShowAlert(response.Errors[0]);
-                        spinner.Visibility = ViewStates.Invisible;
+                        _spinner.Visibility = ViewStates.Invisible;
                         ((AppCompatButton)sender).Visibility = ViewStates.Visible;
                         ((AppCompatButton)sender).Enabled = true;
                     }
@@ -140,7 +140,7 @@ namespace Steepshot.Activity
                 else
                 {
                     ShowAlert(Resource.String.error_connect_to_server);
-                    spinner.Visibility = ViewStates.Invisible;
+                    _spinner.Visibility = ViewStates.Invisible;
                     ((AppCompatButton)sender).Visibility = ViewStates.Visible;
                     ((AppCompatButton)sender).Enabled = true;
                 }
@@ -153,7 +153,7 @@ namespace Steepshot.Activity
 
         private void SetLabelsText()
         {
-            loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
+            _loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
         }
     }
 }

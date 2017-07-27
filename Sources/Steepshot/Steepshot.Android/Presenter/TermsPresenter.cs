@@ -8,7 +8,7 @@ namespace Steepshot.Presenter
 {
 	public class TermsPresenter : BasePresenter
 	{
-		public TermsPresenter(TermsView view): base(view)
+		public TermsPresenter(ITermsView view): base(view)
 		{
 		}
 

@@ -15,25 +15,25 @@ using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class CameraFragment: BaseFragment, CameraView
+	public class CameraFragment: BaseFragment, ICameraView
 	{
-		CameraPresenter presenter;
+		CameraPresenter _presenter;
 
-		CameraPreview CameraPreview;
+		CameraPreview _cameraPreview;
 
-		Android.Hardware.Camera Camera;
-		public static int Camera_Request_Code = 1488;
+		Android.Hardware.Camera _camera;
+		public static int CameraRequestCode = 1488;
 
 		public const string CameraPermission = Android.Manifest.Permission.Camera;
 		public const string WritePermission = Android.Manifest.Permission.WriteExternalStorage;
 
 		[InjectView(Resource.Id.camera_frame)]
-		FrameLayout CameraContainer;
+		FrameLayout _cameraContainer;
 
 		[InjectOnClick(Resource.Id.take_photo)]
 		public void TakePhotoClick(object sender, EventArgs e)
 		{
-			Camera.TakePicture(CameraPreview, null, null, CameraPreview);
+			_camera.TakePicture(_cameraPreview, null, null, _cameraPreview);
 		}
 
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -48,14 +48,14 @@ namespace Steepshot.Fragment
 			base.OnViewCreated(view, savedInstanceState);
 			if ((int)Build.VERSION.SdkInt >= 23 && ((ContextCompat.CheckSelfPermission(Context,CameraPermission) != (int)Permission.Granted) || (ContextCompat.CheckSelfPermission(Context,WritePermission) != (int)Permission.Granted)))
 			{
-				RequestPermissions(new string[] { CameraPermission,WritePermission}, Camera_Request_Code);
+				RequestPermissions(new string[] { CameraPermission,WritePermission}, CameraRequestCode);
 			}
 			else
 			{
 				InitCamera();
 			}
 
-			CameraPreview.PictureTaken += (sender, e) =>
+			_cameraPreview.PictureTaken += (sender, e) =>
 			{
 				StartPost(e);
 			};
@@ -63,7 +63,7 @@ namespace Steepshot.Fragment
 
 		private void StartPost(string path)
 		{ 
-			Camera.StopPreview();
+			_camera.StopPreview();
 			Intent i = new Intent(Context, typeof(PostDescriptionActivity));
 			i.PutExtra("FILEPATH", path);
 			Context.StartActivity(i);
@@ -72,7 +72,7 @@ namespace Steepshot.Fragment
 		public override void OnActivityResult(int requestCode, int resultCode, Android.Content.Intent data)
 		{
 			base.OnActivityResult(requestCode, resultCode, data);
-			if (requestCode == Camera_Request_Code)
+			if (requestCode == CameraRequestCode)
 			{
 				if (ContextCompat.CheckSelfPermission(Context,CameraPermission) == (int)Permission.Granted && ContextCompat.CheckSelfPermission(Context,WritePermission) == (int)Permission.Granted)
 				{
@@ -83,23 +83,23 @@ namespace Steepshot.Fragment
 
 		public override void OnPause()
 		{
-			Camera.StopPreview();
+			_camera.StopPreview();
 			base.OnPause();
 		}
 
 		public override void OnDestroyView()
 		{
 			base.OnDestroyView();
-			Camera.Release();
+			_camera.Release();
 			Cheeseknife.Reset(this);
 		}
 
 		public void InitCamera()
 		{
-			Camera = GetCameraInstance();
+			_camera = GetCameraInstance();
 
-			CameraPreview = new CameraPreview(Context, Camera);
-			CameraContainer.AddView(CameraPreview);
+			_cameraPreview = new CameraPreview(Context, _camera);
+			_cameraContainer.AddView(_cameraPreview);
 		}
 
 		public static Android.Hardware.Camera GetCameraInstance()
@@ -115,7 +115,7 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			presenter = new CameraPresenter(this);
+			_presenter = new CameraPresenter(this);
 		}
 	}
 }

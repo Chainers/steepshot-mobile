@@ -17,15 +17,15 @@ using PagerAdapter = Steepshot.Adapter.PagerAdapter;
 namespace Steepshot.Activity
 {
 	[Activity(Label = "Steepshot",ScreenOrientation = ScreenOrientation.Portrait)]
-	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, RootView
+	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, IRootView
 	{
-		private RootPresenter presenter;
-		private PagerAdapter Adapter;
+		private RootPresenter _presenter;
+		private PagerAdapter _adapter;
 		public string VoterUrl;
 
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.view_pager)] ViewPager viewPager;
-		[InjectView(Resource.Id.tab_layout)] TabLayout tabLayout;
+		[InjectView(Resource.Id.view_pager)] ViewPager _viewPager;
+		[InjectView(Resource.Id.tab_layout)] TabLayout _tabLayout;
 #pragma warning restore 0649
 
 		protected override void OnCreate(Bundle savedInstanceState)
@@ -33,9 +33,9 @@ namespace Steepshot.Activity
 			base.OnCreate(savedInstanceState);
 			SetContentView(Resource.Layout.lyt_tab_host);
 			Cheeseknife.Inject(this);
-			Adapter = new PagerAdapter(SupportFragmentManager, this);
-			viewPager.Adapter = Adapter;
-			tabLayout.SetupWithViewPager(viewPager);
+			_adapter = new PagerAdapter(SupportFragmentManager, this);
+			_viewPager.Adapter = _adapter;
+			_tabLayout.SetupWithViewPager(_viewPager);
 			InitTabs();
 		}
 
@@ -47,24 +47,24 @@ namespace Steepshot.Activity
 
 		private void InitTabs()
 		{
-			for (int i = 0; i < tabLayout.TabCount; i++)
+			for (int i = 0; i < _tabLayout.TabCount; i++)
 			{
-				TabLayout.Tab tab = tabLayout.GetTabAt(i);
+				TabLayout.Tab tab = _tabLayout.GetTabAt(i);
 				if (null != tab)
 				{
-					tab.SetIcon(ContextCompat.GetDrawable(this,Adapter.tabIcos[i]));
+					tab.SetIcon(ContextCompat.GetDrawable(this,_adapter.TabIcos[i]));
 				}
 			}
 
-			viewPager.AddOnPageChangeListener(this);
+			_viewPager.AddOnPageChangeListener(this);
 			OnPageSelected(0);
-			viewPager.SetCurrentItem(0, false);
-			viewPager.OffscreenPageLimit = 3;
+			_viewPager.SetCurrentItem(0, false);
+			_viewPager.OffscreenPageLimit = 3;
 		}
 
 		private void CheckLogin()
 		{ 
-			if (!BasePresenter.User.IsAuthenticated && viewPager.CurrentItem>0)
+			if (!BasePresenter.User.IsAuthenticated && _viewPager.CurrentItem>0)
 			{
 				Intent loginItent = new Intent(this, typeof(SignInActivity));
 				StartActivity(loginItent);
@@ -73,9 +73,9 @@ namespace Steepshot.Activity
 
 		public void OnPageSelected(int position)
 		{
-			for (int i = 0; i < tabLayout.TabCount; i++)
+			for (int i = 0; i < _tabLayout.TabCount; i++)
 			{
-				var tab = tabLayout.GetTabAt(i);
+				var tab = _tabLayout.GetTabAt(i);
 				if (null != tab)
 				{
 					if (i == position)
@@ -92,13 +92,13 @@ namespace Steepshot.Activity
 
 		public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
 		{
-			CurrentHostFragment = (HostFragment)Adapter.GetItem(viewPager.CurrentItem);
+			CurrentHostFragment = (HostFragment)_adapter.GetItem(_viewPager.CurrentItem);
 			base.OpenNewContentFragment(frag);
 		}
 
 		protected override void CreatePresenter()
 		{
-			presenter = new RootPresenter(this);
+			_presenter = new RootPresenter(this);
 		}
 
 		public void OnPageScrollStateChanged(int state)

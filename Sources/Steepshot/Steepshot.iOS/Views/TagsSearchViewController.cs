@@ -18,9 +18,9 @@ namespace Steepshot.iOS.Views
     public partial class TagsSearchViewController : BaseViewController
     {
         private Timer _timer;
-        private PostTagsTableViewSource tagsSource = new PostTagsTableViewSource();
-        private UserSearchTableViewSource usersSource = new UserSearchTableViewSource();
-        private CancellationTokenSource cts;
+        private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
+        private UserSearchTableViewSource _usersSource = new UserSearchTableViewSource();
+        private CancellationTokenSource _cts;
         private SearchType _searchType = SearchType.Tags;
 
         protected TagsSearchViewController(IntPtr handle) : base(handle)
@@ -34,17 +34,17 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            _timer = new Timer(onTimer);
+            _timer = new Timer(OnTimer);
 
-            tagsTable.Source = tagsSource;
+            tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
-            tagsSource.RowSelectedEvent += TableTagSelected;
+            _tagsSource.RowSelectedEvent += TableTagSelected;
 
-            usersTable.Source = usersSource;
+            usersTable.Source = _usersSource;
             usersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             usersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
-            usersSource.RowSelectedEvent += TableTagSelected;
+            _usersSource.RowSelectedEvent += TableTagSelected;
 
 
             searchTextField.ShouldReturn += (textField) =>
@@ -70,7 +70,7 @@ namespace Steepshot.iOS.Views
             SwitchSearchType();
         }
 
-        private void onTimer(object state)
+        private void OnTimer(object state)
         {
             InvokeOnMainThread(() =>
            {
@@ -78,22 +78,22 @@ namespace Steepshot.iOS.Views
            });
         }
 
-        private Dictionary<SearchType, string> prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
+        private Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
         private async Task Search(string query)
         {
-            if (prevQuery[_searchType] == query)
+            if (_prevQuery[_searchType] == query)
                 return;
             if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
                 return;
 
-            prevQuery[_searchType] = query;
+            _prevQuery[_searchType] = query;
             noTagsLabel.Hidden = true;
             activityIndicator.StartAnimating();
             bool dontStop = false;
             try
             {
-                cts?.Cancel();
+                _cts?.Cancel();
             }
             catch (ObjectDisposedException)
             {
@@ -101,24 +101,24 @@ namespace Steepshot.iOS.Views
             }
             try
             {
-                using (cts = new CancellationTokenSource())
+                using (_cts = new CancellationTokenSource())
                 {
                     OperationResult response;
                     if (string.IsNullOrEmpty(query))
                     {
                         var request = new SearchRequest() { };
-                        response = await Api.GetCategories(request, cts);
+                        response = await Api.GetCategories(request, _cts);
                     }
                     else
                     {
                         var request = new SearchWithQueryRequest(query, User.CurrentUser);
                         if (_searchType == SearchType.Tags)
                         {
-                            response = await Api.SearchCategories(request, cts);
+                            response = await Api.SearchCategories(request, _cts);
                         }
                         else
                         {
-                            response = await Api.SearchUser(request, cts);
+                            response = await Api.SearchUser(request, _cts);
                         }
                     }
 
@@ -127,17 +127,17 @@ namespace Steepshot.iOS.Views
                         bool shouldHide;
                         if (_searchType == SearchType.Tags)
                         {
-                            tagsSource.Tags.Clear();
-                            tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results;
+                            _tagsSource.Tags.Clear();
+                            _tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results;
                             tagsTable.ReloadData();
-                            shouldHide = tagsSource.Tags.Count == 0;
+                            shouldHide = _tagsSource.Tags.Count == 0;
                         }
                         else
                         {
-                            usersSource.Users.Clear();
-                            usersSource.Users = ((OperationResult<UserSearchResponse>)response).Result?.Results;
+                            _usersSource.Users.Clear();
+                            _usersSource.Users = ((OperationResult<UserSearchResponse>)response).Result?.Results;
                             usersTable.ReloadData();
-                            shouldHide = usersSource.Users.Count == 0;
+                            shouldHide = _usersSource.Users.Count == 0;
                         }
 
                         if (shouldHide)
@@ -179,13 +179,13 @@ namespace Steepshot.iOS.Views
         {
             if (_searchType == SearchType.Tags)
             {
-                CurrentPostCategory = tagsSource.Tags[row].Name;
+                CurrentPostCategory = _tagsSource.Tags[row].Name;
                 NavigationController.PopViewController(true);
             }
             else
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = usersSource.Users[row].Username;
+                myViewController.Username = _usersSource.Users[row].Username;
                 NavigationController.PushViewController(myViewController, true);
             }
         }

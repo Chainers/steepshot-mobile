@@ -2,7 +2,7 @@
 
 namespace Steepshot.View
 {
-	public interface PhotoGridView : BaseView
+	public interface IPhotoGridView : IBaseView
 	{
 		
 	}

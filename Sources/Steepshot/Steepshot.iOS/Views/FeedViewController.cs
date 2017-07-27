@@ -148,7 +148,7 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.ImagePreview += (image, url) =>
             {
                 var myViewController = new ImagePreviewViewController();
-                myViewController.imageForPreview = image;
+                myViewController.ImageForPreview = image;
                 myViewController.ImageUrl = url;
                 _navController.PushViewController(myViewController, true);
             };

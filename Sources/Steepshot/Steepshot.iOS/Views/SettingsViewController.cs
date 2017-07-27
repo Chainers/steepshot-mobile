@@ -19,11 +19,11 @@ namespace Steepshot.iOS.Views
         {
         }
 
-        private UserInfo steemAcc;
-        private UserInfo golosAcc;
+        private UserInfo _steemAcc;
+        private UserInfo _golosAcc;
 
-        private KnownChains previousNetwork;
-        private MFMailComposeViewController mailController;
+        private KnownChains _previousNetwork;
+        private MFMailComposeViewController _mailController;
 
         public override void ViewDidLoad()
         {
@@ -34,25 +34,25 @@ namespace Steepshot.iOS.Views
             nsfwSwitch.On = User.IsNsfw;
             lowRatedSwitch.On = User.IsLowRated;
             NavigationController.SetNavigationBarHidden(false, false);
-            steemAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
-            golosAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
-            previousNetwork = Chain;
+            _steemAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
+            _golosAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
+            _previousNetwork = Chain;
 
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
             //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
-            if (steemAcc != null)
+            if (_steemAcc != null)
             {
-                steemLabel.Text = steemAcc.Login;
+                steemLabel.Text = _steemAcc.Login;
                 //LoadImage(steemAcc.Avatar, steemAvatar);
             }
             else
                 steemViewHeight.Constant = 0;
 
 
-            if (golosAcc != null)
+            if (_golosAcc != null)
             {
-                golosLabel.Text = golosAcc.Login;
+                golosLabel.Text = _golosAcc.Login;
                 //LoadImage(golosAcc.Avatar, golosAvatar);
             }
             else
@@ -64,20 +64,20 @@ namespace Steepshot.iOS.Views
             addAccountButton.TouchDown += (sender, e) =>
             {
                 var myViewController = new PreLoginViewController();
-                myViewController.newAccountNetwork = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                myViewController.NewAccountNetwork = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
                 NavigationController.PushViewController(myViewController, true);
             };
 
             steemButton.TouchDown += (sender, e) =>
             {
-                User.GetAllAccounts().Remove(steemAcc);
+                User.GetAllAccounts().Remove(_steemAcc);
                 steemViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Steem);
             };
 
             golosButton.TouchDown += (sender, e) =>
             {
-                User.GetAllAccounts().Remove(golosAcc);
+                User.GetAllAccounts().Remove(_golosAcc);
                 golosViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Golos);
             };
@@ -92,14 +92,14 @@ namespace Steepshot.iOS.Views
             {
                 if (MFMailComposeViewController.CanSendMail)
                 {
-                    mailController = new MFMailComposeViewController();
-                    mailController.SetToRecipients(new string[] { "steepshot.org@gmail.com" });
-                    mailController.SetSubject("User report");
-                    mailController.Finished += (object s, MFComposeResultEventArgs args) =>
+                    _mailController = new MFMailComposeViewController();
+                    _mailController.SetToRecipients(new string[] { "steepshot.org@gmail.com" });
+                    _mailController.SetSubject("User report");
+                    _mailController.Finished += (object s, MFComposeResultEventArgs args) =>
                     {
                         args.Controller.DismissViewController(true, null);
                     };
-                    this.PresentViewController(mailController, true, null);
+                    this.PresentViewController(_mailController, true, null);
                 }
                 else
                     ShowAlert("Setup your mail please");
@@ -213,8 +213,8 @@ namespace Steepshot.iOS.Views
         public override void ViewDidDisappear(bool animated)
         {
             base.ViewDidDisappear(animated);
-            NetworkChanged = previousNetwork != Chain;
-            ShouldProfileUpdate = previousNetwork != Chain;
+            NetworkChanged = _previousNetwork != Chain;
+            ShouldProfileUpdate = _previousNetwork != Chain;
         }
     }
 }

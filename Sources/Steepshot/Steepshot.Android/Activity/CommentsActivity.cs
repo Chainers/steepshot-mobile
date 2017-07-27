@@ -18,20 +18,20 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class CommentsActivity : BaseActivity, CommentsView
+    public class CommentsActivity : BaseActivity, ICommentsView
     {
-        CommentsPresenter presenter;
-        List<Post> posts;
-        CommentAdapter Adapter;
-        string uid;
-        LinearLayoutManager manager;
+        CommentsPresenter _presenter;
+        List<Post> _posts;
+        CommentAdapter _adapter;
+        string _uid;
+        LinearLayoutManager _manager;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.comments_list)] RecyclerView comments;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar spinner;
-        [InjectView(Resource.Id.text_input)] EditText textInput;
-        [InjectView(Resource.Id.btn_post)] ImageButton post;
-        [InjectView(Resource.Id.send_spinner)] ProgressBar sendSpinner;
+        [InjectView(Resource.Id.comments_list)] RecyclerView _comments;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
+        [InjectView(Resource.Id.text_input)] EditText _textInput;
+        [InjectView(Resource.Id.btn_post)] ImageButton _post;
+        [InjectView(Resource.Id.send_spinner)] ProgressBar _sendSpinner;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -47,19 +47,19 @@ namespace Steepshot.Activity
             {
                 try
                 {
-                    if (textInput.Text != string.Empty)
+                    if (_textInput.Text != string.Empty)
                     {
-                        sendSpinner.Visibility = Android.Views.ViewStates.Visible;
-                        post.Visibility = Android.Views.ViewStates.Invisible;
-                        var resp = await presenter.CreateComment(textInput.Text, uid);
+                        _sendSpinner.Visibility = Android.Views.ViewStates.Visible;
+                        _post.Visibility = Android.Views.ViewStates.Invisible;
+                        var resp = await _presenter.CreateComment(_textInput.Text, _uid);
                         if (resp.Success)
                         {
-                            if (textInput != null)
+                            if (_textInput != null)
                             {
-                                textInput.Text = string.Empty;
-                                var posts = await presenter.GetComments(uid);
-                                Adapter?.Reload(posts);
-                                manager?.ScrollToPosition(posts.Count - 1);
+                                _textInput.Text = string.Empty;
+                                var posts = await _presenter.GetComments(_uid);
+                                _adapter?.Reload(posts);
+                                _manager?.ScrollToPosition(posts.Count - 1);
                             }
                         }
                         else
@@ -73,10 +73,10 @@ namespace Steepshot.Activity
                     Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
                     Toast.MakeText(this, "Unknown error. Try again", ToastLength.Short).Show();
                 }
-                if (sendSpinner != null && post != null)
+                if (_sendSpinner != null && _post != null)
                 {
-                    sendSpinner.Visibility = ViewStates.Invisible;
-                    post.Visibility = ViewStates.Visible;
+                    _sendSpinner.Visibility = ViewStates.Invisible;
+                    _post.Visibility = ViewStates.Visible;
                 }
             }
             else
@@ -92,25 +92,25 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_comments);
             Cheeseknife.Inject(this);
 
-            uid = Intent.GetStringExtra("uid");
-            manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
-            manager.StackFromEnd = true;
-            comments.SetLayoutManager(manager);
-            posts = await presenter.GetComments(uid);
-            Adapter = new CommentAdapter(this, posts);
-            if (comments != null)
+            _uid = Intent.GetStringExtra("uid");
+            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
+            _manager.StackFromEnd = true;
+            _comments.SetLayoutManager(_manager);
+            _posts = await _presenter.GetComments(_uid);
+            _adapter = new CommentAdapter(this, _posts);
+            if (_comments != null)
             {
-                comments.SetAdapter(Adapter);
-                spinner.Visibility = ViewStates.Gone;
-                Adapter.LikeAction += FeedAdapter_LikeAction;
-                Adapter.UserAction += FeedAdapter_UserAction;
+                _comments.SetAdapter(_adapter);
+                _spinner.Visibility = ViewStates.Gone;
+                _adapter.LikeAction += FeedAdapter_LikeAction;
+                _adapter.UserAction += FeedAdapter_UserAction;
             }
         }
 
         void FeedAdapter_UserAction(int position)
         {
             Intent intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra("ID", presenter.Posts[position].Author);
+            intent.PutExtra("ID", _presenter.Posts[position].Author);
             StartActivity(intent);
         }
 
@@ -120,12 +120,12 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    var response = await presenter.Vote(presenter.Posts[position]);
+                    var response = await _presenter.Vote(_presenter.Posts[position]);
 
                     if (response.Success)
                     {
-                        presenter.Posts[position].Vote = !presenter.Posts[position].Vote;
-                        Adapter?.NotifyDataSetChanged();
+                        _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
+                        _adapter?.NotifyDataSetChanged();
                     }
                     else
                     {
@@ -146,7 +146,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            presenter = new CommentsPresenter(this);
+            _presenter = new CommentsPresenter(this);
         }
 
         protected override void OnDestroy()

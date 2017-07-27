@@ -26,19 +26,19 @@ namespace Steepshot.iOS.Views
         {
         }
 
-        private UserProfileResponse userData;
+        private UserProfileResponse _userData;
         public string Username = User.Login;
-        private ProfileCollectionViewSource collectionViewSource = new ProfileCollectionViewSource();
-        private List<Post> photosList = new List<Post>();
+        private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
+        private List<Post> _photosList = new List<Post>();
         private string _offsetUrl;
         private bool _hasItems = true;
-        private UIRefreshControl RefreshControl;
+        private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
         private ProfileHeaderViewController _profileHeader;
-        private CollectionViewFlowDelegate gridDelegate;
+        private CollectionViewFlowDelegate _gridDelegate;
         private int _lastRow;
-        private const int _limit = 40;
-        private UINavigationController navController;
+        private const int Limit = 40;
+        private UINavigationController _navController;
 
         public override void ViewDidLoad()
         {
@@ -48,32 +48,32 @@ namespace Steepshot.iOS.Views
             if (Username != User.Login)
                 topViewHeight.Constant = 0;
 
-            navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-            collectionViewSource.PhotoList = photosList;
-            collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
-            collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
-            collectionViewSource.GoToComments += (postUrl) =>
+            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+            _collectionViewSource.PhotoList = _photosList;
+            _collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
+            _collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
+            _collectionViewSource.GoToComments += (postUrl) =>
             {
                 var myViewController = new CommentsViewController();
                 myViewController.PostUrl = postUrl;
-                navController.PushViewController(myViewController, true);
+                _navController.PushViewController(myViewController, true);
             };
-            collectionViewSource.GoToVoters += (postUrl) =>
+            _collectionViewSource.GoToVoters += (postUrl) =>
             {
                 var myViewController = new VotersViewController();
                 myViewController.PostUrl = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
-            collectionViewSource.ImagePreview += PreviewPhoto;
+            _collectionViewSource.ImagePreview += PreviewPhoto;
 
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             //collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
-            collectionView.Source = collectionViewSource;
+            collectionView.Source = _collectionViewSource;
 
-            gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
+            _gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
             {
                 var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
                 PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
@@ -84,21 +84,21 @@ namespace Steepshot.iOS.Views
                 {
                     var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
 
-                    if (collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !RefreshControl.Refreshing)
+                    if (_collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_refreshControl.Refreshing)
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }, collectionViewSource.FeedStrings);
+            }, _collectionViewSource.FeedStrings);
 
-            collectionView.Delegate = gridDelegate;
+            collectionView.Delegate = _gridDelegate;
 
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
             collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
             collectionView.AddSubview(_profileHeader.View);
 
-            RefreshControl = new UIRefreshControl();
-            RefreshControl.ValueChanged += RefreshControl_ValueChanged;
-            collectionView.Add(RefreshControl);
+            _refreshControl = new UIRefreshControl();
+            _refreshControl.ValueChanged += RefreshControl_ValueChanged;
+            collectionView.Add(_refreshControl);
 
             GetUserInfo();
             GetUserPosts();
@@ -107,7 +107,7 @@ namespace Steepshot.iOS.Views
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
         {
             await RefreshPage();
-            RefreshControl.EndRefreshing();
+            _refreshControl.EndRefreshing();
         }
 
         public override void ViewWillAppear(bool animated)
@@ -125,7 +125,7 @@ namespace Steepshot.iOS.Views
         {
             _profileHeader.SwitchButton.TouchDown += (sender, e) =>
             {
-                if (!collectionViewSource.IsGrid)
+                if (!_collectionViewSource.IsGrid)
                 {
                     //collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
                     _profileHeader.SwitchButton.SetImage(UIImage.FromFile("list.png"), UIControlState.Normal);
@@ -136,7 +136,7 @@ namespace Steepshot.iOS.Views
                     _profileHeader.SwitchButton.SetImage(UIImage.FromFile("grid.png"), UIControlState.Normal);
 
                 }
-                gridDelegate.IsGrid = collectionViewSource.IsGrid = !collectionViewSource.IsGrid;
+                _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
                 collectionView.ReloadData();
             };
 
@@ -180,8 +180,8 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshPage()
         {
-            photosList.Clear();
-            collectionViewSource.FeedStrings.Clear();
+            _photosList.Clear();
+            _collectionViewSource.FeedStrings.Clear();
             _hasItems = true;
             GetUserInfo();
             await GetUserPosts();
@@ -190,9 +190,9 @@ namespace Steepshot.iOS.Views
         private void PreviewPhoto(UIImage image, string url)
         {
             var myViewController = new ImagePreviewViewController();
-            myViewController.imageForPreview = image;
+            myViewController.ImageForPreview = image;
             myViewController.ImageUrl = url;
-            navController.PushViewController(myViewController, true);
+            _navController.PushViewController(myViewController, true);
         }
 
         private async Task GetUserInfo()
@@ -204,17 +204,17 @@ namespace Steepshot.iOS.Views
                 var response = await Api.GetUserProfile(req);
                 if (response.Success)
                 {
-                    userData = response.Result;
-                    _profileHeader.Username.Text = !string.IsNullOrEmpty(userData.Name) ? userData.Name : userData.Username;
+                    _userData = response.Result;
+                    _profileHeader.Username.Text = !string.IsNullOrEmpty(_userData.Name) ? _userData.Name : _userData.Username;
                     var culture = new CultureInfo("en-US");
-                    _profileHeader.Date.Text = $"Joined {userData.Created.ToString("Y", culture)}";
-                    if (!string.IsNullOrEmpty(userData.Location))
-                        _profileHeader.Location.Text = userData.Location;
-                    if (!string.IsNullOrEmpty(userData.About))
-                        _profileHeader.DescriptionLabel.Text = userData.About;
+                    _profileHeader.Date.Text = $"Joined {_userData.Created.ToString("Y", culture)}";
+                    if (!string.IsNullOrEmpty(_userData.Location))
+                        _profileHeader.Location.Text = _userData.Location;
+                    if (!string.IsNullOrEmpty(_userData.About))
+                        _profileHeader.DescriptionLabel.Text = _userData.About;
 
-                    if (!string.IsNullOrEmpty(userData.ProfileImage))
-                        ImageService.Instance.LoadUrl(userData.ProfileImage, TimeSpan.FromDays(30))
+                    if (!string.IsNullOrEmpty(_userData.ProfileImage))
+                        ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
                                              .Retry(2, 200)
                                              .FadeAnimation(false, false, 0)
                                              .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
@@ -222,7 +222,7 @@ namespace Steepshot.iOS.Views
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
-                    _profileHeader.Balance.SetTitle($"{userData.EstimatedBalance.ToString()}{Currency}", UIControlState.Normal);
+                    _profileHeader.Balance.SetTitle($"{_userData.EstimatedBalance.ToString()}{Currency}", UIControlState.Normal);
                     _profileHeader.SettingsButton.Hidden = Username != User.Login;
 
                     var buttonsAttributes = new UIStringAttributes
@@ -240,7 +240,7 @@ namespace Steepshot.iOS.Views
                     };
 
                     NSMutableAttributedString photosString = new NSMutableAttributedString();
-                    photosString.Append(new NSAttributedString(userData.PostCount.ToString(), buttonsAttributes));
+                    photosString.Append(new NSAttributedString(_userData.PostCount.ToString(), buttonsAttributes));
                     photosString.Append(new NSAttributedString(Environment.NewLine));
                     photosString.Append(new NSAttributedString("PHOTOS", textAttributes));
 
@@ -249,7 +249,7 @@ namespace Steepshot.iOS.Views
                     _profileHeader.PhotosButton.SetAttributedTitle(photosString, UIControlState.Normal);
 
                     NSMutableAttributedString followingString = new NSMutableAttributedString();
-                    followingString.Append(new NSAttributedString(userData.FollowingCount.ToString(), buttonsAttributes));
+                    followingString.Append(new NSAttributedString(_userData.FollowingCount.ToString(), buttonsAttributes));
                     followingString.Append(new NSAttributedString(Environment.NewLine));
                     followingString.Append(new NSAttributedString("FOLLOWING", textAttributes));
 
@@ -258,7 +258,7 @@ namespace Steepshot.iOS.Views
                     _profileHeader.FollowingButton.SetAttributedTitle(followingString, UIControlState.Normal);
 
                     NSMutableAttributedString followersString = new NSMutableAttributedString();
-                    followersString.Append(new NSAttributedString(userData.FollowersCount.ToString(), buttonsAttributes));
+                    followersString.Append(new NSAttributedString(_userData.FollowersCount.ToString(), buttonsAttributes));
                     followersString.Append(new NSAttributedString(Environment.NewLine));
                     followersString.Append(new NSAttributedString("FOLLOWERS", textAttributes));
 
@@ -268,7 +268,7 @@ namespace Steepshot.iOS.Views
 
                     ToogleFollowButton();
 
-                    if (!RefreshControl.Refreshing)
+                    if (!_refreshControl.Refreshing)
                     {
                         _profileHeader.View.SetNeedsLayout();
                         _profileHeader.View.LayoutIfNeeded();
@@ -304,8 +304,8 @@ namespace Steepshot.iOS.Views
             {
                 var req = new UserPostsRequest(Username, User.CurrentUser)
                 {
-                    Limit = _limit,
-                    Offset = photosList.Count == 0 ? "0" : _offsetUrl
+                    Limit = Limit,
+                    Offset = _photosList.Count == 0 ? "0" : _offsetUrl
                 };
                 var response = await Api.GetUserPosts(req);
                 if (response.Success)
@@ -316,7 +316,7 @@ namespace Steepshot.iOS.Views
                         var lastItem = response?.Result?.Results?.Last();
                         _offsetUrl = lastItem?.Url;
 
-                        if (response?.Result?.Results?.Count < _limit / 2)
+                        if (response?.Result?.Results?.Count < Limit / 2)
                             _hasItems = false;
                         else
                             response.Result.Results.Remove(lastItem);
@@ -326,9 +326,9 @@ namespace Steepshot.iOS.Views
                             var at = new NSMutableAttributedString();
                             at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
                             at.Append(new NSAttributedString($" {r.Title}"));
-                            collectionViewSource.FeedStrings.Add(at);
+                            _collectionViewSource.FeedStrings.Add(at);
                         }
-                        photosList.AddRange(response?.Result?.Results);
+                        _photosList.AddRange(response?.Result?.Results);
                     }
                     collectionView.ReloadData();
                     collectionView.CollectionViewLayout.InvalidateLayout();
@@ -371,7 +371,7 @@ namespace Steepshot.iOS.Views
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
-                    var u = photosList.FirstOrDefault(p => p.Url == postUri);
+                    var u = _photosList.FirstOrDefault(p => p.Url == postUri);
                     if (u != null)
                     {
                         u.Vote = vote;
@@ -420,12 +420,12 @@ namespace Steepshot.iOS.Views
             {
                 User.Postblacklist.Add(url);
                 User.Save();
-                var postToHide = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
+                var postToHide = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
                 if (postToHide != null)
                 {
-                    var postIndex = collectionViewSource.PhotoList.IndexOf(postToHide);
-                    collectionViewSource.PhotoList.Remove(postToHide);
-                    collectionViewSource.FeedStrings.RemoveAt(postIndex);
+                    var postIndex = _collectionViewSource.PhotoList.IndexOf(postToHide);
+                    _collectionViewSource.PhotoList.Remove(postToHide);
+                    _collectionViewSource.FeedStrings.RemoveAt(postIndex);
                     collectionView.ReloadData();
                     collectionView.CollectionViewLayout.InvalidateLayout();
                 }
@@ -444,7 +444,7 @@ namespace Steepshot.iOS.Views
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {
-                    var u = collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
+                    var u = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
                     if (u != null)
                     {
                         u.Flag = flagResponse.Result.IsFlagged;
@@ -473,11 +473,11 @@ namespace Steepshot.iOS.Views
 
         public async Task Follow()
         {
-            var request = new FollowRequest(User.CurrentUser, (userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, userData.Username);
+            var request = new FollowRequest(User.CurrentUser, (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
-                userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
+                _userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
                 ToogleFollowButton();
             }
             else
@@ -493,7 +493,7 @@ namespace Steepshot.iOS.Views
 
         private void ToogleFollowButton()
         {
-            if (!User.IsAuthenticated || Username == User.Login || Convert.ToBoolean(userData.HasFollowed))
+            if (!User.IsAuthenticated || Username == User.Login || Convert.ToBoolean(_userData.HasFollowed))
             {
                 _profileHeader.FollowButtonWidth.Constant = 0;
                 _profileHeader.FollowButtonMargin.Constant = 0;

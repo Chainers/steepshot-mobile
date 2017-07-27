@@ -9,19 +9,19 @@ namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
-        public int[] tabIcos = new int[] {
+        public int[] TabIcos = new int[] {
             Resource.Drawable.ic_home,
             Resource.Drawable.ic_browse,
             Resource.Drawable.ic_camera_new,
             Resource.Drawable.ic_profile_new
         };
-        Context context;
+        Context _context;
 
-        private List<Android.Support.V4.App.Fragment> tabs = new List<Android.Support.V4.App.Fragment>();
+        private List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
 
         public PagerAdapter(FragmentManager fm, Context context) : base(fm)
         {
-            this.context = context;
+            this._context = context;
             InitializeTabs();
         }
 
@@ -29,24 +29,24 @@ namespace Steepshot.Adapter
         {
             get
             {
-                return tabIcos.Length;
+                return TabIcos.Length;
             }
         }
 
         public override Android.Support.V4.App.Fragment GetItem(int position)
         {
-            return tabs[position];
+            return _tabs[position];
         }
 
         private void InitializeTabs()
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
-                tabs.Add(new FeedFragment());
+                _tabs.Add(new FeedFragment());
                 return;
             }
 
-            for (var i = 0; i < tabIcos.Length; i++)
+            for (var i = 0; i < TabIcos.Length; i++)
             {
                 Android.Support.V4.App.Fragment frag;
                 switch (i)
@@ -68,7 +68,7 @@ namespace Steepshot.Adapter
                         break;
                 }
                 if (frag != null)
-                    tabs.Add(frag);
+                    _tabs.Add(frag);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace Steepshot.Presenter
 {
 	public class PostDescriptionPresenter : BasePresenter
 	{
-		public PostDescriptionPresenter(PostDescriptionView view):base(view)
+		public PostDescriptionPresenter(IPostDescriptionView view):base(view)
 		{
 		}
 

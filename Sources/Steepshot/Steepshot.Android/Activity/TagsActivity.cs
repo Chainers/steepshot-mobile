@@ -18,26 +18,26 @@ using Steepshot.View;
 namespace Steepshot.Activity
 {
 	[Activity(Label = "TagsActivity",ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode=Android.Views.SoftInput.AdjustNothing)]
-	public class TagsActivity : BaseActivity, TagsView
+	public class TagsActivity : BaseActivity, ITagsView
 	{
-		TagsPresenter presenter;
+		TagsPresenter _presenter;
 #pragma warning disable 0649, 4014
-		[InjectView(Resource.Id.ic_close)] ImageButton Close;
-		[InjectView(Resource.Id.search_box)] EditText SearchBox;
-		[InjectView(Resource.Id.tags_list)] RecyclerView TagsList;
-		[InjectView(Resource.Id.tag_container)] TagLayout tagLayout;
-		[InjectView(Resource.Id.scroll)] ScrollView Scroll;
-		[InjectView(Resource.Id.add_custom_tag)] Button AddCustomTagButton;
+		[InjectView(Resource.Id.ic_close)] ImageButton _close;
+		[InjectView(Resource.Id.search_box)] EditText _searchBox;
+		[InjectView(Resource.Id.tags_list)] RecyclerView _tagsList;
+		[InjectView(Resource.Id.tag_container)] TagLayout _tagLayout;
+		[InjectView(Resource.Id.scroll)] ScrollView _scroll;
+		[InjectView(Resource.Id.add_custom_tag)] Button _addCustomTagButton;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_post)]
         public void PostTags(object sender, EventArgs e)
         {
-            if (SelectedCategories.Count > 0)
+            if (_selectedCategories.Count > 0)
             {
                 Intent returnIntent = new Intent();
                 Bundle b = new Bundle();
-                b.PutStringArray("TAGS", SelectedCategories.Select(o => o.Name).ToArray<string>());
+                b.PutStringArray("TAGS", _selectedCategories.Select(o => o.Name).ToArray<string>());
                 returnIntent.PutExtra("TAGS", b);
                 SetResult(Result.Ok,returnIntent);
                 Finish();
@@ -47,16 +47,16 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.add_custom_tag)]
 		public void AddTag(object sender, EventArgs e)
 		{
-			var trimmedString = SearchBox.Text.Trim();
+			var trimmedString = _searchBox.Text.Trim();
 			if (string.IsNullOrEmpty(trimmedString))
 			   return;
 			AddTag(new SearchResult() { Name = trimmedString });
-			SearchBox.Text = string.Empty;
+			_searchBox.Text = string.Empty;
 		}
 
-		TagsAdapter Adapter;
+		TagsAdapter _adapter;
 
-		List<SearchResult> SelectedCategories = new List<SearchResult>();
+		List<SearchResult> _selectedCategories = new List<SearchResult>();
 
 		protected override void OnCreate(Bundle savedInstanceState)
 		{
@@ -66,66 +66,66 @@ namespace Steepshot.Activity
 
 			Cheeseknife.Inject(this);
 
-			TagsList.SetLayoutManager(new LinearLayoutManager(this));
-			Adapter = new TagsAdapter(this);
-			TagsList.SetAdapter(Adapter);
+			_tagsList.SetLayoutManager(new LinearLayoutManager(this));
+			_adapter = new TagsAdapter(this);
+			_tagsList.SetAdapter(_adapter);
 
-			Close.Click +=(sender,e)=> OnBackPressed();
+			_close.Click +=(sender,e)=> OnBackPressed();
 
-			SearchBox.TextChanged += (sender, e) =>
+			_searchBox.TextChanged += (sender, e) =>
 			{
-				if (SearchBox.Text.Length > 1)
+				if (_searchBox.Text.Length > 1)
 				{
-					AddCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
-					presenter.SearchTags(SearchBox.Text).ContinueWith((arg) =>
+					_addCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
+					_presenter.SearchTags(_searchBox.Text).ContinueWith((arg) =>
 					{
-						Adapter.Reset(arg.Result.Result.Results);
-						RunOnUiThread(() => Adapter.NotifyDataSetChanged());
+						_adapter.Reset(arg.Result.Result.Results);
+						RunOnUiThread(() => _adapter.NotifyDataSetChanged());
 					});
 				}
 				else
 				{
-					AddCustomTagButton.Visibility = Android.Views.ViewStates.Gone;
+					_addCustomTagButton.Visibility = Android.Views.ViewStates.Gone;
 				}
 			};
 
 
-			Adapter.Click += Adapter_Click;
+			_adapter.Click += Adapter_Click;
 
-			presenter.GetTopTags().ContinueWith((arg) => {
-                Adapter.Reset(arg.Result.Result.Results);
-                RunOnUiThread(() => Adapter.NotifyDataSetChanged());
+			_presenter.GetTopTags().ContinueWith((arg) => {
+                _adapter.Reset(arg.Result.Result.Results);
+                RunOnUiThread(() => _adapter.NotifyDataSetChanged());
             });
         }
 
 		void Adapter_Click(int obj)
 		{
-			AddTag(Adapter.GetItem(obj));
+			AddTag(_adapter.GetItem(obj));
 		}
 
 		public void AddTag(SearchResult s)
 		{
-			if (s.Name.Length > 1 && SelectedCategories.Count < 4 && SelectedCategories.Find((finded) => finded.Name.Equals(s.Name)) == null)
+			if (s.Name.Length > 1 && _selectedCategories.Count < 4 && _selectedCategories.Find((finded) => finded.Name.Equals(s.Name)) == null)
 			{
-				SelectedCategories.Add(s);
-				FrameLayout _add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-				var text = _add.FindViewById<TextView>(Resource.Id.text);
+				_selectedCategories.Add(s);
+				FrameLayout add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
+				var text = add.FindViewById<TextView>(Resource.Id.text);
 				text.Text = s.Name;
 				text.Click += (sender, e) => DeleteTag(text);
-				tagLayout.AddView(_add);
-				Scroll.RequestLayout();
+				_tagLayout.AddView(add);
+				_scroll.RequestLayout();
 			}
 		}
 
 		void DeleteTag(TextView t)
 		{ 
-			SelectedCategories.RemoveAt(SelectedCategories.FindIndex((obj) => obj.Name.Equals(t.Text)));
-			tagLayout.RemoveView((FrameLayout)t.Parent);
+			_selectedCategories.RemoveAt(_selectedCategories.FindIndex((obj) => obj.Name.Equals(t.Text)));
+			_tagLayout.RemoveView((FrameLayout)t.Parent);
 		}
 
 		protected override void CreatePresenter()
 		{
-			presenter = new TagsPresenter(this);
+			_presenter = new TagsPresenter(this);
 		}
 
 		protected override void OnDestroy()

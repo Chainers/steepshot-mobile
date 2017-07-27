@@ -15,17 +15,17 @@ using Steepshot.View;
 namespace Steepshot.Fragment
 {
 	public delegate void VoidDelegate(); 
-	public class PhotoFragment : BaseFragment, PhotoView
+	public class PhotoFragment : BaseFragment, IPhotoView
 	{
-		PhotoPresenter presenter;
+		PhotoPresenter _presenter;
 
 #pragma warning disable 0649,4014
 		//[InjectView(Resource.Id.container)] FrameLayout Container;
 		//[InjectView(Resource.Id.Title)] TextView ViewTitle;
-		[InjectView(Resource.Id.btn_switch)] ImageButton SwitchButton;
+		[InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
 #pragma warning restore 0649
 
-		private Java.IO.File photo;
+		private Java.IO.File _photo;
 		//public event VoidDelegate UpdateProfile;
 		//private string stringPath;
 
@@ -33,10 +33,10 @@ namespace Steepshot.Fragment
 		public void OnSwitcherClick(object sender, EventArgs e)
 		{
 			var directory = GetDirectoryForPictures();
-			photo = new Java.IO.File(directory, System.Guid.NewGuid().ToString());
+			_photo = new Java.IO.File(directory, System.Guid.NewGuid().ToString());
 
 			Intent intent = new Intent(MediaStore.ActionImageCapture);
-			intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(photo));
+			intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));
 			StartActivityForResult(intent, 0);
 
 			/*if (ChildFragmentManager.FindFragmentByTag(GridFragmentId) != null)
@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
 			if (resultCode == -1 && requestCode == 0)
 			{
 				Intent i = new Intent(Context, typeof(PostDescriptionActivity));
-				i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(photo).Path);
+				i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(_photo).Path);
 				StartActivity(i);
 			}
 		}
@@ -78,15 +78,15 @@ namespace Steepshot.Fragment
 
 		private void OpenGrid()
 		{
-			SwitchButton.SetImageResource(Resource.Drawable.ic_camera);
-			SwitchButton.SetColorFilter(Color.White,PorterDuff.Mode.SrcIn);
+			_switchButton.SetImageResource(Resource.Drawable.ic_camera);
+			_switchButton.SetColorFilter(Color.White,PorterDuff.Mode.SrcIn);
 			ChildFragmentManager.BeginTransaction().Replace(Resource.Id.container, new PhotoGridFragment(), GridFragmentId).Commit();
 		}
 
 		private void OpenCamera()
 		{ 
-			SwitchButton.SetImageResource(Resource.Drawable.ic_grid);
-			SwitchButton.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
+			_switchButton.SetImageResource(Resource.Drawable.ic_grid);
+			_switchButton.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
 			ChildFragmentManager.BeginTransaction().Replace(Resource.Id.container, new CameraFragment(),CameraFragmentId).Commit();
 		}
 
@@ -98,18 +98,18 @@ namespace Steepshot.Fragment
 
 		private Java.IO.File GetDirectoryForPictures()
 		{
-			var _dir = new Java.IO.File(
+			var dir = new Java.IO.File(
 				Android.OS.Environment.GetExternalStoragePublicDirectory(
 					Android.OS.Environment.DirectoryPictures), "Steepshot");
-			if (!_dir.Exists())
-				_dir.Mkdirs();
+			if (!dir.Exists())
+				dir.Mkdirs();
 			
-			return _dir;
+			return dir;
 		}
 
 		protected override void CreatePresenter()
 		{
-			presenter = new PhotoPresenter(this);
+			_presenter = new PhotoPresenter(this);
 		}
 	}
 }

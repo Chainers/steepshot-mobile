@@ -10,20 +10,20 @@ namespace Steepshot.Utils
 	{
 		public TopCropScaleImageView(Context c) : base(c)
 		{
-			setup();
+			Setup();
 		}
 
 		public TopCropScaleImageView(Context context, IAttributeSet attrs) : base(context, attrs)
 		{
-			setup();
+			Setup();
 		}
 
 		public TopCropScaleImageView(Context context, IAttributeSet attrs, int defStyle) : base(context, attrs, defStyle)
 		{
-			setup();
+			Setup();
 		}
 
-		private void setup()
+		private void Setup()
 		{
 			SetScaleType(ScaleType.Matrix);
 		}

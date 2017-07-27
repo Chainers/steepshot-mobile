@@ -9,7 +9,7 @@ namespace Steepshot.Presenter
 {
 	public class TagsPresenter : BasePresenter
 	{
-		public TagsPresenter(TagsView view):base(view)
+		public TagsPresenter(ITagsView view):base(view)
 		{
 		}
 

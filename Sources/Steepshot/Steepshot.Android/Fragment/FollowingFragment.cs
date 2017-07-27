@@ -10,40 +10,40 @@ using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class FollowingFragment : BaseFragment, FollowingView
+	public class FollowingFragment : BaseFragment, IFollowingView
 	{
-		FollowingPresenter presenter;
+		FollowingPresenter _presenter;
 
         public FollowingFragment() { }
 
-        FeedFragment parent;
+        FeedFragment _parent;
         public FollowingFragment(FeedFragment parent)
         {
-            this.parent = parent;
+            this._parent = parent;
         }
 
 		[InjectOnClick(Resource.Id.btn_new)]
 		public void OnNewClick(object sender, EventArgs e)
 		{
-			parent.CustomTag = null;
-			parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.New);
-            parent.HideFollowing();
+			_parent.CustomTag = null;
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.New);
+            _parent.HideFollowing();
 		}
 
 		[InjectOnClick(Resource.Id.btn_hot)]
 		public void OnHotClick(object sender, EventArgs e)
 		{
-			parent.CustomTag = null;
-			parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Hot);
-            parent.HideFollowing();
+			_parent.CustomTag = null;
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Hot);
+            _parent.HideFollowing();
         }
 
 		[InjectOnClick(Resource.Id.btn_trending)]
 		public void OnTrendingClick(object sender, EventArgs e)
 		{
-			parent.CustomTag = null;
-			parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Top);
-            parent.HideFollowing();
+			_parent.CustomTag = null;
+			_parent.OnSearchPosts(((AppCompatButton)sender).Text, Steepshot.Core.Models.Requests.PostType.Top);
+            _parent.HideFollowing();
         }
 
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -61,7 +61,7 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			presenter = new FollowingPresenter(this);
+			_presenter = new FollowingPresenter(this);
 		}
 	}
 }

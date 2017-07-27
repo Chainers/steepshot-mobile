@@ -2,7 +2,7 @@
 
 namespace Steepshot.Base
 {
-	public interface BaseView
+	public interface IBaseView
 	{
 
 		Context GetContext();
