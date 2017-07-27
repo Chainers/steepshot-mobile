@@ -12,7 +12,7 @@ namespace Steepshot.iOS.Cells
         protected CommentTableViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString("CommentTableViewCell");
         public static readonly UINib Nib;
-        private bool _isButtonBinded = false;
+        private bool _isButtonBinded;
         public event VoteEventHandler<VoteResponse> Voted;
         public event HeaderTappedHandler GoToProfile;
         private Post _currentPost;

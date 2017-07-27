@@ -71,7 +71,7 @@ namespace Steepshot.Fragment
 				_username = username;
 				_followType = followType;
 			}
-			int _prevPos = 0;
+			int _prevPos;
 			public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
 			{
 				int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();

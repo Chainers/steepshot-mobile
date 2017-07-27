@@ -43,7 +43,7 @@ namespace Steepshot.Presenter
                 Task.Run(() => GetTopPosts(_type, true));
         }
 
-        public bool Processing = false;
+        public bool Processing;
 
         public void ClearPosts()
         {

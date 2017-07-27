@@ -20,7 +20,7 @@ namespace Steepshot.iOS.Views
         AVCaptureStillImageOutput _stillImageOutput;
         PhotoCollectionViewSource _source;
 
-        private bool _isCameraAccessDenied = false;
+        private bool _isCameraAccessDenied;
 
         protected PhotoViewController(IntPtr handle) : base(handle)
         {

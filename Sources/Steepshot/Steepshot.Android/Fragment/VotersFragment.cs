@@ -94,7 +94,7 @@ namespace Steepshot.Fragment
 			_presenter = presenter;
 			_url = url;
 		}
-		int _prevPos = 0;
+		int _prevPos;
 		public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
 		{
 			int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();

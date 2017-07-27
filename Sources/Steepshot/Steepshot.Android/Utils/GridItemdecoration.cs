@@ -8,7 +8,7 @@ namespace Steepshot.Utils
 		private int _mSizeGridSpacingPx;
 		private int _mGridSize;
 
-		private bool _mNeedLeftSpacing = false;
+		private bool _mNeedLeftSpacing;
 
 		public GridItemdecoration(int gridSpacingPx, int gridSize)
 		{
