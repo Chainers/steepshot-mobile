@@ -2,11 +2,13 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.Helpers;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
     public delegate void FollowEventHandler(FollowType followType, string authorName, Action<string, bool?> success);
 

@@ -11,9 +11,10 @@ using Ditch.Operations.Post;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RestSharp;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Sweetshot.Library.HttpClient
 {
@@ -260,7 +261,7 @@ namespace Sweetshot.Library.HttpClient
         {
             return Task.Run(() =>
             {
-                var op = request.Type == Models.Requests.FollowType.Follow
+                var op = request.Type == Steepshot.Core.Models.Requests.FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Post.FollowType.Blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);

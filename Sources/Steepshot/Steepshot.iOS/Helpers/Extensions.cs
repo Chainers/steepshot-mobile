@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.ViewControllers;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Helpers
 {
     public static class Extensions
     {

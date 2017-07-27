@@ -1,14 +1,16 @@
 using System;
+using System.Collections.ObjectModel;
+using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Square.Picasso;
-using Android.Content;
-using System.Collections.ObjectModel;
-using Android.Graphics;
 using Refractored.Controls;
+using Square.Picasso;
+using Steepshot.Data;
 
-namespace Steepshot
+
+namespace Steepshot.Adapter
 {
     public class FollowersAdapter : RecyclerView.Adapter
     {
@@ -77,7 +79,7 @@ namespace Steepshot
             private readonly Action<int> _followAction;
 			private readonly Action<int> _userAction;
 
-            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction)
+            public FollowersViewHolder(Android.Views.View itemView, Action<int> followAction, Action<int> userAction)
                 : base(itemView)
             {
                 FriendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);

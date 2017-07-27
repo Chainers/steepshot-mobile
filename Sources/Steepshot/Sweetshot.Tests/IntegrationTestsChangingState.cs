@@ -5,9 +5,10 @@ using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Sweetshot.Library.HttpClient;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
 
 namespace Sweetshot.Tests
 {
@@ -39,10 +40,10 @@ namespace Sweetshot.Tests
         [Test, Sequential]
         public void BlockchainStateChangingTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string user)
         {
-            const string Name = "joseph.kalu";
-            const string PostingKey = "***REMOVED***";
+            const string name = "joseph.kalu";
+            const string postingKey = "***REMOVED***";
 
-            var userInfo = Authenticate(Name, PostingKey, Api(apiName));
+            var userInfo = Authenticate(name, postingKey, Api(apiName));
 
             // 1) Create new post
             var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
@@ -61,7 +62,7 @@ namespace Sweetshot.Tests
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             // Load last created post
-            var userPostsRequest = new UserPostsRequest(Name);
+            var userPostsRequest = new UserPostsRequest(name);
             var userPostsResponse = Api(apiName).GetUserPosts(userPostsRequest).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();

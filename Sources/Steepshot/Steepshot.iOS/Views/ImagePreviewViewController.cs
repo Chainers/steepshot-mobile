@@ -1,9 +1,10 @@
 ﻿using System;
 using CoreGraphics;
 using FFImageLoading;
+using Steepshot.iOS.Helpers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
 	public partial class ImagePreviewViewController : UIViewController
 	{

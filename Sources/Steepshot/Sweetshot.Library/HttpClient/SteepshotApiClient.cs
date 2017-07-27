@@ -6,11 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using RestSharp;
 using Steepshot.Core;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Serializing;
 using Sweetshot.Library.Extensions;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
-using Sweetshot.Library.Serializing;
 
 namespace Sweetshot.Library.HttpClient
 {

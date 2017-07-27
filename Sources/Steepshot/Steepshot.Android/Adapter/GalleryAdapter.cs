@@ -1,12 +1,12 @@
+using System.Collections.Generic;
+using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Square.Picasso;
-using Android.Content;
-using System.Collections.Generic;
 using Java.IO;
+using Square.Picasso;
 
-namespace Steepshot
+namespace Steepshot.Adapter
 {
 
 	public class GalleryAdapter : RecyclerView.Adapter
@@ -69,7 +69,7 @@ namespace Steepshot
             public ImageView Photo { get; private set; }
 			System.Action<int> Click;
 
-			public ImageViewHolder(View itemView,System.Action<int> Click) : base(itemView)
+			public ImageViewHolder(Android.Views.View itemView,System.Action<int> Click) : base(itemView)
             {
 				this.Click = Click;
 				Photo = (ImageView)itemView;

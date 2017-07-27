@@ -2,9 +2,8 @@
 using Android.Content;
 using Android.Util;
 using Android.Views;
-using Android.Widget;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	public class TagLayout : ViewGroup
 	{
@@ -40,7 +39,7 @@ namespace Steepshot
 			curTop = childTop;
 			for (int i = 0; i < count; i++)
 			{
-				View child = GetChildAt(i);
+				Android.Views.View child = GetChildAt(i);
 				if (child.Visibility == ViewStates.Gone)
 					return;
 
@@ -78,7 +77,7 @@ namespace Steepshot
 			// from their size.
 			for (int i = 0; i < count; i++)
 			{
-				View child = GetChildAt(i);
+				Android.Views.View child = GetChildAt(i);
 				if (child.Visibility == ViewStates.Gone)
 					continue;
 

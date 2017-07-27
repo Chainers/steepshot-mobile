@@ -5,12 +5,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
+using Steepshot.iOS.ViewControllers;
+using Steepshot.iOS.ViewSources;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class FeedViewController : BaseViewController
     {

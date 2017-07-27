@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
     public partial class CommentTableViewCell : UITableViewCell
     {

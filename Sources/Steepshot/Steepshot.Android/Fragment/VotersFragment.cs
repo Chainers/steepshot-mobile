@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Fragment
 {
 	public class VotersFragment : BaseFragment, FollowersView
 	{
@@ -27,7 +30,7 @@ namespace Steepshot
 			presenter = new VotersPresenter(this);
 		}
 
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!_isInitialized)
 			{
@@ -37,7 +40,7 @@ namespace Steepshot
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			if (_isInitialized)
 				return;

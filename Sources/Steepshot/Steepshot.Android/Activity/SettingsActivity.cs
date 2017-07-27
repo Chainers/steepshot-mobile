@@ -10,10 +10,14 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class SettingsActivity : BaseActivity, SettingsView

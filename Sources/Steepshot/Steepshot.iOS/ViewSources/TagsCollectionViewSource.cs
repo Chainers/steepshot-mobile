@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Steepshot.iOS.Cells;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewSources
 {
     public class TagsCollectionViewSource : UICollectionViewSource
     {

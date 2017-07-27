@@ -2,6 +2,9 @@
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.ViewControllers;
+using Steepshot.iOS.Views;
 using UIKit;
 
 namespace Steepshot.iOS

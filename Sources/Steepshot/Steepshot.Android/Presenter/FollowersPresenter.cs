@@ -2,11 +2,15 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Data;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
     public class FollowersPresenter : BasePresenter
     {

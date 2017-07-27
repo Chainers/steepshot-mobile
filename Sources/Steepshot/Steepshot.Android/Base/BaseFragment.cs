@@ -1,15 +1,13 @@
 ﻿using Android.Content;
-using Android.Support.V4.App;
-using Android.Views;
 
-namespace Steepshot
+namespace Steepshot.Base
 {
-	public abstract class BaseFragment : Fragment, BaseView
+	public abstract class BaseFragment : Android.Support.V4.App.Fragment, BaseView
 	{
 		protected bool _isInitialized;
-		protected View v;
+		protected Android.Views.View v;
 
-		public override void OnViewCreated(View view, Android.OS.Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
 		{
 			base.OnViewCreated(view, savedInstanceState);
 			CreatePresenter();

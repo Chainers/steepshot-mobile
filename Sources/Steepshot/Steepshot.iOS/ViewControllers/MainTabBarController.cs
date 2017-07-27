@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Steepshot.iOS.Views;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewControllers
 {
     public class MainTabBarController : UITabBarController
     {

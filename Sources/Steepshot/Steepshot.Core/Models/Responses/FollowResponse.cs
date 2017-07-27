@@ -1,4 +1,4 @@
-namespace Sweetshot.Library.Models.Responses
+namespace Steepshot.Core.Models.Responses
 {
     /// {
     ///   "message": "User is followed"

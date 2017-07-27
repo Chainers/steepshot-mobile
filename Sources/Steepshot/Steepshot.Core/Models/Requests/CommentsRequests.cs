@@ -1,7 +1,7 @@
 using System;
 using Steepshot.Core.Authority;
 
-namespace Sweetshot.Library.Models.Requests
+namespace Steepshot.Core.Models.Requests
 {
     public class CreateCommentRequest : LoginRequest
     {

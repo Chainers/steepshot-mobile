@@ -1,6 +1,4 @@
-using System;
-
-namespace Sweetshot.Library.Models.Responses
+namespace Steepshot.Core.Models.Responses
 {
     /// {"exists":false,"username":"pussyhunter123"}
     public class UserExistsResponse

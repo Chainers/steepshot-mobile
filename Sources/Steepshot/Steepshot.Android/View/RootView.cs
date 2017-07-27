@@ -1,5 +1,6 @@
-﻿using System;
-namespace Steepshot
+﻿using Steepshot.Base;
+
+namespace Steepshot.View
 {
 	public interface RootView : BaseView
 	{

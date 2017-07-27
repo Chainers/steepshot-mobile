@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Media;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
-using System.Linq;
-using Java.IO;
-using System.IO;
-using Android.Media;
-using System.Threading.Tasks;
-using System.Threading;
+using Steepshot.Base;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.Utils;
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
     public class PostDescriptionActivity : BaseActivity, PostDescriptionView//, ITarget
@@ -164,7 +168,7 @@ namespace Steepshot
                 if (!success)
                     ShowAlert("Photo upload error, please try again");
 
-                var request = new Sweetshot.Library.Models.Requests.UploadImageRequest(BasePresenter.User.CurrentUser, description.Text, arrayToUpload, tags.ToArray());
+                var request = new Steepshot.Core.Models.Requests.UploadImageRequest(BasePresenter.User.CurrentUser, description.Text, arrayToUpload, tags.ToArray());
                 var resp = await presenter.Upload(request);
                 if (resp.Errors.Count > 0)
                 {

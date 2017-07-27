@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Steepshot.Core;
-using Sweetshot.Library.Models.Requests;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class PreLoginViewController : BaseViewController
     {

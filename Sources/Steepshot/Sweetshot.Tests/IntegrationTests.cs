@@ -4,9 +4,10 @@ using System.Linq;
 using NUnit.Framework;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Sweetshot.Library.HttpClient;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
 
 namespace Sweetshot.Tests
 {

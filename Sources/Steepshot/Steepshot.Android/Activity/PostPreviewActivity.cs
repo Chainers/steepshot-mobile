@@ -3,9 +3,14 @@ using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
+using Steepshot.Base;
+using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.Utils;
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(Label = "PostPreviewActivity", ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
     public class PostPreviewActivity : BaseActivity, PostPreviewView

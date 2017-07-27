@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
 using AVFoundation;
 using CoreGraphics;
 using Foundation;
 using Photos;
+using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
+using Steepshot.iOS.ViewSources;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class PhotoViewController : UIViewController
     {

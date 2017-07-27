@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using Steepshot.Core;
-using Sweetshot.Library.HttpClient;
+﻿using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.HttpClient;
 using Steepshot.Data;
+using Sweetshot.Library.HttpClient;
 
-namespace Steepshot
+namespace Steepshot.Base
 {
     public class BasePresenter
     {

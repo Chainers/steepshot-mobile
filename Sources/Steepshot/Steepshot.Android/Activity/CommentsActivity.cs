@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Com.Lilarcor.Cheeseknife;
 using Android.Support.V7.Widget;
-using Sweetshot.Library.Models.Responses;
-using Android.Widget;
 using Android.Views;
+using Android.Widget;
+using Com.Lilarcor.Cheeseknife;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using Steepshot.View;
+
+namespace Steepshot.Activity
 {
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class CommentsActivity : BaseActivity, CommentsView

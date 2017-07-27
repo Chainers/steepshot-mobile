@@ -4,7 +4,7 @@ using Android.Graphics;
 using Android.Util;
 using Android.Widget;
 
-namespace Steepshot
+namespace Steepshot.Utils
 {
 	public class TopCropScaleImageView : ImageView
 	{

@@ -1,14 +1,14 @@
 ﻿using Android.Support.V4.App;
 
-namespace Steepshot
+namespace Steepshot.Fragment
 {
-	public class BackStackFragment : Fragment
+	public class BackStackFragment : Android.Support.V4.App.Fragment
 	{
 		public bool HandleBackPressed(FragmentManager fm)
 		{
 			if (fm?.Fragments != null)
 			{
-				foreach (Fragment frag in fm.Fragments)
+				foreach (Android.Support.V4.App.Fragment frag in fm.Fragments)
 				{
 					if (frag != null && frag.IsVisible && frag is BackStackFragment)
 					{

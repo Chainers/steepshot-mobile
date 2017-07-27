@@ -3,9 +3,8 @@ using System.Globalization;
 using System.Text;
 using MailKit.Net.Smtp;
 using MimeKit;
-using Steepshot.Core;
 
-namespace Steepshot
+namespace Steepshot.Core.Utils
 {
     //TODO:KOA: необходимо запихнуть отправку сообщения в бэкграунд процесс
     public class Reporter

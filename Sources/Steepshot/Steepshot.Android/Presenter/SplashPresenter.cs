@@ -1,4 +1,7 @@
-﻿namespace Steepshot
+﻿using Steepshot.Base;
+using Steepshot.View;
+
+namespace Steepshot.Presenter
 {
     public class SplashPresenter : BasePresenter
     {

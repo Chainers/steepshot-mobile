@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
     public class CommentsPresenter : BasePresenter
     {

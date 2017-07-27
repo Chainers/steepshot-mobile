@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Requests;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Base;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Fragment;
+using Steepshot.View;
 
-namespace Steepshot
+namespace Steepshot.Presenter
 {
 	public class VotersPresenter : BasePresenter
 	{

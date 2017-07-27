@@ -1,4 +1,4 @@
-﻿namespace Sweetshot.Library.Models.Responses
+﻿namespace Steepshot.Core.Models.Responses
 {
     public class FlagResponse : MessageField
     {

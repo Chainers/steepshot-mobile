@@ -9,7 +9,7 @@
     <ProjectGuid>{1A6A26C2-067B-40ED-A717-7509B633A345}</ProjectGuid>
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <RootNamespace>Steepshot.Android</RootNamespace>
+    <RootNamespace>Steepshot</RootNamespace>
     <AssemblyName>Steepshot.Android</AssemblyName>
     <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>

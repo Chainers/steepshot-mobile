@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Foundation;
 using MessageUI;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
-using Sweetshot.Library;
-using Sweetshot.Library.Models.Requests;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
     public partial class SettingsViewController : BaseViewController
     {

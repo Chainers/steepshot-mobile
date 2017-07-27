@@ -2,7 +2,7 @@ using System;
 using Foundation;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Views
 {
 	public partial class WebPageViewController : UIViewController
 	{

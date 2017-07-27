@@ -7,7 +7,7 @@
 using Foundation;
 using System.CodeDom.Compiler;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.Cells
 {
 	[Register ("CommentTableViewCell")]
 	partial class CommentTableViewCell

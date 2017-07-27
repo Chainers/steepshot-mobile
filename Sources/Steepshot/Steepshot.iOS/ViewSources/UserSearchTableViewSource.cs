@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Foundation;
-using Sweetshot.Library.Models.Responses;
+using Steepshot.Core.Models.Responses;
+using Steepshot.iOS.Cells;
 using UIKit;
 
-namespace Steepshot.iOS
+namespace Steepshot.iOS.ViewSources
 {
 	public class UserSearchTableViewSource : UITableViewSource
 	{

@@ -1,18 +1,24 @@
 using System;
-using Android.OS;
-using Com.Lilarcor.Cheeseknife;
-using Android.Support.V7.Widget;
-using Android.Views;
-using Android.Content;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Sweetshot.Library.Models.Common;
-using Sweetshot.Library.Models.Responses;
-using Android.Widget;
-using System.Collections.Generic;
+using Android.Content;
+using Android.OS;
+using Android.Support.V7.Widget;
+using Android.Views;
 using Android.Views.InputMethods;
+using Android.Widget;
+using Com.Lilarcor.Cheeseknife;
+using Steepshot.Adapter;
+using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
+using Steepshot.Presenter;
 
-namespace Steepshot
+using SearchView = Steepshot.View.SearchView;
+
+namespace Steepshot.Fragment
 {
 	public class SearchFragment : BaseFragment, SearchView
     {
@@ -33,7 +39,7 @@ namespace Steepshot
 
         CategoriesAdapter _categoriesAdapter;
 		UsersSearchAdapter _usersSearchAdapter;
-		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!_isInitialized)
 			{
@@ -43,7 +49,7 @@ namespace Steepshot
 			return v;
 		}
 
-		public override void OnViewCreated(View view, Bundle savedInstanceState)
+		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
 		{
 			if (_isInitialized)
 				return;
