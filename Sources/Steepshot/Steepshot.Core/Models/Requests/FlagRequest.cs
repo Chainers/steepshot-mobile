@@ -7,8 +7,8 @@ namespace Steepshot.Core.Models.Requests
 {
     public enum FlagType
     {
-        [Description("flag")] Up,
-        [Description("downvote")] Down
+        flag,
+        downvote
     }
 
     public class FlagRequest : LoginRequest
@@ -18,7 +18,7 @@ namespace Steepshot.Core.Models.Requests
         {
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            Type = isUp ? FlagType.Up : FlagType.Down;
+            Type = isUp ? FlagType.flag : FlagType.downvote;
             Identifier = identifier;
         }
 

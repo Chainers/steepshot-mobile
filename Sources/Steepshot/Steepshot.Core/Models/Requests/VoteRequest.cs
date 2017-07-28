@@ -7,8 +7,8 @@ namespace Steepshot.Core.Models.Requests
 {
     public enum VoteType
     {
-        [Description("upvote")] Up,
-        [Description("downvote")] Down
+        upvote,
+        downvote
     }
 
     public class VoteRequest : LoginRequest
@@ -18,7 +18,7 @@ namespace Steepshot.Core.Models.Requests
         {
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            Type = isUp ? VoteType.Up : VoteType.Down;
+            Type = isUp ? VoteType.upvote : VoteType.downvote;
             Identifier = identifier;
         }
 
