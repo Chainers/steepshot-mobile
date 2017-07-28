@@ -188,7 +188,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
+            var endpoint = $"post/{request.Identifier}/{request.Type.ToString()}";
             var response = await Gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
@@ -413,7 +413,7 @@ namespace Sweetshot.Library.HttpClient
                 Type = ParameterType.RequestBody
             });
 
-            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
+            var endpoint = $"post/{request.Identifier}/{request.Type.ToString()}";
             var response = await Gateway.Post(endpoint, parameters);
             var errorResult = CheckErrors(response);
             return CreateResult<FlagResponse>(response.Content, errorResult);

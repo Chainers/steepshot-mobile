@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using MailKit.Net.Smtp;
-using MimeKit;
+//using MailKit.Net.Smtp;
+//using MimeKit;
 
 namespace Steepshot.Core.Utils
 {
@@ -11,6 +11,7 @@ namespace Steepshot.Core.Utils
     {
         public static void SendCrash(Exception ex, string user, string appVersion)
         {
+            /*
             var mimeMessage = NewMimeMessage(user);
 
             var sb = new StringBuilder();
@@ -22,11 +23,11 @@ namespace Steepshot.Core.Utils
             {
                 Text = sb.ToString()
             };
-            SendReport(mimeMessage);
+            SendReport(mimeMessage);*/
         }
 
         public static void SendCrash(string message, string user, string appVersion)
-        {
+        {/*
             var mimeMessage = NewMimeMessage(user);
 
             var sb = new StringBuilder(message);
@@ -37,9 +38,9 @@ namespace Steepshot.Core.Utils
             {
                 Text = sb.ToString()
             };
-            SendReport(mimeMessage);
+            SendReport(mimeMessage);*/
         }
-
+        /*
         private static MimeMessage NewMimeMessage(string user)
         {
             var customMessage = new MimeMessage();
@@ -83,6 +84,6 @@ namespace Steepshot.Core.Utils
         {
             sb.Append("App version: ");
             sb.AppendLine(appVersion);
-        }
+        }*/
     }
 }

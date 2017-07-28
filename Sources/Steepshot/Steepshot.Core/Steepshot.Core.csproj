@@ -1,19 +1,77 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</ProjectGuid>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <UseMSBuildEngine>true</UseMSBuildEngine>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Steepshot.Core</RootNamespace>
+    <AssemblyName>Steepshot.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" />
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Ditch" Version="2.1.2" />
-    <PackageReference Include="MailKit" Version="1.16.2" />
-    <PackageReference Include="MimeKit" Version="1.16.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="WebSocket4Net" Version="0.15.0-beta9" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Authority\IDataProvider.cs" />
+    <Compile Include="Authority\User.cs" />
+    <Compile Include="Authority\UserInfo.cs" />
+    <Compile Include="HttpClient\ISteepshotApiClient.cs" />
+    <Compile Include="Models\Common\OperationResult.cs" />
+    <Compile Include="Models\Requests\BaseRequests.cs" />
+    <Compile Include="Models\Requests\CommentsRequests.cs" />
+    <Compile Include="Models\Requests\FlagRequest.cs" />
+    <Compile Include="Models\Requests\FollowRequest.cs" />
+    <Compile Include="Models\Requests\LoginRequest.cs" />
+    <Compile Include="Models\Requests\LogoutRequest.cs" />
+    <Compile Include="Models\Requests\PostsRequest.cs" />
+    <Compile Include="Models\Requests\SearchRequest.cs" />
+    <Compile Include="Models\Requests\UploadImageRequest.cs" />
+    <Compile Include="Models\Requests\UserRequests.cs" />
+    <Compile Include="Models\Requests\VoteRequest.cs" />
+    <Compile Include="Models\Responses\BaseResponses.cs" />
+    <Compile Include="Models\Responses\ChangePasswordResponse.cs" />
+    <Compile Include="Models\Responses\CreateCommentResponse.cs" />
+    <Compile Include="Models\Responses\FlagResponse.cs" />
+    <Compile Include="Models\Responses\FollowResponse.cs" />
+    <Compile Include="Models\Responses\GetCommentResponse.cs" />
+    <Compile Include="Models\Responses\ImageUploadResponse.cs" />
+    <Compile Include="Models\Responses\LoginResponse.cs" />
+    <Compile Include="Models\Responses\LogoutResponse.cs" />
+    <Compile Include="Models\Responses\SearchResponse.cs" />
+    <Compile Include="Models\Responses\TermOfServiceResponse.cs" />
+    <Compile Include="Models\Responses\UserExistsResponse.cs" />
+    <Compile Include="Models\Responses\UserFriendsResponse.cs" />
+    <Compile Include="Models\Responses\UserProfileResponse.cs" />
+    <Compile Include="Models\Responses\VoteResponse.cs" />
+    <Compile Include="Serializing\JsonNetDeserializer.cs" />
+    <Compile Include="Utils\Reporter.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="KnownChains.cs" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

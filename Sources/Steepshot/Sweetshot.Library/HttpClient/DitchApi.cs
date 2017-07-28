@@ -237,7 +237,7 @@ namespace Sweetshot.Library.HttpClient
             return Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.Up ? 10000 : 0));
+                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.upvote ? 10000 : 0));
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var rez = new OperationResult<VoteResponse>();

@@ -163,12 +163,6 @@
     </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
-      <Project>{ab0ff429-7d59-495d-b814-ed265ffaecd7}</Project>
-      <Name>Steepshot.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
     <InterfaceDefinition Include="Main.storyboard" />
     <InterfaceDefinition Include="Cells\FeedTableViewCell.xib" />
@@ -372,6 +366,12 @@
     <BundleResource Include="Resources\flag_active%403x.png" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\Sweetshot.Library\Sweetshot.Library.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
