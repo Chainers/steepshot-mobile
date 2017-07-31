@@ -63,7 +63,7 @@
         android:layout_below="@+id/search_layout"
         android:layout_width="match_parent"
         android:layout_height="80dp">
-        <Steepshot.TagLayout
+        <Steepshot.Utils.TagLayout
             android:id="@+id/tag_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
