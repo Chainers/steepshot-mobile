@@ -146,7 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
-      <Project>{ab0ff429-7d59-495d-b814-ed265ffaecd7}</Project>
+      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
   </ItemGroup>
