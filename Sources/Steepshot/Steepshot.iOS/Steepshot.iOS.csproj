@@ -128,16 +128,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="BouncyCastle">
-      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\BouncyCastle.dll</HintPath>
-    </Reference>
-    <Reference Include="MimeKit">
-      <HintPath>..\packages\MimeKit.1.16.1\lib\Xamarin.iOS10\MimeKit.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="MailKit">
-      <HintPath>..\packages\MailKit.1.16.1\lib\Xamarin.iOS10\MailKit.dll</HintPath>
-    </Reference>
     <Reference Include="System.Reactive.Interfaces">
       <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\portable-windows8+net45+wp8\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
