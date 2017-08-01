@@ -215,3 +215,4 @@ com_crashlytics_export_strings.xml
 #project-specific
 Sources/Steepshot/Steepshot.Android/Resources/Resource.Designer.cs
 packages/
+*.userprefs
