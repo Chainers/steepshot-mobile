@@ -116,13 +116,13 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.golosView)]
         public void GolosViewClick(object sender, EventArgs e)
         {
-            SwitchChain(KnownChains.Golos);
+            SwitchChain(_golosAcc);
         }
 
         [InjectOnClick(Resource.Id.steemView)]
         public void SteemViewClick(object sender, EventArgs e)
         {
-            SwitchChain(KnownChains.Steem);
+            SwitchChain(_steemAcc);
         }
 
         [InjectOnClick(Resource.Id.remove_steem)]
@@ -141,11 +141,11 @@ namespace Steepshot.Activity
             RemoveChain(KnownChains.Golos);
         }
 
-        private void SwitchChain(KnownChains chain)
+        private void SwitchChain(UserInfo user)
         {
-            if (BasePresenter.Chain != chain)
+            if (BasePresenter.Chain != user.Chain)
             {
-                BasePresenter.SwitchChain(chain);
+                BasePresenter.SwitchChain(user);
                 Intent i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
@@ -167,7 +167,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                     Intent i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);

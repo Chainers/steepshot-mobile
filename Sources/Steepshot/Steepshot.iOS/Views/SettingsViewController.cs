@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Linq;
 using MessageUI;
 using Steepshot.Core;
@@ -21,7 +21,7 @@ namespace Steepshot.iOS.Views
 
         private UserInfo _steemAcc;
         private UserInfo _golosAcc;
-
+        private bool _isTabBarNeedResfresh;
         private KnownChains _previousNetwork;
         private MFMailComposeViewController _mailController;
 
@@ -70,20 +70,20 @@ namespace Steepshot.iOS.Views
 
             steemButton.TouchDown += (sender, e) =>
             {
-                User.GetAllAccounts().Remove(_steemAcc);
+                User.Delete(_steemAcc);
                 steemViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Steem);
             };
 
             golosButton.TouchDown += (sender, e) =>
             {
-                User.GetAllAccounts().Remove(_golosAcc);
+                User.Delete(_golosAcc);
                 golosViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Golos);
             };
 
-            UITapGestureRecognizer steemTap = new UITapGestureRecognizer(() => SwitchNetwork(KnownChains.Steem));
-            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(() => SwitchNetwork(KnownChains.Golos));
+            UITapGestureRecognizer steemTap = new UITapGestureRecognizer(() => SwitchNetwork(_steemAcc));
+            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(() => SwitchNetwork(_golosAcc));
 
             steemView.AddGestureRecognizer(steemTap);
             golosView.AddGestureRecognizer(golosTap);
@@ -121,26 +121,28 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            NavigationController.SetNavigationBarHidden(true, true);
+			NetworkChanged = _previousNetwork != Chain;
+			ShouldProfileUpdate = _previousNetwork != Chain;
+
+            if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
+                NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
 
-
-
-
-        private void SwitchNetwork(KnownChains network)
+        private void SwitchNetwork(UserInfo user)
         {
-            if (Chain == network)
+            if (Chain == user.Chain)
                 return;
-
-            HighlightView(network);
-            SwitchChain(network);
+            User.SwitchUser(user);
+            HighlightView(user.Chain);
+            SwitchChain(user.Chain);
 
             SetAddButton();
 
             IsHomeFeedLoaded = false;
             var myViewController = new MainTabBarController();
             NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+            _isTabBarNeedResfresh = true;
             NavigationController.PopViewController(false);
 
             /*
@@ -170,7 +172,8 @@ namespace Steepshot.iOS.Views
             if (User.GetAllAccounts().Count == 0)
             {
                 var myViewController = new FeedViewController();
-                NavigationController.ViewControllers = new UIViewController[2] { myViewController, this };
+                NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                _isTabBarNeedResfresh = true;
                 NavigationController.PopViewController(false);
             }
             else
@@ -182,7 +185,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    SwitchNetwork(Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                    SwitchNetwork(Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                 }
             }
             User.Save();
@@ -208,13 +211,6 @@ namespace Steepshot.iOS.Views
             //#if !DEBUG
             //addAccountButton.Hidden = true;
             //#endif
-        }
-
-        public override void ViewDidDisappear(bool animated)
-        {
-            base.ViewDidDisappear(animated);
-            NetworkChanged = _previousNetwork != Chain;
-            ShouldProfileUpdate = _previousNetwork != Chain;
         }
     }
 }
