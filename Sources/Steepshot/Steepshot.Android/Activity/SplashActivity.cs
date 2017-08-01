@@ -31,14 +31,14 @@ namespace Steepshot.Activity
             //Picasso p = new Picasso.Builder(this).Downloader(new OkHttpDownloader(_dir, 1073741824)).Build();
             //Picasso.SetSingletonInstance(p);
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject, BasePresenter.User.Login, BasePresenter.AppVersion);
+                await Reporter.SendCrash((Exception)e.ExceptionObject);
             };
 
-            TaskScheduler.UnobservedTaskException += (sender, e) =>
+            TaskScheduler.UnobservedTaskException += async (sender, e) =>
             {
-                Reporter.SendCrash(e.Exception, BasePresenter.User.Login, BasePresenter.AppVersion);
+				await Reporter.SendCrash(e.Exception);
             };
 
             if (_presenter.IsGuest)
