@@ -28,13 +28,13 @@ namespace Steepshot.iOS
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-            AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
+            AppDomain.CurrentDomain.UnhandledException += async (object sender, UnhandledExceptionEventArgs e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject, BaseViewController.User.Login, BaseViewController.AppVersion);
+                await Reporter.SendCrash((Exception)e.ExceptionObject);
             };
-            TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
+            TaskScheduler.UnobservedTaskException += async (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                Reporter.SendCrash(e.Exception, BaseViewController.User.Login, BaseViewController.AppVersion);
+                await Reporter.SendCrash(e.Exception);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);

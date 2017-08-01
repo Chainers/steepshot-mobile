@@ -1,4 +1,5 @@
-﻿using Steepshot.Core;
+﻿﻿using System;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Data;
@@ -30,7 +31,7 @@ namespace Steepshot.Base
 
         static BasePresenter()
         {
-            User = new User(new DataProvider());
+            User = new User();
             User.Load();
             Chain = User.Chain;
         }

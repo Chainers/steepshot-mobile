@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -49,9 +50,9 @@ namespace SharpRavenPortable
         //     The file line number, or 0 (zero) if the file line number cannot be determined.
         public virtual int GetFileLineNumber()
         {
-            var trace = this.exception.StackTrace.Split(':');
             int res = -1;
-            Int32.TryParse(trace[trace.Length-1].Trim(), out res);
+            var trace = this.exception.StackTrace.Split(':');
+            Int32.TryParse(trace[trace.Length - 1].Trim(), out res);
             return res;
         }
 
@@ -91,8 +92,8 @@ namespace SharpRavenPortable
         //     The method in which the frame is executing.
         public virtual MethodBase GetMethod()
         {
-            var propInfo = exception.GetType().GetRuntimeProperty("TargetSite");
-            MethodBase methodBase = (MethodBase)propInfo. GetValue(exception, null);
+            var propInfo = exception?.GetType()?.GetRuntimeProperty("TargetSite");
+            MethodBase methodBase = (MethodBase)propInfo?.GetValue(exception, null);
             return methodBase;
         }
 

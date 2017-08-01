@@ -58,7 +58,7 @@ namespace Steepshot.iOS.ViewControllers
 
         static BaseViewController()
         {
-            User = new User(new DataProvider());
+            User = new User();
             User.Load();
             Chain = User.Chain;
             TagsList = new List<string>();
