@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using SharpRaven;
 using SharpRaven.Data;
 
@@ -24,9 +25,15 @@ namespace Steepshot.Core.Utils
 
         public static void SendCrash(Exception ex, string user, string appVersion)
         {
-			ex.Data.Add("Version", "0.0.4");
-			RavenClient.CaptureAsync(new SentryEvent(ex));
+            ex.Data.Add("Version", "0.0.4");
+            RavenClient.Capture(new SentryEvent(ex));
         }
+
+        public static async Task SendCrash(Exception ex)
+		{
+            ex.Data.Add("Version", "0.0.4");
+			await RavenClient.CaptureAsync(new SentryEvent(ex));
+		}
 
         public static void SendCrash(string message, string user, string appVersion)
         {

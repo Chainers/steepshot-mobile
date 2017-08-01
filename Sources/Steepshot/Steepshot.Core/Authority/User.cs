@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Steepshot.Core.Authority
@@ -53,9 +53,9 @@ namespace Steepshot.Core.Authority
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUser.Login);
 
-        public User(IDataProvider data)
+        public User()
         {
-            _data = data;
+            _data = new DataProvider();
         }
 
         public void Load()

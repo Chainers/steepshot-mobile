@@ -116,8 +116,8 @@ namespace Steepshot.Presenter
                                 Posts.Add(item);
                             }
                         }
-                        PostsLoaded?.Invoke();
                     }
+                    PostsLoaded?.Invoke();
                 }
             }
             catch (Exception ex)
