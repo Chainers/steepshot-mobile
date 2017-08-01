@@ -51,7 +51,7 @@ namespace Steepshot.Core.Authority
 
         public string SessionId => CurrentUser.SessionId;
 
-        public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUser.Login);
+        public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUser?.Login);
 
         public User()
         {
@@ -90,6 +90,13 @@ namespace Steepshot.Core.Authority
             _data.Insert(userInfo);
             CurrentUser = userInfo;
         }
+
+		public void SwitchUser(UserInfo userInfo)
+		{
+            var user = _data.Select().FirstOrDefault(x => x.Login == userInfo.Login && x.Chain == userInfo.Chain);
+            if(user != null)
+			    CurrentUser = user;
+		}
 
         public void Delete()
         {

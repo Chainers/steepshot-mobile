@@ -51,14 +51,24 @@ namespace Steepshot.Base
             _apiClient = new SteepshotApiClient(Chain, isDev);
         }
 
-        public static void SwitchChain(KnownChains chain)
+        public static void SwitchChain(UserInfo userInfo)
         {
-            if (Chain == chain && _apiClient != null)
+            if (Chain == userInfo.Chain && _apiClient != null)
                 return;
 
-            Chain = chain;
+            User.SwitchUser(userInfo);
 
-            _apiClient = new SteepshotApiClient(chain, User.IsDev);
+            Chain = userInfo.Chain;
+            _apiClient = new SteepshotApiClient(userInfo.Chain, User.IsDev);
         }
+
+        public static void SwitchChain(KnownChains chain)
+		{
+			if (Chain == chain && _apiClient != null)
+				return;
+
+			Chain = chain;
+			_apiClient = new SteepshotApiClient(chain, User.IsDev);
+		}
     }
 }
