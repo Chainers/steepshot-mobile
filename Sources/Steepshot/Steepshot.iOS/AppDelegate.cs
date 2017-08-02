@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using Akavache;
 using Foundation;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -28,25 +30,27 @@ namespace Steepshot.iOS
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-            AppDomain.CurrentDomain.UnhandledException += async (object sender, UnhandledExceptionEventArgs e) =>
+            AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                await Reporter.SendCrash((Exception)e.ExceptionObject);
+                Reporter.SendCrash((Exception)e.ExceptionObject,"");
             };
-            TaskScheduler.UnobservedTaskException += async (object sender, UnobservedTaskExceptionEventArgs e) =>
+            TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                await Reporter.SendCrash(e.Exception);
+                Reporter.SendCrash(e.Exception, "");
             };
+
+			var kernel = new Ninject.StandardKernel(new Bindings());
+			AppSettings.Container = kernel;
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BaseViewController.User.IsAuthenticated)
             {
-                InitialViewController = new MainTabBarController();  //Storyboard.InstantiateViewController("MainTabBar") as UITabBarController;
+                InitialViewController = new MainTabBarController();
             }
             else
             {
                 BaseViewController.IsHomeFeedLoaded = true;
                 InitialViewController = new FeedViewController();
-                //initialViewController = Storyboard.InstantiateViewController("FeedViewController") as FeedViewController;
             }
             var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
@@ -91,6 +95,7 @@ namespace Steepshot.iOS
 
         public override void WillTerminate(UIApplication application)
         {
+            BlobCache.Shutdown().Wait();
             // Called when the application is about to terminate. Save data, if needed. See also DidEnterBackground.
         }
     }

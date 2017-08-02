@@ -3,9 +3,12 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Ninject.Modules;
 using Steepshot.Base;
+using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
+using Steepshot.Services;
 using Steepshot.View;
 
 namespace Steepshot.Activity
@@ -24,21 +27,17 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
 
-            //CrashManager.Register(this, "fc38d51000bc469a8451c722528d4c55");
-            //Toast.MakeText(this, string.Format("Alpha release. Version {0}",
-            BasePresenter.AppVersion = PackageManager.GetPackageInfo(PackageName, 0).VersionName;
-            //var _dir = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), "Steepshot");
-            //Picasso p = new Picasso.Builder(this).Downloader(new OkHttpDownloader(_dir, 1073741824)).Build();
-            //Picasso.SetSingletonInstance(p);
+			var kernel = new Ninject.StandardKernel(new Bindings());
+            AppSettings.Container = kernel;
 
-            AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                await Reporter.SendCrash((Exception)e.ExceptionObject);
+                Reporter.SendCrash((Exception)e.ExceptionObject, BasePresenter.User.Login);
             };
 
-            TaskScheduler.UnobservedTaskException += async (sender, e) =>
+            TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-				await Reporter.SendCrash(e.Exception);
+				Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
             };
 
             if (_presenter.IsGuest)
@@ -51,4 +50,12 @@ namespace Steepshot.Activity
             }
         }
     }
+
+	public class Bindings : NinjectModule
+	{
+		public override void Load()
+		{
+            Bind<IAppInfo>().To<AppInfo>().InSingletonScope();
+		}
+	}
 }

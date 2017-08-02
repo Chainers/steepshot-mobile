@@ -2,6 +2,7 @@
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Utils;
 using Steepshot.Data;
 using Sweetshot.Library.HttpClient;
 
@@ -43,10 +44,10 @@ namespace Steepshot.Base
 
         public static void SwitchChain(bool isDev)
         {
-            if (User.IsDev == isDev && _apiClient != null)
+            if (AppSettings.IsDev == isDev && _apiClient != null)
                 return;
 
-            User.IsDev = isDev;
+            AppSettings.IsDev = isDev;
 
             _apiClient = new SteepshotApiClient(Chain, isDev);
         }
@@ -59,7 +60,7 @@ namespace Steepshot.Base
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            _apiClient = new SteepshotApiClient(userInfo.Chain, User.IsDev);
+            _apiClient = new SteepshotApiClient(userInfo.Chain, AppSettings.IsDev);
         }
 
         public static void SwitchChain(KnownChains chain)
@@ -68,7 +69,7 @@ namespace Steepshot.Base
 				return;
 
 			Chain = chain;
-			_apiClient = new SteepshotApiClient(chain, User.IsDev);
+			_apiClient = new SteepshotApiClient(chain, AppSettings.IsDev);
 		}
     }
 }

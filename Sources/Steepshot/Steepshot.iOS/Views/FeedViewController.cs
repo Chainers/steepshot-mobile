@@ -325,7 +325,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                await Reporter.SendCrash(ex);
+                Reporter.SendCrash(ex, User.Login, "");
             }
             finally
             {
