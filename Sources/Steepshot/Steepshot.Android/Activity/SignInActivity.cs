@@ -112,9 +112,6 @@ namespace Steepshot.Activity
                 ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
                 ((AppCompatButton)sender).Enabled = false;
 
-                if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-                    return;
-
                 var response = await _presenter.SignIn(login, pass);
 
                 if (response != null)
@@ -152,9 +149,9 @@ namespace Steepshot.Activity
         protected override void OnDestroy()
         {
             if (_newChain != KnownChains.None)
-			{
-				BasePresenter.SwitchChain(_newChain == KnownChains.Steem? KnownChains.Golos : KnownChains.Steem);
-			}
+            {
+                BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+            }
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
