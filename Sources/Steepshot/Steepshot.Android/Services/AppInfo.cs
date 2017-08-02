@@ -1,5 +1,4 @@
-﻿using System;
-using Android.App;
+﻿using Android.App;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Services
