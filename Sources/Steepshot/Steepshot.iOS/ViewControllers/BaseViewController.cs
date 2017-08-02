@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define UseDitch
+
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CoreGraphics;
@@ -7,7 +9,6 @@ using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Data;
 using Sweetshot.Library.HttpClient;
 using UIKit;
 
@@ -112,7 +113,7 @@ namespace Steepshot.iOS.ViewControllers
 
             AppSettings.IsDev = isDev;
 
-            _apiClient = new SteepshotApiClient(Chain, isDev);
+            InitApiClient(Chain, isDev);
         }
 
         public static void SwitchChain(KnownChains chain)
@@ -122,7 +123,16 @@ namespace Steepshot.iOS.ViewControllers
 
             Chain = chain;
 
-            _apiClient = new SteepshotApiClient(chain, User.IsDev);
+            InitApiClient(chain, User.IsDev);
+        }
+
+        private static void InitApiClient(KnownChains chain, bool isDev)
+        {
+#if UseDitch
+            _apiClient = new DitchApi(chain, isDev);
+#else
+            _apiClient = new SteepshotApiClient(chain, isDev);
+#endif
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)
