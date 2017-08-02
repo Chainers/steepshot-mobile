@@ -25,17 +25,14 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            //networkSwitch.Layer.CornerRadius = 16;
-            //networkSwitch.On = Chain == KnownChains.Steem;
             SetText(Chain);
-            //networkSwitch.ValueChanged += NetworkSwithed;
             loginButton.TouchDown += (sender, e) => GetUserInfo();
             loginLabel.Font = Constants.Bold175;
             signLabel.Font = Constants.Bold125;
             loginText.Font = Constants.Bold135;
             loginButton.Font = Constants.Heavy115;
             signUpButton.Font = Constants.Bold135;
-            devSwitch.On = User.IsDev;
+            devSwitch.On = AppSettings.IsDev;
             devSwitch.ValueChanged += (sender, e) =>
             {
                 SwitchChain(((UISwitch)sender).On);
@@ -56,9 +53,6 @@ namespace Steepshot.iOS.Views
             loginText.Text = "joseph.kalu";
 #endif
 
-            //picker.Hidden = true;
-            //pickerHeight.Constant = 0;
-
             var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
             tw.TextColor = UIColor.White;
             tw.Text = "PROFILE"; // to constants
@@ -73,8 +67,6 @@ namespace Steepshot.iOS.Views
             if (NewAccountNetwork != KnownChains.None)
             {
                 picker.Hidden = true;
-                //steemImg.Hidden = true;
-                //golosImg.Hidden = true;
                 SwitchChain(NewAccountNetwork);
             }
 

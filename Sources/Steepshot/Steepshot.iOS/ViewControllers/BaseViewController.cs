@@ -6,6 +6,7 @@ using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Data;
 using Sweetshot.Library.HttpClient;
 using UIKit;
@@ -106,10 +107,10 @@ namespace Steepshot.iOS.ViewControllers
 
         public static void SwitchChain(bool isDev)
         {
-            if (User.IsDev == isDev && _apiClient != null)
+            if (AppSettings.IsDev == isDev && _apiClient != null)
                 return;
 
-            User.IsDev = isDev;
+            AppSettings.IsDev = isDev;
 
             _apiClient = new SteepshotApiClient(Chain, isDev);
         }

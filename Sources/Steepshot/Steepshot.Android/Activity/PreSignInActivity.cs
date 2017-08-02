@@ -62,7 +62,7 @@ namespace Steepshot.Activity
                 SetLabelsText();
             };
 
-            _devSwitcher.Checked = BasePresenter.User.IsDev;
+            _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += (sender, e) =>
             {
                 BasePresenter.SwitchChain(e.IsChecked);
