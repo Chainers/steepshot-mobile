@@ -354,24 +354,12 @@ namespace Sweetshot.Library.HttpClient
             });
         }
 
-        public Task<OperationResult<bool>> VerifyAuthority(LoginRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var responce = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
-                return !responce.IsError
-                    ? new OperationResult<bool>(true)
-                    : new OperationResult<bool>(new List<string> { responce.GetErrorMessage() });
-            });
-        }
-
         public Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request)
         {
             return Task.Run(() =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var responce = OperationManager.VerifyAuthority(new List<byte[]> { Ditch.Helpers.Base58.GetBytes(request.PostingKey) }, op);
+                var responce = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
                 return !responce.IsError
                     ? new OperationResult<LoginResponse>(new LoginResponse(true))
                     : new OperationResult<LoginResponse>(new List<string> { responce.GetErrorMessage() });
