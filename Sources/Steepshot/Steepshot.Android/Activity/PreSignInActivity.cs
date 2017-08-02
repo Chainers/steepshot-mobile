@@ -101,7 +101,7 @@ namespace Steepshot.Activity
         {
             try
             {
-                var login = _username.Text.ToLower();
+                var login = _username.Text?.ToLower();
 
                 if (string.IsNullOrEmpty(login))
                 {
@@ -112,9 +112,6 @@ namespace Steepshot.Activity
                 _spinner.Visibility = ViewStates.Visible;
                 ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
                 ((AppCompatButton)sender).Enabled = false;
-
-                if (string.IsNullOrEmpty(login))
-                    return;
 
                 var response = await _presenter.GetAccountInfo(login);
 
@@ -146,7 +143,7 @@ namespace Steepshot.Activity
                 }
             }
             catch (Exception ex)
-			{
+            {
                 Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
             }
         }
