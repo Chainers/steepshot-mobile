@@ -51,17 +51,17 @@ namespace SharpRavenPortable
         public virtual int GetFileLineNumber()
         {
             int res = -1;
-            var trace = this.exception.StackTrace.Split(':');
-            Int32.TryParse(trace[trace.Length - 1].Trim(), out res);
+            var trace = this.exception.StackTrace?.Split(':');
+            Int32.TryParse(trace?[trace.Length - 1].Trim(), out res);
             return res;
         }
 
         [SecuritySafeCritical]
         public virtual string GetFileName()
         {
-            var trace = this.exception.StackTrace.Split(':');
-            var file = trace[trace.Length - 2].Split('\\');
-            string res = file[file.Length - 1];
+            var trace = this.exception?.StackTrace?.Split(':');
+            var file = trace?[trace.Length - 2].Split('\\');
+            string res = file?[file.Length - 1];
             return res;
         }
 
