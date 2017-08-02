@@ -1,9 +1,9 @@
-﻿﻿using System;
+﻿//#define UseDitch
+
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
-using Steepshot.Data;
 using Sweetshot.Library.HttpClient;
 
 namespace Steepshot.Base
@@ -49,7 +49,7 @@ namespace Steepshot.Base
 
             AppSettings.IsDev = isDev;
 
-            _apiClient = new SteepshotApiClient(Chain, isDev);
+            InitApiClient(Chain, isDev);
         }
 
         public static void SwitchChain(UserInfo userInfo)
@@ -60,16 +60,25 @@ namespace Steepshot.Base
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            _apiClient = new SteepshotApiClient(userInfo.Chain, AppSettings.IsDev);
+            InitApiClient(userInfo.Chain, AppSettings.IsDev);
         }
 
         public static void SwitchChain(KnownChains chain)
-		{
-			if (Chain == chain && _apiClient != null)
-				return;
+        {
+            if (Chain == chain && _apiClient != null)
+                return;
 
-			Chain = chain;
-			_apiClient = new SteepshotApiClient(chain, AppSettings.IsDev);
-		}
+            Chain = chain;
+            InitApiClient(chain, AppSettings.IsDev);
+        }
+
+        private static void InitApiClient(KnownChains chain, bool isDev)
+        {
+#if UseDitch
+            _apiClient = new DitchApi(chain, isDev);
+#else
+             _apiClient = new SteepshotApiClient(chain, isDev);
+#endif
+        }
     }
 }
