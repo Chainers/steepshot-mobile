@@ -152,8 +152,8 @@ namespace Steepshot.Adapter
             {
                 _post = post;
                 Likes.Text = $"{post.NetVotes} likes";
-                Cost.Text = $"{BasePresenter.Currency}{post.TotalPayoutReward}";
-				Time.Text = post.Created.ToPostTime();
+                Cost.Text = post.TotalPayoutReward.ToCurrencyString(BasePresenter.Currency);
+		Time.Text = post.Created.ToPostTime();
             }
         }
     }

@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Sweetshot.Library.HttpClient;
@@ -474,7 +475,9 @@ namespace Sweetshot.Tests
         {
             // Load last post
             var userPostsRequest = new UserPostsRequest(Name);
-            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            var posts = Api(name).GetUserPosts(userPostsRequest).Result;
+            Assert.IsTrue(posts.Success);
+            var lastPost = posts.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Authenticate(Api(name)), true, lastPost.Url);

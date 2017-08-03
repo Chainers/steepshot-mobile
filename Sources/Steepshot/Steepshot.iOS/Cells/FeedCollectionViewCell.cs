@@ -65,8 +65,8 @@ namespace Steepshot.iOS.Cells
                                                      .Into(bodyImage);
 
             cellText.Text = _currentPost.Author;
-            rewards.Text = $"{BaseViewController.Currency}{_currentPost.TotalPayoutReward.ToString()}";
-            netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+            rewards.Text = _currentPost.TotalPayoutReward.ToCurrencyString(BaseViewController.Currency);
+            netVotes.Text = $"{_currentPost.NetVotes} likes";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
             commentText.AttributedText = comment;
