@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sweetshot.Library", "Sweetshot.Library\Sweetshot.Library.shproj", "{D00F0D15-A2D0-4FDD-BA54-C750EAAEEA18}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.iOS\Steepshot.iOS.csproj", "{4B259270-7F8D-4132-91C4-AD144D025A30}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Android", "Steepshot.Android\Steepshot.Android.csproj", "{1A6A26C2-067B-40ED-A717-7509B633A345}"
@@ -13,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Core", "Steepshot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRavenPortable", "SharpRaven\SharpRavenPortable.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sweetshot.Tests", "Sweetshot.Tests\Sweetshot.Tests.csproj", "{D3CCF11D-1947-4CE4-9654-08276BABD863}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Core.Tests", "Steepshot.Core.Tests\Steepshot.Core.Tests.csproj", "{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -94,19 +92,22 @@ Global
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|x86.ActiveCfg = Release|Any CPU
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|x86.Build.0 = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{D3CCF11D-1947-4CE4-9654-08276BABD863}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Debug|x86.Build.0 = Debug|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|iPhone.Build.0 = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EDA48C6-4A57-4DAE-994F-F50D05B53D96}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
