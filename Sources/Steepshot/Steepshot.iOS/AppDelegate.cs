@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Akavache;
+using Autofac;
 using Foundation;
+using Steepshot.Core;
+using Steepshot.Core.Authority;
+using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Data;
+using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -29,6 +33,14 @@ namespace Steepshot.iOS
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
+			var builder = new ContainerBuilder();
+
+			builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
+            builder.RegisterInstance(new DataProvider()).As<IDataProvider>();
+			builder.RegisterInstance(new SaverService()).As<ISaverService>();
+			
+			AppSettings.Container = builder.Build();
+
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
                 Reporter.SendCrash((Exception)e.ExceptionObject,"");
@@ -37,9 +49,6 @@ namespace Steepshot.iOS
             {
                 Reporter.SendCrash(e.Exception, "");
             };
-
-			var kernel = new Ninject.StandardKernel(new Bindings());
-			AppSettings.Container = kernel;
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BaseViewController.User.IsAuthenticated)
@@ -94,7 +103,6 @@ namespace Steepshot.iOS
 
         public override void WillTerminate(UIApplication application)
         {
-            BlobCache.Shutdown().Wait();
             // Called when the application is about to terminate. Save data, if needed. See also DidEnterBackground.
         }
     }
