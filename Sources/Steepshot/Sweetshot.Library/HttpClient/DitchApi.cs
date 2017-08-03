@@ -246,7 +246,8 @@ namespace Sweetshot.Library.HttpClient
                     var content = OperationManager.GetContent(authPost.Item1, authPost.Item2);
                     if (!content.IsError)
                     {
-                        rez.Result = new VoteResponse { NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value };
+                        //Convert Money type to double
+                        rez.Result = new VoteResponse { NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value / Math.Pow(10, content.Result.NewTotalPayoutReward.Precision) };
                     }
                 }
                 else
