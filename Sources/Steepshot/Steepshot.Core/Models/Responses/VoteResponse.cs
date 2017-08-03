@@ -6,7 +6,7 @@
     /// }
     public class VoteResponse : MessageField
     {
-        public double NewTotalPayoutReward { get; set; }
+        public Money NewTotalPayoutReward { get; set; }
         public bool IsVoted => Message.Equals("Upvoted");
     }
 }

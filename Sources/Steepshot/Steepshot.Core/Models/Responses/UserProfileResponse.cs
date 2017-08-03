@@ -43,6 +43,6 @@ namespace Steepshot.Core.Models.Responses
         public string Location { get; set; }
         public string Website { get; set; }
         public int HasFollowed { get; set; }
-        public double EstimatedBalance { get; set; }
+        public Money EstimatedBalance { get; set; }
     }
 }
