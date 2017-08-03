@@ -1,6 +1,4 @@
-﻿//#define UseDitch
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CoreGraphics;
@@ -128,11 +126,14 @@ namespace Steepshot.iOS.ViewControllers
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-#if UseDitch
-            _apiClient = new DitchApi(chain, isDev);
-#else
-            _apiClient = new SteepshotApiClient(chain, isDev);
-#endif
+            if (isDev)
+            {
+                _apiClient = new DitchApi(chain, isDev);
+            }
+            else
+            {
+                _apiClient = new SteepshotApiClient(chain, isDev);
+            }
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)
