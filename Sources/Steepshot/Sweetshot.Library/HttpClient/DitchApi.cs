@@ -247,7 +247,7 @@ namespace Sweetshot.Library.HttpClient
                     if (!content.IsError)
                     {
                         //Convert Money type to double
-                        rez.Result = new VoteResponse { NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value / Math.Pow(10, content.Result.NewTotalPayoutReward.Precision) };
+                        rez.Result = new VoteResponse { NewTotalPayoutReward = new Steepshot.Core.Models.Money(content.Result.NewTotalPayoutReward.ToString()) };
                     }
                 }
                 else

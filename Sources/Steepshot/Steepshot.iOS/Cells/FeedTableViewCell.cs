@@ -77,8 +77,8 @@ namespace Steepshot.iOS.Cells
         {
             _currentPost = post;
             cellText.Text = post.Author;
-            rewards.Text = $"{BaseViewController.Currency}{post.TotalPayoutReward.ToString()}";
-            netVotes.Text = $"{post.NetVotes.ToString()} likes";
+            rewards.Text = post.TotalPayoutReward.ToCurrencyString(BaseViewController.Currency);
+            netVotes.Text = $"{post.NetVotes} likes";
             likeButton.Selected = post.Vote;
             var nicknameAttribute = new UIStringAttributes
             {

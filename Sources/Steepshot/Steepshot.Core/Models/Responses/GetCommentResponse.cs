@@ -57,11 +57,11 @@ namespace Steepshot.Core.Models.Responses
         public int NetVotes { get; set; }
         public int Children { get; set; }
         public DateTime Created { get; set; }
-        public double CuratorPayoutValue { get; set; }
-        public double TotalPayoutValue { get; set; }
-        public double PendingPayoutValue { get; set; }
+        public Money CuratorPayoutValue { get; set; }
+        public Money TotalPayoutValue { get; set; }
+        public Money PendingPayoutValue { get; set; }
         public double MaxAcceptedPayout { get; set; }
-        public double TotalPayoutReward { get; set; }
+        public Money TotalPayoutReward { get; set; }
         public bool Vote { get; set; }
 		public bool Flag { get; set; }
         public string[] Tags { get; set; }
