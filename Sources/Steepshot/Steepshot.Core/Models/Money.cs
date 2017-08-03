@@ -183,22 +183,9 @@ namespace Steepshot.Core.Models
             return string.IsNullOrEmpty(Currency) ? dig : $"{dig} {Currency}";
         }
 
-        public string ToCurrencyString(string currency, double convertKof, IFormatProvider formatProvider)
+        public double ToDouble()
         {
-            var dig = Value / Math.Pow(10, Precision);
-            dig *= convertKof;
-
-            return string.IsNullOrEmpty(currency) ? dig.ToString(formatProvider) : $"{currency} {dig.ToString(formatProvider)}";
-        }
-
-        public string ToCurrencyString(string currency, double convertKof)
-        {
-            return ToCurrencyString(currency, convertKof, CultureInfo.InvariantCulture.NumberFormat);
-        }
-
-        public string ToCurrencyString(string currency)
-        {
-            return ToCurrencyString(currency, 1, CultureInfo.InvariantCulture.NumberFormat);
+            return Value / Math.Pow(10, Precision);
         }
     }
 }

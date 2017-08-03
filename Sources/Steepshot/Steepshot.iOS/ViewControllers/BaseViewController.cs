@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Sweetshot.Library.HttpClient;
 using UIKit;
@@ -21,6 +23,8 @@ namespace Steepshot.iOS.ViewControllers
 
 
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
+        private static readonly Dictionary<string, double> CurencyConvertationDic;
+        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
         public static string Tos => User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
         public static string Pp => User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
@@ -62,6 +66,8 @@ namespace Steepshot.iOS.ViewControllers
             User.Load();
             Chain = User.Chain;
             TagsList = new List<string>();
+            //TODO:KOA: endpoint for CurencyConvertation needed
+            CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
         }
 
         protected BaseViewController(IntPtr handle) : base(handle)
@@ -198,6 +204,14 @@ namespace Steepshot.iOS.ViewControllers
             };
             alert.AddButton("OK");
             alert.Show();
+        }
+
+        public static string ToFormatedCurrencyString(Money value)
+        {
+            var dVal = value.ToDouble();
+            if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
+                dVal *= CurencyConvertationDic[value.Currency];
+            return $"{Currency} {dVal.ToString("F", CultureInfo)}";
         }
     }
 }

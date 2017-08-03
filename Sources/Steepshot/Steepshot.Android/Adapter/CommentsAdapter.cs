@@ -128,7 +128,7 @@ namespace Steepshot.Adapter
                 TimeSpan span = DateTime.Now - post.Created;
 
                 Likes.Text = post.NetVotes.ToString();
-                Cost.Text = post.TotalPayoutValue.ToCurrencyString(BasePresenter.Currency);
+                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
                 CheckLikeVisibility(post.NetVotes);
             }
         }
