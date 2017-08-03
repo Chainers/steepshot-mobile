@@ -47,7 +47,7 @@ namespace Steepshot.iOS.Cells
             bodyLabel.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
-            costLabel.Text = _currentPost.TotalPayoutReward.ToCurrencyString(BaseViewController.Currency);
+            costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
 
