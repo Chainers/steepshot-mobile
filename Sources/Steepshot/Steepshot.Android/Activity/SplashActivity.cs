@@ -3,10 +3,13 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Ninject.Modules;
+using Autofac;
 using Steepshot.Base;
+using Steepshot.Core;
+using Steepshot.Core.Authority;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
+using Steepshot.Data;
 using Steepshot.Presenter;
 using Steepshot.Services;
 using Steepshot.View;
@@ -20,15 +23,20 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
+			var builder = new ContainerBuilder();
+
+			builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
+            builder.RegisterInstance(new DataProvider()).As<IDataProvider>();
+			builder.RegisterInstance(new SaverService()).As<ISaverService>();
+			
+			AppSettings.Container = builder.Build();
+
             _presenter = new SplashPresenter(this);
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-			var kernel = new Ninject.StandardKernel(new Bindings());
-            AppSettings.Container = kernel;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
@@ -50,12 +58,4 @@ namespace Steepshot.Activity
             }
         }
     }
-
-	public class Bindings : NinjectModule
-	{
-		public override void Load()
-		{
-            Bind<IAppInfo>().To<AppInfo>().InSingletonScope();
-		}
-	}
 }

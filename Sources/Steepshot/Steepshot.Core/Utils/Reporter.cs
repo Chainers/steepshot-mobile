@@ -1,7 +1,8 @@
 ﻿using System;
-using Ninject;
 using SharpRaven;
 using SharpRaven.Data;
+using Autofac;
+using Steepshot.Core.Authority;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
@@ -24,6 +25,13 @@ namespace Steepshot.Core.Utils
 			}
 		}
 
+		private static IAppInfo _appInfoService;
+
+		static Reporter()
+		{
+			_appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+		}
+
         public static void SendCrash(Exception ex, string user, string appVersion)
         {
             RavenClient.CaptureAsync(CreateSentryEvent(ex, user));
@@ -35,13 +43,13 @@ namespace Steepshot.Core.Utils
 		}
 
         private static SentryEvent CreateSentryEvent(Exception ex, string user)
-        {
+		{
             var sentryEvent = new SentryEvent(ex);
-            sentryEvent.Tags.Add("OS", AppSettings.Container.Get<IAppInfo>().GetPlatform());
+			sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
             sentryEvent.Tags.Add("Login", user);
-            sentryEvent.Tags.Add("AppVersion", AppSettings.Container.Get<IAppInfo>().GetAppVersion());
-            sentryEvent.Tags.Add("Model", AppSettings.Container.Get<IAppInfo>().GetModel());
-            sentryEvent.Tags.Add("OsVersion", AppSettings.Container.Get<IAppInfo>().GetOsVersion());
+            sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());
+            sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
+            sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
             return sentryEvent;
         }
 
