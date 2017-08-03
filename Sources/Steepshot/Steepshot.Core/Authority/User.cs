@@ -1,5 +1,8 @@
-﻿﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Autofac;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authority
 {
@@ -55,7 +58,10 @@ namespace Steepshot.Core.Authority
 
         public User()
         {
-            _data = new DataProvider();
+			using (var scope = AppSettings.Container.BeginLifetimeScope())
+			{
+				_data = scope.Resolve<IDataProvider>();
+			}
         }
 
         public void Load()

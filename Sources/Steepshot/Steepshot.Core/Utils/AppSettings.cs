@@ -1,30 +1,20 @@
-﻿using Akavache;
-using Ninject;
-using System.Reactive.Linq;
-using System.Collections.Generic;
+﻿using Autofac;
 
 namespace Steepshot.Core.Utils
 {
     public static class AppSettings
     {
-        public static StandardKernel Container { get; set; }
+        public static IContainer Container { get; set; }
 
         public static bool IsDev
         {
             get
             {
-                try
-                {
-                    return BlobCache.UserAccount.GetObject<bool>(Constants.IsDevKey).Wait();
-                }
-                catch(KeyNotFoundException)
-                {
-                    return false;
-                }
+				return Container.Resolve<ISaverService>().Get<bool>("isdev");
             }
             set
             {
-                BlobCache.UserAccount.InsertObject(Constants.IsDevKey, value).Wait();
+				Container.Resolve<ISaverService>().Save<bool>("isdev", value);
             }
         }
     }
