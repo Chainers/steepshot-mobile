@@ -1,6 +1,9 @@
-﻿using Steepshot.Core;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Sweetshot.Library.HttpClient;
 
@@ -11,6 +14,8 @@ namespace Steepshot.Base
         private static ISteepshotApiClient _apiClient;
         public static string AppVersion { get; set; }
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
+        private static readonly Dictionary<string, double> CurencyConvertationDic;
+        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
         public static bool ShouldUpdateProfile;
         public static User User { get; set; }
@@ -33,6 +38,8 @@ namespace Steepshot.Base
             User = new User();
             User.Load();
             Chain = User.Chain;
+            //TODO:KOA: endpoint for CurencyConvertation needed
+            CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
         }
 
         public BasePresenter(IBaseView view)
@@ -80,6 +87,14 @@ namespace Steepshot.Base
             {
                 _apiClient = new SteepshotApiClient(chain, isDev);
             }
+        }
+
+        public static string ToFormatedCurrencyString(Money value)
+        {
+            var dVal = value.ToDouble();
+            if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
+                dVal *= CurencyConvertationDic[value.Currency];
+            return $"{Currency} {dVal.ToString("F",CultureInfo)}";
         }
     }
 }

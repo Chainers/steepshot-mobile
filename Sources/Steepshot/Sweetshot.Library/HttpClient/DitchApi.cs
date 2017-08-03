@@ -57,6 +57,7 @@ namespace Sweetshot.Library.HttpClient
                 {
                     NamingStrategy = new SnakeCaseNamingStrategy()
                 },
+                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK"
             };
 
         }

@@ -19,9 +19,9 @@ namespace Steepshot.Adapter
         private ObservableCollection<Post> _posts;
         private Context _context;
         private string _commentPattern = "<b>{0}</b> {1}";
-		public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
+        public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-		public FeedAdapter(Context context, ObservableCollection<Post> posts, bool isFeed = false)
+        public FeedAdapter(Context context, ObservableCollection<Post> posts, bool isFeed = false)
         {
             _context = context;
             _posts = posts;
@@ -64,22 +64,22 @@ namespace Steepshot.Adapter
                 vh.CommentSubtitle.Text = _context.GetString(Resource.String.first_title_comment);
             }
             vh.UpdateData(post, _context);
-			try
-			{
-				Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
-			}
-			catch (Exception e)
-			{
-			}
+            try
+            {
+                Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
+            }
+            catch (Exception e)
+            {
+            }
             if (!string.IsNullOrEmpty(post.Avatar))
             {
-				try
-				{
-					Picasso.With(_context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
-				}
-				catch (Exception e)
-				{
-				}
+                try
+                {
+                    Picasso.With(_context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
+                }
+                catch (Exception e)
+                {
+                }
             }
             else
             {
@@ -93,7 +93,7 @@ namespace Steepshot.Adapter
             Android.Views.View itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
 
-			FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+            FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
             return vh;
         }
 
@@ -111,33 +111,33 @@ namespace Steepshot.Adapter
             Post _post;
             Action<int> _likeAction;
 
-			public FeedViewHolder(Android.Views.View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
-			{
-				Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
-				Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-				Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+            public FeedViewHolder(Android.Views.View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
+            {
+                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+                Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
+                Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
 
-				var parameters = Photo.LayoutParameters;
-				parameters.Height = height;
-				Photo.LayoutParameters = parameters;
+                var parameters = Photo.LayoutParameters;
+                parameters.Height = height;
+                Photo.LayoutParameters = parameters;
 
-				FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
-				CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
-				Time = itemView.FindViewById<TextView>(Resource.Id.time);
-				Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
-				Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-				Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+                FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
+                CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
+                Time = itemView.FindViewById<TextView>(Resource.Id.time);
+                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+                Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
 
-				_likeAction = likeAction;
+                _likeAction = likeAction;
 
-				Like.Click += Like_Click;
-				Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-				Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-				FirstComment.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-				CommentSubtitle.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-				Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
-				Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
-			}
+                Like.Click += Like_Click;
+                Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+                Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+                FirstComment.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
+                CommentSubtitle.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
+                Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
+                Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
+            }
 
             void Like_Click(object sender, EventArgs e)
             {
@@ -152,8 +152,8 @@ namespace Steepshot.Adapter
             {
                 _post = post;
                 Likes.Text = $"{post.NetVotes} likes";
-                Cost.Text = post.TotalPayoutReward.ToCurrencyString(BasePresenter.Currency);
-		Time.Text = post.Created.ToPostTime();
+                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+                Time.Text = post.Created.ToPostTime();
             }
         }
     }
