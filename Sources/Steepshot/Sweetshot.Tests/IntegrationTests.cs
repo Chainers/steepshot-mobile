@@ -17,8 +17,10 @@ namespace Sweetshot.Tests
         private const string Name = "joseph.kalu";
         private const string PostingKey = "***REMOVED***";
 
-        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(KnownChains.Steem, false);
-        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(KnownChains.Golos, false);
+        private readonly ISteepshotApiClient _steem = new DitchApi(KnownChains.Steem, false);
+        private readonly ISteepshotApiClient _golos = new DitchApi(KnownChains.Golos, false);
+        //private readonly ISteepshotApiClient _steem = new SteepshotApiClient(KnownChains.Steem, false);
+        //private readonly ISteepshotApiClient _golos = new SteepshotApiClient(KnownChains.Golos, false);
 
         private ISteepshotApiClient Api(string name)
         {
@@ -44,8 +46,11 @@ namespace Sweetshot.Tests
             // Assert
             AssertSuccessfulResult(response);
             Assert.That(response.Result.IsLoggedIn, Is.True);
-            Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
-            Assert.That(response.Result.SessionId, Is.Not.Empty);
+            if (api is SteepshotApiClient)
+            {
+                Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
+                Assert.That(response.Result.SessionId, Is.Not.Empty);
+            }
 
             return new UserInfo() { Login = Name, PostingKey = PostingKey, SessionId = response.Result.SessionId };
         }
@@ -463,6 +468,24 @@ namespace Sweetshot.Tests
             AssertFailedResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
         }
+
+        [Test, Sequential]
+        public void Vote_Up_TotalBalance_Test([Values("Steem", "Golos")] string name)
+        {
+            // Load last post
+            var userPostsRequest = new UserPostsRequest(Name);
+            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+
+            // Arrange
+            var request = new VoteRequest(Authenticate(Api(name)), true, lastPost.Url);
+
+            // Act
+            var response = Api(name).Vote(request).Result;
+
+            Assert.IsTrue(response.Success);
+            Assert.IsTrue(lastPost.TotalPayoutReward <= response.Result.NewTotalPayoutReward);
+        }
+
 
         [Test, Sequential]
         public void Vote_Down_Already_Voted([Values("Steem", "Golos")] string name)
