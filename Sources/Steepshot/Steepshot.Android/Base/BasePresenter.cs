@@ -1,6 +1,4 @@
-﻿//#define UseDitch
-
-using Steepshot.Core;
+﻿using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
@@ -74,11 +72,14 @@ namespace Steepshot.Base
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-#if UseDitch
-            _apiClient = new DitchApi(chain, isDev);
-#else
-             _apiClient = new SteepshotApiClient(chain, isDev);
-#endif
+            if (isDev)
+            {
+                _apiClient = new DitchApi(chain, isDev);
+            }
+            else
+            {
+                _apiClient = new SteepshotApiClient(chain, isDev);
+            }
         }
     }
 }
