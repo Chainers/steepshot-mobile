@@ -19,8 +19,14 @@ namespace Steepshot.Core.HttpClient
     {
         Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
         Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags, CancellationTokenSource cts);
+        Task<IRestResponse> Upload(string endpoint,
+                                   string filename,
+                                   byte[] file,
+                                   IEnumerable<RequestParameter> parameters,
+                                   IEnumerable<string> tags,
+                                   string login,
+                                   string trx,
+                                   CancellationTokenSource cts);
     }
 
     public class ApiGateway : IApiGateway
@@ -51,29 +57,22 @@ namespace Steepshot.Core.HttpClient
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx, CancellationTokenSource cts)
-        {
-//            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-//            request.AddFile("photo", file, filename);
-//            request.AlwaysMultipartFormData = true;
-//            request.AddParameter("title", filename);
-//            request.AddParameter("username", login);
-//            request.AddParameter("trx", trx);
-//            foreach (var tag in tags)
-//            {
-//                request.AddParameter("tags", tag);
-//            }
-//            return response;
-            throw new NotImplementedException();
-        }
-
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(string endpoint,
+                                          string filename,
+                                          byte[] file,
+                                          IEnumerable<RequestParameter> parameters,
+                                          IEnumerable<string> tags,
+                                          string username,
+                                          string trx,
+                                          CancellationTokenSource cts)
         {
             var request = CreateRequest(endpoint, parameters);
             request.Method = Method.POST;
             request.AddFile("photo", file, filename);
             request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
             request.AddParameter("title", filename);
+            request.AddParameter("username", username);
+            request.AddParameter("trx", trx);
             foreach (var tag in tags)
             {
                 request.AddParameter("tags", tag);
