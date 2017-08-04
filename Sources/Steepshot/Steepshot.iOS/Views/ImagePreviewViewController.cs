@@ -17,15 +17,18 @@ namespace Steepshot.iOS.Views
 		public UIImage ImageForPreview;
 		public string ImageUrl;
 
+		private bool _navigationBarHidden;
+
 		public override void ViewWillAppear(bool animated)
 		{
+			_navigationBarHidden = NavigationController.NavigationBarHidden;
 			NavigationController.SetNavigationBarHidden(false, true);
 			base.ViewWillAppear(animated);
 		}
 
 		public override void ViewWillDisappear(bool animated)
 		{
-			NavigationController.SetNavigationBarHidden(true, true);
+			NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
 			base.ViewWillDisappear(animated);
 		}
 

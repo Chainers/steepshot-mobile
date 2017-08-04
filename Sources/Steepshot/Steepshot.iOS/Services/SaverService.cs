@@ -1,5 +1,6 @@
-﻿using Foundation;
+﻿﻿using Foundation;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Steepshot.Core;
 
 namespace Steepshot.iOS
@@ -16,7 +17,7 @@ namespace Steepshot.iOS
 
 		public void Save<T>(string key, T obj)
 		{
-			var objToStore = JsonConvert.SerializeObject(obj);
+			var objToStore = JsonConvert.SerializeObject(obj, new JsonSerializerSettings { ContractResolver = new DefaultContractResolver() });
 			NSUserDefaults.StandardUserDefaults.SetString(objToStore, key);
             NSUserDefaults.StandardUserDefaults.Synchronize();
 		}
