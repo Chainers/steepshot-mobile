@@ -32,5 +32,7 @@ namespace Steepshot.Core.Models.Requests
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
         public List<string> Tags { get; private set; }
+        public string Username { get; private set; }
+        public string Trx { get; private set; }
     }
 }
