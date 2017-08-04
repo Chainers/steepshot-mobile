@@ -1,5 +1,4 @@
 ﻿using System;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -15,10 +14,8 @@ namespace Steepshot.Core.Models.Requests
         public string Username { get; private set; }
     }
 
-    public class UserProfileRequest : LoginField
+    public class UserProfileRequest : SessionIdField
     {
-        public string Username { get; private set; }
-
         public UserProfileRequest(string username)
         {
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
@@ -26,13 +23,7 @@ namespace Steepshot.Core.Models.Requests
             Username = username;
         }
 
-        public UserProfileRequest(string username, UserInfo user)
-            : base(user)
-        {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
-
-            Username = username;
-        }
+        public string Username { get; private set; }
     }
 
     public enum FriendsType
@@ -41,11 +32,8 @@ namespace Steepshot.Core.Models.Requests
         Following
     }
 
-    public class UserFriendsRequest : LoginOffsetLimitFields
+    public class UserFriendsRequest : SessionIdOffsetLimitFields
     {
-        public string Username { get; private set; }
-        public FriendsType Type { get; private set; }
-
         public UserFriendsRequest(string username, FriendsType type)
         {
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
@@ -54,13 +42,7 @@ namespace Steepshot.Core.Models.Requests
             Type = type;
         }
 
-        public UserFriendsRequest(string username, FriendsType type, UserInfo user) : base(user)
-        {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
-
-            Username = username;
-            Type = type;
-        }
-
+        public string Username { get; private set; }
+        public FriendsType Type { get; private set; }
     }
 }
