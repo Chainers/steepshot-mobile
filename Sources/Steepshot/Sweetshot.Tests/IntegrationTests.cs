@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Sweetshot.Library.HttpClient;

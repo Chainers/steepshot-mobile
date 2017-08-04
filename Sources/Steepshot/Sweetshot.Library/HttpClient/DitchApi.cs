@@ -38,7 +38,7 @@ namespace Sweetshot.Library.HttpClient
             get
             {
                 if (_operationManager == null)
-                    _operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId, _jsonSerializerSettings);
+                    _operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId);
                 return _operationManager;
             }
         }
