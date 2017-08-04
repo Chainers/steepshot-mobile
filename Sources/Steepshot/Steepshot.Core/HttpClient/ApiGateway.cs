@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using RestSharp;
+using RestSharp.Portable;
+using RestSharp.Portable.HttpClient;
+using Steepshot.Core.Serializing;
 
-namespace Sweetshot.Library.HttpClient
+namespace Steepshot.Core.HttpClient
 {
     public class RequestParameter
     {
@@ -15,8 +16,7 @@ namespace Sweetshot.Library.HttpClient
 
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint);
-        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null);
+        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters);
         Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters);
         Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx);
         Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
@@ -33,67 +33,60 @@ namespace Sweetshot.Library.HttpClient
                 throw new ArgumentNullException(nameof(url));
             }
 
-            _restClient = new RestClient(url);
+            _restClient = new RestClient(url) {IgnoreResponseStatusCode = true};
         }
 
-        public Task<IRestResponse> Get(string endpoint)
-        {
-            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-            return _restClient.ExecuteGetTaskAsync(request);
-        }
-
-        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null)
+        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters)
         {
             var request = CreateRequest(endpoint, parameters);
-            Task<IRestResponse> response;
-            if (cts != null)
-                response = _restClient.ExecuteGetTaskAsync(request, cts.Token);
-            else
-                response = _restClient.ExecuteGetTaskAsync(request);
+            request.Method = Method.GET;
+            var response = _restClient.Execute(request);
             return response;
         }
 
         public Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters)
         {
             var request = CreateRequest(endpoint, parameters);
-            var response = _restClient.ExecutePostTaskAsync(request);
+            request.Method = Method.POST;
+            var response = _restClient.Execute(request);
             return response;
         }
 
         public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx)
         {
-            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-            request.AddFile("photo", file, filename);
-            request.AlwaysMultipartFormData = true;
-            request.AddParameter("title", filename);
-            request.AddParameter("username", login);
-            request.AddParameter("trx", trx);
-            foreach (var tag in tags)
-            {
-                request.AddParameter("tags", tag);
-            }
-            var response = _restClient.ExecutePostTaskAsync(request);
-            return response;
+//            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
+//            request.AddFile("photo", file, filename);
+//            request.AlwaysMultipartFormData = true;
+//            request.AddParameter("title", filename);
+//            request.AddParameter("username", login);
+//            request.AddParameter("trx", trx);
+//            foreach (var tag in tags)
+//            {
+//                request.AddParameter("tags", tag);
+//            }
+//            var response = _restClient.ExecutePostTaskAsync(request);
+//            return response;
+            throw new NotImplementedException();
         }
 
         public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags)
         {
             var request = CreateRequest(endpoint, parameters);
+            request.Method = Method.POST;
             request.AddFile("photo", file, filename);
-            request.AlwaysMultipartFormData = true;
+            request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
             request.AddParameter("title", filename);
             foreach (var tag in tags)
             {
                 request.AddParameter("tags", tag);
             }
-            var response = _restClient.ExecutePostTaskAsync(request);
+            var response = _restClient.Execute(request);
             return response;
         }
 
         private IRestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
         {
-            var restRequest = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-
+            var restRequest = new RestRequest(endpoint) {Serializer = new JsonNetConverter()};
             foreach (var parameter in parameters)
             {
                 restRequest.AddParameter(parameter.Key, parameter.Value, parameter.Type);

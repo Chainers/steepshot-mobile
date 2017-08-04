@@ -54,19 +54,16 @@ namespace Steepshot.Core.Models.Responses
     //        ]
     //    }
     //}
-    public class UploadResponce
+    public class UploadResponse
     {
         public ImageUploadResponse Payload { get; set; }
-
         public Meta Meta { get; set; }
     }
 
     public class Meta
     {
         public string App { get; set; }
-
         public List<string> Tags { get; set; }
-
         public object[][] Extensions { get; set; }
     }
 }

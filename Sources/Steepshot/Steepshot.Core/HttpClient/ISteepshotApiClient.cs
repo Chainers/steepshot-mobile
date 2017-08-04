@@ -1,5 +1,4 @@
-using System.Threading;
-using System.Threading.Tasks;
+Ôªøusing System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -39,22 +38,20 @@ namespace Steepshot.Core.HttpClient
         ///     3) GET https://steepshot.org/api/v1/posts/top HTTP/1.1
         ///     4) GET https://steepshot.org/api/v1/posts/top?offset=%2Fsteemit%2F%40heiditravels%2Felevate-your-social-media-experience-with-steemit&limit=3 HTTP/1.1
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/posts/food/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/posts/food/top?offset=%2Ftravel%2F%40sweetsssj%2Ftravel-with-me-39-my-appointment-with-gulangyu&limit=5 HTTP/1.1
         /// </summary>
-        /// 
-        Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null);
-
+        Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request);
+        
         /// <summary>
         ///     Examples:
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
-        /// 
-        Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request);
+        Task<OperationResult<GetVotersResponse>> GetPostVoters(GetCommentsRequest request);
 
         /// <summary>
         ///     Examples:
@@ -86,7 +83,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
         ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
-        ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"Ò‚ËÚ¯ÓÚ"}
+        ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"—Å–≤–∏—Ç—à–æ—Ç"}
         /// </summary>
         Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request);
 
@@ -114,14 +111,14 @@ namespace Steepshot.Core.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&limit=5&query=lif HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request);
 
         /// <summary>
         ///     Examples:
@@ -160,7 +157,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&limit=5&query=aar HTTP/1.1
         /// </summary>
-        Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request);
 
         /// <summary>
         ///     Examples:
