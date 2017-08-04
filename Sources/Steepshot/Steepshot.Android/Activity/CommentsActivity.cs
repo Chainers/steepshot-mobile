@@ -134,7 +134,7 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    var intent = new Intent(this, typeof(SignInActivity));
+                    var intent = new Intent(this, typeof(PreSignInActivity));
                     StartActivity(intent);
                 }
             }

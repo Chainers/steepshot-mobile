@@ -66,7 +66,7 @@ namespace Steepshot.Adapter
             vh.UpdateData(post, _context);
             try
             {
-                Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Into(vh.Photo);
+                Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
             }
             catch (Exception e)
             {
@@ -75,7 +75,7 @@ namespace Steepshot.Adapter
             {
                 try
                 {
-                    Picasso.With(_context).Load(post.Avatar).NoFade().Resize(80, 0).Into(vh.Avatar);
+                    Picasso.With(_context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(80, 0).Into(vh.Avatar);
                 }
                 catch (Exception e)
                 {
