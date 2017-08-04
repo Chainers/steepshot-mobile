@@ -58,10 +58,7 @@ namespace Steepshot.Core.Authority
 
         public User()
         {
-			using (var scope = AppSettings.Container.BeginLifetimeScope())
-			{
-				_data = scope.Resolve<IDataProvider>();
-			}
+            _data = AppSettings.Container.Resolve<IDataProvider>();
         }
 
         public void Load()

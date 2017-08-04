@@ -47,11 +47,13 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-			Picasso.With(_context).Load(new File(_posts[position]))
-			       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
-			       .Resize(_context.Resources.DisplayMetrics.WidthPixels / 3, _context.Resources.DisplayMetrics.WidthPixels / 3)
-			       .CenterCrop()
-			       .Into(((ImageViewHolder)holder).Photo);
+            Picasso.With(_context).Load(new File(_posts[position]))
+                   .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
+                   .Priority(Picasso.Priority.High)
+	               .Resize(_context.Resources.DisplayMetrics.WidthPixels / 3, _context.Resources.DisplayMetrics.WidthPixels / 3)
+	               .CenterCrop()
+                   .NoFade()
+	               .Into(((ImageViewHolder)holder).Photo);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
