@@ -79,14 +79,14 @@ namespace Steepshot.Base
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            if (isDev)
-            {
+            //if (isDev)
+            //{
                 _apiClient = new DitchApi(chain, isDev);
-            }
-            else
-            {
-                _apiClient = new SteepshotApiClient(chain, isDev);
-            }
+            //}
+            //else
+            //{
+            //    _apiClient = new SteepshotApiClient(chain, isDev);
+            //}
         }
 
         public static string ToFormatedCurrencyString(Money value)
