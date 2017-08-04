@@ -51,7 +51,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
-        Task<OperationResult<GetVotersResponse>> GetPostVoters(GetCommentsRequest request);
+        Task<OperationResult<GetVotersResponse>> GetPostVoters(InfoRequest request);
 
         /// <summary>
         ///     Examples:
@@ -77,7 +77,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
-        Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request);
+        Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request);
 
         /// <summary>
         ///     Examples:
@@ -151,7 +151,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
         /// </summary>
-        Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request);
+        Task<OperationResult<Post>> GetPostInfo(InfoRequest request);
 
         /// <summary>
         ///     Examples:

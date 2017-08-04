@@ -64,7 +64,7 @@ namespace Steepshot.Core.Tests
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             // Load comments for this post and check them
-            var getCommentsRequest = new GetCommentsRequest(lastPost.Url);
+            var getCommentsRequest = new InfoRequest(lastPost.Url);
             var commentsResponse = Api(apiName).GetComments(getCommentsRequest).Result;
             AssertResult(commentsResponse);
             Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(title));
