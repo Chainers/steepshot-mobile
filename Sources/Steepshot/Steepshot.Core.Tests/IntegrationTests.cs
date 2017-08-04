@@ -553,7 +553,7 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
                         response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
 
@@ -574,7 +574,7 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
                         response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
 
