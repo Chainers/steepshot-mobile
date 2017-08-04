@@ -176,7 +176,7 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
 
-            var response = await _gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags, cts);
+            var response = await _gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags, request.Username, request.Trx, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
         }
