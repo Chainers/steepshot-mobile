@@ -110,7 +110,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetCommentsRequest request)
+        public async Task<OperationResult<GetVotersResponse>> GetPostVoters(InfoRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             //var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
@@ -148,7 +148,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<FollowResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
+        public async Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var response = await _gateway.Get($"post/{request.Url}/comments", parameters);
@@ -241,7 +241,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
+        public async Task<OperationResult<Post>> GetPostInfo(InfoRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
 

@@ -50,16 +50,4 @@ namespace Steepshot.Core.Models.Requests
 
         public string Category { get; set; }
     }
-
-    public class PostsInfoRequest : SessionIdField
-    {
-        public PostsInfoRequest(string url)
-        {
-            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
-
-            Url = url;
-        }
-
-        public string Url { get; private set; }
-    }
 }

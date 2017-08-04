@@ -19,16 +19,4 @@ namespace Steepshot.Core.Models.Requests
         public string Body { get; private set; }
         public string Title { get; private set; }
     }
-
-    public class GetCommentsRequest : SessionIdField
-    {
-        public GetCommentsRequest(string url)
-        {
-            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
-
-            Url = url;
-        }
-
-        public string Url { get; private set; }
-    }
 }

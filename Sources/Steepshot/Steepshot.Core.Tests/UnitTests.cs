@@ -29,11 +29,11 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Comments_Empty_Url()
+        public void InfoRequest_Empty_Url()
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new GetCommentsRequest("");
+                new InfoRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -72,7 +72,7 @@ namespace Steepshot.Core.Tests
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
                 new UploadImageRequest("sessionid", "", new byte[] { }, "cat1", "cat2", "cat3", "cat4");
-                new GetCommentsRequest("");
+                new InfoRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("title"));
         }
