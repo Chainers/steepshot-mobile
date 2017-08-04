@@ -110,7 +110,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<GetVotersResponse>> GetPostVoters(InfoRequest request)
+        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             //var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
@@ -119,7 +119,7 @@ namespace Steepshot.Core.HttpClient
             var endpoint = $"post/{request.Url}/voters";
             var response = await _gateway.Get(endpoint, parameters);
             var errorResult = CheckErrors(response);
-            return CreateResult<GetVotersResponse>(response.Content, errorResult);
+            return CreateResult<SearchResponse<VotersResult>>(response.Content, errorResult);
         }
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request)

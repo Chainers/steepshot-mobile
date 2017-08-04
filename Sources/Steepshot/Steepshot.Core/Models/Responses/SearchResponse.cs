@@ -14,18 +14,10 @@ namespace Steepshot.Core.Models.Responses
         public string Name { get; set; }
     }
 
-    public class UserSearchResponse : SearchResponse<UserSearchResult>
-    {
-    }
-
     public class UserSearchResult : SearchResult
     {
         public string Username { get; set; }
         public string ProfileImage { get; set; }
-    }
-
-    public class GetVotersResponse : SearchResponse<VotersResult>
-    {
     }
 
     public class VotersResult : UserSearchResult
