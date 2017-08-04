@@ -5,6 +5,8 @@ namespace Steepshot.Core.Models.Responses
     ///}
     public class CreateCommentResponse : MessageField
     {
+        public CreateCommentResponse(){}
+
         private bool _isCreated;
 
         public bool IsCreated
