@@ -50,7 +50,9 @@ namespace Sweetshot.Library.HttpClient
             else
                 _url = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
 
-            _chainInfo = ChainManager.GetChainInfo(chain == Steepshot.Core.KnownChains.Steem ? KnownChains.Steem : KnownChains.Golos);
+            _chainInfo = ChainManager.GetChainInfo(chain == Steepshot.Core.KnownChains.Steem
+                ? KnownChains.Steem
+                : KnownChains.Golos);
             _jsonSerializerSettings = new JsonSerializerSettings
             {
                 ContractResolver = new DefaultContractResolver
@@ -59,174 +61,219 @@ namespace Sweetshot.Library.HttpClient
                 },
                 DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK"
             };
-
         }
 
 
         #region Get requests
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
+        public Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var response = await Gateway.Get($"{request.Login}/user/{request.Username}/posts", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                var response = Gateway.Get($"{request.Login}/user/{request.Username}/posts", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserPostResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request)
+        public Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var response = await Gateway.Get($"{request.Login}/recent", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                var response = Gateway.Get($"{request.Login}/recent", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserPostResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts = null)
+        public Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"{request.Login}/posts/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                var endpoint = $"{request.Login}/posts/{request.Type.ToString().ToLowerInvariant()}";
+                var response = Gateway.Get(endpoint, parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserPostResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null)
+        public Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"{request.Login}/posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                var endpoint = $"{request.Login}/posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
+                var response = Gateway.Get(endpoint, parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserPostResponse>(response.Content, errorResult);
+            }, cts.Token);
         }
 
-        public async Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
+        public Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-            var endpoint = $"post/{request.Url}/voters";
-            var response = await Gateway.Get(endpoint, parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<GetVotersResponse>(response.Content, errorResult);
+                var endpoint = $"post/{request.Url}/voters";
+                var response = Gateway.Get(endpoint, parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<GetVotersResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
+        public Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = string.IsNullOrEmpty(request.Login) ?
-                $"post/{request.Url}/comments" :
-                $"{request.Login}/post/{request.Url}/comments";
-            var response = await Gateway.Get(endpoint, parameters);
+                var endpoint = string.IsNullOrEmpty(request.Login) ?
+        $"post/{request.Url}/comments" :
+        $"{request.Login}/post/{request.Url}/comments";
+                var response = Gateway.Get(endpoint, parameters);
 
-            var errorResult = CheckErrors(response);
-            return CreateResult<GetCommentResponse>(response.Content, errorResult);
+                var errorResult = CheckErrors(response);
+                return CreateResult<GetCommentResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
+        public Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-            var response = await Gateway.Get("categories/top", parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+                var response = Gateway.Get("categories/top", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+            }, cts.Token);
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        public Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await Gateway.Get("categories/search", parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+                var response = Gateway.Get("categories/search", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+            }, cts.Token);
         }
 
-        public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
+        public Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
         {
-            return new OperationResult<LogoutResponse>(new LogoutResponse(true));
+            return Task.Run(() =>
+            {
+                return new OperationResult<LogoutResponse>(new LogoutResponse(true));
+            });
         }
 
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
+        public Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddLoginParameter(parameters, request.Login);
 
-            var response = await Gateway.Get($"{request.Login}/user/{request.Username}/info", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserProfileResponse>(response.Content, errorResult);
+                var response = Gateway.Get($"{request.Login}/user/{request.Username}/info", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserProfileResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request)
+        public Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"{request.Login}/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-            var response = await Gateway.Get(endpoint, parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserFriendsResponse>(response.Content, errorResult);
+                var endpoint = $"{request.Login}/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
+                var response = Gateway.Get(endpoint, parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserFriendsResponse>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService()
+
+        public Task<OperationResult<TermOfServiceResponse>> TermsOfService()
         {
-            const string endpoint = "/tos";
-            var response = await Gateway.Get(endpoint);
-            var errorResult = CheckErrors(response);
-            return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
+            return Task.Run(() =>
+            {
+                const string endpoint = "/tos";
+                var response = Gateway.Get(endpoint);
+                var errorResult = CheckErrors(response);
+                return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
+            });
         }
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
         /// </summary>
-        public async Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
+        public Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
         {
-            var parameters = new List<RequestParameter>();
-            AddLoginParameter(parameters, request.Login);
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = string.IsNullOrEmpty(request.Login) ?
-                $"post/{request.Url}/info" :
-                $"{request.Login}/post/{request.Url}/info";
+                var endpoint = string.IsNullOrEmpty(request.Login) ?
+                    $"post/{request.Url}/info" :
+                    $"{request.Login}/post/{request.Url}/info";
 
-            var response = await Gateway.Get(endpoint, parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<Post>(response.Content, errorResult);
+                var response = Gateway.Get(endpoint, parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<Post>(response.Content, errorResult);
+            });
         }
 
-        public async Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        public Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+            return Task.Run(() =>
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await Gateway.Get("user/search", parameters);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserSearchResponse>(response.Content, errorResult);
+                var response = Gateway.Get("user/search", parameters);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserSearchResponse>(response.Content, errorResult);
+            }, cts.Token);
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
+        public Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
         {
-            var endpoint = $"user/{request.Username}/exists";
-            var response = await Gateway.Get(endpoint, new List<RequestParameter>());
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserExistsResponse>(response.Content, errorResult);
+            return Task.Run(() =>
+            {
+                var endpoint = $"user/{request.Username}/exists";
+                var response = Gateway.Get(endpoint, new List<RequestParameter>());
+                var errorResult = CheckErrors(response);
+                return CreateResult<UserExistsResponse>(response.Content, errorResult);
+            });
         }
 
         #endregion Get requests
@@ -308,12 +355,12 @@ namespace Sweetshot.Library.HttpClient
                 var trx = JsonConvert.SerializeObject(tr, _jsonSerializerSettings);
 
                 var response = Gateway.Upload("post/prepare", request.Title, request.Photo, request.Tags, request.Login, trx);
-                var errorResult = CheckErrors(response.Result);
+                var errorResult = CheckErrors(response);
 
                 var rez = new OperationResult<ImageUploadResponse>();
                 if (!errorResult.Errors.Any())
                 {
-                    var upResp = JsonConvert.DeserializeObject<UploadResponce>(response.Result.Content, _jsonSerializerSettings);
+                    var upResp = JsonConvert.DeserializeObject<UploadResponce>(response.Content, _jsonSerializerSettings);
                     var meta = JsonConvert.SerializeObject(upResp.Meta);
                     var post = new PostOperation("steepshot", request.Login, upResp.Payload.Title, upResp.Payload.Body, meta);
                     var rez2 = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
