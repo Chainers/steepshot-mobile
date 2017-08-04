@@ -213,6 +213,6 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 
 #project-specific
-Sources/Steepshot/Steepshot.Android/Resources/Resource.Designer.cs
+Resource.designer.cs
 packages/
 *.userprefs
