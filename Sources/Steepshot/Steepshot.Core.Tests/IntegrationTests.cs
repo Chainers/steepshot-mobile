@@ -1421,5 +1421,21 @@ namespace Steepshot.Core.Tests
             AssertResult(response);
             Assert.False(response.Result.Exists);
         }
+        
+        [Test, Sequential]
+        public void CancelationTest()
+        {
+            // Arrange
+            // Act
+            var ex = Assert.Throws<AggregateException>(() =>
+            {
+                var request = new SearchWithQueryRequest("aar") {SessionId = Authenticate(Api("Steem"))};
+                var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+                var operationResult = Api("Steem").SearchUser(request, cts).Result;
+            });
+            
+            // Assert
+            Assert.That(ex.InnerException.Message, Is.EqualTo("A task was canceled."));
+        }
     }
 }
