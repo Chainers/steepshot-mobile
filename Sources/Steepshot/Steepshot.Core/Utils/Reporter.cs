@@ -2,7 +2,6 @@
 using SharpRaven;
 using SharpRaven.Data;
 using Autofac;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
