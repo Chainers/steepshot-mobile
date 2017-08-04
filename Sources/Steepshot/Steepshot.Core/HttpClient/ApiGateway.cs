@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using RestSharp;
 
 namespace Sweetshot.Library.HttpClient
@@ -15,11 +13,11 @@ namespace Sweetshot.Library.HttpClient
 
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint);
-        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null);
-        Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
+        IRestResponse Get(string endpoint);
+        IRestResponse Get(string endpoint, IEnumerable<RequestParameter> parameters);
+        IRestResponse Post(string endpoint, IEnumerable<RequestParameter> parameters);
+        IRestResponse Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx);
+        IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
     }
 
     public class ApiGateway : IApiGateway
@@ -36,31 +34,26 @@ namespace Sweetshot.Library.HttpClient
             _restClient = new RestClient(url);
         }
 
-        public Task<IRestResponse> Get(string endpoint)
+        public IRestResponse Get(string endpoint)
         {
             var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-            return _restClient.ExecuteGetTaskAsync(request);
+            return _restClient.ExecuteAsGet(request, "GET");
         }
 
-        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts = null)
+        public IRestResponse Get(string endpoint, IEnumerable<RequestParameter> parameters)
         {
             var request = CreateRequest(endpoint, parameters);
-            Task<IRestResponse> response;
-            if (cts != null)
-                response = _restClient.ExecuteGetTaskAsync(request, cts.Token);
-            else
-                response = _restClient.ExecuteGetTaskAsync(request);
+            return _restClient.ExecuteAsGet(request, "GET");
+        }
+
+        public IRestResponse Post(string endpoint, IEnumerable<RequestParameter> parameters)
+        {
+            var request = CreateRequest(endpoint, parameters);
+            var response = _restClient.ExecuteAsPost(request, "POST");
             return response;
         }
 
-        public Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters)
-        {
-            var request = CreateRequest(endpoint, parameters);
-            var response = _restClient.ExecutePostTaskAsync(request);
-            return response;
-        }
-
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx)
+        public IRestResponse Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx)
         {
             var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
             request.AddFile("photo", file, filename);
@@ -72,11 +65,11 @@ namespace Sweetshot.Library.HttpClient
             {
                 request.AddParameter("tags", tag);
             }
-            var response = _restClient.ExecutePostTaskAsync(request);
+            var response = _restClient.ExecuteAsPost(request, "POST");
             return response;
         }
 
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags)
+        public IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags)
         {
             var request = CreateRequest(endpoint, parameters);
             request.AddFile("photo", file, filename);
@@ -86,11 +79,10 @@ namespace Sweetshot.Library.HttpClient
             {
                 request.AddParameter("tags", tag);
             }
-            var response = _restClient.ExecutePostTaskAsync(request);
-            return response;
+            return _restClient.ExecuteAsPost(request, "POST");
         }
 
-        private IRestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
+        private RestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
         {
             var restRequest = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
 
