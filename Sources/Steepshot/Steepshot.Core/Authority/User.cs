@@ -11,7 +11,7 @@ namespace Steepshot.Core.Authority
 
         public bool IsDev
         {
-            get => CurrentUser.IsDev;
+            get { return CurrentUser.IsDev; }
             set
             {
                 CurrentUser.IsDev = value;
@@ -22,7 +22,7 @@ namespace Steepshot.Core.Authority
 
         public bool IsNsfw
         {
-            get => CurrentUser.IsNsfw;
+            get { return CurrentUser.IsNsfw; }
             set
             {
                 CurrentUser.IsNsfw = value;
@@ -33,7 +33,7 @@ namespace Steepshot.Core.Authority
 
         public bool IsLowRated
         {
-            get => CurrentUser.IsLowRated;
+            get { return CurrentUser.IsLowRated; }
             set
             {
                 CurrentUser.IsLowRated = value;

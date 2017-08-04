@@ -1,15 +1,14 @@
 ﻿using System;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
     public class LogoutRequest : SessionIdField
     {
-        public LogoutRequest(UserInfo user)
+        public LogoutRequest(string sessionId)
         {
-            if (string.IsNullOrWhiteSpace(user.SessionId)) throw new ArgumentNullException(nameof(user.SessionId));
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
 
-            SessionId = user.SessionId;
+            base.SessionId = sessionId;
         }
     }
 }

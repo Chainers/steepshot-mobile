@@ -453,7 +453,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
+                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
         
         [Test, Sequential]
@@ -473,7 +475,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
+                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
 
         [Test, Sequential]
@@ -548,7 +552,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
+                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
 
         [Test, Sequential]
@@ -567,7 +573,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
+                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
 
         [Test, Sequential]
@@ -1110,7 +1118,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void UserFriends_Followers_Offset_Limit([Values("Steem", "Golos")] string name, [Values("vivianupman", "pmartynov")] string offset)
+        public void UserFriends_Followers_Offset_Limit([Values("Steem", "Golos")] string name, [Values("vowestdream", "pmartynov")] string offset)
         {
             // Arrange
             var request = new UserFriendsRequest(Name, FriendsType.Followers);
