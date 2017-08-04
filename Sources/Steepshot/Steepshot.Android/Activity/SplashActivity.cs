@@ -26,7 +26,7 @@ namespace Steepshot.Activity
 			var builder = new ContainerBuilder();
 
 			builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
-            builder.RegisterInstance(new DataProvider()).As<IDataProvider>();
+            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
 			builder.RegisterInstance(new SaverService()).As<ISaverService>();
 			
 			AppSettings.Container = builder.Build();

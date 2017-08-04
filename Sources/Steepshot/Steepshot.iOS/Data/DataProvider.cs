@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Foundation;
 using Newtonsoft.Json;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
@@ -13,9 +12,23 @@ namespace Steepshot.iOS.Data
 
         public DataProvider()
         {
+            //working with keychain
+            /* 
+			var rec = new SecRecord(SecKind.GenericPassword)
+			{
+				Generic = NSData.FromString("steepshot")
+			};
+
+			SecStatusCode res;
+			var match = SecKeyChain.QueryAsRecord(rec, out res);*/
+
+            /*
             var appSettings = NSUserDefaults.StandardUserDefaults.StringForKey(Helpers.Constants.UserContextKey);
-            _set = appSettings != null ? JsonConvert.DeserializeObject<List<UserInfo>>(appSettings) : new List<UserInfo>();
-        }
+            _set = appSettings != null ? JsonConvert.DeserializeObject<List<UserInfo>>(appSettings) : new List<UserInfo>();*/
+
+            //var info = AccountStore.Create().FindAccountsForService("Steepshot").FirstOrDefault();
+            //_set = info != null ? JsonConvert.DeserializeObject<List<UserInfo>>(info.Properties["info"]) : new List<UserInfo>();
+		}
 
         public List<UserInfo> Select()
         {
@@ -64,8 +77,25 @@ namespace Steepshot.iOS.Data
         private void Save()
         {
             var context = JsonConvert.SerializeObject(_set);
+            //working with keychain
+            /* 
+			var s = new SecRecord(SecKind.GenericPassword)
+			{
+				Label = "User credentials",
+				ValueData = NSData.FromString(context),
+				Generic = NSData.FromString("steepshot")
+			};
+
+			var err = SecKeyChain.Add(s);
+            */
+
+            /*
             NSUserDefaults.StandardUserDefaults.SetString(context, Helpers.Constants.UserContextKey);
-            NSUserDefaults.StandardUserDefaults.Synchronize();
-        }
+            NSUserDefaults.StandardUserDefaults.Synchronize();*/
+
+            /*
+            var userInfo = new Account("user", new Dictionary<string, string>() { { "info", context } });
+            AccountStore.Create().Save(userInfo, "Steepshot");*/
+		}
     }
 }

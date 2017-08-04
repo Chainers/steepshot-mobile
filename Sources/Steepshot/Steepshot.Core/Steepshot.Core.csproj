@@ -66,6 +66,9 @@
     <Compile Include="Services\IAppInfo.cs" />
     <Compile Include="Utils\AppSettings.cs" />
     <Compile Include="Services\ISaverService.cs" />
+    <Compile Include="Presenters\BasePresenter.cs" />
+    <Compile Include="Presenters\FeedPresenter.cs" />
+    <Compile Include="Authority\DataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
@@ -78,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Services\" />
+    <Folder Include="Presenters\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

@@ -242,7 +242,7 @@ namespace Steepshot.Fragment
 
 				_profileName.Text = string.IsNullOrEmpty(_profile.Name) ? _profile.Username : _profile.Name;
                 if(!string.IsNullOrEmpty(_profile.ProfileImage))
-					Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
+                    Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Priority(Picasso.Priority.Low).Into(_profileImage);
                 else
                     Picasso.With(Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
 				_costButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, BasePresenter.Currency));
@@ -332,7 +332,7 @@ namespace Steepshot.Fragment
 				}
 				else
 				{
-					var intent = new Intent(Context, typeof(SignInActivity));
+                    var intent = new Intent(Context, typeof(PreSignInActivity));
 					StartActivity(intent);
 				}
 			}

@@ -49,6 +49,7 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.btn_post)]
         public void OnPost(object sender, EventArgs e)
         {
+            _postButton.Enabled = false;
             _loadLayout.Visibility = ViewStates.Visible;
             OnPostAsync();
         }
@@ -189,7 +190,10 @@ namespace Steepshot.Activity
             finally
             {
                 if (_loadLayout != null)
+                {
                     _loadLayout.Visibility = ViewStates.Gone;
+                    _postButton.Enabled = true;
+                }
             }
         }
 
