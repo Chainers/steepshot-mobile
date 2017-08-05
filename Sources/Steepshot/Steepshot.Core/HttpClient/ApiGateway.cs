@@ -16,7 +16,7 @@ namespace Sweetshot.Library.HttpClient
         IRestResponse Get(string endpoint);
         IRestResponse Get(string endpoint, IEnumerable<RequestParameter> parameters);
         IRestResponse Post(string endpoint, IEnumerable<RequestParameter> parameters);
-        IRestResponse Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx);
+        IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<string> tags, string login, string trx);
         IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
     }
 
@@ -53,7 +53,7 @@ namespace Sweetshot.Library.HttpClient
             return response;
         }
 
-        public IRestResponse Upload(string endpoint, string filename, byte[] file, List<string> tags, string login, string trx)
+        public IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<string> tags, string login, string trx)
         {
             var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
             request.AddFile("photo", file, filename);

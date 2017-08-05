@@ -361,8 +361,8 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch, Version=2.1.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.2.1.7\lib\netstandard1.3\Ditch.dll</HintPath>
+    <Reference Include="Ditch, Version=2.1.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.2.1.9\lib\netstandard1.3\Ditch.dll</HintPath>
     </Reference>
     <Reference Include="HockeySDK">
       <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
