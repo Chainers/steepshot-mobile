@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
@@ -10,7 +9,7 @@ namespace Steepshot.Core.Models.Requests
             : base(user)
         {
             Title = title;
-            Tags = new List<string>(tags);
+            Tags = tags;
         }
 
         public UploadImageRequest(UserInfo user, string title, byte[] photo, params string[] tags)
@@ -32,6 +31,6 @@ namespace Steepshot.Core.Models.Requests
 
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
-        public List<string> Tags { get; private set; }
+        public string[] Tags { get; private set; }
     }
 }

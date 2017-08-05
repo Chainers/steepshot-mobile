@@ -157,29 +157,47 @@ namespace Sweetshot.Library.HttpClient
 
         public Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
         {
-            return Task.Run(() =>
+            Func<OperationResult<SearchResponse<SearchResult>>> func = () =>
             {
                 var parameters = new List<RequestParameter>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
                 var response = Gateway.Get("categories/top", parameters);
                 var errorResult = CheckErrors(response);
-                return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
-            }, cts.Token);
+                var rez = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+                if (rez.Success)
+                {
+                    foreach (var t in rez.Result.Results)
+                        t.Name = Ditch.Helpers.Transliteration.ToRus(t.Name);
+                }
+                return rez;
+            };
+            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
         }
 
         public Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
-            return Task.Run(() =>
+            Func<OperationResult<SearchResponse<SearchResult>>> func = () =>
             {
                 var parameters = new List<RequestParameter>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+                var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
+                if (query != request.Query)
+                    query = $"ru--{query}";
+                parameters.Add(new RequestParameter { Key = "query", Value = query, Type = ParameterType.QueryString });
 
                 var response = Gateway.Get("categories/search", parameters);
                 var errorResult = CheckErrors(response);
-                return CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
-            }, cts.Token);
+                var rez = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+                if (rez.Success)
+                {
+                    foreach (var t in rez.Result.Results)
+                        t.Name = Ditch.Helpers.Transliteration.ToRus(t.Name);
+                }
+
+                return rez;
+            };
+            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
         }
 
         public Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
@@ -253,7 +271,7 @@ namespace Sweetshot.Library.HttpClient
 
         public Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
-            return Task.Run(() =>
+            Func<OperationResult<UserSearchResponse>> func = () =>
             {
                 var parameters = new List<RequestParameter>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
@@ -262,7 +280,8 @@ namespace Sweetshot.Library.HttpClient
                 var response = Gateway.Get("user/search", parameters);
                 var errorResult = CheckErrors(response);
                 return CreateResult<UserSearchResponse>(response.Content, errorResult);
-            }, cts.Token);
+            };
+            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
         }
 
         public Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
@@ -354,6 +373,7 @@ namespace Sweetshot.Library.HttpClient
                 var tr = OperationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.PostingKey), op);
                 var trx = JsonConvert.SerializeObject(tr, _jsonSerializerSettings);
 
+                Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
                 var response = Gateway.Upload("post/prepare", request.Title, request.Photo, request.Tags, request.Login, trx);
                 var errorResult = CheckErrors(response);
 
