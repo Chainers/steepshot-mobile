@@ -66,7 +66,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
@@ -80,7 +80,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
@@ -94,7 +94,7 @@ namespace Sweetshot.Tests
 
             // Assert
             AssertFailedResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
