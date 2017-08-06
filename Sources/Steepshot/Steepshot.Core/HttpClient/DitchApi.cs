@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
+using Ditch.JsonRpc;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
 using Newtonsoft.Json;
@@ -145,9 +145,9 @@ namespace Sweetshot.Library.HttpClient
                 var parameters = new List<RequestParameter>();
                 AddLoginParameter(parameters, request.Login);
 
-                var endpoint = string.IsNullOrEmpty(request.Login) ?
-        $"post/{request.Url}/comments" :
-        $"{request.Login}/post/{request.Url}/comments";
+                var endpoint = string.IsNullOrEmpty(request.Login)
+                    ? $"post/{request.Url}/comments"
+                    : $"{request.Login}/post/{request.Url}/comments";
                 var response = Gateway.Get(endpoint, parameters);
 
                 var errorResult = CheckErrors(response);
@@ -319,8 +319,9 @@ namespace Sweetshot.Library.HttpClient
                 }
                 else
                 {
-                    rez.Errors.Add(resp.GetErrorMessage());
+                    OnError(resp, rez);
                 }
+
                 return rez;
             });
         }
@@ -336,14 +337,11 @@ namespace Sweetshot.Library.HttpClient
 
                 var rez = new OperationResult<FollowResponse>();
 
-                if (resp.IsError)
-                {
-                    rez.Errors.Add(resp.GetErrorMessage());
-                }
-                else
-                {
+                if (!resp.IsError)
                     rez.Result = new FollowResponse();
-                }
+                else
+                    OnError(resp, rez);
+
                 return rez;
             });
         }
@@ -357,10 +355,11 @@ namespace Sweetshot.Library.HttpClient
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var rez = new OperationResult<CreateCommentResponse>();
-                if (resp.IsError)
-                    rez.Errors.Add(resp.GetErrorMessage());
-                else
+                if (!resp.IsError)
                     rez.Result = new CreateCommentResponse(true);
+                else
+                    OnError(resp, rez);
+
                 return rez;
             });
         }
@@ -378,16 +377,16 @@ namespace Sweetshot.Library.HttpClient
                 var errorResult = CheckErrors(response);
 
                 var rez = new OperationResult<ImageUploadResponse>();
-                if (!errorResult.Errors.Any())
+                if (errorResult.Success)
                 {
                     var upResp = JsonConvert.DeserializeObject<UploadResponce>(response.Content, _jsonSerializerSettings);
                     var meta = JsonConvert.SerializeObject(upResp.Meta);
                     var post = new PostOperation("steepshot", request.Login, upResp.Payload.Title, upResp.Payload.Body, meta);
-                    var rez2 = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
-                    if (rez2.IsError)
-                        rez.Errors.Add(rez2.GetErrorMessage());
-                    else
+                    var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
+                    if (!resp.IsError)
                         rez.Result = upResp.Payload;
+                    else
+                        OnError(resp, rez);
                 }
                 return rez;
             });
@@ -397,16 +396,15 @@ namespace Sweetshot.Library.HttpClient
         {
             return Task.Run(() =>
             {
-                var rez = new OperationResult<FlagResponse>();
-
                 var authAndPermlink = request.Identifier.Remove(0, request.Identifier.LastIndexOf('@') + 1);
                 var authPostArr = authAndPermlink.Split('/');
                 if (authPostArr.Length != 2)
-                    throw new InvalidCastException($"Unexpected url format: {request.Identifier}");
+                    return new OperationResult<FlagResponse>($"Unexpected url format: {request.Identifier}");
 
                 var op = new FlagOperation(request.Login, authPostArr[0], authPostArr[1]);
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
+                var rez = new OperationResult<FlagResponse>();
                 if (!resp.IsError)
                 {
                     var content = OperationManager.GetContent(authPostArr[0], authPostArr[1]);
@@ -417,7 +415,7 @@ namespace Sweetshot.Library.HttpClient
                 }
                 else
                 {
-                    rez.Errors.Add(resp.GetErrorMessage());
+                    OnError(resp, rez);
                 }
                 return rez;
             });
@@ -428,10 +426,16 @@ namespace Sweetshot.Library.HttpClient
             return Task.Run(() =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var responce = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
-                return !responce.IsError
-                    ? new OperationResult<LoginResponse>(new LoginResponse(true))
-                    : new OperationResult<LoginResponse>(new List<string> { responce.GetErrorMessage() });
+                var resp = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+
+
+                OperationResult<LoginResponse> rez = new OperationResult<LoginResponse>();
+                if (!resp.IsError)
+                    rez.Result = new LoginResponse(true);
+                else
+                    OnError(resp, rez);
+
+                return rez;
             });
         }
 
@@ -511,6 +515,50 @@ namespace Sweetshot.Library.HttpClient
             return result;
         }
 
+        private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
+        {
+            if (response.IsError)
+            {
+                if (response.Error is Ditch.Errors.SystemError)
+                {
+                    switch (response.Error.Code)
+                    {
+                        case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                            {
+                                operationResult.Errors.Add("Can not connect to the server, check for an Internet connection and try again.");
+                                break;
+                            }
+                        case (int)Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                            {
+                                operationResult.Errors.Add("The server does not respond to the request. Check your internet connection and try again.");
+                                break;
+                            }
+                        default:
+                            {
+                                operationResult.Errors.Add("An unexpected error occurred. Check the Internet or try restarting the application.");
+                                break;
+                            }
+                    }
+                }
+                else if (response.Error is Ditch.Errors.ResponseError)
+                {
+                    var typedError = (Ditch.Errors.ResponseError)response.Error;
+                    var t = typeof(T);
+                    if (typedError.Data.Code == 3030000 && t.Name == "LoginResponse")
+                    {
+                        operationResult.Errors.Add("Invalid private posting key!");
+                    }
+                    else
+                    {
+                        operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                    }
+                }
+                else
+                {
+                    operationResult.Errors.Add(response.GetErrorMessage());
+                }
+            }
+        }
         private OperationResult<T> CreateResult<T>(string json, OperationResult error)
         {
             var result = new OperationResult<T>();
