@@ -1,4 +1,4 @@
-namespace Steepshot.Core.Models.Responses
+﻿namespace Steepshot.Core.Models.Responses
 {
     ///{
     ///  "message": "PostingKey was changed"

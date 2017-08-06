@@ -1,25 +1,21 @@
 ﻿using System;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class LoginWithPostingKeyRequest
+    public class LoginWithPostingKeyRequest : BaseRequest
     {
-        public LoginWithPostingKeyRequest(UserInfo user)
-            : this(user.Login, user.PostingKey) { }
-
-        public LoginWithPostingKeyRequest(string login, string postingKey)
+        public LoginWithPostingKeyRequest(string username, string postingKey)
         {
-            if (string.IsNullOrWhiteSpace(login)) throw new ArgumentNullException(nameof(login));
+            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrWhiteSpace(postingKey)) throw new ArgumentNullException(nameof(postingKey));
 
-            Login = login;
+            Username = username;
             PostingKey = postingKey;
         }
 
         [JsonProperty(PropertyName = "username")]
-        public string Login { get; set; }
+        public string Username { get; set; }
 
         [JsonProperty(PropertyName = "posting_key")]
         public string PostingKey { get; set; }

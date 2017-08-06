@@ -1,23 +1,25 @@
 ﻿using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
     public enum VoteType
     {
-        upvote,
-        downvote
+        [Display(Description = "upvote")] Up,
+        [Display(Description = "downvote")] Down
     }
 
-    public class VoteRequest : LoginRequest
+    public class VoteRequest : BaseRequest
     {
-        public VoteRequest(UserInfo user, bool isUp, string identifier) 
-            : base(user)
+        public VoteRequest(string sessionId, bool isUp, string identifier)
         {
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            Type = isUp ? VoteType.upvote : VoteType.downvote;
+            base.SessionId = sessionId;
+            Type = isUp ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }
 
