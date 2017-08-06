@@ -1,28 +1,28 @@
 ﻿using System;
-using Steepshot.Core.Authority;
+using System.Collections.Generic;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class UploadImageRequest : LoginRequest
+    public class UploadImageRequest : BaseRequest
     {
-        private UploadImageRequest(UserInfo user, string title, params string[] tags)
-            : base(user)
+        private UploadImageRequest(string sessionId, string title, params string[] tags)
         {
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
+            if (string.IsNullOrWhiteSpace(title)) throw new ArgumentNullException(nameof(title));
+
+            base.SessionId = sessionId;
             Title = title;
-            Tags = tags;
+            Tags = new List<string>(tags);
         }
 
-        public UploadImageRequest(UserInfo user, string title, byte[] photo, params string[] tags)
-            : this(user, title, tags)
+        public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags) : this(sessionId, title, tags)
         {
-            if (photo == null)
-                throw new ArgumentNullException(nameof(photo));
-
+            if (photo == null) throw new ArgumentNullException(nameof(photo));
+            
             Photo = photo;
         }
 
-        public UploadImageRequest(UserInfo user, string title, string photo, params string[] tags)
-            : this(user, title, tags)
+        public UploadImageRequest(string sessionId, string title, string photo, params string[] tags) : this(sessionId, title, tags)
         {
             if (string.IsNullOrWhiteSpace(photo)) throw new ArgumentNullException(nameof(photo));
 
@@ -31,6 +31,8 @@ namespace Steepshot.Core.Models.Requests
 
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
-        public string[] Tags { get; private set; }
+        public List<string> Tags { get; private set; }
+        public string Username { get; private set; }
+        public string Trx { get; set; }
     }
 }

@@ -5,24 +5,6 @@ namespace Steepshot.Core.Models.Responses
     ///}
     public class CreateCommentResponse : MessageField
     {
-        public CreateCommentResponse(){}
-
-        private bool _isCreated;
-
-        public bool IsCreated
-        {
-            get => _isCreated || Message.Equals("Comment created");
-            set => _isCreated = value;
-        }
-
-        public CreateCommentResponse(string msg)
-        {
-            Message = msg;
-        }
-
-        public CreateCommentResponse(bool isCreated)
-        {
-            _isCreated = isCreated;
-        }
+        public bool IsCreated => Message.Equals("Comment created");
     }
 }

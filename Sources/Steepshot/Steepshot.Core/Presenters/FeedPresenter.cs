@@ -75,7 +75,7 @@ namespace Steepshot.Core.Presenters
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
-                        var f = new UserRecentPostsRequest(User.CurrentUser)
+                        var f = new UserRecentPostsRequest(User.CurrentUser.SessionId)
                         {
                             Limit = PostsCount,
                             Offset = _offsetUrl
@@ -84,7 +84,7 @@ namespace Steepshot.Core.Presenters
                     }
                     else
                     {
-                        var postrequest = new PostsRequest(type, User.CurrentUser)
+                        var postrequest = new PostsRequest(type)
                         {
                             Limit = PostsCount,
                             Offset = _offsetUrl
@@ -145,7 +145,7 @@ namespace Steepshot.Core.Presenters
                 using (_cts = new CancellationTokenSource())
                 {
                     Processing = true;
-                    var postrequest = new PostsByCategoryRequest(_type, Tag, User.CurrentUser)
+                    var postrequest = new PostsByCategoryRequest(_type, Tag)
                     {
                         Limit = PostsCount,
                         Offset = _offsetUrl
@@ -189,13 +189,13 @@ namespace Steepshot.Core.Presenters
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
 
-            var voteRequest = new VoteRequest(User.CurrentUser, !post.Vote, post.Url);
+            var voteRequest = new VoteRequest(User.CurrentUser.SessionId, !post.Vote, post.Url);
             return await Api.Vote(voteRequest);
         }
 
         public async Task<OperationResult<LogoutResponse>> Logout()
         {
-            var request = new LogoutRequest(User.CurrentUser);
+            var request = new LogoutRequest(User.CurrentUser.SessionId);
             return await Api.Logout(request);
         }
     }

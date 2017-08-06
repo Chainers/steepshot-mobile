@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using RestSharp;
+using System.Threading;
+using System.Threading.Tasks;
+using RestSharp.Portable;
+using RestSharp.Portable.HttpClient;
+using Steepshot.Core.Serializing;
 
-namespace Sweetshot.Library.HttpClient
+namespace Steepshot.Core.HttpClient
 {
     public class RequestParameter
     {
@@ -13,11 +17,16 @@ namespace Sweetshot.Library.HttpClient
 
     public interface IApiGateway
     {
-        IRestResponse Get(string endpoint);
-        IRestResponse Get(string endpoint, IEnumerable<RequestParameter> parameters);
-        IRestResponse Post(string endpoint, IEnumerable<RequestParameter> parameters);
-        IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<string> tags, string login, string trx);
-        IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags);
+        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Upload(string endpoint,
+                                   string filename,
+                                   byte[] file,
+                                   IEnumerable<RequestParameter> parameters,
+                                   IEnumerable<string> tags,
+                                   string login,
+                                   string trx,
+                                   CancellationTokenSource cts);
     }
 
     public class ApiGateway : IApiGateway
@@ -31,61 +40,54 @@ namespace Sweetshot.Library.HttpClient
                 throw new ArgumentNullException(nameof(url));
             }
 
-            _restClient = new RestClient(url);
+            _restClient = new RestClient(url) {IgnoreResponseStatusCode = true};
         }
 
-        public IRestResponse Get(string endpoint)
-        {
-            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-            return _restClient.ExecuteAsGet(request, "GET");
-        }
-
-        public IRestResponse Get(string endpoint, IEnumerable<RequestParameter> parameters)
+        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts)
         {
             var request = CreateRequest(endpoint, parameters);
-            return _restClient.ExecuteAsGet(request, "GET");
+            request.Method = Method.GET;
+            return Execute(request, cts);
         }
 
-        public IRestResponse Post(string endpoint, IEnumerable<RequestParameter> parameters)
+        public Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts)
         {
             var request = CreateRequest(endpoint, parameters);
-            var response = _restClient.ExecuteAsPost(request, "POST");
-            return response;
+            request.Method = Method.POST;
+            return Execute(request, cts);
         }
 
-        public IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<string> tags, string login, string trx)
+        public Task<IRestResponse> Upload(string endpoint,
+                                          string filename,
+                                          byte[] file,
+                                          IEnumerable<RequestParameter> parameters,
+                                          IEnumerable<string> tags,
+                                          string username,
+                                          string trx,
+                                          CancellationTokenSource cts)
         {
-            var request = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
+            var request = CreateRequest(endpoint, parameters);
+            request.Method = Method.POST;
             request.AddFile("photo", file, filename);
-            request.AlwaysMultipartFormData = true;
+            request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
             request.AddParameter("title", filename);
-            request.AddParameter("username", login);
+            request.AddParameter("username", username);
             request.AddParameter("trx", trx);
             foreach (var tag in tags)
             {
                 request.AddParameter("tags", tag);
             }
-            var response = _restClient.ExecuteAsPost(request, "POST");
-            return response;
+            return Execute(request, cts);
         }
 
-        public IRestResponse Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, List<string> tags)
+        private Task<IRestResponse> Execute(IRestRequest request, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
-            request.AddFile("photo", file, filename);
-            request.AlwaysMultipartFormData = true;
-            request.AddParameter("title", filename);
-            foreach (var tag in tags)
-            {
-                request.AddParameter("tags", tag);
-            }
-            return _restClient.ExecuteAsPost(request, "POST");
+            return cts != null ? _restClient.Execute(request, cts.Token) : _restClient.Execute(request);
         }
 
-        private RestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
+        private IRestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
         {
-            var restRequest = new RestRequest(endpoint) { RequestFormat = DataFormat.Json };
-
+            var restRequest = new RestRequest(endpoint) {Serializer = new JsonNetConverter()};
             foreach (var parameter in parameters)
             {
                 restRequest.AddParameter(parameter.Key, parameter.Value, parameter.Type);

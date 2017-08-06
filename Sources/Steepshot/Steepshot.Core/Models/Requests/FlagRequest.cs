@@ -1,23 +1,24 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
     public enum FlagType
     {
-        flag,
-        downvote
+        [Display(Description = "flag")] Up,
+        [Display(Description = "downvote")] Down
     }
 
-    public class FlagRequest : LoginRequest
+    public class FlagRequest : BaseRequest
     {
-        public FlagRequest(UserInfo user, bool isUp, string identifier)
-            : base(user)
+        public FlagRequest(string sessionId, bool isUp, string identifier)
         {
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            Type = isUp ? FlagType.flag : FlagType.downvote;
+            base.SessionId = sessionId;
+            Type = isUp ? FlagType.Up : FlagType.Down;
             Identifier = identifier;
         }
 

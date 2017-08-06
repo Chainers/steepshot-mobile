@@ -1,34 +1,26 @@
 ﻿using System;
-using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class UserPostsRequest : LoginOffsetLimitFields
+    public class UserPostsRequest : BaseRequestWithOffsetLimitFields
     {
-        public string Username { get; private set; }
-
-
-        public UserPostsRequest(string username, UserInfo user) : base(user)
-        {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
-
-            Username = username;
-        }
-
         public UserPostsRequest(string username)
         {
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
 
             Username = username;
         }
+
+        public string Username { get; private set; }
     }
 
-    public class UserRecentPostsRequest : LoginOffsetLimitFields
+    public class UserRecentPostsRequest : BaseRequestWithOffsetLimitFields
     {
-        public UserRecentPostsRequest(UserInfo user) : base(user)
+        public UserRecentPostsRequest(string sessionId)
         {
-            if (string.IsNullOrWhiteSpace(user.Login))
-                throw new ArgumentNullException(nameof(user.Login));
+            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
+
+            base.SessionId = sessionId;
         }
     }
 
@@ -39,56 +31,23 @@ namespace Steepshot.Core.Models.Requests
         New
     }
 
-    public class PostsRequest : LoginOffsetLimitFields
+    public class PostsRequest : BaseRequestWithOffsetLimitFields
     {
-        public PostType Type { get; private set; }
-
         public PostsRequest(PostType type)
         {
             Type = type;
         }
 
-        public PostsRequest(PostType type, UserInfo user) : base(user)
-        {
-            Type = type;
-        }
+        public PostType Type { get; private set; }
     }
 
     public class PostsByCategoryRequest : PostsRequest
     {
-        public string Category { get; set; }
-
         public PostsByCategoryRequest(PostType type, string category) : base(type)
         {
             Category = category;
         }
 
-        public PostsByCategoryRequest(PostType type, string category, UserInfo user) : base(type, user)
-        {
-            Category = category;
-        }
-
-    }
-
-    public class PostsInfoRequest : LoginField
-    {
-        public string Url { get; private set; }
-
-
-        public PostsInfoRequest(string url)
-        {
-            if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentNullException(nameof(url));
-
-            Url = url;
-        }
-
-        public PostsInfoRequest(string url, UserInfo user) : base(user)
-        {
-            if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentNullException(nameof(url));
-
-            Url = url;
-        }
+        public string Category { get; set; }
     }
 }

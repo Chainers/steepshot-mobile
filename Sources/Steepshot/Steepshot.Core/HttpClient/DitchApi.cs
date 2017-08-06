@@ -1,534 +1,312 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using RestSharp;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Serializing;
 
-namespace Sweetshot.Library.HttpClient
+namespace Steepshot.Core.HttpClient
 {
-    public class DitchApi : ISteepshotApiClient
+    public class DitchApi : BaseClient, ISteepshotApiClient
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings;
-        private OperationManager _operationManager;
-        private readonly ChainInfo _chainInfo;
+        private readonly ISteepshotApiClient _steepshotApi;
+        private readonly OperationManager _operationManager;
+        private readonly JsonNetConverter _jsonConverter;
 
-        private readonly string _url;
-        private IApiGateway _gateway;
-        public string Url => _url;
-
-        private IApiGateway Gateway
+        public DitchApi(string url, KnownChains chain)
         {
-            get { return _gateway ?? (_gateway = new ApiGateway(_url)); }
+            _jsonConverter = new JsonNetConverter();
+            _steepshotApi = new SteepshotApiClient(url);
+
+            var chainInfo = ChainManager.GetChainInfo(chain == KnownChains.Steem ? Ditch.KnownChains.Steem : Ditch.KnownChains.Golos);
+            _operationManager = new OperationManager(chainInfo.Url, chainInfo.ChainId);
         }
 
-        private OperationManager OperationManager
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts)
         {
-            get
+            return await Task.Run(() =>
             {
-                if (_operationManager == null)
-                    _operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId);
-                return _operationManager;
-            }
-        }
-
-        public DitchApi(Steepshot.Core.KnownChains chain, bool isDev)
-        {
-            if (chain == Steepshot.Core.KnownChains.Steem)
-                _url = isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-            else
-                _url = isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
-
-            _chainInfo = ChainManager.GetChainInfo(chain == Steepshot.Core.KnownChains.Steem
-                ? KnownChains.Steem
-                : KnownChains.Golos);
-            _jsonSerializerSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new DefaultContractResolver
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
+                var rpcResponse = _operationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+                
+                var result = new OperationResult<LoginResponse>();
+                if (rpcResponse.IsError)
                 {
-                    NamingStrategy = new SnakeCaseNamingStrategy()
-                },
-                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK"
-            };
-        }
-
-
-        #region Get requests
-
-        public Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                AddLoginParameter(parameters, request.Login);
-
-                var response = Gateway.Get($"{request.Login}/user/{request.Username}/posts", parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserPostResponse>(response.Content, errorResult);
-            });
-        }
-
-        public Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                AddLoginParameter(parameters, request.Login);
-
-                var response = Gateway.Get($"{request.Login}/recent", parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserPostResponse>(response.Content, errorResult);
-            });
-        }
-
-        public Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                AddLoginParameter(parameters, request.Login);
-
-                var endpoint = $"{request.Login}/posts/{request.Type.ToString().ToLowerInvariant()}";
-                var response = Gateway.Get(endpoint, parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserPostResponse>(response.Content, errorResult);
-            });
-        }
-
-        public Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                AddLoginParameter(parameters, request.Login);
-
-                var endpoint = $"{request.Login}/posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-                var response = Gateway.Get(endpoint, parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserPostResponse>(response.Content, errorResult);
-            }, cts.Token);
-        }
-
-        public Task<OperationResult<GetVotersResponse>> GetPostVoters(GetVotesRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-
-                var endpoint = $"post/{request.Url}/voters";
-                var response = Gateway.Get(endpoint, parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<GetVotersResponse>(response.Content, errorResult);
-            });
-        }
-
-        public Task<OperationResult<GetCommentResponse>> GetComments(GetCommentsRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddLoginParameter(parameters, request.Login);
-
-                var endpoint = string.IsNullOrEmpty(request.Login) ?
-        $"post/{request.Url}/comments" :
-        $"{request.Login}/post/{request.Url}/comments";
-                var response = Gateway.Get(endpoint, parameters);
-
-                var errorResult = CheckErrors(response);
-                return CreateResult<GetCommentResponse>(response.Content, errorResult);
-            });
-        }
-
-        public Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
-        {
-            Func<OperationResult<SearchResponse<SearchResult>>> func = () =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-
-                var response = Gateway.Get("categories/top", parameters);
-                var errorResult = CheckErrors(response);
-                var rez = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
-                if (rez.Success)
-                {
-                    foreach (var t in rez.Result.Results)
-                        t.Name = Ditch.Helpers.Transliteration.ToRus(t.Name);
+                    result.Result = new LoginResponse {Message = "User was logged in."};
                 }
-                return rez;
-            };
-            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
-        }
-
-        public Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
-        {
-            Func<OperationResult<SearchResponse<SearchResult>>> func = () =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
-                if (query != request.Query)
-                    query = $"ru--{query}";
-                parameters.Add(new RequestParameter { Key = "query", Value = query, Type = ParameterType.QueryString });
-
-                var response = Gateway.Get("categories/search", parameters);
-                var errorResult = CheckErrors(response);
-                var rez = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
-                if (rez.Success)
+                else
                 {
-                    foreach (var t in rez.Result.Results)
-                        t.Name = Ditch.Helpers.Transliteration.ToRus(t.Name);
+                    result.Errors.Add(rpcResponse.GetErrorMessage());
                 }
-
-                return rez;
-            };
-            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
-        }
-
-        public Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request)
-        {
-            return Task.Run(() =>
-            {
-                return new OperationResult<LogoutResponse>(new LogoutResponse(true));
+                return result;
             });
         }
 
-        public Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddLoginParameter(parameters, request.Login);
-
-                var response = Gateway.Get($"{request.Login}/user/{request.Username}/info", parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserProfileResponse>(response.Content, errorResult);
-            });
+            return await _steepshotApi.GetUserPosts(request, cts);
         }
 
-        public Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                AddLoginParameter(parameters, request.Login);
-
-                var endpoint = $"{request.Login}/user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-                var response = Gateway.Get(endpoint, parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserFriendsResponse>(response.Content, errorResult);
-            });
+            return await _steepshotApi.GetUserRecentPosts(request, cts);
         }
 
-
-        public Task<OperationResult<TermOfServiceResponse>> TermsOfService()
+        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
-            {
-                const string endpoint = "/tos";
-                var response = Gateway.Get(endpoint);
-                var errorResult = CheckErrors(response);
-                return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
-            });
+            return await _steepshotApi.GetPosts(request, cts);
         }
 
-        /// <summary>
-        ///     Examples:
-        ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
-        /// </summary>
-        public Task<OperationResult<Post>> GetPostInfo(PostsInfoRequest request)
+        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddLoginParameter(parameters, request.Login);
-
-                var endpoint = string.IsNullOrEmpty(request.Login) ?
-                    $"post/{request.Url}/info" :
-                    $"{request.Login}/post/{request.Url}/info";
-
-                var response = Gateway.Get(endpoint, parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<Post>(response.Content, errorResult);
-            });
+            return await _steepshotApi.GetPostsByCategory(request, cts);
         }
 
-        public Task<OperationResult<UserSearchResponse>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts)
         {
-            Func<OperationResult<UserSearchResponse>> func = () =>
-            {
-                var parameters = new List<RequestParameter>();
-                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
-
-                var response = Gateway.Get("user/search", parameters);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserSearchResponse>(response.Content, errorResult);
-            };
-            return cts == null ? Task.Run(func) : Task.Run(func, cts.Token);
+            return await _steepshotApi.GetPostVoters(request, cts);
         }
 
-        public Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request)
+        public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
-            {
-                var endpoint = $"user/{request.Username}/exists";
-                var response = Gateway.Get(endpoint, new List<RequestParameter>());
-                var errorResult = CheckErrors(response);
-                return CreateResult<UserExistsResponse>(response.Content, errorResult);
-            });
-        }
-
-        #endregion Get requests
-
-        #region Post requests
-
-        public Task<OperationResult<VoteResponse>> Vote(VoteRequest request)
-        {
-            return Task.Run(() =>
+            return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.upvote ? 10000 : 0));
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short) (request.Type == VoteType.Up ? 10000 : 0));
+                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
-                var rez = new OperationResult<VoteResponse>();
-                if (!resp.IsError)
+                var result = new OperationResult<VoteResponse>();
+                if (!response.IsError)
                 {
-                    var content = OperationManager.GetContent(authPost.Item1, authPost.Item2);
+                    var content = _operationManager.GetContent(authPost.Item1, authPost.Item2);
                     if (!content.IsError)
                     {
                         //Convert Money type to double
-                        rez.Result = new VoteResponse { NewTotalPayoutReward = new Steepshot.Core.Models.Money(content.Result.NewTotalPayoutReward.ToString()) };
+                        result.Result = new VoteResponse
+                        {
+                            NewTotalPayoutReward = new Models.Money(content.Result.NewTotalPayoutReward.ToString())
+                        };
                     }
                 }
                 else
                 {
-                    rez.Errors.Add(resp.GetErrorMessage());
+                    result.Errors.Add(response.GetErrorMessage());
                 }
-                return rez;
+                return result;
             });
         }
 
-        public Task<OperationResult<FollowResponse>> Follow(FollowRequest request)
+        public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
+            return await Task.Run(() =>
             {
-                var op = request.Type == Steepshot.Core.Models.Requests.FollowType.Follow
+                var op = request.Type == Models.Requests.FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Post.FollowType.Blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                
+                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
-                var rez = new OperationResult<FollowResponse>();
-
-                if (resp.IsError)
+                var result = new OperationResult<FollowResponse>();
+                if (response.IsError)
                 {
-                    rez.Errors.Add(resp.GetErrorMessage());
+                    result.Errors.Add(response.GetErrorMessage());
                 }
                 else
                 {
-                    rez.Result = new FollowResponse();
+                    result.Result = new FollowResponse();
                 }
-                return rez;
+                return result;
             });
         }
-
-        public Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request)
+        
+        public async Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
+            return await _steepshotApi.GetComments(request, cts);
+        }
+
+        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationTokenSource cts)
+        {
+            return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Url);
                 var op = new ReplyOperation(authPost.Item1, authPost.Item2, request.Login, request.Body, "{\"app\": \"steepshot/0.0.5\"}");
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                
+                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
-                var rez = new OperationResult<CreateCommentResponse>();
-                if (resp.IsError)
-                    rez.Errors.Add(resp.GetErrorMessage());
-                else
-                    rez.Result = new CreateCommentResponse(true);
-                return rez;
-            });
-        }
-
-        public Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var tr = OperationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.PostingKey), op);
-                var trx = JsonConvert.SerializeObject(tr, _jsonSerializerSettings);
-
-                Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
-                var response = Gateway.Upload("post/prepare", request.Title, request.Photo, request.Tags, request.Login, trx);
-                var errorResult = CheckErrors(response);
-
-                var rez = new OperationResult<ImageUploadResponse>();
-                if (!errorResult.Errors.Any())
+                var result = new OperationResult<CreateCommentResponse>();
+                if (response.IsError)
                 {
-                    var upResp = JsonConvert.DeserializeObject<UploadResponce>(response.Content, _jsonSerializerSettings);
-                    var meta = JsonConvert.SerializeObject(upResp.Meta);
-                    var post = new PostOperation("steepshot", request.Login, upResp.Payload.Title, upResp.Payload.Body, meta);
-                    var rez2 = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
-                    if (rez2.IsError)
-                        rez.Errors.Add(rez2.GetErrorMessage());
-                    else
-                        rez.Result = upResp.Payload;
+                    result.Errors.Add(response.GetErrorMessage());
                 }
-                return rez;
+                else
+                {
+                    result.Result = new CreateCommentResponse {Message = "Comment created"};
+                }
+                return result;
             });
         }
 
-        public Task<OperationResult<FlagResponse>> Flag(FlagRequest request)
+        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts)
         {
-            return Task.Run(() =>
+            var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
+            var tr = _operationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.SessionId), op);
+            var trx = _jsonConverter.Serialize(tr);
+            Ditch.Helpers.Transliteration.PrepareTags(request.Tags.ToArray());
+            request.Login = "prepare"; // TODO Fuuuuuck, shitty code.
+            request.Trx = trx;
+            var response = await _steepshotApi.Upload(request, cts);
+            return null; // TODO
+            
+//            return await Task.Run(() =>
+//            {
+//                if (!response.Success)
+//                {
+//                    var uploadResponse = _jsonConverter.Deserialize<UploadResponse>(response.Content);
+//                    var meta = _jsonConverter.Serialize(uploadResponse.Meta);
+//
+//                    var post = new PostOperation("steepshot", request.Login, uploadResponse.Payload.Title, uploadResponse.Payload.Body, meta);
+//                    var result2 = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), post);
+//                    if (result2.IsError)
+//                    {
+//                        result.Errors.Add(result2.GetErrorMessage());
+//                    }
+//                    else
+//                    {
+//                        result.Result = uploadResponse.Payload;
+//                    }
+//                }
+//                return result;
+//            });
+        }
+
+        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
+        {
+            var result = await _steepshotApi.GetCategories(request, cts);
+            return await Task.Run(() =>
             {
-                var rez = new OperationResult<FlagResponse>();
+                if (result.Success)
+                {
+                    foreach (var category in result.Result.Results)
+                    {
+                        category.Name = Ditch.Helpers.Transliteration.ToRus(category.Name);
+                    }
+                }
+
+                return result;
+            });
+        }
+
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        {
+            var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
+            if (query != request.Query)
+            {
+                query = $"ru--{query}";
+            }
+            request.Query = query;
+
+            var result = await _steepshotApi.SearchCategories(request, cts);
+            if (result.Success)
+            {
+                foreach (var categories in result.Result.Results)
+                {
+                    categories.Name = Ditch.Helpers.Transliteration.ToRus(categories.Name);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request, CancellationTokenSource cts)
+        {
+            return await Task.Run(() => new OperationResult<LogoutResponse>
+            {
+                Result = new LogoutResponse {Message = "User is logged out"}
+            });
+        }
+
+        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts)
+        {
+            return await _steepshotApi.GetUserProfile(request, cts);
+        }
+
+        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationTokenSource cts)
+        {
+            return await _steepshotApi.GetUserFriends(request, cts);
+        }
+
+        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts)
+        {
+            return await _steepshotApi.TermsOfService(cts);
+        }
+
+        public async Task<OperationResult<Post>> GetPostInfo(InfoRequest request, CancellationTokenSource cts)
+        {
+            return await _steepshotApi.GetPostInfo(request, cts);
+        }
+
+        public async Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
+        {
+            return await _steepshotApi.SearchUser(request, cts);
+        }
+
+        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
+        {
+            return await _steepshotApi.UserExistsCheck(request, cts);
+        }
+
+        public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request, CancellationTokenSource cts)
+        {
+            return await Task.Run(() =>
+            {
+                var result = new OperationResult<FlagResponse>();
 
                 var authAndPermlink = request.Identifier.Remove(0, request.Identifier.LastIndexOf('@') + 1);
                 var authPostArr = authAndPermlink.Split('/');
                 if (authPostArr.Length != 2)
+                {
                     throw new InvalidCastException($"Unexpected url format: {request.Identifier}");
+                }
 
                 var op = new FlagOperation(request.Login, authPostArr[0], authPostArr[1]);
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
-                if (!resp.IsError)
+                if (!response.IsError)
                 {
-                    var content = OperationManager.GetContent(authPostArr[0], authPostArr[1]);
+                    var content = _operationManager.GetContent(authPostArr[0], authPostArr[1]);
                     if (!content.IsError)
                     {
-                        rez.Result = new FlagResponse { NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value };
+                        result.Result = new FlagResponse
+                        {
+                            NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value
+                        };
                     }
                 }
                 else
                 {
-                    rez.Errors.Add(resp.GetErrorMessage());
+                    result.Errors.Add(response.GetErrorMessage());
                 }
-                return rez;
+                return result;
             });
         }
 
-        public Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request)
-        {
-            return Task.Run(() =>
-            {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var responce = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
-                return !responce.IsError
-                    ? new OperationResult<LoginResponse>(new LoginResponse(true))
-                    : new OperationResult<LoginResponse>(new List<string> { responce.GetErrorMessage() });
-            });
-        }
-
-        #endregion Post requests
-
-        private static Tuple<string, string> UrlToAuthorAndPermlink(string url)
+        private Tuple<string, string> UrlToAuthorAndPermlink(string url)
         {
             var authAndPermlink = url.Remove(0, url.LastIndexOf('@') + 1);
             var authPostArr = authAndPermlink.Split('/');
-            if (authPostArr.Length != 2)
-                throw new InvalidCastException($"Unexpected url format: {url}");
+            if (authPostArr.Length != 2) throw new InvalidCastException($"Unexpected url format: {url}");
             return new Tuple<string, string>(authPostArr[0], authPostArr[1]);
         }
 
-        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit)
+        private IEnumerable<byte[]> ToKeyArr(string postingKey)
         {
-            if (!string.IsNullOrWhiteSpace(offset))
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
-
-            if (limit > 0)
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
-        }
-
-        private void AddLoginParameter(List<RequestParameter> parameters, string login)
-        {
-            if (!string.IsNullOrEmpty(login))
-                parameters.Add(new RequestParameter { Key = "login", Value = login, Type = ParameterType.QueryString });
-        }
-
-        private OperationResult CheckErrors(IRestResponse response)
-        {
-            var result = new OperationResult();
-            var content = response.Content;
-
-            // Network transport or framework errors
-            if (response.ErrorException != null)
-            {
-                result.Errors.Add(response.ErrorMessage);
-            }
-            // Transport errors
-            else if (response.ResponseStatus != ResponseStatus.Completed)
-            {
-                result.Errors.Add("ResponseStatus: " + response.ResponseStatus);
-            }
-            // HTTP errors
-            else if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.Forbidden)
-            {
-                var dic = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(content, _jsonSerializerSettings);
-                foreach (var kvp in dic)
-                {
-                    result.Errors.AddRange(kvp.Value);
-                }
-            }
-            else if (response.StatusCode != HttpStatusCode.OK &&
-                     response.StatusCode != HttpStatusCode.Created)
-            {
-                result.Errors.Add(response.StatusDescription);
-            }
-
-            if (!result.Success)
-            {
-                // Checking content
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    result.Errors.Add("Empty response content");
-                }
-                else if (new Regex(@"<[^>]+>").IsMatch(content))
-                {
-                    result.Errors.Add("Response content contains HTML : " + content);
-                }
-                else
-                {
-                    result.Errors.Add("Response content is not valid");
-                }
-            }
-
-            return result;
-        }
-
-        private OperationResult<T> CreateResult<T>(string json, OperationResult error)
-        {
-            var result = new OperationResult<T>();
-
-            if (error.Success)
-            {
-                result.Result = JsonConvert.DeserializeObject<T>(json, _jsonSerializerSettings);
-            }
-            else
-            {
-                result.Errors.AddRange(error.Errors);
-            }
-            return result;
-        }
-
-        private List<byte[]> ToKeyArr(string postingKey)
-        {
-            return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
+            return new List<byte[]> {Ditch.Helpers.Base58.GetBytes(postingKey)};
         }
     }
 }
