@@ -248,8 +248,10 @@ namespace Steepshot.iOS.Views
                 {
                     if (CurrentPostCategory == null)
                     {
-                        var postrequest = new PostsRequest(_currentPostType, User.CurrentUser)
+                        var postrequest = new PostsRequest(_currentPostType)
                         {
+                            Login = User.CurrentUser.Login,
+                            SessionId = User.CurrentUser.SessionId,
                             Limit = Limit,
                             Offset = offset
                         };
@@ -257,8 +259,10 @@ namespace Steepshot.iOS.Views
                     }
                     else
                     {
-                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory, User.CurrentUser)
+                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory)
                         {
+                            Login = User.CurrentUser.Login,
+                            SessionId = User.CurrentUser.SessionId,
                             Limit = Limit,
                             Offset = offset
                         };
@@ -267,8 +271,10 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    var f = new UserRecentPostsRequest(User.CurrentUser)
+                    var f = new UserRecentPostsRequest(User.CurrentUser.SessionId)
                     {
+                        Login = User.CurrentUser.Login,
+                        SessionId = User.CurrentUser.SessionId,
                         Limit = Limit,
                         Offset = offset
                     };
@@ -343,7 +349,11 @@ namespace Steepshot.iOS.Views
             }
             try
             {
-                var voteRequest = new VoteRequest(User.CurrentUser, vote, postUrl);
+                var voteRequest = new VoteRequest(User.CurrentUser.SessionId, vote, postUrl)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -410,7 +420,11 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                var flagRequest = new FlagRequest(User.CurrentUser, vote, postUrl);
+                var flagRequest = new FlagRequest(User.CurrentUser.SessionId, vote, postUrl)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {

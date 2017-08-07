@@ -111,7 +111,11 @@ namespace Steepshot.iOS.Views
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query, User.CurrentUser);
+                        var request = new SearchWithQueryRequest(query)
+                        {
+                            Login = User.CurrentUser.Login,
+                            SessionId = User.CurrentUser.SessionId
+                        };
                         if (_searchType == SearchType.Tags)
                         {
                             response = await Api.SearchCategories(request, _cts);
@@ -135,7 +139,7 @@ namespace Steepshot.iOS.Views
                         else
                         {
                             _usersSource.Users.Clear();
-                            _usersSource.Users = ((OperationResult<UserSearchResponse>)response).Result?.Results;
+                            _usersSource.Users = ((OperationResult<SearchResponse<UserSearchResult>>)response).Result?.Results;
                             usersTable.ReloadData();
                             shouldHide = _usersSource.Users.Count == 0;
                         }
