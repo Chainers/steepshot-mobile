@@ -62,9 +62,11 @@ namespace Steepshot.iOS.Views
 			try
 			{
 				progressBar.StartAnimating();
-				var request = new GetVotesRequest(PostUrl)
+				var request = new InfoRequest(PostUrl)
 				{
-					Offset = _offsetUrl,
+				    Login = User.CurrentUser.Login,
+				    SessionId = User.CurrentUser.SessionId,
+                    Offset = _offsetUrl,
 					Limit = 50
 				};
 

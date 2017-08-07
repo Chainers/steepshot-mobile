@@ -67,7 +67,11 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
             try
             {
-                var request = new GetCommentsRequest(PostUrl, User.CurrentUser);
+                var request = new InfoRequest(PostUrl)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
                 var result = await Api.GetComments(request);
                 _tableSource.TableItems.Clear();
                 _tableSource.TableItems.AddRange(result.Result.Results);
@@ -99,7 +103,11 @@ namespace Steepshot.iOS.Views
                 int diezid = postUrl.IndexOf('#');
                 string posturl = postUrl.Substring(diezid + 1);
 
-                var voteRequest = new VoteRequest(User.CurrentUser, vote, posturl);
+                var voteRequest = new VoteRequest(User.CurrentUser.SessionId, vote, posturl)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
                 var response = await Api.Vote(voteRequest);
                 if (response.Success)
                 {
@@ -122,7 +130,12 @@ namespace Steepshot.iOS.Views
                     LoginTapped();
                     return;
                 }
-                var reqv = new CreateCommentRequest(User.CurrentUser, PostUrl, commentTextView.Text, commentTextView.Text);
+                var reqv = new CreateCommentRequest(User.CurrentUser.SessionId, PostUrl, commentTextView.Text,
+                    commentTextView.Text)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
                 var response = await Api.CreateComment(reqv);
                 if (response.Success)
                 {

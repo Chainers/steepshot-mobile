@@ -80,8 +80,10 @@ namespace Steepshot.iOS.Views
             try
             {
                 progressBar.StartAnimating();
-                var request = new UserFriendsRequest(Username, FriendsType, User.CurrentUser)
+                var request = new UserFriendsRequest(Username, FriendsType)
                 {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId,
                     Offset = _tableSource.TableItems.Count == 0 ? "0" : _offsetUrl,
                     Limit = 20
                 };
@@ -124,7 +126,12 @@ namespace Steepshot.iOS.Views
             bool? success = null;
             try
             {
-                var request = new FollowRequest(User.CurrentUser, followType, author);
+                var request = new FollowRequest(User.CurrentUser.SessionId, followType, author)
+                {
+                    Login = User.CurrentUser.Login,
+                    SessionId = User.CurrentUser.SessionId
+                };
+
                 var response = await Api.Follow(request);
                 if (response.Success)
                 {
