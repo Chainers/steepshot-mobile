@@ -131,14 +131,14 @@ namespace Steepshot.iOS.ViewControllers
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            //if (isDev)
-            //{
-                _apiClient = new DitchApi(chain, isDev);
-            //}
-            //else
-            //{
-            //    _apiClient = new SteepshotApiClient(chain, isDev);
-            //}
+            if (isDev)
+            {
+                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrlQa : Constants.GolosUrlQa, chain);
+            }
+            else
+            {
+                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrl : Constants.GolosUrl, chain);
+            }
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)
