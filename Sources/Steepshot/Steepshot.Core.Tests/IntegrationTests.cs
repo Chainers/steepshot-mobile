@@ -50,7 +50,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+			Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
@@ -64,7 +64,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+			Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
@@ -78,7 +78,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid posting key."));
+			Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
