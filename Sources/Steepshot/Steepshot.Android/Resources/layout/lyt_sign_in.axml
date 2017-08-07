@@ -16,7 +16,7 @@
         android:id="@+id/posting_key_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter your posting key"
+        android:text="Enter your private posting key"
         android:layout_marginTop="36dp"
         android:layout_below="@+id/title"
         android:layout_centerHorizontal="true"
