@@ -31,14 +31,6 @@ namespace Steepshot.Core.Tests
             return response.Result.SessionId;
         }
 
-        [Test, Order(1)]
-        public void Print_Testing_Settings()
-        {
-            Console.WriteLine(Configuration["steem_url"]);
-            Console.WriteLine(Configuration["golos_url"]);
-            Assert.Pass();
-        }
-
         [Test, Sequential]
         public void Login_With_Posting_Key_Invalid_Credentials([Values("Steem", "Golos")] string name)
         {
@@ -50,7 +42,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-			Assert.That(response.Errors.Contains("Invalid private posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key."));
         }
 
         [Test, Sequential]
@@ -1265,7 +1257,7 @@ namespace Steepshot.Core.Tests
         public void Upload_Tags_Greater_Than_4([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var file = File.ReadAllBytes(TestImagePath());
+            var file = File.ReadAllBytes(GetTestImagePath());
             var request = new UploadImageRequest(Authenticate(Api(name)), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
             // Act
