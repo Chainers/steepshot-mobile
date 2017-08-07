@@ -41,7 +41,11 @@ namespace Steepshot.Presenter
 
 		public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
 		{
-			var req = new UserProfileRequest(user, User.CurrentUser);
+		    var req = new UserProfileRequest(user)
+		    {
+		        Login = User.CurrentUser.Login,
+		        SessionId = User.CurrentUser.SessionId
+		    };
 			var response = await Api.GetUserProfile(req);
 			var userData = response.Result;
 			return userData;
@@ -61,9 +65,11 @@ namespace Steepshot.Presenter
 				if (!_hasItems)
 					return;
 
-				var req = new UserPostsRequest(_username, User.CurrentUser)
+				var req = new UserPostsRequest(_username)
 				{
-					Offset = _offsetUrl,
+				    Login = User.CurrentUser.Login,
+				    SessionId = User.CurrentUser.SessionId,
+                    Offset = _offsetUrl,
 					Limit = PostsCount
 				};
 				var response = await Api.GetUserPosts(req);
@@ -99,13 +105,22 @@ namespace Steepshot.Presenter
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" }};
 
-            var voteRequest = new VoteRequest(User.CurrentUser, !post.Vote, post.Url);
+            var voteRequest = new VoteRequest(User.CurrentUser.SessionId, !post.Vote, post.Url)
+            {
+                SessionId = User.CurrentUser.SessionId,
+                Login = User.CurrentUser.Login
+            };
+
             return await Api.Vote(voteRequest);
         }
 
         public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
         {
-			var request = new FollowRequest(User.CurrentUser, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
+			var request = new FollowRequest(User.CurrentUser.SessionId, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username)
+			{
+			    SessionId = User.CurrentUser.SessionId,
+			    Login = User.CurrentUser.Login
+            };
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {

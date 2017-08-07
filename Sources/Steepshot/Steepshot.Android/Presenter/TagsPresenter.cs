@@ -15,10 +15,13 @@ namespace Steepshot.Presenter
 
 		public async Task<OperationResult<SearchResponse<SearchResult>>> SearchTags(string s)
 		{
+		    var request = new SearchWithQueryRequest(s)
+		    {
+		        SessionId = User.CurrentUser.SessionId,
+		        Login = User.CurrentUser.Login
+		    };
 
-			var request = new SearchWithQueryRequest(s);
-
-			return await Api.SearchCategories(request, null);
+            return await Api.SearchCategories(request, null);
 		}
 
 		public async Task<OperationResult<SearchResponse<SearchResult>>> GetTopTags()

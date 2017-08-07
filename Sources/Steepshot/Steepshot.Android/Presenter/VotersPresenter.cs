@@ -35,8 +35,11 @@ namespace Steepshot.Presenter
 			{
 				if (!_hasItems)
 					return;
-				var request = new GetVotesRequest(url, User.CurrentUser)
+
+				var request = new InfoRequest(url)
 				{
+                    SessionId = User.CurrentUser.SessionId,
+                    Login = User.CurrentUser.Login,
 					Offset = _offsetUrl,
 					Limit = _itemsLimit
 				};
