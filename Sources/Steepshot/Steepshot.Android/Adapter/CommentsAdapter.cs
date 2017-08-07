@@ -83,6 +83,7 @@ namespace Steepshot.Adapter
                 Like.Click += Like_Click;
                 Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
                 Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+                Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
             }
 
             void Like_Click(object sender, EventArgs e)
