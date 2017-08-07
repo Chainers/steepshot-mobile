@@ -15,15 +15,24 @@ namespace Steepshot.Presenter
 
 		public async Task<OperationResult<UserProfileResponse>> GetUserInfo()
 		{
-			var req = new UserProfileRequest(User.Login, User.CurrentUser);
+		    var req = new UserProfileRequest(User.Login)
+		    {
+		        Login = User.CurrentUser.Login,
+		        SessionId = User.CurrentUser.SessionId
+		    };
+
 			var response = await Api.GetUserProfile(req);
 			return response;
 		}
 
 		public async Task<OperationResult<LogoutResponse>> Logout()
 		{
-			var request = new LogoutRequest(User.CurrentUser);
-			return await Api.Logout(request);
+			var request = new LogoutRequest(User.CurrentUser.SessionId)
+			{
+			    Login = User.CurrentUser.Login,
+			    SessionId = User.CurrentUser.SessionId
+			};
+            return await Api.Logout(request);
 		}
 	}
 }

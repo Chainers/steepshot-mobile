@@ -14,7 +14,7 @@ namespace Steepshot.Core.Models.Requests
         public int Limit { get; set; }
     }
 
-    public class InfoRequest : BaseRequest
+    public class InfoRequest : BaseRequestWithOffsetLimitFields
     {
         public InfoRequest(string url)
         {

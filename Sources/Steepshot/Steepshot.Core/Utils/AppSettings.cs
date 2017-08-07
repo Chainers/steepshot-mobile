@@ -8,14 +8,8 @@ namespace Steepshot.Core.Utils
 
         public static bool IsDev
         {
-            get
-            {
-				return Container.Resolve<ISaverService>().Get<bool>("isdev");
-            }
-            set
-            {
-				Container.Resolve<ISaverService>().Save<bool>("isdev", value);
-            }
+            get => Container.Resolve<ISaverService>().Get<bool>("isdev");
+            set => Container.Resolve<ISaverService>().Save<bool>("isdev", value);
         }
     }
 }

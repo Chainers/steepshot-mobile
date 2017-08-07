@@ -24,7 +24,11 @@ namespace Steepshot.Presenter
                 }
                 else
                 {
-                    var request = new SearchWithQueryRequest(s, User.CurrentUser);
+                    var request = new SearchWithQueryRequest(s)
+                    {
+                        SessionId = User.CurrentUser.SessionId,
+                        Login = User.CurrentUser.Login
+                    };
                     if (searchType == SearchType.Tags)
                     {
                         return await Api.SearchCategories(request, _cts);
