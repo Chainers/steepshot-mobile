@@ -17,9 +17,8 @@ namespace Steepshot.Core.Models.Requests
 
         public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags) : this(sessionId, title, tags)
         {
-            if (photo == null) throw new ArgumentNullException(nameof(photo));
+            Photo = photo ?? throw new ArgumentNullException(nameof(photo));
             
-            Photo = photo;
         }
 
         public UploadImageRequest(string sessionId, string title, string photo, params string[] tags) : this(sessionId, title, tags)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
@@ -9,18 +8,8 @@ namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        protected static IConfigurationRoot Configuration { get; set; }
-        protected readonly ISteepshotApiClient _steem = new SteepshotApiClient(Configuration["steem_url"]);
-        protected readonly ISteepshotApiClient _golos = new SteepshotApiClient(Configuration["golos_url"]);
-
-        protected BaseTests()
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json");
-
-            Configuration = builder.Build();
-        }
+        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(Constants.SteemUrl);
+        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(Constants.GolosUrl);
 
         protected ISteepshotApiClient Api(string name)
         {
@@ -35,7 +24,7 @@ namespace Steepshot.Core.Tests
             }
         }
 
-        protected string TestImagePath()
+        protected string GetTestImagePath()
         {
             var currentDir = Directory.GetCurrentDirectory();
             var parent = Directory.GetParent(currentDir).Parent;
