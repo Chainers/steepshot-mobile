@@ -5,7 +5,6 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
-using Sweetshot.Library.HttpClient;
 
 namespace Steepshot.Base
 {
@@ -79,14 +78,14 @@ namespace Steepshot.Base
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            //if (isDev)
-            //{
-                _apiClient = new DitchApi(chain, isDev);
-            //}
-            //else
-            //{
-            //    _apiClient = new SteepshotApiClient(chain, isDev);
-            //}
+            if (isDev)
+            {
+                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrlQa : Constants.GolosUrlQa, chain);
+            }
+            else
+            {
+                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrl : Constants.GolosUrl, chain);
+            }
         }
 
         public static string ToFormatedCurrencyString(Money value)

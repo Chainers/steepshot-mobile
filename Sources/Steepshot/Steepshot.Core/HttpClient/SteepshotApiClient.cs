@@ -110,8 +110,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            // TODO var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
-            //parameters2.AddRange(parameters);
+            var parameters2 = CreateOffsetLimitParameters(request.Offset, request.Limit);
+            parameters2.AddRange(parameters);
             var endpoint = $"post/{request.Url}/voters";
             
             var response = await _gateway.Get(endpoint, parameters, cts);

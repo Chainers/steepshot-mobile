@@ -142,7 +142,7 @@ namespace Steepshot.Fragment
 				}
 				else
 				{
-					var usersList = (OperationResult<UserSearchResponse>)await _tagsTask;
+					var usersList = (OperationResult<SearchResponse<UserSearchResult>>)await _tagsTask;
 					if (usersList?.Result?.Results != null)
 					{
 						_usersSearchAdapter.Items = usersList.Result.Results;
