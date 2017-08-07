@@ -52,7 +52,7 @@ namespace Steepshot.Core.Tests
         public void Upload_Base64_Equals_ByteArray()
         {
             // Arrange
-            var file = File.ReadAllBytes(TestImagePath());
+            var file = File.ReadAllBytes(GetTestImagePath());
 
             // Act
             var requestArray = new UploadImageRequest("sessionId", "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
