@@ -7,10 +7,7 @@ using Steepshot.Core.Models.Common;
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
-    {           
-        // private readonly ISteepshotApiClient _ditchSteem = new DitchApi(Constants.SteemUrl, KnownChains.Steem);
-        // private readonly ISteepshotApiClient _ditchGolos = new DitchApi(Constants.GolosUrl, KnownChains.Golos);
-
+    {
         private readonly ISteepshotApiClient _apiSteem = new SteepshotApiClient(Constants.SteemUrl);
         private readonly ISteepshotApiClient _apiGolos = new SteepshotApiClient(Constants.GolosUrl);
 
