@@ -176,11 +176,20 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var endpoint = $"post";
-            if (!string.IsNullOrWhiteSpace(request.Login)) endpoint = endpoint + "/" + request.Login; // TODO Fuuuuuck, shitty code.
             
-            var response = await _gateway.Upload(endpoint, request.Title, request.Photo, parameters, request.Tags, request.Username, request.Trx, cts);
+            var response = await _gateway.Upload(endpoint, request.Title, request.Photo, parameters, request.Tags, cts: cts);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
+        }
+        
+        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string username, string trx, CancellationTokenSource cts)
+        {
+            var parameters = CreateSessionParameter(request.SessionId);
+            var endpoint = $"post/prepare";
+            
+            var response = await _gateway.Upload(endpoint, request.Title, request.Photo, parameters, request.Tags, username, trx, cts);
+            var errorResult = CheckErrors(response);
+            return CreateResult<UploadResponse>(response.Content, errorResult);
         }
 
         public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts)

@@ -7,18 +7,21 @@ using Steepshot.Core.Models.Common;
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
-    {
-        private readonly ISteepshotApiClient _steem = new SteepshotApiClient(Constants.SteemUrl);
-        private readonly ISteepshotApiClient _golos = new SteepshotApiClient(Constants.GolosUrl);
+    {           
+        // private readonly ISteepshotApiClient _ditchSteem = new DitchApi(Constants.SteemUrl, KnownChains.Steem);
+        // private readonly ISteepshotApiClient _ditchGolos = new DitchApi(Constants.GolosUrl, KnownChains.Golos);
+
+        private readonly ISteepshotApiClient _apiSteem = new SteepshotApiClient(Constants.SteemUrl);
+        private readonly ISteepshotApiClient _apiGolos = new SteepshotApiClient(Constants.GolosUrl);
 
         protected ISteepshotApiClient Api(string name)
         {
             switch (name)
             {
                 case "Steem":
-                    return _steem;
+                    return _apiSteem;
                 case "Golos":
-                    return _golos;
+                    return _apiGolos;
                 default:
                     return null;
             }
@@ -26,7 +29,7 @@ namespace Steepshot.Core.Tests
 
         protected string GetTestImagePath()
         {
-            var currentDir = Directory.GetCurrentDirectory();
+            var currentDir = AppContext.BaseDirectory;
             var parent = Directory.GetParent(currentDir).Parent;
             return Path.Combine(parent.FullName, @"Data/cat.jpg");
         }

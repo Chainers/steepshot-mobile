@@ -157,35 +157,40 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts)
         {
-            var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-            var tr = _operationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.SessionId), op);
-            var trx = _jsonConverter.Serialize(tr);
-            Ditch.Helpers.Transliteration.PrepareTags(request.Tags.ToArray());
-            request.Login = "prepare"; // TODO Fuuuuuck, shitty code.
-            request.Trx = trx;
-            var response = await _steepshotApi.Upload(request, cts);
-            return null; // TODO
-            
-//            return await Task.Run(() =>
-//            {
-//                if (!response.Success)
-//                {
-//                    var uploadResponse = _jsonConverter.Deserialize<UploadResponse>(response.Content);
-//                    var meta = _jsonConverter.Serialize(uploadResponse.Meta);
-//
-//                    var post = new PostOperation("steepshot", request.Login, uploadResponse.Payload.Title, uploadResponse.Payload.Body, meta);
-//                    var result2 = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), post);
-//                    if (result2.IsError)
-//                    {
-//                        result.Errors.Add(result2.GetErrorMessage());
-//                    }
-//                    else
-//                    {
-//                        result.Result = uploadResponse.Payload;
-//                    }
-//                }
-//                return result;
-//            });
+            return await Task.Run(async () =>
+            {
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
+                var tr = _operationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.SessionId), op);
+
+                var trx = _jsonConverter.Serialize(tr);
+                Ditch.Helpers.Transliteration.PrepareTags(request.Tags.ToArray());
+
+                var result = new OperationResult<ImageUploadResponse>();
+
+                var uploadResponse = await _steepshotApi.UploadWithPrepare(request, request.Login, trx, cts);
+                if (uploadResponse.Success)
+                {
+                    var meta = _jsonConverter.Serialize(uploadResponse.Result.Meta);
+                    var post = new PostOperation("steepshot", request.Login, uploadResponse.Result.Payload.Title, uploadResponse.Result.Payload.Body, meta);
+
+                    var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), post);
+                    if (response.IsError)
+                    {
+                        result.Errors.Add(response.GetErrorMessage());
+                    }
+                    else
+                    {
+                        result.Result = uploadResponse.Result.Payload;
+                    }
+                }
+
+                return result;
+            });
+        }
+
+        public Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string username, string trx, CancellationTokenSource cts = null)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)

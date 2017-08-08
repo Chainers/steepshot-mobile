@@ -18,7 +18,6 @@ namespace Steepshot.Core.Models.Responses
         public string Title { get; set; }
         public List<string> Tags { get; set; }
         public string Body { get; set; }
-        public string Username { get; set; }
     }
 
     //    {
