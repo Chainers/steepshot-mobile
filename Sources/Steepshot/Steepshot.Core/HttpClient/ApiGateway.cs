@@ -24,9 +24,9 @@ namespace Steepshot.Core.HttpClient
                                    byte[] file,
                                    IEnumerable<RequestParameter> parameters,
                                    IEnumerable<string> tags,
-                                   string login,
-                                   string trx,
-                                   CancellationTokenSource cts);
+                                   string username = null,
+                                   string trx = null,
+                                   CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
@@ -71,8 +71,8 @@ namespace Steepshot.Core.HttpClient
             request.AddFile("photo", file, filename);
             request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
             request.AddParameter("title", filename);
-            request.AddParameter("username", username);
-            request.AddParameter("trx", trx);
+            if (!string.IsNullOrWhiteSpace(username)) request.AddParameter("username", username);
+            if (!string.IsNullOrWhiteSpace(trx)) request.AddParameter("trx", trx);
             foreach (var tag in tags)
             {
                 request.AddParameter("tags", tag);

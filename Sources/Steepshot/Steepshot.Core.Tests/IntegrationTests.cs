@@ -42,7 +42,8 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
+                        response.Errors.Contains("Invalid posting key."));
         }
 
         [Test, Sequential]
@@ -56,7 +57,8 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-			Assert.That(response.Errors.Contains("Invalid private posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
+                        response.Errors.Contains("Invalid posting key."));
         }
 
         [Test, Sequential]
@@ -70,7 +72,8 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-			Assert.That(response.Errors.Contains("Invalid private posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
+                        response.Errors.Contains("Invalid posting key."));
         }
 
         [Test, Sequential]
@@ -1425,24 +1428,6 @@ namespace Steepshot.Core.Tests
             
             // Assert
             Assert.That(ex.InnerException.Message, Is.EqualTo("A task was canceled."));
-        }
-        
-        [Test, Sequential]
-        public void Vote_Up_TotalBalance([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var userPostsRequest = new UserPostsRequest(Name);
-            var posts = Api(name).GetUserPosts(userPostsRequest).Result;
-            var lastPost = posts.Result.Results.First();
-
-            var request = new VoteRequest(Authenticate(Api(name)), true, lastPost.Url);
-
-            // Act
-            var response = Api(name).Vote(request).Result;
-
-            // Assert
-            Assert.IsTrue(response.Success);
-            Assert.IsTrue(lastPost.TotalPayoutReward <= response.Result.NewTotalPayoutReward);
         }
     }
 }

@@ -18,7 +18,6 @@ namespace Steepshot.Core.Models.Requests
         public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags) : this(sessionId, title, tags)
         {
             Photo = photo ?? throw new ArgumentNullException(nameof(photo));
-            
         }
 
         public UploadImageRequest(string sessionId, string title, string photo, params string[] tags) : this(sessionId, title, tags)
@@ -31,7 +30,5 @@ namespace Steepshot.Core.Models.Requests
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
         public List<string> Tags { get; private set; }
-        public string Username { get; private set; }
-        public string Trx { get; set; }
     }
 }

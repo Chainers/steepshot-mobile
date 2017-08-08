@@ -76,7 +76,8 @@ namespace Steepshot.Core.Tests
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteDownResponse.Result.Message, Is.EqualTo("Downvoted"));
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-
+            Assert.IsTrue(lastPost.TotalPayoutReward <= voteDownResponse.Result.NewTotalPayoutReward);
+            
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
@@ -94,7 +95,8 @@ namespace Steepshot.Core.Tests
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteUpResponse.Result.Message, Is.EqualTo("Upvoted"));
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
-
+            Assert.IsTrue(lastPost.TotalPayoutReward <= voteUpResponse.Result.NewTotalPayoutReward);
+            
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
