@@ -36,16 +36,16 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var rpcResponse = _operationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+                var response = _operationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
                 
                 var result = new OperationResult<LoginResponse>();
-                if (rpcResponse.IsError)
+                if (response.IsError)
                 {
                     result.Result = new LoginResponse {Message = "User was logged in."};
                 }
                 else
                 {
-                    result.Errors.Add(rpcResponse.GetErrorMessage());
+                    result.Errors.Add(ParseErrorCode(response));
                 }
                 return result;
             });
@@ -99,7 +99,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Errors.Add(response.GetErrorMessage());
+                    result.Errors.Add(ParseErrorCode(response));
                 }
                 return result;
             });
@@ -118,7 +118,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<FollowResponse>();
                 if (response.IsError)
                 {
-                    result.Errors.Add(response.GetErrorMessage());
+                    result.Errors.Add(ParseErrorCode(response));
                 }
                 else
                 {
@@ -145,7 +145,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<CreateCommentResponse>();
                 if (response.IsError)
                 {
-                    result.Errors.Add(response.GetErrorMessage());
+                    result.Errors.Add(ParseErrorCode(response));
                 }
                 else
                 {
@@ -176,7 +176,7 @@ namespace Steepshot.Core.HttpClient
                     var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), post);
                     if (response.IsError)
                     {
-                        result.Errors.Add(response.GetErrorMessage());
+                        result.Errors.Add(ParseErrorCode(response));
                     }
                     else
                     {
@@ -279,7 +279,8 @@ namespace Steepshot.Core.HttpClient
                 var authPostArr = authAndPermlink.Split('/');
                 if (authPostArr.Length != 2)
                 {
-                    throw new InvalidCastException($"Unexpected url format: {request.Identifier}");
+                    result.Errors.Add($"Unexpected url format: {request.Identifier}");
+                    return result;
                 }
 
                 var op = new FlagOperation(request.Login, authPostArr[0], authPostArr[1]);
@@ -298,7 +299,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Errors.Add(response.GetErrorMessage());
+                    result.Errors.Add(ParseErrorCode(response));
                 }
                 return result;
             });
@@ -315,6 +316,40 @@ namespace Steepshot.Core.HttpClient
         private IEnumerable<byte[]> ToKeyArr(string postingKey)
         {
             return new List<byte[]> {Ditch.Helpers.Base58.GetBytes(postingKey)};
+        }
+
+        private string ParseErrorCode(JsonRpcResponse response)
+        {
+            if (response.Error is Ditch.Errors.SystemError)
+            {
+                switch (response.Error.Code)
+                {
+                    case (int) Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                    {
+                        return "Can not connect to the server, check for an Internet connection and try again.";
+                    }
+                    case (int) Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                    {
+                        return "The server does not respond to the request. Check your internet connection and try again.";
+                    }
+                    default:
+                    {
+                        return "An unexpected error occurred. Check the Internet or try restarting the application.";
+                    }
+                }
+            }
+            if (response.Error is Ditch.Errors.ResponseError)
+            {
+                var error = (Ditch.Errors.ResponseError) response.Error;
+                if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
+                {
+                    return "Invalid private posting key!";
+                }
+
+                return $"The server did not accept the request! Reason ({error.Data.Code}) {error.Data.Message}";
+            }
+
+            return response.GetErrorMessage();
         }
     }
 }
