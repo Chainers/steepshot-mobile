@@ -13,13 +13,12 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Presenter;
 
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
 	[Activity(Label = "TagsActivity",ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode=Android.Views.SoftInput.AdjustNothing)]
-	public class TagsActivity : BaseActivity, ITagsView
-	{
+	public class TagsActivity : BaseActivity
+    {
 		TagsPresenter _presenter;
 #pragma warning disable 0649, 4014
 		[InjectView(Resource.Id.ic_close)] ImageButton _close;

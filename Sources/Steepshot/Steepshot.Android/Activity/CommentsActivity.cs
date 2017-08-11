@@ -13,12 +13,10 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Activity
 {
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class CommentsActivity : BaseActivity, ICommentsView
+    public class CommentsActivity : BaseActivity
     {
         CommentsPresenter _presenter;
         List<Post> _posts;

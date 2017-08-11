@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Core.Models.Responses
+﻿using Ditch;
+
+namespace Steepshot.Core.Models.Responses
 {
     public class FlagResponse : MessageField
     {

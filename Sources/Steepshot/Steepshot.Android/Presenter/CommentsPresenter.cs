@@ -4,13 +4,12 @@ using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
     public class CommentsPresenter : BasePresenter
     {
-        public CommentsPresenter(ICommentsView view) : base(view)
+        public CommentsPresenter(IBaseView view) : base(view)
         {
         }
 

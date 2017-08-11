@@ -17,13 +17,11 @@ using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
-
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class ProfileFragment : BaseFragment, IUserProfileView
+	public class ProfileFragment : BaseFragment
 	{
 		UserProfilePresenter _presenter;
 		private string _profileId;

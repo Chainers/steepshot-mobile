@@ -6,12 +6,10 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Fragment
 {
-	public class FollowingFragment : BaseFragment, IFollowingView
-	{
+	public class FollowingFragment : BaseFragment
+    {
 		FollowingPresenter _presenter;
 
         public FollowingFragment() { }

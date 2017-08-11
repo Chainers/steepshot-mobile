@@ -15,12 +15,10 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Fragment
 {
-	public class FeedFragment : BaseFragment, IFeedView
-	{
+	public class FeedFragment : BaseFragment
+    {
 		private FeedPresenter _presenter;
 		private FeedAdapter _feedAdapter;
 		public static int SearchRequestCode = 1336;
