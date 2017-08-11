@@ -13,13 +13,12 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
-using Steepshot.View;
 using ZXing.Mobile;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SignInActivity : BaseActivity, ISignInView
+    public class SignInActivity : BaseActivity
     {
         SignInPresenter _presenter;
 

@@ -8,12 +8,11 @@ using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostPreviewActivity", ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PostPreviewActivity : BaseActivity, IPostPreviewView
+    public class PostPreviewActivity : BaseActivity
     {
         private PostPreviewPresenter _presenter;
 		private string _path;

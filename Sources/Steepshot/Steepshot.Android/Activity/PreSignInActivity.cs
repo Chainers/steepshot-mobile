@@ -11,12 +11,10 @@ using Steepshot.Core;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PreSignInActivity : BaseActivity, IPreSignInView
+    public class PreSignInActivity : BaseActivity
     {
         PreSignInPresenter _presenter;
 

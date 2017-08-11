@@ -10,15 +10,13 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Fragment;
 using Steepshot.Presenter;
-
-using Steepshot.View;
 using PagerAdapter = Steepshot.Adapter.PagerAdapter;
 
 namespace Steepshot.Activity
 {
 	[Activity(Label = "Steepshot",ScreenOrientation = ScreenOrientation.Portrait)]
-	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener, IRootView
-	{
+	public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener
+    {
 		private RootPresenter _presenter;
 		private PagerAdapter _adapter;
 		public string VoterUrl;

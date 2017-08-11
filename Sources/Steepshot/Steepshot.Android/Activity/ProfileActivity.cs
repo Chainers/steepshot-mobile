@@ -2,13 +2,12 @@
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
 	[Activity(Label = "ProfileActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-	public class ProfileActivity : BaseActivity, IUserProfileView
-	{
+	public class ProfileActivity : BaseActivity
+    {
 		protected override void CreatePresenter() { }
 
 		protected override void OnCreate(Bundle savedInstanceState)

@@ -1,4 +1,5 @@
 using System;
+using Ditch;
 
 namespace Steepshot.Core.Models.Responses
 {

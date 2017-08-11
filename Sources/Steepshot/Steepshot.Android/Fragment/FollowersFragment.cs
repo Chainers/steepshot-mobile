@@ -11,11 +11,9 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Fragment
 {
-    public class FollowersFragment : BaseFragment, IFollowersView
+    public class FollowersFragment : BaseFragment
     {
 		FollowersPresenter _presenter;
         private FollowType _friendsType;

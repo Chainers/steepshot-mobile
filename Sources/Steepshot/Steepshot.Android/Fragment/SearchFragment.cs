@@ -15,11 +15,10 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
-using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class SearchFragment : BaseFragment, ISearchView
+	public class SearchFragment : BaseFragment
     {
 		private Timer _timer;
 		SearchPresenter _presenter;

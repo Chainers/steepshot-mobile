@@ -9,11 +9,9 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Fragment
 {
-	public class VotersFragment : BaseFragment, IFollowersView
+	public class VotersFragment : BaseFragment
 	{
 		private VotersPresenter _presenter;
 		private VotersAdapter _votersAdapter;

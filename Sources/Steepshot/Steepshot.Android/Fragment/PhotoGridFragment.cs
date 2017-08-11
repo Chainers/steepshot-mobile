@@ -12,11 +12,10 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Presenter;
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class PhotoGridFragment : BaseFragment, IPhotoGridView
+	public class PhotoGridFragment : BaseFragment
 	{
 		PhotoGridPresenter _presenter;
 #pragma warning disable 0649, 4014

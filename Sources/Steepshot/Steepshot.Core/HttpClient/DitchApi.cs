@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
@@ -35,13 +32,13 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
                 var response = _operationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
-                
+
                 var result = new OperationResult<LoginResponse>();
                 if (response.IsError)
                 {
-                    result.Result = new LoginResponse {Message = "User was logged in."};
+                    result.Result = new LoginResponse { Message = "User was logged in." };
                 }
                 else
                 {
@@ -81,7 +78,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short) (request.Type == VoteType.Up ? 10000 : 0));
+                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.Up ? 10000 : 0));
                 var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
                 var result = new OperationResult<VoteResponse>();
@@ -93,7 +90,7 @@ namespace Steepshot.Core.HttpClient
                         //Convert Money type to double
                         result.Result = new VoteResponse
                         {
-                            NewTotalPayoutReward = new Models.Money(content.Result.NewTotalPayoutReward.ToString())
+                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
                         };
                     }
                 }
@@ -110,9 +107,9 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var op = request.Type == Models.Requests.FollowType.Follow
-                    ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Post.FollowType.Blog, request.Login)
+                    ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
-                
+
                 var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
                 var result = new OperationResult<FollowResponse>();
@@ -127,7 +124,7 @@ namespace Steepshot.Core.HttpClient
                 return result;
             });
         }
-        
+
         public async Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request, CancellationTokenSource cts)
         {
             return await _steepshotApi.GetComments(request, cts);
@@ -139,7 +136,7 @@ namespace Steepshot.Core.HttpClient
             {
                 var authPost = UrlToAuthorAndPermlink(request.Url);
                 var op = new ReplyOperation(authPost.Item1, authPost.Item2, request.Login, request.Body, "{\"app\": \"steepshot/0.0.5\"}");
-                
+
                 var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
 
                 var result = new OperationResult<CreateCommentResponse>();
@@ -149,7 +146,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Result = new CreateCommentResponse {Message = "Comment created"};
+                    result.Result = new CreateCommentResponse { Message = "Comment created" };
                 }
                 return result;
             });
@@ -159,8 +156,8 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(async () =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Post.FollowType.Blog, request.Login);
-                var tr = _operationManager.CreateTransaction(DynamicGlobalProperties.Default, ToKeyArr(request.SessionId), op);
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
+                var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.SessionId), op);
 
                 var trx = _jsonConverter.Serialize(tr);
                 Ditch.Helpers.Transliteration.PrepareTags(request.Tags.ToArray());
@@ -235,7 +232,7 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() => new OperationResult<LogoutResponse>
             {
-                Result = new LogoutResponse {Message = "User is logged out"}
+                Result = new LogoutResponse { Message = "User is logged out" }
             });
         }
 
@@ -293,7 +290,7 @@ namespace Steepshot.Core.HttpClient
                     {
                         result.Result = new FlagResponse
                         {
-                            NewTotalPayoutReward = content.Result.NewTotalPayoutReward.Value
+                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
                         };
                     }
                 }
@@ -315,7 +312,7 @@ namespace Steepshot.Core.HttpClient
 
         private IEnumerable<byte[]> ToKeyArr(string postingKey)
         {
-            return new List<byte[]> {Ditch.Helpers.Base58.GetBytes(postingKey)};
+            return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
         }
 
         private string ParseErrorCode(JsonRpcResponse response)
@@ -324,23 +321,23 @@ namespace Steepshot.Core.HttpClient
             {
                 switch (response.Error.Code)
                 {
-                    case (int) Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
-                    {
-                        return "Can not connect to the server, check for an Internet connection and try again.";
-                    }
-                    case (int) Ditch.Errors.ErrorCodes.ResponseTimeoutError:
-                    {
-                        return "The server does not respond to the request. Check your internet connection and try again.";
-                    }
+                    case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                        {
+                            return "Can not connect to the server, check for an Internet connection and try again.";
+                        }
+                    case (int)Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                        {
+                            return "The server does not respond to the request. Check your internet connection and try again.";
+                        }
                     default:
-                    {
-                        return "An unexpected error occurred. Check the Internet or try restarting the application.";
-                    }
+                        {
+                            return "An unexpected error occurred. Check the Internet or try restarting the application.";
+                        }
                 }
             }
             if (response.Error is Ditch.Errors.ResponseError)
             {
-                var error = (Ditch.Errors.ResponseError) response.Error;
+                var error = (Ditch.Errors.ResponseError)response.Error;
                 if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
                 {
                     return "Invalid private posting key!";

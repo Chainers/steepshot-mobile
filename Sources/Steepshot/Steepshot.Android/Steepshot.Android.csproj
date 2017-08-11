@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Steepshot</RootNamespace>
     <AssemblyName>Steepshot.Android</AssemblyName>
-    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -101,19 +101,6 @@
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Base\BaseFragment.cs" />
     <Compile Include="Presenter\UserProfilePresenter.cs" />
-    <Compile Include="View\PostPreviewView.cs" />
-    <Compile Include="View\UserProfileView.cs" />
-    <Compile Include="View\CommentsView.cs" />
-    <Compile Include="View\FollowersView.cs" />
-    <Compile Include="View\GuestView.cs" />
-    <Compile Include="View\PostDescriptionView.cs" />
-    <Compile Include="View\RootView.cs" />
-    <Compile Include="View\SearchView.cs" />
-    <Compile Include="View\SettingsView.cs" />
-    <Compile Include="View\SignInView.cs" />
-    <Compile Include="View\SplashView.cs" />
-    <Compile Include="View\TagsView.cs" />
-    <Compile Include="View\TermsView.cs" />
     <Compile Include="Presenter\CommentsPresenter.cs" />
     <Compile Include="Presenter\FollowersPresenter.cs" />
     <Compile Include="Presenter\GuestPresenter.cs" />
@@ -126,19 +113,13 @@
     <Compile Include="Presenter\TagsPresenter.cs" />
     <Compile Include="Presenter\TermsPresenter.cs" />
     <Compile Include="Presenter\CameraPresenter.cs" />
-    <Compile Include="View\CameraView.cs" />
     <Compile Include="Presenter\FeedPresenter.cs" />
-    <Compile Include="View\FeedView.cs" />
     <Compile Include="Presenter\FollowingPresenter.cs" />
-    <Compile Include="View\FollowingView.cs" />
-    <Compile Include="View\PhotoView.cs" />
     <Compile Include="Presenter\PhotoPresenter.cs" />
     <Compile Include="Presenter\PhotoGridPresenter.cs" />
-    <Compile Include="View\PhotoGridView.cs" />
     <Compile Include="Data\UserFriendViewMode.cs" />
     <Compile Include="Activity\PreSignInActivity.cs" />
     <Compile Include="Presenter\PreSignInPresenter.cs" />
-    <Compile Include="View\PreSignInView.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
@@ -153,6 +134,7 @@
     <Compile Include="Services\SaverService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -361,8 +343,14 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch, Version=2.1.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.2.1.10\lib\netstandard1.3\Ditch.dll</HintPath>
+    <Reference Include="Ditch, Version=2.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.2.2.1\lib\netstandard1.3\Ditch.dll</HintPath>
+    </Reference>
+    <Reference Include="FubarCoder.RestSharp.Portable.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=be81bb0f53eab22f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubarCoder.RestSharp.Portable.Core.4.0.8\lib\monoandroid10\FubarCoder.RestSharp.Portable.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FubarCoder.RestSharp.Portable.HttpClient, Version=4.0.0.0, Culture=neutral, PublicKeyToken=be81bb0f53eab22f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubarCoder.RestSharp.Portable.HttpClient.4.0.8\lib\monoandroid10\FubarCoder.RestSharp.Portable.HttpClient.dll</HintPath>
     </Reference>
     <Reference Include="HockeySDK">
       <HintPath>..\Components\hockeyappandroid-4.1.1.0\lib\android\HockeySDK.dll</HintPath>
@@ -417,6 +405,7 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\MonoAndroid\v1.0\System.Xml.dll</HintPath>
     </Reference>

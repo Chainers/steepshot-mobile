@@ -7,13 +7,12 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
 	public class VotersPresenter : BasePresenter
 	{
-		public VotersPresenter(IFollowersView view):base(view)
+		public VotersPresenter(IBaseView view):base(view)
 		{
 		}
 

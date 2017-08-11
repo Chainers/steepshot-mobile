@@ -3,13 +3,12 @@ using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
 	public class SettingsPresenter : BasePresenter
 	{
-		public SettingsPresenter(ISettingsView view):base(view)
+		public SettingsPresenter(IBaseView view):base(view)
 		{
 		}
 
