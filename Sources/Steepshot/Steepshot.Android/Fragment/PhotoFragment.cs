@@ -10,12 +10,10 @@ using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Fragment
 {
 	public delegate void VoidDelegate(); 
-	public class PhotoFragment : BaseFragment, IPhotoView
+	public class PhotoFragment : BaseFragment
 	{
 		PhotoPresenter _presenter;
 

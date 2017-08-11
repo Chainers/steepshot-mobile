@@ -2,13 +2,12 @@
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
 	public class TermsPresenter : BasePresenter
 	{
-		public TermsPresenter(ITermsView view): base(view)
+		public TermsPresenter(IBaseView view): base(view)
 		{
 		}
 

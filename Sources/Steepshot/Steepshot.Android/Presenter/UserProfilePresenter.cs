@@ -9,7 +9,6 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
@@ -26,7 +25,7 @@ namespace Steepshot.Presenter
 		public event VoidDelegate PostsLoaded;
 		public event VoidDelegate PostsCleared;
 
-		public UserProfilePresenter(IUserProfileView view, string username) : base(view)
+		public UserProfilePresenter(IBaseView view, string username) : base(view)
 		{
 			_username = username;
 		}

@@ -9,14 +9,12 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Presenter;
-
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Fragment
 {
-	public class CameraFragment: BaseFragment, ICameraView
-	{
+	public class CameraFragment: BaseFragment
+    {
 		CameraPresenter _presenter;
 
 		CameraPreview _cameraPreview;

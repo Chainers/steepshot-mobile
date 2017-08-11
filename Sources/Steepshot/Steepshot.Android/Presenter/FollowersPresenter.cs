@@ -8,13 +8,12 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Data;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
     public class FollowersPresenter : BasePresenter
     {
-        public FollowersPresenter(IFollowersView view) : base(view)
+        public FollowersPresenter(IBaseView view) : base(view)
         {
         }
 

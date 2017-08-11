@@ -2,12 +2,11 @@
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class GuestActivity : BaseActivity, IFeedView
+    public class GuestActivity : BaseActivity
     {
 		protected override void CreatePresenter() { }
 

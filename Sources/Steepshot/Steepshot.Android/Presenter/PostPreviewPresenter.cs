@@ -1,11 +1,10 @@
 using Steepshot.Base;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
     public class PostPreviewPresenter : BasePresenter
     {
-        public PostPreviewPresenter(IPostPreviewView view):base(view)
+        public PostPreviewPresenter(IBaseView view):base(view)
         {
                 
         }

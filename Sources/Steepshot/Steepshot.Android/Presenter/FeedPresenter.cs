@@ -10,13 +10,12 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
-using Steepshot.View;
 
 namespace Steepshot.Presenter
 {
     public class FeedPresenter : BasePresenter
     {
-        public FeedPresenter(IFeedView view, bool isFeed) : base(view)
+        public FeedPresenter(IBaseView view, bool isFeed) : base(view)
         {
             _isFeed = isFeed;
         }

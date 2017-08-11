@@ -6,12 +6,10 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Presenter;
 
-using Steepshot.View;
-
 namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
-	public class TermsOfServiceActivity : BaseActivity, ITermsView
+	public class TermsOfServiceActivity : BaseActivity
     {
 		TermsPresenter _presenter;
 

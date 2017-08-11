@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using CoreGraphics;
+using Ditch;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
-using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using UIKit;
+using KnownChains = Steepshot.Core.KnownChains;
 
 namespace Steepshot.iOS.ViewControllers
 {

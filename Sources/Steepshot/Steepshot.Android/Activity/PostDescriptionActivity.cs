@@ -18,18 +18,17 @@ using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 
 using Steepshot.Utils;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivity, IPostDescriptionView//, ITarget
+    public class PostDescriptionActivity : BaseActivity//, ITarget
     {
         private PostDescriptionPresenter _presenter;
         public static int TagRequestCode = 1225;
         private string _path;
 
-        private List<string> _tags = new List<string>();
+        private string[] _tags = new string[0];
         private byte[] _arrayToUpload;
         private Bitmap _bitmapToUpload;
 
@@ -81,7 +80,7 @@ namespace Steepshot.Activity
         }
 
 
-        public void AddTags(List<string> tags)
+        public void AddTags(string[] tags)
         {
             _tags = tags;
             _tagLayout.RemoveAllViews();
@@ -105,6 +104,9 @@ namespace Steepshot.Activity
         public void OpenTags()
         {
             Intent intent = new Intent(this, typeof(TagsActivity));
+            Bundle b = new Bundle();
+            b.PutStringArray("TAGS", _tags);
+            intent.PutExtra("TAGS", b);
             StartActivityForResult(intent, TagRequestCode);
         }
 
@@ -113,7 +115,7 @@ namespace Steepshot.Activity
             if (requestCode == TagRequestCode && resultCode == Result.Ok)
             {
                 var b = data.GetBundleExtra("TAGS");
-                _tags = b.GetStringArray("TAGS").Distinct().ToList();
+                _tags = b.GetStringArray("TAGS").Distinct().ToArray();
                 AddTags(_tags);
             }
         }
@@ -260,11 +262,6 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter(this);
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
-
         }
     }
 }

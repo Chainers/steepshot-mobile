@@ -11,12 +11,11 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Presenter;
 using Steepshot.Services;
-using Steepshot.View;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "Steepshot", MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
-    public class SplashActivity : BaseActivity, ISplashView
+    public class SplashActivity : BaseActivity
     {
         SplashPresenter _presenter;
 

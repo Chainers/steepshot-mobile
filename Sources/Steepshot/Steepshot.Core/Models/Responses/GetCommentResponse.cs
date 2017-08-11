@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Ditch;
 
 namespace Steepshot.Core.Models.Responses
 {
