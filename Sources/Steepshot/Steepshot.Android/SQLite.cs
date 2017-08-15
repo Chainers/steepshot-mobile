@@ -31,13 +31,7 @@ using System.Reflection;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using Java.Lang;
-using Boolean = System.Boolean;
-using Byte = System.Byte;
-using Double = System.Double;
-using Exception = System.Exception;
-using String = System.String;
-using Thread = System.Threading.Thread;
+
 #if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
 using Sqlite3DatabaseHandle = Community.CsharpSqlite.Sqlite3.sqlite3;
@@ -50,8 +44,7 @@ using Sqlite3Statement = Sqlite.Statement;
 using Sqlite3DatabaseHandle = System.IntPtr;
 using Sqlite3Statement = System.IntPtr;
 #endif
-//TODO: Nikita Remove SQLlite
-#pragma warning disable 0436, 4014
+
 namespace Steepshot.SQLite
 {
     public class SQLiteException : Exception
@@ -385,16 +378,9 @@ namespace Steepshot.SQLite
                 _tables.Add(ty.FullName, map);
             }
             var query = "create table if not exists \"" + map.TableName + "\"(\n";
-
-            var decl = new StringBuilder();
-            for (int i = 0; i < map.Columns.Length; i++)
-            {
-                var column = map.Columns[i];
-                var buf = Orm.SqlDecl(column, StoreDateTimeAsTicks);
-                decl.Append(buf);
-                if (i != map.Columns.Length - 1)
-                    decl.Append(",\n");
-            }
+            
+            var decls = map.Columns.Select(p => Orm.SqlDecl(p, StoreDateTimeAsTicks));
+            var decl = string.Join(",\n", decls.ToArray());
             query += decl;
             query += ")";
 
