@@ -78,9 +78,9 @@ namespace Steepshot.iOS.Views
            });
         }
 
-        private Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
+        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
 
-        private async Task Search(string query)
+        private async void Search(string query)
         {
             if (_prevQuery[_searchType] == query)
                 return;
@@ -106,7 +106,7 @@ namespace Steepshot.iOS.Views
                     OperationResult response;
                     if (string.IsNullOrEmpty(query))
                     {
-                        var request = new SearchRequest() { };
+                        var request = new SearchRequest();
                         response = await Api.GetCategories(request, _cts);
                     }
                     else
@@ -126,7 +126,7 @@ namespace Steepshot.iOS.Views
                         }
                     }
 
-                    if ((bool)response?.Success)
+                    if (response.Success)
                     {
                         bool shouldHide;
                         if (_searchType == SearchType.Tags)
@@ -134,14 +134,14 @@ namespace Steepshot.iOS.Views
                             _tagsSource.Tags.Clear();
                             _tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results;
                             tagsTable.ReloadData();
-                            shouldHide = _tagsSource.Tags.Count == 0;
+                            shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
                         }
                         else
                         {
                             _usersSource.Users.Clear();
                             _usersSource.Users = ((OperationResult<SearchResponse<UserSearchResult>>)response).Result?.Results;
                             usersTable.ReloadData();
-                            shouldHide = _usersSource.Users.Count == 0;
+                            shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
                         }
 
                         if (shouldHide)
@@ -159,8 +159,8 @@ namespace Steepshot.iOS.Views
                                 tagsTable.Hidden = false;
                         }
                     }
-                    else if (response?.Errors.Count > 0)
-                        Reporter.SendCrash("Tags search page get tags error: " + response.Errors[0], User.Login, AppVersion);
+                    else
+                        Reporter.SendCrash($"Tags search page get tags error: {string.Join(Environment.NewLine, response.Errors)}", User.Login, AppVersion);
                 }
             }
             catch (TaskCanceledException)

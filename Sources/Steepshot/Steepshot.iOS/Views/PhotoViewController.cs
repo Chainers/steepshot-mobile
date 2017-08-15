@@ -311,8 +311,7 @@ namespace Steepshot.iOS.Views
             if (!IsGrid)
                 return;
 
-            if (_cellClick != null)
-                _cellClick(indexPath);
+            _cellClick?.Invoke(indexPath);
         }
 
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
