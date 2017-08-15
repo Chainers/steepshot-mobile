@@ -55,7 +55,7 @@ namespace Steepshot.Fragment
 			_profileId = profileId;
 		}
 
-		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!IsInitialized)
 			{
@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
 			return V;
 		}
 
-		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
 		{
 			if (IsInitialized)
 				return;
