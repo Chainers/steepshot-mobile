@@ -28,7 +28,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-#pragma warning disable 0436, 4014
 namespace Steepshot.SQLite
 {
     public partial class SQLiteAsyncConnection
