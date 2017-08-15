@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Ditch;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
-using KnownChains = Steepshot.Core.KnownChains;
+using Sweetshot.Library.HttpClient;
 
 namespace Steepshot.Base
 {
@@ -80,14 +79,14 @@ namespace Steepshot.Base
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            if (isDev)
-            {
-                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrlQa : Constants.GolosUrlQa, chain);
-            }
-            else
-            {
-                _apiClient = new DitchApi(chain == KnownChains.Steem ? Constants.SteemUrl : Constants.GolosUrl, chain);
-            }
+            //if (isDev)
+            //{
+            _apiClient = new DitchApi(chain, isDev);
+            //}
+            //else
+            //{
+            //    _apiClient = new SteepshotApiClient(chain, isDev);
+            //}
         }
 
         public static string ToFormatedCurrencyString(Money value)
@@ -95,7 +94,7 @@ namespace Steepshot.Base
             var dVal = value.ToDouble();
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
-            return $"{Currency} {dVal.ToString("F",CultureInfo)}";
+            return $"{Currency} {dVal.ToString("F", CultureInfo)}";
         }
     }
 }

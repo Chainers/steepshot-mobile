@@ -1,113 +1,139 @@
 using System;
+using System.Collections.Generic;
 using Android.Content;
+using Android.Database;
 using Android.Graphics;
 using Android.OS;
 using Android.Provider;
+using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
+using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Presenter;
+using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-	public delegate void VoidDelegate(); 
-	public class PhotoFragment : BaseFragment
-	{
-		PhotoPresenter _presenter;
-
-#pragma warning disable 0649,4014
-		//[InjectView(Resource.Id.container)] FrameLayout Container;
-		//[InjectView(Resource.Id.Title)] TextView ViewTitle;
-		[InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
+    public delegate void VoidDelegate();
+    public class PhotoFragment : BaseFragment
+    {
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.images_list)] RecyclerView _imagesList;
+        [InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
 #pragma warning restore 0649
 
-		private Java.IO.File _photo;
-		//public event VoidDelegate UpdateProfile;
-		//private string stringPath;
+        private GalleryAdapter _adapter;
+        private Java.IO.File _photo;
 
-		[InjectOnClick(Resource.Id.btn_switch)]
-		public void OnSwitcherClick(object sender, EventArgs e)
-		{
-			var directory = GetDirectoryForPictures();
-			_photo = new Java.IO.File(directory, Guid.NewGuid().ToString());
 
-			Intent intent = new Intent(MediaStore.ActionImageCapture);
-			intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));
-			StartActivityForResult(intent, 0);
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            var v = inflater.Inflate(Resource.Layout.lyt_fragment_photo, null);
+            Cheeseknife.Inject(this, v);
+            return v;
+        }
 
-			/*if (ChildFragmentManager.FindFragmentByTag(GridFragmentId) != null)
-			{
-				OpenCamera();
-			}
-			else if (ChildFragmentManager.FindFragmentByTag(CameraFragmentId) != null)
-			{
-				OpenGrid();
-			}*/
-		}
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (resultCode == -1 && requestCode == 0)
+            {
+                Intent i = new Intent(Context, typeof(PostDescriptionActivity));
+                i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(_photo).Path);
+                StartActivity(i);
+            }
+        }
 
-		public const string CameraFragmentId = "CameraFragmentId";
-		public const string GridFragmentId = "GridFragmentId";
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            base.OnViewCreated(view, savedInstanceState);
+            _switchButton.SetImageResource(Resource.Drawable.ic_camera);
+            _switchButton.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
 
-		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-		{
-			var v = inflater.Inflate(Resource.Layout.lyt_fragment_photo, null);
-			Cheeseknife.Inject(this, v);
-			return v;
-		}
+            _imagesList.SetLayoutManager(new GridLayoutManager(Context, 3));
+            _imagesList.AddItemDecoration(new GridItemdecoration(2, 3));
+            _adapter = new GalleryAdapter(Context);
+            _imagesList.SetAdapter(_adapter);
+            _adapter.Reset(GetAllShownImagesPaths());
+            _adapter.PhotoClick += StartPost;
+        }
 
-		public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-		{
-			base.OnActivityResult(requestCode, resultCode, data);
-			if (resultCode == -1 && requestCode == 0)
-			{
-				Intent i = new Intent(Context, typeof(PostDescriptionActivity));
-				i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(_photo).Path);
-				StartActivity(i);
-			}
-		}
+        public override void OnDestroyView()
+        {
+            base.OnDestroyView();
+            Cheeseknife.Reset(this);
+        }
 
-		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
-		{
-			base.OnViewCreated(view, savedInstanceState);
-			OpenGrid();
-		}
+        [InjectOnClick(Resource.Id.btn_switch)]
+        public void OnSwitcherClick(object sender, EventArgs e)
+        {
+            var directory = GetSteepshotDirectory();
+            _photo = new Java.IO.File(directory, Guid.NewGuid().ToString());
 
-		private void OpenGrid()
-		{
-			_switchButton.SetImageResource(Resource.Drawable.ic_camera);
-			_switchButton.SetColorFilter(Color.White,PorterDuff.Mode.SrcIn);
-			ChildFragmentManager.BeginTransaction().Replace(Resource.Id.container, new PhotoGridFragment(), GridFragmentId).Commit();
-		}
+            Intent intent = new Intent(MediaStore.ActionImageCapture);
+            intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));
+            StartActivityForResult(intent, 0);
+        }
 
-		private void OpenCamera()
-		{ 
-			_switchButton.SetImageResource(Resource.Drawable.ic_grid);
-			_switchButton.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
-			ChildFragmentManager.BeginTransaction().Replace(Resource.Id.container, new CameraFragment(),CameraFragmentId).Commit();
-		}
+        private void StartPost(int obj)
+        {
+            var i = new Intent(Context, typeof(PostDescriptionActivity));
+            i.PutExtra("FILEPATH", _adapter.GetItem(obj));
+            Context.StartActivity(i);
+        }
 
-		public override void OnDestroyView()
-		{
-			base.OnDestroyView();
-			Cheeseknife.Reset(this);
-		}
+        private List<string> GetAllShownImagesPaths()
+        {
+            var listOfAllImages = new List<string>();
+            AddMediaStoreImages(listOfAllImages);
+            AddSteepshotPictures(listOfAllImages);
+            listOfAllImages.Reverse();
+            return listOfAllImages;
+        }
 
-		private Java.IO.File GetDirectoryForPictures()
-		{
-			var dir = new Java.IO.File(
-				Android.OS.Environment.GetExternalStoragePublicDirectory(
-					Android.OS.Environment.DirectoryPictures), "Steepshot");
-			if (!dir.Exists())
-				dir.Mkdirs();
-			
-			return dir;
-		}
+        private void AddMediaStoreImages(List<string> listOfAllImages)
+        {
+            var uri = MediaStore.Images.Media.ExternalContentUri;
+            string[] projection = { MediaStore.MediaColumns.Data, MediaStore.Images.Media.InterfaceConsts.BucketDisplayName };
+            var loader = new CursorLoader(Context, uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
+            var cursor = (ICursor)loader.LoadInBackground();
+            var columnIndexData = cursor.GetColumnIndexOrThrow(MediaStore.MediaColumns.Data);
+            while (cursor.MoveToNext())
+            {
+                var absolutePathOfImage = cursor.GetString(columnIndexData);
+                listOfAllImages.Add(absolutePathOfImage);
+            }
+        }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new PhotoPresenter(this);
-		}
-	}
+        private void AddSteepshotPictures(List<string> listOfAllImages)
+        {
+            var sdCardRoot = GetSteepshotDirectory();
+            foreach (var f in sdCardRoot.ListFiles())
+            {
+                if (IsImage(f))
+                    listOfAllImages.Add(f.AbsolutePath);
+            }
+        }
+
+        private bool IsImage(Java.IO.File f)
+        {
+            return f.IsFile && (
+                       f.AbsolutePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
+                       || f.AbsolutePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                       || f.AbsolutePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
+                       || f.AbsolutePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase));
+
+        }
+
+        private Java.IO.File GetSteepshotDirectory()
+        {
+            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+            var file = new Java.IO.File(dir, "Steepshot");
+            if (!file.Exists())
+                file.Mkdirs();
+            return file;
+        }
+    }
 }

@@ -97,13 +97,11 @@
     <Compile Include="Fragment\FeedFragment.cs" />
     <Compile Include="Fragment\FollowingFragment.cs" />
     <Compile Include="Fragment\PhotoFragment.cs" />
-    <Compile Include="Fragment\PhotoGridFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Base\BaseFragment.cs" />
     <Compile Include="Presenter\UserProfilePresenter.cs" />
     <Compile Include="Presenter\CommentsPresenter.cs" />
     <Compile Include="Presenter\FollowersPresenter.cs" />
-    <Compile Include="Presenter\GuestPresenter.cs" />
     <Compile Include="Presenter\PostDescriptionPresenter.cs" />
     <Compile Include="Presenter\RootPresenter.cs" />
     <Compile Include="Presenter\SearchPresenter.cs" />
@@ -112,11 +110,7 @@
     <Compile Include="Presenter\SplashPresenter.cs" />
     <Compile Include="Presenter\TagsPresenter.cs" />
     <Compile Include="Presenter\TermsPresenter.cs" />
-    <Compile Include="Presenter\CameraPresenter.cs" />
     <Compile Include="Presenter\FeedPresenter.cs" />
-    <Compile Include="Presenter\FollowingPresenter.cs" />
-    <Compile Include="Presenter\PhotoPresenter.cs" />
-    <Compile Include="Presenter\PhotoGridPresenter.cs" />
     <Compile Include="Data\UserFriendViewMode.cs" />
     <Compile Include="Activity\PreSignInActivity.cs" />
     <Compile Include="Presenter\PreSignInPresenter.cs" />
@@ -317,7 +311,6 @@
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_following.axml" />
-    <AndroidResource Include="Resources\layout\lyt_fragment_photo_grid.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_photo.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml">
       <SubType>Designer</SubType>
@@ -473,7 +466,6 @@
     <Reference Include="Xamarin.Android.Support.Vector.Drawable, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.Vector.Drawable.25.4.0.1\lib\MonoAndroid70\Xamarin.Android.Support.Vector.Drawable.dll</HintPath>
     </Reference>
-   
     <Reference Include="ZXing.Net.Mobile.Core, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\MonoAndroid403\ZXing.Net.Mobile.Core.dll</HintPath>
     </Reference>
