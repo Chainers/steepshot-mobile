@@ -86,7 +86,7 @@ namespace Steepshot.Core.Presenters
                     }
                     else
                     {
-                        var postrequest = new PostsRequest(type)
+                        var postrequest = new PostsRequest(type, User.CurrentUser)
                         {
                             Limit = PostsCount,
                             Offset = _offsetUrl
@@ -147,7 +147,7 @@ namespace Steepshot.Core.Presenters
                 using (_cts = new CancellationTokenSource())
                 {
                     Processing = true;
-                    var postrequest = new PostsByCategoryRequest(_type, Tag)
+                    var postrequest = new PostsByCategoryRequest(_type, Tag, User.CurrentUser)
                     {
                         Limit = PostsCount,
                         Offset = _offsetUrl
