@@ -12,11 +12,11 @@ namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        protected readonly Dictionary<string, UserInfo> Users;
-        protected readonly Dictionary<string, ISteepshotApiClient> Api;
-        protected readonly Dictionary<string, ChainInfo> Chain;
+        protected static readonly Dictionary<string, UserInfo> Users;
+        protected static readonly Dictionary<string, ISteepshotApiClient> Api;
+        protected static readonly Dictionary<string, ChainInfo> Chain;
 
-        public BaseTests()
+        static BaseTests()
         {
             Users = new Dictionary<string, UserInfo>()
             {
@@ -26,11 +26,11 @@ namespace Steepshot.Core.Tests
 
             Api = new Dictionary<string, ISteepshotApiClient>
             {
-                {"Steem", new SteepshotApiClient(Constants.SteemUrl)},
-                {"Golos", new SteepshotApiClient(Constants.GolosUrl)}
+                //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
+                //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
                 
-                //{"Steem", new DitchApi(KnownChains.Steem, true)},
-                //{"Golos", new DitchApi(KnownChains.Golos, true)}
+                {"Steem", new DitchApi(KnownChains.Steem, false)},
+                {"Golos", new DitchApi(KnownChains.Golos, false)}
             };
         }
 
@@ -49,7 +49,6 @@ namespace Steepshot.Core.Tests
             AssertResult(response);
             Assert.That(response.Result.IsLoggedIn, Is.True);
             Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
-            Assert.That(response.Result.SessionId, Is.Not.Empty);
             user.SessionId = response.Result.SessionId;
             return user;
         }

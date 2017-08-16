@@ -25,9 +25,8 @@ namespace Steepshot.Core.HttpClient
                     Type = ParameterType.RequestBody
                 }
             };
-            var endpoint = $"login-with-posting";
-            
-            var response = await Gateway.Post(endpoint, parameters, cts);
+
+            var response = await Gateway.Post("login-with-posting", parameters, cts);
 
             var errorResult = CheckErrors(response);
             var result = CreateResult<LoginResponse>(response.Content, errorResult);
@@ -60,7 +59,7 @@ namespace Steepshot.Core.HttpClient
                 Type = ParameterType.RequestBody
             });
             var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
-            
+
             var response = await Gateway.Post(endpoint, parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
@@ -70,7 +69,7 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-            
+
             var response = await Gateway.Post(endpoint, parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
@@ -86,7 +85,7 @@ namespace Steepshot.Core.HttpClient
                 Type = ParameterType.RequestBody
             });
             var endpoint = $"post/{request.Url}/comment";
-            
+
             var response = await Gateway.Post(endpoint, parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
@@ -96,12 +95,12 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var endpoint = $"post";
-            
+
             var response = await Gateway.Upload(endpoint, request.Title, request.Photo, parameters, request.Tags, cts: cts);
             var errorResult = CheckErrors(response);
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
         }
-        
+
         public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
@@ -113,7 +112,7 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
         {
             var endpoint = $"user/{request.Username}/exists";
-            
+
             var response = await Gateway.Get(endpoint, new List<RequestParameter>(), cts);
             var errorResult = CheckErrors(response);
             return CreateResult<UserExistsResponse>(response.Content, errorResult);
@@ -129,7 +128,7 @@ namespace Steepshot.Core.HttpClient
                 Type = ParameterType.RequestBody
             });
             var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
-            
+
             var response = await Gateway.Post(endpoint, parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<FlagResponse>(response.Content, errorResult);

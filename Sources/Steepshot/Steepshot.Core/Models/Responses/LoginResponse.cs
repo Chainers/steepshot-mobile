@@ -14,6 +14,7 @@
         public LoginResponse(bool isCreated)
         {
             _isLoggedIn = isCreated;
+            Message = ServerPositiveResponceMsg;
         }
     }
 }

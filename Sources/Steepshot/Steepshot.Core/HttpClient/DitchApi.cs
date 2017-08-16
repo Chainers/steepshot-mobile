@@ -272,13 +272,32 @@ namespace Steepshot.Core.HttpClient
                 {
                     var typedError = (Ditch.Errors.ResponseError)response.Error;
                     var t = typeof(T);
-                    if (typedError.Data.Code == 3030000 && t.Name == "LoginResponse")
+
+                    switch (typedError.Data.Code)
                     {
-                        operationResult.Errors.Add("Invalid private posting key!");
-                    }
-                    else
-                    {
-                        operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                        //case 10: Assert Exception
+                        //case 13: unknown key
+                        //case 3000000: "transaction exception"
+                        //case 3010000: "missing required active authority"
+                        //case 3020000: "missing required owner authority"
+                        //case 3030000: "missing required posting authority"
+                        //case 3040000: "missing required other authority"
+                        //case 3050000: "irrelevant signature included"
+                        //case 3060000: "duplicate signature included"
+                        case 3030000:
+                            {
+                                if (t.Name == "LoginResponse")
+                                {
+                                    operationResult.Errors.Add("Invalid private posting key!");
+                                    break;
+                                }
+                                goto default;
+                            }
+                        default:
+                            {
+                                operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                                break;
+                            }
                     }
                 }
                 else

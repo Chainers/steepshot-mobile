@@ -1,5 +1,5 @@
-﻿using System.Security.Authentication;
-using Steepshot.Core.Authority;
+﻿using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -16,7 +16,7 @@ namespace Steepshot.Core.Models.Requests
         {
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(postingKey))
             {
-                throw new AuthenticationException("The user is not authorized!");
+                throw new SecurityException("The user is not authorized!");
             }
 
             Login = login;
@@ -27,7 +27,7 @@ namespace Steepshot.Core.Models.Requests
             if (string.IsNullOrEmpty(user.SessionId)
                 && (string.IsNullOrEmpty(user.Login) || string.IsNullOrEmpty(user.PostingKey)))
             {
-                throw new AuthenticationException("The user is not authorized!");
+                throw new SecurityException("The user is not authorized!");
             }
 
             Login = user.Login;
