@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
-using Steepshot.Core.HttpClient;
+using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Tests
@@ -11,34 +11,17 @@ namespace Steepshot.Core.Tests
     [TestFixture]
     public class IntegrationTests : BaseTests
     {
-        private const string Name = "joseph.kalu";
-        private const string PostingKey = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG";
-
-        private string Authenticate(ISteepshotApiClient api)
-        {
-            // Arrange
-            var request = new LoginWithPostingKeyRequest(Name, PostingKey);
-
-            // Act
-            var response = api.LoginWithPostingKey(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.IsLoggedIn, Is.True);
-            Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
-            Assert.That(response.Result.SessionId, Is.Not.Empty);
-
-            return response.Result.SessionId;
-        }
-
         [Test, Sequential]
         public void Login_With_Posting_Key_Invalid_Credentials([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new LoginWithPostingKeyRequest(Name + "x", PostingKey + "x");
+            UserInfo user = Users[name];
+            user.Login += "x";
+            user.PostingKey += "x";
+            var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api(name).LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request).Result;
 
             // Assert
             AssertResult(response);
@@ -50,10 +33,12 @@ namespace Steepshot.Core.Tests
         public void Login_With_Posting_Key_Wrong_PostingKey([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new LoginWithPostingKeyRequest(Name, PostingKey + "x");
+            UserInfo user = Users[name];
+            user.PostingKey += "x";
+            var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api(name).LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request).Result;
 
             // Assert
             AssertResult(response);
@@ -65,10 +50,12 @@ namespace Steepshot.Core.Tests
         public void Login_With_Posting_Key_Wrong_Username([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new LoginWithPostingKeyRequest(Name + "x", PostingKey);
+            UserInfo user = Users[name];
+            user.Login += "x";
+            var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api(name).LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request).Result;
 
             // Assert
             AssertResult(response);
@@ -80,10 +67,11 @@ namespace Steepshot.Core.Tests
         public void UserPosts([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserPostsRequest(Name);
+            UserInfo user = Users[name];
+            var request = new UserPostsRequest(user.Login);
 
             // Act
-            var response = Api(name).GetUserPosts(request).Result;
+            var response = Api[name].GetUserPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -115,10 +103,11 @@ namespace Steepshot.Core.Tests
         public void UserPosts_Invalid_Username([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserPostsRequest(Name + "x");
+            UserInfo user = Users[name];
+            var request = new UserPostsRequest(user.Login + "x");
 
             // Act
-            var response = Api(name).GetUserPosts(request).Result;
+            var response = Api[name].GetUserPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -131,12 +120,13 @@ namespace Steepshot.Core.Tests
         [Values("/cat1/@joseph.kalu/cat636203389144533548", "/cat1/@joseph.kalu/cat636281384922864910")] string offset)
         {
             // Arrange
-            var request = new UserPostsRequest(Name);
+            UserInfo user = Users[name];
+            var request = new UserPostsRequest(user.Login);
             request.Offset = offset;
             request.Limit = 3;
 
             // Act
-            var response = Api(name).GetUserPosts(request).Result;
+            var response = Api[name].GetUserPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -152,10 +142,11 @@ namespace Steepshot.Core.Tests
         public void UserPosts_With_SessionId_Some_Votes_True([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserPostsRequest(Name) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new UserPostsRequest(user.Login) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetUserPosts(request).Result;
+            var response = Api[name].GetUserPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -166,10 +157,11 @@ namespace Steepshot.Core.Tests
         public void UserPosts_Without_SessionId_All_Votes_False([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserPostsRequest(Name);
+            UserInfo user = Users[name];
+            var request = new UserPostsRequest(user.Login);
 
             // Act
-            var response = Api(name).GetUserPosts(request).Result;
+            var response = Api[name].GetUserPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -180,10 +172,14 @@ namespace Steepshot.Core.Tests
         public void UserRecentPosts([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserRecentPostsRequest(Authenticate(Api(name)));
+            UserInfo user = Users[name];
+            var request = new NamedRequestWithOffsetLimitFields
+            {
+                Login = user.Login
+            };
 
             // Act
-            var response = Api(name).GetUserRecentPosts(request).Result;
+            var response = Api[name].GetUserRecentPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -196,12 +192,16 @@ namespace Steepshot.Core.Tests
         public void UserRecentPosts_Offset_Limit([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserRecentPostsRequest(Authenticate(Api(name)));
-            request.Offset = Api(name).GetUserRecentPosts(request).Result.Result.Results.First().Url;
+            UserInfo user = Users[name];
+            var request = new NamedRequestWithOffsetLimitFields
+            {
+                Login = user.Login
+            };
+            request.Offset = Api[name].GetUserRecentPosts(request).Result.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api(name).GetUserRecentPosts(request).Result;
+            var response = Api[name].GetUserRecentPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -220,7 +220,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -235,7 +235,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -247,11 +247,11 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var request = new PostsRequest(PostType.Hot);
-            request.Offset = Api(name).GetPosts(request).Result.Result.Results.First().Url;
+            request.Offset = Api[name].GetPosts(request).Result.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -265,10 +265,11 @@ namespace Steepshot.Core.Tests
         public void Posts_Top_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new PostsRequest(PostType.Top) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new PostsRequest(PostType.Top) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -283,7 +284,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Hot);
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -297,7 +298,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.New);
 
             // Act
-            var response = Api(name).GetPosts(request).Result;
+            var response = Api[name].GetPosts(request).Result;
 
             // Assert
             AssertResult(response);
@@ -311,7 +312,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, category);
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -328,7 +329,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -342,7 +343,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "qweqweqweqewqwqweqe");
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -356,7 +357,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "");
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -370,7 +371,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Hot, category);
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -387,7 +388,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.New, "food");
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -402,11 +403,11 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
-            request.Offset = Api(name).GetPostsByCategory(request).Result.Result.Results.First().Url;
+            request.Offset = Api[name].GetPostsByCategory(request).Result.Result.Results.First().Url;
             request.Limit = 5;
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -420,10 +421,11 @@ namespace Steepshot.Core.Tests
         public void Posts_By_Category_With_SessionId([Values("Steem", "Golos")] string name, [Values("food", "ru--golos")] string category)
         {
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, category) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new PostsByCategoryRequest(PostType.Top, category) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetPostsByCategory(request).Result;
+            var response = Api[name].GetPostsByCategory(request).Result;
 
             // Assert
             AssertResult(response);
@@ -434,16 +436,17 @@ namespace Steepshot.Core.Tests
         public void Vote_Up_Already_Voted([Values("Steem", "Golos")] string name)
         {
             // Load last post
-            var userPostsRequest = new UserPostsRequest(Name);
-            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            UserInfo user = Users[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), true, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), true, lastPost.Url);
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
             Thread.Sleep(3000);
-            var response2 = Api(name).Vote(request).Result;
+            var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -451,21 +454,22 @@ namespace Steepshot.Core.Tests
                         response2.Errors.Contains("Can only vote once every 3 seconds") ||
                         response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
         }
-        
+
         [Test, Sequential]
         public void Vote_Down_Already_Voted([Values("Steem", "Golos")] string name)
         {
             // Load last post
-            var userPostsRequest = new UserPostsRequest(Name);
-            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            UserInfo user = Users[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), false, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), false, lastPost.Url);
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
             Thread.Sleep(3000);
-            var response2 = Api(name).Vote(request).Result;
+            var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -478,10 +482,10 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier1([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), true, "qwe");
+            var request = new VoteRequest(Authenticate(name), true, "qwe");
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -492,10 +496,10 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier2([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), true, "qwe/qwe");
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -506,10 +510,10 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier3([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), true, "qwe/qwe");
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -520,10 +524,10 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier4([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(Api(name)), true, "qwe/@qwe");
+            var request = new VoteRequest(Authenticate(name), true, "qwe/@qwe");
 
             // Act
-            var response = Api(name).Vote(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -534,15 +538,16 @@ namespace Steepshot.Core.Tests
         public void Flag_Up_Already_Flagged([Values("Steem", "Golos")] string name)
         {
             // Load last post
-            var userPostsRequest = new UserPostsRequest(Name);
-            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            UserInfo user = Users[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), true, lastPost.Url);
+            var request = new FlagRequest(Authenticate(name), true, lastPost.Url);
 
             // Act
-            var response = Api(name).Flag(request).Result;
-            var response2 = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
+            var response2 = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -555,15 +560,16 @@ namespace Steepshot.Core.Tests
         public void Flag_Down_Already_Flagged([Values("Steem", "Golos")] string name)
         {
             // Load last post
-            var userPostsRequest = new UserPostsRequest(Name);
-            var lastPost = Api(name).GetUserPosts(userPostsRequest).Result.Result.Results.First();
+            UserInfo user = Users[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), false, lastPost.Url);
+            var request = new FlagRequest(Authenticate(name), false, lastPost.Url);
 
             // Act
-            var response = Api(name).Flag(request).Result;
-            var response2 = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
+            var response2 = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -576,10 +582,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier1([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe");
+            var request = new FlagRequest(Authenticate(name), true, "qwe");
 
             // Act
-            var response = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response);
@@ -590,10 +596,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier2([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/qwe");
+            var request = new FlagRequest(Authenticate(name), true, "qwe/qwe");
 
             // Act
-            var response = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response);
@@ -604,10 +610,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier3([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/qwe");
+            var request = new FlagRequest(Authenticate(name), true, "qwe/qwe");
 
             // Act
-            var response = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response);
@@ -618,10 +624,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier4([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(Api(name)), true, "qwe/@qwe");
+            var request = new FlagRequest(Authenticate(name), true, "qwe/@qwe");
 
             // Act
-            var response = Api(name).Flag(request).Result;
+            var response = Api[name].Flag(request).Result;
 
             // Assert
             AssertResult(response);
@@ -632,10 +638,10 @@ namespace Steepshot.Core.Tests
         public void Follow_Invalid_Username([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FollowRequest(Authenticate(Api(name)), FollowType.Follow, "qwet32qwe3qwewfoc020mm2nndasdwe");
+            var request = new FollowRequest(Authenticate(name), FollowType.Follow, "qwet32qwe3qwewfoc020mm2nndasdwe");
 
             // Act
-            var response = Api(name).Follow(request).Result;
+            var response = Api[name].Follow(request).Result;
 
             // Assert
             AssertResult(response);
@@ -651,7 +657,7 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest(url);
 
             // Act
-            var response = Api(name).GetComments(request).Result;
+            var response = Api[name].GetComments(request).Result;
 
             // Assert
             AssertResult(response);
@@ -683,10 +689,11 @@ namespace Steepshot.Core.Tests
             [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/hi-golos")] string url)
         {
             // Arrange
-            var request = new InfoRequest(url) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new InfoRequest(url) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetComments(request).Result;
+            var response = Api[name].GetComments(request).Result;
 
             // Assert
             AssertResult(response);
@@ -703,7 +710,7 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest(url);
 
             // Act
-            var response = Api(name).GetComments(request).Result;
+            var response = Api[name].GetComments(request).Result;
 
             // Assert
             AssertResult(response);
@@ -717,7 +724,7 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest("qwe");
 
             // Act
-            var response = Api(name).GetComments(request).Result;
+            var response = Api[name].GetComments(request).Result;
 
             // Assert
             AssertResult(response);
@@ -731,7 +738,7 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest("@asduj/qweqweqweqw");
 
             // Act
-            var response = Api(name).GetComments(request).Result;
+            var response = Api[name].GetComments(request).Result;
 
             // Assert
             AssertResult(response);
@@ -742,10 +749,10 @@ namespace Steepshot.Core.Tests
         public void CreateComment_Empty_Body([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new CreateCommentRequest(Authenticate(Api(name)), "spam/@joseph.kalu/test-post-127", "", "test_title");
+            var request = new CreateCommentRequest(Authenticate(name), "spam/@joseph.kalu/test-post-127", "", "test_title");
 
             // Act
-            var response = Api(name).CreateComment(request).Result;
+            var response = Api[name].CreateComment(request).Result;
 
             // Assert
             AssertResult(response);
@@ -756,10 +763,10 @@ namespace Steepshot.Core.Tests
         public void CreateComment_Empty_Title([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new CreateCommentRequest(Authenticate(Api(name)), "spam/@joseph.kalu/test-post-127", "test_body", "");
+            var request = new CreateCommentRequest(Authenticate(name), "spam/@joseph.kalu/test-post-127", "test_body", "");
 
             // Act
-            var response = Api(name).CreateComment(request).Result;
+            var response = Api[name].CreateComment(request).Result;
 
             // Assert
             AssertResult(response);
@@ -770,16 +777,17 @@ namespace Steepshot.Core.Tests
         public void CreateComment_20_Seconds_Delay([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var userPostsRequest = new UserPostsRequest(Name);
-            var userPostsResponse = Api(name).GetUserPosts(userPostsRequest).Result;
+            UserInfo user = Users[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsResponse = Api[name].GetUserPosts(userPostsRequest).Result;
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
             const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(Authenticate(Api(name)), lastPost.Url, body, title);
+            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, title);
 
             // Act
-            var response1 = Api(name).CreateComment(createCommentRequest).Result;
-            var response2 = Api(name).CreateComment(createCommentRequest).Result;
+            var response1 = Api[name].CreateComment(createCommentRequest).Result;
+            var response2 = Api[name].CreateComment(createCommentRequest).Result;
 
             // Assert
             AssertResult(response2);
@@ -790,10 +798,10 @@ namespace Steepshot.Core.Tests
         public void Categories([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchRequest();
+            var request = new OffsetLimitFields();
 
             // Act
-            var response = Api(name).GetCategories(request).Result;
+            var response = Api[name].GetCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -808,14 +816,14 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new SearchRequest
+            var request = new OffsetLimitFields()
             {
                 Offset = "food",
                 Limit = limit
             };
 
             // Act
-            var response = Api(name).GetCategories(request).Result;
+            var response = Api[name].GetCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -830,10 +838,10 @@ namespace Steepshot.Core.Tests
         public void Categories_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchRequest {Offset = "qweqweqwe"};
+            var request = new OffsetLimitFields() { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api(name).GetCategories(request).Result;
+            var response = Api[name].GetCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -842,22 +850,6 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        [Test, Sequential]
-        public void Categories_With_SessionId([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var request = new SearchRequest {SessionId = Authenticate(Api(name))};
-
-            // Act
-            var response = Api(name).GetCategories(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
-            Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
-        }
 
         [Test, Sequential]
         public void Categories_Search([Values("Steem", "Golos")] string name)
@@ -866,7 +858,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("ru");
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -883,7 +875,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -899,7 +891,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("f");
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -913,7 +905,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -932,7 +924,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -947,10 +939,10 @@ namespace Steepshot.Core.Tests
         public void Categories_Search_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("life") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("life") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -964,7 +956,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("lif");
 
             // Act
-            var response = Api(name).SearchCategories(request).Result;
+            var response = Api[name].SearchCategories(request).Result;
 
             // Assert
             AssertResult(response);
@@ -981,7 +973,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileRequest(user);
 
             // Act
-            var response = Api(name).GetUserProfile(request).Result;
+            var response = Api[name].GetUserProfile(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1013,7 +1005,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileRequest("qweqweqwe");
 
             // Act
-            var response = Api(name).GetUserProfile(request).Result;
+            var response = Api[name].GetUserProfile(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1024,10 +1016,10 @@ namespace Steepshot.Core.Tests
         public void UserProfile_With_SessionId([Values("Steem", "Golos")] string name, [Values("thecryptofiend", "phoenix")] string user)
         {
             // Arrange
-            var request = new UserProfileRequest(Name) {SessionId = Authenticate(Api(name))};
+            var request = new UserProfileRequest(user) { Login = user };
 
             // Act
-            var response = Api(name).GetUserProfile(request).Result;
+            var response = Api[name].GetUserProfile(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1056,10 +1048,11 @@ namespace Steepshot.Core.Tests
         public void UserFriends_Following([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Following);
+            UserInfo user = Users[name];
+            var request = new UserFriendsRequest(user.Login, FriendsType.Following);
 
             // Act
-            var response = Api(name).GetUserFriends(request).Result;
+            var response = Api[name].GetUserFriends(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1078,10 +1071,11 @@ namespace Steepshot.Core.Tests
         public void UserFriends_Followers([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers);
+            UserInfo user = Users[name];
+            var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
 
             // Act
-            var response = Api(name).GetUserFriends(request).Result;
+            var response = Api[name].GetUserFriends(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1100,10 +1094,11 @@ namespace Steepshot.Core.Tests
         public void UserFriends_Followers_Invalid_Username([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name + "x", FriendsType.Followers);
+            UserInfo user = Users[name];
+            var request = new UserFriendsRequest(user.Login + "x", FriendsType.Followers);
 
             // Act
-            var response = Api(name).GetUserFriends(request).Result;
+            var response = Api[name].GetUserFriends(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1115,12 +1110,13 @@ namespace Steepshot.Core.Tests
         public void UserFriends_Followers_Offset_Limit([Values("Steem", "Golos")] string name, [Values("vowestdream", "pmartynov")] string offset)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers);
+            UserInfo user = Users[name];
+            var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
             request.Offset = offset;
             request.Limit = 1;
 
             // Act
-            var response = Api(name).GetUserFriends(request).Result;
+            var response = Api[name].GetUserFriends(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1136,10 +1132,11 @@ namespace Steepshot.Core.Tests
         public void UserFriends_Followers_With_SessionId([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UserFriendsRequest(Name, FriendsType.Followers) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new UserFriendsRequest(user.Login, FriendsType.Followers) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetUserFriends(request).Result;
+            var response = Api[name].GetUserFriends(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1155,7 +1152,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             // Act
-            var response = Api(name).TermsOfService().Result;
+            var response = Api[name].TermsOfService().Result;
 
             // Assert
             AssertResult(response);
@@ -1170,7 +1167,7 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest(url);
 
             // Act
-            var response = Api(name).GetPostInfo(request).Result;
+            var response = Api[name].GetPostInfo(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1196,14 +1193,14 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void GetPostInfo_With_SessionId([Values("Steem", "Golos")] string name,
-            [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
+        public void GetPostInfo_With_SessionId([Values("Steem", "Golos")] string name, [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
-            var request = new InfoRequest(url) {SessionId = Authenticate(Api(name))};
+            UserInfo user = Users[name];
+            var request = new InfoRequest(url) { Login = user.Login };
 
             // Act
-            var response = Api(name).GetPostInfo(request).Result;
+            var response = Api[name].GetPostInfo(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1235,21 +1232,21 @@ namespace Steepshot.Core.Tests
             var request = new InfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
             // Act
-            var response = Api(name).GetPostInfo(request).Result;
+            var response = Api[name].GetPostInfo(request).Result;
 
             // Assert
             AssertResult(response);
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
-        
+
         [Test, Sequential]
         public void Upload_Empty_Photo([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new UploadImageRequest(Authenticate(Api(name)), "title", "cat1", "cat2", "cat3", "cat4");
+            var request = new UploadImageRequest(Authenticate(name), "title", "cat1", "cat2", "cat3", "cat4");
 
             // Act
-            var response = Api(name).Upload(request).Result;
+            var response = Api[name].Upload(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1261,10 +1258,10 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());
-            var request = new UploadImageRequest(Authenticate(Api(name)), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
+            var request = new UploadImageRequest(Authenticate(name), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
             // Act
-            var response = Api(name).Upload(request).Result;
+            var response = Api[name].Upload(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1278,7 +1275,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("aar");
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1295,7 +1292,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1311,7 +1308,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("fo");
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1325,7 +1322,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1344,7 +1341,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1359,31 +1356,14 @@ namespace Steepshot.Core.Tests
         public void User_Search_Offset_Not_Exisiting([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("aar") {Offset = "qweqweqwe"};
+            var request = new SearchWithQueryRequest("aar") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api(name).SearchUser(request).Result;
+            var response = Api[name].SearchUser(request).Result;
 
             // Assert
             AssertResult(response);
             Assert.That(response.Errors.Contains("Username used for offset was not found"));
-        }
-
-        [Test, Sequential]
-        public void User_Search_With_SessionId([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var request = new SearchWithQueryRequest("aar") {SessionId = Authenticate(Api(name))};
-
-            // Act
-            var response = Api(name).SearchUser(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount >= 0);
-            Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Username, Is.Not.Empty);
         }
 
         [Test, Sequential]
@@ -1393,7 +1373,7 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsRequests("pmartynov");
 
             // Act
-            var response = Api(name).UserExistsCheck(request).Result;
+            var response = Api[name].UserExistsCheck(request).Result;
 
             // Assert
             AssertResult(response);
@@ -1407,13 +1387,13 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsRequests("pmartynov123");
 
             // Act
-            var response = Api(name).UserExistsCheck(request).Result;
+            var response = Api[name].UserExistsCheck(request).Result;
 
             // Assert
             AssertResult(response);
             Assert.False(response.Result.Exists);
         }
-        
+
         [Test, Sequential]
         public void CancelationTest()
         {
@@ -1421,11 +1401,11 @@ namespace Steepshot.Core.Tests
             // Act
             var ex = Assert.Throws<AggregateException>(() =>
             {
-                var request = new SearchWithQueryRequest("aar") {SessionId = Authenticate(Api("Steem"))};
+                var request = new SearchWithQueryRequest("aar");
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-                var operationResult = Api("Steem").SearchUser(request, cts).Result;
+                var operationResult = Api["Steem"].SearchUser(request, cts).Result;
             });
-            
+
             // Assert
             Assert.That(ex.InnerException.Message, Is.EqualTo("A task was canceled."));
         }

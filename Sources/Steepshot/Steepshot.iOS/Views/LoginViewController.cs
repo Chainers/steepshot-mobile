@@ -108,7 +108,7 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var request = new LoginWithPostingKeyRequest(Username, password.Text);
+                var request = new AuthorizedRequest(Username, password.Text);
                 var response = await Api.LoginWithPostingKey(request);
 
                 if (response.Success)

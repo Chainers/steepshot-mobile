@@ -106,16 +106,12 @@ namespace Steepshot.iOS.Views
                     OperationResult response;
                     if (string.IsNullOrEmpty(query))
                     {
-                        var request = new SearchRequest();
+                        var request = new OffsetLimitFields();
                         response = await Api.GetCategories(request, _cts);
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query)
-                        {
-                            Login = User.CurrentUser.Login,
-                            SessionId = User.CurrentUser.SessionId
-                        };
+                        var request = new SearchWithQueryRequest(query);
                         if (_searchType == SearchType.Tags)
                         {
                             response = await Api.SearchCategories(request, _cts);

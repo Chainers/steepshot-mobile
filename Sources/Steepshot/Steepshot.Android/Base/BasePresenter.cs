@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Steepshot.Core;
+using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
-using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
-using Sweetshot.Library.HttpClient;
+using KnownChains = Steepshot.Core.KnownChains;
 
 namespace Steepshot.Base
 {

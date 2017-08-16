@@ -14,7 +14,7 @@ namespace Steepshot.Core.HttpClient
     {
         public SteepshotApiClient(string url) : base(url) { }
 
-        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts)
         {
             var parameters = new List<RequestParameter>
             {
@@ -102,12 +102,10 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<ImageUploadResponse>(response.Content, errorResult);
         }
         
-        public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            var endpoint = $"logout";
-            
-            var response = await Gateway.Post(endpoint, parameters, cts);
+            var response = await Gateway.Post("logout", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<LogoutResponse>(response.Content, errorResult);
         }

@@ -202,8 +202,7 @@ namespace Steepshot.iOS.Views
             {
                 var req = new UserProfileRequest(Username)
                 {
-                    Login = User.CurrentUser.Login,
-                    SessionId = User.CurrentUser.SessionId
+                    Login = User.Login
                 };
                 var response = await Api.GetUserProfile(req);
                 if (response.Success)
@@ -308,8 +307,7 @@ namespace Steepshot.iOS.Views
             {
                 var req = new UserPostsRequest(Username)
                 {
-                    Login = User.CurrentUser.Login,
-                    SessionId = User.CurrentUser.SessionId,
+                    Login = User.Login,
                     Limit = Limit,
                     Offset = _photosList.Count == 0 ? "0" : _offsetUrl
                 };
@@ -373,11 +371,7 @@ namespace Steepshot.iOS.Views
                     return;
                 }
 
-                var voteRequest = new VoteRequest(User.CurrentUser.SessionId, vote, postUri)
-                {
-                    Login = User.CurrentUser.Login,
-                    SessionId = User.CurrentUser.SessionId
-                };
+                var voteRequest = new VoteRequest(User.UserInfo, vote, postUri);
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -450,11 +444,7 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                var flagRequest = new FlagRequest(User.CurrentUser.SessionId, vote, postUrl)
-                {
-                    Login = User.CurrentUser.Login,
-                    SessionId = User.CurrentUser.SessionId
-                };
+                var flagRequest = new FlagRequest(User.UserInfo, vote, postUrl);
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {
@@ -487,12 +477,7 @@ namespace Steepshot.iOS.Views
 
         public async Task Follow()
         {
-            var request = new FollowRequest(User.CurrentUser.SessionId,
-                (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username)
-            {
-                Login = User.CurrentUser.Login,
-                SessionId = User.CurrentUser.SessionId
-            };
+            var request = new FollowRequest(User.UserInfo, (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {

@@ -2,7 +2,7 @@
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class UserExistsRequests : BaseRequest
+    public class UserExistsRequests
     {
         public UserExistsRequests(string username)
         {
@@ -14,7 +14,7 @@ namespace Steepshot.Core.Models.Requests
         public string Username { get; private set; }
     }
 
-    public class UserProfileRequest : BaseRequest
+    public class UserProfileRequest : NamedRequest
     {
         public UserProfileRequest(string username)
         {
@@ -32,7 +32,7 @@ namespace Steepshot.Core.Models.Requests
         Following
     }
 
-    public class UserFriendsRequest : BaseRequestWithOffsetLimitFields
+    public class UserFriendsRequest : NamedRequestWithOffsetLimitFields
     {
         public UserFriendsRequest(string username, FriendsType type)
         {

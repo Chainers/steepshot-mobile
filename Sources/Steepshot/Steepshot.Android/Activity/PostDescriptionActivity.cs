@@ -165,12 +165,7 @@ namespace Steepshot.Activity
                 if (!success)
                     ShowAlert("Photo upload error, please try again");
 
-                var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.CurrentUser.SessionId,
-                    _description.Text, _arrayToUpload, _tags.ToArray())
-                {
-                    Login = BasePresenter.User.CurrentUser.Login,
-                    SessionId = BasePresenter.User.CurrentUser.SessionId
-                };
+                var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo,_description.Text, _arrayToUpload, _tags.ToArray());
 
                 var resp = await _presenter.Upload(request);
                 if (resp.Errors.Count > 0)

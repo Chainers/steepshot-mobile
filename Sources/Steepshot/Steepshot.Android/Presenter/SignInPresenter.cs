@@ -12,7 +12,7 @@ namespace Steepshot.Presenter
 
         public Task<OperationResult<LoginResponse>> SignIn(string login, string postingKey)
         {
-            var request = new LoginWithPostingKeyRequest(login, postingKey);
+            var request = new AuthorizedRequest(login, postingKey);
             return Api.LoginWithPostingKey(request);
         }
     }

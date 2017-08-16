@@ -12,6 +12,16 @@ namespace Steepshot.Core.Models.Requests
         public string PostingKey { get; set; }
 
 
+        public AuthorizedRequest(string login, string postingKey)
+        {
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(postingKey))
+            {
+                throw new AuthenticationException("The user is not authorized!");
+            }
+
+            Login = login;
+            PostingKey = postingKey;
+        }
         public AuthorizedRequest(UserInfo user)
         {
             if (string.IsNullOrEmpty(user.SessionId)
@@ -19,6 +29,10 @@ namespace Steepshot.Core.Models.Requests
             {
                 throw new AuthenticationException("The user is not authorized!");
             }
+
+            Login = user.Login;
+            PostingKey = user.PostingKey;
+            SessionId = user.SessionId;
         }
     }
 }
