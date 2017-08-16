@@ -6,27 +6,22 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Presenter
 {
-	public class TagsPresenter : BasePresenter
-	{
-		public TagsPresenter(IBaseView view):base(view)
-		{
-		}
+    public class TagsPresenter : BasePresenter
+    {
+        public TagsPresenter(IBaseView view) : base(view)
+        {
+        }
 
-		public async Task<OperationResult<SearchResponse<SearchResult>>> SearchTags(string s)
-		{
-		    var request = new SearchWithQueryRequest(s)
-		    {
-		        SessionId = User.CurrentUser.SessionId,
-		        Login = User.CurrentUser.Login
-		    };
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchTags(string s)
+        {
+            var request = new SearchWithQueryRequest(s);
+            return await Api.SearchCategories(request);
+        }
 
-            return await Api.SearchCategories(request, null);
-		}
-
-		public async Task<OperationResult<SearchResponse<SearchResult>>> GetTopTags()
-		{
-			var request = new SearchRequest();
-			return await Api.GetCategories(request, null);
-		}
-	}
+        public async Task<OperationResult<SearchResponse<SearchResult>>> GetTopTags()
+        {
+            var request = new OffsetLimitFields();
+            return await Api.GetCategories(request);
+        }
+    }
 }

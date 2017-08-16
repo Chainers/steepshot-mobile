@@ -1,10 +1,6 @@
 ﻿namespace Steepshot.Core.Models.Requests
 {
-    public class SearchRequest : BaseRequestWithOffsetLimitFields
-    {
-    }
-
-    public class SearchWithQueryRequest : SearchRequest
+    public class SearchWithQueryRequest : OffsetLimitFields
     {
         public SearchWithQueryRequest(string query)
         {

@@ -2,19 +2,24 @@
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class BaseRequest
+    public class NamedRequest
     {
-        public string SessionId { get; set; }
         public string Login { get; set; }
     }
 
-    public class BaseRequestWithOffsetLimitFields : BaseRequest
+    public class OffsetLimitFields
     {
         public string Offset { get; set; }
         public int Limit { get; set; }
     }
 
-    public class InfoRequest : BaseRequestWithOffsetLimitFields
+    public class NamedRequestWithOffsetLimitFields : NamedRequest
+    {
+        public string Offset { get; set; }
+        public int Limit { get; set; }
+    }
+
+    public class InfoRequest : NamedRequestWithOffsetLimitFields
     {
         public InfoRequest(string url)
         {

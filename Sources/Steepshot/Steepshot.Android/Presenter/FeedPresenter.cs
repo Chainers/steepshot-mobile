@@ -77,10 +77,9 @@ namespace Steepshot.Presenter
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
-                        var f = new UserRecentPostsRequest(User.CurrentUser.SessionId)
+                        var f = new NamedRequestWithOffsetLimitFields
                         {
-                            Login = User.CurrentUser.Login,
-                            SessionId = User.CurrentUser.SessionId,
+                            Login = User.Login,
                             Limit = PostsCount,
                             Offset = _offsetUrl
                         };
@@ -90,8 +89,7 @@ namespace Steepshot.Presenter
                     {
                         var postrequest = new PostsRequest(type)
                         {
-                            SessionId = User.CurrentUser.SessionId,
-                            Login = User.CurrentUser.Login,
+                            Login = User.Login,
                             Limit = PostsCount,
                             Offset = _offsetUrl
                         };
@@ -153,8 +151,7 @@ namespace Steepshot.Presenter
                     Processing = true;
                     var postrequest = new PostsByCategoryRequest(_type, Tag)
                     {
-                        SessionId = User.CurrentUser.SessionId,
-                        Login = User.CurrentUser.Login,
+                        Login = User.Login,
                         Limit = PostsCount,
                         Offset = _offsetUrl
                     };
@@ -197,21 +194,13 @@ namespace Steepshot.Presenter
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
 
-            var voteRequest = new VoteRequest(User.CurrentUser.SessionId, !post.Vote, post.Url)
-            {
-                Login = User.CurrentUser.Login,
-                SessionId = User.CurrentUser.SessionId
-            };
+            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
             return await Api.Vote(voteRequest);
         }
 
         public async Task<OperationResult<LogoutResponse>> Logout()
         {
-            var request = new LogoutRequest(User.CurrentUser.SessionId)
-            {
-                SessionId = User.CurrentUser.SessionId,
-                Login = User.CurrentUser.Login
-            };
+            var request = new AuthorizedRequest(User.UserInfo);
             return await Api.Logout(request);
         }
     }

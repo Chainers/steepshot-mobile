@@ -2,7 +2,7 @@
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class UserPostsRequest : BaseRequestWithOffsetLimitFields
+    public class UserPostsRequest : NamedRequestWithOffsetLimitFields
     {
         public UserPostsRequest(string username)
         {
@@ -14,16 +14,6 @@ namespace Steepshot.Core.Models.Requests
         public string Username { get; private set; }
     }
 
-    public class UserRecentPostsRequest : BaseRequestWithOffsetLimitFields
-    {
-        public UserRecentPostsRequest(string sessionId)
-        {
-            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
-
-            base.SessionId = sessionId;
-        }
-    }
-
     public enum PostType
     {
         Top,
@@ -31,7 +21,7 @@ namespace Steepshot.Core.Models.Requests
         New
     }
 
-    public class PostsRequest : BaseRequestWithOffsetLimitFields
+    public class PostsRequest : NamedRequestWithOffsetLimitFields
     {
         public PostsRequest(PostType type)
         {
