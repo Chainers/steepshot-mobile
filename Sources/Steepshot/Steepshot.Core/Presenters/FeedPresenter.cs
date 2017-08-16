@@ -191,7 +191,7 @@ namespace Steepshot.Core.Presenters
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
 
-            var voteRequest = new VoteRequest(User.CurrentUser.SessionId, !post.Vote, post.Url)
+            var voteRequest = new VoteRequest(User.CurrentUser, !post.Vote, post.Url)
             {
                 SessionId = User.CurrentUser.SessionId,
                 Login = User.CurrentUser.Login

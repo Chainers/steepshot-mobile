@@ -27,12 +27,11 @@ namespace Steepshot.Core.HttpClient
             _jsonConverter = new JsonNetConverter();
         }
 
-        private static string ChainToUrl(Steepshot.Core.KnownChains chain, bool isDev)
+        private static string ChainToUrl(KnownChains chain, bool isDev)
         {
-            if (chain == Steepshot.Core.KnownChains.Steem)
-                return isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
-
-            return isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
+            if (chain == KnownChains.Steem)
+                return isDev ? Constants.SteemUrlQa : Constants.SteemUrl;
+            return isDev ? Constants.GolosUrlQa : Constants.GolosUrl;
         }
 
         #region Post requests
@@ -70,7 +69,7 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() =>
             {
-                var op = request.Type == Models.Requests.FollowType.Follow
+                var op = request.Type == FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
 
@@ -140,7 +139,7 @@ namespace Steepshot.Core.HttpClient
                 {
                     var upResp = uploadResponse.Result;
                     var meta = _jsonConverter.Serialize(upResp.Meta);
-                    var post = new PostOperation("steepshot", request.Login, upResp.Title, upResp.Payload.Body, meta);
+                    var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
                     var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
                     if (!resp.IsError)
                         rez.Result = upResp.Payload;

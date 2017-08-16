@@ -1,15 +1,14 @@
 using System;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class CreateCommentRequest : BaseRequest
+    public class CreateCommentRequest : AuthorizedRequest
     {
-        public CreateCommentRequest(string sessionId, string url, string body, string title)
+        public CreateCommentRequest(UserInfo user, string url, string body, string title) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
-
-            base.SessionId = sessionId;
+            
             Url = url;
             Body = body;
             Title = title;

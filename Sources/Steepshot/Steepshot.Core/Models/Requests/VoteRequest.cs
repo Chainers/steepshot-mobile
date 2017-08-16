@@ -1,7 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -11,14 +11,12 @@ namespace Steepshot.Core.Models.Requests
         [Display(Description = "downvote")] Down
     }
 
-    public class VoteRequest : BaseRequest
+    public class VoteRequest : AuthorizedRequest
     {
-        public VoteRequest(string sessionId, bool isUp, string identifier)
+        public VoteRequest(UserInfo user, bool isUp, string identifier) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            base.SessionId = sessionId;
             Type = isUp ? VoteType.Up : VoteType.Down;
             Identifier = identifier;
         }
