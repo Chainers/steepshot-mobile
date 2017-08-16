@@ -17,11 +17,7 @@ namespace Steepshot.Base
             CreatePresenter();
         }
 
-
-        protected virtual void CreatePresenter()
-        {
-
-        }
+        protected virtual void CreatePresenter() { }
 
         public Context GetContext()
         {

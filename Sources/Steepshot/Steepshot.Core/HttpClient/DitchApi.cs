@@ -86,7 +86,7 @@ namespace Steepshot.Core.HttpClient
             });
         }
 
-        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts)
         {
             return await Task.Run(() =>
             {
@@ -150,7 +150,7 @@ namespace Steepshot.Core.HttpClient
             });
         }
 
-        public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts)
         {
             return await Task.Run(() => new OperationResult<LogoutResponse>
             {

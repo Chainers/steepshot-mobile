@@ -9,51 +9,49 @@ namespace Steepshot.Core.Authority
     {
         private readonly IDataProvider _data;
 
-        public UserInfo CurrentUser { get; private set; }
+        public UserInfo UserInfo { get; private set; }
 
         public bool IsDev
         {
-            get => CurrentUser.IsDev;
+            get => UserInfo.IsDev;
             set
             {
-                CurrentUser.IsDev = value;
+                UserInfo.IsDev = value;
                 if (IsAuthenticated)
-                    _data.Update(CurrentUser);
+                    _data.Update(UserInfo);
             }
         }
 
         public bool IsNsfw
         {
-            get => CurrentUser.IsNsfw;
+            get => UserInfo.IsNsfw;
             set
             {
-                CurrentUser.IsNsfw = value;
+                UserInfo.IsNsfw = value;
                 if (IsAuthenticated)
-                    _data.Update(CurrentUser);
+                    _data.Update(UserInfo);
             }
         }
 
         public bool IsLowRated
         {
-            get => CurrentUser.IsLowRated;
+            get => UserInfo.IsLowRated;
             set
             {
-                CurrentUser.IsLowRated = value;
+                UserInfo.IsLowRated = value;
                 if (IsAuthenticated)
-                    _data.Update(CurrentUser);
+                    _data.Update(UserInfo);
             }
         }
 
 
-        public List<string> Postblacklist => CurrentUser.Postblacklist;
+        public List<string> Postblacklist => UserInfo.Postblacklist;
 
-        public string Login => CurrentUser.Login;
+        public string Login => UserInfo.Login;
 
-        public KnownChains Chain => CurrentUser.Chain;
+        public KnownChains Chain => UserInfo.Chain;
 
-        public string SessionId => CurrentUser.SessionId;
-
-        public bool IsAuthenticated => !string.IsNullOrEmpty(CurrentUser?.Login);
+        public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.Login);
 
         public User()
         {
@@ -71,11 +69,11 @@ namespace Steepshot.Core.Authority
                     if (last.LoginTime < users[i].LoginTime)
                         last = users[i];
                 }
-                CurrentUser = last;
+                UserInfo = last;
             }
             else
             {
-                CurrentUser = new UserInfo();
+                UserInfo = new UserInfo();
             }
         }
 
@@ -90,30 +88,30 @@ namespace Steepshot.Core.Authority
             };
 
             _data.Insert(userInfo);
-            CurrentUser = userInfo;
+            UserInfo = userInfo;
         }
 
-		public void SwitchUser(UserInfo userInfo)
-		{
+        public void SwitchUser(UserInfo userInfo)
+        {
             var user = _data.Select().FirstOrDefault(x => x.Login == userInfo.Login && x.Chain == userInfo.Chain);
-            if(user != null)
-			    CurrentUser = user;
-		}
+            if (user != null)
+                UserInfo = user;
+        }
 
         public void Delete()
         {
-            if (CurrentUser != null)
+            if (UserInfo != null)
             {
-                _data.Delete(CurrentUser);
-                CurrentUser = new UserInfo();
+                _data.Delete(UserInfo);
+                UserInfo = new UserInfo();
             }
         }
 
         public void Delete(UserInfo userInfo)
         {
             _data.Delete(userInfo);
-            if (CurrentUser.Id == userInfo.Id)
-                CurrentUser = new UserInfo();
+            if (UserInfo.Id == userInfo.Id)
+                UserInfo = new UserInfo();
         }
 
         public List<UserInfo> GetAllAccounts()
@@ -124,7 +122,7 @@ namespace Steepshot.Core.Authority
 
         public void Save()
         {
-            _data.Update(CurrentUser);
+            _data.Update(UserInfo);
         }
     }
 }

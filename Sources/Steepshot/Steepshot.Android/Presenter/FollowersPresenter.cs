@@ -36,8 +36,7 @@ namespace Steepshot.Presenter
                     return;
                 var request = new UserFriendsRequest(username, followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
                 {
-                    SessionId = User.CurrentUser.SessionId,
-                    Login = User.CurrentUser.Login,
+                    Login = User.Login,
                     Offset = _offsetUrl,
                     Limit = _itemsLimit
                 };
@@ -65,12 +64,7 @@ namespace Steepshot.Presenter
 
         public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
         {
-            var request = new FollowRequest(User.CurrentUser.SessionId,
-                item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author)
-            {
-                SessionId = User.CurrentUser.SessionId,
-                Login = User.CurrentUser.Login
-            };
+            var request = new FollowRequest(User.UserInfo, item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author);
             return await Api.Follow(request);
         }
     }

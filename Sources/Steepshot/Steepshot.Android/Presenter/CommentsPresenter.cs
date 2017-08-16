@@ -19,8 +19,7 @@ namespace Steepshot.Presenter
         {
             var request = new InfoRequest(postUrl)
             {
-                SessionId = User.CurrentUser.SessionId,
-                Login = User.CurrentUser.Login
+                Login = User.Login
             };
 
             var result = await Api.GetComments(request);
@@ -36,22 +35,13 @@ namespace Steepshot.Presenter
             int diezid = post.Url.IndexOf('#');
             string posturl = post.Url.Substring(diezid + 1);
 
-            var voteRequest = new VoteRequest(User.CurrentUser.SessionId, !post.Vote, posturl)
-            {
-                Login = User.CurrentUser.Login,
-                SessionId = User.CurrentUser.SessionId
-            };
+            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, posturl);
             return await Api.Vote(voteRequest);
         }
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(string comment, string url)
         {
-            var reqv = new CreateCommentRequest(User.CurrentUser.SessionId, url, comment, comment)
-            {
-                Login = User.CurrentUser.Login,
-                SessionId = User.CurrentUser.SessionId
-            };
-
+            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, comment);
             return await Api.CreateComment(reqv);
         }
     }

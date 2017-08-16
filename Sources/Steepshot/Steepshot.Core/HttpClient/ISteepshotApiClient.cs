@@ -13,7 +13,7 @@ namespace Steepshot.Core.HttpClient
         ///     1) POST https://steepshot.org/api/v1/login-with-posting HTTP/1.1
         ///             {"username":"joseph.kalu","posting_key":"test1234"}
         /// </summary>
-        Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
@@ -30,7 +30,7 @@ namespace Steepshot.Core.HttpClient
         ///     2) GET https://steepshot.org/api/v1/recent?offset=%2Fhealth%2F%40heiditravels%2Fwhat-are-you-putting-on-your-face&limit=3 HTTP/1.1
         ///            Cookie: sessionid=h0loy20ff472dzlmwpafyd6aix07v3q6
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetUserRecentPosts(NamedRequestWithOffsetLimitFields request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
@@ -114,7 +114,7 @@ namespace Steepshot.Core.HttpClient
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&limit=5 HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
@@ -128,7 +128,7 @@ namespace Steepshot.Core.HttpClient
         ///     1) POST https://steepshot.org/api/v1/logout HTTP/1.1
         ///             Cookie: sessionid=rm8haiqibvsvpv7f495mg17sdzje29aw
         /// </summary>
-        Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:

@@ -1,27 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Ditch;
 using NUnit.Framework;
+using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        private readonly ISteepshotApiClient _apiSteem = new SteepshotApiClient(Constants.SteemUrl);
-        private readonly ISteepshotApiClient _apiGolos = new SteepshotApiClient(Constants.GolosUrl);
+        protected readonly Dictionary<string, UserInfo> Users;
+        protected readonly Dictionary<string, ISteepshotApiClient> Api;
+        protected readonly Dictionary<string, ChainInfo> Chain;
 
-        protected ISteepshotApiClient Api(string name)
+        public BaseTests()
         {
-            switch (name)
+            Users = new Dictionary<string, UserInfo>()
             {
-                case "Steem":
-                    return _apiSteem;
-                case "Golos":
-                    return _apiGolos;
-                default:
-                    return null;
-            }
+                {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}},
+                {"Golos",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}}
+            };
+
+            Api = new Dictionary<string, ISteepshotApiClient>
+            {
+                {"Steem", new SteepshotApiClient(Constants.SteemUrl)},
+                {"Golos", new SteepshotApiClient(Constants.GolosUrl)}
+                
+                //{"Steem", new DitchApi(KnownChains.Steem, true)},
+                //{"Golos", new DitchApi(KnownChains.Golos, true)}
+            };
+        }
+
+        protected UserInfo Authenticate(string name)
+        {
+            ISteepshotApiClient api = Api[name];
+            UserInfo user = Users[name];
+
+            // Arrange
+            var request = new AuthorizedRequest(user);
+
+            // Act
+            var response = api.LoginWithPostingKey(request).Result;
+
+            // Assert
+            AssertResult(response);
+            Assert.That(response.Result.IsLoggedIn, Is.True);
+            Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
+            Assert.That(response.Result.SessionId, Is.Not.Empty);
+            user.SessionId = response.Result.SessionId;
+            return user;
         }
 
         protected string GetTestImagePath()

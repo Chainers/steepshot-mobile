@@ -37,8 +37,7 @@ namespace Steepshot.Presenter
 
 				var request = new InfoRequest(url)
 				{
-                    SessionId = User.CurrentUser.SessionId,
-                    Login = User.CurrentUser.Login,
+                    Login = User.Login,
 					Offset = _offsetUrl,
 					Limit = _itemsLimit
 				};
