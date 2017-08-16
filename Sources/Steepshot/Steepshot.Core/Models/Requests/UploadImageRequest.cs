@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -10,9 +9,9 @@ namespace Steepshot.Core.Models.Requests
             if (string.IsNullOrWhiteSpace(sessionId)) throw new ArgumentNullException(nameof(sessionId));
             if (string.IsNullOrWhiteSpace(title)) throw new ArgumentNullException(nameof(title));
 
-            base.SessionId = sessionId;
+            SessionId = sessionId;
             Title = title;
-            Tags = new List<string>(tags);
+            Tags = tags;
         }
 
         public UploadImageRequest(string sessionId, string title, byte[] photo, params string[] tags) : this(sessionId, title, tags)
@@ -29,6 +28,6 @@ namespace Steepshot.Core.Models.Requests
 
         public string Title { get; private set; }
         public byte[] Photo { get; private set; }
-        public List<string> Tags { get; private set; }
+        public string[] Tags { get; private set; }
     }
 }
