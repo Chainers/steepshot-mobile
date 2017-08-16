@@ -264,7 +264,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-            var response = await _gateway.Get("categories/top", parameters, cts);
+            var response = await Gateway.Get("categories/top", parameters, cts);
             var errorResult = CheckErrors(response);
 
             var result = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
