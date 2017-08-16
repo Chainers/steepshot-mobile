@@ -107,7 +107,7 @@ namespace Steepshot.Core.HttpClient
         /// </summary>
         Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts = null);
         
-        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string username, string trx, CancellationTokenSource cts = null);
+        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
