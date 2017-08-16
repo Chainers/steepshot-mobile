@@ -1,11 +1,19 @@
 ﻿namespace Steepshot.Core.Models.Responses
 {
-    ///{
-    ///  "message": "User was logged in."
-    ///}
     public class LoginResponse : MessageField
     {
+        private const string ServerPositiveResponceMsg = "User was logged in.";
+        private readonly bool _isLoggedIn;
+
         public string SessionId { get; set; }
-        public bool IsLoggedIn => Message.Equals("User was logged in.");
+
+        public bool IsLoggedIn => _isLoggedIn || Message.Equals(ServerPositiveResponceMsg);
+
+        public LoginResponse() { }
+
+        public LoginResponse(bool isCreated)
+        {
+            _isLoggedIn = isCreated;
+        }
     }
 }
