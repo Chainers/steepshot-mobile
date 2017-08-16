@@ -9,8 +9,8 @@ namespace Steepshot.Core.Models.Requests
 
     public class OffsetLimitFields
     {
-        public string Offset { get; set; }
-        public int Limit { get; set; }
+        public string Offset { get; set; } = string.Empty;
+        public int Limit { get; set; } = 10;
     }
 
     public class NamedRequestWithOffsetLimitFields : NamedRequest

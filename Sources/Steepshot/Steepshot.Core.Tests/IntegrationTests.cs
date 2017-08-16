@@ -553,7 +553,7 @@ namespace Steepshot.Core.Tests
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
                         response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -573,9 +573,10 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
+            AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
                         response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
+                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -589,7 +590,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -603,7 +604,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -617,7 +618,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -631,7 +632,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -645,7 +646,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("User does not exist."));
+            Assert.That(response.Errors.Contains("User does not exist."), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -744,35 +745,7 @@ namespace Steepshot.Core.Tests
             AssertResult(response);
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
-
-        [Test, Sequential]
-        public void CreateComment_Empty_Body([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var request = new CreateCommentRequest(Authenticate(name), "spam/@joseph.kalu/test-post-127", "", "test_title");
-
-            // Act
-            var response = Api[name].CreateComment(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Errors.Contains("This field may not be blank."));
-        }
-
-        [Test, Sequential]
-        public void CreateComment_Empty_Title([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var request = new CreateCommentRequest(Authenticate(name), "spam/@joseph.kalu/test-post-127", "test_body", "");
-
-            // Act
-            var response = Api[name].CreateComment(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Errors.Contains("This field may not be blank."));
-        }
-
+        
         [Test, Sequential]
         public void CreateComment_20_Seconds_Delay([Values("Steem", "Golos")] string name)
         {
@@ -790,8 +763,9 @@ namespace Steepshot.Core.Tests
             var response2 = Api[name].CreateComment(createCommentRequest).Result;
 
             // Assert
+            AssertResult(response1);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds."));
+            Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds."), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
