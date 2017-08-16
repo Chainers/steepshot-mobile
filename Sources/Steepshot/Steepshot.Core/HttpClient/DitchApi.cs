@@ -15,63 +15,27 @@ namespace Steepshot.Core.HttpClient
 {
     public class DitchApi : BaseClient, ISteepshotApiClient
     {
-        private readonly ISteepshotApiClient _steepshotApi;
-        private readonly OperationManager _operationManager;
+        private readonly ChainInfo _chainInfo;
         private readonly JsonNetConverter _jsonConverter;
+        private OperationManager _operationManager;
 
-        public DitchApi(string url, KnownChains chain)
+        private OperationManager OperationManager => _operationManager ?? (_operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId));
+
+        public DitchApi(KnownChains chain, bool isDev) : base(ChainToUrl(chain, isDev))
         {
+            _chainInfo = ChainManager.GetChainInfo(chain == KnownChains.Steem ? Ditch.KnownChains.Steem : Ditch.KnownChains.Golos);
             _jsonConverter = new JsonNetConverter();
-            _steepshotApi = new SteepshotApiClient(url);
-
-            var chainInfo = ChainManager.GetChainInfo(chain == KnownChains.Steem ? Ditch.KnownChains.Steem : Ditch.KnownChains.Golos);
-            _operationManager = new OperationManager(chainInfo.Url, chainInfo.ChainId);
         }
 
-        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts)
+        private static string ChainToUrl(Steepshot.Core.KnownChains chain, bool isDev)
         {
-            return await Task.Run(() =>
-            {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var response = _operationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+            if (chain == Steepshot.Core.KnownChains.Steem)
+                return isDev ? "https://qa.steepshot.org/api/v1/" : "https://steepshot.org/api/v1/";
 
-                var result = new OperationResult<LoginResponse>();
-                if (response.IsError)
-                {
-                    result.Result = new LoginResponse { Message = "User was logged in." };
-                }
-                else
-                {
-                    result.Errors.Add(ParseErrorCode(response));
-                }
-                return result;
-            });
+            return isDev ? "https://qa.golos.steepshot.org/api/v1/" : "https://golos.steepshot.org/api/v1/";
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetUserPosts(request, cts);
-        }
-
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(UserRecentPostsRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetUserRecentPosts(request, cts);
-        }
-
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetPosts(request, cts);
-        }
-
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetPostsByCategory(request, cts);
-        }
-
-        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetPostVoters(request, cts);
-        }
+        #region Post requests
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts)
         {
@@ -79,12 +43,12 @@ namespace Steepshot.Core.HttpClient
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
                 var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.Up ? 10000 : 0));
-                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
+                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var result = new OperationResult<VoteResponse>();
-                if (!response.IsError)
+                if (!resp.IsError)
                 {
-                    var content = _operationManager.GetContent(authPost.Item1, authPost.Item2);
+                    var content = OperationManager.GetContent(authPost.Item1, authPost.Item2);
                     if (!content.IsError)
                     {
                         //Convert Money type to double
@@ -96,7 +60,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Errors.Add(ParseErrorCode(response));
+                    OnError(resp, result);
                 }
                 return result;
             });
@@ -110,24 +74,35 @@ namespace Steepshot.Core.HttpClient
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
 
-                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
+                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var result = new OperationResult<FollowResponse>();
-                if (response.IsError)
-                {
-                    result.Errors.Add(ParseErrorCode(response));
-                }
-                else
-                {
+
+                if (!resp.IsError)
                     result.Result = new FollowResponse();
-                }
+                else
+                    OnError(resp, result);
+
                 return result;
             });
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(LoginWithPostingKeyRequest request, CancellationTokenSource cts)
         {
-            return await _steepshotApi.GetComments(request, cts);
+            return await Task.Run(() =>
+            {
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
+                var resp = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+
+                var result = new OperationResult<LoginResponse>();
+
+                if (!resp.IsError)
+                    result.Result = new LoginResponse(true);
+                else
+                    OnError(resp, result);
+
+                return result;
+            });
         }
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationTokenSource cts)
@@ -137,17 +112,14 @@ namespace Steepshot.Core.HttpClient
                 var authPost = UrlToAuthorAndPermlink(request.Url);
                 var op = new ReplyOperation(authPost.Item1, authPost.Item2, request.Login, request.Body, "{\"app\": \"steepshot/0.0.5\"}");
 
-                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
+                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var result = new OperationResult<CreateCommentResponse>();
-                if (response.IsError)
-                {
-                    result.Errors.Add(ParseErrorCode(response));
-                }
+                if (!resp.IsError)
+                    result.Result = new CreateCommentResponse(true);
                 else
-                {
-                    result.Result = new CreateCommentResponse { Message = "Comment created" };
-                }
+                    OnError(resp, result);
+
                 return result;
             });
         }
@@ -157,75 +129,26 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(async () =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.SessionId), op);
-
+                var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.PostingKey), op);
                 var trx = _jsonConverter.Serialize(tr);
-                Ditch.Helpers.Transliteration.PrepareTags(request.Tags.ToArray());
 
-                var result = new OperationResult<ImageUploadResponse>();
+                Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
+                var uploadResponse = await UploadWithPrepare(request, trx, cts);
 
-                var uploadResponse = await _steepshotApi.UploadWithPrepare(request, request.Login, trx, cts);
+                var rez = new OperationResult<ImageUploadResponse>();
                 if (uploadResponse.Success)
                 {
-                    var meta = _jsonConverter.Serialize(uploadResponse.Result.Meta);
-                    var post = new PostOperation("steepshot", request.Login, uploadResponse.Result.Payload.Title, uploadResponse.Result.Payload.Body, meta);
-
-                    var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), post);
-                    if (response.IsError)
-                    {
-                        result.Errors.Add(ParseErrorCode(response));
-                    }
+                    var upResp = uploadResponse.Result;
+                    var meta = _jsonConverter.Serialize(upResp.Meta);
+                    var post = new PostOperation("steepshot", request.Login, upResp.Title, upResp.Payload.Body, meta);
+                    var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
+                    if (!resp.IsError)
+                        rez.Result = upResp.Payload;
                     else
-                    {
-                        result.Result = uploadResponse.Result.Payload;
-                    }
+                        OnError(resp, rez);
                 }
-
-                return result;
+                return rez;
             });
-        }
-
-        public Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string username, string trx, CancellationTokenSource cts = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(SearchRequest request, CancellationTokenSource cts = null)
-        {
-            var result = await _steepshotApi.GetCategories(request, cts);
-            return await Task.Run(() =>
-            {
-                if (result.Success)
-                {
-                    foreach (var category in result.Result.Results)
-                    {
-                        category.Name = Ditch.Helpers.Transliteration.ToRus(category.Name);
-                    }
-                }
-
-                return result;
-            });
-        }
-
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
-        {
-            var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
-            if (query != request.Query)
-            {
-                query = $"ru--{query}";
-            }
-            request.Query = query;
-
-            var result = await _steepshotApi.SearchCategories(request, cts);
-            if (result.Success)
-            {
-                foreach (var categories in result.Result.Results)
-                {
-                    categories.Name = Ditch.Helpers.Transliteration.ToRus(categories.Name);
-                }
-            }
-
-            return result;
         }
 
         public async Task<OperationResult<LogoutResponse>> Logout(LogoutRequest request, CancellationTokenSource cts)
@@ -234,36 +157,6 @@ namespace Steepshot.Core.HttpClient
             {
                 Result = new LogoutResponse { Message = "User is logged out" }
             });
-        }
-
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetUserProfile(request, cts);
-        }
-
-        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetUserFriends(request, cts);
-        }
-
-        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts)
-        {
-            return await _steepshotApi.TermsOfService(cts);
-        }
-
-        public async Task<OperationResult<Post>> GetPostInfo(InfoRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.GetPostInfo(request, cts);
-        }
-
-        public async Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.SearchUser(request, cts);
-        }
-
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
-        {
-            return await _steepshotApi.UserExistsCheck(request, cts);
         }
 
         public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request, CancellationTokenSource cts)
@@ -281,11 +174,11 @@ namespace Steepshot.Core.HttpClient
                 }
 
                 var op = new FlagOperation(request.Login, authPostArr[0], authPostArr[1]);
-                var response = _operationManager.BroadcastOperations(ToKeyArr(request.SessionId), op);
+                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
-                if (!response.IsError)
+                if (!resp.IsError)
                 {
-                    var content = _operationManager.GetContent(authPostArr[0], authPostArr[1]);
+                    var content = OperationManager.GetContent(authPostArr[0], authPostArr[1]);
                     if (!content.IsError)
                     {
                         result.Result = new FlagResponse
@@ -296,11 +189,13 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Errors.Add(ParseErrorCode(response));
+                    result.Errors.Add(ParseErrorCode(resp));
                 }
                 return result;
             });
         }
+
+        #endregion Post requests
 
         private Tuple<string, string> UrlToAuthorAndPermlink(string url)
         {
@@ -315,11 +210,11 @@ namespace Steepshot.Core.HttpClient
             return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
         }
 
-        private string ParseErrorCode(JsonRpcResponse response)
+        private string ParseErrorCode(JsonRpcResponse resp)
         {
-            if (response.Error is Ditch.Errors.SystemError)
+            if (resp.Error is Ditch.Errors.SystemError)
             {
-                switch (response.Error.Code)
+                switch (resp.Error.Code)
                 {
                     case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
                         {
@@ -335,9 +230,9 @@ namespace Steepshot.Core.HttpClient
                         }
                 }
             }
-            if (response.Error is Ditch.Errors.ResponseError)
+            if (resp.Error is Ditch.Errors.ResponseError)
             {
-                var error = (Ditch.Errors.ResponseError)response.Error;
+                var error = (Ditch.Errors.ResponseError)resp.Error;
                 if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
                 {
                     return "Invalid private posting key!";
@@ -346,7 +241,52 @@ namespace Steepshot.Core.HttpClient
                 return $"The server did not accept the request! Reason ({error.Data.Code}) {error.Data.Message}";
             }
 
-            return response.GetErrorMessage();
+            return resp.GetErrorMessage();
+        }
+
+        private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
+        {
+            if (response.IsError)
+            {
+                if (response.Error is Ditch.Errors.SystemError)
+                {
+                    switch (response.Error.Code)
+                    {
+                        case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                            {
+                                operationResult.Errors.Add("Can not connect to the server, check for an Internet connection and try again.");
+                                break;
+                            }
+                        case (int)Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                            {
+                                operationResult.Errors.Add("The server does not respond to the request. Check your internet connection and try again.");
+                                break;
+                            }
+                        default:
+                            {
+                                operationResult.Errors.Add("An unexpected error occurred. Check the Internet or try restarting the application.");
+                                break;
+                            }
+                    }
+                }
+                else if (response.Error is Ditch.Errors.ResponseError)
+                {
+                    var typedError = (Ditch.Errors.ResponseError)response.Error;
+                    var t = typeof(T);
+                    if (typedError.Data.Code == 3030000 && t.Name == "LoginResponse")
+                    {
+                        operationResult.Errors.Add("Invalid private posting key!");
+                    }
+                    else
+                    {
+                        operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                    }
+                }
+                else
+                {
+                    operationResult.Errors.Add(response.GetErrorMessage());
+                }
+            }
         }
     }
 }
