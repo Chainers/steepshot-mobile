@@ -8,14 +8,14 @@ namespace Steepshot.Core.Serializing
 {
     public sealed class JsonNetConverter : ISerializer
     {
-        private static readonly Encoding _encoding = new UTF8Encoding(false);
+        private static readonly Encoding Encoding = new UTF8Encoding(false);
         private readonly JsonSerializer _serializer;
 
         public string ContentType { get; set; }
 
         public JsonNetConverter()
         {
-            ContentType = $"application/json; charset={_encoding.WebName}";
+            ContentType = $"application/json; charset={Encoding.WebName}";
             _serializer = new JsonSerializer();
             Configure(_serializer);
         }
@@ -30,7 +30,7 @@ namespace Steepshot.Core.Serializing
 
             return output.ToArray();
         }
-        
+
         public string Serialize(object obj)
         {
             var output = new MemoryStream();
@@ -39,7 +39,7 @@ namespace Steepshot.Core.Serializing
                 _serializer.Serialize(writer, obj);
             }
 
-            return _encoding.GetString(output.ToArray());;
+            return Encoding.GetString(output.ToArray());
         }
 
         public T Deserialize<T>(string s)

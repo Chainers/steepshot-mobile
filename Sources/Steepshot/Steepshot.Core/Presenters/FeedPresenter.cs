@@ -93,7 +93,7 @@ namespace Steepshot.Core.Presenters
                         response = await Api.GetPosts(postrequest, _cts);
                     }
                     //TODO:KOA -- Errors not processed
-                    if (response.Success && response?.Result?.Results != null)
+                    if (response.Success && response.Result?.Results != null)
                     {
                         if (response.Result.Results.Count != 0)
                         {
@@ -155,7 +155,7 @@ namespace Steepshot.Core.Presenters
 
                     var posts = await Api.GetPostsByCategory(postrequest, _cts);
                     //TODO:KOA -- Errors not processed
-                    if (posts.Success && posts?.Result?.Results != null)
+                    if (posts.Success && posts.Result?.Results != null)
                     {
                         if (posts.Result.Results.Count != 0)
                         {

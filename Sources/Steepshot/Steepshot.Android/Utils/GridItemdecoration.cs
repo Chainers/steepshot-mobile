@@ -4,7 +4,6 @@ namespace Steepshot.Utils
 {
 	public class GridItemdecoration : RecyclerView.ItemDecoration
 	{
-
 		private int _mSizeGridSpacingPx;
 		private int _mGridSize;
 

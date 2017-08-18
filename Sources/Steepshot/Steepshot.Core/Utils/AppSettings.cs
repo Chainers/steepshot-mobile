@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
 {
