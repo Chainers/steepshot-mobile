@@ -13,21 +13,22 @@ namespace Steepshot.Core.Presenters
 {
     public class FeedPresenter : BasePresenter
     {
-        public FeedPresenter(bool isFeed)
-        {
-            _isFeed = isFeed;
-        }
-        private bool _isFeed;
+        private readonly bool _isFeed;
         public event VoidDelegate PostsLoaded;
         public event VoidDelegate PostsCleared;
         public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
         private CancellationTokenSource _cts;
         private PostType _type = PostType.Top;
-
+        public bool Processing;
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 20;
         public string Tag;
+
+        public FeedPresenter(bool isFeed)
+        {
+            _isFeed = isFeed;
+        }
 
         public PostType GetCurrentType()
         {
@@ -39,9 +40,7 @@ namespace Steepshot.Core.Presenters
             if (Posts.Count == 0)
                 Task.Run(() => GetTopPosts(_type, true));
         }
-
-        public bool Processing;
-
+        
         public void ClearPosts()
         {
             Posts.Clear();

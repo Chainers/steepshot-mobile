@@ -7,9 +7,9 @@ using Autofac;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
 using Steepshot.Services;
 
 namespace Steepshot.Activity
@@ -21,15 +21,14 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-			var builder = new ContainerBuilder();
+            var builder = new ContainerBuilder();
 
-			builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
+            builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
             builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
-			builder.RegisterInstance(new SaverService()).As<ISaverService>();
-			
-			AppSettings.Container = builder.Build();
+            builder.RegisterInstance(new SaverService()).As<ISaverService>();
 
-            _presenter = new SplashPresenter(this);
+            AppSettings.Container = builder.Build();
+            _presenter = new SplashPresenter();
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -38,12 +37,12 @@ namespace Steepshot.Activity
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject, BasePresenter.User.Login);
+                Reporter.SendCrash((Exception)e.ExceptionObject, Base.BasePresenter.User.Login);
             };
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-				Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
+                Reporter.SendCrash(e.Exception, Base.BasePresenter.User.Login);
             };
 
             if (_presenter.IsGuest)

@@ -3,20 +3,18 @@ using System.Globalization;
 using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
-using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
     public delegate void VoidDelegate();
-	public class BasePresenter
+    public class BasePresenter
     {
         private static ISteepshotApiClient _apiClient;
         public static string AppVersion { get; set; }
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
-
         public static bool ShouldUpdateProfile;
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
@@ -72,14 +70,14 @@ namespace Steepshot.Core.Presenters
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            if (isDev)
-            {
-                //_apiClient = new DitchApi(chain, isDev);
-            }
-            else
-            {
-                //_apiClient = new SteepshotApiClient(chain, isDev);
-            }
+            //if (isDev)
+            //{
+            _apiClient = new DitchApi(chain, isDev);
+            //}
+            //else
+            //{
+            //_apiClient = new SteepshotApiClient(chain, isDev);
+            //}
         }
 
         public static string ToFormatedCurrencyString(Money value)
@@ -87,7 +85,7 @@ namespace Steepshot.Core.Presenters
             var dVal = value.ToDouble();
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
-            return $"{Currency} {dVal.ToString("F",CultureInfo)}";
+            return $"{Currency} {dVal.ToString("F", CultureInfo)}";
         }
     }
 }

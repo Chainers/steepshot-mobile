@@ -8,8 +8,8 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
 
 namespace Steepshot.Activity
 {
@@ -33,7 +33,7 @@ namespace Steepshot.Activity
         private int _clickCount;
         protected override void CreatePresenter()
         {
-            _presenter = new PreSignInPresenter(this);
+            _presenter = new PreSignInPresenter();
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -50,20 +50,20 @@ namespace Steepshot.Activity
                 _switcher.Visibility = ViewStates.Gone;
                 _steemLogo.Visibility = ViewStates.Gone;
                 _golosLogo.Visibility = ViewStates.Gone;
-                BasePresenter.SwitchChain(_newChain);
+                Base.BasePresenter.SwitchChain(_newChain);
             }
 
-            _switcher.Checked = BasePresenter.Chain == KnownChains.Steem;
+            _switcher.Checked = Base.BasePresenter.Chain == KnownChains.Steem;
             _switcher.CheckedChange += (sender, e) =>
             {
-                BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
+                Base.BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
                 SetLabelsText();
             };
 
             _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += (sender, e) =>
             {
-                BasePresenter.SwitchChain(e.IsChecked);
+                Base.BasePresenter.SwitchChain(e.IsChecked);
             };
 
             SetLabelsText();
@@ -88,7 +88,7 @@ namespace Steepshot.Activity
         {
             if (_newChain != KnownChains.None)
             {
-                BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                Base.BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
             base.OnDestroy();
             Cheeseknife.Reset(this);
@@ -142,13 +142,13 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                Reporter.SendCrash(ex, Base.BasePresenter.User.Login, Base.BasePresenter.AppVersion);
             }
         }
 
         private void SetLabelsText()
         {
-            _loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
+            _loginLabel.Text = $"Log in with your {Base.BasePresenter.Chain} Account";
         }
     }
 }

@@ -1,18 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 
-namespace Steepshot.Presenter
+namespace Steepshot.Core.Presenters
 {
     public class CommentsPresenter : BasePresenter
     {
-        public CommentsPresenter(IBaseView view) : base(view)
-        {
-        }
-
         public List<Post> Posts;
 
         public async Task<List<Post>> GetComments(string postUrl)

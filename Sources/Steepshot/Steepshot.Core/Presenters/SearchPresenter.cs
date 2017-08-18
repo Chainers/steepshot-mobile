@@ -1,15 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Fragment;
 
-namespace Steepshot.Presenter
+namespace Steepshot.Core.Presenters
 {
     public class SearchPresenter : BasePresenter
     {
-        public SearchPresenter(IBaseView view) : base(view) { }
         private CancellationTokenSource _cts;
 
         public async Task<OperationResult> SearchCategories(string s, SearchType searchType)
