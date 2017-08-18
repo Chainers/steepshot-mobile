@@ -15,7 +15,6 @@ using Steepshot.Base;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using BasePresenter = Steepshot.Base.BasePresenter;
 
 namespace Steepshot.Activity
 {
@@ -90,7 +89,7 @@ namespace Steepshot.Activity
 
             foreach (var item in tags)
             {
-                FrameLayout tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
+                var tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
                 tag.FindViewById<TextView>(Resource.Id.text).Text = item;
                 tag.Click += (sender, e) => _tagLayout.RemoveView(tag);
                 _tagLayout.AddView(tag);
@@ -101,8 +100,8 @@ namespace Steepshot.Activity
 
         public void OpenTags()
         {
-            Intent intent = new Intent(this, typeof(TagsActivity));
-            Bundle b = new Bundle();
+            var intent = new Intent(this, typeof(TagsActivity));
+            var b = new Bundle();
             b.PutStringArray("TAGS", _tags);
             intent.PutExtra("TAGS", b);
             StartActivityForResult(intent, TagRequestCode);
@@ -228,8 +227,8 @@ namespace Steepshot.Activity
 
         private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
         {
-            ExifInterface ei = new ExifInterface(selectedImage);
-            int orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
+            var ei = new ExifInterface(selectedImage);
+            var orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
 
             switch ((Android.Media.Orientation)orientation)
             {
@@ -246,9 +245,9 @@ namespace Steepshot.Activity
 
         private static Bitmap RotateImage(Bitmap img, int degree)
         {
-            Matrix matrix = new Matrix();
+            var matrix = new Matrix();
             matrix.PostRotate(degree);
-            Bitmap rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
+            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
             return rotatedImg;
         }
 

@@ -25,8 +25,8 @@ namespace Steepshot.Core.Models.Requests
             Photo = Convert.FromBase64String(photo);
         }
 
-        public string Title { get; private set; }
-        public byte[] Photo { get; private set; }
-        public string[] Tags { get; private set; }
+        public string Title { get; }
+        public byte[] Photo { get; }
+        public string[] Tags { get; }
     }
 }

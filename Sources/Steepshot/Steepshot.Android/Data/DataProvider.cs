@@ -8,7 +8,7 @@ namespace Steepshot.Data
 {
     internal class DataProvider : IDataProvider
     {
-        private SQLiteConnection _db;
+        private readonly SQLiteConnection _db;
 
         public DataProvider()
         {

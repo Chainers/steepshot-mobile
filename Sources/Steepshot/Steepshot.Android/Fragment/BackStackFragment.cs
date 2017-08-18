@@ -8,7 +8,7 @@ namespace Steepshot.Fragment
 		{
 			if (fm?.Fragments != null)
 			{
-				foreach (Android.Support.V4.App.Fragment frag in fm.Fragments)
+				foreach (var frag in fm.Fragments)
 				{
 					if (frag != null && frag.IsVisible && frag is BackStackFragment)
 					{
@@ -24,7 +24,7 @@ namespace Steepshot.Fragment
 
 		protected bool OnBackPressed()
 		{
-			FragmentManager fm = ChildFragmentManager;
+			var fm = ChildFragmentManager;
 			if (HandleBackPressed(fm))
 			{
 				return true;

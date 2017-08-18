@@ -15,7 +15,7 @@ namespace Steepshot.Core.Presenters
         public readonly ObservableCollection<UserFriendViewMode> Collection = new ObservableCollection<UserFriendViewMode>();
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
-        private int _itemsLimit = 60;
+        private readonly int _itemsLimit = 60;
 
         public void ViewLoad(FollowType friendsType, string username)
         {
@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
 
                 var responce = await Api.GetUserFriends(request);
                 //TODO:KOA -- Errors not processed
-                if (responce.Success && responce?.Result?.Results != null && responce.Result.Results.Count > 0)
+                if (responce.Success && responce.Result?.Results != null && responce.Result.Results.Count > 0)
                 {
                     var lastItem = responce.Result.Results.Last();
                     if (lastItem.Author != _offsetUrl)

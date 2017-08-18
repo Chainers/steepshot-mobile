@@ -5,7 +5,6 @@ using Android.Content.PM;
 using Android.OS;
 using Autofac;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -24,7 +23,7 @@ namespace Steepshot.Activity
             var builder = new ContainerBuilder();
 
             builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
-            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
+            builder.RegisterType<DataProvider>().As<IDataProvider>();
             builder.RegisterInstance(new SaverService()).As<ISaverService>();
 
             AppSettings.Container = builder.Build();
@@ -37,12 +36,12 @@ namespace Steepshot.Activity
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject, Base.BasePresenter.User.Login);
+                Reporter.SendCrash((Exception)e.ExceptionObject, BasePresenter.User.Login);
             };
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-                Reporter.SendCrash(e.Exception, Base.BasePresenter.User.Login);
+                Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
             };
 
             if (_presenter.IsGuest)

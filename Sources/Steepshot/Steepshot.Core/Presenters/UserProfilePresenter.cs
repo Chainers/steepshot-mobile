@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                 };
                 var response = await Api.GetUserPosts(req);
 
-                if (response.Success && response.Result?.Results != null && response?.Result?.Results.Count != 0)
+                if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
                 {
                     var lastItem = response.Result.Results.Last();
                     if (lastItem.Url != _offsetUrl)

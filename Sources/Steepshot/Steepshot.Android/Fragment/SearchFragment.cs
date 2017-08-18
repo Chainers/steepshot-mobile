@@ -23,8 +23,7 @@ namespace Steepshot.Fragment
         private Timer _timer;
         SearchPresenter _presenter;
         private SearchType _searchType = SearchType.Tags;
-        private CancellationTokenSource _cts;
-        private Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
+        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView _categories;
@@ -37,7 +36,7 @@ namespace Steepshot.Fragment
 
         CategoriesAdapter _categoriesAdapter;
         UsersSearchAdapter _usersSearchAdapter;
-        public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
@@ -47,7 +46,7 @@ namespace Steepshot.Fragment
             return V;
         }
 
-        public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
@@ -61,7 +60,7 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _categoriesAdapter = new CategoriesAdapter(Activity);
+            _categoriesAdapter = new CategoriesAdapter();
             _usersSearchAdapter = new UsersSearchAdapter(Activity);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
@@ -96,7 +95,7 @@ namespace Steepshot.Fragment
 
                 if (Activity.CurrentFocus != null)
                 {
-                    InputMethodManager imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+                    var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
                     imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
                 }
                 Activity.OnBackPressed();
@@ -116,7 +115,6 @@ namespace Steepshot.Fragment
            });
         }
 
-        Task<OperationResult> _tagsTask;
         private async Task GetTags()
         {
             try
@@ -124,15 +122,17 @@ namespace Steepshot.Fragment
                 var query = _searchView.Query;
                 if (_prevQuery[_searchType] == query)
                     return;
-                if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
+
+                if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))
+                    || string.IsNullOrEmpty(query) && _searchType == SearchType.People)
                     return;
+
                 _prevQuery[_searchType] = query;
                 _spinner.Visibility = ViewStates.Visible;
-                _tagsTask = _presenter.SearchCategories(_searchView.Query, _searchType);
-
+                var tagsTask = await _presenter.SearchCategories(_searchView.Query, _searchType);
                 if (_searchType == SearchType.Tags)
                 {
-                    var tags = (OperationResult<SearchResponse<SearchResult>>)await _tagsTask;
+                    var tags = (OperationResult<SearchResponse<SearchResult>>)tagsTask;
                     if (tags?.Result?.Results != null)
                     {
                         _categoriesAdapter.Reset(tags.Result.Results);
@@ -141,7 +141,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    var usersList = (OperationResult<SearchResponse<UserSearchResult>>)await _tagsTask;
+                    var usersList = (OperationResult<SearchResponse<UserSearchResult>>)tagsTask;
                     if (usersList?.Result?.Results != null)
                     {
                         _usersSearchAdapter.Items = usersList.Result.Results;

@@ -11,7 +11,7 @@ namespace Steepshot.Fragment
     {
         public FollowingFragment() { }
 
-        FeedFragment _parent;
+        readonly FeedFragment _parent;
         public FollowingFragment(FeedFragment parent)
         {
             _parent = parent;
@@ -41,7 +41,7 @@ namespace Steepshot.Fragment
             _parent.HideFollowing();
         }
 
-        public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             var v = inflater.Inflate(Resource.Layout.lyt_following, null);
             Cheeseknife.Inject(this, v);

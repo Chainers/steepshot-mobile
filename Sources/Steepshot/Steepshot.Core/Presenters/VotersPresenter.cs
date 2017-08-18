@@ -14,7 +14,7 @@ namespace Steepshot.Core.Presenters
         public List<VotersResult> Users = new List<VotersResult>();
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
-        private int _itemsLimit = 60;
+        private readonly int _itemsLimit = 60;
 
         public void ViewLoad(string url)
         {

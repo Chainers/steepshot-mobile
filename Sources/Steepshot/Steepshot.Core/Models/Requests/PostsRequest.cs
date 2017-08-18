@@ -11,7 +11,7 @@ namespace Steepshot.Core.Models.Requests
             Username = username;
         }
 
-        public string Username { get; private set; }
+        public string Username { get; }
     }
 
     public enum PostType
@@ -28,7 +28,7 @@ namespace Steepshot.Core.Models.Requests
             Type = type;
         }
 
-        public PostType Type { get; private set; }
+        public PostType Type { get; }
     }
 
     public class PostsByCategoryRequest : PostsRequest

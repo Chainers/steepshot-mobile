@@ -25,8 +25,8 @@ namespace Steepshot.Utils
         // zoomed below or above the zoom boundaries, before animating back to the
         // min/max zoom boundary.
         //
-        static float _superMinMultiplier = 0.5f;
-        static float _superMaxMultiplier = 1f;
+        static readonly float SuperMinMultiplier = 0.5f;
+        static readonly float SuperMaxMultiplier = 1f;
 
         //
         // Scale of image ranges from minScale to maxScale, where minScale == 1
@@ -39,7 +39,9 @@ namespace Steepshot.Utils
         // MTRANS_X and MTRANS_Y are the other values used. prevMatrix is the matrix
         // saved prior to the screen rotating.
         //
-        public Matrix matrix, PrevMatrix;
+        public Matrix matrix;
+
+        public Matrix PrevMatrix;
 
         //
         // Size of view and previous view size (ie before rotation)
@@ -120,8 +122,8 @@ namespace Steepshot.Utils
             }
             _minScale = 1;
             _maxScale = 4;
-            _superMinScale = _superMinMultiplier * _minScale;
-            _superMaxScale = _superMaxMultiplier * _maxScale;
+            _superMinScale = SuperMinMultiplier * _minScale;
+            _superMaxScale = SuperMaxMultiplier * _maxScale;
             ImageMatrix = matrix;
             SetScaleType(ScaleType.Matrix);
             SetState(TouchState.None);
@@ -178,7 +180,7 @@ namespace Steepshot.Utils
         {
             if (scaleType == ScaleType.FitStart || scaleType == ScaleType.FitEnd)
             {
-                throw new Steepshot.Core.Exceptions.UnsupportedOperationException("ScalemageView does not support FitStart or FitEnd");
+                throw new Core.Exceptions.UnsupportedOperationException("ScalemageView does not support FitStart or FitEnd");
             }
             if (scaleType == ScaleType.Matrix)
             {
@@ -320,7 +322,7 @@ namespace Steepshot.Utils
         public void SetMaxZoom(float max)
         {
             _maxScale = max;
-            _superMaxScale = _superMaxMultiplier * _maxScale;
+            _superMaxScale = SuperMaxMultiplier * _maxScale;
         }
 
         //
@@ -349,7 +351,7 @@ namespace Steepshot.Utils
         public void SetMinZoom(float min)
         {
             _minScale = min;
-            _superMinScale = _superMinMultiplier * _minScale;
+            _superMinScale = SuperMinMultiplier * _minScale;
         }
 
         //
@@ -598,8 +600,8 @@ namespace Steepshot.Utils
             //
             // Scale image for view
             //
-            float scaleX = (float)ViewWidth / drawableWidth;
-            float scaleY = (float)ViewHeight / drawableHeight;
+            var scaleX = (float)ViewWidth / drawableWidth;
+            var scaleY = (float)ViewHeight / drawableHeight;
 
             if (_mScaleType == ScaleType.Center)
             {
@@ -739,7 +741,7 @@ namespace Steepshot.Utils
                 // from the left/top side of the view as a fraction of the entire image's width/height. Use that percentage
                 // to calculate the trans in the new view width/height.
                 //
-                float percentage = (Math.Abs(trans) + (0.5f * prevViewSize)) / prevImageSize;
+                var percentage = (Math.Abs(trans) + (0.5f * prevViewSize)) / prevImageSize;
                 _m[axis] = -((percentage * imageSize) - (viewSize * 0.5f));
             }
         }
@@ -756,7 +758,7 @@ namespace Steepshot.Utils
         //
         class GestureListener : GestureDetector.SimpleOnGestureListener
         {
-            ScaleImageView _view;
+            readonly ScaleImageView _view;
 
             public GestureListener(ScaleImageView view)
             {
@@ -784,14 +786,11 @@ namespace Steepshot.Utils
 
             public override bool OnFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
             {
-                if (_view._fling != null)
-                {
-                    //
-                    // If a previous fling is still active, it should be cancelled so that two flings
-                    // are not run simultaenously.
-                    //
-                    _view._fling.CancelFling();
-                }
+                //
+                // If a previous fling is still active, it should be cancelled so that two flings
+                // are not run simultaenously.
+                //
+                _view._fling?.CancelFling();
                 _view._fling = new Fling(_view, (int)velocityX, (int)velocityY);
                 _view.CompatPostOnAnimation(_view._fling);
                 return base.OnFling(e1, e2, velocityX, velocityY);
@@ -835,27 +834,19 @@ namespace Steepshot.Utils
             // Remember last point position for dragging
             //
             float _lastX, _lastY;
-            ScaleImageView _view;
+
+            readonly ScaleImageView _view;
 
             public ScaleImageViewListener(ScaleImageView view)
             {
                 _view = view;
             }
 
-            public bool OnTouch(Android.Views.View v, MotionEvent evt)
+            public bool OnTouch(View v, MotionEvent evt)
             {
-                if (_view._touchListener != null)
-                {
-                    _view._touchListener.OnTouch(v, evt); // User-defined handler, maybe
-                }
-                if (_view._scaleDetector != null)
-                {
-                    _view._scaleDetector.OnTouchEvent(evt);
-                }
-                if (_view._gestureDetector != null)
-                {
-                    _view._gestureDetector.OnTouchEvent(evt);
-                }
+                _view._touchListener?.OnTouch(v, evt); // User-defined handler, maybe
+                _view._scaleDetector?.OnTouchEvent(evt);
+                _view._gestureDetector?.OnTouchEvent(evt);
                 var currentX = evt.GetX();
                 var currentY = evt.GetY();
 
@@ -866,10 +857,7 @@ namespace Steepshot.Utils
                         case MotionEventActions.Down:
                             _lastX = currentX;
                             _lastY = currentY;
-                            if (_view._fling != null)
-                            {
-                                _view._fling.CancelFling();
-                            }
+                            _view._fling?.CancelFling();
                             _view.SetState(TouchState.DRAG);
                             break;
                         case MotionEventActions.Move:
@@ -905,7 +893,7 @@ namespace Steepshot.Utils
         //
         class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener
         {
-            ScaleImageView _view;
+            readonly ScaleImageView _view;
 
             public ScaleListener(ScaleImageView view)
             {
@@ -928,8 +916,8 @@ namespace Steepshot.Utils
             {
                 base.OnScaleEnd(detector);
                 _view.SetState(TouchState.None);
-                bool animateToZoomBoundary = false;
-                float targetZoom = _view.NormalizedScale;
+                var animateToZoomBoundary = false;
+                var targetZoom = _view.NormalizedScale;
                 if (_view.NormalizedScale > _view._maxScale)
                 {
                     targetZoom = _view._maxScale;
@@ -985,16 +973,18 @@ namespace Steepshot.Utils
         //
         class DoubleTapZoom : Java.Lang.Object, IRunnable
         {
-            static float _zoomTime = 500;
+            static readonly float ZoomTime = 500;
 
-            long _startTime;
-            float _startZoom, _targetZoom;
-            float _bitmapX, _bitmapY;
-            bool _stretchImageToSuper;
-            AccelerateDecelerateInterpolator _interpolator = new AccelerateDecelerateInterpolator();
-            PointF _startTouch;
-            PointF _endTouch;
-            ScaleImageView _view;
+            readonly long _startTime;
+            readonly float _startZoom;
+            readonly float _targetZoom;
+            readonly float _bitmapX;
+            readonly float _bitmapY;
+            readonly bool _stretchImageToSuper;
+            readonly AccelerateDecelerateInterpolator _interpolator = new AccelerateDecelerateInterpolator();
+            readonly PointF _startTouch;
+            readonly PointF _endTouch;
+            readonly ScaleImageView _view;
 
             public DoubleTapZoom(ScaleImageView view, float targetZoom, float focusX, float focusY, bool stretchImageToSuper)
             {
@@ -1012,7 +1002,7 @@ namespace Steepshot.Utils
                 // Used for translating image during scaling
                 //
                 _startTouch = view.TransformCoordBitmapToTouch(_bitmapX, _bitmapY);
-                _endTouch = new PointF((float)(view.ViewWidth / 2), (float)(view.ViewHeight / 2));
+                _endTouch = new PointF(view.ViewWidth / 2, view.ViewHeight / 2);
             }
 
             public void Run()
@@ -1060,7 +1050,7 @@ namespace Steepshot.Utils
             float Interpolate()
             {
                 var currTime = DateTime.Now.Ticks;
-                var elapsed = (currTime - _startTime) / _zoomTime;
+                var elapsed = (currTime - _startTime) / ZoomTime;
                 elapsed = Math.Min(1f, elapsed);
                 return _interpolator.GetInterpolation(elapsed);
             }
@@ -1130,7 +1120,7 @@ namespace Steepshot.Utils
         //
         class Fling : Java.Lang.Object, IRunnable
         {
-            ScaleImageView _view;
+            readonly ScaleImageView _view;
             Scroller _scroller;
             int _currX, _currY;
 
@@ -1210,9 +1200,9 @@ namespace Steepshot.Utils
 
         class CompatScroller
         {
-            Scroller _scroller;
-            OverScroller _overScroller;
-            bool _isPreGingerbread;
+            readonly Scroller _scroller;
+            readonly OverScroller _overScroller;
+            readonly bool _isPreGingerbread;
 
             public CompatScroller(Context context)
             {
@@ -1303,10 +1293,10 @@ namespace Steepshot.Utils
 
         class ZoomVariables
         {
-            public float Scale;
-            public float FocusX;
-            public float FocusY;
-            public ScaleType ScaleType;
+            public readonly float Scale;
+            public readonly float FocusX;
+            public readonly float FocusY;
+            public readonly ScaleType ScaleType;
 
             public ZoomVariables(float scale, float focusX, float focusY, ScaleType scaleType)
             {

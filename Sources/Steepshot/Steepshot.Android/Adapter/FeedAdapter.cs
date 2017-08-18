@@ -6,9 +6,8 @@ using Android.Text;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
-
+using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
@@ -16,12 +15,12 @@ namespace Steepshot.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        private ObservableCollection<Post> _posts;
-        private Context _context;
-        private string _commentPattern = "<b>{0}</b> {1}";
+        private readonly ObservableCollection<Post> _posts;
+        private readonly Context _context;
+        private readonly string _commentPattern = "<b>{0}</b> {1}";
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-        public FeedAdapter(Context context, ObservableCollection<Post> posts, bool isFeed = false)
+        public FeedAdapter(Context context, ObservableCollection<Post> posts)
         {
             _context = context;
             _posts = posts;
@@ -31,17 +30,13 @@ namespace Steepshot.Adapter
         {
             return _posts[position];
         }
-        public override int ItemCount
-        {
-            get
-            {
-                return _posts.Count;
-            }
-        }
+        public override int ItemCount => _posts.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            FeedViewHolder vh = holder as FeedViewHolder;
+            var vh = holder as FeedViewHolder;
+            if (vh == null) return;
+
             vh.Photo.SetImageResource(0);
             var post = _posts[position];
             vh.Author.Text = post.Author;
@@ -55,14 +50,10 @@ namespace Steepshot.Adapter
                 vh.FirstComment.Visibility = ViewStates.Gone;
             }
 
-            if (post.Children > 0)
-            {
-                vh.CommentSubtitle.Text = string.Format(_context.GetString(Resource.String.view_n_comments), post.Children);
-            }
-            else
-            {
-                vh.CommentSubtitle.Text = _context.GetString(Resource.String.first_title_comment);
-            }
+            vh.CommentSubtitle.Text = post.Children > 0
+                ? string.Format(_context.GetString(Resource.String.view_n_comments), post.Children) 
+                : _context.GetString(Resource.String.first_title_comment);
+
             vh.UpdateData(post, _context);
             try
             {
@@ -90,28 +81,28 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            Android.Views.View itemView = LayoutInflater.From(parent.Context).
+            var itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
 
-            FeedViewHolder vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
             return vh;
         }
 
         public class FeedViewHolder : RecyclerView.ViewHolder
         {
-            public ImageView Photo { get; private set; }
-            public ImageView Avatar { get; private set; }
-            public TextView Author { get; private set; }
-            public TextView FirstComment { get; private set; }
-            public TextView CommentSubtitle { get; private set; }
-            public TextView Time { get; private set; }
-            public TextView Likes { get; private set; }
-            public TextView Cost { get; private set; }
-            public ImageButton Like { get; private set; }
+            public ImageView Photo { get; }
+            public ImageView Avatar { get; }
+            public TextView Author { get; }
+            public TextView FirstComment { get; }
+            public TextView CommentSubtitle { get; }
+            public TextView Time { get; }
+            public TextView Likes { get; }
+            public TextView Cost { get; }
+            public ImageButton Like { get; }
             Post _post;
-            Action<int> _likeAction;
+            readonly Action<int> _likeAction;
 
-            public FeedViewHolder(Android.Views.View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
+            public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
                 Author = itemView.FindViewById<TextView>(Resource.Id.author_name);

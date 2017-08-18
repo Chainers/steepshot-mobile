@@ -10,8 +10,8 @@ namespace Steepshot.Adapter
 {
 	public class PostsGridAdapter : RecyclerView.Adapter
 	{
-		ObservableCollection<Post> _posts;
-		private Context _context;
+	    readonly ObservableCollection<Post> _posts;
+		private readonly Context _context;
 
 		public System.Action<int> Click;
 
@@ -26,15 +26,9 @@ namespace Steepshot.Adapter
              return _posts[position];
         }
 
-        public override int ItemCount
-        {
-            get
-            {
-                return _posts.Count;
-            }
-        }
+        public override int ItemCount => _posts.Count;
 
-        public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
+	    public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
 			Picasso.With(_context).Load(_posts[position].Body)
                    .NoFade()
@@ -46,20 +40,20 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-			ImageView view = new ImageView(_context);
+			var view = new ImageView(_context);
 			view.SetScaleType(ImageView.ScaleType.CenterInside);
 			view.LayoutParameters = new ViewGroup.LayoutParams(_context.Resources.DisplayMetrics.WidthPixels / 3 - 1, _context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
 
-			ImageViewHolder vh = new ImageViewHolder(view,Click);
+			var vh = new ImageViewHolder(view,Click);
             return vh;
         }
 
 		public class ImageViewHolder : RecyclerView.ViewHolder
         {
-            public ImageView Photo { get; private set; }
-			System.Action<int> _click;
+            public ImageView Photo { get; }
+            readonly System.Action<int> _click;
 
-			public ImageViewHolder(Android.Views.View itemView,System.Action<int> click) : base(itemView)
+			public ImageViewHolder(View itemView,System.Action<int> click) : base(itemView)
             {
 				_click = click;
 				Photo = (ImageView)itemView;

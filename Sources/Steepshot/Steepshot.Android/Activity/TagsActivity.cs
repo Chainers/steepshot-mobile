@@ -33,8 +33,8 @@ namespace Steepshot.Activity
         {
             if (_selectedCategories.Count > 0)
             {
-                Intent returnIntent = new Intent();
-                Bundle b = new Bundle();
+                var returnIntent = new Intent();
+                var b = new Bundle();
                 b.PutStringArray("TAGS", _selectedCategories.Select(o => o.Name).ToArray());
                 returnIntent.PutExtra("TAGS", b);
                 SetResult(Result.Ok, returnIntent);
@@ -62,7 +62,7 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
-            _adapter = new TagsAdapter(this);
+            _adapter = new TagsAdapter();
             _tagsList.SetAdapter(_adapter);
 
             _close.Click += (sender, e) => OnBackPressed();
@@ -121,7 +121,7 @@ namespace Steepshot.Activity
             if (s.Name.Length > 1 && _selectedCategories.Count < 4 && _selectedCategories.Find(finded => finded.Name.Equals(s.Name)) == null)
             {
                 _selectedCategories.Add(s);
-                FrameLayout add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
+                var add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
                 var text = add.FindViewById<TextView>(Resource.Id.text);
                 text.Text = s.Name;
                 text.Click += (sender, e) => DeleteTag(text);

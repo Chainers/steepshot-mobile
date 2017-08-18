@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
 		[InjectView(Resource.Id.followers_list)] RecyclerView _followersList;
 #pragma warning restore 0649
 
-		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!IsInitialized)
 			{
@@ -35,7 +35,7 @@ namespace Steepshot.Fragment
 			return V;
 		}
 
-		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
 		{
 			if (IsInitialized)
 				return;
@@ -59,9 +59,9 @@ namespace Steepshot.Fragment
 
         public class FollowersScrollListener : RecyclerView.OnScrollListener
         {
-			FollowersPresenter _presenter;
-			private string _username;
-			private FollowType _followType;
+            readonly FollowersPresenter _presenter;
+			private readonly string _username;
+			private readonly FollowType _followType;
 
 			public FollowersScrollListener(FollowersPresenter presenter, string username, FollowType followType)
 			{
@@ -72,7 +72,7 @@ namespace Steepshot.Fragment
 			int _prevPos;
 			public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
 			{
-				int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
+				var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
 				if (pos > _prevPos && pos != _prevPos)
 				{
 					if (pos == recyclerView.GetAdapter().ItemCount - 1)

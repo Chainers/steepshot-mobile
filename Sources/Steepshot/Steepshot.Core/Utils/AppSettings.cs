@@ -10,7 +10,7 @@ namespace Steepshot.Core.Utils
         public static bool IsDev
         {
             get => Container.Resolve<ISaverService>().Get<bool>("isdev");
-            set => Container.Resolve<ISaverService>().Save<bool>("isdev", value);
+            set => Container.Resolve<ISaverService>().Save("isdev", value);
         }
     }
 }

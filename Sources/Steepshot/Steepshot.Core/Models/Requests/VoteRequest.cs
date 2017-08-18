@@ -25,6 +25,6 @@ namespace Steepshot.Core.Models.Requests
         public string Identifier { get; private set; }
 
         [JsonIgnore]
-        public VoteType Type { get; private set; }
+        public VoteType Type { get; }
     }
 }
