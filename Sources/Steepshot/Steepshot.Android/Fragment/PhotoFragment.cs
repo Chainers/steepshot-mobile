@@ -24,9 +24,21 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
 #pragma warning restore 0649
 
-        private GalleryAdapter _adapter;
+        private GridImageAdapter<string> _adapter;
         private Java.IO.File _photo;
 
+        private GridImageAdapter<string> Adapter
+        {
+            get
+            {
+                if (_adapter == null)
+                {
+                    _adapter = new GridImageAdapter<string>(Context, GetAllShownImagesPaths());
+                    _adapter.Click += StartPost;
+                }
+                return _adapter;
+            }
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -54,10 +66,7 @@ namespace Steepshot.Fragment
 
             _imagesList.SetLayoutManager(new GridLayoutManager(Context, 3));
             _imagesList.AddItemDecoration(new GridItemdecoration(2, 3));
-            _adapter = new GalleryAdapter(Context);
-            _imagesList.SetAdapter(_adapter);
-            _adapter.Reset(GetAllShownImagesPaths());
-            _adapter.PhotoClick += StartPost;
+            _imagesList.SetAdapter(Adapter);
         }
 
         public override void OnDestroyView()
@@ -80,7 +89,7 @@ namespace Steepshot.Fragment
         private void StartPost(int obj)
         {
             var i = new Intent(Context, typeof(PostDescriptionActivity));
-            i.PutExtra("FILEPATH", _adapter.GetItem(obj));
+            i.PutExtra("FILEPATH", Adapter.GetItem(obj));
             Context.StartActivity(i);
         }
 
