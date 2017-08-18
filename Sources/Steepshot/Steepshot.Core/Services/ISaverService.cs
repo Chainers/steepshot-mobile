@@ -1,5 +1,4 @@
-﻿
-namespace Steepshot.Core
+﻿namespace Steepshot.Core.Services
 {
 	public interface ISaverService
 	{

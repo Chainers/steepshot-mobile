@@ -109,15 +109,6 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<LogoutResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
-        {
-            var endpoint = $"user/{request.Username}/exists";
-
-            var response = await Gateway.Get(endpoint, new List<RequestParameter>(), cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserExistsResponse>(response.Content, errorResult);
-        }
-
         public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);

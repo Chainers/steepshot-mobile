@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Authority
 {
