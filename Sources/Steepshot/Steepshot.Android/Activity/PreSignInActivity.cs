@@ -50,20 +50,20 @@ namespace Steepshot.Activity
                 _switcher.Visibility = ViewStates.Gone;
                 _steemLogo.Visibility = ViewStates.Gone;
                 _golosLogo.Visibility = ViewStates.Gone;
-                Base.BasePresenter.SwitchChain(_newChain);
+                BasePresenter.SwitchChain(_newChain);
             }
 
-            _switcher.Checked = Base.BasePresenter.Chain == KnownChains.Steem;
+            _switcher.Checked = BasePresenter.Chain == KnownChains.Steem;
             _switcher.CheckedChange += (sender, e) =>
             {
-                Base.BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
+                BasePresenter.SwitchChain(e.IsChecked ? KnownChains.Steem : KnownChains.Golos);
                 SetLabelsText();
             };
 
             _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += (sender, e) =>
             {
-                Base.BasePresenter.SwitchChain(e.IsChecked);
+                BasePresenter.SwitchChain(e.IsChecked);
             };
 
             SetLabelsText();
@@ -88,7 +88,7 @@ namespace Steepshot.Activity
         {
             if (_newChain != KnownChains.None)
             {
-                Base.BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
             base.OnDestroy();
             Cheeseknife.Reset(this);
@@ -142,13 +142,13 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, Base.BasePresenter.User.Login, Base.BasePresenter.AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
             }
         }
 
         private void SetLabelsText()
         {
-            _loginLabel.Text = $"Log in with your {Base.BasePresenter.Chain} Account";
+            _loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
         }
     }
 }

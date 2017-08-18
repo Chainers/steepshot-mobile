@@ -19,10 +19,10 @@ namespace Steepshot.Core.Models.Requests
             Title = title;
         }
 
-        public string Url { get; private set; }
+        public string Url { get; }
 
-        public string Body { get; private set; }
+        public string Body { get; }
 
-        public string Title { get; private set; }
+        public string Title { get; }
     }
 }

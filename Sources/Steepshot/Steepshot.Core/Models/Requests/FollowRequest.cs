@@ -19,7 +19,7 @@ namespace Steepshot.Core.Models.Requests
             Username = username;
         }
 
-        public FollowType Type { get; private set; }
-        public string Username { get; private set; }
+        public FollowType Type { get; }
+        public string Username { get; }
     }
 }

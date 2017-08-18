@@ -38,7 +38,7 @@ namespace Steepshot.Base
         protected virtual void ShowAlert(int messageid)
         {
             var message = GetString(messageid);
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            var alert = new AlertDialog.Builder(this);
             alert.SetTitle("Error");
             alert.SetMessage(message);
             alert.SetPositiveButton("Ok", (senderAlert, args) => { });
@@ -48,7 +48,7 @@ namespace Steepshot.Base
 
         protected virtual void ShowAlert(string message)
         {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            var alert = new AlertDialog.Builder(this);
             alert.SetMessage(message);
             alert.SetPositiveButton("Ok", (senderAlert, args) => { });
             Dialog dialog = alert.Create();
@@ -57,7 +57,7 @@ namespace Steepshot.Base
 
         protected virtual void ShowAlert(List<string> messages)
         {
-            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            var alert = new AlertDialog.Builder(this);
             alert.SetMessage(string.Join(System.Environment.NewLine, messages));
             alert.SetPositiveButton("Ok", (senderAlert, args) => { });
             Dialog dialog = alert.Create();

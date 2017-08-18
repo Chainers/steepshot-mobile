@@ -16,7 +16,7 @@ namespace Steepshot.Activity
     [Activity(Label = "Steepshot", ScreenOrientation = ScreenOrientation.Portrait)]
     public class RootActivity : BaseActivity, ViewPager.IOnPageChangeListener
     {
-        private Steepshot.Adapter.PagerAdapter _adapter;
+        private Adapter.PagerAdapter _adapter;
         public string VoterUrl;
 
 #pragma warning disable 0649, 4014
@@ -29,7 +29,7 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Inject(this);
-            _adapter = new Steepshot.Adapter.PagerAdapter(SupportFragmentManager, this);
+            _adapter = new Adapter.PagerAdapter(SupportFragmentManager);
             _viewPager.Adapter = _adapter;
             _tabLayout.SetupWithViewPager(_viewPager);
             InitTabs();
@@ -43,13 +43,10 @@ namespace Steepshot.Activity
 
         private void InitTabs()
         {
-            for (int i = 0; i < _tabLayout.TabCount; i++)
+            for (var i = 0; i < _tabLayout.TabCount; i++)
             {
-                TabLayout.Tab tab = _tabLayout.GetTabAt(i);
-                if (null != tab)
-                {
-                    tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIcos[i]));
-                }
+                var tab = _tabLayout.GetTabAt(i);
+                tab?.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIcos[i]));
             }
 
             _viewPager.AddOnPageChangeListener(this);
@@ -62,27 +59,18 @@ namespace Steepshot.Activity
         {
             if (!BasePresenter.User.IsAuthenticated && _viewPager.CurrentItem > 0)
             {
-                Intent loginItent = new Intent(this, typeof(SignInActivity));
+                var loginItent = new Intent(this, typeof(SignInActivity));
                 StartActivity(loginItent);
             }
         }
 
         public void OnPageSelected(int position)
         {
-            for (int i = 0; i < _tabLayout.TabCount; i++)
+            for (var i = 0; i < _tabLayout.TabCount; i++)
             {
                 var tab = _tabLayout.GetTabAt(i);
-                if (null != tab)
-                {
-                    if (i == position)
-                    {
-                        tab.Icon.SetColorFilter(Color.Black, PorterDuff.Mode.SrcIn);
-                    }
-                    else
-                    {
-                        tab.Icon.SetColorFilter(Color.LightGray, PorterDuff.Mode.SrcIn);
-                    }
-                }
+                if (tab != null)
+                    tab.Icon.SetColorFilter(i == position ? Color.Black : Color.LightGray, PorterDuff.Mode.SrcIn);
             }
         }
 

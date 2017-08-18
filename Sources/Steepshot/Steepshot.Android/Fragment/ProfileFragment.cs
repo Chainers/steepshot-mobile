@@ -24,7 +24,7 @@ namespace Steepshot.Fragment
     public class ProfileFragment : BaseFragment
     {
         UserProfilePresenter _presenter;
-        private string _profileId;
+        private readonly string _profileId;
         private UserProfileResponse _profile;
 
 #pragma warning disable 0649, 4014
@@ -174,10 +174,7 @@ namespace Steepshot.Fragment
 
         public override bool CustomUserVisibleHint
         {
-            get
-            {
-                return base.CustomUserVisibleHint;
-            }
+            get => base.CustomUserVisibleHint;
             set
             {
                 if (value && BasePresenter.ShouldUpdateProfile)
@@ -191,7 +188,7 @@ namespace Steepshot.Fragment
 
         public void OnClick(int position)
         {
-            Intent intent = new Intent(Context, typeof(PostPreviewActivity));
+            var intent = new Intent(Context, typeof(PostPreviewActivity));
             intent.PutExtra("PhotoURL", _presenter.UserPosts[position].Body);
             StartActivity(intent);
         }
@@ -288,7 +285,7 @@ namespace Steepshot.Fragment
 
         void FeedAdapter_CommentAction(int position)
         {
-            Intent intent = new Intent(Context, typeof(CommentsActivity));
+            var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra("uid", _presenter.UserPosts[position].Url);
             Context.StartActivity(intent);
         }
@@ -342,7 +339,7 @@ namespace Steepshot.Fragment
 
         private class FeedsScrollListener : RecyclerView.OnScrollListener
         {
-            UserProfilePresenter _presenter;
+            readonly UserProfilePresenter _presenter;
             int _prevPos;
             public FeedsScrollListener(UserProfilePresenter presenter)
             {
@@ -355,7 +352,7 @@ namespace Steepshot.Fragment
 
             public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
             {
-                int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
+                var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
                 if (pos > _prevPos && pos != _prevPos)
                 {
                     if (pos == recyclerView.GetAdapter().ItemCount - 1)

@@ -4,8 +4,8 @@ namespace Steepshot.Utils
 {
 	public class GridItemdecoration : RecyclerView.ItemDecoration
 	{
-		private int _mSizeGridSpacingPx;
-		private int _mGridSize;
+		private readonly int _mSizeGridSpacingPx;
+		private readonly int _mGridSize;
 
 		private bool _mNeedLeftSpacing;
 
@@ -17,9 +17,9 @@ namespace Steepshot.Utils
 
 		public override void GetItemOffsets(Android.Graphics.Rect outRect, Android.Views.View view, RecyclerView parent, RecyclerView.State state)
 		{
-			int frameWidth = (int)((parent.Width - (float)_mSizeGridSpacingPx * (_mGridSize - 1)) / _mGridSize);
-			int padding = parent.Width / _mGridSize - frameWidth;
-			int itemPosition = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
+			var frameWidth = (int)((parent.Width - (float)_mSizeGridSpacingPx * (_mGridSize - 1)) / _mGridSize);
+			var padding = parent.Width / _mGridSize - frameWidth;
+			var itemPosition = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
 
 			if (itemPosition < _mGridSize)
 			{

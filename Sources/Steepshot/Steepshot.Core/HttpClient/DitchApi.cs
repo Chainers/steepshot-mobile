@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
+using Ditch.Errors;
 using Ditch.JsonRpc;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
@@ -211,15 +212,15 @@ namespace Steepshot.Core.HttpClient
 
         private string ParseErrorCode(JsonRpcResponse resp)
         {
-            if (resp.Error is Ditch.Errors.SystemError)
+            if (resp.Error is SystemError)
             {
                 switch (resp.Error.Code)
                 {
-                    case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                    case (int)ErrorCodes.ConnectionTimeoutError:
                         {
                             return "Can not connect to the server, check for an Internet connection and try again.";
                         }
-                    case (int)Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                    case (int)ErrorCodes.ResponseTimeoutError:
                         {
                             return "The server does not respond to the request. Check your internet connection and try again.";
                         }
@@ -229,9 +230,10 @@ namespace Steepshot.Core.HttpClient
                         }
                 }
             }
-            if (resp.Error is Ditch.Errors.ResponseError)
+            var respError = resp.Error as ResponseError;
+            if (respError != null)
             {
-                var error = (Ditch.Errors.ResponseError)resp.Error;
+                var error = respError;
                 if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
                 {
                     return "Invalid private posting key!";
@@ -247,16 +249,16 @@ namespace Steepshot.Core.HttpClient
         {
             if (response.IsError)
             {
-                if (response.Error is Ditch.Errors.SystemError)
+                if (response.Error is SystemError)
                 {
                     switch (response.Error.Code)
                     {
-                        case (int)Ditch.Errors.ErrorCodes.ConnectionTimeoutError:
+                        case (int)ErrorCodes.ConnectionTimeoutError:
                             {
                                 operationResult.Errors.Add("Can not connect to the server, check for an Internet connection and try again.");
                                 break;
                             }
-                        case (int)Ditch.Errors.ErrorCodes.ResponseTimeoutError:
+                        case (int)ErrorCodes.ResponseTimeoutError:
                             {
                                 operationResult.Errors.Add("The server does not respond to the request. Check your internet connection and try again.");
                                 break;
@@ -268,9 +270,9 @@ namespace Steepshot.Core.HttpClient
                             }
                     }
                 }
-                else if (response.Error is Ditch.Errors.ResponseError)
+                else if (response.Error is ResponseError)
                 {
-                    var typedError = (Ditch.Errors.ResponseError)response.Error;
+                    var typedError = (ResponseError)response.Error;
                     var t = typeof(T);
 
                     switch (typedError.Data.Code)

@@ -13,11 +13,11 @@ namespace Steepshot.Utils
 	#pragma warning disable CS0618 // Type or member is obsolete (class uses in pre-lollipop versions)
 	public class CameraPreview : SurfaceView, ISurfaceHolderCallback, Android.Hardware.Camera.IShutterCallback, Android.Hardware.Camera.IPictureCallback
 	{
-		private Android.Hardware.Camera _mCamera;
+		private readonly Android.Hardware.Camera _mCamera;
 		public event EventHandler<string> PictureTaken;
 
-		private List<Android.Hardware.Camera.Size> _mSupportedPreviewSizes;
-		private List<Android.Hardware.Camera.Size> _mSupportedPictureSizes;
+		private readonly List<Android.Hardware.Camera.Size> _mSupportedPreviewSizes;
+		private readonly List<Android.Hardware.Camera.Size> _mSupportedPictureSizes;
 		private Android.Hardware.Camera.Size _mPreviewSize, _mPictureSize;
 
 		public CameraPreview(Context context, Android.Hardware.Camera camera) : base(context)
@@ -104,8 +104,8 @@ namespace Steepshot.Utils
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			int width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
-			int height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
+			var width = ResolveSize(SuggestedMinimumWidth, widthMeasureSpec);
+			var height = ResolveSize(SuggestedMinimumHeight, heightMeasureSpec);
 
 			if (_mSupportedPreviewSizes != null)
 			{
@@ -114,9 +114,9 @@ namespace Steepshot.Utils
 
 			float ratio;
 			if (_mPreviewSize.Height >= _mPreviewSize.Width)
-				ratio = (float)_mPreviewSize.Height / (float)_mPreviewSize.Width;
+				ratio = _mPreviewSize.Height / (float)_mPreviewSize.Width;
 			else
-				ratio = (float)_mPreviewSize.Width / (float)_mPreviewSize.Height;
+				ratio = _mPreviewSize.Width / (float)_mPreviewSize.Height;
 
 			// One of these methods should be used, second method squishes preview slightly
 			SetMeasuredDimension(width, (int)(width * ratio));
@@ -127,7 +127,7 @@ namespace Steepshot.Utils
 		{
 			if (_mSupportedPictureSizes != null)
 			{
-				for (int i = _mSupportedPictureSizes.Count - 1; i >= 0; i--)
+				for (var i = _mSupportedPictureSizes.Count - 1; i >= 0; i--)
 				{
 					if (_mSupportedPictureSizes[i].Width > Width)
 						_mPictureSize = _mSupportedPictureSizes[i];
@@ -137,20 +137,20 @@ namespace Steepshot.Utils
 
 		private Android.Hardware.Camera.Size GetOptimalPreviewSize(List<Android.Hardware.Camera.Size> sizes, int w, int h)
 		{
-			double aspectTolerance = 0.1;
-			double targetRatio = (double)h / w;
+			var aspectTolerance = 0.1;
+			var targetRatio = (double)h / w;
 
 			if (sizes == null)
 				return null;
 
 			Android.Hardware.Camera.Size optimalSize = null;
-			double minDiff = double.MaxValue;
+			var minDiff = double.MaxValue;
 
-			int targetHeight = h;
+			var targetHeight = h;
 
-			foreach (Android.Hardware.Camera.Size size in sizes)
+			foreach (var size in sizes)
 			{
-				double ratio = (double)size.Height / size.Width;
+				var ratio = (double)size.Height / size.Width;
 				if (Math.Abs(ratio - targetRatio) > aspectTolerance)
 					continue;
 
@@ -164,7 +164,7 @@ namespace Steepshot.Utils
 			if (optimalSize == null)
 			{
 				minDiff = double.MaxValue;
-				foreach (Android.Hardware.Camera.Size size in sizes)
+				foreach (var size in sizes)
 				{
 					if (Math.Abs(size.Height - targetHeight) < minDiff)
 					{
@@ -193,7 +193,7 @@ namespace Steepshot.Utils
 		string ExportBitmapAsPng(byte[] data)
 		{
 			var pP = GetDirectoryForPictures().AbsolutePath;
-			string filePath = System.IO.Path.Combine(pP, string.Format("{0}.jpg", Guid.NewGuid()));
+			var filePath = System.IO.Path.Combine(pP, $"{Guid.NewGuid()}.jpg");
 			var stream = new FileStream(filePath, FileMode.Create);
 			stream.Write(data, 0, data.Length);
 			stream.Flush();

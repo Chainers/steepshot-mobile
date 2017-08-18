@@ -14,7 +14,7 @@ namespace Steepshot.Adapter
 	{
 		public List<UserSearchResult> Items = new List<UserSearchResult>();
 		public Action<int> Click;
-		private Context _context;
+		private readonly Context _context;
 		public override int ItemCount => Items.Count;
 
 		public UsersSearchAdapter(Context context)
@@ -73,13 +73,13 @@ namespace Steepshot.Adapter
 
 	public class UsersSearchViewHolder : RecyclerView.ViewHolder
 	{
-		public ImageView Avatar { get; private set; }
-		public TextView Name { get; private set; }
-		public TextView Username { get; private set; }
-		public TextView Percent { get; private set; }
+		public ImageView Avatar { get; }
+		public TextView Name { get; }
+		public TextView Username { get; }
+		public TextView Percent { get; }
 		//Action<int> Click;
 
-		public UsersSearchViewHolder(Android.Views.View itemView) : base(itemView)
+		public UsersSearchViewHolder(View itemView) : base(itemView)
 		{
 			//this.Click = Click;
 			Name = itemView.FindViewById<TextView>(Resource.Id.name);

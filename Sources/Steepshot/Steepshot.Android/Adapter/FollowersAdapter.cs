@@ -17,7 +17,7 @@ namespace Steepshot.Adapter
         private readonly ObservableCollection<UserFriendViewMode> _collection;
         private readonly Context _context;
         public Action<int> FollowAction;
-		public Action<int> UserAction;
+        public Action<int> UserAction;
 
         public FollowersAdapter(Context context, ObservableCollection<UserFriendViewMode> collection)
         {
@@ -52,11 +52,11 @@ namespace Steepshot.Adapter
             vh.FriendAvatar.SetImageResource(0);
             vh.FriendName.Text = item.Author;
             vh.Reputation.Text = item.Reputation.ToString();
-			if (!string.IsNullOrEmpty(item.Avatar))
-				Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-			else
-				Picasso.With(_context).Load(Resource.Drawable.ic_user_placeholder).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-                //vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
+            if (!string.IsNullOrEmpty(item.Avatar))
+                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
+            else
+                Picasso.With(_context).Load(Resource.Drawable.ic_user_placeholder).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
+            //vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
             vh.UpdateData(item);
         }
@@ -73,13 +73,13 @@ namespace Steepshot.Adapter
             public CircleImageView FriendAvatar { get; }
             public TextView FriendName { get; }
             public TextView Reputation { get; }
-            public AppCompatButton FollowUnfollow { get; }
+            private AppCompatButton FollowUnfollow { get; }
 
             private UserFriendViewMode _userFriendst;
             private readonly Action<int> _followAction;
-			private readonly Action<int> _userAction;
+            private readonly Action<int> _userAction;
 
-            public FollowersViewHolder(Android.Views.View itemView, Action<int> followAction, Action<int> userAction)
+            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction)
                 : base(itemView)
             {
                 FriendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
@@ -87,26 +87,26 @@ namespace Steepshot.Adapter
                 Reputation = itemView.FindViewById<TextView>(Resource.Id.reputation);
                 FollowUnfollow = itemView.FindViewById<AppCompatButton>(Resource.Id.btn_follow_unfollow);
                 _followAction = followAction;
-				_userAction = userAction;
+                _userAction = userAction;
                 FollowUnfollow.Click += Follow_Click;
-				FriendName.Clickable = true;
-				FriendName.Click += User_Click;
-				FriendAvatar.Clickable = true;
-				FriendAvatar.Click += User_Click;
+                FriendName.Clickable = true;
+                FriendName.Click += User_Click;
+                FriendAvatar.Clickable = true;
+                FriendAvatar.Click += User_Click;
             }
 
-			private void User_Click(object sender, EventArgs e)
-			{
-				_userAction?.Invoke(AdapterPosition);
-			}
+            private void User_Click(object sender, EventArgs e)
+            {
+                _userAction?.Invoke(AdapterPosition);
+            }
 
             void Follow_Click(object sender, EventArgs e)
             {
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(_userFriendst, this, !_userFriendst.IsFollow);
+                CheckFollow(this, !_userFriendst.IsFollow);
             }
 
-            private void CheckFollow(UserFriendViewMode item, FollowersViewHolder vh,bool follow)
+            private void CheckFollow(FollowersViewHolder vh, bool follow)
             {
                 if (!follow)
                 {
@@ -126,7 +126,7 @@ namespace Steepshot.Adapter
             public void UpdateData(UserFriendViewMode userFriendst)
             {
                 _userFriendst = userFriendst;
-                CheckFollow(_userFriendst, this,_userFriendst.IsFollow);
+                CheckFollow(this, _userFriendst.IsFollow);
             }
         }
     }

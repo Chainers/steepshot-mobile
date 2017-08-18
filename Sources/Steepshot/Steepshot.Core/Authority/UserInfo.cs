@@ -29,8 +29,8 @@ namespace Steepshot.Core.Authority
         //TODO:KOA: Needed for SQLite only
         public string PostblacklistStr
         {
-            get { return string.Join("; ", Postblacklist); }
-            set { Postblacklist = value.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries).ToList(); }
+            get => string.Join("; ", Postblacklist);
+            set => Postblacklist = value.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Steepshot.Core.Authority
 	public class DataProvider : IDataProvider
 	{
 		private readonly List<UserInfo> _set;
-        private ISaverService _saverService;
+        private readonly ISaverService _saverService;
 
 		public DataProvider(ISaverService saverService)
 		{

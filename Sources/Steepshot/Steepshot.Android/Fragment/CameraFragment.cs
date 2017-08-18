@@ -31,19 +31,19 @@ namespace Steepshot.Fragment
             _camera.TakePicture(_cameraPreview, null, null, _cameraPreview);
         }
 
-        public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             var v = inflater.Inflate(Resource.Layout.lyt_fragment_take_photo, null);
             Cheeseknife.Inject(this, v);
             return v;
         }
 
-        public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             if ((int)Build.VERSION.SdkInt >= 23 && ((ContextCompat.CheckSelfPermission(Context, CameraPermission) != (int)Permission.Granted) || (ContextCompat.CheckSelfPermission(Context, WritePermission) != (int)Permission.Granted)))
             {
-                RequestPermissions(new string[] { CameraPermission, WritePermission }, CameraRequestCode);
+                RequestPermissions(new[] { CameraPermission, WritePermission }, CameraRequestCode);
             }
             else
             {
@@ -59,7 +59,7 @@ namespace Steepshot.Fragment
         private void StartPost(string path)
         {
             _camera.StopPreview();
-            Intent i = new Intent(Context, typeof(PostDescriptionActivity));
+            var i = new Intent(Context, typeof(PostDescriptionActivity));
             i.PutExtra("FILEPATH", path);
             Context.StartActivity(i);
         }

@@ -24,11 +24,11 @@ namespace Steepshot.Core.Utils
 			}
 		}
 
-		private static IAppInfo _appInfoService;
+		private static readonly IAppInfo AppInfoService;
 
 		static Reporter()
 		{
-			_appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+			AppInfoService = AppSettings.Container.Resolve<IAppInfo>();
 		}
 
         public static void SendCrash(Exception ex, string user, string appVersion)
@@ -44,11 +44,11 @@ namespace Steepshot.Core.Utils
         private static SentryEvent CreateSentryEvent(Exception ex, string user)
 		{
             var sentryEvent = new SentryEvent(ex);
-			sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
+			sentryEvent.Tags.Add("OS", AppInfoService.GetPlatform());
             sentryEvent.Tags.Add("Login", user);
-            sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());
-            sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
-            sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
+            sentryEvent.Tags.Add("AppVersion", AppInfoService.GetAppVersion());
+            sentryEvent.Tags.Add("Model", AppInfoService.GetModel());
+            sentryEvent.Tags.Add("OsVersion", AppInfoService.GetOsVersion());
             return sentryEvent;
         }
 

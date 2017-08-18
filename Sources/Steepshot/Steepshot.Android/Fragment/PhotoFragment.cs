@@ -52,7 +52,7 @@ namespace Steepshot.Fragment
             base.OnActivityResult(requestCode, resultCode, data);
             if (resultCode == -1 && requestCode == 0)
             {
-                Intent i = new Intent(Context, typeof(PostDescriptionActivity));
+                var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(_photo).Path);
                 StartActivity(i);
             }
@@ -81,7 +81,7 @@ namespace Steepshot.Fragment
             var directory = GetSteepshotDirectory();
             _photo = new Java.IO.File(directory, Guid.NewGuid().ToString());
 
-            Intent intent = new Intent(MediaStore.ActionImageCapture);
+            var intent = new Intent(MediaStore.ActionImageCapture);
             intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));
             StartActivityForResult(intent, 0);
         }
