@@ -2,21 +2,16 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Steepshot.Base;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
-using Steepshot.Data;
 
-namespace Steepshot.Presenter
+namespace Steepshot.Core.Presenters
 {
     public class FollowersPresenter : BasePresenter
     {
-        public FollowersPresenter(IBaseView view) : base(view)
-        {
-        }
-
         public readonly ObservableCollection<UserFriendViewMode> Collection = new ObservableCollection<UserFriendViewMode>();
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;

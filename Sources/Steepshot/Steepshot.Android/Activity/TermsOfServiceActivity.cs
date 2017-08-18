@@ -4,7 +4,7 @@ using Android.OS;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
-using Steepshot.Presenter;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.Activity
 {
@@ -42,7 +42,7 @@ namespace Steepshot.Activity
 
 		protected override void CreatePresenter()
 		{
-			_presenter = new TermsPresenter(this);
+			_presenter = new TermsPresenter();
 		}
 	}
 }

@@ -7,7 +7,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Presenter;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.Fragment
 {
@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			_presenter = new VotersPresenter(this);
+			_presenter = new VotersPresenter();
 		}
 
 		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

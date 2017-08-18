@@ -7,7 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Data;
+using Steepshot.Core.Models;
 
 
 namespace Steepshot.Adapter

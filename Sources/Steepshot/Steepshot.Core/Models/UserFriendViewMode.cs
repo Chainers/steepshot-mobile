@@ -1,6 +1,6 @@
 ﻿using Steepshot.Core.Models.Responses;
 
-namespace Steepshot.Data
+namespace Steepshot.Core.Models
 {
 	public class UserFriendViewMode : UserFriend
 	{

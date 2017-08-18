@@ -8,8 +8,8 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
 
 namespace Steepshot.Fragment
 {
@@ -152,7 +152,7 @@ namespace Steepshot.Fragment
 
 		protected override void CreatePresenter()
 		{
-			_presenter = new FollowersPresenter(this);
+			_presenter = new FollowersPresenter();
 		}
 
 		public override void OnDetach()

@@ -8,7 +8,6 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Base;
-using Steepshot.Presenter;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
