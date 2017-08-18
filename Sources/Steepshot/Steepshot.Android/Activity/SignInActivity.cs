@@ -58,27 +58,29 @@ namespace Steepshot.Activity
             else
                 Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
 
-            _buttonScanDefaultView.Click += async (object sender, EventArgs e) =>
+            _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
+        }
+
+        private async void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
+        {
+            try
             {
-                try
-                {
-                    //Tell our scanner to use the default overlay
-                    _scanner.UseCustomOverlay = false;
+                //Tell our scanner to use the default overlay
+                _scanner.UseCustomOverlay = false;
 
-                    //We can customize the top and bottom text of the default overlay
-                    _scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
-                    _scanner.BottomText = "Wait for the barcode to automatically scan!";
+                //We can customize the top and bottom text of the default overlay
+                _scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
+                _scanner.BottomText = "Wait for the barcode to automatically scan!";
 
-                    //Start scanning
-                    var result = await _scanner.Scan();
-                    if (result != null)
-                        _password.Text = result.Text;
-                }
-                catch (Exception ex)
-                {
-                    Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-                }
-            };
+                //Start scanning
+                var result = await _scanner.Scan();
+                if (result != null)
+                    _password.Text = result.Text;
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+            }
         }
 
         private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)

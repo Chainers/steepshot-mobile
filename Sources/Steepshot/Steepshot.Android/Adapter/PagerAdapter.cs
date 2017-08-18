@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Android.Content;
 using Android.Support.V4.App;
-using Steepshot.Base;
+using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 
 
@@ -9,29 +8,21 @@ namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
-        public int[] TabIcos = new int[] {
+        public int[] TabIcos = new[] {
             Resource.Drawable.ic_home,
             Resource.Drawable.ic_browse,
             Resource.Drawable.ic_camera_new,
             Resource.Drawable.ic_profile_new
         };
-        Context _context;
 
-        private List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
+        private readonly List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
 
-        public PagerAdapter(FragmentManager fm, Context context) : base(fm)
+        public PagerAdapter(FragmentManager fm) : base(fm)
         {
-            _context = context;
             InitializeTabs();
         }
 
-        public override int Count
-        {
-            get
-            {
-                return TabIcos.Length;
-            }
-        }
+        public override int Count => TabIcos.Length;
 
         public override Android.Support.V4.App.Fragment GetItem(int position)
         {

@@ -21,32 +21,30 @@ namespace Steepshot.Utils
 
 		protected override void OnLayout(bool changed, int l, int t, int r, int b)
 		{
-			int count = ChildCount;
-			int curWidth, curHeight, curLeft, curTop, maxHeight;
+			var count = ChildCount;
+            //get the available size of child view
+			var childLeft = PaddingLeft;
+			var childTop = PaddingTop;
 
-			//get the available size of child view
-			int childLeft = PaddingLeft;
-			int childTop = PaddingTop;
+			var childRight = MeasuredWidth - PaddingRight;
+			var childBottom = MeasuredHeight - PaddingBottom;
 
-			int childRight = MeasuredWidth - PaddingRight;
-			int childBottom = MeasuredHeight - PaddingBottom;
+			var childWidth = childRight - childLeft;
+			var childHeight = childBottom - childTop;
 
-			int childWidth = childRight - childLeft;
-			int childHeight = childBottom - childTop;
-
-			maxHeight = 0;
-			curLeft = childLeft;
-			curTop = childTop;
-			for (int i = 0; i < count; i++)
+			var maxHeight = 0;
+			var curLeft = childLeft;
+			var curTop = childTop;
+			for (var i = 0; i < count; i++)
 			{
-				Android.Views.View child = GetChildAt(i);
+				var child = GetChildAt(i);
 				if (child.Visibility == ViewStates.Gone)
 					return;
 
 				//Get the maximum size of the child
 				child.Measure(MeasureSpec.MakeMeasureSpec(childWidth, MeasureSpecMode.AtMost), MeasureSpec.MakeMeasureSpec(childHeight, MeasureSpecMode.AtMost));
-				curWidth = child.MeasuredWidth;
-				curHeight = child.MeasuredHeight;
+				var curWidth = child.MeasuredWidth;
+				var curHeight = child.MeasuredHeight;
 				//wrap is reach to the end
 				if (curLeft + curWidth >= childRight)
 				{
@@ -65,19 +63,19 @@ namespace Steepshot.Utils
 
 		protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			int count = ChildCount;
+			var count = ChildCount;
 			// Measurement will ultimately be computing these values.
-			int maxHeight = 0;
-			int maxWidth = 0;
-			int childState = 0;
-			int mLeftWidth = 0;
-			int rowCount = 0;
+			var maxHeight = 0;
+			var maxWidth = 0;
+			var childState = 0;
+			var mLeftWidth = 0;
+			var rowCount = 0;
 
 			// Iterate through all children, measuring them and computing our dimensions
 			// from their size.
-			for (int i = 0; i < count; i++)
+			for (var i = 0; i < count; i++)
 			{
-				Android.Views.View child = GetChildAt(i);
+				var child = GetChildAt(i);
 				if (child.Visibility == ViewStates.Gone)
 					continue;
 

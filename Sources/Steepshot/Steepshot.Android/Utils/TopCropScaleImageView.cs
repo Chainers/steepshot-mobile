@@ -1,6 +1,5 @@
 ﻿using System;
 using Android.Content;
-using Android.Graphics;
 using Android.Util;
 using Android.Widget;
 
@@ -35,23 +34,23 @@ namespace Steepshot.Utils
 			
 			float frameWidth = r - l;
 			float frameHeight = b - t;
-			float originalImageWidth = (float)Drawable.IntrinsicWidth;
-			float originalImageHeight = (float)Drawable.IntrinsicHeight;
+			var originalImageWidth = (float)Drawable.IntrinsicWidth;
+			var originalImageHeight = (float)Drawable.IntrinsicHeight;
 
 			float usedScaleFactor = 1;
 
 			if ((frameWidth > originalImageWidth) || (frameHeight > originalImageHeight))
 			{
-				float fitHorizontallyScaleFactor = frameWidth / originalImageWidth;
-				float fitVerticallyScaleFactor = frameHeight / originalImageHeight;
+				var fitHorizontallyScaleFactor = frameWidth / originalImageWidth;
+				var fitVerticallyScaleFactor = frameHeight / originalImageHeight;
 
 				usedScaleFactor = Math.Max(fitHorizontallyScaleFactor, fitVerticallyScaleFactor);
 			}
 
-			float newImageWidth = originalImageWidth * usedScaleFactor;
-			float newImageHeight = originalImageHeight * usedScaleFactor;
+			var newImageWidth = originalImageWidth * usedScaleFactor;
+			var newImageHeight = originalImageHeight * usedScaleFactor;
 
-			Matrix matrix = ImageMatrix;
+			var matrix = ImageMatrix;
 			matrix.SetScale(usedScaleFactor, usedScaleFactor, 0, 0); // Replaces the old matrix completly
 
 			matrix.PostTranslate((frameWidth - newImageWidth) / 2, frameHeight - newImageHeight);

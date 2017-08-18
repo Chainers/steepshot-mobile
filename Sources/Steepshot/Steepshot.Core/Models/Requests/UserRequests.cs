@@ -11,7 +11,7 @@ namespace Steepshot.Core.Models.Requests
             Username = username;
         }
 
-        public string Username { get; private set; }
+        public string Username { get; }
     }
 
     public class UserProfileRequest : NamedRequest
@@ -23,7 +23,7 @@ namespace Steepshot.Core.Models.Requests
             Username = username;
         }
 
-        public string Username { get; private set; }
+        public string Username { get; }
     }
 
     public enum FriendsType
@@ -42,7 +42,7 @@ namespace Steepshot.Core.Models.Requests
             Type = type;
         }
 
-        public string Username { get; private set; }
-        public FriendsType Type { get; private set; }
+        public string Username { get; }
+        public FriendsType Type { get; }
     }
 }

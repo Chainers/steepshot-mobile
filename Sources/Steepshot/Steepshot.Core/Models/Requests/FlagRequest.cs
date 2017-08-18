@@ -25,6 +25,6 @@ namespace Steepshot.Core.Models.Requests
         public string Identifier { get; private set; }
 
         [JsonIgnore]
-        public FlagType Type { get; private set; }
+        public FlagType Type { get; }
     }
 }

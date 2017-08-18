@@ -25,10 +25,10 @@ namespace Steepshot.Fragment
         public const string FollowingFragmentId = "FollowingFragment";
         public string CustomTag
         {
-            get { return _presenter.Tag; }
-            set { _presenter.Tag = value; }
+            get => _presenter.Tag;
+            set => _presenter.Tag = value;
         }
-        private bool _isFeed;
+        private readonly bool _isFeed;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.feed_list)] RecyclerView _feedList;
@@ -68,7 +68,7 @@ namespace Steepshot.Fragment
                 HideFollowing();
         }
 
-        public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
@@ -78,7 +78,7 @@ namespace Steepshot.Fragment
             return V;
         }
 
-        public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             try
             {
@@ -142,14 +142,14 @@ namespace Steepshot.Fragment
 
         public void PhotoClick(int position)
         {
-            Intent intent = new Intent(Context, typeof(PostPreviewActivity));
+            var intent = new Intent(Context, typeof(PostPreviewActivity));
             intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
             StartActivity(intent);
         }
 
         void FeedAdapter_CommentAction(int position)
         {
-            Intent intent = new Intent(Context, typeof(CommentsActivity));
+            var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra("uid", _presenter.Posts[position].Url);
             Context.StartActivity(intent);
         }
@@ -246,7 +246,7 @@ namespace Steepshot.Fragment
 
         private void OpenLogin()
         {
-            Intent intent = new Intent(Activity, typeof(PreSignInActivity));
+            var intent = new Intent(Activity, typeof(PreSignInActivity));
             StartActivity(intent);
         }
 
@@ -260,7 +260,7 @@ namespace Steepshot.Fragment
 
         private class FeedsScrollListener : RecyclerView.OnScrollListener
         {
-            FeedPresenter _presenter;
+            readonly FeedPresenter _presenter;
             int _prevPos;
 
             public FeedsScrollListener(FeedPresenter presenter)

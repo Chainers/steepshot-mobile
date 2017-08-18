@@ -107,7 +107,7 @@ namespace Steepshot.Activity
 
         void FeedAdapter_UserAction(int position)
         {
-            Intent intent = new Intent(this, typeof(ProfileActivity));
+            var intent = new Intent(this, typeof(ProfileActivity));
             intent.PutExtra("ID", _presenter.Posts[position].Author);
             StartActivity(intent);
         }

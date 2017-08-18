@@ -28,7 +28,7 @@ namespace Steepshot.Fragment
 			_presenter = new VotersPresenter();
 		}
 
-		public override Android.Views.View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+		public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 		{
 			if (!IsInitialized)
 			{
@@ -38,7 +38,7 @@ namespace Steepshot.Fragment
 			return V;
 		}
 
-		public override void OnViewCreated(Android.Views.View view, Bundle savedInstanceState)
+		public override void OnViewCreated(View view, Bundle savedInstanceState)
 		{
 			if (IsInitialized)
 				return;
@@ -84,8 +84,8 @@ namespace Steepshot.Fragment
 
 	public class VotersScrollListener : RecyclerView.OnScrollListener
 	{
-		VotersPresenter _presenter;
-		private string _url;
+	    readonly VotersPresenter _presenter;
+		private readonly string _url;
 
 		public VotersScrollListener(VotersPresenter presenter, string url)
 		{
@@ -95,7 +95,7 @@ namespace Steepshot.Fragment
 		int _prevPos;
 		public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
 		{
-			int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
+			var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
 			if (pos > _prevPos && pos != _prevPos)
 			{
 				if (pos == recyclerView.GetAdapter().ItemCount - 1)
