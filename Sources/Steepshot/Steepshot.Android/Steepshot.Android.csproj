@@ -62,12 +62,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Activity\PostPreviewActivity.cs" />
+    <Compile Include="Adapter\GridImageAdapter.cs" />
     <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Presenter\PostPreviewPresenter.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
-    <Compile Include="Base\BaseView.cs" />
+    <Compile Include="Base\IBaseView.cs" />
     <Compile Include="Base\BasePresenter.cs" />
     <Compile Include="Activity\CommentsActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="Adapter\CommentsAdapter.cs" />
     <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Adapter\FollowersAdapter.cs" />
-    <Compile Include="Adapter\GalleryAdapter.cs" />
     <Compile Include="Adapter\PagerAdapter.cs" />
     <Compile Include="Adapter\PostsGridAdapter.cs" />
     <Compile Include="Adapter\TagsAdapter.cs" />
