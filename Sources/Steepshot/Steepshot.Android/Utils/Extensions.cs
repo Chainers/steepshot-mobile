@@ -3,7 +3,8 @@
 namespace Steepshot.Utils
 {
 	public static class Extensions
-	{/*
+	{
+        /*
 		public static void FilterNSFW(this List<Post> list)
 		{
 			if (!BaseViewController.User.IsNsfw)

@@ -3,6 +3,7 @@ using Android.Content;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Steepshot.Core;
+using Steepshot.Core.Services;
 
 namespace Steepshot
 {
