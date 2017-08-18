@@ -10,8 +10,8 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
 
 namespace Steepshot.Activity
 {
@@ -144,7 +144,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new CommentsPresenter(this);
+            _presenter = new CommentsPresenter();
         }
 
         protected override void OnDestroy()

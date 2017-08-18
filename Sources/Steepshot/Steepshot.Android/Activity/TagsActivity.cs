@@ -10,7 +10,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Presenter;
+using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
@@ -35,7 +35,7 @@ namespace Steepshot.Activity
             {
                 Intent returnIntent = new Intent();
                 Bundle b = new Bundle();
-                b.PutStringArray("TAGS", _selectedCategories.Select(o => o.Name).ToArray<string>());
+                b.PutStringArray("TAGS", _selectedCategories.Select(o => o.Name).ToArray());
                 returnIntent.PutExtra("TAGS", b);
                 SetResult(Result.Ok, returnIntent);
                 Finish();
@@ -144,7 +144,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new TagsPresenter(this);
+            _presenter = new TagsPresenter();
         }
 
         protected override void OnDestroy()

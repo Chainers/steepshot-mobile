@@ -11,8 +11,8 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
 using ZXing.Mobile;
 
 namespace Steepshot.Activity
@@ -157,7 +157,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new SignInPresenter(this);
+            _presenter = new SignInPresenter();
         }
     }
 }

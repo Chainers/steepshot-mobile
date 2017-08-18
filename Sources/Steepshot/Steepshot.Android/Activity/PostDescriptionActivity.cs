@@ -12,10 +12,10 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.Presenter;
-
 using Steepshot.Utils;
+using BasePresenter = Steepshot.Base.BasePresenter;
 
 namespace Steepshot.Activity
 {
@@ -254,7 +254,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new PostDescriptionPresenter(this);
+            _presenter = new PostDescriptionPresenter();
         }
     }
 }
