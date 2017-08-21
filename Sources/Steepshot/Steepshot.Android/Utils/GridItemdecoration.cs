@@ -21,14 +21,7 @@ namespace Steepshot.Utils
 			var padding = parent.Width / _mGridSize - frameWidth;
 			var itemPosition = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
 
-			if (itemPosition < _mGridSize)
-			{
-				outRect.Top = 0;
-			}
-			else
-			{
-				outRect.Top = _mSizeGridSpacingPx;
-			}
+			outRect.Top = itemPosition < _mGridSize ? 0 : _mSizeGridSpacingPx;
 
 			if (itemPosition % _mGridSize == 0)
 			{

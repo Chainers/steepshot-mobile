@@ -69,8 +69,7 @@ namespace Steepshot.Activity
             for (var i = 0; i < _tabLayout.TabCount; i++)
             {
                 var tab = _tabLayout.GetTabAt(i);
-                if (tab != null)
-                    tab.Icon.SetColorFilter(i == position ? Color.Black : Color.LightGray, PorterDuff.Mode.SrcIn);
+                tab?.Icon.SetColorFilter(i == position ? Color.Black : Color.LightGray, PorterDuff.Mode.SrcIn);
             }
         }
 
