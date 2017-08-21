@@ -91,8 +91,7 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
 
             _uid = Intent.GetStringExtra("uid");
-            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
-            _manager.StackFromEnd = true;
+            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false) {StackFromEnd = true};
             _comments.SetLayoutManager(_manager);
             _posts = await _presenter.GetComments(_uid);
             _adapter = new CommentAdapter(this, _posts);

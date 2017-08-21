@@ -44,14 +44,7 @@ namespace Steepshot.Activity
                 Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
             };
 
-            if (_presenter.IsGuest)
-            {
-                StartActivity(typeof(GuestActivity));
-            }
-            else
-            {
-                StartActivity(typeof(RootActivity));
-            }
+            StartActivity(_presenter.IsGuest ? typeof(GuestActivity) : typeof(RootActivity));
         }
     }
 }
