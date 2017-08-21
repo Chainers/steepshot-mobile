@@ -16,9 +16,9 @@ namespace Steepshot.iOS.Helpers
 
         public static void FilterHided(this List<Post> list)
         {
-            if (list == null || !BaseViewController.User.IsAuthenticated || BaseViewController.User.Postblacklist == null || BaseViewController.User.Postblacklist.Count == 0)
+            if (list == null || !BaseViewController.User.IsAuthenticated || BaseViewController.User.PostBlacklist == null || BaseViewController.User.PostBlacklist.Count == 0)
                 return;
-            foreach (var blackPost in BaseViewController.User.Postblacklist)
+            foreach (var blackPost in BaseViewController.User.PostBlacklist)
             {
                 var lil = list.FirstOrDefault(p => p.Url == blackPost);
                 if (lil != null)

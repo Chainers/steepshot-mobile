@@ -2,13 +2,19 @@
 
 namespace Steepshot.Core.Models.Responses
 {
-    /// {
-    ///   "message": "Upvoted",
-    ///   "new_total_payout_reward": "0.00"
-    /// }
     public class VoteResponse : MessageField
     {
+        private const string ServerPositiveResponceMsg = "Upvoted";
+        private readonly bool _isVoted;
+
         public Money NewTotalPayoutReward { get; set; }
-        public bool IsVoted => Message.Equals("Upvoted");
+        
+        public bool IsVoted => _isVoted || Message.Equals(ServerPositiveResponceMsg);
+
+        public VoteResponse(bool isVoted)
+        {
+            _isVoted = isVoted;
+            Message = ServerPositiveResponceMsg;
+        }
     }
 }

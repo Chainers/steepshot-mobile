@@ -52,7 +52,7 @@ namespace Steepshot.Core.HttpClient
                     if (!content.IsError)
                     {
                         //Convert Money type to double
-                        result.Result = new VoteResponse
+                        result.Result = new VoteResponse(true)
                         {
                             NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
                         };
@@ -79,7 +79,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<FollowResponse>();
 
                 if (!resp.IsError)
-                    result.Result = new FollowResponse();
+                    result.Result = new FollowResponse(true);
                 else
                     OnError(resp, result);
 
@@ -155,7 +155,7 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() => new OperationResult<LogoutResponse>
             {
-                Result = new LogoutResponse { Message = "User is logged out" }
+                Result = new LogoutResponse(true)
             });
         }
 
@@ -181,7 +181,7 @@ namespace Steepshot.Core.HttpClient
                     var content = OperationManager.GetContent(authPostArr[0], authPostArr[1]);
                     if (!content.IsError)
                     {
-                        result.Result = new FlagResponse
+                        result.Result = new FlagResponse(true)
                         {
                             NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
                         };
