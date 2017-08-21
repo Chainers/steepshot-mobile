@@ -1,10 +1,17 @@
 ﻿namespace Steepshot.Core.Models.Responses
 {
-    ///{
-    ///  "message": "PostingKey was changed"
-    ///}
     public class ChangePasswordResponse : MessageField
     {
-        public bool IsChanged => Message.Equals("PostingKey was changed");
+        private const string ServerPositiveResponceMsg = "PostingKey was changed";
+
+        private readonly bool _isChanged;
+
+        public bool IsChanged => _isChanged || Message.Equals(ServerPositiveResponceMsg);
+
+        public ChangePasswordResponse(bool isChanged)
+        {
+            _isChanged = isChanged;
+            Message = ServerPositiveResponceMsg;
+        }
     }
 }

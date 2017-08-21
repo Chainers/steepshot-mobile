@@ -1,10 +1,16 @@
 namespace Steepshot.Core.Models.Responses
 {
-    /// {
-    ///   "message": "User is followed"
-    /// }
     public class FollowResponse : MessageField
     {
-        public bool IsFollowed => Message.Equals("User is followed");
+        private const string ServerPositiveResponceMsg = "User is followed";
+        private readonly bool _isFollowed;
+
+        public bool IsFollowed => _isFollowed || Message.Equals(ServerPositiveResponceMsg);
+
+        public FollowResponse(bool isFollowed)
+        {
+            _isFollowed = isFollowed;
+            Message = ServerPositiveResponceMsg;
+        }
     }
 }
