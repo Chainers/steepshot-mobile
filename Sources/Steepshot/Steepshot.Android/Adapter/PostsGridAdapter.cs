@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -10,12 +11,12 @@ namespace Steepshot.Adapter
 {
 	public class PostsGridAdapter : RecyclerView.Adapter
 	{
-	    readonly ObservableCollection<Post> _posts;
+	    readonly List<Post> _posts;
 		private readonly Context _context;
 
 		public System.Action<int> Click;
 
-        public PostsGridAdapter(Context context, ObservableCollection<Post> posts)
+        public PostsGridAdapter(Context context, List<Post> posts)
         {
             _context = context;
             _posts = posts;
