@@ -57,7 +57,12 @@ namespace Steepshot.iOS.Cells
                 {
                     GoToProfile(_currentPost.Author);
                 });
+				UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
+				{
+					GoToProfile(_currentPost.Author);
+				});
                 avatar.AddGestureRecognizer(tap);
+                costLabel.AddGestureRecognizer(moneyTap);
 
                 likeButton.TouchDown += LikeTap;
                 _isButtonBinded = true;
