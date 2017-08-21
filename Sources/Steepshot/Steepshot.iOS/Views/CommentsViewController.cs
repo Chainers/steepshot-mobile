@@ -39,9 +39,9 @@ namespace Steepshot.iOS.Views
 
             _tableSource.GoToProfile += (username) =>
             {
-                var myViewController = Storyboard.InstantiateViewController(nameof(ProfileViewController)) as ProfileViewController;
-                myViewController.Username = username;
-                NavigationController.PushViewController(myViewController, true);
+				var myViewController = new ProfileViewController();
+				myViewController.Username = username;
+				NavigationController.PushViewController(myViewController, true);
             };
 
             commentsTable.RowHeight = UITableView.AutomaticDimension;
@@ -58,7 +58,8 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            NavigationController.SetNavigationBarHidden(true, true);
+            if(IsMovingFromParentViewController)
+                NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
 
