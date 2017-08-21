@@ -205,12 +205,12 @@ namespace Steepshot.iOS.ViewControllers
             alert.Show();
         }
 
-        public static string ToFormatedCurrencyString(Money value)
+        public static string ToFormatedCurrencyString(Money value, string postfix = null)
         {
             var dVal = value.ToDouble();
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
-            return $"{Currency} {dVal.ToString("F", CultureInfo)}";
+            return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
     }
 }
