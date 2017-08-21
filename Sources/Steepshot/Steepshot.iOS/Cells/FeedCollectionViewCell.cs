@@ -94,8 +94,13 @@ namespace Steepshot.iOS.Cells
                 {
                     GoToProfile(_currentPost.Author);
                 });
+				UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
+				{
+					GoToProfile(_currentPost.Author);
+				});
                 avatarImage.AddGestureRecognizer(imageTap);
                 cellText.AddGestureRecognizer(textTap);
+				rewards.AddGestureRecognizer(moneyTap);
 
                 UITapGestureRecognizer commentTap = new UITapGestureRecognizer(() =>
                 {
