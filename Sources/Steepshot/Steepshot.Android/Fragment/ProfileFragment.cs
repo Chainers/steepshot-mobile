@@ -240,7 +240,7 @@ namespace Steepshot.Fragment
                     Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Priority(Picasso.Priority.Low).Into(_profileImage);
                 else
                     Picasso.With(Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
-                _costButton.Text = (string.Format(GetString(Resource.String.cost_param_on_balance), _profile.EstimatedBalance, BasePresenter.Currency));
+                _costButton.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance, GetString(Resource.String.cost_param_on_balance));
                 _photosCount.Text = _profile.PostCount.ToString();
                 _site.Text = _profile.Website;
                 if (!string.IsNullOrEmpty(_profile.Location))
