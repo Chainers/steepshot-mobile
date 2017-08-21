@@ -1,10 +1,16 @@
 namespace Steepshot.Core.Models.Responses
 {
-    /// {
-    ///   "message": "User is logged out"
-    /// }
     public class LogoutResponse : MessageField
     {
-        public bool IsLoggedOut => Message.Equals("User is logged out");
+        private const string ServerPositiveResponceMsg = "User is logged out";
+        private readonly bool _isLoggedOut;
+
+        public bool IsLoggedOut => _isLoggedOut || Message.Equals(ServerPositiveResponceMsg);
+
+        public LogoutResponse(bool isLoggedOut)
+        {
+            _isLoggedOut = isLoggedOut;
+            Message = ServerPositiveResponceMsg;
+        }
     }
 }

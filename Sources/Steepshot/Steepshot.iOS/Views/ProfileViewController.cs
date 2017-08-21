@@ -422,7 +422,7 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                User.Postblacklist.Add(url);
+                User.PostBlacklist.Add(url);
                 User.Save();
                 var postToHide = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
                 if (postToHide != null)
