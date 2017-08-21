@@ -228,12 +228,9 @@ namespace Steepshot.Fragment
 
         private void OnPostLoaded()
         {
-            Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
-                    _feedAdapter?.NotifyDataSetChanged();
-                });
+            if (_bar != null)
+                _bar.Visibility = ViewStates.Gone;
+            _feedAdapter?.NotifyDataSetChanged();
         }
 
         private void OnPostCleared()
@@ -270,7 +267,7 @@ namespace Steepshot.Fragment
                 {
                     _prevPos = 0;
                 };
-            }
+            } 
 
             public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
             {

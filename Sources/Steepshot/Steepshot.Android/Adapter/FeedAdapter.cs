@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Android.Content;
 using Android.Support.V7.Widget;
@@ -15,12 +16,12 @@ namespace Steepshot.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        private readonly ObservableCollection<Post> _posts;
+        private readonly List<Post> _posts;
         private readonly Context _context;
         private readonly string _commentPattern = "<b>{0}</b> {1}";
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-        public FeedAdapter(Context context, ObservableCollection<Post> posts)
+        public FeedAdapter(Context context, List<Post> posts)
         {
             _context = context;
             _posts = posts;

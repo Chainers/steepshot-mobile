@@ -16,7 +16,7 @@ namespace Steepshot.Core.Presenters
         private readonly bool _isFeed;
         public event VoidDelegate PostsLoaded;
         public event VoidDelegate PostsCleared;
-        public ObservableCollection<Post> Posts = new ObservableCollection<Post>();
+        public List<Post> Posts = new List<Post>();
         private CancellationTokenSource _cts;
         private PostType _type = PostType.Top;
         public bool Processing;
@@ -35,10 +35,10 @@ namespace Steepshot.Core.Presenters
             return _type;
         }
 
-        public void ViewLoad()
+        public async Task ViewLoad()
         {
-            if (Posts.Count == 0)
-                Task.Run(() => GetTopPosts(_type, true));
+			if (Posts.Count == 0)
+				await GetTopPosts(_type, true);
         }
         
         public void ClearPosts()
