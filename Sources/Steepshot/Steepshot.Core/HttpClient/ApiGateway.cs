@@ -19,14 +19,7 @@ namespace Steepshot.Core.HttpClient
     {
         Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
         Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint,
-                                   string filename,
-                                   byte[] file,
-                                   IEnumerable<RequestParameter> parameters,
-                                   IEnumerable<string> tags,
-                                   string username = null,
-                                   string trx = null,
-                                   CancellationTokenSource cts = null);
+        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
