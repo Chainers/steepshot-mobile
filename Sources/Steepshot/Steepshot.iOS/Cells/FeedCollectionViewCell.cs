@@ -94,13 +94,13 @@ namespace Steepshot.iOS.Cells
                 {
                     GoToProfile(_currentPost.Author);
                 });
-				UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
-				{
-					GoToProfile(_currentPost.Author);
-				});
+                UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
+                {
+                    GoToProfile(_currentPost.Author);
+                });
                 avatarImage.AddGestureRecognizer(imageTap);
                 cellText.AddGestureRecognizer(textTap);
-				rewards.AddGestureRecognizer(moneyTap);
+                rewards.AddGestureRecognizer(moneyTap);
 
                 UITapGestureRecognizer commentTap = new UITapGestureRecognizer(() =>
                 {
@@ -129,7 +129,7 @@ namespace Steepshot.iOS.Cells
                 {
                     likeButton.Selected = post.Result.IsVoted;
                     flagButton.Selected = _currentPost.Flag;
-                    rewards.Text = $"{BaseViewController.Currency}{post.Result.NewTotalPayoutReward.ToString()}";
+                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
                 }
                 likeButton.Enabled = true;
@@ -146,7 +146,7 @@ namespace Steepshot.iOS.Cells
                     flagButton.Selected = post.Result.IsFlagged;
                     likeButton.Selected = _currentPost.Vote;
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
-                    rewards.Text = $"{BaseViewController.Currency}{post.Result.NewTotalPayoutReward.ToString()}";
+                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
                 }
                 flagButton.Selected = _currentPost.Flag;
                 flagButton.Enabled = true;
