@@ -84,21 +84,8 @@ namespace Steepshot.Adapter
                 if (BasePresenter.User.IsAuthenticated)
                 {
                     Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
-
-                    if (!_post.Vote)
-                    {
-                        _post.NetVotes++;
-                    }
-                    else
-                    {
-                        _post.NetVotes--;
-                    }
-                    _post.Vote = !_post.Vote;
-                    Likes.Text = _post.NetVotes.ToString();
-                    CheckLikeVisibility(_post.NetVotes);
                 }
                 _likeAction?.Invoke(AdapterPosition);
-
             }
 
             void CheckLikeVisibility(int likes)

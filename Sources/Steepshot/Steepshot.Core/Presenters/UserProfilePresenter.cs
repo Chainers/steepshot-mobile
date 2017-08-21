@@ -98,7 +98,6 @@ namespace Steepshot.Core.Presenters
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
 
             var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
-
             return await Api.Vote(voteRequest);
         }
 
