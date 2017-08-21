@@ -1,7 +1,7 @@
 ﻿﻿using Foundation;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Steepshot.Core;
+using Steepshot.Core.Services;
 
 namespace Steepshot.iOS
 {

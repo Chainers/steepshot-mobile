@@ -14,7 +14,7 @@ namespace Steepshot.Core.Presenters
     {
         private readonly string _username;
 
-        public ObservableCollection<Post> UserPosts = new ObservableCollection<Post>();
+        public List<Post> UserPosts = new List<Post>();
 
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
