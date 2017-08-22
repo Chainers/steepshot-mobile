@@ -165,18 +165,15 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
 
             var endpoint = $"post/{request.Url}/voters";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
 
             var response = await Gateway.Get(endpoint, parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<SearchResponse<VotersResult>>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationTokenSource cts)
         {
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
@@ -227,7 +224,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<Post>> GetPostInfo(InfoRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts)
         {
             var parameters = new List<RequestParameter>();
             AddLoginParameter(parameters, request.Login);
@@ -306,6 +303,15 @@ namespace Steepshot.Core.HttpClient
 
             return result;
         }
+
+        //public async Task SendLog(string endpoint, )
+        //{
+        //    var parameters = CreateSessionParameter(request.SessionId);
+
+        //    var response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
+        //    var errorResult = CheckErrors(response);
+        //    return CreateResult<UploadResponse>(response.Content, errorResult);
+        //}
 
         #endregion Get requests
 
