@@ -100,9 +100,13 @@ namespace Steepshot.Fragment
                 }
                 Activity.OnBackPressed();
             }
-            else
+            else if (_searchType == SearchType.People)
             {
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_usersSearchAdapter.Items[pos].Username));
+                if (_usersSearchAdapter.Items.Count > pos)
+                {
+                    var user = _usersSearchAdapter.Items[pos].Username;
+                    ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user));
+                }
             }
         }
 
