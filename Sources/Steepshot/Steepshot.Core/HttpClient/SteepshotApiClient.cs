@@ -58,9 +58,8 @@ namespace Steepshot.Core.HttpClient
                 Value = request,
                 Type = ParameterType.RequestBody
             });
-            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
 
-            var response = await Gateway.Post(endpoint, parameters, cts);
+            var response = await Gateway.Post($"post/{request.Identifier}/{request.Type.GetDescription()}", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<VoteResponse>(response.Content, errorResult);
         }
@@ -68,9 +67,8 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
-            var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
 
-            var response = await Gateway.Post(endpoint, parameters, cts);
+            var response = await Gateway.Post($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<FollowResponse>(response.Content, errorResult);
         }
@@ -84,9 +82,8 @@ namespace Steepshot.Core.HttpClient
                 Value = request,
                 Type = ParameterType.RequestBody
             });
-            var endpoint = $"post/{request.Url}/comment";
 
-            var response = await Gateway.Post(endpoint, parameters, cts);
+            var response = await Gateway.Post($"post/{request.Url}/comment", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
         }
@@ -116,9 +113,8 @@ namespace Steepshot.Core.HttpClient
                 Value = request,
                 Type = ParameterType.RequestBody
             });
-            var endpoint = $"post/{request.Identifier}/{request.Type.GetDescription()}";
 
-            var response = await Gateway.Post(endpoint, parameters, cts);
+            var response = await Gateway.Post($"post/{request.Identifier}/{request.Type.GetDescription()}", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<FlagResponse>(response.Content, errorResult);
         }
