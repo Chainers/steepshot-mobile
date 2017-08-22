@@ -49,8 +49,9 @@ namespace Steepshot.Adapter
                 {
                     Picasso.With(_context).Load(user.ProfileImage).NoFade().Resize(100, 0).Into(((UsersSearchViewHolder)holder).Avatar);
                 }
-                catch (Exception e)
+                catch
                 {
+                    //TODO:KOA: Empty try{}catch
                 }
             }
             else

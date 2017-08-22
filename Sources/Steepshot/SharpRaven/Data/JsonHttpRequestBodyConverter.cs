@@ -110,9 +110,9 @@ namespace SharpRaven.Data
 
                 return true;
             }
-            catch (Exception exception)
+            catch
             {
-                //Console.WriteLine(exception);
+                //TODO:KOA: Empty try{}catch
             }
 
             return false;
