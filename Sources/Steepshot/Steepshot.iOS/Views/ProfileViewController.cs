@@ -118,6 +118,10 @@ namespace Steepshot.iOS.Views
                 if (TabBarController != null)
                     TabBarController.NavigationController.SetNavigationBarHidden(true, false);
             }
+            else
+            {
+                NavigationController.SetNavigationBarHidden(false, false);
+            }
             base.ViewWillAppear(animated);
         }
 

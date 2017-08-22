@@ -68,10 +68,7 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
             try
             {
-                var request = new InfoRequest(PostUrl)
-                {
-                    Login = User.Login
-                };
+                var request = new NamedInfoRequest(PostUrl);
                 var result = await Api.GetComments(request);
                 _tableSource.TableItems.Clear();
                 _tableSource.TableItems.AddRange(result.Result.Results);
