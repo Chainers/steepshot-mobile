@@ -7,6 +7,7 @@ using Ditch.Errors;
 using Ditch.JsonRpc;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -62,6 +63,8 @@ namespace Steepshot.Core.HttpClient
                 {
                     OnError(resp, result);
                 }
+
+                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors);
                 return result;
             });
         }
@@ -83,6 +86,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
+                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors);
                 return result;
             });
         }
@@ -101,6 +105,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
+                Trace("login-with-posting", request.Login, result.Errors);
                 return result;
             });
         }
@@ -119,7 +124,7 @@ namespace Steepshot.Core.HttpClient
                     result.Result = new CreateCommentResponse(true);
                 else
                     OnError(resp, result);
-
+                Trace($"post/{request.Url}/comment", request.Login, result.Errors);
                 return result;
             });
         }
@@ -135,7 +140,7 @@ namespace Steepshot.Core.HttpClient
                 Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
                 var uploadResponse = await UploadWithPrepare(request, trx, cts);
 
-                var rez = new OperationResult<ImageUploadResponse>();
+                var result = new OperationResult<ImageUploadResponse>();
                 if (uploadResponse.Success)
                 {
                     var upResp = uploadResponse.Result;
@@ -143,11 +148,12 @@ namespace Steepshot.Core.HttpClient
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
                     var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
                     if (!resp.IsError)
-                        rez.Result = upResp.Payload;
+                        result.Result = upResp.Payload;
                     else
-                        OnError(resp, rez);
+                        OnError(resp, result);
                 }
-                return rez;
+                Trace("post", request.Login, result.Errors);
+                return result;
             });
         }
 
@@ -191,6 +197,7 @@ namespace Steepshot.Core.HttpClient
                 {
                     result.Errors.Add(ParseErrorCode(resp));
                 }
+                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors);
                 return result;
             });
         }
