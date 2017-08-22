@@ -33,7 +33,7 @@ namespace Steepshot.Core.HttpClient
                 throw new ArgumentNullException(nameof(url));
             }
 
-            _restClient = new RestClient(url) {IgnoreResponseStatusCode = true};
+            _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
         public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts)
@@ -50,14 +50,8 @@ namespace Steepshot.Core.HttpClient
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Upload(string endpoint,
-                                          string filename,
-                                          byte[] file,
-                                          IEnumerable<RequestParameter> parameters,
-                                          IEnumerable<string> tags,
-                                          string username,
-                                          string trx,
-                                          CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters,
+                                          IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
         {
             var request = CreateRequest(endpoint, parameters);
             request.Method = Method.POST;
@@ -80,7 +74,7 @@ namespace Steepshot.Core.HttpClient
 
         private IRestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
         {
-            var restRequest = new RestRequest(endpoint) {Serializer = new JsonNetConverter()};
+            var restRequest = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
             foreach (var parameter in parameters)
             {
                 restRequest.AddParameter(parameter.Key, parameter.Value, parameter.Type);
