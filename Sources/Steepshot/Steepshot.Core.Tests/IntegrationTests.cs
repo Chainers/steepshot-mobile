@@ -655,7 +655,7 @@ namespace Steepshot.Core.Tests
                                      "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
-            var request = new InfoRequest(url);
+            var request = new NamedInfoRequest(url);
 
             // Act
             var response = Api[name].GetComments(request).Result;
@@ -691,7 +691,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new InfoRequest(url) { Login = user.Login };
+            var request = new NamedInfoRequest(url) { Login = user.Login };
 
             // Act
             var response = Api[name].GetComments(request).Result;
@@ -708,7 +708,7 @@ namespace Steepshot.Core.Tests
                 "@siberianshamen/chto-takoe-golos")] string url)
         {
             // Arrange
-            var request = new InfoRequest(url);
+            var request = new NamedInfoRequest(url);
 
             // Act
             var response = Api[name].GetComments(request).Result;
@@ -722,7 +722,7 @@ namespace Steepshot.Core.Tests
         public void Comments_Invalid_Url([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new InfoRequest("qwe");
+            var request = new NamedInfoRequest("qwe");
 
             // Act
             var response = Api[name].GetComments(request).Result;
@@ -736,7 +736,7 @@ namespace Steepshot.Core.Tests
         public void Comments_Invalid_Url_But_Valid_User([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new InfoRequest("@asduj/qweqweqweqw");
+            var request = new NamedInfoRequest("@asduj/qweqweqweqw");
 
             // Act
             var response = Api[name].GetComments(request).Result;
@@ -745,7 +745,7 @@ namespace Steepshot.Core.Tests
             AssertResult(response);
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
-        
+
         [Test, Sequential]
         public void CreateComment_20_Seconds_Delay([Values("Steem", "Golos")] string name)
         {
@@ -1138,7 +1138,7 @@ namespace Steepshot.Core.Tests
             [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
-            var request = new InfoRequest(url);
+            var request = new NamedInfoRequest(url);
 
             // Act
             var response = Api[name].GetPostInfo(request).Result;
@@ -1171,7 +1171,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new InfoRequest(url) { Login = user.Login };
+            var request = new NamedInfoRequest(url) { Login = user.Login };
 
             // Act
             var response = Api[name].GetPostInfo(request).Result;
@@ -1203,7 +1203,7 @@ namespace Steepshot.Core.Tests
         public void GetPostInfo_Invalid_Url([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new InfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
+            var request = new NamedInfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
             // Act
             var response = Api[name].GetPostInfo(request).Result;
