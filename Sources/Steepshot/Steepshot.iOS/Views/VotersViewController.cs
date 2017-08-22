@@ -64,7 +64,6 @@ namespace Steepshot.iOS.Views
                 progressBar.StartAnimating();
                 var request = new InfoRequest(PostUrl)
                 {
-                    Login = User.Login,
                     Offset = _offsetUrl,
                     Limit = 50
                 };
