@@ -31,17 +31,20 @@ namespace Steepshot.iOS.Views
         {
         }
 
-        public override void ViewWillAppear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(false, true);
-            base.ViewWillAppear(animated);
-        }
+		private bool _navigationBarHidden;
 
-        public override void ViewWillDisappear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(true, true);
-            base.ViewWillDisappear(animated);
-        }
+		public override void ViewWillAppear(bool animated)
+		{
+			_navigationBarHidden = NavigationController.NavigationBarHidden;
+			NavigationController.SetNavigationBarHidden(false, true);
+			base.ViewWillAppear(animated);
+		}
+
+		public override void ViewWillDisappear(bool animated)
+		{
+			NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
+			base.ViewWillDisappear(animated);
+		}
 
         public override void ViewDidLoad()
         {
