@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -121,7 +123,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             AddLoginParameter(parameters, request.Login);
-            
+
             var endpoint = "recent";
             if (!string.IsNullOrWhiteSpace(request.Login))
                 endpoint = request.Login + "/" + endpoint;
@@ -187,7 +189,7 @@ namespace Steepshot.Core.HttpClient
             var errorResult = CheckErrors(response);
             return CreateResult<GetCommentResponse>(response.Content, errorResult);
         }
-        
+
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts)
         {
             var parameters = new List<RequestParameter>();
@@ -304,14 +306,13 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        //public async Task SendLog(string endpoint, )
-        //{
-        //    var parameters = CreateSessionParameter(request.SessionId);
-
-        //    var response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
-        //    var errorResult = CheckErrors(response);
-        //    return CreateResult<UploadResponse>(response.Content, errorResult);
-        //}
+        public async void Trace(string endpoint, string login, List<string> resultErrors)
+        {
+            var parameters = new List<RequestParameter>();
+            AddLoginParameter(parameters, login);
+            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.QueryString });
+            //var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
+        }
 
         #endregion Get requests
 
