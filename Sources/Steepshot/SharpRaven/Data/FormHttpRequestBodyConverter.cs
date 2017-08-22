@@ -111,9 +111,9 @@ namespace SharpRaven.Data
 
                 return true;
             }
-            catch (Exception exception)
+            catch
             {
-                
+                //TODO:KOA: Empty try{}catch
             }
 
             return false;
