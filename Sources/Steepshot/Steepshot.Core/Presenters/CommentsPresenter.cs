@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<Post>> GetComments(string postUrl)
         {
-            var request = new InfoRequest(postUrl)
+            var request = new NamedInfoRequest(postUrl)
             {
                 Login = User.Login
             };
