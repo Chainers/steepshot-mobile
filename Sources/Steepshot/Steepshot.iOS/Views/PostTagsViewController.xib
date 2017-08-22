@@ -29,7 +29,7 @@
                     <rect key="frame" x="10" y="30" width="394" height="40"/>
                     <subviews>
                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uKP-I5-4o4">
-                            <rect key="frame" x="386" y="0.0" width="8" height="40"/>
+                            <rect key="frame" x="0.0" y="0.0" width="354" height="40"/>
                             <nil key="textColor"/>
                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                             <textInputTraits key="textInputTraits"/>
@@ -47,10 +47,11 @@
                     <constraints>
                         <constraint firstItem="uKP-I5-4o4" firstAttribute="top" secondItem="1ba-nl-d7S" secondAttribute="top" id="1b0-rI-wJ2"/>
                         <constraint firstItem="qMd-pn-PZ3" firstAttribute="top" secondItem="1ba-nl-d7S" secondAttribute="top" id="6ky-zD-adL"/>
-                        <constraint firstAttribute="trailing" secondItem="uKP-I5-4o4" secondAttribute="trailing" id="BMk-5q-IFN"/>
                         <constraint firstAttribute="bottom" secondItem="uKP-I5-4o4" secondAttribute="bottom" id="DDo-Si-TM9"/>
                         <constraint firstAttribute="bottom" secondItem="qMd-pn-PZ3" secondAttribute="bottom" id="WcB-hO-4D4"/>
                         <constraint firstAttribute="height" constant="40" id="gYQ-Bu-cul"/>
+                        <constraint firstItem="qMd-pn-PZ3" firstAttribute="leading" secondItem="uKP-I5-4o4" secondAttribute="trailing" id="hOP-1e-Rh3"/>
+                        <constraint firstItem="uKP-I5-4o4" firstAttribute="leading" secondItem="1ba-nl-d7S" secondAttribute="leading" id="hSB-rX-gYT"/>
                         <constraint firstAttribute="trailing" secondItem="qMd-pn-PZ3" secondAttribute="trailing" id="j3z-8c-HPE"/>
                     </constraints>
                 </view>
