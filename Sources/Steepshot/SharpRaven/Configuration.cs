@@ -28,8 +28,6 @@
 
 #endregion
 
-using PCLAppConfig;
-
 namespace SharpRaven
 {
     /// <summary>
