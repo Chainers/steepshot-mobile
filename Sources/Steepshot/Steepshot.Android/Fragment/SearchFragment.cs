@@ -89,15 +89,14 @@ namespace Steepshot.Fragment
 
         public void OnClick(int pos)
         {
+			if (Activity.CurrentFocus != null)
+			{
+				var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+				imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
+			}
             if (_searchType == SearchType.Tags)
             {
                 Activity.Intent.PutExtra("SEARCH", _categoriesAdapter.GetItem(pos).Name);
-
-                if (Activity.CurrentFocus != null)
-                {
-                    var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-                    imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
-                }
                 Activity.OnBackPressed();
             }
             else if (_searchType == SearchType.People)
