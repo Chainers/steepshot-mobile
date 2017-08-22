@@ -78,7 +78,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
-        Task<OperationResult<GetCommentResponse>> GetComments(InfoRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
@@ -154,7 +154,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
         /// </summary>
-        Task<OperationResult<Post>> GetPostInfo(InfoRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
