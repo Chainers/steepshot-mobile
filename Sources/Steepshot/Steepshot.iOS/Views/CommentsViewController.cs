@@ -142,8 +142,7 @@ namespace Steepshot.iOS.Views
 
         void LoginTapped()
         {
-            var myViewController = Storyboard.InstantiateViewController(nameof(PreLoginViewController)) as PreLoginViewController;
-            NavigationController.PushViewController(myViewController, true);
+            NavigationController.PushViewController(new PreLoginViewController(), true);
         }
 
         protected override void CalculateBottom()
