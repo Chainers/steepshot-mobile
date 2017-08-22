@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
@@ -22,6 +23,7 @@ namespace Steepshot.iOS.Views
         {
         }
 
+		TagsCollectionFlowDelegate flowDelegate = new TagsCollectionFlowDelegate();
         public UIImage ImageAsset;
 
         private TagsCollectionViewSource _collectionviewSource;
@@ -46,9 +48,10 @@ namespace Steepshot.iOS.Views
                 var myViewController = new PostTagsViewController();
                 NavigationController.PushViewController(myViewController, true);
             });
-            _collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
-            _collectionviewSource.RowSelectedEvent += CollectionTagSelected;
+            _collectionviewSource.TagsCollection = new List<string>() { "" };
             tagsCollectionView.Source = _collectionviewSource;
+
+            tagsCollectionView.Delegate = flowDelegate;
 
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
@@ -72,6 +75,7 @@ namespace Steepshot.iOS.Views
             _collectionviewSource.TagsCollection.Clear();
             _collectionviewSource.TagsCollection.Add("");
             _collectionviewSource.TagsCollection.AddRange(TagsList);
+            flowDelegate.Tags = TagsList;
             tagsCollectionView.ReloadData();
             tagsCollectionView.LayoutIfNeeded();
             collectionHeight.Constant = tagsCollectionView.ContentSize.Height;
@@ -124,8 +128,9 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        void CollectionTagSelected(int row)
+        private void CollectionTagSelected(NSIndexPath obj)
         {
+            var row = ((int)obj.Item);
             _collectionviewSource.TagsCollection.RemoveAt(row);
             TagsList.RemoveAt(row - 1);
             tagsCollectionView.ReloadData();
@@ -136,4 +141,25 @@ namespace Steepshot.iOS.Views
             Bottom = (Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset);
         }
     }
+
+    public class TagsCollectionFlowDelegate : UICollectionViewDelegateFlowLayout
+    {
+		public List<string> Tags;
+
+		public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+		{
+            if (indexPath.Item == 0)
+            {
+                return new CGSize(100, 50);
+			}
+
+            var attributes = new UIStringAttributes
+            {
+                Font = UIFont.SystemFontOfSize(17)
+            };
+            var stringSize = new NSString(Tags[(int)indexPath.Item - 1]).GetSizeUsingAttributes(attributes);
+            var cellSize = new CGSize(stringSize.Width + 30, 50);
+            return cellSize;
+		}
+	}
 }
