@@ -59,8 +59,9 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
             }
-            catch (Exception e)
+            catch
             {
+                //TODO:KOA: Empty try{}catch
             }
             if (!string.IsNullOrEmpty(post.Avatar))
             {
@@ -68,8 +69,9 @@ namespace Steepshot.Adapter
                 {
                     Picasso.With(_context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(80, 0).Into(vh.Avatar);
                 }
-                catch (Exception e)
+                catch
                 {
+                    //TODO:KOA: Empty try{}catch
                 }
             }
             else
