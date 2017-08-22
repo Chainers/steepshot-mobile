@@ -19,7 +19,19 @@ namespace Steepshot.Core.Models.Requests
         public int Limit { get; set; }
     }
 
-    public class InfoRequest : NamedRequestWithOffsetLimitFields
+    public class NamedInfoRequest : NamedRequestWithOffsetLimitFields
+    {
+        public NamedInfoRequest(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
+
+            Url = url;
+        }
+
+        public string Url { get; }
+    }
+
+    public class InfoRequest : OffsetLimitFields
     {
         public InfoRequest(string url)
         {
