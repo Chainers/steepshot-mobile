@@ -71,11 +71,11 @@ namespace SharpRaven.Data
         /// <returns>
         /// <c>true</c> if the conversion succeeds; otherwise <c>false</c>.
         /// </returns>
-        #if net35
+#if net35
         public bool TryConvert(HttpContext httpContext, out object converted)
-        #else
+#else
         public bool TryConvert(dynamic httpContext, out object converted)
-        #endif
+#endif
         {
             converted = null;
 
@@ -90,14 +90,14 @@ namespace SharpRaven.Data
                 {
                     httpContext.Request.InputStream.Seek(0, SeekOrigin.Begin);
                     httpContext.Request.InputStream.CopyTo(stream);
-                    converted = Encoding.UTF8.GetString(stream.ToArray(),0,(int)stream.Length);
+                    converted = Encoding.UTF8.GetString(stream.ToArray(), 0, (int)stream.Length);
 
                     return true;
                 }
             }
-            catch (Exception exception)
+            catch
             {
-                
+                //TODO:KOA: Empty try{}catch
             }
 
             return false;
