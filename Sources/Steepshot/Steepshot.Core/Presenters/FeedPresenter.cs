@@ -55,7 +55,7 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
-                if (!_hasItems)
+                if (!_hasItems || Processing)
                     return;
                 try
                 {
