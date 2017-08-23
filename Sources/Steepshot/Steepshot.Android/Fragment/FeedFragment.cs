@@ -269,7 +269,7 @@ namespace Steepshot.Fragment
                 };
             } 
 
-            public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
+            public async override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
             {
                 //int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
                 var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
@@ -281,11 +281,11 @@ namespace Steepshot.Fragment
                         {
                             if (string.IsNullOrEmpty(_presenter.Tag))
                             {
-                                Task.Run(() => _presenter.GetTopPosts(_presenter.GetCurrentType()));
+                                await _presenter.GetTopPosts(_presenter.GetCurrentType());
                             }
                             else
                             {
-                                Task.Run(() => _presenter.GetSearchedPosts());
+                                await _presenter.GetSearchedPosts();
                             }
                             _prevPos = pos;
                         }
