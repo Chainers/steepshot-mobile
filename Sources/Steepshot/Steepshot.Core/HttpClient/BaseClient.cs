@@ -311,7 +311,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddLoginParameter(parameters, login);
             parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.QueryString });
-            //var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
+            var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
         }
 
         #endregion Get requests
