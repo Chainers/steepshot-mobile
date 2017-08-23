@@ -287,10 +287,6 @@
       <Visible>False</Visible>
       <Version>1.0</Version>
     </XamarinComponentReference>
-    <XamarinComponentReference Include="hockeyappandroid">
-      <Visible>False</Visible>
-      <Version>4.1.1.0</Version>
-    </XamarinComponentReference>
     <XamarinComponentReference Include="zxing.net.mobile">
       <Version>2.1.12</Version>
       <Visible>False</Visible>

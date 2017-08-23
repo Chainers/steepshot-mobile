@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
@@ -50,42 +50,15 @@ namespace Steepshot.iOS.Views
 
 		[Outlet]
 		UIKit.UIButton termsButton { get; set; }
+
+		[Outlet]
+		UIKit.UILabel versionLabel { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (nsfwSwitch != null) {
-				nsfwSwitch.Dispose ();
-				nsfwSwitch = null;
-			}
-
-			if (steemLabel != null) {
-				steemLabel.Dispose ();
-				steemLabel = null;
-			}
-
-			if (steemViewHeight != null) {
-				steemViewHeight.Dispose ();
-				steemViewHeight = null;
-			}
-
-			if (golosLabel != null) {
-				golosLabel.Dispose ();
-				golosLabel = null;
-			}
-
-			if (golosViewHeight != null) {
-				golosViewHeight.Dispose ();
-				golosViewHeight = null;
-			}
-
 			if (addAccountButton != null) {
 				addAccountButton.Dispose ();
 				addAccountButton = null;
-			}
-
-			if (steemButton != null) {
-				steemButton.Dispose ();
-				steemButton = null;
 			}
 
 			if (golosButton != null) {
@@ -93,9 +66,9 @@ namespace Steepshot.iOS.Views
 				golosButton = null;
 			}
 
-			if (steemView != null) {
-				steemView.Dispose ();
-				steemView = null;
+			if (golosLabel != null) {
+				golosLabel.Dispose ();
+				golosLabel = null;
 			}
 
 			if (golosView != null) {
@@ -103,9 +76,44 @@ namespace Steepshot.iOS.Views
 				golosView = null;
 			}
 
+			if (golosViewHeight != null) {
+				golosViewHeight.Dispose ();
+				golosViewHeight = null;
+			}
+
+			if (lowRatedSwitch != null) {
+				lowRatedSwitch.Dispose ();
+				lowRatedSwitch = null;
+			}
+
+			if (nsfwSwitch != null) {
+				nsfwSwitch.Dispose ();
+				nsfwSwitch = null;
+			}
+
 			if (reportButton != null) {
 				reportButton.Dispose ();
 				reportButton = null;
+			}
+
+			if (steemButton != null) {
+				steemButton.Dispose ();
+				steemButton = null;
+			}
+
+			if (steemLabel != null) {
+				steemLabel.Dispose ();
+				steemLabel = null;
+			}
+
+			if (steemView != null) {
+				steemView.Dispose ();
+				steemView = null;
+			}
+
+			if (steemViewHeight != null) {
+				steemViewHeight.Dispose ();
+				steemViewHeight = null;
 			}
 
 			if (termsButton != null) {
@@ -113,9 +121,9 @@ namespace Steepshot.iOS.Views
 				termsButton = null;
 			}
 
-			if (lowRatedSwitch != null) {
-				lowRatedSwitch.Dispose ();
-				lowRatedSwitch = null;
+			if (versionLabel != null) {
+				versionLabel.Dispose ();
+				versionLabel = null;
 			}
 		}
 	}
