@@ -1,8 +1,12 @@
 ﻿﻿using System;
 using System.Linq;
+using Autofac;
+using Foundation;
 using MessageUI;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -37,7 +41,7 @@ namespace Steepshot.iOS.Views
             _steemAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
             _previousNetwork = Chain;
-
+            versionLabel.Text = $"App version: {AppSettings.Container.Resolve<IAppInfo>().GetAppVersion()} Build number: {NSBundle.MainBundle.InfoDictionary["CFBundleVersion"]}";
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
             //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
