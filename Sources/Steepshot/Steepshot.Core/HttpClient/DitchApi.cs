@@ -152,6 +152,10 @@ namespace Steepshot.Core.HttpClient
                     else
                         OnError(resp, result);
                 }
+                else
+                {
+                    result.Errors.AddRange(uploadResponse.Errors);
+                }
                 Trace("post", request.Login, result.Errors);
                 return result;
             });
