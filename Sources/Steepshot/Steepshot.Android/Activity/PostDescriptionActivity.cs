@@ -19,7 +19,7 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivity//, ITarget
+    public class PostDescriptionActivity : BaseActivity
     {
         private PostDescriptionPresenter _presenter;
         public static int TagRequestCode = 1225;
@@ -29,8 +29,6 @@ namespace Steepshot.Activity
         private byte[] _arrayToUpload;
         private Bitmap _bitmapToUpload;
 
-        //private CancellationTokenSource _tokenSource = new CancellationTokenSource();
-        //private CancellationToken ct;
         private FrameLayout _add;
 
 #pragma warning disable 0649, 4014
@@ -59,7 +57,6 @@ namespace Steepshot.Activity
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
 
@@ -69,6 +66,9 @@ namespace Steepshot.Activity
             _photoFrame.LayoutParameters = parameters;
             _postButton.Enabled = true;
             _path = Intent.GetStringExtra("FILEPATH");
+
+            Cache.Clear();
+            GC.Collect();
 
             Picasso.With(this).Load(new Java.IO.File(_path))
                    .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
@@ -128,8 +128,6 @@ namespace Steepshot.Activity
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            //_tokenSource.Cancel();
-            //_tokenSource.Dispose();
             if (_bitmapToUpload != null)
             {
                 _bitmapToUpload.Recycle();
@@ -139,48 +137,35 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
             GC.Collect();
         }
-        /*
-		public void OnBitmapFailed(Drawable p0)
-		{
 
-		}
-
-		public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-		{
-			RunOnUiThread(() =>
-			{
-				photoFrame?.SetImageBitmap(p0);
-				postButton.Enabled = true;
-			});
-			photoComressionTask = Task.Factory.StartNew(CompressPhoto, ct);
-		}*/
-
-        private async void OnPostAsync()
+        private async Task OnPostAsync()
         {
             try
             {
-                //photoComressionTask.Wait();
-                var success = await CompressPhoto();
-                if (!success)
-                    ShowAlert("Photo upload error, please try again");
-
-                var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo,_description.Text, _arrayToUpload, _tags.ToArray());
-
-                var resp = await _presenter.Upload(request);
-                if (resp.Errors.Count > 0)
+                if(string.IsNullOrEmpty(_description.Text))
                 {
-                    RunOnUiThread(() =>
+                    Toast.MakeText(this, "Description cannot be empty", ToastLength.Long).Show();
+                    return;
+                }
+                var success = await CompressPhoto();
+                if (success)
+                {
+                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, _arrayToUpload, _tags.ToArray());
+                    var resp = await _presenter.Upload(request);
+
+                    if (resp.Errors.Count > 0)
                     {
                         Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
-                    });
+                    }
+                    else
+                    {
+                        BasePresenter.ShouldUpdateProfile = true;
+                        Finish();
+                    }
                 }
                 else
                 {
-                    _bitmapToUpload.Recycle();
-                    _bitmapToUpload.Dispose();
-                    _bitmapToUpload = null;
-                    BasePresenter.ShouldUpdateProfile = true;
-                    Finish();
+                    Toast.MakeText(this, "Photo compressing error", ToastLength.Long).Show();
                 }
             }
             catch (Exception ex)
@@ -193,6 +178,7 @@ namespace Steepshot.Activity
                 {
                     _loadLayout.Visibility = ViewStates.Gone;
                     _postButton.Enabled = true;
+                    _arrayToUpload = null;
                 }
             }
         }
@@ -222,6 +208,12 @@ namespace Steepshot.Activity
             {
                 Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
                 return false;
+            }
+            finally
+            {
+				_bitmapToUpload.Recycle();
+				_bitmapToUpload.Dispose();
+				_bitmapToUpload = null;
             }
         }
 
