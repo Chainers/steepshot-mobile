@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Autofac;
+using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
@@ -25,6 +26,12 @@ namespace Steepshot.Activity
             builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
             builder.RegisterType<DataProvider>().As<IDataProvider>();
             builder.RegisterInstance(new SaverService()).As<ISaverService>();
+
+
+			Picasso.Builder d = new Picasso.Builder(this);
+            Cache = new LruCache(this);
+			d.MemoryCache(Cache);
+			Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
             _presenter = new SplashPresenter();

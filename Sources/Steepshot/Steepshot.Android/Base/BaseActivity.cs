@@ -3,6 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
+using Square.Picasso;
 using Steepshot.Fragment;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
@@ -10,6 +11,7 @@ namespace Steepshot.Base
 {
     public abstract class BaseActivity : AppCompatActivity, IBaseView
     {
+        public static LruCache Cache { get; set; }
         protected HostFragment CurrentHostFragment;
         protected override void OnCreate(Bundle savedInstanceState)
         {
