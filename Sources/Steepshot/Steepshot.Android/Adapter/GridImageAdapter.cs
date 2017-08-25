@@ -40,7 +40,7 @@ namespace Steepshot.Adapter
                .NoFade()
                .Resize(width, width)
                .CenterCrop()
-               .Priority(Picasso.Priority.Low)
+               .Priority(Picasso.Priority.High)
                .Into(iHolder.Photo);
         }
 
