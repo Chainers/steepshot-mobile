@@ -35,15 +35,13 @@ namespace Steepshot.Core.Presenters
             PostsCleared?.Invoke();
         }
 
-        public async Task<UserProfileResponse> GetUserInfo(string user, bool requireUpdate = false)
+        public async Task<OperationResult<UserProfileResponse>> GetUserInfo(string user, bool requireUpdate = false)
         {
             var req = new UserProfileRequest(user)
             {
                 Login = User.Login
             };
-            var response = await Api.GetUserProfile(req);
-            var userData = response.Result;
-            return userData;
+            return await Api.GetUserProfile(req);
         }
 
         public async Task GetUserPosts(bool needRefresh = false)
@@ -64,7 +62,9 @@ namespace Steepshot.Core.Presenters
                 {
                     Login = User.Login,
                     Offset = _offsetUrl,
-                    Limit = PostsCount
+                    Limit = PostsCount,
+					ShowNsfw = User.IsNsfw,
+					ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
 
