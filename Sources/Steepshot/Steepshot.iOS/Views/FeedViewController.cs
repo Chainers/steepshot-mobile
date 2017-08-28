@@ -252,7 +252,9 @@ namespace Steepshot.iOS.Views
                         {
                             Login = User.Login,
                             Limit = Limit,
-                            Offset = offset
+                            Offset = offset,
+                            ShowNsfw = User.IsNsfw,
+                            ShowLowRated = User.IsLowRated
                         };
                         posts = await Api.GetPosts(postrequest);
                     }
@@ -262,18 +264,22 @@ namespace Steepshot.iOS.Views
                         {
                             Login = User.Login,
                             Limit = Limit,
-                            Offset = offset
+                            Offset = offset,
+							ShowNsfw = User.IsNsfw,
+							ShowLowRated = User.IsLowRated
                         };
                         posts = await Api.GetPostsByCategory(postrequest);
                     }
                 }
                 else
                 {
-                    var f = new NamedRequestWithOffsetLimitFields()
+                    var f = new CensoredPostsRequests()
                     {
                         Login = User.Login,
                         Limit = Limit,
-                        Offset = offset
+                        Offset = offset,
+						ShowNsfw = User.IsNsfw,
+						ShowLowRated = User.IsLowRated
                     };
                     posts = await Api.GetUserRecentPosts(f);
                 }

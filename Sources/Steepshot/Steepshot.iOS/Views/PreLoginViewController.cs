@@ -70,14 +70,26 @@ namespace Steepshot.iOS.Views
                 SwitchChain(NewAccountNetwork);
             }
 
-            UITapGestureRecognizer logoTap = new UITapGestureRecognizer(
+            UITapGestureRecognizer devTap = new UITapGestureRecognizer(
                 () =>
             {
                 devSwitch.Hidden = !devSwitch.Hidden;
             }
             );
-            logoTap.NumberOfTapsRequired = 5;
-            logo.AddGestureRecognizer(logoTap);
+            devTap.NumberOfTapsRequired = 10;
+
+			UITapGestureRecognizer golosTap = new UITapGestureRecognizer(
+				() =>
+				{
+					var network = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+					SetText(network);
+					SwitchChain(network);
+				}
+			);
+			golosTap.NumberOfTapsRequired = 5;
+
+            golosHidden.AddGestureRecognizer(devTap);
+            logo.AddGestureRecognizer(golosTap);
 
             signUpButton.TouchDown += (sender, e) =>
             {
