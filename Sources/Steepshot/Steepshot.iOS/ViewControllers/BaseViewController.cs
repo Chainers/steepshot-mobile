@@ -116,7 +116,7 @@ namespace Steepshot.iOS.ViewControllers
 
             AppSettings.IsDev = isDev;
 
-            InitApiClient(Chain, isDev);
+            InitApiClient(Chain, AppSettings.IsDev);
         }
 
         public static void SwitchChain(KnownChains chain)
@@ -126,7 +126,7 @@ namespace Steepshot.iOS.ViewControllers
 
             Chain = chain;
 
-            InitApiClient(chain, User.IsDev);
+            InitApiClient(chain, AppSettings.IsDev);
         }
 
         private static void InitApiClient(KnownChains chain, bool isDev)

@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
@@ -23,6 +23,9 @@ namespace Steepshot.iOS.Views
 
 		[Outlet]
 		UIKit.UISwitch devSwitch { get; set; }
+
+		[Outlet]
+		UIKit.UIView golosHidden { get; set; }
 
 		[Outlet]
 		UIKit.UIButton loginButton { get; set; }
@@ -95,6 +98,11 @@ namespace Steepshot.iOS.Views
 				picker = null;
 			}
 
+			if (pickerHeight != null) {
+				pickerHeight.Dispose ();
+				pickerHeight = null;
+			}
+
 			if (signLabel != null) {
 				signLabel.Dispose ();
 				signLabel = null;
@@ -105,9 +113,9 @@ namespace Steepshot.iOS.Views
 				signUpButton = null;
 			}
 
-			if (pickerHeight != null) {
-				pickerHeight.Dispose ();
-				pickerHeight = null;
+			if (golosHidden != null) {
+				golosHidden.Dispose ();
+				golosHidden = null;
 			}
 		}
 	}
