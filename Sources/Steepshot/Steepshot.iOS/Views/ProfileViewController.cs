@@ -313,7 +313,9 @@ namespace Steepshot.iOS.Views
                 {
                     Login = User.Login,
                     Limit = Limit,
-                    Offset = _photosList.Count == 0 ? "0" : _offsetUrl
+                    Offset = _photosList.Count == 0 ? "0" : _offsetUrl,
+					ShowNsfw = User.IsNsfw,
+					ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
                 if (response.Success)
