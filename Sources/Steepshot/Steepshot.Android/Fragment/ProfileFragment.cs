@@ -14,6 +14,7 @@ using Square.Picasso;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -127,7 +128,7 @@ namespace Steepshot.Fragment
         [InjectOnClick(Resource.Id.following_btn)]
         public void OnFollowingClick(object sender, EventArgs e)
         {
-            Activity.Intent.PutExtra("isFollowers", true);
+            Activity.Intent.PutExtra("isFollowers", false);
             Activity.Intent.PutExtra("username", _profileId);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
@@ -220,9 +221,17 @@ namespace Steepshot.Fragment
         private async Task LoadProfile(bool needRefresh = false)
         {
             _presenter.GetUserPosts(needRefresh);
-            _profile = await _presenter.GetUserInfo(_profileId, needRefresh);
-            if (_profile != null)
+            OperationResult<UserProfileResponse> response;
+            int i = 0;
+            do
             {
+                response = await _presenter.GetUserInfo(_profileId, needRefresh);
+                i++;
+            } while (!response.Success && i <= 5);
+
+            if (response.Success)
+            {
+                _profile = response.Result;
                 var culture = new CultureInfo("en-US");
                 _joinedText.Text = $"Joined {_profile.Created.ToString("Y", culture)}";
                 if (!string.IsNullOrEmpty(_profile.Location))
@@ -253,8 +262,9 @@ namespace Steepshot.Fragment
             }
             else
             {
-                Reporter.SendCrash("Profile data = null(Profile fragment)", BasePresenter.User.Login, BasePresenter.AppVersion);
-                Toast.MakeText(Context, "Profile loading error. Try relaunch app", ToastLength.Short).Show();
+                _spinner.Visibility = ViewStates.Gone;
+                Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, BasePresenter.AppVersion);
+                Toast.MakeText(Context, response.Errors[0], ToastLength.Short).Show();
             }
         }
 

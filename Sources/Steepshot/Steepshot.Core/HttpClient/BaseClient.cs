@@ -108,6 +108,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             AddLoginParameter(parameters, request.Login);
+            AddCensorParameters(parameters, request);
 
             var endpoint = $"user/{request.Username}/posts";
             if (!string.IsNullOrWhiteSpace(request.Login))
@@ -118,11 +119,12 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserPostResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(NamedRequestWithOffsetLimitFields request, CancellationTokenSource cts)
+        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredPostsRequests request, CancellationTokenSource cts)
         {
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             AddLoginParameter(parameters, request.Login);
+            AddCensorParameters(parameters, request);
 
             var endpoint = "recent";
             if (!string.IsNullOrWhiteSpace(request.Login))
@@ -138,6 +140,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             AddLoginParameter(parameters, request.Login);
+            AddCensorParameters(parameters, request);
 
             var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
             if (!string.IsNullOrWhiteSpace(request.Login))
@@ -153,6 +156,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new List<RequestParameter>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             AddLoginParameter(parameters, request.Login);
+            AddCensorParameters(parameters, request);
 
             var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
             if (!string.IsNullOrWhiteSpace(request.Login))
@@ -329,7 +333,13 @@ namespace Steepshot.Core.HttpClient
         {
             if (!string.IsNullOrEmpty(login))
                 parameters.Add(new RequestParameter { Key = "login", Value = login, Type = ParameterType.QueryString });
-        }
+		}
+
+        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request)
+		{
+            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = ParameterType.QueryString });
+            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = ParameterType.QueryString });
+		}
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts)
         {

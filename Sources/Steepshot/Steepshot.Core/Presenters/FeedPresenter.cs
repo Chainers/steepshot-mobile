@@ -74,11 +74,13 @@ namespace Steepshot.Core.Presenters
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
-                        var f = new NamedRequestWithOffsetLimitFields
+                        var f = new CensoredPostsRequests
                         {
                             Login = User.Login,
                             Limit = PostsCount,
-                            Offset = _offsetUrl
+                            Offset = _offsetUrl,
+                            ShowNsfw = User.IsNsfw,
+                            ShowLowRated = User.IsLowRated
                         };
                         response = await Api.GetUserRecentPosts(f);
                     }
@@ -88,7 +90,9 @@ namespace Steepshot.Core.Presenters
                         {
                             Login = User.Login,
                             Limit = PostsCount,
-                            Offset = _offsetUrl
+                            Offset = _offsetUrl,
+							ShowNsfw = User.IsNsfw,
+							ShowLowRated = User.IsLowRated
                         };
                         response = await Api.GetPosts(postrequest, _cts);
                     }
@@ -150,7 +154,9 @@ namespace Steepshot.Core.Presenters
                     {
                         Login = User.Login,
                         Limit = PostsCount,
-                        Offset = _offsetUrl
+                        Offset = _offsetUrl,
+						ShowNsfw = User.IsNsfw,
+						ShowLowRated = User.IsLowRated
                     };
 
                     var posts = await Api.GetPostsByCategory(postrequest, _cts);
