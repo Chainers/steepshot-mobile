@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;
 
 namespace Steepshot.iOS.Helpers
@@ -10,15 +11,15 @@ namespace Steepshot.iOS.Helpers
     {
         public static void FilterNsfw(this List<Post> list)
         {
-            if (!BaseViewController.User.IsNsfw)
+            if (!BasePresenter.User.IsNsfw)
                 list.RemoveAll(p => p.Category.Contains("nsfw") || p.Tags.Any(t => t.Contains("nsfw")));
         }
 
         public static void FilterHided(this List<Post> list)
         {
-            if (list == null || !BaseViewController.User.IsAuthenticated || BaseViewController.User.PostBlacklist == null || BaseViewController.User.PostBlacklist.Count == 0)
+            if (list == null || !BasePresenter.User.IsAuthenticated || BasePresenter.User.PostBlacklist == null || BasePresenter.User.PostBlacklist.Count == 0)
                 return;
-            foreach (var blackPost in BaseViewController.User.PostBlacklist)
+            foreach (var blackPost in BasePresenter.User.PostBlacklist)
             {
                 var lil = list.FirstOrDefault(p => p.Url == blackPost);
                 if (lil != null)

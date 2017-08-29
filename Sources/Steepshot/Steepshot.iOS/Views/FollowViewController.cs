@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -14,7 +15,7 @@ namespace Steepshot.iOS.Views
     public partial class FollowViewController : BaseViewController
     {
         private FollowTableViewSource _tableSource = new FollowTableViewSource();
-        public string Username = User.Login;
+        public string Username = BasePresenter.User.Login;
         public FriendsType FriendsType = FriendsType.Followers;
 
         private string _offsetUrl;
@@ -67,7 +68,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (Username == User.Login)
+            if (Username == BasePresenter.User.Login)
                 NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
@@ -82,7 +83,7 @@ namespace Steepshot.iOS.Views
                 progressBar.StartAnimating();
                 var request = new UserFriendsRequest(Username, FriendsType)
                 {
-                    Login = User.Login,
+                    Login = BasePresenter.User.Login,
                     Offset = _tableSource.TableItems.Count == 0 ? "0" : _offsetUrl,
                     Limit = 20
                 };
@@ -107,11 +108,11 @@ namespace Steepshot.iOS.Views
                         _hasItems = false;
                 }
                 else
-                    Reporter.SendCrash("Follow page get items error: " + response.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Follow page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
@@ -125,7 +126,7 @@ namespace Steepshot.iOS.Views
             bool? success = null;
             try
             {
-                var request = new FollowRequest(User.UserInfo, followType, author);
+                var request = new FollowRequest(BasePresenter.User.UserInfo, followType, author);
                 var response = await Api.Follow(request);
                 if (response.Success)
                 {
@@ -134,12 +135,12 @@ namespace Steepshot.iOS.Views
                         success = user.HasFollowed = response.Result.IsFollowed;
                 }
                 else
-                    Reporter.SendCrash("Follow page follow error: " + response.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Follow page follow error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
 
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {

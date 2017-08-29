@@ -5,6 +5,7 @@ using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -80,7 +81,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
@@ -90,7 +91,7 @@ namespace Steepshot.iOS.Views
 
         public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
         {
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
@@ -100,7 +101,7 @@ namespace Steepshot.iOS.Views
                 int diezid = postUrl.IndexOf('#');
                 string posturl = postUrl.Substring(diezid + 1);
 
-                var voteRequest = new VoteRequest(User.UserInfo, vote, posturl);
+                var voteRequest = new VoteRequest(BasePresenter.User.UserInfo, vote, posturl);
                 var response = await Api.Vote(voteRequest);
                 if (response.Success)
                 {
@@ -110,7 +111,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
@@ -118,12 +119,12 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                if (!User.IsAuthenticated)
+                if (!BasePresenter.User.IsAuthenticated)
                 {
                     LoginTapped();
                     return;
                 }
-                var reqv = new CreateCommentRequest(User.UserInfo, PostUrl, commentTextView.Text, commentTextView.Text);
+                var reqv = new CreateCommentRequest(BasePresenter.User.UserInfo, PostUrl, commentTextView.Text, commentTextView.Text);
                 var response = await Api.CreateComment(reqv);
                 if (response.Success)
                 {
@@ -133,7 +134,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
