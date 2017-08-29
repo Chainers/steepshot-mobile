@@ -20,7 +20,7 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class SignInActivity : BaseActivity
     {
-        SignInPresenter _presenter;
+        private SignInPresenter _presenter;
 
         private string _username;
 
