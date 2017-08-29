@@ -15,10 +15,15 @@ namespace Steepshot.iOS.Views
     public partial class VotersViewController : BaseViewController
     {
         protected VotersViewController(IntPtr handle) : base(handle) { }
-
+        private VotersPresenter _presenter;
         public VotersViewController()
         {
         }
+
+		protected override void CreatePresenter()
+		{
+			_presenter = new VotersPresenter();
+		}
 
         public string PostUrl;
         private string _offsetUrl;
@@ -33,6 +38,7 @@ namespace Steepshot.iOS.Views
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
+            _tableSource.TableItems = _presenter.Users;
             _tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
@@ -46,7 +52,14 @@ namespace Steepshot.iOS.Views
                     GetItems();
             };
 
+            _presenter.VotersLoaded += OnPostLoaded;
             GetItems();
+        }
+
+        private void OnPostLoaded()
+        {
+            votersTable.ReloadData();
+            progressBar.StopAnimating();
         }
 
         public override void ViewWillAppear(bool animated)
@@ -63,6 +76,8 @@ namespace Steepshot.iOS.Views
             try
             {
                 progressBar.StartAnimating();
+                await _presenter.GetItems(PostUrl);
+                /*
                 var request = new InfoRequest(PostUrl)
                 {
                     Offset = _offsetUrl,
@@ -84,7 +99,7 @@ namespace Steepshot.iOS.Views
                     votersTable.ReloadData();
                 }
                 else if (response.Errors.Count > 0)
-                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);*/
             }
             catch (Exception ex)
             {
