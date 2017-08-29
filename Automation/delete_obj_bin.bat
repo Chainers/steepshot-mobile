@@ -17,4 +17,3 @@ FOR /R %%f IN (.) DO (
 		rmdir /S /Q "_ReSharper.*"
 	)
 )
-pause
