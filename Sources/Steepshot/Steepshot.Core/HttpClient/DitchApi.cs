@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
@@ -19,6 +21,7 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly ChainInfo _chainInfo;
         private readonly JsonNetConverter _jsonConverter;
+        private readonly Regex ErrorMsg = new Regex(@"(?<=[a-z_>=\s]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         private OperationManager _operationManager;
 
         private OperationManager OperationManager => _operationManager ?? (_operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId));
@@ -288,7 +291,19 @@ namespace Steepshot.Core.HttpClient
 
                     switch (typedError.Data.Code)
                     {
-                        //case 10: Assert Exception
+                        case 10: //Assert Exception
+                            {
+                                if (typedError.Data.Stack.Any())
+                                {
+                                    var match = ErrorMsg.Match(typedError.Data.Stack[0].Format);
+                                    if (match.Success)
+                                    {
+                                        operationResult.Errors.Add(match.Value);
+                                        break;
+                                    }
+                                }
+                                goto default;
+                            }
                         //case 13: unknown key
                         //case 3000000: "transaction exception"
                         //case 3010000: "missing required active authority"
