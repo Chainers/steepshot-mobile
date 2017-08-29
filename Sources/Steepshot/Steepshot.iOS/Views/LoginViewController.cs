@@ -20,6 +20,12 @@ namespace Steepshot.iOS.Views
 
         public LoginViewController() { }
 
+		protected override void CreatePresenter()
+		{
+			_presenter = new SignInPresenter();
+		}
+
+        private SignInPresenter _presenter;
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 
@@ -109,9 +115,7 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var request = new AuthorizedRequest(Username, password.Text);
-                var response = await Api.LoginWithPostingKey(request);
-
+                var response = await _presenter.SignIn(Username, password.Text);
                 if (response.Success)
                 {
 

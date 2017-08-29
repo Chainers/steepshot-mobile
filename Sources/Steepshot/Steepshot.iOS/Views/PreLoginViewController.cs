@@ -12,6 +12,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class PreLoginViewController : BaseViewController
     {
+        PreSignInPresenter _presenter;
         protected PreLoginViewController(IntPtr handle) : base(handle)
         {
             // Note: this .ctor should not contain any initialization logi  
@@ -20,6 +21,11 @@ namespace Steepshot.iOS.Views
         public PreLoginViewController()
         {
         }
+
+		protected override void CreatePresenter()
+		{
+			_presenter = new PreSignInPresenter();
+		}
 
         public KnownChains NewAccountNetwork;
 
@@ -126,8 +132,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
             try
             {
-                var req = new UserProfileRequest(loginText.Text) { };
-                var response = await Api.GetUserProfile(req);
+				var response = await _presenter.GetAccountInfo(loginText.Text);
                 if (response.Success)
                 {
                     var myViewController = new LoginViewController();

@@ -17,7 +17,7 @@ namespace Steepshot.iOS.Views
         private FollowTableViewSource _tableSource = new FollowTableViewSource();
         public string Username = BasePresenter.User.Login;
         public FriendsType FriendsType = FriendsType.Followers;
-
+        FollowersPresenter _presenter;
         private string _offsetUrl;
         private bool _hasItems = true;
 
@@ -29,6 +29,11 @@ namespace Steepshot.iOS.Views
         public FollowViewController()
         {
         }
+
+		protected override void CreatePresenter()
+		{
+			_presenter = new FollowersPresenter();
+		}
 
         public override void ViewDidLoad()
         {

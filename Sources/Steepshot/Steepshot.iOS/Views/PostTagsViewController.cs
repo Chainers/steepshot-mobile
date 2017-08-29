@@ -17,6 +17,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class PostTagsViewController : BaseViewController
     {
+        TagsPresenter _presenter;
         protected PostTagsViewController(IntPtr handle) : base(handle)
         {
             // Note: this .ctor should not contain any initialization logic.
@@ -25,7 +26,10 @@ namespace Steepshot.iOS.Views
         public PostTagsViewController()
         {
         }
-
+		protected override void CreatePresenter()
+		{
+			_presenter = new TagsPresenter();
+		}
         private TagsCollectionViewSource _collectionviewSource;
         private CancellationTokenSource _cts;
         private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
@@ -111,13 +115,11 @@ namespace Steepshot.iOS.Views
                     OperationResult<SearchResponse<SearchResult>> response;
                     if (string.IsNullOrEmpty(query))
                     {
-                        var request = new OffsetLimitFields();
-                        response = await Api.GetCategories(request, _cts);
+                        response = await _presenter.GetTopTags();
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query);
-                        response = await Api.SearchCategories(request, _cts);
+                        response = await _presenter.SearchTags(query);
                     }
                     if (response.Success)
                     {

@@ -22,7 +22,11 @@ namespace Steepshot.iOS.Views
         public DescriptionViewController()
         {
         }
-
+		protected override void CreatePresenter()
+		{
+			_presenter = new PostDescriptionPresenter();
+		}
+        private PostDescriptionPresenter _presenter;
         public UIImage ImageAsset;
 
         private TagsCollectionViewSource _collectionviewSource;
@@ -99,8 +103,8 @@ namespace Steepshot.iOS.Views
                     Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
                 }
 
-                var request = new UploadImageRequest(BasePresenter.User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
-                var imageUploadResponse = await Api.Upload(request);
+				var request = new UploadImageRequest(BasePresenter.User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
+				var imageUploadResponse = await _presenter.Upload(request);
 
                 if (imageUploadResponse.Success)
                 {
