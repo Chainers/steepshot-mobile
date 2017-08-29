@@ -6,6 +6,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -171,7 +172,7 @@ namespace Steepshot.iOS.Views
                         }
                     }
                     else
-                        Reporter.SendCrash($"Tags search page get tags error: {string.Join(Environment.NewLine, response.Errors)}", User.Login, AppVersion);
+                        Reporter.SendCrash($"Tags search page get tags error: {string.Join(Environment.NewLine, response.Errors)}", BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (TaskCanceledException)
@@ -181,7 +182,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {

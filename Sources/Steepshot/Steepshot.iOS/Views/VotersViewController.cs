@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -83,11 +84,11 @@ namespace Steepshot.iOS.Views
                     votersTable.ReloadData();
                 }
                 else if (response.Errors.Count > 0)
-                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {

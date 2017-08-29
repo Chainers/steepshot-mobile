@@ -171,7 +171,7 @@ namespace Steepshot.Fragment
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    var response = await _presenter.Vote(_presenter.Posts[position]);
+                    var response = await _presenter.Vote(position);
 
                     if (response.Success)
                     {

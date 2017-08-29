@@ -7,6 +7,7 @@ using Ditch;
 using Foundation;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using UIKit;
 using KnownChains = Steepshot.Core.KnownChains;
@@ -15,7 +16,7 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        public static User User { get; set; }
+        //public static BasePresenter.User BasePresenter.User { get; set; }
         public static KnownChains Chain { get; set; }
         public static List<string> TagsList { get; set; }
         public static string AppVersion { get; set; }
@@ -25,8 +26,8 @@ namespace Steepshot.iOS.ViewControllers
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
-        public static string Tos => User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
-        public static string Pp => User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+        public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
+        public static string Pp => BasePresenter.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
 
         protected UIView Activeview;
@@ -39,8 +40,6 @@ namespace Steepshot.iOS.ViewControllers
         protected NSObject ForegroundToken;
 
         private static ISteepshotApiClient _apiClient;
-
-        public static bool IsHomeFeedLoaded { get; internal set; }
 
         public static bool ShouldProfileUpdate { get; set; }
 
@@ -57,13 +56,13 @@ namespace Steepshot.iOS.ViewControllers
         }
 
         public static string CurrentPostCategory { get; set; }
-
+		protected virtual void CreatePresenter() { }
 
         static BaseViewController()
         {
-            User = new User();
-            User.Load();
-            Chain = User.Chain;
+            BasePresenter.User = new User();
+            BasePresenter.User.Load();
+            Chain = BasePresenter.User.Chain;
             TagsList = new List<string>();
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
@@ -75,6 +74,11 @@ namespace Steepshot.iOS.ViewControllers
 
         public BaseViewController() { }
 
+        public override void ViewDidLoad()
+        {
+            CreatePresenter();
+            base.ViewDidLoad();
+        }
 
         public override void ViewWillAppear(bool animated)
         {

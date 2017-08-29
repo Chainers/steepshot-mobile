@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -145,7 +146,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
