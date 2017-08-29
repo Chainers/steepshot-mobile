@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -114,8 +115,8 @@ namespace Steepshot.iOS.Views
                 if (response.Success)
                 {
 
-                    User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
-                    IsHomeFeedLoaded = false;
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
+
                     var myViewController = new MainTabBarController();
 
                     NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
@@ -132,7 +133,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {

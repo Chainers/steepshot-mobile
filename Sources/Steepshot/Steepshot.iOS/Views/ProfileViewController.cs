@@ -9,6 +9,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -27,7 +28,7 @@ namespace Steepshot.iOS.Views
         }
 
         private UserProfileResponse _userData;
-        public string Username = User.Login;
+        public string Username = BasePresenter.User.Login;
         private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
         private List<Post> _photosList = new List<Post>();
         private string _offsetUrl;
@@ -45,7 +46,7 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             if (TabBarController != null)
                 TabBarController.NavigationController.NavigationBarHidden = true;
-            if (Username != User.Login)
+            if (Username != BasePresenter.User.Login)
                 topViewHeight.Constant = 0;
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
@@ -112,7 +113,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if (Username == User.Login)
+            if (Username == BasePresenter.User.Login)
             {
                 NavigationController.SetNavigationBarHidden(true, false);
                 if (TabBarController != null)
@@ -206,7 +207,7 @@ namespace Steepshot.iOS.Views
             {
                 var req = new UserProfileRequest(Username)
                 {
-                    Login = User.Login
+                    Login = BasePresenter.User.Login
                 };
                 var response = await Api.GetUserProfile(req);
                 if (response.Success)
@@ -230,7 +231,7 @@ namespace Steepshot.iOS.Views
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
                     _profileHeader.Balance.SetTitle($"{_userData.EstimatedBalance.ToString()}{Currency}", UIControlState.Normal);
-                    _profileHeader.SettingsButton.Hidden = Username != User.Login;
+                    _profileHeader.SettingsButton.Hidden = Username != BasePresenter.User.Login;
 
                     var buttonsAttributes = new UIStringAttributes
                     {
@@ -288,13 +289,13 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash(response.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
@@ -311,11 +312,11 @@ namespace Steepshot.iOS.Views
             {
                 var req = new UserPostsRequest(Username)
                 {
-                    Login = User.Login,
+                    Login = BasePresenter.User.Login,
                     Limit = Limit,
                     Offset = _photosList.Count == 0 ? "0" : _offsetUrl,
-					ShowNsfw = User.IsNsfw,
-					ShowLowRated = User.IsLowRated
+					ShowNsfw = BasePresenter.User.IsNsfw,
+					ShowLowRated = BasePresenter.User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
                 if (response.Success)
@@ -345,13 +346,13 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Profile page get posts erorr: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
                     ShowAlert(response.Errors[0]);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
@@ -362,7 +363,7 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(bool vote, string postUri, Action<string, OperationResult<VoteResponse>> success)
         {
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
@@ -370,14 +371,14 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                if (!User.IsAuthenticated)
+                if (!BasePresenter.User.IsAuthenticated)
                 {
                     var myViewController = new LoginViewController();
                     NavigationController.PushViewController(myViewController, true);
                     return;
                 }
 
-                var voteRequest = new VoteRequest(User.UserInfo, vote, postUri);
+                var voteRequest = new VoteRequest(BasePresenter.User.UserInfo, vote, postUri);
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -399,20 +400,20 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Profile page vote erorr: " + voteResponse.Errors[0], BasePresenter.User.Login, AppVersion);
                     ShowAlert(voteResponse.Errors[0]);
                 }
                 success.Invoke(postUri, voteResponse);
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
         {
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
@@ -428,8 +429,8 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                User.PostBlacklist.Add(url);
-                User.Save();
+                BasePresenter.User.PostBlacklist.Add(url);
+                BasePresenter.User.Save();
                 var postToHide = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
                 if (postToHide != null)
                 {
@@ -442,7 +443,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
@@ -450,7 +451,7 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                var flagRequest = new FlagRequest(User.UserInfo, vote, postUrl);
+                var flagRequest = new FlagRequest(BasePresenter.User.UserInfo, vote, postUrl);
                 var flagResponse = await Api.Flag(flagRequest);
                 if (flagResponse.Success)
                 {
@@ -477,13 +478,13 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
         public async Task Follow()
         {
-            var request = new FollowRequest(User.UserInfo, (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username);
+            var request = new FollowRequest(BasePresenter.User.UserInfo, (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username);
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
@@ -491,7 +492,7 @@ namespace Steepshot.iOS.Views
                 ToogleFollowButton();
             }
             else
-                Reporter.SendCrash("Profile page follow error: " + resp.Errors[0], User.Login, AppVersion);
+                Reporter.SendCrash("Profile page follow error: " + resp.Errors[0], BasePresenter.User.Login, AppVersion);
 
         }
 
@@ -503,7 +504,7 @@ namespace Steepshot.iOS.Views
 
         private void ToogleFollowButton()
         {
-            if (!User.IsAuthenticated || Username == User.Login || Convert.ToBoolean(_userData.HasFollowed))
+            if (!BasePresenter.User.IsAuthenticated || Username == BasePresenter.User.Login || Convert.ToBoolean(_userData.HasFollowed))
             {
                 _profileHeader.FollowButtonWidth.Constant = 0;
                 _profileHeader.FollowButtonMargin.Constant = 0;

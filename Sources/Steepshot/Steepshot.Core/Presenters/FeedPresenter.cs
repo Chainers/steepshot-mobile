@@ -21,6 +21,13 @@ namespace Steepshot.Core.Presenters
         private PostType _type = PostType.Top;
         public bool Processing;
         private bool _hasItems = true;
+		public bool HasItems
+		{
+			get
+			{
+				return _hasItems;
+			}
+		}
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 20;
         public string Tag;
@@ -48,8 +55,6 @@ namespace Steepshot.Core.Presenters
             _offsetUrl = string.Empty;
             PostsCleared?.Invoke();
         }
-
-
 
         public async Task GetTopPosts(PostType type, bool clearOld = false)
         {
@@ -192,13 +197,45 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(Post post)
+        public async Task<OperationResult<VoteResponse>> Vote(int position)
         {
-            if (!User.IsAuthenticated)
-                return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
+			//if (!User.IsAuthenticated)
+			//return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
+			var post = Posts[position];
 
-            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
-            return await Api.Vote(voteRequest);
+			var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
+            var response = await Api.Vote(voteRequest);
+            if(response.Success)
+            {
+                post.Vote = !Posts[position].Vote;
+
+                post.NetVotes = (post.Vote) ?
+                    post.NetVotes + 1 :
+                    post.NetVotes - 1;
+                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+            }
+            return response;
+        }
+
+        public async Task<OperationResult<FlagResponse>> FlagPhoto(int position)
+        {
+            var post = Posts[position];
+            var flagRequest = new FlagRequest(User.UserInfo, post.Flag, post.Url);
+            var flagResponse = await Api.Flag(flagRequest);
+            if (flagResponse.Success)
+            {
+                post.Flag = flagResponse.Result.IsFlagged;
+                if (flagResponse.Result.IsFlagged)
+                {
+                    if (post.Vote)
+                        if (post.NetVotes == 1)
+                            post.NetVotes = -1;
+                        else
+                            post.NetVotes--;
+                    post.Vote = false;
+                }
+            }
+            return flagResponse;
         }
 
         public async Task<OperationResult<LogoutResponse>> Logout()
