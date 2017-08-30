@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -15,12 +14,12 @@ namespace Steepshot.Fragment
 	{
 		private VotersPresenter _presenter;
 		private VotersAdapter _votersAdapter;
+        private string _url;
 
 #pragma warning disable 0649, 4014
 		[InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
 		[InjectView(Resource.Id.followers_list)] private RecyclerView _votersList;
 		[InjectView(Resource.Id.Title)] private TextView _viewTitle;
-		[InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
 		protected override void CreatePresenter()
@@ -44,14 +43,15 @@ namespace Steepshot.Fragment
 				return;
 			 base.OnViewCreated(view, savedInstanceState);
 			_viewTitle.Text = "Voters";
-			var url = Activity.Intent.GetStringExtra("url");
+			_url = Activity.Intent.GetStringExtra("url");
 			_votersAdapter = new VotersAdapter(Activity, _presenter.Users);
 			_votersAdapter.Click += OnClick;
 			_votersList.SetAdapter(_votersAdapter);
-			_votersList.AddOnScrollListener(new VotersScrollListener(_presenter, url));
+            var scrollListner = new VotersScrollListener();
+            scrollListner.ScrolledToBottom += LoadVoters;
+			_votersList.AddOnScrollListener(scrollListner);
 			_votersList.SetLayoutManager(new LinearLayoutManager(Activity));
-			_presenter.VotersLoaded += OnPostLoaded;
-			_presenter.GetItems(url);
+            LoadVoters();
 		}
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -60,15 +60,18 @@ namespace Steepshot.Fragment
 			Activity.OnBackPressed();
 		}
 
-		private void OnPostLoaded()
-		{
-			Activity.RunOnUiThread(() =>
+        private void LoadVoters()
+        {
+			_presenter.GetItems(_url).ContinueWith((errors) =>
+			{
+				Activity.RunOnUiThread(() =>
 				{
 					if (_bar != null)
 						_bar.Visibility = ViewStates.Gone;
 					_votersAdapter?.NotifyDataSetChanged();
 				});
-		}
+			});
+        }
 
 		private void OnClick(int pos)
 		{
@@ -84,15 +87,9 @@ namespace Steepshot.Fragment
 
 	public class VotersScrollListener : RecyclerView.OnScrollListener
 	{
-	    readonly VotersPresenter _presenter;
-		private readonly string _url;
+        public event VoidDelegate ScrolledToBottom;
+		private int _prevPos;
 
-		public VotersScrollListener(VotersPresenter presenter, string url)
-		{
-			_presenter = presenter;
-			_url = url;
-		}
-		int _prevPos;
 		public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
 		{
 			var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
@@ -102,16 +99,11 @@ namespace Steepshot.Fragment
 				{
 					if (pos < ((VotersAdapter)recyclerView.GetAdapter()).ItemCount)
 					{
-						Task.Run(() => _presenter.GetItems(_url));
+                        ScrolledToBottom?.Invoke();
 						_prevPos = pos;
 					}
 				}
 			}
-		}
-
-		public override void OnScrollStateChanged(RecyclerView recyclerView, int newState)
-		{
-
 		}
 	}
 }

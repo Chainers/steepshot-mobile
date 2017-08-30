@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
@@ -52,7 +51,6 @@ namespace Steepshot.iOS.Views
                     GetItems();
             };
 
-            _presenter.VotersLoaded += OnPostLoaded;
             GetItems();
         }
 
@@ -76,30 +74,16 @@ namespace Steepshot.iOS.Views
             try
             {
                 progressBar.StartAnimating();
-                await _presenter.GetItems(PostUrl);
-                /*
-                var request = new InfoRequest(PostUrl)
+                await _presenter.GetItems(PostUrl).ContinueWith((g) =>
                 {
-                    Offset = _offsetUrl,
-                    Limit = 50
-                };
-
-                var response = await Api.GetPostVoters(request);
-                if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
-                {
-                    var lastItem = response.Result.Results.Last();
-
-                    if (response.Result.Results.Last().Username == _offsetUrl)
-                        _hasItems = false;
-                    else
-                        response.Result.Results.Remove(lastItem);
-
-                    _offsetUrl = lastItem.Username;
-                    _tableSource.TableItems.AddRange(response.Result.Results);
-                    votersTable.ReloadData();
-                }
-                else if (response.Errors.Count > 0)
-                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);*/
+                    var errors = g.Result;
+                    InvokeOnMainThread(() => {
+                        if(errors != null && errors.Count > 0)
+                            ShowAlert(errors[0]);
+						votersTable.ReloadData();
+						progressBar.StopAnimating();
+                    });
+                });
             }
             catch (Exception ex)
             {
