@@ -16,11 +16,9 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        //public static BasePresenter.User BasePresenter.User { get; set; }
         public static KnownChains Chain { get; set; }
         public static List<string> TagsList { get; set; }
         public static string AppVersion { get; set; }
-
 
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
         private static readonly Dictionary<string, double> CurencyConvertationDic;
