@@ -25,7 +25,6 @@ namespace Steepshot.iOS.Views
 		}
 
         public string PostUrl;
-        private string _offsetUrl;
         private bool _hasItems = true;
         private VotersTableViewSource _tableSource = new VotersTableViewSource();
 
@@ -45,10 +44,10 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
 
-            _tableSource.ScrolledToBottom += () =>
+            _tableSource.ScrolledToBottom += async () =>
             {
                 if (_hasItems)
-                    GetItems();
+                    await GetItems();
             };
 
             GetItems();

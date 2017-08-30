@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,12 +9,11 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class FeedPresenter : BasePresenter
+    public class FeedPresenter : BaseFeedPresenter
     {
         private readonly bool _isFeed;
         public event VoidDelegate PostsLoaded;
         public event VoidDelegate PostsCleared;
-        public List<Post> Posts = new List<Post>();
         private CancellationTokenSource _cts;
         private PostType _type = PostType.Top;
         public bool Processing;
@@ -177,11 +174,7 @@ namespace Steepshot.Core.Presenters
                                 _hasItems = false;
 
                             _offsetUrl = lastItem.Url;
-
-                            foreach (var item in posts.Result.Results)
-                            {
-                                Posts.Add(item);
-                            }
+                            Posts.AddRange(posts.Result.Results);
                         }
                         PostsLoaded?.Invoke();
                     }
@@ -195,53 +188,6 @@ namespace Steepshot.Core.Presenters
             {
                 Processing = false;
             }
-        }
-
-        public async Task<OperationResult<VoteResponse>> Vote(int position)
-        {
-			//if (!User.IsAuthenticated)
-			//return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
-			var post = Posts[position];
-
-			var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
-            var response = await Api.Vote(voteRequest);
-            if(response.Success)
-            {
-                post.Vote = !Posts[position].Vote;
-
-                post.NetVotes = (post.Vote) ?
-                    post.NetVotes + 1 :
-                    post.NetVotes - 1;
-                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
-            }
-            return response;
-        }
-
-        public async Task<OperationResult<FlagResponse>> FlagPhoto(int position)
-        {
-            var post = Posts[position];
-            var flagRequest = new FlagRequest(User.UserInfo, post.Flag, post.Url);
-            var flagResponse = await Api.Flag(flagRequest);
-            if (flagResponse.Success)
-            {
-                post.Flag = flagResponse.Result.IsFlagged;
-                if (flagResponse.Result.IsFlagged)
-                {
-                    if (post.Vote)
-                        if (post.NetVotes == 1)
-                            post.NetVotes = -1;
-                        else
-                            post.NetVotes--;
-                    post.Vote = false;
-                }
-            }
-            return flagResponse;
-        }
-
-        public async Task<OperationResult<LogoutResponse>> Logout()
-        {
-            var request = new AuthorizedRequest(User.UserInfo);
-            return await Api.Logout(request);
         }
     }
 }
