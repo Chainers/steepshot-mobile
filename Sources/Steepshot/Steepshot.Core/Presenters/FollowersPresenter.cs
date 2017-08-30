@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Steepshot.Core.Models;
@@ -12,49 +12,44 @@ namespace Steepshot.Core.Presenters
 {
     public class FollowersPresenter : BasePresenter
     {
-        public readonly ObservableCollection<UserFriendViewMode> Collection = new ObservableCollection<UserFriendViewMode>();
+        public readonly List<UserFriend> Users = new List<UserFriend>();
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private readonly int _itemsLimit = 60;
 
-        public void ViewLoad(FollowType friendsType, string username)
+        public async Task<List<string>> GetItems(FriendsType followType, string username)
         {
-            if (Collection.Count == 0)
-                Task.Run(() => GetItems(friendsType, username));
-        }
-
-        public async Task GetItems(FollowType followType, string username)
-        {
+            List<string> errors = null;
             try
             {
                 if (!_hasItems)
-                    return;
-                var request = new UserFriendsRequest(username, followType == FollowType.Follow ? FriendsType.Followers : FriendsType.Following)
+                    return errors;
+                var request = new UserFriendsRequest(username, followType)
                 {
                     Login = User.Login,
                     Offset = _offsetUrl,
                     Limit = _itemsLimit
                 };
 
-                var responce = await Api.GetUserFriends(request);
-                //TODO:KOA -- Errors not processed
-                if (responce.Success && responce.Result?.Results != null && responce.Result.Results.Count > 0)
+                var response = await Api.GetUserFriends(request);
+                errors = response.Errors;
+                if (response.Success && response.Result?.Results != null && response.Result.Results.Count > 0)
                 {
-                    var lastItem = responce.Result.Results.Last();
+                    var lastItem = response.Result.Results.Last();
                     if (lastItem.Author != _offsetUrl)
-                        responce.Result.Results.Remove(lastItem);
+                        response.Result.Results.Remove(lastItem);
                     else
                         _hasItems = false;
 
                     _offsetUrl = lastItem.Author;
-                    foreach (var item in responce.Result.Results)
-                        Collection.Add(new UserFriendViewMode(item, item.HasFollowed));
+                    Users.AddRange(response.Result.Results);
                 }
             }
             catch (Exception ex)
             {
                 Reporter.SendCrash(ex, User.Login, AppVersion);
             }
+            return errors;
         }
 
         public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
