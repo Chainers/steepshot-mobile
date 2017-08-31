@@ -30,7 +30,7 @@ namespace Steepshot.Core.Presenters
             int diezid = post.Url.IndexOf('#');
             string posturl = post.Url.Substring(diezid + 1);
 
-            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, posturl);
+            var voteRequest = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, posturl);
             return await Api.Vote(voteRequest);
         }
 
