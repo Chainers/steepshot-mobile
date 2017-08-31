@@ -15,7 +15,7 @@ namespace Steepshot.iOS.ViewSources
 
         public bool IsGrid = true;
         public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
+        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
         public event HeaderTappedHandler GoToProfile;
         public event HeaderTappedHandler GoToComments;
         public event HeaderTappedHandler GoToVoters;

@@ -26,7 +26,7 @@ namespace Steepshot.iOS.Cells
 
         private bool _isButtonBinded;
         public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<FlagResponse>> Flagged;
+        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
         public event HeaderTappedHandler GoToProfile;
         public event HeaderTappedHandler GoToComments;
         public event HeaderTappedHandler GoToVoters;
@@ -127,7 +127,7 @@ namespace Steepshot.iOS.Cells
             {
                 if (url == _currentPost.Url && post.Success)
                 {
-                    likeButton.Selected = post.Result.IsVoted;
+                    likeButton.Selected = post.Result.IsSucces;
                     flagButton.Selected = _currentPost.Flag;
                     rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
@@ -143,7 +143,7 @@ namespace Steepshot.iOS.Cells
             {
                 if (url == _currentPost.Url && post.Success)
                 {
-                    flagButton.Selected = post.Result.IsFlagged;
+                    flagButton.Selected = post.Result.IsSucces;
                     likeButton.Selected = _currentPost.Vote;
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
                     rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);

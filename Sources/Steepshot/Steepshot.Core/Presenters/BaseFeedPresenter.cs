@@ -14,7 +14,7 @@ namespace Steepshot.Core.Presenters
 		{
 			var post = Posts[position];
 
-			var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
+			var voteRequest = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
 			var response = await Api.Vote(voteRequest);
 			if (response.Success)
 			{
@@ -33,15 +33,15 @@ namespace Steepshot.Core.Presenters
 			return response;
 		}
 
-		public async Task<OperationResult<FlagResponse>> FlagPhoto(int position)
+		public async Task<OperationResult<VoteResponse>> FlagPhoto(int position)
 		{
 			var post = Posts[position];
-			var flagRequest = new FlagRequest(User.UserInfo, post.Flag, post.Url);
-			var flagResponse = await Api.Flag(flagRequest);
+			var flagRequest = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
+			var flagResponse = await Api.Vote(flagRequest);
 			if (flagResponse.Success)
 			{
-				post.Flag = flagResponse.Result.IsFlagged;
-				if (flagResponse.Result.IsFlagged)
+				post.Flag = flagResponse.Result.IsSucces;
+				if (flagResponse.Result.IsSucces)
 				{
 					if (post.Vote)
 						if (post.NetVotes == 1)
