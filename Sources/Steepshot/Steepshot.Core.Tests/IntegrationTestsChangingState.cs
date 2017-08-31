@@ -44,7 +44,7 @@ namespace Steepshot.Core.Tests
             const string title = "Лучший камент ever";
             var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, title);
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest).Result;
-            //AssertResult(createCommentResponse);
+            AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);
             Assert.That(createCommentResponse.Result.Message, Is.EqualTo("Comment created"));
 
