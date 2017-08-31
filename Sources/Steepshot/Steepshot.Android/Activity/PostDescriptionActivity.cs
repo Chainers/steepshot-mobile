@@ -185,31 +185,31 @@ namespace Steepshot.Activity
                       if (bitmap == null)
                           return null;
 
-                      var t = bitmap.ByteCount;
-                      var t2 = bitmap.AllocationByteCount;
-                      var t3 = bitmap.RowBytes;
+                      var fi = new FileInfo(path);
+                      var cmpr = 100;
+                      if (fi.Length > 5000000) 
+                          cmpr = 30;
+                      else if (fi.Length > 3000000)
+                          cmpr = 40;
+                      else if (fi.Length > 2000000)
+                          cmpr = 50;
+                      else if (fi.Length > 1600000)
+                          cmpr = 60;
+                      else if (fi.Length > 1400000)
+                          cmpr = 70;
+                      else if (fi.Length > 1200000)
+                          cmpr = 80;
+                      else if (fi.Length > 1000000)
+                          cmpr = 90;
 
                       using (var stream = new MemoryStream())
                       {
-                          var cmpr = 100;
-                          do
+                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, cmpr, stream))
                           {
-                              if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, cmpr, stream))
-                              {
-                                  var outbytes = stream.ToArray();
-
-                                  if (outbytes.Length < 1000000)
-                                  {
-                                      bitmap.Recycle();
-                                      return outbytes;
-                                  }
-                                  if (cmpr > 10)
-                                  {
-                                      cmpr -= 10;
-                                  }
-                              }
-
-                          } while (true);
+                              var outbytes = stream.ToArray();
+                              bitmap.Recycle();
+                              return outbytes;
+                          }
                       }
                   }
                   catch (Exception ex)
