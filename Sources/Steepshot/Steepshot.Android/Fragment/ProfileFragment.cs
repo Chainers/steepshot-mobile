@@ -109,8 +109,9 @@ namespace Steepshot.Fragment
                     return;
                 if (resp.Errors.Count == 0)
                 {
-                    _followBtn.Text = (resp.Result.IsFollowed) ? GetString(
-                        Resource.String.text_unfollow) : GetString(Resource.String.text_follow);
+                    _followBtn.Text = resp.Result.IsSuccess
+                        ? GetString(Resource.String.text_unfollow)
+                        : GetString(Resource.String.text_follow);
                 }
                 else
                 {
