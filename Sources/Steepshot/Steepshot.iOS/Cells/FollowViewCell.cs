@@ -4,6 +4,7 @@ using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -37,7 +38,7 @@ namespace Steepshot.iOS.Cells
             followButton.Layer.BorderWidth = 2;
             followButton.Layer.BorderColor = Constants.Blue.CGColor;
             followButton.ContentEdgeInsets = new UIEdgeInsets(10, 10, 10, 10);
-            followButton.Hidden = !BaseViewController.User.IsAuthenticated || _currentUser.Author == BaseViewController.User.Login;
+            followButton.Hidden = !BasePresenter.User.IsAuthenticated || _currentUser.Author == BasePresenter.User.Login;
             base.LayoutSubviews();
         }
 

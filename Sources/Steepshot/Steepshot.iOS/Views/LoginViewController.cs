@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -19,6 +20,12 @@ namespace Steepshot.iOS.Views
 
         public LoginViewController() { }
 
+		protected override void CreatePresenter()
+		{
+			_presenter = new SignInPresenter();
+		}
+
+        private SignInPresenter _presenter;
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 
@@ -108,14 +115,12 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var request = new AuthorizedRequest(Username, password.Text);
-                var response = await Api.LoginWithPostingKey(request);
-
+                var response = await _presenter.SignIn(Username, password.Text);
                 if (response.Success)
                 {
 
-                    User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
-                    IsHomeFeedLoaded = false;
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
+
                     var myViewController = new MainTabBarController();
 
                     NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
@@ -132,7 +137,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
