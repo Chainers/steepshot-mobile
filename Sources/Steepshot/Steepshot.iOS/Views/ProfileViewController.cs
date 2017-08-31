@@ -335,25 +335,8 @@ namespace Steepshot.iOS.Views
             {
                 var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUri));
                 if (voteResponse.Success)
-                {
                     collectionView.ReloadData();
-                    /*
-                    var u = _presenter.Posts.FirstOrDefault(p => p.Url == postUri);
-                    if (u != null)
-                    {
-                        u.Vote = vote;
-                        if (vote)
-                        {
-                            u.Flag = false;
-                            if (u.NetVotes == -1)
-                                u.NetVotes = 1;
-                            else
-                                u.NetVotes++;
-                        }
-                        else
-                            u.NetVotes--;
-                    }*/
-                }
+                
                 else
                     ShowAlert(voteResponse.Errors[0]);
                 
@@ -440,9 +423,8 @@ namespace Steepshot.iOS.Views
 
         public async Task Follow()
         {
-            //var request = new FollowRequest(BasePresenter.User.UserInfo, (_userData.HasFollowed == 0) ? FollowType.Follow : FollowType.UnFollow, _userData.Username);
             var resp = await _presenter.Follow(_userData.HasFollowed);
-            if (resp.Errors.Count == 0)
+            if (resp.Success)
             {
                 _userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
                 ToogleFollowButton();
@@ -459,10 +441,17 @@ namespace Steepshot.iOS.Views
 
         private void ToogleFollowButton()
         {
-            if (!BasePresenter.User.IsAuthenticated || Username == BasePresenter.User.Login || Convert.ToBoolean(_userData.HasFollowed))
+            if (!BasePresenter.User.IsAuthenticated || Username == BasePresenter.User.Login)
             {
                 _profileHeader.FollowButtonWidth.Constant = 0;
                 _profileHeader.FollowButtonMargin.Constant = 0;
+            }
+            else
+            {
+                if (_userData.HasFollowed == 0)
+                    _profileHeader.FollowButton.SetTitle("FOLLOW", UIControlState.Normal);
+                else
+                    _profileHeader.FollowButton.SetTitle("UNFOLLOW", UIControlState.Normal);
             }
         }
     }
