@@ -91,10 +91,8 @@
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\TagLayout.cs" />
-    <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
-    <Compile Include="Fragment\CameraFragment.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
     <Compile Include="Fragment\FollowingFragment.cs" />
     <Compile Include="Fragment\PhotoFragment.cs" />
