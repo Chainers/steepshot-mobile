@@ -39,9 +39,9 @@ namespace Steepshot.iOS.Views
 
             _tableSource.GoToProfile += (username) =>
             {
-				var myViewController = new ProfileViewController();
-				myViewController.Username = username;
-				NavigationController.PushViewController(myViewController, true);
+                var myViewController = new ProfileViewController();
+                myViewController.Username = username;
+                NavigationController.PushViewController(myViewController, true);
             };
 
             commentsTable.RowHeight = UITableView.AutomaticDimension;
@@ -58,7 +58,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if(IsMovingFromParentViewController)
+            if (IsMovingFromParentViewController)
                 NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
@@ -100,7 +100,7 @@ namespace Steepshot.iOS.Views
                 int diezid = postUrl.IndexOf('#');
                 string posturl = postUrl.Substring(diezid + 1);
 
-                var voteRequest = new VoteRequest(User.UserInfo, vote, posturl);
+                var voteRequest = new VoteRequest(User.UserInfo, vote ? VoteType.Up : VoteType.Down, posturl);
                 var response = await Api.Vote(voteRequest);
                 if (response.Success)
                 {

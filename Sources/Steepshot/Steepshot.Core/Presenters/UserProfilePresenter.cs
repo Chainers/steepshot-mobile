@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
@@ -63,8 +62,8 @@ namespace Steepshot.Core.Presenters
                     Login = User.Login,
                     Offset = _offsetUrl,
                     Limit = PostsCount,
-					ShowNsfw = User.IsNsfw,
-					ShowLowRated = User.IsLowRated
+                    ShowNsfw = User.IsNsfw,
+                    ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
 
@@ -97,7 +96,7 @@ namespace Steepshot.Core.Presenters
             if (!User.IsAuthenticated)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
 
-            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
+            var voteRequest = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             return await Api.Vote(voteRequest);
         }
 
