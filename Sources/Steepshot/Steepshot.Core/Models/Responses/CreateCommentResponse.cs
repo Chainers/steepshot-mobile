@@ -10,7 +10,6 @@ namespace Steepshot.Core.Models.Responses
         public CreateCommentResponse(bool isCreated)
         {
             _isCreated = isCreated;
-            Message = ServerPositiveResponceMsg;
         }
     }
 }

@@ -6,6 +6,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -16,6 +17,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class PostTagsViewController : BaseViewController
     {
+        TagsPresenter _presenter;
         protected PostTagsViewController(IntPtr handle) : base(handle)
         {
             // Note: this .ctor should not contain any initialization logic.
@@ -24,7 +26,10 @@ namespace Steepshot.iOS.Views
         public PostTagsViewController()
         {
         }
-
+		protected override void CreatePresenter()
+		{
+			_presenter = new TagsPresenter();
+		}
         private TagsCollectionViewSource _collectionviewSource;
         private CancellationTokenSource _cts;
         private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
@@ -110,13 +115,11 @@ namespace Steepshot.iOS.Views
                     OperationResult<SearchResponse<SearchResult>> response;
                     if (string.IsNullOrEmpty(query))
                     {
-                        var request = new OffsetLimitFields();
-                        response = await Api.GetCategories(request, _cts);
+                        response = await _presenter.GetTopTags();
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query);
-                        response = await Api.SearchCategories(request, _cts);
+                        response = await _presenter.SearchTags(query);
                     }
                     if (response.Success)
                     {
@@ -125,12 +128,12 @@ namespace Steepshot.iOS.Views
                         tagsTable.ReloadData();
                     }
                     else
-                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0], User.Login, AppVersion);
+                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 

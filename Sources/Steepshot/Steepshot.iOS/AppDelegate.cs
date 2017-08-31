@@ -4,6 +4,7 @@ using Autofac;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Services;
@@ -14,7 +15,7 @@ using UIKit;
 namespace Steepshot.iOS
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the
-    // User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
+    // BasePresenter.User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
@@ -50,15 +51,12 @@ namespace Steepshot.iOS
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            if (BaseViewController.User.IsAuthenticated)
-            {
+            if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
-            }
+            
             else
-            {
-                BaseViewController.IsHomeFeedLoaded = true;
                 InitialViewController = new FeedViewController();
-            }
+            
             var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
@@ -78,14 +76,14 @@ namespace Steepshot.iOS
 			} */
             // Invoked when the application is about to move from active to inactive state.
             // This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) 
-            // or when the user quits the application and it begins the transition to the background state.
+            // or when the BasePresenter.User quits the application and it begins the transition to the background state.
             // Games should use this method to pause the game.
         }
 
         public override void DidEnterBackground(UIApplication application)
         {
-            // Use this method to release shared resources, save user data, invalidate timers and store the application state.
-            // If your application supports background exection this method is called instead of WillTerminate when the user quits.
+            // Use this method to release shared resources, save BasePresenter.User data, invalidate timers and store the application state.
+            // If your application supports background exection this method is called instead of WillTerminate when the BasePresenter.User quits.
         }
 
         public override void WillEnterForeground(UIApplication application)
@@ -97,7 +95,7 @@ namespace Steepshot.iOS
         public override void OnActivated(UIApplication application)
         {
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
-            // If the application was previously in the background, optionally refresh the user interface.
+            // If the application was previously in the background, optionally refresh the BasePresenter.User interface.
         }
 
         public override void WillTerminate(UIApplication application)

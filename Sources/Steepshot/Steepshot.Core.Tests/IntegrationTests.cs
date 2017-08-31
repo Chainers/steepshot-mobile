@@ -173,7 +173,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new NamedRequestWithOffsetLimitFields
+            var request = new CensoredPostsRequests
             {
                 Login = user.Login
             };
@@ -193,7 +193,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new NamedRequestWithOffsetLimitFields
+            var request = new CensoredPostsRequests
             {
                 Login = user.Login
             };
@@ -441,7 +441,7 @@ namespace Steepshot.Core.Tests
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Authenticate(name), true, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), VoteType.Up, lastPost.Url);
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -464,7 +464,7 @@ namespace Steepshot.Core.Tests
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Authenticate(name), false, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), VoteType.Down, lastPost.Url);
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -482,7 +482,7 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier1([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(name), true, "qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe");
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -496,7 +496,7 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier2([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(name), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/qwe");
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -510,7 +510,7 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier3([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(name), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/qwe");
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -524,7 +524,7 @@ namespace Steepshot.Core.Tests
         public void Vote_Invalid_Identifier4([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new VoteRequest(Authenticate(name), true, "qwe/@qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/@qwe");
 
             // Act
             var response = Api[name].Vote(request).Result;
@@ -543,11 +543,11 @@ namespace Steepshot.Core.Tests
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new FlagRequest(Authenticate(name), true, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), VoteType.Flag, lastPost.Url);
 
             // Act
-            var response = Api[name].Flag(request).Result;
-            var response2 = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
+            var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -565,11 +565,11 @@ namespace Steepshot.Core.Tests
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
-            var request = new FlagRequest(Authenticate(name), false, lastPost.Url);
+            var request = new VoteRequest(Authenticate(name), VoteType.Down, lastPost.Url);
 
             // Act
-            var response = Api[name].Flag(request).Result;
-            var response2 = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
+            var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
@@ -583,10 +583,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier1([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(name), true, "qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe");
 
             // Act
-            var response = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -597,10 +597,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier2([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(name), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -611,10 +611,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier3([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(name), true, "qwe/qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
@@ -625,10 +625,10 @@ namespace Steepshot.Core.Tests
         public void Flag_Invalid_Identifier4([Values("Steem", "Golos")] string name)
         {
             // Arrange
-            var request = new FlagRequest(Authenticate(name), true, "qwe/@qwe");
+            var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/@qwe");
 
             // Act
-            var response = Api[name].Flag(request).Result;
+            var response = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response);
