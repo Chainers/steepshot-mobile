@@ -1,5 +1,5 @@
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -7,19 +7,18 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Core.Models;
-
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Adapter
 {
     public class FollowersAdapter : RecyclerView.Adapter
     {
-        private readonly ObservableCollection<UserFriendViewMode> _collection;
+        private readonly List<UserFriend> _collection;
         private readonly Context _context;
         public Action<int> FollowAction;
         public Action<int> UserAction;
 
-        public FollowersAdapter(Context context, ObservableCollection<UserFriendViewMode> collection)
+        public FollowersAdapter(Context context, List<UserFriend> collection)
         {
             _context = context;
             _collection = collection;
@@ -33,10 +32,10 @@ namespace Steepshot.Adapter
 
         public void InverseFollow(int pos)
         {
-            _collection[pos].IsFollow = !_collection[pos].IsFollow;
+            _collection[pos].HasFollowed = !_collection[pos].HasFollowed;
         }
 
-        public UserFriendViewMode GetItem(int position)
+        public UserFriend GetItem(int position)
         {
             return _collection[position];
         }
@@ -75,7 +74,7 @@ namespace Steepshot.Adapter
             public TextView Reputation { get; }
             private AppCompatButton FollowUnfollow { get; }
 
-            private UserFriendViewMode _userFriendst;
+            private UserFriend _userFriendst;
             private readonly Action<int> _followAction;
             private readonly Action<int> _userAction;
 
@@ -103,7 +102,7 @@ namespace Steepshot.Adapter
             void Follow_Click(object sender, EventArgs e)
             {
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriendst.IsFollow);
+                CheckFollow(this, !_userFriendst.HasFollowed);
             }
 
             private void CheckFollow(FollowersViewHolder vh, bool follow)
@@ -123,10 +122,10 @@ namespace Steepshot.Adapter
                 }
             }
 
-            public void UpdateData(UserFriendViewMode userFriendst)
+            public void UpdateData(UserFriend userFriendst)
             {
                 _userFriendst = userFriendst;
-                CheckFollow(this, _userFriendst.IsFollow);
+                CheckFollow(this, _userFriendst.HasFollowed);
             }
         }
     }

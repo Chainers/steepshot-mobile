@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -14,13 +14,17 @@ namespace Steepshot.iOS.Views
     public partial class VotersViewController : BaseViewController
     {
         protected VotersViewController(IntPtr handle) : base(handle) { }
-
+        private VotersPresenter _presenter;
         public VotersViewController()
         {
         }
 
+		protected override void CreatePresenter()
+		{
+			_presenter = new VotersPresenter();
+		}
+
         public string PostUrl;
-        private string _offsetUrl;
         private bool _hasItems = true;
         private VotersTableViewSource _tableSource = new VotersTableViewSource();
 
@@ -32,6 +36,7 @@ namespace Steepshot.iOS.Views
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
+            _tableSource.TableItems = _presenter.Users;
             _tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
@@ -39,13 +44,19 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
 
-            _tableSource.ScrolledToBottom += () =>
+            _tableSource.ScrolledToBottom += async () =>
             {
                 if (_hasItems)
-                    GetItems();
+                    await GetItems();
             };
 
             GetItems();
+        }
+
+        private void OnPostLoaded()
+        {
+            votersTable.ReloadData();
+            progressBar.StopAnimating();
         }
 
         public override void ViewWillAppear(bool animated)
@@ -62,32 +73,20 @@ namespace Steepshot.iOS.Views
             try
             {
                 progressBar.StartAnimating();
-                var request = new InfoRequest(PostUrl)
+                await _presenter.GetItems(PostUrl).ContinueWith((g) =>
                 {
-                    Offset = _offsetUrl,
-                    Limit = 50
-                };
-
-                var response = await Api.GetPostVoters(request);
-                if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
-                {
-                    var lastItem = response.Result.Results.Last();
-
-                    if (response.Result.Results.Last().Username == _offsetUrl)
-                        _hasItems = false;
-                    else
-                        response.Result.Results.Remove(lastItem);
-
-                    _offsetUrl = lastItem.Username;
-                    _tableSource.TableItems.AddRange(response.Result.Results);
-                    votersTable.ReloadData();
-                }
-                else if (response.Errors.Count > 0)
-                    Reporter.SendCrash("Voters page get items error: " + response.Errors[0], User.Login, AppVersion);
+                    var errors = g.Result;
+                    InvokeOnMainThread(() => {
+                        if(errors != null && errors.Count > 0)
+                            ShowAlert(errors[0]);
+						votersTable.ReloadData();
+						progressBar.StopAnimating();
+                    });
+                });
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
