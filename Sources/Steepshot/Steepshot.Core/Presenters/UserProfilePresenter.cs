@@ -91,7 +91,7 @@ namespace Steepshot.Core.Presenters
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
-                //userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
+                //userData.HasFollowed = (resp.Result.IsSuccess) ? 1 : 0;
             }
             return resp;
         }

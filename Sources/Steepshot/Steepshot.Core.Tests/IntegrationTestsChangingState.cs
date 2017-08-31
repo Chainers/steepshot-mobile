@@ -46,7 +46,6 @@ namespace Steepshot.Core.Tests
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest).Result;
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);
-            Assert.That(createCommentResponse.Result.Message, Is.EqualTo("Comment created"));
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -135,7 +134,7 @@ namespace Steepshot.Core.Tests
             var followRequest = new FollowRequest(user, FollowType.Follow, followUser);
             var followResponse = Api[apiName].Follow(followRequest).Result;
             AssertResult(followResponse);
-            Assert.That(followResponse.Result.IsFollowed, Is.True);
+            Assert.That(followResponse.Result.IsSuccess, Is.True);
 
             // 8) UnFollow
             // Wait for data to be writed into blockchain
@@ -143,7 +142,7 @@ namespace Steepshot.Core.Tests
             var unfollowRequest = new FollowRequest(user, FollowType.UnFollow, followUser);
             var unfollowResponse = Api[apiName].Follow(unfollowRequest).Result;
             AssertResult(unfollowResponse);
-            Assert.That(unfollowResponse.Result.IsFollowed, Is.False);
+            Assert.That(unfollowResponse.Result.IsSuccess, Is.False);
 
             // 9) Logout
             var logoutRequest = new AuthorizedRequest(user);

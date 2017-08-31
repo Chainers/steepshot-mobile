@@ -48,7 +48,6 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response);
             Assert.That(response.Result.IsLoggedIn, Is.True);
-            Assert.That("User was logged in.", Is.EqualTo(response.Result.Message));
             user.SessionId = response.Result.SessionId;
             return user;
         }
