@@ -1,4 +1,5 @@
 ﻿using System;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -18,7 +19,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BaseViewController.User.Login, BaseViewController.AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, BaseViewController.AppVersion);
             }
         }
     }

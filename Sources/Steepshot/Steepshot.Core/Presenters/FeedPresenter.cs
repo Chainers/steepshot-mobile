@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +9,22 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class FeedPresenter : BasePresenter
+    public class FeedPresenter : BaseFeedPresenter
     {
         private readonly bool _isFeed;
         public event VoidDelegate PostsLoaded;
         public event VoidDelegate PostsCleared;
-        public List<Post> Posts = new List<Post>();
         private CancellationTokenSource _cts;
         private PostType _type = PostType.Top;
         public bool Processing;
         private bool _hasItems = true;
+		public bool HasItems
+		{
+			get
+			{
+				return _hasItems;
+			}
+		}
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 20;
         public string Tag;
@@ -37,10 +41,10 @@ namespace Steepshot.Core.Presenters
 
         public async Task ViewLoad()
         {
-            if (Posts.Count == 0)
-                await GetTopPosts(_type, true);
+			if (Posts.Count == 0)
+				await GetTopPosts(_type, true);
         }
-
+        
         public void ClearPosts()
         {
             Posts.Clear();
@@ -48,8 +52,6 @@ namespace Steepshot.Core.Presenters
             _offsetUrl = string.Empty;
             PostsCleared?.Invoke();
         }
-
-
 
         public async Task GetTopPosts(PostType type, bool clearOld = false)
         {
@@ -91,8 +93,8 @@ namespace Steepshot.Core.Presenters
                             Login = User.Login,
                             Limit = PostsCount,
                             Offset = _offsetUrl,
-                            ShowNsfw = User.IsNsfw,
-                            ShowLowRated = User.IsLowRated
+							ShowNsfw = User.IsNsfw,
+							ShowLowRated = User.IsLowRated
                         };
                         response = await Api.GetPosts(postrequest, _cts);
                     }
@@ -155,8 +157,8 @@ namespace Steepshot.Core.Presenters
                         Login = User.Login,
                         Limit = PostsCount,
                         Offset = _offsetUrl,
-                        ShowNsfw = User.IsNsfw,
-                        ShowLowRated = User.IsLowRated
+						ShowNsfw = User.IsNsfw,
+						ShowLowRated = User.IsLowRated
                     };
 
                     var posts = await Api.GetPostsByCategory(postrequest, _cts);
@@ -172,11 +174,7 @@ namespace Steepshot.Core.Presenters
                                 _hasItems = false;
 
                             _offsetUrl = lastItem.Url;
-
-                            foreach (var item in posts.Result.Results)
-                            {
-                                Posts.Add(item);
-                            }
+                            Posts.AddRange(posts.Result.Results);
                         }
                         PostsLoaded?.Invoke();
                     }
@@ -190,21 +188,6 @@ namespace Steepshot.Core.Presenters
             {
                 Processing = false;
             }
-        }
-
-        public async Task<OperationResult<VoteResponse>> Vote(Post post)
-        {
-            if (!User.IsAuthenticated)
-                return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
-
-            var voteRequest = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
-            return await Api.Vote(voteRequest);
-        }
-
-        public async Task<OperationResult<LogoutResponse>> Logout()
-        {
-            var request = new AuthorizedRequest(User.UserInfo);
-            return await Api.Logout(request);
         }
     }
 }
