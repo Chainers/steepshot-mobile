@@ -314,8 +314,8 @@ namespace Steepshot.iOS.Views
                     Login = User.Login,
                     Limit = Limit,
                     Offset = _photosList.Count == 0 ? "0" : _offsetUrl,
-					ShowNsfw = User.IsNsfw,
-					ShowLowRated = User.IsLowRated
+                    ShowNsfw = User.IsNsfw,
+                    ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
                 if (response.Success)
@@ -377,7 +377,7 @@ namespace Steepshot.iOS.Views
                     return;
                 }
 
-                var voteRequest = new VoteRequest(User.UserInfo, vote, postUri);
+                var voteRequest = new VoteRequest(User.UserInfo, vote ? VoteType.Up : VoteType.Down, postUri);
                 var voteResponse = await Api.Vote(voteRequest);
                 if (voteResponse.Success)
                 {
@@ -410,7 +410,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
             if (!User.IsAuthenticated)
             {
@@ -420,7 +420,7 @@ namespace Steepshot.iOS.Views
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>())));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
             PresentViewController(actionSheetAlert, true, null);
         }
 
@@ -446,19 +446,19 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
             try
             {
-                var flagRequest = new FlagRequest(User.UserInfo, vote, postUrl);
-                var flagResponse = await Api.Flag(flagRequest);
+                var flagRequest = new VoteRequest(User.UserInfo, vote ? VoteType.Flag : VoteType.Down, postUrl);
+                var flagResponse = await Api.Vote(flagRequest);
                 if (flagResponse.Success)
                 {
                     var u = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
                     if (u != null)
                     {
-                        u.Flag = flagResponse.Result.IsFlagged;
-                        if (flagResponse.Result.IsFlagged)
+                        u.Flag = flagResponse.Result.IsSucces;
+                        if (flagResponse.Result.IsSucces)
                         {
                             if (u.Vote)
                                 if (u.NetVotes == 1)

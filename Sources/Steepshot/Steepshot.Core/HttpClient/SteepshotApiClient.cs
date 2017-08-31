@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.HttpClient
 {
+    [Obsolete("Old Api")]
     public class SteepshotApiClient : BaseClient, ISteepshotApiClient
     {
         public SteepshotApiClient(string url) : base(url) { }
@@ -48,7 +50,7 @@ namespace Steepshot.Core.HttpClient
 
             return result;
         }
-
+        
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);
@@ -102,21 +104,6 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Post("logout", parameters, cts);
             var errorResult = CheckErrors(response);
             return CreateResult<LogoutResponse>(response.Content, errorResult);
-        }
-
-        public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request, CancellationTokenSource cts)
-        {
-            var parameters = CreateSessionParameter(request.SessionId);
-            parameters.Add(new RequestParameter
-            {
-                Key = "application/json",
-                Value = request,
-                Type = ParameterType.RequestBody
-            });
-
-            var response = await Gateway.Post($"post/{request.Identifier}/{request.Type.GetDescription()}", parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<FlagResponse>(response.Content, errorResult);
         }
     }
 }
