@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -52,9 +51,9 @@ namespace Steepshot.Core.Presenters
             return errors;
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow(UserFriendViewMode item)
+        public async Task<OperationResult<FollowResponse>> Follow(UserFriend item)
         {
-            var request = new FollowRequest(User.UserInfo, item.IsFollow ? FollowType.UnFollow : FollowType.Follow, item.Author);
+            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? FollowType.UnFollow : FollowType.Follow, item.Author);
             return await Api.Follow(request);
         }
     }

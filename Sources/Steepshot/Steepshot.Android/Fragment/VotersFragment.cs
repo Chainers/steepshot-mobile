@@ -7,6 +7,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -47,7 +48,7 @@ namespace Steepshot.Fragment
 			_votersAdapter = new VotersAdapter(Activity, _presenter.Users);
 			_votersAdapter.Click += OnClick;
 			_votersList.SetAdapter(_votersAdapter);
-            var scrollListner = new VotersScrollListener();
+            var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadVoters;
 			_votersList.AddOnScrollListener(scrollListner);
 			_votersList.SetLayoutManager(new LinearLayoutManager(Activity));
@@ -82,28 +83,6 @@ namespace Steepshot.Fragment
 		{
 			base.OnDetach();
 			Cheeseknife.Reset(this);
-		}
-	}
-
-	public class VotersScrollListener : RecyclerView.OnScrollListener
-	{
-        public event VoidDelegate ScrolledToBottom;
-		private int _prevPos;
-
-		public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
-		{
-			var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
-			if (pos > _prevPos && pos != _prevPos)
-			{
-				if (pos == recyclerView.GetAdapter().ItemCount - 1)
-				{
-					if (pos < ((VotersAdapter)recyclerView.GetAdapter()).ItemCount)
-					{
-                        ScrolledToBottom?.Invoke();
-						_prevPos = pos;
-					}
-				}
-			}
 		}
 	}
 }
