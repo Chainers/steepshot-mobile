@@ -7,17 +7,23 @@ namespace Steepshot.Core.Models.Requests
 {
     public enum VoteType
     {
-        [Display(Description = "upvote")] Up,
-        [Display(Description = "downvote")] Down
+        [Display(Description = "upvote")]
+        Up,
+
+        [Display(Description = "downvote")]
+        Down,
+
+        [Display(Description = "flag")]
+        Flag
     }
 
     public class VoteRequest : AuthorizedRequest
     {
-        public VoteRequest(UserInfo user, bool isUp, string identifier) : base(user)
+        public VoteRequest(UserInfo user, VoteType type, string identifier) : base(user)
         {
             if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
 
-            Type = isUp ? VoteType.Up : VoteType.Down;
+            Type = type;
             Identifier = identifier;
         }
 

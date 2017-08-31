@@ -21,7 +21,7 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly ChainInfo _chainInfo;
         private readonly JsonNetConverter _jsonConverter;
-        private readonly Regex ErrorMsg = new Regex(@"(?<=[a-z_>=\s]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
+        private readonly Regex _errorMsg = new Regex(@"(?<=[a-z_>=\s]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         private OperationManager _operationManager;
 
         private OperationManager OperationManager => _operationManager ?? (_operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId));
@@ -46,7 +46,8 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, (short)(request.Type == VoteType.Up ? 10000 : 0));
+                var weigth = (short) (request.Type == VoteType.Up ? 10000 : 0);
+                var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, weigth);
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
                 var result = new OperationResult<VoteResponse>();
@@ -171,44 +172,7 @@ namespace Steepshot.Core.HttpClient
                 Result = new LogoutResponse(true)
             });
         }
-
-        public async Task<OperationResult<FlagResponse>> Flag(FlagRequest request, CancellationTokenSource cts)
-        {
-            return await Task.Run(() =>
-            {
-                var result = new OperationResult<FlagResponse>();
-
-                var authAndPermlink = request.Identifier.Remove(0, request.Identifier.LastIndexOf('@') + 1);
-                var authPostArr = authAndPermlink.Split('/');
-                if (authPostArr.Length != 2)
-                {
-                    result.Errors.Add($"Unexpected url format: {request.Identifier}");
-                    return result;
-                }
-
-                var op = new FlagOperation(request.Login, authPostArr[0], authPostArr[1]);
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
-
-                if (!resp.IsError)
-                {
-                    var content = OperationManager.GetContent(authPostArr[0], authPostArr[1]);
-                    if (!content.IsError)
-                    {
-                        result.Result = new FlagResponse(true)
-                        {
-                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
-                        };
-                    }
-                }
-                else
-                {
-                    result.Errors.Add(ParseErrorCode(resp));
-                }
-                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors);
-                return result;
-            });
-        }
-
+        
         #endregion Post requests
 
         private Tuple<string, string> UrlToAuthorAndPermlink(string url)
@@ -295,7 +259,7 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (typedError.Data.Stack.Any())
                                 {
-                                    var match = ErrorMsg.Match(typedError.Data.Stack[0].Format);
+                                    var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
                                     if (match.Success)
                                     {
                                         operationResult.Errors.Add(match.Value);

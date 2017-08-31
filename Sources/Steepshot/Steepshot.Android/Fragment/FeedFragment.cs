@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -171,7 +170,7 @@ namespace Steepshot.Fragment
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    var response = await _presenter.Vote(_presenter.Posts[position]);
+                    var response = await _presenter.Vote(position);
 
                     if (response.Success)
                     {

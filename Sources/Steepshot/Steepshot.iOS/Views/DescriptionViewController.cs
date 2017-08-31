@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Foundation;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -21,7 +22,11 @@ namespace Steepshot.iOS.Views
         public DescriptionViewController()
         {
         }
-
+		protected override void CreatePresenter()
+		{
+			_presenter = new PostDescriptionPresenter();
+		}
+        private PostDescriptionPresenter _presenter;
         public UIImage ImageAsset;
 
         private TagsCollectionViewSource _collectionviewSource;
@@ -98,8 +103,8 @@ namespace Steepshot.iOS.Views
                     Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
                 }
 
-                var request = new UploadImageRequest(User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
-                var imageUploadResponse = await Api.Upload(request);
+				var request = new UploadImageRequest(BasePresenter.User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
+				var imageUploadResponse = await _presenter.Upload(request);
 
                 if (imageUploadResponse.Success)
                 {
@@ -109,13 +114,13 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0], User.Login, AppVersion);
+                    Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
                     ShowAlert(imageUploadResponse.Errors[0]);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {

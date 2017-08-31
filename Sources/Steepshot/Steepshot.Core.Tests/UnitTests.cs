@@ -14,7 +14,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new VoteRequest(new UserInfo { SessionId = "sessionId" }, true, "");
+                new VoteRequest(new UserInfo { SessionId = "sessionId" }, VoteType.Up, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("identifier"));
         }

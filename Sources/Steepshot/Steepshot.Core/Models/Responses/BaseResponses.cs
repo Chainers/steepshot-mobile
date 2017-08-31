@@ -2,7 +2,7 @@
 {
     public class MessageField
     {
-        public string Message { get; set; }
+        protected string Message { get; set; }
     }
 
     public class OffsetCountFields
