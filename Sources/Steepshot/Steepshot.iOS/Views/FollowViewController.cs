@@ -111,7 +111,7 @@ namespace Steepshot.iOS.Views
                 {
                     var user = _tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
                     if (user != null)
-                        success = user.HasFollowed = response.Result.IsFollowed;
+                        success = user.HasFollowed = response.Result.IsSuccess;
                 }
                 else
                     Reporter.SendCrash("Follow page follow error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
