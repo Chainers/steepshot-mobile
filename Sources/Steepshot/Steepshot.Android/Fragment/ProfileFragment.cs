@@ -148,7 +148,7 @@ namespace Steepshot.Fragment
             {
                 if (_feedAdapter == null)
                 {
-                    _feedAdapter = new FeedAdapter(Context, _presenter.UserPosts);
+                    _feedAdapter = new FeedAdapter(Context, _presenter.Posts);
                     _feedAdapter.PhotoClick += OnClick;
                     _feedAdapter.LikeAction += FeedAdapter_LikeAction;
                     _feedAdapter.UserAction += FeedAdapter_UserAction;
@@ -166,7 +166,7 @@ namespace Steepshot.Fragment
             {
                 if (_gridAdapter == null)
                 {
-                    _gridAdapter = new PostsGridAdapter(Context, _presenter.UserPosts);
+                    _gridAdapter = new PostsGridAdapter(Context, _presenter.Posts);
                     _gridAdapter.Click += OnClick;
                 }
                 return _gridAdapter;
@@ -190,7 +190,7 @@ namespace Steepshot.Fragment
         public void OnClick(int position)
         {
             var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra("PhotoURL", _presenter.UserPosts[position].Body);
+            intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
             StartActivity(intent);
         }
 
@@ -296,20 +296,20 @@ namespace Steepshot.Fragment
         void FeedAdapter_CommentAction(int position)
         {
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", _presenter.UserPosts[position].Url);
+            intent.PutExtra("uid", _presenter.Posts[position].Url);
             Context.StartActivity(intent);
         }
 
         void FeedAdapter_VotersAction(int position)
         {
-            Activity.Intent.PutExtra("url", _presenter.UserPosts[position].Url);
+            Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
         void FeedAdapter_UserAction(int position)
         {
-            if (_profileId != _presenter.UserPosts[position].Author)
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.UserPosts[position].Author));
+            if (_profileId != _presenter.Posts[position].Author)
+                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
         }
 
         async void FeedAdapter_LikeAction(int position)
@@ -318,16 +318,16 @@ namespace Steepshot.Fragment
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    var response = await _presenter.Vote(_presenter.UserPosts[position]);
+                    var response = await _presenter.Vote(position);
 
                     if (response.Success)
                     {
-                        _presenter.UserPosts[position].Vote = !_presenter.UserPosts[position].Vote;
+                        _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
                         if (response.Result.IsSucces)
-                            _presenter.UserPosts[position].NetVotes++;
+                            _presenter.Posts[position].NetVotes++;
                         else
-                            _presenter.UserPosts[position].NetVotes--;
-                        _presenter.UserPosts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                            _presenter.Posts[position].NetVotes--;
+                        _presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
                         _postsList?.GetAdapter()?.NotifyDataSetChanged();
                     }
                     else

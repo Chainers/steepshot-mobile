@@ -8,6 +8,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -19,40 +20,37 @@ namespace Steepshot.iOS.Views
 {
     public partial class FeedViewController : BaseViewController
     {
-        protected FeedViewController(IntPtr handle) : base(handle)
+        protected FeedViewController(IntPtr handle) : base(handle) { }
+        public FeedViewController(bool isFeed = false)
         {
-            // Note: this .ctor should not contain any initialization logic.
+            _isHomeFeed = isFeed;
         }
+		protected override void CreatePresenter()
+		{
+			_presenter = new FeedPresenter(_isHomeFeed);
+		}
 
-        public FeedViewController()
-        {
-        }
-
+        private FeedPresenter _presenter;
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
 
         private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
-        //private FeedTableViewSource tableSource = new FeedTableViewSource();
+		private CollectionViewFlowDelegate _gridDelegate;
+		private int _lastRow;
+
         private UIView _dropdown;
         private nfloat _dropDownListOffsetFromTop;
         private UILabel _tw;
         private UIImageView _arrow;
-        private string _offsetUrl;
+        private bool IsDropDownOpen => _dropdown.Frame.Y > 0;
 
         UINavigationController _navController;
         UINavigationItem _navItem;
 
-        private bool _hasItems = true;
         private bool _isHomeFeed;
 
         UIRefreshControl _refreshControl;
-
         private bool _isFeedRefreshing;
-
-        private bool IsDropDownOpen => _dropdown.Frame.Y > 0;
-        private CollectionViewFlowDelegate _gridDelegate;
-        private int _lastRow;
-        private const int Limit = 40;
 
         public override void ViewDidLoad()
         {
@@ -66,8 +64,11 @@ namespace Steepshot.iOS.Views
                  try
                  {
                      var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-                     if (_collectionViewSource.PhotoList.Count <= _lastRow && _hasItems && !_isFeedRefreshing)
+                    if (_collectionViewSource.PhotoList.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
+
+                     {
                          GetPosts();
+                     }
                      _lastRow = newlastRow;
 
                  }
@@ -77,6 +78,7 @@ namespace Steepshot.iOS.Views
                 _navController.NavigationBar.Translucent = false;
             _collectionViewSource.IsGrid = false;
             _gridDelegate.IsGrid = false;
+            _collectionViewSource.PhotoList = _presenter.Posts;
             feedCollection.Source = _collectionViewSource;
             feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
@@ -86,20 +88,15 @@ namespace Steepshot.iOS.Views
             {
                 Vote(vote, url, action);
             };
-            _collectionViewSource.Flagged += Flagged;// (vote, url, action)  =>
-                                                     //{
-                                                     //Flagged(vote, url, action);
-                                                     //};
+            _collectionViewSource.Flagged += Flagged;
 
             _refreshControl = new UIRefreshControl();
-            _refreshControl.ValueChanged += async (sender, e) =>
+            _refreshControl.ValueChanged += (sender, e) =>
             {
                 if (_isFeedRefreshing)
                     return;
                 _isFeedRefreshing = true;
-                await RefreshTable();
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
+                RefreshTable();
             };
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
@@ -117,14 +114,9 @@ namespace Steepshot.iOS.Views
                 };
             }
 
-            if (!IsHomeFeedLoaded)
-            {
-                _isHomeFeed = true;
-                IsHomeFeedLoaded = true;
-            }
             _collectionViewSource.GoToProfile += (username) =>
             {
-                if (username == User.Login)
+                if (username == BasePresenter.User.Login)
                     return;
                 var myViewController = new ProfileViewController();
                 myViewController.Username = username;
@@ -159,18 +151,34 @@ namespace Steepshot.iOS.Views
             }
             SetNavBar();
             GetPosts();
+            _presenter.PostsLoaded += _presenter_PostsLoaded;
+        }
+
+        private void _presenter_PostsLoaded()
+        {
+            foreach (var r in _presenter.Posts)
+			{
+				var at = new NSMutableAttributedString();
+				at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
+				at.Append(new NSAttributedString($" {r.Title}"));
+				_collectionViewSource.FeedStrings.Add(at);
+			}		
+
+            feedCollection.ReloadData();
+            feedCollection.CollectionViewLayout.InvalidateLayout();
+            if (_refreshControl.Refreshing)
+            {
+				_refreshControl.EndRefreshing();
+				_isFeedRefreshing = false;
+            }
+            else
+            {
+                activityIndicator.StopAnimating();
+            }
         }
 
         public override void ViewWillAppear(bool animated)
         {
-            //navController.SetNavigationBarHidden(false, true);
-            /*if (TabBarController != null)
-			{
-				TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-				TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-				TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
-			}*/
-
             if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
             {
                 _currentPostCategory = CurrentPostCategory;
@@ -190,12 +198,11 @@ namespace Steepshot.iOS.Views
             base.ViewWillDisappear(animated);
         }
 
-        private async Task RefreshTable()
+        private void RefreshTable()
         {
-            _collectionViewSource.PhotoList.Clear();
             _collectionViewSource.FeedStrings.Clear();
-            _hasItems = true;
-            await GetPosts(false);
+            _presenter.ClearPosts();
+            GetPosts(false, true);
         }
 
         void LoginTapped(object sender, EventArgs e)
@@ -232,159 +239,50 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public async Task GetPosts(bool shouldStartAnimating = true)
+        public void GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             if (activityIndicator.IsAnimating)
                 return;
             if (shouldStartAnimating)
                 activityIndicator.StartAnimating();
             noFeedLabel.Hidden = true;
-            try
+
+            if (CurrentPostCategory == null)
             {
-                OperationResult<UserPostResponse> posts;
-                string offset = _collectionViewSource.PhotoList.Count == 0 ? "0" : _offsetUrl;
-
-                if (!_isHomeFeed)
-                {
-                    if (CurrentPostCategory == null)
-                    {
-                        var postrequest = new PostsRequest(_currentPostType)
-                        {
-                            Login = User.Login,
-                            Limit = Limit,
-                            Offset = offset,
-                            ShowNsfw = User.IsNsfw,
-                            ShowLowRated = User.IsLowRated
-                        };
-                        posts = await Api.GetPosts(postrequest);
-                    }
-                    else
-                    {
-                        var postrequest = new PostsByCategoryRequest(_currentPostType, CurrentPostCategory)
-                        {
-                            Login = User.Login,
-                            Limit = Limit,
-                            Offset = offset,
-                            ShowNsfw = User.IsNsfw,
-                            ShowLowRated = User.IsLowRated
-                        };
-                        posts = await Api.GetPostsByCategory(postrequest);
-                    }
-                }
-                else
-                {
-                    var f = new CensoredPostsRequests()
-                    {
-                        Login = User.Login,
-                        Limit = Limit,
-                        Offset = offset,
-                        ShowNsfw = User.IsNsfw,
-                        ShowLowRated = User.IsLowRated
-                    };
-                    posts = await Api.GetUserRecentPosts(f);
-                }
-
-                if (posts.Success)
-                {
-                    if (posts.Result == null || posts.Result.Results == null)
-                    {
-                        _hasItems = false;
-                        _collectionViewSource.PhotoList.Clear();
-                        _collectionViewSource.FeedStrings.Clear();
-                        feedCollection.ReloadData();
-                        feedCollection.CollectionViewLayout.InvalidateLayout();
-                        return;
-                    }
-
-                    if (posts.Result.Results.Count == 0 && _isHomeFeed)
-                        noFeedLabel.Hidden = false;
-
-                    if (posts.Result.Results.Count != 0)
-                    {
-                        posts.Result.Results.FilterHided();
-                        var lastItem = posts.Result.Results.Last();
-                        _offsetUrl = lastItem.Url;
-
-                        if (posts.Result.Results.Count < Limit / 2)
-                            _hasItems = false;
-                        else
-                            posts.Result.Results.Remove(lastItem);
-
-                        foreach (var r in posts.Result.Results)
-                        {
-                            var at = new NSMutableAttributedString();
-                            at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
-                            at.Append(new NSAttributedString($" {r.Title}"));
-                            _collectionViewSource.FeedStrings.Add(at);
-                        }
-
-                        _collectionViewSource.PhotoList.AddRange(posts.Result.Results);
-                    }
-                    else
-                        _hasItems = false;
-
-                    feedCollection.ReloadData();
-                    feedCollection.CollectionViewLayout.InvalidateLayout();
-                }
-                else
-                {
-                    ShowAlert(posts.Errors[0]);
-                }
-
+                _presenter.GetTopPosts(_currentPostType, clearOld);
             }
-            catch (Exception ex)
+            else
             {
-                Reporter.SendCrash(ex, User.Login, "");
-            }
-            finally
-            {
-                activityIndicator.StopAnimating();
+                _presenter.Tag = CurrentPostCategory;
+                _presenter.GetSearchedPosts();
             }
         }
 
         private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
             }
             try
             {
-                var voteRequest = new VoteRequest(User.UserInfo, vote ? VoteType.Up : VoteType.Down, postUrl);
-                var voteResponse = await Api.Vote(voteRequest);
-                if (voteResponse.Success)
-                {
-                    var u = _collectionViewSource.PhotoList.First(p => p.Url == postUrl);
-                    u.Vote = vote;
-                    if (vote)
-                    {
-                        u.Flag = false;
-                        if (u.NetVotes == -1)
-                            u.NetVotes = 1;
-                        else
-                            u.NetVotes++;
-                    }
-                    else
-                        u.NetVotes--;
-                }
-                else
-                {
+                var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUrl));
+                if (!voteResponse.Success)
                     ShowAlert(voteResponse.Errors[0]);
-                }
-
-                action.Invoke(postUrl, voteResponse);
+                
+				feedCollection.ReloadData();
+				flowLayout.InvalidateLayout();
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
@@ -400,8 +298,8 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                User.PostBlacklist.Add(url);
-                User.Save();
+                BasePresenter.User.PostBlacklist.Add(url);
+                BasePresenter.User.Save();
                 var postToHide = _collectionViewSource.PhotoList.First(p => p.Url == url);
                 var postIndex = _collectionViewSource.PhotoList.IndexOf(postToHide);
                 _collectionViewSource.PhotoList.Remove(postToHide);
@@ -411,7 +309,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
@@ -419,31 +317,17 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                var flagRequest = new VoteRequest(User.UserInfo, vote ? VoteType.Flag : VoteType.Down, postUrl);
-                var flagResponse = await Api.Vote(flagRequest);
-                if (flagResponse.Success)
-                {
-                    var u = _collectionViewSource.PhotoList.First(p => p.Url == postUrl);
-                    u.Flag = flagResponse.Result.IsSucces;
-                    if (flagResponse.Result.IsSucces)
-                    {
-                        if (u.Vote)
-                            if (u.NetVotes == 1)
-                                u.NetVotes = -1;
-                            else
-                                u.NetVotes--;
-                        u.Vote = false;
-                    }
-                }
-                else
-                {
+                var flagRequest = new VoteRequest(BasePresenter.User.UserInfo, vote ? VoteType.Flag : VoteType.Down, postUrl);
+                var flagResponse = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
+                if (!flagResponse.Success)
                     ShowAlert(flagResponse.Errors[0]);
-                }
-                action.Invoke(postUrl, flagResponse);
+
+				feedCollection.ReloadData();
+				flowLayout.InvalidateLayout();
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
@@ -479,7 +363,7 @@ namespace Steepshot.iOS.Views
             }
 
             _navItem.TitleView = titleView;
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
                 _navItem.SetLeftBarButtonItem(leftBarButton, true);
@@ -507,8 +391,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.New && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _collectionViewSource.PhotoList.Clear();
-                   _collectionViewSource.FeedStrings.Clear();
+                    _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
@@ -526,8 +409,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _collectionViewSource.PhotoList.Clear();
-                   _collectionViewSource.FeedStrings.Clear();
+				   _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
@@ -545,8 +427,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Top && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _collectionViewSource.PhotoList.Clear();
-                   _collectionViewSource.FeedStrings.Clear();
+				   _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;
