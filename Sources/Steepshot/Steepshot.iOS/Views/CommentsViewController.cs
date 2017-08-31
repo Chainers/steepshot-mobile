@@ -5,6 +5,7 @@ using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -16,8 +17,13 @@ namespace Steepshot.iOS.Views
     public partial class CommentsViewController : BaseViewController
     {
         protected CommentsViewController(IntPtr handle) : base(handle) { }
-
+        CommentsPresenter _presenter;
         public CommentsViewController() { }
+
+		protected override void CreatePresenter()
+		{
+			_presenter = new CommentsPresenter();
+		}
 
         private readonly CommentsTableViewSource _tableSource = new CommentsTableViewSource();
         public string PostUrl;
@@ -68,10 +74,9 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
             try
             {
-                var request = new NamedInfoRequest(PostUrl);
-                var result = await Api.GetComments(request);
+                var result = await _presenter.GetComments(PostUrl);
                 _tableSource.TableItems.Clear();
-                _tableSource.TableItems.AddRange(result.Result.Results);
+                _tableSource.TableItems.AddRange(result);
                 commentsTable.ReloadData();
                 //kostil?
                 commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
@@ -80,7 +85,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
             finally
             {
@@ -90,27 +95,25 @@ namespace Steepshot.iOS.Views
 
         public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
         {
-            if (!User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
             }
             try
             {
-                int diezid = postUrl.IndexOf('#');
-                string posturl = postUrl.Substring(diezid + 1);
-
-                var voteRequest = new VoteRequest(User.UserInfo, vote, posturl);
-                var response = await Api.Vote(voteRequest);
+                var response = await _presenter.Vote(_presenter.Posts.First(p => p.Url == postUrl));
                 if (response.Success)
                 {
                     _tableSource.TableItems.First(p => p.Url == postUrl).Vote = vote;
                     action.Invoke(postUrl, response.Result);
                 }
+                else
+                    ShowAlert(response.Errors[0]);
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 
@@ -118,13 +121,12 @@ namespace Steepshot.iOS.Views
         {
             try
             {
-                if (!User.IsAuthenticated)
+                if (!BasePresenter.User.IsAuthenticated)
                 {
                     LoginTapped();
                     return;
                 }
-                var reqv = new CreateCommentRequest(User.UserInfo, PostUrl, commentTextView.Text, commentTextView.Text);
-                var response = await Api.CreateComment(reqv);
+                var response = await _presenter.CreateComment(commentTextView.Text, PostUrl);
                 if (response.Success)
                 {
                     commentTextView.Text = string.Empty;
@@ -133,7 +135,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
             }
         }
 

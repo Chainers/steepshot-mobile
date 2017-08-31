@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
@@ -10,12 +9,9 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class UserProfilePresenter : BasePresenter
+    public class UserProfilePresenter : BaseFeedPresenter
     {
         private readonly string _username;
-
-        public List<Post> UserPosts = new List<Post>();
-
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 40;
@@ -29,7 +25,7 @@ namespace Steepshot.Core.Presenters
 
         public void ClearPosts()
         {
-            UserPosts.Clear();
+            Posts.Clear();
             _hasItems = true;
             _offsetUrl = string.Empty;
             PostsCleared?.Invoke();
@@ -44,19 +40,20 @@ namespace Steepshot.Core.Presenters
             return await Api.GetUserProfile(req);
         }
 
-        public async Task GetUserPosts(bool needRefresh = false)
+        public async Task<List<string>> GetUserPosts(bool needRefresh = false)
         {
+            List<string> errors = null;
             try
             {
                 if (needRefresh)
                 {
                     _offsetUrl = string.Empty;
                     _hasItems = true;
-                    UserPosts.Clear();
+                    Posts.Clear();
                 }
 
                 if (!_hasItems)
-                    return;
+                    return errors;
 
                 var req = new UserPostsRequest(_username)
                 {
@@ -67,8 +64,8 @@ namespace Steepshot.Core.Presenters
 					ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
-
-                if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
+                errors = response.Errors;
+				if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
                 {
                     var lastItem = response.Result.Results.Last();
                     if (lastItem.Url != _offsetUrl)
@@ -77,12 +74,7 @@ namespace Steepshot.Core.Presenters
                         _hasItems = false;
 
                     _offsetUrl = lastItem.Url;
-
-                    foreach (var item in response.Result.Results)
-                    {
-                        UserPosts.Add(item);
-                    }
-
+                    Posts.AddRange(response.Result.Results);
                     PostsLoaded?.Invoke();
                 }
             }
@@ -90,15 +82,7 @@ namespace Steepshot.Core.Presenters
             {
                 Reporter.SendCrash(ex, User.Login, AppVersion);
             }
-        }
-
-        public async Task<OperationResult<VoteResponse>> Vote(Post post)
-        {
-            if (!User.IsAuthenticated)
-                return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
-
-            var voteRequest = new VoteRequest(User.UserInfo, !post.Vote, post.Url);
-            return await Api.Vote(voteRequest);
+            return errors;
         }
 
         public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
@@ -107,7 +91,7 @@ namespace Steepshot.Core.Presenters
             var resp = await Api.Follow(request);
             if (resp.Errors.Count == 0)
             {
-                //userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
+                //userData.HasFollowed = (resp.Result.IsSuccess) ? 1 : 0;
             }
             return resp;
         }

@@ -104,6 +104,7 @@
     <Compile Include="Fragment\FollowersFragment.cs" />
     <Compile Include="Services\AppInfo.cs" />
     <Compile Include="Services\SaverService.cs" />
+    <Compile Include="Utils\ScrollListner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
