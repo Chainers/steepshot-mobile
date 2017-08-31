@@ -172,9 +172,7 @@ namespace Steepshot.Core.HttpClient
                 Result = new LogoutResponse(true)
             });
         }
-
-       
-
+        
         #endregion Post requests
 
         private Tuple<string, string> UrlToAuthorAndPermlink(string url)

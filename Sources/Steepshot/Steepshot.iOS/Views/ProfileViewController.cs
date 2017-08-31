@@ -336,10 +336,10 @@ namespace Steepshot.iOS.Views
                 var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUri));
                 if (voteResponse.Success)
                     collectionView.ReloadData();
-                
+
                 else
                     ShowAlert(voteResponse.Errors[0]);
-                
+
                 //success.Invoke(postUri, voteResponse);
             }
             catch (Exception ex)
@@ -412,7 +412,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     ShowAlert(flagResponse.Errors[0]);
-                
+
                 //action.Invoke(postUrl, flagResponse);
             }
             catch (Exception ex)
@@ -426,7 +426,7 @@ namespace Steepshot.iOS.Views
             var resp = await _presenter.Follow(_userData.HasFollowed);
             if (resp.Success)
             {
-                _userData.HasFollowed = (resp.Result.IsFollowed) ? 1 : 0;
+                _userData.HasFollowed = resp.Result.IsSuccess ? 1 : 0;
                 ToogleFollowButton();
             }
             else
