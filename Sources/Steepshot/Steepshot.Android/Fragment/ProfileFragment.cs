@@ -323,7 +323,7 @@ namespace Steepshot.Fragment
                     if (response.Success)
                     {
                         _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
-                        if (response.Result.IsVoted)
+                        if (response.Result.IsSucces)
                             _presenter.Posts[position].NetVotes++;
                         else
                             _presenter.Posts[position].NetVotes--;

@@ -280,7 +280,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -290,7 +290,7 @@ namespace Steepshot.iOS.Views
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<FlagResponse>())));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
             PresentViewController(actionSheetAlert, true, null);
         }
 
@@ -313,11 +313,11 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<FlagResponse>> action)
+        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
             try
             {
-                var flagRequest = new FlagRequest(BasePresenter.User.UserInfo, vote, postUrl);
+                var flagRequest = new VoteRequest(BasePresenter.User.UserInfo, vote ? VoteType.Flag : VoteType.Down, postUrl);
                 var flagResponse = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
                 if (!flagResponse.Success)
                     ShowAlert(flagResponse.Errors[0]);
