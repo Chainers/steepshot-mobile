@@ -5,6 +5,7 @@ using Foundation;
 using MessageUI;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
@@ -33,13 +34,13 @@ namespace Steepshot.iOS.Views
         {
             NavigationController.NavigationBar.Translucent = false;
             base.ViewDidLoad();
-            nsfwSwitch.On = User.IsNsfw;
+            nsfwSwitch.On = BasePresenter.User.IsNsfw;
 
-            nsfwSwitch.On = User.IsNsfw;
-            lowRatedSwitch.On = User.IsLowRated;
+            nsfwSwitch.On = BasePresenter.User.IsNsfw;
+            lowRatedSwitch.On = BasePresenter.User.IsLowRated;
             NavigationController.SetNavigationBarHidden(false, false);
-            _steemAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
-            _golosAcc = User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
+            _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
+            _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
             _previousNetwork = Chain;
             versionLabel.Text = $"App version: {AppSettings.Container.Resolve<IAppInfo>().GetAppVersion()} Build number: {NSBundle.MainBundle.InfoDictionary["CFBundleVersion"]}";
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
@@ -74,14 +75,14 @@ namespace Steepshot.iOS.Views
 
             steemButton.TouchDown += (sender, e) =>
             {
-                User.Delete(_steemAcc);
+                BasePresenter.User.Delete(_steemAcc);
                 steemViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Steem);
             };
 
             golosButton.TouchDown += (sender, e) =>
             {
-                User.Delete(_golosAcc);
+                BasePresenter.User.Delete(_golosAcc);
                 golosViewHeight.Constant = 0;
                 RemoveNetwork(KnownChains.Golos);
             };
@@ -115,11 +116,11 @@ namespace Steepshot.iOS.Views
             };
             lowRatedSwitch.ValueChanged += (sender, e) =>
             {
-                User.IsLowRated = lowRatedSwitch.On;
+                BasePresenter.User.IsLowRated = lowRatedSwitch.On;
             };
             nsfwSwitch.ValueChanged += (sender, e) =>
             {
-                User.IsNsfw = nsfwSwitch.On;
+                BasePresenter.User.IsNsfw = nsfwSwitch.On;
             };
         }
 
@@ -137,13 +138,12 @@ namespace Steepshot.iOS.Views
         {
             if (Chain == user.Chain)
                 return;
-            User.SwitchUser(user);
+            BasePresenter.User.SwitchUser(user);
             HighlightView(user.Chain);
             SwitchChain(user.Chain);
 
             SetAddButton();
 
-            IsHomeFeedLoaded = false;
             var myViewController = new MainTabBarController();
             NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
             _isTabBarNeedResfresh = true;
@@ -173,7 +173,7 @@ namespace Steepshot.iOS.Views
 
         private void RemoveNetwork(KnownChains network)
         {
-            if (User.GetAllAccounts().Count == 0)
+            if (BasePresenter.User.GetAllAccounts().Count == 0)
             {
                 var myViewController = new FeedViewController();
                 NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
@@ -192,7 +192,7 @@ namespace Steepshot.iOS.Views
                     SwitchNetwork(Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                 }
             }
-            User.Save();
+            BasePresenter.User.Save();
         }
 
         private void HighlightView(KnownChains network)
@@ -211,7 +211,7 @@ namespace Steepshot.iOS.Views
 
         private void SetAddButton()
         {
-            addAccountButton.Hidden = User.GetAllAccounts().Count == 2;
+            addAccountButton.Hidden = BasePresenter.User.GetAllAccounts().Count == 2;
             //#if !DEBUG
             //addAccountButton.Hidden = true;
             //#endif
