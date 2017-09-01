@@ -174,7 +174,7 @@ namespace Steepshot.Fragment
 
                     if (!response.Success)
                         Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-                    
+
                     _feedAdapter?.NotifyDataSetChanged();
                 }
                 else
@@ -253,7 +253,7 @@ namespace Steepshot.Fragment
                 {
                     _prevPos = 0;
                 };
-            } 
+            }
 
             public async override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
             {
