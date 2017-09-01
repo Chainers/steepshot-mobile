@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         private GridImageAdapter<string> _adapter;
-        private Java.IO.File _photo;
+        private string _photoUri;
 
         private GridImageAdapter<string> Adapter
         {
@@ -53,7 +53,7 @@ namespace Steepshot.Fragment
             if (resultCode == -1 && requestCode == 0)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra("FILEPATH", Android.Net.Uri.FromFile(_photo).Path);
+                i.PutExtra("FILEPATH", _photoUri);
                 StartActivity(i);
             }
         }
@@ -79,10 +79,9 @@ namespace Steepshot.Fragment
         public void OnSwitcherClick(object sender, EventArgs e)
         {
             var directory = GetSteepshotDirectory();
-            _photo = new Java.IO.File(directory, Guid.NewGuid().ToString());
-
+            _photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
             var intent = new Intent(MediaStore.ActionImageCapture);
-            intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.FromFile(_photo));
+            intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.Parse(_photoUri.ToFilePath()));
             StartActivityForResult(intent, 0);
         }
 
