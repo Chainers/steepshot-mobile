@@ -22,6 +22,7 @@ namespace Steepshot.Core.HttpClient
         private readonly ChainInfo _chainInfo;
         private readonly JsonNetConverter _jsonConverter;
         private readonly Regex _errorMsg = new Regex(@"(?<=[a-z_>=\s]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
+        private readonly Dictionary<string, OperationResult<UploadResponse>> _imgCash;
         private OperationManager _operationManager;
 
         private OperationManager OperationManager => _operationManager ?? (_operationManager = new OperationManager(_chainInfo.Url, _chainInfo.ChainId));
@@ -30,6 +31,7 @@ namespace Steepshot.Core.HttpClient
         {
             _chainInfo = ChainManager.GetChainInfo(chain == KnownChains.Steem ? Ditch.KnownChains.Steem : Ditch.KnownChains.Golos);
             _jsonConverter = new JsonNetConverter();
+            _imgCash = new Dictionary<string, OperationResult<UploadResponse>>();
         }
 
         private static string ChainToUrl(KnownChains chain, bool isDev)
@@ -143,12 +145,24 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(async () =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.PostingKey), op);
-                var trx = _jsonConverter.Serialize(tr);
+                string hash = string.Empty;
+                OperationResult<UploadResponse> uploadResponse = null;
+                if (_imgCash.Any())
+                {
+                    hash = System.Text.Encoding.UTF8.GetString(Cryptography.ECDSA.Secp256k1Manager.GetMessageHash(request.Photo));
+                    if (!string.IsNullOrEmpty(hash) && _imgCash.ContainsKey(hash))
+                        uploadResponse = _imgCash[hash];
+                }
 
-                Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
-                var uploadResponse = await UploadWithPrepare(request, trx, cts);
+                if (uploadResponse == null)
+                {
+                    var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
+                    var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.PostingKey), op);
+                    var trx = _jsonConverter.Serialize(tr);
+
+                    Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
+                    uploadResponse = await UploadWithPrepare(request, trx, cts);
+                }
 
                 var result = new OperationResult<ImageUploadResponse>();
                 if (uploadResponse.Success)
@@ -160,9 +174,18 @@ namespace Steepshot.Core.HttpClient
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
                     var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
                     if (!resp.IsError)
+                    {
                         result.Result = upResp.Payload;
+                        if (_imgCash.ContainsKey(hash))
+                            _imgCash.Remove(hash);
+                    }
                     else
+                    {
                         OnError(resp, result);
+                        hash = System.Text.Encoding.UTF8.GetString(Cryptography.ECDSA.Secp256k1Manager.GetMessageHash(request.Photo));
+                        if (!_imgCash.ContainsKey(hash))
+                            _imgCash.Add(hash, uploadResponse);
+                    }
                 }
                 else
                 {
