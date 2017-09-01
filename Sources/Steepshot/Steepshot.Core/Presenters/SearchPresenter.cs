@@ -33,10 +33,7 @@ namespace Steepshot.Core.Presenters
 			{
 				_cts?.Cancel();
 			}
-			catch (ObjectDisposedException)
-			{
-
-			}
+			catch (ObjectDisposedException) {}
 
             try
             {
@@ -52,10 +49,9 @@ namespace Steepshot.Core.Presenters
                     {
                         var request = new SearchWithQueryRequest(query);
                         if (searchType == SearchType.Tags)
-                        {
                             response = await Api.SearchCategories(request, _cts);
-                        }
-                        response = await Api.SearchUser(request, _cts);
+                        else
+                            response = await Api.SearchUser(request, _cts);
                     }
                     if (response.Success)
                     {
