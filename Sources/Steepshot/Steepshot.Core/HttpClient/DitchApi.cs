@@ -154,7 +154,9 @@ namespace Steepshot.Core.HttpClient
                 if (uploadResponse.Success)
                 {
                     var upResp = uploadResponse.Result;
-                    var meta = _jsonConverter.Serialize(upResp.Meta);
+                    var meta = upResp.Meta.ToString();
+                    if (!string.IsNullOrWhiteSpace(meta))
+                        meta = meta.Replace(Environment.NewLine, string.Empty);
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
                     var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
                     if (!resp.IsError)
