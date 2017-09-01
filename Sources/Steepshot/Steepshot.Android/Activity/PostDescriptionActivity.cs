@@ -26,9 +26,6 @@ namespace Steepshot.Activity
         private string _path;
 
         private string[] _tags = new string[0];
-        private byte[] _arrayToUpload;
-        private Bitmap _bitmapToUpload;
-
         private FrameLayout _add;
 
 #pragma warning disable 0649, 4014
@@ -70,7 +67,7 @@ namespace Steepshot.Activity
             Cache.Clear();
             GC.Collect();
 
-            Picasso.With(this).Load(new Java.IO.File(_path))
+            Picasso.With(this).Load(_path.ToFilePath())
                    .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
                    .Resize(Resources.DisplayMetrics.WidthPixels, 0)
                    .Into(_photoFrame);
@@ -124,33 +121,27 @@ namespace Steepshot.Activity
             AddTags(_tags);
         }
 
-      
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            if (_bitmapToUpload != null)
-            {
-                _bitmapToUpload.Recycle();
-                _bitmapToUpload.Dispose();
-                _bitmapToUpload = null;
-            }
             Cheeseknife.Reset(this);
             GC.Collect();
         }
 
-        private async Task OnPostAsync()
+        private async void OnPostAsync()
         {
             try
             {
-                if(string.IsNullOrEmpty(_description.Text))
+                if (string.IsNullOrEmpty(_description.Text))
                 {
                     Toast.MakeText(this, "Description cannot be empty", ToastLength.Long).Show();
                     return;
                 }
-                var success = await CompressPhoto();
-                if (success)
+                var arrayToUpload = await CompressPhoto(_path);
+                if (arrayToUpload != null)
                 {
-                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, _arrayToUpload, _tags.ToArray());
+                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, arrayToUpload, _tags.ToArray());
                     var resp = await _presenter.Upload(request);
 
                     if (resp.Errors.Count > 0)
@@ -178,43 +169,55 @@ namespace Steepshot.Activity
                 {
                     _loadLayout.Visibility = ViewStates.Gone;
                     _postButton.Enabled = true;
-                    _arrayToUpload = null;
                 }
             }
         }
 
-        private async Task<bool> CompressPhoto()
+        private Task<byte[]> CompressPhoto(string path)
         {
-            try
-            {
-                await Task.Run(() =>
+            return Task.Run(() =>
               {
-                  var absolutePath = (new Java.IO.File(_path)).AbsolutePath;
-                  _bitmapToUpload = BitmapFactory.DecodeFile(absolutePath);
-                  _bitmapToUpload = RotateImageIfRequired(_bitmapToUpload, absolutePath);
-              });
-                if (_bitmapToUpload == null)
-                    return false;
+                  try
+                  {
+                      var bitmap = BitmapFactory.DecodeFile(path);
+                      bitmap = RotateImageIfRequired(bitmap, path);
 
-                using (var stream = new MemoryStream())
-                {
-                    await _bitmapToUpload.CompressAsync(Bitmap.CompressFormat.Jpeg, 80, stream);
-                    _arrayToUpload = stream.ToArray();
-                    //var photoSize = streamArray.Length / 1024f / 1024f;
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-                return false;
-            }
-            finally
-            {
-				_bitmapToUpload.Recycle();
-				_bitmapToUpload.Dispose();
-				_bitmapToUpload = null;
-            }
+                      if (bitmap == null)
+                          return null;
+
+                      var fi = new FileInfo(path);
+                      var cmpr = 100;
+                      if (fi.Length > 5000000) 
+                          cmpr = 30;
+                      else if (fi.Length > 3000000)
+                          cmpr = 40;
+                      else if (fi.Length > 2000000)
+                          cmpr = 50;
+                      else if (fi.Length > 1600000)
+                          cmpr = 60;
+                      else if (fi.Length > 1400000)
+                          cmpr = 70;
+                      else if (fi.Length > 1200000)
+                          cmpr = 80;
+                      else if (fi.Length > 1000000)
+                          cmpr = 90;
+
+                      using (var stream = new MemoryStream())
+                      {
+                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, cmpr, stream))
+                          {
+                              var outbytes = stream.ToArray();
+                              bitmap.Recycle();
+                              return outbytes;
+                          }
+                      }
+                  }
+                  catch (Exception ex)
+                  {
+                      Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                  }
+                  return null;
+              });
         }
 
         private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
