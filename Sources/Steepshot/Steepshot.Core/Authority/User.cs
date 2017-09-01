@@ -51,7 +51,7 @@ namespace Steepshot.Core.Authority
 
         public KnownChains Chain => UserInfo.Chain;
 
-        public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.Login);
+        public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
         public User()
         {
