@@ -119,16 +119,8 @@ namespace Steepshot.Activity
                 {
                     if (response.Success)
                     {
-                        if (!string.IsNullOrEmpty(BasePresenter.User.Login) && _newChain == KnownChains.None)
-                        {
-							BasePresenter.User.UserInfo.PostingKey = pass;
-							BasePresenter.User.Save();
-                        }
-                        else
-                        {
-							_newChain = KnownChains.None;
-							BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
-                        }
+                        _newChain = KnownChains.None;
+						BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
                         var intent = new Intent(this, typeof(RootActivity));
                         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                         StartActivity(intent);
