@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Autofac;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -33,30 +32,30 @@ namespace Steepshot.iOS
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
-			var builder = new ContainerBuilder();
+            var builder = new ContainerBuilder();
 
-			builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
-			builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
-			builder.RegisterInstance(new SaverService()).As<ISaverService>();
-			
-			AppSettings.Container = builder.Build();
+            builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
+            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
+            builder.RegisterInstance(new SaverService()).As<ISaverService>();
+
+            AppSettings.Container = builder.Build();
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject,"");
+                Reporter.SendCrash((Exception)e.ExceptionObject, string.Empty);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                Reporter.SendCrash(e.Exception, "");
+                Reporter.SendCrash(e.Exception, string.Empty);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
-            
+
             else
                 InitialViewController = new FeedViewController();
-            
+
             var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
@@ -104,4 +103,3 @@ namespace Steepshot.iOS
         }
     }
 }
-

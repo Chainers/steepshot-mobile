@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -32,20 +32,20 @@ namespace Steepshot.iOS.Views
         {
         }
 
-		private bool _navigationBarHidden;
+        private bool _navigationBarHidden;
 
-		public override void ViewWillAppear(bool animated)
-		{
-			_navigationBarHidden = NavigationController.NavigationBarHidden;
-			NavigationController.SetNavigationBarHidden(false, true);
-			base.ViewWillAppear(animated);
-		}
+        public override void ViewWillAppear(bool animated)
+        {
+            _navigationBarHidden = NavigationController.NavigationBarHidden;
+            NavigationController.SetNavigationBarHidden(false, true);
+            base.ViewWillAppear(animated);
+        }
 
-		public override void ViewWillDisappear(bool animated)
-		{
-			NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
-			base.ViewWillDisappear(animated);
-		}
+        public override void ViewWillDisappear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
+            base.ViewWillDisappear(animated);
+        }
 
         public override void ViewDidLoad()
         {
@@ -172,7 +172,7 @@ namespace Steepshot.iOS.Views
                         }
                     }
                     else
-                        Reporter.SendCrash($"Tags search page get tags error: {string.Join(Environment.NewLine, response.Errors)}", BasePresenter.User.Login, AppVersion);
+                        Reporter.SendCrash($"{Localization.Errors.PostTagsError} {string.Join(Environment.NewLine, response.Errors)}", BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (TaskCanceledException)
@@ -212,17 +212,17 @@ namespace Steepshot.iOS.Views
             noTagsLabel.Hidden = true;
             if (_searchType == SearchType.Tags)
             {
-                searchTextField.Placeholder = "Please type a tag";
-                peopleButton.Font = Constants.Regular15;
-                tagsButton.Font = Constants.Bold175;
+                searchTextField.Placeholder = Localization.Messages.TypeTag;
+                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
+                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
                 tagsTable.Hidden = false;
                 usersTable.Hidden = true;
             }
             else
             {
-                searchTextField.Placeholder = "Please type an username";
-                tagsButton.Font = Constants.Regular15;
-                peopleButton.Font = Constants.Bold175;
+                searchTextField.Placeholder = Localization.Messages.TypeUsername;
+                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
+                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
                 tagsTable.Hidden = true;
                 usersTable.Hidden = false;
             }
@@ -235,4 +235,3 @@ namespace Steepshot.iOS.Views
         People
     }
 }
-

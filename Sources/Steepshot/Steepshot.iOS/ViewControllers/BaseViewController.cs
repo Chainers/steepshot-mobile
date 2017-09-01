@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using CoreGraphics;
 using Ditch;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Presenters;
@@ -54,7 +55,7 @@ namespace Steepshot.iOS.ViewControllers
         }
 
         public static string CurrentPostCategory { get; set; }
-		protected virtual void CreatePresenter() { }
+        protected virtual void CreatePresenter() { }
 
         static BaseViewController()
         {
@@ -203,7 +204,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
             };
-            alert.AddButton("OK");
+            alert.AddButton(Localization.Messages.Ok);
             alert.Show();
         }
 
