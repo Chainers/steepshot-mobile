@@ -4,6 +4,7 @@ using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Fragment;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
@@ -41,9 +42,9 @@ namespace Steepshot.Base
         {
             var message = GetString(messageid);
             var alert = new AlertDialog.Builder(this);
-            alert.SetTitle("Error");
+            alert.SetTitle(Localization.Messages.Error);
             alert.SetMessage(message);
-            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }
@@ -52,7 +53,7 @@ namespace Steepshot.Base
         {
             var alert = new AlertDialog.Builder(this);
             alert.SetMessage(message);
-            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }
@@ -61,7 +62,7 @@ namespace Steepshot.Base
         {
             var alert = new AlertDialog.Builder(this);
             alert.SetMessage(string.Join(System.Environment.NewLine, messages));
-            alert.SetPositiveButton("Ok", (senderAlert, args) => { });
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }

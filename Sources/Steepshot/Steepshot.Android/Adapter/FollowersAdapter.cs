@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Adapter
@@ -109,14 +110,14 @@ namespace Steepshot.Adapter
             {
                 if (!follow)
                 {
-                    vh.FollowUnfollow.Text = "Follow";
+                    vh.FollowUnfollow.Text = Localization.Messages.Follow;
                     vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
                     vh.FollowUnfollow.SetTextColor(Color.LightGray);
                     //vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
                 }
                 else
                 {
-                    vh.FollowUnfollow.Text = "Unfollow";
+                    vh.FollowUnfollow.Text = Localization.Messages.Unfollow;
                     vh.FollowUnfollow.SetTextColor(Color.LightGray);
                     //  vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.gray_border);
                 }
