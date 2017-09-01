@@ -12,6 +12,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
+    //TODO:KOA - In the development. Needed for replace PhotoFragment
     public class CameraFragment : BaseFragment
     {
         CameraPreview _cameraPreview;
