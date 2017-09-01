@@ -1,4 +1,8 @@
 cd ..\Sources\
+@echo off
+
+del *.user /S /Q 
+
 FOR /R %%f IN (.) DO (
 	if "%%~nf"=="obj" (
 		rmdir /S /Q "%%f"
@@ -9,7 +13,7 @@ FOR /R %%f IN (.) DO (
 	if "%%~nf"=="Bin"	(	
 		rmdir /S /Q "%%f"
 	)
-	if EXIST "_ReSharper.*" (	
+	if EXIST "ReSharper.*" (	
 		rmdir /S /Q "_ReSharper.*"
 	)
 )

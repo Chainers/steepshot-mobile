@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fafafa">
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/color_primary"
+        android:minWidth="25px"
+        android:minHeight="25px">
+        <TextView
+            android:text="@string/add_description"
+            android:layout_width="wrap_content"
+            android:textAllCaps="true"
+            android:textSize="@dimen/dp_head_text"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_centerInParent="true"
+            android:layout_height="wrap_content"
+            android:id="@+id/Title" />
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_back"
+            android:scaleType="center"
+            android:background="@android:color/transparent" />
+    </RelativeLayout>
+    <ScrollView
+        android:id="@+id/description_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/btn_post">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/photo"
+                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:background="@color/black" />
+            <TextView
+                android:id="@+id/d_title"
+                android:layout_below="@+id/photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textSize="10sp"
+                android:layout_marginLeft="5dp"
+                android:textAllCaps="true"
+                android:textColor="@color/light_gray"
+                android:text="@string/add_description" />
+            <EditText
+                android:id="@+id/d_edit"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="start"
+                android:layout_below="@+id/d_title"
+                android:background="@android:color/transparent"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:padding="10dp" />
+            <Steepshot.Utils.TagLayout
+                android:id="@+id/tag_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/d_edit" />
+        </RelativeLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/btn_post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/color_primary"
+        android:textAllCaps="true"
+        android:textStyle="bold"
+        android:background="@color/white"
+        android:layout_alignParentBottom="true"
+        android:textSize="15sp"
+        android:text="Post photo"
+        android:enabled="false" />
+    <RelativeLayout
+        android:id="@+id/load_layout"
+        android:layout_width="match_parent"
+        android:background="#80FFFFFF"
+        android:visibility="gone"
+        android:layout_height="match_parent"
+        android:clickable="true">
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/color_primary"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>

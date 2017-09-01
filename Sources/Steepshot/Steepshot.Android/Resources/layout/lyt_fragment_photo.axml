@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@color/color_primary"
+        android:minWidth="25px"
+        android:minHeight="25px">
+        <TextView
+            android:text="@string/choose_photo"
+            android:layout_width="wrap_content"
+            android:textAllCaps="true"
+            android:textSize="@dimen/dp_head_text"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:layout_centerInParent="true"
+            android:layout_height="wrap_content"
+            android:id="@+id/Title" />
+        <ImageButton
+            android:id="@+id/btn_switch"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_camera"
+            android:tint="@android:color/white"
+            android:scaleType="center"
+            android:background="@android:color/transparent" />
+    </RelativeLayout>
+  <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/images_list" />
+</LinearLayout>
