@@ -12,6 +12,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -135,7 +136,7 @@ namespace Steepshot.Activity
             {
                 if (string.IsNullOrEmpty(_description.Text))
                 {
-                    Toast.MakeText(this, "Description cannot be empty", ToastLength.Long).Show();
+                    Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
                     return;
                 }
                 var arrayToUpload = await CompressPhoto(_path);
@@ -156,7 +157,7 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    Toast.MakeText(this, "Photo compressing error", ToastLength.Long).Show();
+                    Toast.MakeText(this, Localization.Errors.PhotoCompressingError, ToastLength.Long).Show();
                 }
             }
             catch (Exception ex)
@@ -187,7 +188,7 @@ namespace Steepshot.Activity
 
                       var fi = new FileInfo(path);
                       var cmpr = 100;
-                      if (fi.Length > 5000000) 
+                      if (fi.Length > 5000000)
                           cmpr = 30;
                       else if (fi.Length > 3000000)
                           cmpr = 40;

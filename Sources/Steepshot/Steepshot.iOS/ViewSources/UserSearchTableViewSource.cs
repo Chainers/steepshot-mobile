@@ -10,7 +10,7 @@ namespace Steepshot.iOS.ViewSources
 	public class UserSearchTableViewSource : UITableViewSource
 	{
 		public List<UserSearchResult> Users = new List<UserSearchResult>();
-		private const string CellIdentifier = "UsersSearchViewCell";
+		private const string CellIdentifier = nameof(UsersSearchViewCell);
 		public event RowSelectedHandler RowSelectedEvent;
 
 		public override nint RowsInSection(UITableView tableview, nint section)

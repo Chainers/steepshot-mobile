@@ -44,13 +44,13 @@ namespace Steepshot.Core.HttpClient
 
                 if (string.IsNullOrWhiteSpace(result.Result.SessionId))
                 {
-                    result.Errors.Add("SessionId field is missing.");
+                    result.Errors.Add(Localization.Errors.MissingSessionId);
                 }
             }
 
             return result;
         }
-        
+
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts)
         {
             var parameters = CreateSessionParameter(request.SessionId);

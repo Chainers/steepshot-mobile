@@ -103,7 +103,7 @@ namespace Steepshot.Activity
 
                 if (string.IsNullOrEmpty(login))
                 {
-                    Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+                    Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
                     return;
                 }
 
@@ -148,7 +148,7 @@ namespace Steepshot.Activity
 
         private void SetLabelsText()
         {
-            _loginLabel.Text = $"Log in with your {BasePresenter.Chain} Account";
+            _loginLabel.Text = Localization.Messages.LoginMsg(BasePresenter.Chain);
         }
     }
 }

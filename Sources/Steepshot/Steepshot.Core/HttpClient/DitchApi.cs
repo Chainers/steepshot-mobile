@@ -99,8 +99,14 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() =>
             {
+                var keys = ToKeyArr(request.PostingKey);
+                var invalidKey = keys.Any(k => k.Length == 0);
+                if (invalidKey)
+                    return new OperationResult<LoginResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
+
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var resp = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+                var resp = OperationManager.VerifyAuthority(keys, op);
 
                 var result = new OperationResult<LoginResponse>();
 
@@ -179,13 +185,13 @@ namespace Steepshot.Core.HttpClient
         {
             var authAndPermlink = url.Remove(0, url.LastIndexOf('@') + 1);
             var authPostArr = authAndPermlink.Split('/');
-            if (authPostArr.Length != 2) throw new InvalidCastException($"Unexpected url format: {url}");
+            if (authPostArr.Length != 2) throw new InvalidCastException(Localization.Errors.UnexpectedUrlFormat + url);
             return new Tuple<string, string>(authPostArr[0], authPostArr[1]);
         }
 
-        private IEnumerable<byte[]> ToKeyArr(string postingKey)
+        private List<byte[]> ToKeyArr(string postingKey)
         {
-            return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
+            return new List<byte[]> { Ditch.Helpers.Base58.TryGetBytes(postingKey) };
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
@@ -198,17 +204,17 @@ namespace Steepshot.Core.HttpClient
                     {
                         case (int)ErrorCodes.ConnectionTimeoutError:
                             {
-                                operationResult.Errors.Add("Can not connect to the server, check for an Internet connection and try again.");
+                                operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
                                 break;
                             }
                         case (int)ErrorCodes.ResponseTimeoutError:
                             {
-                                operationResult.Errors.Add("The server does not respond to the request. Check your internet connection and try again.");
+                                operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
                                 break;
                             }
                         default:
                             {
-                                operationResult.Errors.Add("An unexpected error occurred. Check the Internet or try restarting the application.");
+                                operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
                                 break;
                             }
                     }
@@ -245,14 +251,14 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (t.Name == "LoginResponse")
                                 {
-                                    operationResult.Errors.Add("Invalid private posting key!");
+                                    operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
                                     break;
                                 }
                                 goto default;
                             }
                         default:
                             {
-                                operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                                operationResult.Errors.Add(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
                                 break;
                             }
                     }
