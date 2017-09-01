@@ -172,22 +172,9 @@ namespace Steepshot.Fragment
                 {
                     var response = await _presenter.Vote(position);
 
-                    if (response.Success)
-                    {
-                        if (_presenter.Posts.Count >= position)
-                        {
-                            _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
-
-                            _presenter.Posts[position].NetVotes = (_presenter.Posts[position].Vote) ?
-                                _presenter.Posts[position].NetVotes + 1 :
-                                _presenter.Posts[position].NetVotes - 1;
-                            _presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-                        }
-                    }
-                    else
-                    {
+                    if (!response.Success)
                         Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-                    }
+                    
                     _feedAdapter?.NotifyDataSetChanged();
                 }
                 else
