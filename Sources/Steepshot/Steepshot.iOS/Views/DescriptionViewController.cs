@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -22,10 +23,10 @@ namespace Steepshot.iOS.Views
         public DescriptionViewController()
         {
         }
-		protected override void CreatePresenter()
-		{
-			_presenter = new PostDescriptionPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new PostDescriptionPresenter();
+        }
         private PostDescriptionPresenter _presenter;
         public UIImage ImageAsset;
 
@@ -103,8 +104,8 @@ namespace Steepshot.iOS.Views
                     Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
                 }
 
-				var request = new UploadImageRequest(BasePresenter.User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
-				var imageUploadResponse = await _presenter.Upload(request);
+                var request = new UploadImageRequest(BasePresenter.User.UserInfo, descriptionTextField.Text, photoByteArray, TagsList.ToArray());
+                var imageUploadResponse = await _presenter.Upload(request);
 
                 if (imageUploadResponse.Success)
                 {
@@ -114,7 +115,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash("Photo upload error: " + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
+                    Reporter.SendCrash(Localization.Errors.PhotoUploadError + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
                     ShowAlert(imageUploadResponse.Errors[0]);
                 }
             }
@@ -138,7 +139,7 @@ namespace Steepshot.iOS.Views
 
         protected override void CalculateBottom()
         {
-            Bottom = (Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset);
+            Bottom = Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset;
         }
     }
 }

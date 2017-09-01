@@ -30,10 +30,10 @@ namespace Steepshot.iOS.ViewSources
         {
             BaseProfileCell cell;
             if (IsGrid)
-                cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell("PhotoCollectionViewCell", indexPath);
+                cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
             else
             {
-                cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell("FeedCollectionViewCell", indexPath);
+                cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(FeedCollectionViewCell), indexPath);
                 if (!((FeedCollectionViewCell)cell).IsVotedSet)
                 {
                     ((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
@@ -66,16 +66,14 @@ namespace Steepshot.iOS.ViewSources
                 {
                     ((FeedCollectionViewCell)cell).GoToVoters += (postUrl) =>
                     {
-                        if (GoToVoters != null)
-                            GoToVoters(postUrl);
+                        GoToVoters?.Invoke(postUrl);
                     };
                 }
                 if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)
                 {
                     ((FeedCollectionViewCell)cell).ImagePreview += (image, url) =>
                     {
-                        if (ImagePreview != null)
-                            ImagePreview(image, url);
+                        ImagePreview?.Invoke(image, url);
                     };
                 }
             }

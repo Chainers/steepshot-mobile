@@ -6,8 +6,8 @@ using AVFoundation;
 using CoreGraphics;
 using Foundation;
 using Photos;
+using Steepshot.Core;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 
@@ -34,8 +34,8 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), "PhotoCollectionViewCell");
-            photoCollection.RegisterNibForCell(UINib.FromName("PhotoCollectionViewCell", NSBundle.MainBundle), "PhotoCollectionViewCell");
+            photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
+            photoCollection.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
 
             photoButton.TouchDown += PhotoButton_TouchDown;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
@@ -153,7 +153,7 @@ namespace Steepshot.iOS.Views
 
             var tw = new UILabel(new CGRect(0, 0, 120, barHeight));
             tw.TextColor = UIColor.White;
-            tw.Text = "CHOOSE PHOTO"; // to constants
+            tw.Text = Localization.Messages.ChoosePhoto;
             tw.BackgroundColor = UIColor.Clear;
             tw.TextAlignment = UITextAlignment.Center;
             tw.Font = UIFont.SystemFontOfSize(17);
@@ -300,10 +300,7 @@ namespace Steepshot.iOS.Views
 
         public override void Scrolled(UIScrollView scrollView)
         {
-            if (_scrolledAction != null)
-            {
-                _scrolledAction();
-            }
+            _scrolledAction?.Invoke();
         }
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
@@ -324,7 +321,7 @@ namespace Steepshot.iOS.Views
                 var cellHeight = 165 + UIScreen.MainScreen.Bounds.Width;
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
             }
-            return Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+            return Steepshot.iOS.Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
         }
     }
 }

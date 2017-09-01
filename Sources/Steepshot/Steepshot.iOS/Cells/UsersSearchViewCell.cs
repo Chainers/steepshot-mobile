@@ -9,7 +9,7 @@ namespace Steepshot.iOS.Cells
 {
 	public partial class UsersSearchViewCell : UITableViewCell
 	{
-		public static readonly NSString Key = new NSString("UsersSearchViewCell");
+		public static readonly NSString Key = new NSString(nameof(UsersSearchViewCell));
 		public static readonly UINib Nib;
 		private IScheduledWork _scheduledWorkAvatar;
 		protected UsersSearchViewCell(IntPtr handle) : base(handle) { }
@@ -18,7 +18,7 @@ namespace Steepshot.iOS.Cells
 
 		static UsersSearchViewCell()
 		{
-			Nib = UINib.FromName("UsersSearchViewCell", NSBundle.MainBundle);
+			Nib = UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle);
 		}
 
 		public override void LayoutSubviews()
@@ -46,7 +46,7 @@ namespace Steepshot.iOS.Cells
 			else
 				usernameHeight.Constant = 0;
 
-			powerLabel.Text = $"{_currentVoter.Percent.ToString()}%";
+			powerLabel.Text = $"{_currentVoter.Percent}%";
 			login.Text = _currentVoter.Username;
 		}
 
