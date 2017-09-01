@@ -117,30 +117,28 @@ namespace Steepshot.Fragment
 
         private async Task GetTags()
         {
-            _spinner.Visibility = ViewStates.Visible;
-
-            await _presenter.SearchCategories(_searchView.Query, _searchType).ContinueWith((e) =>
+            try
             {
-                var errors = e.Result;
+                _spinner.Visibility = ViewStates.Visible;
+
+                var errors = await _presenter.SearchCategories(_searchView.Query, _searchType);
                 if (errors != null && errors.Count > 0)
                     Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
                 else
                 {
-                    Activity.RunOnUiThread(() =>
-                    {
-                        if (_searchType == SearchType.Tags)
-                            _categoriesAdapter.NotifyDataSetChanged();
-                        else
-                            _usersSearchAdapter.NotifyDataSetChanged();
-                    });
+                    if (_searchType == SearchType.Tags)
+                        _categoriesAdapter.NotifyDataSetChanged();
+                    else
+                        _usersSearchAdapter.NotifyDataSetChanged();
                 }
 
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_spinner != null)
-                        _spinner.Visibility = ViewStates.Gone;
-                });
-            });
+                if (_spinner != null)
+                    _spinner.Visibility = ViewStates.Gone;
+            }
+            catch(Exception ex)
+            {
+                
+            }
         }
 
         protected override void CreatePresenter()
