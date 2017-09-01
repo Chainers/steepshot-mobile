@@ -69,8 +69,8 @@ namespace Steepshot.Activity
                 _scanner.UseCustomOverlay = false;
 
                 //We can customize the top and bottom text of the default overlay
-                _scanner.TopText = "Hold the camera up to the barcode\nAbout 6 inches away";
-                _scanner.BottomText = "Wait for the barcode to automatically scan!";
+                _scanner.TopText = Localization.Messages.CameraHoldUp;
+                _scanner.BottomText = Localization.Messages.WaitforScan;
 
                 //Start scanning
                 var result = await _scanner.Scan();
@@ -105,7 +105,7 @@ namespace Steepshot.Activity
 
                 if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
                 {
-                    Toast.MakeText(this, "Invalid credentials", ToastLength.Short).Show();
+                    Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
                     return;
                 }
 

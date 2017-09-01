@@ -6,6 +6,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -43,7 +44,7 @@ namespace Steepshot.Fragment
 			if (IsInitialized)
 				return;
 			 base.OnViewCreated(view, savedInstanceState);
-			_viewTitle.Text = "Voters";
+			_viewTitle.Text = Localization.Messages.Voters;
 			_url = Activity.Intent.GetStringExtra("url");
 			_votersAdapter = new VotersAdapter(Activity, _presenter.Users);
 			_votersAdapter.Click += OnClick;

@@ -25,7 +25,7 @@ namespace Steepshot.iOS.Views
         public NSLayoutConstraint FollowButtonWidth => followButtonWidth;
         public NSLayoutConstraint FollowButtonMargin => followButtonMargin;
 
-        public ProfileHeaderViewController(Action viewLoaded) : base("ProfileHeaderViewController", null)
+        public ProfileHeaderViewController(Action viewLoaded) : base(nameof(ProfileHeaderViewController), null)
         {
             _viewLoaded = viewLoaded;
         }

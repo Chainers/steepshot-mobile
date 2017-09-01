@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -230,14 +230,14 @@ namespace Steepshot.iOS.Views
 
                     var buttonsAttributes = new UIStringAttributes
                     {
-                        Font = Constants.Bold12,
+                        Font = Steepshot.iOS.Helpers.Constants.Bold12,
                         ForegroundColor = UIColor.FromRGB(51, 51, 51),
                         ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
                     };
 
                     var textAttributes = new UIStringAttributes
                     {
-                        Font = Constants.Bold9,
+                        Font = Steepshot.iOS.Helpers.Constants.Bold9,
                         ForegroundColor = UIColor.FromRGB(153, 153, 153),
                         ParagraphStyle = new NSMutableParagraphStyle() { LineSpacing = 5, Alignment = UITextAlignment.Center }
                     };
@@ -309,7 +309,7 @@ namespace Steepshot.iOS.Views
                 foreach (var r in _presenter.Posts)
                 {
                     var at = new NSMutableAttributedString();
-                    at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
+                    at.Append(new NSAttributedString(r.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
                     at.Append(new NSAttributedString($" {r.Title}"));
                     _collectionViewSource.FeedStrings.Add(at);
                 }
@@ -449,9 +449,9 @@ namespace Steepshot.iOS.Views
             else
             {
                 if (_userData.HasFollowed == 0)
-                    _profileHeader.FollowButton.SetTitle("FOLLOW", UIControlState.Normal);
+                    _profileHeader.FollowButton.SetTitle(Localization.Messages.Follow, UIControlState.Normal);
                 else
-                    _profileHeader.FollowButton.SetTitle("UNFOLLOW", UIControlState.Normal);
+                    _profileHeader.FollowButton.SetTitle(Localization.Messages.Unfollow, UIControlState.Normal);
             }
         }
     }

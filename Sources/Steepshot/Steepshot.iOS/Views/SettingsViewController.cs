@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Linq;
 using Autofac;
 using Foundation;
@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
             _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
             _previousNetwork = Chain;
-            versionLabel.Text = $"App version: {AppSettings.Container.Resolve<IAppInfo>().GetAppVersion()} Build number: {NSBundle.MainBundle.InfoDictionary["CFBundleVersion"]}";
+            versionLabel.Text = Localization.Messages.AppVersion(AppSettings.Container.Resolve<IAppInfo>().GetAppVersion(), NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString());
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
             //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
@@ -98,7 +98,7 @@ namespace Steepshot.iOS.Views
                 if (MFMailComposeViewController.CanSendMail)
                 {
                     _mailController = new MFMailComposeViewController();
-                    _mailController.SetToRecipients(new string[] { "steepshot.org@gmail.com" });
+                    _mailController.SetToRecipients(new[] { "steepshot.org@gmail.com" });
                     _mailController.SetSubject("User report");
                     _mailController.Finished += (object s, MFComposeResultEventArgs args) =>
                     {
@@ -126,8 +126,8 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-			NetworkChanged = _previousNetwork != Chain;
-			ShouldProfileUpdate = _previousNetwork != Chain;
+            NetworkChanged = _previousNetwork != Chain;
+            ShouldProfileUpdate = _previousNetwork != Chain;
 
             if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
                 NavigationController.SetNavigationBarHidden(true, true);

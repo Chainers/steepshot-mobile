@@ -2,12 +2,12 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Helpers;
-using Steepshot.iOS.ViewControllers;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Cells
 {
@@ -16,7 +16,7 @@ namespace Steepshot.iOS.Cells
     public partial class FollowViewCell : UITableViewCell
     {
         protected FollowViewCell(IntPtr handle) : base(handle) { }
-        public static readonly NSString Key = new NSString("FollowViewCell");
+        public static readonly NSString Key = new NSString(nameof(FollowViewCell));
         public static readonly UINib Nib;
         private bool _isButtonBinded;
         public event FollowEventHandler Follow;
@@ -28,7 +28,7 @@ namespace Steepshot.iOS.Cells
 
         static FollowViewCell()
         {
-            Nib = UINib.FromName("FollowViewCell", NSBundle.MainBundle);
+            Nib = UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle);
         }
 
         public override void LayoutSubviews()
@@ -54,7 +54,7 @@ namespace Steepshot.iOS.Cells
                                                                                          .Into(avatar);
 
             userName.Text = _currentUser.Author;
-            followButton.SetTitle(_currentUser.HasFollowed ? "UNFOLLOW" : "FOLLOW", UIControlState.Normal);
+            followButton.SetTitle(_currentUser.HasFollowed ? Localization.Messages.Unfollow : Localization.Messages.Follow, UIControlState.Normal);
 
             followButton.Enabled = true;
             progressBar.StopAnimating();
@@ -79,7 +79,7 @@ namespace Steepshot.iOS.Cells
                         {
                             if (author == _currentUser.Author && success != null)
                             {
-                                followButton.SetTitle((bool) success ? "UNFOLLOW" : "FOLLOW",
+                                followButton.SetTitle((bool)success ? Localization.Messages.Unfollow : Localization.Messages.Follow,
                                     UIControlState.Normal);
                                 followButton.Enabled = true;
                                 progressBar.StopAnimating();
