@@ -10,6 +10,7 @@ using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Java.Lang;
+using Steepshot.Core;
 using Math = System.Math;
 
 namespace Steepshot.Utils
@@ -180,7 +181,7 @@ namespace Steepshot.Utils
         {
             if (scaleType == ScaleType.FitStart || scaleType == ScaleType.FitEnd)
             {
-                throw new Core.Exceptions.UnsupportedOperationException("ScalemageView does not support FitStart or FitEnd");
+                throw new Core.Exceptions.UnsupportedOperationException(Localization.Errors.ErrorCameraScale);
             }
             if (scaleType == ScaleType.Matrix)
             {
@@ -220,7 +221,7 @@ namespace Steepshot.Utils
         {
             if (_mScaleType == ScaleType.FitXy)
             {
-                throw new UnsupportedOperationException("getZoomedRect() not supported with FitXy");
+                throw new UnsupportedOperationException(Localization.Errors.ErrorCameraZoom);
             }
             var topLeft = TransformCoordTouchToBitmap(0, 0, true);
             var bottomRight = TransformCoordTouchToBitmap(ViewWidth, ViewHeight, true);
@@ -624,7 +625,7 @@ namespace Steepshot.Utils
             }
             else
             {
-                throw new UnsupportedOperationException("ScaleImageView does not support FitStart or FitEnd");
+                throw new UnsupportedOperationException(Localization.Errors.ErrorCameraScale);
             }
 
             //

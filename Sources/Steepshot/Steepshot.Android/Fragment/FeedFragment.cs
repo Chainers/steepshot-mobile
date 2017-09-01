@@ -21,7 +21,7 @@ namespace Steepshot.Fragment
         private FeedPresenter _presenter;
         private FeedAdapter _feedAdapter;
         public static int SearchRequestCode = 1336;
-        public const string FollowingFragmentId = "FollowingFragment";
+        public const string FollowingFragmentId = nameof(FollowingFragment);
         public string CustomTag
         {
             get => _presenter.Tag;

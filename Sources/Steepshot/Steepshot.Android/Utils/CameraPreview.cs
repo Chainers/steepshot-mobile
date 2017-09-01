@@ -7,6 +7,7 @@ using Android.Graphics;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Core;
 
 namespace Steepshot.Utils
 {
@@ -42,7 +43,8 @@ namespace Steepshot.Utils
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error setting camera preview: " + e.Message);
+                //TODO:KOA: remove Console!
+                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
             }
 
             try
@@ -81,7 +83,8 @@ namespace Steepshot.Utils
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error setting camera preview: " + e.Message);
+                //TODO:KOA: remove Console!
+                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
             }
         }
 
@@ -94,7 +97,8 @@ namespace Steepshot.Utils
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error setting camera preview: " + e.Message);
+                //TODO:KOA: remove Console!
+                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
             }
         }
 

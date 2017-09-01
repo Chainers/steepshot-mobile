@@ -9,6 +9,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -62,14 +63,14 @@ namespace Steepshot.Activity
                         }
                         else
                         {
-                            Toast.MakeText(this, "You post so fast. Try it later", ToastLength.Short).Show();
+                            Toast.MakeText(this, Localization.Messages.RapidPosting, ToastLength.Short).Show();
                         }
                     }
                 }
                 catch (Exception ex)
                 {
                     Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-                    Toast.MakeText(this, "Unknown error. Try again", ToastLength.Short).Show();
+                    Toast.MakeText(this, Localization.Errors.Unknownerror, ToastLength.Short).Show();
                 }
                 if (_sendSpinner != null && _post != null)
                 {
