@@ -3,9 +3,11 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Widget;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -28,16 +30,16 @@ namespace Steepshot.Activity
             builder.RegisterInstance(new SaverService()).As<ISaverService>();
 
 
-			Picasso.Builder d = new Picasso.Builder(this);
+            Picasso.Builder d = new Picasso.Builder(this);
             Cache = new LruCache(this);
-			d.MemoryCache(Cache);
-			Picasso.SetSingletonInstance(d.Build());
+            d.MemoryCache(Cache);
+            Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
             _presenter = new SplashPresenter();
         }
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -51,7 +53,18 @@ namespace Steepshot.Activity
                 Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
             };
 
-            StartActivity(_presenter.IsGuest ? typeof(GuestActivity) : typeof(RootActivity));
+            bool isKeyValid = false;
+
+            if (!_presenter.IsGuest)
+            {
+                isKeyValid = (await _presenter.SignIn(BasePresenter.User.Login, BasePresenter.User.UserInfo.PostingKey)).Success;
+                if (!isKeyValid)
+                {
+                    BasePresenter.User.UserInfo.PostingKey = null;
+                    Toast.MakeText(this, Localization.Errors.WrongPrivateKey, ToastLength.Long);
+                }
+            }
+            StartActivity(!_presenter.IsGuest && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
         }
     }
 }
