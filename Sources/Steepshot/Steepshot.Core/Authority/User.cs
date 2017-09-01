@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Autofac;
 using Steepshot.Core.Utils;
@@ -79,6 +80,13 @@ namespace Steepshot.Core.Authority
 
         public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain)
         {
+            if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
+			{
+				UserInfo.PostingKey = pass;
+				Save();
+                return;
+			}
+
             var userInfo = new UserInfo
             {
                 Login = login,
@@ -95,7 +103,11 @@ namespace Steepshot.Core.Authority
         {
             var user = _data.Select().FirstOrDefault(x => x.Login == userInfo.Login && x.Chain == userInfo.Chain);
             if (user != null)
+            {
                 UserInfo = user;
+                UserInfo.LoginTime = DateTime.Now;
+                Save();
+            }
         }
 
         public void Delete()
