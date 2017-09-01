@@ -15,8 +15,8 @@ namespace Steepshot.Core.Presenters
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 40;
-        public event VoidDelegate PostsLoaded;
-        public event VoidDelegate PostsCleared;
+        public event Action PostsLoaded;
+        public event Action PostsCleared;
 
         public UserProfilePresenter(string username)
         {
