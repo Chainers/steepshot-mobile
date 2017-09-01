@@ -7,6 +7,7 @@ using Android.Widget;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -29,16 +30,16 @@ namespace Steepshot.Activity
             builder.RegisterInstance(new SaverService()).As<ISaverService>();
 
 
-			Picasso.Builder d = new Picasso.Builder(this);
+            Picasso.Builder d = new Picasso.Builder(this);
             Cache = new LruCache(this);
-			d.MemoryCache(Cache);
-			Picasso.SetSingletonInstance(d.Build());
+            d.MemoryCache(Cache);
+            Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
             _presenter = new SplashPresenter();
         }
 
-        protected async override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -60,7 +61,7 @@ namespace Steepshot.Activity
                 if (!isKeyValid)
                 {
                     BasePresenter.User.UserInfo.PostingKey = null;
-                    Toast.MakeText(this, "Check your posting key please", ToastLength.Long).Show();
+                    Toast.MakeText(this, Localization.Errors.WrongPrivateKey, ToastLength.Long);
                 }
             }
             StartActivity(!_presenter.IsGuest && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
