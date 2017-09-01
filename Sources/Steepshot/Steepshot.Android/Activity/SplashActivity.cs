@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Widget;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Base;
@@ -37,7 +38,7 @@ namespace Steepshot.Activity
             _presenter = new SplashPresenter();
         }
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected async override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -51,7 +52,18 @@ namespace Steepshot.Activity
                 Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
             };
 
-            StartActivity(_presenter.IsGuest ? typeof(GuestActivity) : typeof(RootActivity));
+            bool isKeyValid = false;
+
+            if (!_presenter.IsGuest)
+            {
+                isKeyValid = (await _presenter.SignIn(BasePresenter.User.Login, BasePresenter.User.UserInfo.PostingKey)).Success;
+                if (!isKeyValid)
+                {
+                    BasePresenter.User.UserInfo.PostingKey = null;
+                    Toast.MakeText(this, "Check your posting key please", ToastLength.Long).Show();
+                }
+            }
+            StartActivity(!_presenter.IsGuest && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
         }
     }
 }
