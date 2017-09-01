@@ -94,8 +94,6 @@ namespace Steepshot.iOS.Views
            });
         }
 
-        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
-
         private async void Search(string query)
         {
             noTagsLabel.Hidden = true;
