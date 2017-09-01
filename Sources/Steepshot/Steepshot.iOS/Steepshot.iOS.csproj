@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
+    <ProjectGuid>{4B259270-7F8D-4132-91C4-AD144D025A30}</ProjectGuid>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Steepshot.iOS</RootNamespace>
+    <AssemblyName>Steepshot.iOS</AssemblyName>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
+    <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <IOSDebuggerPort>38792</IOSDebuggerPort>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
+    <LangVersion>Default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhone\Release</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <MtouchFloat32>true</MtouchFloat32>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <LangVersion>Default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>x86_64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <LangVersion>Default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhone\Debug</OutputPath>
+    <DefineConstants>DEBUG;ENABLE_TEST_CLOUD;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer: Pavel Martynov (9YGTK86742)</CodesignKey>
+    <DeviceSpecificBuild>true</DeviceSpecificBuild>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchFastDev>true</MtouchFastDev>
+    <MtouchFloat32>true</MtouchFloat32>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <CodesignProvision>
+    </CodesignProvision>
+    <LangVersion>Default</LangVersion>
+    <MtouchProfiling>true</MtouchProfiling>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.1\lib\netstandard1.1\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch, Version=2.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.2.2.5\lib\netstandard1.3\Ditch.dll</HintPath>
+    </Reference>
+    <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.2.9\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
+    </Reference>
+    <Reference Include="FFImageLoading.Platform, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.2.9\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="FubarCoder.RestSharp.Portable.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=be81bb0f53eab22f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubarCoder.RestSharp.Portable.Core.4.0.8\lib\xamarinios10\FubarCoder.RestSharp.Portable.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FubarCoder.RestSharp.Portable.HttpClient, Version=4.0.0.0, Culture=neutral, PublicKeyToken=be81bb0f53eab22f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubarCoder.RestSharp.Portable.HttpClient.4.0.8\lib\xamarinios10\FubarCoder.RestSharp.Portable.HttpClient.dll</HintPath>
+    </Reference>
+    <Reference Include="iOSDeviceModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\iOSDeviceModel.1.1.0\lib\Xamarin.iOS10\iOSDeviceModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\Xamarin.iOS10\RestSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.ClientEngine, Version=0.8.0.12, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.8.0.12\lib\xamarinios10\SuperSocket.ClientEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebP.Touch, Version=1.0.6230.37678, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebP.Touch.1.0.3\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocket4Net, Version=0.15.0.9, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocket4Net.0.15.0-beta9\lib\xamarinios10\WebSocket4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.iOS" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Data" />
+    <Reference Include="ZXing.Net.Mobile.Core, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\ZXing.Net.Mobile.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.portable, Version=2.2.9.0, Culture=neutral, PublicKeyToken=830ae994e36ac27d, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\zxing.portable.dll</HintPath>
+    </Reference>
+    <Reference Include="ZXingNetMobile, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\Contents.json">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\120x120.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\180x180.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\80x80.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\87x87.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png">
+      <InProject>false</InProject>
+    </ImageAsset>
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="LaunchScreen.storyboard" />
+    <InterfaceDefinition Include="Main.storyboard" />
+    <InterfaceDefinition Include="Cells\FeedTableViewCell.xib" />
+    <InterfaceDefinition Include="Cells\PhotoCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
+    <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
+    <InterfaceDefinition Include="Views\ProfileHeaderViewController.xib" />
+    <InterfaceDefinition Include="Cells\FeedCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\UsersSearchViewCell.xib" />
+    <InterfaceDefinition Include="Views\FeedViewController.xib" />
+    <InterfaceDefinition Include="Views\PreLoginViewController.xib" />
+    <InterfaceDefinition Include="Views\LoginViewController.xib" />
+    <InterfaceDefinition Include="Views\PhotoViewController.xib" />
+    <InterfaceDefinition Include="Views\ProfileViewController.xib" />
+    <InterfaceDefinition Include="Views\CommentsViewController.xib" />
+    <InterfaceDefinition Include="Views\WebPageViewController.xib" />
+    <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
+    <InterfaceDefinition Include="Views\DescriptionViewController.xib" />
+    <InterfaceDefinition Include="Views\FollowViewController.xib" />
+    <InterfaceDefinition Include="Views\SettingsViewController.xib" />
+    <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
+    <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
+    <InterfaceDefinition Include="Views\VotersViewController.xib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Info.plist" />
+    <None Include="Entitlements.plist" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\DataProvider.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="AppDelegate.cs" />
+    <Compile Include="ViewControllers\MainTabBarController.cs" />
+    <Compile Include="Cells\FeedTableViewCell.cs" />
+    <Compile Include="Cells\FeedTableViewCell.designer.cs">
+      <DependentUpon>FeedTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\FeedTableViewSource.cs" />
+    <Compile Include="ViewControllers\BaseViewController.cs" />
+    <Compile Include="Cells\PhotoCollectionViewCell.cs" />
+    <Compile Include="Cells\PhotoCollectionViewCell.designer.cs">
+      <DependentUpon>PhotoCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\PhotoCollectionViewSource.cs" />
+    <Compile Include="Helpers\Constants.cs" />
+    <Compile Include="ViewSources\PostTagsTableViewSource.cs" />
+    <Compile Include="ViewSources\TagsCollectionViewSource.cs" />
+    <Compile Include="Cells\TagCollectionViewCell.cs" />
+    <Compile Include="Cells\TagCollectionViewCell.designer.cs">
+      <DependentUpon>TagCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\ProfileCollectionViewSource.cs" />
+    <Compile Include="Cells\FollowViewCell.cs" />
+    <Compile Include="Cells\FollowViewCell.designer.cs">
+      <DependentUpon>FollowViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\FollowTableViewSource.cs" />
+    <Compile Include="ViewSources\BaseTableSource.cs" />
+    <Compile Include="Cells\CommentTableViewCell.cs" />
+    <Compile Include="Cells\CommentTableViewCell.designer.cs">
+      <DependentUpon>CommentTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\CommentsTableViewSource.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.cs" />
+    <Compile Include="Views\ProfileHeaderViewController.designer.cs">
+      <DependentUpon>ProfileHeaderViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\FeedCollectionViewCell.cs" />
+    <Compile Include="Cells\FeedCollectionViewCell.designer.cs">
+      <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\BaseProfileCell.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.cs" />
+    <Compile Include="Cells\UsersSearchViewCell.designer.cs">
+      <DependentUpon>UsersSearchViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\UserSearchTableViewSource.cs" />
+    <Compile Include="ViewSources\VotersTableViewSource.cs" />
+    <Compile Include="Views\FeedViewController.cs" />
+    <Compile Include="Views\FeedViewController.designer.cs">
+      <DependentUpon>FeedViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PreLoginViewController.cs" />
+    <Compile Include="Views\PreLoginViewController.designer.cs">
+      <DependentUpon>PreLoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginViewController.cs" />
+    <Compile Include="Views\LoginViewController.designer.cs">
+      <DependentUpon>LoginViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PhotoViewController.cs" />
+    <Compile Include="Views\PhotoViewController.designer.cs">
+      <DependentUpon>PhotoViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfileViewController.cs" />
+    <Compile Include="Views\ProfileViewController.designer.cs">
+      <DependentUpon>ProfileViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CommentsViewController.cs" />
+    <Compile Include="Views\CommentsViewController.designer.cs">
+      <DependentUpon>CommentsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WebPageViewController.cs" />
+    <Compile Include="Views\WebPageViewController.designer.cs">
+      <DependentUpon>WebPageViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ImagePreviewViewController.cs" />
+    <Compile Include="Views\ImagePreviewViewController.designer.cs">
+      <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DescriptionViewController.cs" />
+    <Compile Include="Views\DescriptionViewController.designer.cs">
+      <DependentUpon>DescriptionViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FollowViewController.cs" />
+    <Compile Include="Views\FollowViewController.designer.cs">
+      <DependentUpon>FollowViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsViewController.cs" />
+    <Compile Include="Views\SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PostTagsViewController.cs" />
+    <Compile Include="Views\PostTagsViewController.designer.cs">
+      <DependentUpon>PostTagsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TagsSearchViewController.cs" />
+    <Compile Include="Views\TagsSearchViewController.designer.cs">
+      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VotersViewController.cs" />
+    <Compile Include="Views\VotersViewController.designer.cs">
+      <DependentUpon>VotersViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinkerPleaseInclude.cs" />
+    <Compile Include="Services\AppInfo.cs" />
+    <Compile Include="Services\SaverService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_photo_holder.png" />
+    <BundleResource Include="Resources\ic_user_placeholder.png" />
+    <BundleResource Include="Resources\ic_conversation.png" />
+    <BundleResource Include="Resources\white-arrow-down.png" />
+    <BundleResource Include="Resources\ic_cross.png" />
+    <BundleResource Include="Resources\ic_micro_heart.png" />
+    <BundleResource Include="Resources\ic_send.png" />
+    <BundleResource Include="Resources\eye%402x.png" />
+    <BundleResource Include="Resources\eye%403x.png" />
+    <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
+    <BundleResource Include="Resources\Fonts\Lato-Heavy.ttf" />
+    <BundleResource Include="Resources\golos%402x.png" />
+    <BundleResource Include="Resources\golos%403x.png" />
+    <BundleResource Include="Resources\logo_login.png" />
+    <BundleResource Include="Resources\logo_login%402x.png" />
+    <BundleResource Include="Resources\logo_login%403x.png" />
+    <BundleResource Include="Resources\steem.png" />
+    <BundleResource Include="Resources\steem%402x.png" />
+    <BundleResource Include="Resources\steem%403x.png" />
+    <BundleResource Include="Resources\splash.png" />
+    <BundleResource Include="Resources\splash%402x.png" />
+    <BundleResource Include="Resources\splash%403x.png" />
+    <BundleResource Include="Resources\qr%402x.png" />
+    <BundleResource Include="Resources\qr%403x.png" />
+    <BundleResource Include="Resources\rotate%402x.png" />
+    <BundleResource Include="Resources\rotate%403x.png" />
+    <BundleResource Include="Resources\home%402x.png" />
+    <BundleResource Include="Resources\home%403x.png" />
+    <BundleResource Include="Resources\browse%402x.png" />
+    <BundleResource Include="Resources\browse%403x.png" />
+    <BundleResource Include="Resources\camera%402x.png" />
+    <BundleResource Include="Resources\camera%403x.png" />
+    <BundleResource Include="Resources\profile%402x.png" />
+    <BundleResource Include="Resources\profile%403x.png" />
+    <BundleResource Include="Resources\gallery%403x.png" />
+    <BundleResource Include="Resources\gallery%402x.png" />
+    <BundleResource Include="Resources\take_photo%402x.png" />
+    <BundleResource Include="Resources\take_photo%403x.png" />
+    <BundleResource Include="Resources\list%402x.png" />
+    <BundleResource Include="Resources\list%403x.png" />
+    <BundleResource Include="Resources\grid%402x.png" />
+    <BundleResource Include="Resources\grid%403x.png" />
+    <BundleResource Include="Resources\gear%402x.png" />
+    <BundleResource Include="Resources\gear%403x.png" />
+    <BundleResource Include="Resources\wallet%402x.png" />
+    <BundleResource Include="Resources\wallet%403x.png" />
+    <BundleResource Include="Resources\Fonts\Lato-Regular.ttf" />
+    <BundleResource Include="Resources\Fonts\Lato-Semibold.ttf" />
+    <BundleResource Include="Resources\flag%402x.png" />
+    <BundleResource Include="Resources\flag%403x.png" />
+    <BundleResource Include="Resources\small_camera%402x.png" />
+    <BundleResource Include="Resources\small_camera%403x.png" />
+    <BundleResource Include="Resources\heart_black%402x.png" />
+    <BundleResource Include="Resources\heart_black%403x.png" />
+    <BundleResource Include="Resources\heart%402x.png" />
+    <BundleResource Include="Resources\heart%403x.png" />
+    <BundleResource Include="Resources\search%402x.png" />
+    <BundleResource Include="Resources\search%403x.png" />
+    <BundleResource Include="Resources\flag_active%402x.png" />
+    <BundleResource Include="Resources\flag_active%403x.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
+      <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
+      <Name>Steepshot.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
+</Project>

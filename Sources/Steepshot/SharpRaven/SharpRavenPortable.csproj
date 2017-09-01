@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{67F9D3A8-F71E-4428-913F-C37AE82CDB24}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpRavenPortable</RootNamespace>
+    <AssemblyName>SharpRavenPortable</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Data\Breadcrumb.cs" />
+    <Compile Include="Data\BreadcrumbLevel.cs" />
+    <Compile Include="Data\BreadcrumbType.cs" />
+    <Compile Include="Data\DefaultHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\ErrorLevel.cs" />
+    <Compile Include="Data\ExceptionData.cs" />
+    <Compile Include="Data\ExceptionFrame.cs" />
+    <Compile Include="Data\FormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\HttpRequestBodyConverter.cs" />
+    <Compile Include="Data\IHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\IJsonPacketFactory.cs" />
+    <Compile Include="Data\ISentryRequest.cs" />
+    <Compile Include="Data\ISentryRequestFactory.cs" />
+    <Compile Include="Data\ISentryUserFactory.cs" />
+    <Compile Include="Data\JsonHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\JsonPacket.cs" />
+    <Compile Include="Data\JsonPacketFactory.cs" />
+    <Compile Include="Data\MultiPartFormHttpRequestBodyConverter.cs" />
+    <Compile Include="Data\RequestData.cs" />
+    <Compile Include="Data\Requester.cs" />
+    <Compile Include="Data\Requester.Net45.cs" />
+    <Compile Include="Data\SentryEvent.cs" />
+    <Compile Include="Data\SentryException.cs" />
+    <Compile Include="Data\SentryMessage.cs" />
+    <Compile Include="Data\SentryRequest.cs" />
+    <Compile Include="Data\SentryRequestFactory.cs" />
+    <Compile Include="Data\SentryStacktrace.cs" />
+    <Compile Include="Data\SentryUser.cs" />
+    <Compile Include="Data\SentryUserFactory.cs" />
+    <Compile Include="Dsn.cs" />
+    <Compile Include="IRavenClient.cs" />
+    <Compile Include="Logging\Filters\CreditCardFilter.cs" />
+    <Compile Include="Logging\Filters\PhoneNumberFilter.cs" />
+    <Compile Include="Logging\Filters\SocialSecurityFilter.cs" />
+    <Compile Include="Logging\IFilter.cs" />
+    <Compile Include="Logging\IScrubber.cs" />
+    <Compile Include="Logging\LogScrubber.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RavenClient.cs" />
+    <Compile Include="RavenClient.Net45.cs" />
+    <Compile Include="Serialization\LowerInvariantStringEnumConverter.cs" />
+    <Compile Include="StackFarme.cs" />
+    <Compile Include="Utilities\CircularBuffer.cs" />
+    <Compile Include="Utilities\GzipUtil.cs" />
+    <Compile Include="Utilities\PacketBuilder.cs" />
+    <Compile Include="Utilities\SystemUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\portable-net45+win8+wp8+wpa81\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\netstandard1.1\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+</Project>
