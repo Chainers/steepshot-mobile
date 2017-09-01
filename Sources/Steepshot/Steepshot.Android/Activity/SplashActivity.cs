@@ -39,7 +39,7 @@ namespace Steepshot.Activity
             _presenter = new SplashPresenter();
         }
 
-        protected override async void OnCreate(Bundle savedInstanceState)
+        protected async override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 

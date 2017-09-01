@@ -81,11 +81,11 @@ namespace Steepshot.Core.Authority
         public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
-			{
-				UserInfo.PostingKey = pass;
-				Save();
+            {
+                UserInfo.PostingKey = pass;
+                Save();
                 return;
-			}
+            }
 
             var userInfo = new UserInfo
             {
