@@ -7,7 +7,6 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public delegate void VoidDelegate();
     public class BasePresenter
     {
         private static ISteepshotApiClient _apiClient;
