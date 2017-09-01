@@ -46,7 +46,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var weigth = (short) (request.Type == VoteType.Up ? 10000 : 0);
+                var weigth = (short)(request.Type == VoteType.Up ? 10000 : 0);
                 var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, weigth);
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
@@ -172,7 +172,7 @@ namespace Steepshot.Core.HttpClient
                 Result = new LogoutResponse(true)
             });
         }
-        
+
         #endregion Post requests
 
         private Tuple<string, string> UrlToAuthorAndPermlink(string url)
@@ -186,41 +186,6 @@ namespace Steepshot.Core.HttpClient
         private IEnumerable<byte[]> ToKeyArr(string postingKey)
         {
             return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
-        }
-
-        private string ParseErrorCode(JsonRpcResponse resp)
-        {
-            if (resp.Error is SystemError)
-            {
-                switch (resp.Error.Code)
-                {
-                    case (int)ErrorCodes.ConnectionTimeoutError:
-                        {
-                            return "Can not connect to the server, check for an Internet connection and try again.";
-                        }
-                    case (int)ErrorCodes.ResponseTimeoutError:
-                        {
-                            return "The server does not respond to the request. Check your internet connection and try again.";
-                        }
-                    default:
-                        {
-                            return "An unexpected error occurred. Check the Internet or try restarting the application.";
-                        }
-                }
-            }
-            var respError = resp.Error as ResponseError;
-            if (respError != null)
-            {
-                var error = respError;
-                if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
-                {
-                    return "Invalid private posting key!";
-                }
-
-                return $"The server did not accept the request! Reason ({error.Data.Code}) {error.Data.Message}";
-            }
-
-            return resp.GetErrorMessage();
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
@@ -260,7 +225,7 @@ namespace Steepshot.Core.HttpClient
                                 if (typedError.Data.Stack.Any())
                                 {
                                     var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
-                                    if (match.Success)
+                                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
                                     {
                                         operationResult.Errors.Add(match.Value);
                                         break;
