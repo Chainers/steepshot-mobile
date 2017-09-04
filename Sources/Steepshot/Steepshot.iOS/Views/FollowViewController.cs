@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -114,7 +115,7 @@ namespace Steepshot.iOS.Views
                         success = user.HasFollowed = response.Result.IsSuccess;
                 }
                 else
-                    Reporter.SendCrash("Follow page follow error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                    Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
 
             }
             catch (Exception ex)

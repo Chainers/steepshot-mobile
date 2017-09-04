@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Steepshot.Core;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
@@ -22,10 +21,10 @@ namespace Steepshot.iOS.Views
         {
         }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new PreSignInPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new PreSignInPresenter();
+        }
 
         public KnownChains NewAccountNetwork;
 
@@ -62,7 +61,7 @@ namespace Steepshot.iOS.Views
 
             var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
             tw.TextColor = UIColor.White;
-            tw.Text = "PROFILE"; // to constants
+            tw.Text = Localization.Messages.Profile;
             tw.BackgroundColor = UIColor.Clear;
             tw.TextAlignment = UITextAlignment.Center;
             tw.Font = Constants.Heavy165;
@@ -85,15 +84,15 @@ namespace Steepshot.iOS.Views
             );
             devTap.NumberOfTapsRequired = 10;
 
-			UITapGestureRecognizer golosTap = new UITapGestureRecognizer(
-				() =>
-				{
-					var network = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-					SetText(network);
-					SwitchChain(network);
-				}
-			);
-			golosTap.NumberOfTapsRequired = 5;
+            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(
+                () =>
+                {
+                    var network = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                    SetText(network);
+                    SwitchChain(network);
+                }
+            );
+            golosTap.NumberOfTapsRequired = 5;
 
             golosHidden.AddGestureRecognizer(devTap);
             logo.AddGestureRecognizer(golosTap);
@@ -122,8 +121,8 @@ namespace Steepshot.iOS.Views
 
         private void SetText(KnownChains network)
         {
-            loginLabel.Text = $"Log in with your {(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork)} Account";
-            signLabel.Text = $"Haven't {(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork)} account yet?";
+            loginLabel.Text = Localization.Messages.LoginMsg(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork);
+            signLabel.Text = Localization.Messages.NoAccountMsg(NewAccountNetwork == KnownChains.None ? network : NewAccountNetwork);
         }
 
         private async Task GetUserInfo()
@@ -132,7 +131,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
             try
             {
-				var response = await _presenter.GetAccountInfo(loginText.Text);
+                var response = await _presenter.GetAccountInfo(loginText.Text);
                 if (response.Success)
                 {
                     var myViewController = new LoginViewController();
@@ -147,7 +146,7 @@ namespace Steepshot.iOS.Views
             }
             catch (ArgumentNullException)
             {
-                ShowAlert("Login cannot be empty");
+                ShowAlert(Localization.Errors.EmptyLogin);
             }
             catch (Exception ex)
             {

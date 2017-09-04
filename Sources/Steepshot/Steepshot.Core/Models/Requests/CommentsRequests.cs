@@ -10,9 +10,9 @@ namespace Steepshot.Core.Models.Requests
             if (string.IsNullOrWhiteSpace(url))
                 throw new ArgumentNullException(nameof(url));
             if (string.IsNullOrWhiteSpace(body))
-                throw new ArgumentNullException(nameof(body), "This field may not be blank!");
+                throw new ArgumentNullException(nameof(body), Localization.Errors.EmptyField);
             if (string.IsNullOrWhiteSpace(title))
-                throw new ArgumentNullException(nameof(title), "This field may not be blank!");
+                throw new ArgumentNullException(nameof(title), Localization.Errors.EmptyField);
 
             Url = url;
             Body = body;

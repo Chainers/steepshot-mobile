@@ -6,18 +6,18 @@ namespace Steepshot.iOS.Cells
 {
     public partial class TagCollectionViewCell : UICollectionViewCell
     {
-        public static readonly NSString Key = new NSString("TagCollectionViewCell");
+        public static readonly NSString Key = new NSString(nameof(TagCollectionViewCell));
         public static readonly UINib Nib;
         private bool _isButtonSetted;
 
         public string TagText
         {
-            set{ tagText.Text = value; }
+            set { tagText.Text = value; }
         }
 
         static TagCollectionViewCell()
         {
-            Nib = UINib.FromName("TagCollectionViewCell", NSBundle.MainBundle);
+            Nib = UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle);
         }
 
         protected TagCollectionViewCell(IntPtr handle) : base(handle)

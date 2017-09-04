@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
-using Steepshot.Core.Models.Requests;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -20,10 +19,10 @@ namespace Steepshot.iOS.Views
 
         public LoginViewController() { }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new SignInPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new SignInPresenter();
+        }
 
         private SignInPresenter _presenter;
         public string AvatarLink { get; set; }
@@ -56,12 +55,12 @@ namespace Steepshot.iOS.Views
                                              .DownSample(width: (int)avatar.Frame.Width)
                                              .Into(avatar);
 
-            loginTitle.Text = $"Hello, {Username}";
-            loginTitle.Font = Constants.Bold225;
-            postingLabel.Font = Constants.Bold175;
-            password.Font = Constants.Bold135;
-            loginButton.Font = Constants.Heavy115;
-            postingKeyButton.Font = Constants.Bold15;
+            loginTitle.Text = Localization.Messages.Hello + Username;
+            loginTitle.Font = Steepshot.iOS.Helpers.Constants.Bold225;
+            postingLabel.Font = Steepshot.iOS.Helpers.Constants.Bold175;
+            password.Font = Steepshot.iOS.Helpers.Constants.Bold135;
+            loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
+            postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
 #if DEBUG
             password.Text = "***REMOVED***";
 #endif
@@ -74,13 +73,13 @@ namespace Steepshot.iOS.Views
             password.RightViewMode = UITextFieldViewMode.Always;
             var tw = new UILabel(new CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
             tw.TextColor = UIColor.White;
-            tw.Text = "PROFILE"; // to constants
+            tw.Text = Localization.Messages.Profile;
             tw.BackgroundColor = UIColor.Clear;
             tw.TextAlignment = UITextAlignment.Center;
-            tw.Font = Constants.Heavy165;
+            tw.Font = Steepshot.iOS.Helpers.Constants.Heavy165;
             NavigationItem.TitleView = tw;
 
-            qrButton.Font = Constants.Bold135;
+            qrButton.Font = Steepshot.iOS.Helpers.Constants.Bold135;
             //qrButton.ImageEdgeInsets = new UIEdgeInsets(5, 5, -5, -5);
             qrButton.TouchDown += async (sender, e) =>
             {
@@ -104,7 +103,7 @@ namespace Steepshot.iOS.Views
         {
             if (!tosSwitch.On)
             {
-                ShowAlert("Make sure you accept the terms of service and privacy policy");
+                ShowAlert(Localization.Messages.AcceptToS);
                 return;
             }
 
@@ -133,7 +132,7 @@ namespace Steepshot.iOS.Views
             }
             catch (ArgumentNullException)
             {
-                ShowAlert("PostingKey cannot be empty");
+                ShowAlert(Localization.Errors.WrongPrivateKey);
             }
             catch (Exception ex)
             {

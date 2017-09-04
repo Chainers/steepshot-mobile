@@ -2,6 +2,7 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Helpers;
@@ -16,12 +17,12 @@ namespace Steepshot.iOS.Cells
         {
 
         }
-        public static readonly NSString Key = new NSString("FeedCollectionViewCell");
+        public static readonly NSString Key = new NSString(nameof(FeedCollectionViewCell));
         public static readonly UINib Nib;
 
         static FeedCollectionViewCell()
         {
-            Nib = UINib.FromName("FeedCollectionViewCell", NSBundle.MainBundle);
+            Nib = UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle);
         }
 
         private bool _isButtonBinded;
@@ -58,7 +59,7 @@ namespace Steepshot.iOS.Cells
                                                      .Into(avatarImage);
 
 
-            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Constants.ImageCacheDuration)
+            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
                                                      .WithCache(FFImageLoading.Cache.CacheType.All)
                                                      .Retry(2, 200)
                                                      .DownSample((int)UIScreen.MainScreen.Bounds.Width)
@@ -66,12 +67,11 @@ namespace Steepshot.iOS.Cells
 
             cellText.Text = _currentPost.Author;
             rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            netVotes.Text = $"{_currentPost.NetVotes} likes";
+            netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
             commentText.AttributedText = comment;
-
-            var buttonTitle = _currentPost.Children == 0 ? "Post first comment" : $"View {_currentPost.Children} comments";
+            var buttonTitle = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
             flagButton.Enabled = true;
@@ -130,7 +130,7 @@ namespace Steepshot.iOS.Cells
                     likeButton.Selected = post.Result.IsSucces;
                     flagButton.Selected = _currentPost.Flag;
                     rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
                 }
                 likeButton.Enabled = true;
             });
@@ -145,7 +145,7 @@ namespace Steepshot.iOS.Cells
                 {
                     flagButton.Selected = post.Result.IsSucces;
                     likeButton.Selected = _currentPost.Vote;
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
                     rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
                 }
                 flagButton.Selected = _currentPost.Flag;

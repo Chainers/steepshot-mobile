@@ -46,7 +46,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
-                var weigth = (short) (request.Type == VoteType.Up ? 10000 : 0);
+                var weigth = (short)(request.Type == VoteType.Up ? 10000 : 0);
                 var op = new VoteOperation(request.Login, authPost.Item1, authPost.Item2, weigth);
                 var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
 
@@ -68,7 +68,7 @@ namespace Steepshot.Core.HttpClient
                     OnError(resp, result);
                 }
 
-                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors);
+                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors, request.Identifier);
                 return result;
             });
         }
@@ -90,7 +90,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors);
+                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username);
                 return result;
             });
         }
@@ -99,8 +99,14 @@ namespace Steepshot.Core.HttpClient
         {
             return await Task.Run(() =>
             {
+                var keys = ToKeyArr(request.PostingKey);
+                var invalidKey = keys.Any(k => k.Length == 0);
+                if (invalidKey)
+                    return new OperationResult<LoginResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
+
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var resp = OperationManager.VerifyAuthority(ToKeyArr(request.PostingKey), op);
+                var resp = OperationManager.VerifyAuthority(keys, op);
 
                 var result = new OperationResult<LoginResponse>();
 
@@ -109,7 +115,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace("login-with-posting", request.Login, result.Errors);
+                Trace("login-with-posting", request.Login, result.Errors, string.Empty);
                 return result;
             });
         }
@@ -128,7 +134,7 @@ namespace Steepshot.Core.HttpClient
                     result.Result = new CreateCommentResponse(true);
                 else
                     OnError(resp, result);
-                Trace($"post/{request.Url}/comment", request.Login, result.Errors);
+                Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url);
                 return result;
             });
         }
@@ -148,19 +154,22 @@ namespace Steepshot.Core.HttpClient
                 if (uploadResponse.Success)
                 {
                     var upResp = uploadResponse.Result;
-                    var meta = _jsonConverter.Serialize(upResp.Meta);
+                    var meta = upResp.Meta.ToString();
+                    if (!string.IsNullOrWhiteSpace(meta))
+                        meta = meta.Replace(Environment.NewLine, string.Empty);
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
                     var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
                     if (!resp.IsError)
                         result.Result = upResp.Payload;
                     else
                         OnError(resp, result);
+
+                    Trace("post", request.Login, result.Errors, post.Permlink);
                 }
                 else
                 {
                     result.Errors.AddRange(uploadResponse.Errors);
                 }
-                Trace("post", request.Login, result.Errors);
                 return result;
             });
         }
@@ -172,55 +181,20 @@ namespace Steepshot.Core.HttpClient
                 Result = new LogoutResponse(true)
             });
         }
-        
+
         #endregion Post requests
 
         private Tuple<string, string> UrlToAuthorAndPermlink(string url)
         {
             var authAndPermlink = url.Remove(0, url.LastIndexOf('@') + 1);
             var authPostArr = authAndPermlink.Split('/');
-            if (authPostArr.Length != 2) throw new InvalidCastException($"Unexpected url format: {url}");
+            if (authPostArr.Length != 2) throw new InvalidCastException(Localization.Errors.UnexpectedUrlFormat + url);
             return new Tuple<string, string>(authPostArr[0], authPostArr[1]);
         }
 
-        private IEnumerable<byte[]> ToKeyArr(string postingKey)
+        private List<byte[]> ToKeyArr(string postingKey)
         {
-            return new List<byte[]> { Ditch.Helpers.Base58.GetBytes(postingKey) };
-        }
-
-        private string ParseErrorCode(JsonRpcResponse resp)
-        {
-            if (resp.Error is SystemError)
-            {
-                switch (resp.Error.Code)
-                {
-                    case (int)ErrorCodes.ConnectionTimeoutError:
-                        {
-                            return "Can not connect to the server, check for an Internet connection and try again.";
-                        }
-                    case (int)ErrorCodes.ResponseTimeoutError:
-                        {
-                            return "The server does not respond to the request. Check your internet connection and try again.";
-                        }
-                    default:
-                        {
-                            return "An unexpected error occurred. Check the Internet or try restarting the application.";
-                        }
-                }
-            }
-            var respError = resp.Error as ResponseError;
-            if (respError != null)
-            {
-                var error = respError;
-                if (error.Data.Code == 3030000 && error.Data.Name == "LoginResponse")
-                {
-                    return "Invalid private posting key!";
-                }
-
-                return $"The server did not accept the request! Reason ({error.Data.Code}) {error.Data.Message}";
-            }
-
-            return resp.GetErrorMessage();
+            return new List<byte[]> { Ditch.Helpers.Base58.TryGetBytes(postingKey) };
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
@@ -233,17 +207,17 @@ namespace Steepshot.Core.HttpClient
                     {
                         case (int)ErrorCodes.ConnectionTimeoutError:
                             {
-                                operationResult.Errors.Add("Can not connect to the server, check for an Internet connection and try again.");
+                                operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
                                 break;
                             }
                         case (int)ErrorCodes.ResponseTimeoutError:
                             {
-                                operationResult.Errors.Add("The server does not respond to the request. Check your internet connection and try again.");
+                                operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
                                 break;
                             }
                         default:
                             {
-                                operationResult.Errors.Add("An unexpected error occurred. Check the Internet or try restarting the application.");
+                                operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
                                 break;
                             }
                     }
@@ -260,7 +234,7 @@ namespace Steepshot.Core.HttpClient
                                 if (typedError.Data.Stack.Any())
                                 {
                                     var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
-                                    if (match.Success)
+                                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
                                     {
                                         operationResult.Errors.Add(match.Value);
                                         break;
@@ -280,14 +254,14 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (t.Name == "LoginResponse")
                                 {
-                                    operationResult.Errors.Add("Invalid private posting key!");
+                                    operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
                                     break;
                                 }
                                 goto default;
                             }
                         default:
                             {
-                                operationResult.Errors.Add($"The server did not accept the request! Reason ({typedError.Data.Code}) {typedError.Data.Message}");
+                                operationResult.Errors.Add(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
                                 break;
                             }
                     }
