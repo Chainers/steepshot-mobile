@@ -18,10 +18,9 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class SearchFragment : BaseFragment
+    public class SearchFragment : BaseFragmentWithPresenter<SearchPresenter>
     {
         private Timer _timer;
-        SearchPresenter _presenter;
         private SearchType _searchType = SearchType.Tags;
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
 
@@ -89,11 +88,11 @@ namespace Steepshot.Fragment
 
         public void OnClick(int pos)
         {
-			if (Activity.CurrentFocus != null)
-			{
-				var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-				imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
-			}
+            if (Activity.CurrentFocus != null)
+            {
+                var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+                imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
+            }
             if (_searchType == SearchType.Tags)
             {
                 Activity.Intent.PutExtra("SEARCH", _categoriesAdapter.GetItem(pos).Name);

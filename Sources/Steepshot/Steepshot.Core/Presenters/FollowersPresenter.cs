@@ -21,6 +21,8 @@ namespace Steepshot.Core.Presenters
             List<string> errors = null;
             try
             {
+                if (!CheckInternetConnection())
+                    return errors;
                 if (!_hasItems)
                     return errors;
                 var request = new UserFriendsRequest(username, followType)

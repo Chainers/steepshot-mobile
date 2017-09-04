@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Android.App;
 using Android.Content;
-using Android.OS;
 using Android.Support.V7.App;
 using Square.Picasso;
 using Steepshot.Core;
@@ -14,13 +13,6 @@ namespace Steepshot.Base
     {
         public static LruCache Cache { get; set; }
         protected HostFragment CurrentHostFragment;
-        protected override void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
-            CreatePresenter();
-        }
-
-        protected virtual void CreatePresenter() { }
 
         public Context GetContext()
         {

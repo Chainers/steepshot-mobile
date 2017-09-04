@@ -18,9 +18,8 @@ using Steepshot.Core.Presenters;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SettingsActivity : BaseActivity
+    public class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
     {
-        SettingsPresenter _presenter;
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.civ_avatar)] private CircleImageView _avatar;
         [InjectView(Resource.Id.steem_text)] private TextView _steemText;
@@ -196,6 +195,7 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new SettingsPresenter();
+            base.CreatePresenter();
         }
     }
 }
