@@ -12,8 +12,8 @@ namespace Steepshot.Core.Presenters
     public class FeedPresenter : BaseFeedPresenter
     {
         private readonly bool _isFeed;
-        public event VoidDelegate PostsLoaded;
-        public event VoidDelegate PostsCleared;
+        public event Action PostsLoaded;
+        public event Action PostsCleared;
         private CancellationTokenSource _cts;
         private PostType _type = PostType.Top;
         public bool Processing;

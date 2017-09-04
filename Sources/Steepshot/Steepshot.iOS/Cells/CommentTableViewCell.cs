@@ -11,7 +11,7 @@ namespace Steepshot.iOS.Cells
     public partial class CommentTableViewCell : UITableViewCell
     {
         protected CommentTableViewCell(IntPtr handle) : base(handle) { }
-        public static readonly NSString Key = new NSString("CommentTableViewCell");
+        public static readonly NSString Key = new NSString(nameof(CommentTableViewCell));
         public static readonly UINib Nib;
         private bool _isButtonBinded;
         public event VoteEventHandler<VoteResponse> Voted;
@@ -24,7 +24,7 @@ namespace Steepshot.iOS.Cells
 
         static CommentTableViewCell()
         {
-            Nib = UINib.FromName("CommentTableViewCell", NSBundle.MainBundle);
+            Nib = UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle);
         }
 
         public override void LayoutSubviews()

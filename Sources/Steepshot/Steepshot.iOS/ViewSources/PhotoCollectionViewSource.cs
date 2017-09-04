@@ -27,7 +27,7 @@ namespace Steepshot.iOS.ViewSources
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell("PhotoCollectionViewCell", indexPath);
+            var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
 
             _m.RequestImageForAsset((PHAsset)_fetchResults[indexPath.Item], new CoreGraphics.CGSize(150, 150),
                                    PHImageContentMode.AspectFit, new PHImageRequestOptions(), (img, info) =>

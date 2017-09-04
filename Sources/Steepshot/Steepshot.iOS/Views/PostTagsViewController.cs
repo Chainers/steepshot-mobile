@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -26,10 +26,10 @@ namespace Steepshot.iOS.Views
         public PostTagsViewController()
         {
         }
-		protected override void CreatePresenter()
-		{
-			_presenter = new TagsPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new TagsPresenter();
+        }
         private TagsCollectionViewSource _collectionviewSource;
         private CancellationTokenSource _cts;
         private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
@@ -128,7 +128,7 @@ namespace Steepshot.iOS.Views
                         tagsTable.ReloadData();
                     }
                     else
-                        Reporter.SendCrash("Post tags page get items error: " + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                        Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)

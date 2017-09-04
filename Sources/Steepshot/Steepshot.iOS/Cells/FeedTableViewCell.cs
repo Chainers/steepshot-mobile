@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -14,7 +15,7 @@ namespace Steepshot.iOS.Cells
 
     public partial class FeedTableViewCell : UITableViewCell
     {
-        public static readonly NSString Key = new NSString("FeedTableViewCell");
+        public static readonly NSString Key = new NSString(nameof(FeedTableViewCell));
         public static readonly UINib Nib;
 
         private bool _isButtonBinded;
@@ -59,7 +60,7 @@ namespace Steepshot.iOS.Cells
 
         static FeedTableViewCell()
         {
-            Nib = UINib.FromName("FeedTableViewCell", NSBundle.MainBundle);
+            Nib = UINib.FromName(nameof(FeedTableViewCell), NSBundle.MainBundle);
         }
 
         protected FeedTableViewCell(IntPtr handle) : base(handle)
@@ -78,7 +79,7 @@ namespace Steepshot.iOS.Cells
             _currentPost = post;
             cellText.Text = post.Author;
             rewards.Text = BaseViewController.ToFormatedCurrencyString(post.TotalPayoutReward);
-            netVotes.Text = $"{post.NetVotes} likes";
+            netVotes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = post.Vote;
             var nicknameAttribute = new UIStringAttributes
             {
@@ -89,7 +90,7 @@ namespace Steepshot.iOS.Cells
             at.Append(new NSAttributedString(" "));
             at.Append(new NSAttributedString(post.Title));
             commentText.AttributedText = at;
-            var buttonTitle = post.Children == 0 ? "Post first comment" : $"View {post.Children} comments";
+            var buttonTitle = post.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, post.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
 
@@ -97,7 +98,7 @@ namespace Steepshot.iOS.Cells
             {
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
-                    ImagePreview(bodyImage.Image, "");
+                    ImagePreview(bodyImage.Image, string.Empty);
                 });
                 bodyImage.AddGestureRecognizer(tap);
             }
@@ -156,7 +157,7 @@ namespace Steepshot.iOS.Cells
                     rewards.Text = $"{BaseViewController.Currency}{post.NewTotalPayoutReward.ToString()}";
 
                     _currentPost.NetVotes++;
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} likes";
+                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
                 }
             });
         }

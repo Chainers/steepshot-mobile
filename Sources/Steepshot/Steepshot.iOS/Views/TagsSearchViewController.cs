@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -28,25 +26,25 @@ namespace Steepshot.iOS.Views
         {
         }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new SearchPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new SearchPresenter();
+        }
 
-		private bool _navigationBarHidden;
+        private bool _navigationBarHidden;
 
-		public override void ViewWillAppear(bool animated)
-		{
-			_navigationBarHidden = NavigationController.NavigationBarHidden;
-			NavigationController.SetNavigationBarHidden(false, true);
-			base.ViewWillAppear(animated);
-		}
+        public override void ViewWillAppear(bool animated)
+        {
+            _navigationBarHidden = NavigationController.NavigationBarHidden;
+            NavigationController.SetNavigationBarHidden(false, true);
+            base.ViewWillAppear(animated);
+        }
 
-		public override void ViewWillDisappear(bool animated)
-		{
-			NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
-			base.ViewWillDisappear(animated);
-		}
+        public override void ViewWillDisappear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
+            base.ViewWillDisappear(animated);
+        }
 
         public override void ViewDidLoad()
         {
@@ -101,51 +99,43 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                await _presenter.SearchCategories(query, _searchType).ContinueWith((e) =>
+                var errors = await _presenter.SearchCategories(query, _searchType);
+                if (errors != null && errors.Count > 0)
+                    ShowAlert(errors[0]);
+                else
                 {
-                    var errors = e.Result;
-                    if (errors != null && errors.Count > 0)
-                        ShowAlert(errors[0]);
+
+                    bool shouldHide;
+                    if (_searchType == SearchType.Tags)
+                    {
+                        tagsTable.ReloadData();
+                        shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
+                    }
                     else
                     {
-                        InvokeOnMainThread(() =>
-                        {
-                            bool shouldHide;
-                            if (_searchType == SearchType.Tags)
-                            {
-                                tagsTable.ReloadData();
-                                shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
-                            }
-                            else
-                            {
-                                usersTable.ReloadData();
-                                shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
-                            }
-                            if (shouldHide)
-                            {
-                                noTagsLabel.Hidden = false;
-                                tagsTable.Hidden = true;
-                                usersTable.Hidden = true;
-                            }
-                            else
-                            {
-                                noTagsLabel.Hidden = true;
-                                if (_searchType == SearchType.People)
-                                    usersTable.Hidden = false;
-                                else
-                                    tagsTable.Hidden = false;
-                            }
-                        });
+                        usersTable.ReloadData();
+                        shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
                     }
-                    InvokeOnMainThread(() =>
+                    if (shouldHide)
                     {
-                        activityIndicator.StopAnimating();
-                    });
-                });
+                        noTagsLabel.Hidden = false;
+                        tagsTable.Hidden = true;
+                        usersTable.Hidden = true;
+                    }
+                    else
+                    {
+                        noTagsLabel.Hidden = true;
+                        if (_searchType == SearchType.People)
+                            usersTable.Hidden = false;
+                        else
+                            tagsTable.Hidden = false;
+                    }
+                }
+                activityIndicator.StopAnimating();
             }
-            catch(Exception)
+            catch (Exception)
             {
-                
+
             }
         }
 
@@ -170,21 +160,20 @@ namespace Steepshot.iOS.Views
             noTagsLabel.Hidden = true;
             if (_searchType == SearchType.Tags)
             {
-                searchTextField.Placeholder = "Please type a tag";
-                peopleButton.Font = Constants.Regular15;
-                tagsButton.Font = Constants.Bold175;
+                searchTextField.Placeholder = Localization.Messages.TypeTag;
+                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
+                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
                 tagsTable.Hidden = false;
                 usersTable.Hidden = true;
             }
             else
             {
-                searchTextField.Placeholder = "Please type an username";
-                tagsButton.Font = Constants.Regular15;
-                peopleButton.Font = Constants.Bold175;
+                searchTextField.Placeholder = Localization.Messages.TypeUsername;
+                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
+                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
                 tagsTable.Hidden = true;
                 usersTable.Hidden = false;
             }
         }
     }
 }
-

@@ -21,7 +21,7 @@ namespace Steepshot.Fragment
         private FeedPresenter _presenter;
         private FeedAdapter _feedAdapter;
         public static int SearchRequestCode = 1336;
-        public const string FollowingFragmentId = "FollowingFragment";
+        public const string FollowingFragmentId = nameof(FollowingFragment);
         public string CustomTag
         {
             get => _presenter.Tag;
@@ -172,22 +172,9 @@ namespace Steepshot.Fragment
                 {
                     var response = await _presenter.Vote(position);
 
-                    if (response.Success)
-                    {
-                        if (_presenter.Posts.Count >= position)
-                        {
-                            _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
-
-                            _presenter.Posts[position].NetVotes = (_presenter.Posts[position].Vote) ?
-                                _presenter.Posts[position].NetVotes + 1 :
-                                _presenter.Posts[position].NetVotes - 1;
-                            _presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-                        }
-                    }
-                    else
-                    {
+                    if (!response.Success)
                         Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-                    }
+
                     _feedAdapter?.NotifyDataSetChanged();
                 }
                 else
@@ -266,7 +253,7 @@ namespace Steepshot.Fragment
                 {
                     _prevPos = 0;
                 };
-            } 
+            }
 
             public async override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
             {

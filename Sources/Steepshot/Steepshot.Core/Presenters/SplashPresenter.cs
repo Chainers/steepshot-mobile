@@ -1,6 +1,6 @@
 ﻿namespace Steepshot.Core.Presenters
 {
-    public class SplashPresenter : BasePresenter
+    public class SplashPresenter : SignInPresenter
     {
         public bool IsGuest => !User.IsAuthenticated;
     }

@@ -321,20 +321,10 @@ namespace Steepshot.Fragment
                 {
                     var response = await _presenter.Vote(position);
 
-                    if (response.Success)
-                    {
-                        _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
-                        if (response.Result.IsSucces)
-                            _presenter.Posts[position].NetVotes++;
-                        else
-                            _presenter.Posts[position].NetVotes--;
-                        _presenter.Posts[position].TotalPayoutReward = response.Result.NewTotalPayoutReward;
-                        _postsList?.GetAdapter()?.NotifyDataSetChanged();
-                    }
-                    else
-                    {
-                        //TODO:KOA Show error
-                    }
+					if (!response.Success)
+						Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
+
+                    _postsList?.GetAdapter()?.NotifyDataSetChanged();
                 }
                 else
                 {
