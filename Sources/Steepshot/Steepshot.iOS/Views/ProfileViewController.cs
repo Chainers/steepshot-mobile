@@ -18,20 +18,14 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BaseViewController
+    public partial class ProfileViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
-        protected ProfileViewController(IntPtr handle) : base(handle) { }
-
-        public ProfileViewController()
-        {
-        }
-
         protected override void CreatePresenter()
         {
             _presenter = new UserProfilePresenter(Username);
+            base.CreatePresenter();
         }
 
-        UserProfilePresenter _presenter;
         private UserProfileResponse _userData;
         public string Username = BasePresenter.User.Login;
         private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
@@ -456,4 +450,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-
