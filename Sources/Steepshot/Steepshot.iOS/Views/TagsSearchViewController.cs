@@ -10,25 +10,17 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsSearchViewController : BaseViewController
+    public partial class TagsSearchViewController : BaseViewControllerWithPresenter<SearchPresenter>
     {
         private Timer _timer;
         private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
         private UserSearchTableViewSource _usersSource = new UserSearchTableViewSource();
         private SearchType _searchType = SearchType.Tags;
-        private SearchPresenter _presenter;
-
-        protected TagsSearchViewController(IntPtr handle) : base(handle)
-        {
-        }
-
-        public TagsSearchViewController()
-        {
-        }
 
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
+            base.CreatePresenter();
         }
 
         private bool _navigationBarHidden;

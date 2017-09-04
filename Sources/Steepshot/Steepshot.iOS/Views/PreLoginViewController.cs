@@ -9,21 +9,12 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PreLoginViewController : BaseViewController
+    public partial class PreLoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
-        PreSignInPresenter _presenter;
-        protected PreLoginViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logi  
-        }
-
-        public PreLoginViewController()
-        {
-        }
-
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();
+            base.CreatePresenter();
         }
 
         public KnownChains NewAccountNetwork;
@@ -203,4 +194,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-

@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
     public class FollowersPresenter : BasePresenter
     {
         public readonly List<UserFriend> Users = new List<UserFriend>();
-        private bool _hasItems = true;
+        public bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private readonly int _itemsLimit = 60;
 

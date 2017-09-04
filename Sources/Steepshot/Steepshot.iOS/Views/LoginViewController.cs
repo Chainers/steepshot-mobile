@@ -10,21 +10,14 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class LoginViewController : BaseViewController
+    public partial class LoginViewController : BaseViewControllerWithPresenter<SignInPresenter>
     {
-        protected LoginViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
-        public LoginViewController() { }
-
         protected override void CreatePresenter()
         {
             _presenter = new SignInPresenter();
+            base.CreatePresenter();
         }
 
-        private SignInPresenter _presenter;
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 
@@ -154,4 +147,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-

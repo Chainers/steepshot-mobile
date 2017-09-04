@@ -13,16 +13,13 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class CommentsViewController : BaseViewController
+    public partial class CommentsViewController : BaseViewControllerWithPresenter<CommentsPresenter>
     {
-        protected CommentsViewController(IntPtr handle) : base(handle) { }
-        CommentsPresenter _presenter;
-        public CommentsViewController() { }
-
-		protected override void CreatePresenter()
-		{
-			_presenter = new CommentsPresenter();
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new CommentsPresenter();
+            base.CreatePresenter();
+        }
 
         private readonly CommentsTableViewSource _tableSource = new CommentsTableViewSource();
         public string PostUrl;
@@ -44,9 +41,9 @@ namespace Steepshot.iOS.Views
 
             _tableSource.GoToProfile += (username) =>
             {
-				var myViewController = new ProfileViewController();
-				myViewController.Username = username;
-				NavigationController.PushViewController(myViewController, true);
+                var myViewController = new ProfileViewController();
+                myViewController.Username = username;
+                NavigationController.PushViewController(myViewController, true);
             };
 
             commentsTable.RowHeight = UITableView.AutomaticDimension;
@@ -63,7 +60,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if(IsMovingFromParentViewController)
+            if (IsMovingFromParentViewController)
                 NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
@@ -162,4 +159,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-
