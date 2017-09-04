@@ -17,6 +17,7 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
+        
         public static KnownChains Chain { get; set; }
         public static List<string> TagsList { get; set; }
         public static string AppVersion { get; set; }
@@ -55,7 +56,6 @@ namespace Steepshot.iOS.ViewControllers
         }
 
         public static string CurrentPostCategory { get; set; }
-        protected virtual void CreatePresenter() { }
 
         static BaseViewController()
         {
@@ -65,18 +65,6 @@ namespace Steepshot.iOS.ViewControllers
             TagsList = new List<string>();
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
-        }
-
-        protected BaseViewController(IntPtr handle) : base(handle)
-        {
-        }
-
-        public BaseViewController() { }
-
-        public override void ViewDidLoad()
-        {
-            CreatePresenter();
-            base.ViewDidLoad();
         }
 
         public override void ViewWillAppear(bool animated)
@@ -134,14 +122,7 @@ namespace Steepshot.iOS.ViewControllers
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
-            //if (isDev)
-            //{
             _apiClient = new DitchApi(chain, isDev);
-            //}
-            //else
-            //{
-            //    _apiClient = new SteepshotApiClient(chain, isDev);
-            //}
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)

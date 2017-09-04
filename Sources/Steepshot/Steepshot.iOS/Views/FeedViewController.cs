@@ -18,19 +18,19 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BaseViewController
+    public partial class FeedViewController : BaseViewControllerWithPresenter<FeedPresenter>
     {
-        protected FeedViewController(IntPtr handle) : base(handle) { }
         public FeedViewController(bool isFeed = false)
         {
             _isHomeFeed = isFeed;
         }
+
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isHomeFeed);
+            base.CreatePresenter();
         }
 
-        private FeedPresenter _presenter;
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
 
@@ -91,12 +91,13 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.Flagged += Flagged;
 
             _refreshControl = new UIRefreshControl();
-            _refreshControl.ValueChanged += (sender, e) =>
+            _refreshControl.ValueChanged += async (sender, e) =>
             {
                 if (_isFeedRefreshing)
                     return;
                 _isFeedRefreshing = true;
-                RefreshTable();
+                await RefreshTable();
+                _refreshControl.EndRefreshing();
             };
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
@@ -198,11 +199,11 @@ namespace Steepshot.iOS.Views
             base.ViewWillDisappear(animated);
         }
 
-        private void RefreshTable()
+        private async Task RefreshTable()
         {
             _collectionViewSource.FeedStrings.Clear();
             _presenter.ClearPosts();
-            GetPosts(false, true);
+            await GetPosts(false, true);
         }
 
         void LoginTapped(object sender, EventArgs e)
@@ -239,7 +240,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public void GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
+        public async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             if (activityIndicator.IsAnimating)
                 return;
@@ -249,12 +250,12 @@ namespace Steepshot.iOS.Views
 
             if (CurrentPostCategory == null)
             {
-                _presenter.GetTopPosts(_currentPostType, clearOld);
+                await _presenter.GetTopPosts(_currentPostType, clearOld);
             }
             else
             {
                 _presenter.Tag = CurrentPostCategory;
-                _presenter.GetSearchedPosts();
+                await _presenter.GetSearchedPosts();
             }
         }
 
