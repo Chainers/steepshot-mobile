@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
@@ -11,10 +10,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -22,7 +18,6 @@ namespace Steepshot.Fragment
     {
         private Timer _timer;
         private SearchType _searchType = SearchType.Tags;
-        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView _categories;
@@ -60,7 +55,9 @@ namespace Steepshot.Fragment
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
             _categoriesAdapter = new CategoriesAdapter();
+            _categoriesAdapter.Items = _presenter.Tags;
             _usersSearchAdapter = new UsersSearchAdapter(Activity);
+            _usersSearchAdapter.Items = _presenter.Users;
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -121,50 +118,32 @@ namespace Steepshot.Fragment
         {
             try
             {
-                var query = _searchView.Query;
-                if (_prevQuery[_searchType] == query)
-                    return;
-
-                if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))
-                    || string.IsNullOrEmpty(query) && _searchType == SearchType.People)
-                    return;
-
-                _prevQuery[_searchType] = query;
                 _spinner.Visibility = ViewStates.Visible;
-                var tagsTask = await _presenter.SearchCategories(_searchView.Query, _searchType);
-                if (_searchType == SearchType.Tags)
-                {
-                    var tags = (OperationResult<SearchResponse<SearchResult>>)tagsTask;
-                    if (tags?.Result?.Results != null)
-                    {
-                        _categoriesAdapter.Reset(tags.Result.Results);
-                        _categoriesAdapter.NotifyDataSetChanged();
-                    }
-                }
+
+                var errors = await _presenter.SearchCategories(_searchView.Query, _searchType);
+                if (errors != null && errors.Count > 0)
+                    Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
                 else
                 {
-                    var usersList = (OperationResult<SearchResponse<UserSearchResult>>)tagsTask;
-                    if (usersList?.Result?.Results != null)
-                    {
-                        _usersSearchAdapter.Items = usersList.Result.Results;
+                    if (_searchType == SearchType.Tags)
+                        _categoriesAdapter.NotifyDataSetChanged();
+                    else
                         _usersSearchAdapter.NotifyDataSetChanged();
-                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-            }
-            finally
-            {
+
                 if (_spinner != null)
                     _spinner.Visibility = ViewStates.Gone;
+            }
+            catch(Exception ex)
+            {
+                
             }
         }
 
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
+            base.CreatePresenter();
         }
 
         private void SwitchSearchType()
