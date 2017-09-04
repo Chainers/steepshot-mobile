@@ -5,13 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -25,18 +25,18 @@ namespace Steepshot.iOS.Views
         {
             _isHomeFeed = isFeed;
         }
-		protected override void CreatePresenter()
-		{
-			_presenter = new FeedPresenter(_isHomeFeed);
-		}
+        protected override void CreatePresenter()
+        {
+            _presenter = new FeedPresenter(_isHomeFeed);
+        }
 
         private FeedPresenter _presenter;
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
 
         private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
-		private CollectionViewFlowDelegate _gridDelegate;
-		private int _lastRow;
+        private CollectionViewFlowDelegate _gridDelegate;
+        private int _lastRow;
 
         private UIView _dropdown;
         private nfloat _dropDownListOffsetFromTop;
@@ -64,7 +64,7 @@ namespace Steepshot.iOS.Views
                  try
                  {
                      var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-                    if (_collectionViewSource.PhotoList.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
+                     if (_collectionViewSource.PhotoList.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
 
                      {
                          GetPosts();
@@ -104,9 +104,9 @@ namespace Steepshot.iOS.Views
             if (TabBarController != null)
             {
                 TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-                TabBarController.NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+                TabBarController.NavigationController.NavigationBar.BarTintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-                TabBarController.TabBar.TintColor = Constants.NavBlue;
+                TabBarController.TabBar.TintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
 
                 foreach (var controler in TabBarController.ViewControllers)
                 {
@@ -114,7 +114,7 @@ namespace Steepshot.iOS.Views
                 };
             }
 
-            _collectionViewSource.GoToProfile += (username) =>
+            _collectionViewSource.GoToProfile += username =>
             {
                 if (username == BasePresenter.User.Login)
                     return;
@@ -123,14 +123,14 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
 
-            _collectionViewSource.GoToComments += (postUrl) =>
+            _collectionViewSource.GoToComments += postUrl =>
             {
                 var myViewController = new CommentsViewController();
                 myViewController.PostUrl = postUrl;
                 _navController.PushViewController(myViewController, true);
             };
 
-            _collectionViewSource.GoToVoters += (postUrl) =>
+            _collectionViewSource.GoToVoters += postUrl =>
             {
                 var myViewController = new VotersViewController();
                 myViewController.PostUrl = postUrl;
@@ -157,19 +157,19 @@ namespace Steepshot.iOS.Views
         private void _presenter_PostsLoaded()
         {
             foreach (var r in _presenter.Posts)
-			{
-				var at = new NSMutableAttributedString();
-				at.Append(new NSAttributedString(r.Author, Constants.NicknameAttribute));
-				at.Append(new NSAttributedString($" {r.Title}"));
-				_collectionViewSource.FeedStrings.Add(at);
-			}		
+            {
+                var at = new NSMutableAttributedString();
+                at.Append(new NSAttributedString(r.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
+                at.Append(new NSAttributedString($" {r.Title}"));
+                _collectionViewSource.FeedStrings.Add(at);
+            }
 
             feedCollection.ReloadData();
             feedCollection.CollectionViewLayout.InvalidateLayout();
             if (_refreshControl.Refreshing)
             {
-				_refreshControl.EndRefreshing();
-				_isFeedRefreshing = false;
+                _refreshControl.EndRefreshing();
+                _isFeedRefreshing = false;
             }
             else
             {
@@ -270,9 +270,9 @@ namespace Steepshot.iOS.Views
                 var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUrl));
                 if (!voteResponse.Success)
                     ShowAlert(voteResponse.Errors[0]);
-                
-				feedCollection.ReloadData();
-				flowLayout.InvalidateLayout();
+
+                feedCollection.ReloadData();
+                flowLayout.InvalidateLayout();
             }
             catch (Exception ex)
             {
@@ -288,9 +288,9 @@ namespace Steepshot.iOS.Views
                 return;
             }
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(vote, postUrl, action)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, (obj) => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(vote, postUrl, action)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(postUrl)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
             PresentViewController(actionSheetAlert, true, null);
         }
 
@@ -322,8 +322,8 @@ namespace Steepshot.iOS.Views
                 if (!flagResponse.Success)
                     ShowAlert(flagResponse.Errors[0]);
 
-				feedCollection.ReloadData();
-				flowLayout.InvalidateLayout();
+                feedCollection.ReloadData();
+                flowLayout.InvalidateLayout();
             }
             catch (Exception ex)
             {
@@ -338,7 +338,7 @@ namespace Steepshot.iOS.Views
 
             _tw = new UILabel(new CGRect(0, 0, 120, barHeight));
             _tw.TextColor = UIColor.White;
-            _tw.Text = "FEED"; //ToConstants name
+            _tw.Text = Localization.Messages.Feed;
             _tw.BackgroundColor = UIColor.Clear;
             _tw.TextAlignment = UITextAlignment.Center;
             _tw.Font = UIFont.SystemFontOfSize(17);
@@ -347,7 +347,7 @@ namespace Steepshot.iOS.Views
             titleView.Add(_tw);
             if (!_isHomeFeed)
             {
-                _tw.Text = "TRENDING"; // SET current post type
+                _tw.Text = Localization.Messages.Trending; // SET current post type
                 UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
                 titleView.AddGestureRecognizer(tapGesture);
                 titleView.UserInteractionEnabled = true;
@@ -365,14 +365,14 @@ namespace Steepshot.iOS.Views
             _navItem.TitleView = titleView;
             if (!BasePresenter.User.IsAuthenticated)
             {
-                var leftBarButton = new UIBarButtonItem("Login", UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
+                var leftBarButton = new UIBarButtonItem(Localization.Messages.Login, UIBarButtonItemStyle.Plain, LoginTapped); //ToConstants name
                 _navItem.SetLeftBarButtonItem(leftBarButton, true);
             }
             else
                 _navItem.SetLeftBarButtonItem(null, false);
 
             NavigationController.NavigationBar.TintColor = UIColor.White;
-            NavigationController.NavigationBar.BarTintColor = Constants.NavBlue;
+            NavigationController.NavigationBar.BarTintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
         }
 
         private UIView CreateDropDownList()
@@ -384,14 +384,14 @@ namespace Steepshot.iOS.Views
             var buttonColor = UIColor.FromRGB(66, 165, 245); // To constants
 
             var newPhotosButton = new UIButton(new CGRect(0, 0, _navController.NavigationBar.Frame.Width, 50));
-            newPhotosButton.SetTitle("NEW PHOTOS", UIControlState.Normal); //ToConstants name
+            newPhotosButton.SetTitle(Localization.Messages.NewPhotos, UIControlState.Normal); //ToConstants name
             newPhotosButton.BackgroundColor = buttonColor;
             newPhotosButton.TouchDown += ((e, obj) =>
                {
                    if (_currentPostType == PostType.New && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                    _presenter.ClearPosts();
+                   _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
@@ -401,7 +401,7 @@ namespace Steepshot.iOS.Views
                });
 
             var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, _navController.NavigationBar.Frame.Width, 50));
-            hotButton.SetTitle("HOT", UIControlState.Normal); //ToConstants name
+            hotButton.SetTitle(Localization.Messages.Hot, UIControlState.Normal); //ToConstants name
             hotButton.BackgroundColor = buttonColor;
 
             hotButton.TouchDown += ((e, obj) =>
@@ -409,7 +409,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-				   _presenter.ClearPosts();
+                   _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
@@ -419,7 +419,7 @@ namespace Steepshot.iOS.Views
                });
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
-            trendingButton.SetTitle("TRENDING", UIControlState.Normal); //ToConstants name
+            trendingButton.SetTitle(Localization.Messages.Trending, UIControlState.Normal); //ToConstants name
             trendingButton.BackgroundColor = buttonColor;
 
             trendingButton.TouchDown += ((e, obj) =>
@@ -427,7 +427,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Top && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-				   _presenter.ClearPosts();
+                   _presenter.ClearPosts();
                    feedCollection.ReloadData();
                    _currentPostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;

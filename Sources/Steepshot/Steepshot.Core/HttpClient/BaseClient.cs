@@ -73,11 +73,11 @@ namespace Steepshot.Core.HttpClient
                 // Checking content
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    result.Errors.Add("Empty response content");
+                    result.Errors.Add(Localization.Errors.EmptyResponseContent);
                 }
                 else if (new Regex(@"<[^>]+>").IsMatch(content))
                 {
-                    result.Errors.Add("Response content contains HTML : " + content);
+                    result.Errors.Add(Localization.Errors.ResponseContentContainsHtml + content);
                 }
             }
 
@@ -310,11 +310,13 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async void Trace(string endpoint, string login, List<string> resultErrors)
+        public async void Trace(string endpoint, string login, List<string> resultErrors, string target)
         {
             var parameters = new List<RequestParameter>();
             AddLoginParameter(parameters, login);
             parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.QueryString });
+            if (!string.IsNullOrEmpty(target))
+                parameters.Add(new RequestParameter { Key = "target", Value = target, Type = ParameterType.QueryString });
             var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
         }
 
@@ -333,13 +335,13 @@ namespace Steepshot.Core.HttpClient
         {
             if (!string.IsNullOrEmpty(login))
                 parameters.Add(new RequestParameter { Key = "login", Value = login, Type = ParameterType.QueryString });
-		}
+        }
 
         private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request)
-		{
+        {
             parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = ParameterType.QueryString });
             parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = ParameterType.QueryString });
-		}
+        }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts)
         {

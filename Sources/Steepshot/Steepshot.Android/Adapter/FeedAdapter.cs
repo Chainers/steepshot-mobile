@@ -6,6 +6,7 @@ using Android.Text;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -51,7 +52,7 @@ namespace Steepshot.Adapter
             }
 
             vh.CommentSubtitle.Text = post.Children > 0
-                ? string.Format(_context.GetString(Resource.String.view_n_comments), post.Children) 
+                ? string.Format(_context.GetString(Resource.String.view_n_comments), post.Children)
                 : _context.GetString(Resource.String.first_title_comment);
 
             vh.UpdateData(post, _context);
@@ -145,7 +146,7 @@ namespace Steepshot.Adapter
             public void UpdateData(Post post, Context context)
             {
                 _post = post;
-                Likes.Text = $"{post.NetVotes} likes";
+                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
                 Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
                 Time.Text = post.Created.ToPostTime();
             }

@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
 {
     public class VotersPresenter : BasePresenter
     {
-        public event VoidDelegate VotersLoaded;
+        public event Action VotersLoaded;
         public List<VotersResult> Users = new List<VotersResult>();
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
