@@ -68,7 +68,7 @@ namespace Steepshot.Core.HttpClient
                     OnError(resp, result);
                 }
 
-                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors);
+                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors, request.Identifier);
                 return result;
             });
         }
@@ -90,7 +90,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors);
+                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username);
                 return result;
             });
         }
@@ -115,7 +115,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace("login-with-posting", request.Login, result.Errors);
+                Trace("login-with-posting", request.Login, result.Errors, string.Empty);
                 return result;
             });
         }
@@ -134,7 +134,7 @@ namespace Steepshot.Core.HttpClient
                     result.Result = new CreateCommentResponse(true);
                 else
                     OnError(resp, result);
-                Trace($"post/{request.Url}/comment", request.Login, result.Errors);
+                Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url);
                 return result;
             });
         }
@@ -163,12 +163,13 @@ namespace Steepshot.Core.HttpClient
                         result.Result = upResp.Payload;
                     else
                         OnError(resp, result);
+
+                    Trace("post", request.Login, result.Errors, post.Permlink);
                 }
                 else
                 {
                     result.Errors.AddRange(uploadResponse.Errors);
                 }
-                Trace("post", request.Login, result.Errors);
                 return result;
             });
         }
