@@ -71,7 +71,6 @@ namespace Steepshot.iOS.Cells
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
             commentText.AttributedText = comment;
-
             var buttonTitle = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
