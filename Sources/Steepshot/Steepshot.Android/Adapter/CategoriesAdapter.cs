@@ -9,30 +9,30 @@ namespace Steepshot.Adapter
 {
     public class CategoriesAdapter : RecyclerView.Adapter
     {
-        List<SearchResult> _items = new List<SearchResult>();
+        public List<SearchResult> Items = new List<SearchResult>();
 
         public System.Action<int> Click;
 
         public void Clear()
         {
-            _items.Clear();
+            Items.Clear();
         }
 
         public void Reset(List<SearchResult> items)
         {
-            _items = items;
+            Items = items;
         }
 
         public SearchResult GetItem(int position)
         {
-            return _items[position];
+            return Items[position];
         }
 
-        public override int ItemCount => _items.Count;
+        public override int ItemCount => Items.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            ((TagViewHolder)holder).Tag.Text = _items[position].Name;
+            ((TagViewHolder)holder).Tag.Text = Items[position].Name;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
