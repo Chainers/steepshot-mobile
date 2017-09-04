@@ -16,9 +16,8 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = "TagsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = Android.Views.SoftInput.AdjustNothing)]
-    public class TagsActivity : BaseActivity
+    public class TagsActivity : BaseActivityWithPresenter<TagsPresenter>
     {
-        TagsPresenter _presenter;
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.ic_close)] ImageButton _close;
         [InjectView(Resource.Id.search_box)] EditText _searchBox;
@@ -142,15 +141,16 @@ namespace Steepshot.Activity
             _tagLayout.RemoveView((FrameLayout)t.Parent);
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new TagsPresenter();
-        }
-
         protected override void OnDestroy()
         {
             base.OnDestroy();
             Cheeseknife.Reset(this);
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new TagsPresenter();
+            base.CreatePresenter();
         }
     }
 }

@@ -16,9 +16,8 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FeedFragment : BaseFragment
+    public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
-        private FeedPresenter _presenter;
         private FeedAdapter _feedAdapter;
         public static int SearchRequestCode = 1336;
         public const string FollowingFragmentId = nameof(FollowingFragment);
@@ -208,6 +207,7 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isFeed);
+            base.CreatePresenter();
             _presenter.PostsLoaded += OnPostLoaded;
             _presenter.PostsCleared += OnPostCleared;
         }

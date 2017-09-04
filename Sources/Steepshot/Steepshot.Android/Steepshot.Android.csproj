@@ -107,6 +107,9 @@
     <Compile Include="Services\AppInfo.cs" />
     <Compile Include="Services\SaverService.cs" />
     <Compile Include="Utils\ScrollListner.cs" />
+    <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Base\BaseFragmentWithPresenter.cs" />
+    <Compile Include="Base\BaseActivityWithPresenter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

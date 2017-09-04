@@ -8,11 +8,9 @@ using Steepshot.Core.Presenters;
 
 namespace Steepshot.Activity
 {
-    [Activity(NoHistory = true, ScreenOrientation =Android.Content.PM.ScreenOrientation.Portrait)]
-	public class TermsOfServiceActivity : BaseActivity
+    [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    public class TermsOfServiceActivity : BaseActivityWithPresenter<TermsPresenter>
     {
-		TermsPresenter _presenter;
-
         private TextView _termsOfService;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -27,7 +25,7 @@ namespace Steepshot.Activity
 
         private async void LoadText()
         {
-			var info = await _presenter.GetTermsOfService();
+            var info = await _presenter.GetTermsOfService();
             if (info.Success && !string.IsNullOrEmpty(info.Result.Text))
             {
                 _termsOfService.Text = info.Result.Text;
@@ -40,9 +38,9 @@ namespace Steepshot.Activity
             Finish();
         }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new TermsPresenter();
-		}
-	}
+        protected override void CreatePresenter()
+        {
+            _presenter = new TermsPresenter();
+        }
+    }
 }
