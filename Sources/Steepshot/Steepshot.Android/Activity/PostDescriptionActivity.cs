@@ -20,9 +20,8 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivity
+    public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
-        private PostDescriptionPresenter _presenter;
         public static int TagRequestCode = 1225;
         private string _path;
 
@@ -134,6 +133,9 @@ namespace Steepshot.Activity
         {
             try
             {
+                if (!_presenter.CheckInternetConnection())
+                    return;
+
                 if (string.IsNullOrEmpty(_description.Text))
                 {
                     Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
@@ -147,7 +149,8 @@ namespace Steepshot.Activity
 
                     if (resp.Errors.Count > 0)
                     {
-                        Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
+                        if (!string.IsNullOrEmpty(resp.Errors[0]))
+                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
                     }
                     else
                     {
@@ -250,6 +253,7 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
+            base.CreatePresenter();
         }
     }
 }

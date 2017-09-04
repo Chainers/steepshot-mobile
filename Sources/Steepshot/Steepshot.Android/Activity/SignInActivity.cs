@@ -18,10 +18,8 @@ using ZXing.Mobile;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SignInActivity : BaseActivity
+    public class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
-        private SignInPresenter _presenter;
-
         private string _username;
 
 #pragma warning disable 0649, 4014
@@ -160,6 +158,7 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new SignInPresenter();
+            base.CreatePresenter();
         }
     }
 }

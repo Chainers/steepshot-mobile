@@ -22,9 +22,8 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class ProfileFragment : BaseFragment
+    public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
-        UserProfilePresenter _presenter;
         private readonly string _profileId;
         private UserProfileResponse _profile;
 
@@ -321,8 +320,8 @@ namespace Steepshot.Fragment
                 {
                     var response = await _presenter.Vote(position);
 
-					if (!response.Success)
-						Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
+                    if (!response.Success)
+                        Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
 
                     _postsList?.GetAdapter()?.NotifyDataSetChanged();
                 }

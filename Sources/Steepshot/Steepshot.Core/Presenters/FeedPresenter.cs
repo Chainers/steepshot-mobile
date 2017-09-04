@@ -18,13 +18,13 @@ namespace Steepshot.Core.Presenters
         private PostType _type = PostType.Top;
         public bool Processing;
         private bool _hasItems = true;
-		public bool HasItems
-		{
-			get
-			{
-				return _hasItems;
-			}
-		}
+        public bool HasItems
+        {
+            get
+            {
+                return _hasItems;
+            }
+        }
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 20;
         public string Tag;
@@ -41,10 +41,10 @@ namespace Steepshot.Core.Presenters
 
         public async Task ViewLoad()
         {
-			if (Posts.Count == 0)
-				await GetTopPosts(_type, true);
+            if (Posts.Count == 0)
+                await GetTopPosts(_type, true);
         }
-        
+
         public void ClearPosts()
         {
             Posts.Clear();
@@ -57,6 +57,9 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                if (!CheckInternetConnection())
+                    return;
+
                 if (!_hasItems || Processing)
                     return;
                 try
@@ -93,8 +96,8 @@ namespace Steepshot.Core.Presenters
                             Login = User.Login,
                             Limit = PostsCount,
                             Offset = _offsetUrl,
-							ShowNsfw = User.IsNsfw,
-							ShowLowRated = User.IsLowRated
+                            ShowNsfw = User.IsNsfw,
+                            ShowLowRated = User.IsLowRated
                         };
                         response = await Api.GetPosts(postrequest, _cts);
                     }
@@ -136,6 +139,9 @@ namespace Steepshot.Core.Presenters
 
         public async Task GetSearchedPosts()
         {
+            if (!CheckInternetConnection())
+                return;
+
             if (!_hasItems)
                 return;
 
@@ -157,8 +163,8 @@ namespace Steepshot.Core.Presenters
                         Login = User.Login,
                         Limit = PostsCount,
                         Offset = _offsetUrl,
-						ShowNsfw = User.IsNsfw,
-						ShowLowRated = User.IsLowRated
+                        ShowNsfw = User.IsNsfw,
+                        ShowLowRated = User.IsLowRated
                     };
 
                     var posts = await Api.GetPostsByCategory(postrequest, _cts);
