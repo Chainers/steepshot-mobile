@@ -186,28 +186,18 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
         }
 
-        async void FeedAdapter_LikeAction(int position)
+        private async void FeedAdapter_LikeAction(int position)
         {
-            try
+            if (BasePresenter.User.IsAuthenticated)
             {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    var response = await _presenter.Vote(position);
+                var errors = await _presenter.Vote(position);
+                if (errors != null && errors.Count != 0)
+                    ShowAlert(errors[0]);
 
-                    if (!response.Success)
-                        Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-
-                    _feedAdapter?.NotifyDataSetChanged();
-                }
-                else
-                {
-                    OpenLogin();
-                }
+                _feedAdapter?.NotifyDataSetChanged();
             }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-            }
+            else
+                OpenLogin();
         }
 
         public void ShowDropdown()
