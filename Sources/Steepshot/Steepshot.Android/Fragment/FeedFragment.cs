@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -13,14 +14,16 @@ using Steepshot.Base;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
         private FeedAdapter _feedAdapter;
+        private ScrollListener _scrollListner;
         public static int SearchRequestCode = 1336;
-        public const string FollowingFragmentId = nameof(FollowingFragment);
+        public const string FollowingFragmentId = nameof(DropdownFragment);
         public string CustomTag
         {
             get => _presenter.Tag;
@@ -61,9 +64,9 @@ namespace Steepshot.Fragment
             if (_isFeed)
                 return;
             if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
-                ShowFollowing();
+                ShowDropdown();
             else
-                HideFollowing();
+                HideDropdown();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -83,11 +86,11 @@ namespace Steepshot.Fragment
                 var s = Activity.Intent.GetStringExtra("SEARCH");
                 if (s != null && s != CustomTag && _bar != null)
                 {
-                    Title.Text = s;
-                    CustomTag = s;
-                    _presenter.ClearPosts();
+                    Title.Text = _presenter.Tag = CustomTag = s;
                     _bar.Visibility = ViewStates.Visible;
-                    _presenter.GetSearchedPosts();
+                    _presenter.ClearPosts();
+                    _scrollListner.ClearPosition();
+                    LoadPosts();
                 }
             }
             catch (Exception ex)
@@ -112,30 +115,50 @@ namespace Steepshot.Fragment
             _feedAdapter = new FeedAdapter(Context, _presenter.Posts);
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-            _feedList.AddOnScrollListener(new FeedsScrollListener(_presenter));
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += LoadPosts;
+            _feedList.AddOnScrollListener(_scrollListner);
             _feedAdapter.LikeAction += FeedAdapter_LikeAction;
             _feedAdapter.UserAction += FeedAdapter_UserAction;
             _feedAdapter.CommentAction += FeedAdapter_CommentAction;
             _feedAdapter.VotersClick += FeedAdapter_VotersAction;
             _feedAdapter.PhotoClick += PhotoClick;
-            _presenter.ViewLoad();
-            _refresher.Refresh += async delegate
+            LoadPosts();
+            _refresher.Refresh += delegate
                 {
                     _presenter.ClearPosts();
-                    if (string.IsNullOrEmpty(CustomTag))
-                        await _presenter.GetTopPosts(_presenter.GetCurrentType());
-                    else
-                        await _presenter.GetSearchedPosts();
-                    _refresher.Refreshing = false;
+                    _scrollListner.ClearPosition();
+                    LoadPosts();
                 };
+        }
+
+        private async void LoadPosts()
+        {
+            List<string> errors;
+            if (string.IsNullOrEmpty(CustomTag))
+                errors = await _presenter.GetTopPosts();
+            else
+                errors = await _presenter.GetSearchedPosts();
+            if (errors != null && errors.Count != 0)
+                ShowAlert(errors[0]);
+
+            if (_bar != null)
+            {
+                _bar.Visibility = ViewStates.Gone;
+                _refresher.Refreshing = false;
+            }
+            _feedAdapter?.NotifyDataSetChanged();
         }
 
         public void OnSearchPosts(string title, PostType type)
         {
             Title.Text = title;
-            _presenter.ClearPosts();
             _bar.Visibility = ViewStates.Visible;
-            _presenter.GetTopPosts(type, true);
+            _presenter.PostType = type;
+            _presenter.Tag = null;
+            _presenter.ClearPosts();
+            _scrollListner.ClearPosition();
+            LoadPosts();
         }
 
         public void PhotoClick(int position)
@@ -187,16 +210,16 @@ namespace Steepshot.Fragment
             }
         }
 
-        public void ShowFollowing()
+        public void ShowDropdown()
         {
             _arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate180));
             ChildFragmentManager.BeginTransaction()
                                 .SetCustomAnimations(Resource.Animation.up_down, Resource.Animation.down_up, Resource.Animation.up_down, Resource.Animation.down_up)
-                                .Add(Resource.Id.fragment_container, new FollowingFragment(this), FollowingFragmentId)
+                                .Add(Resource.Id.fragment_container, new DropdownFragment(this), FollowingFragmentId)
                                 .Commit();
         }
 
-        public void HideFollowing()
+        public void HideDropdown()
         {
             _arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate0));
             ChildFragmentManager.BeginTransaction()
@@ -207,24 +230,6 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isFeed);
-            base.CreatePresenter();
-            _presenter.PostsLoaded += OnPostLoaded;
-            _presenter.PostsCleared += OnPostCleared;
-        }
-
-        private void OnPostLoaded()
-        {
-            if (_bar != null)
-                _bar.Visibility = ViewStates.Gone;
-            _feedAdapter?.NotifyDataSetChanged();
-        }
-
-        private void OnPostCleared()
-        {
-            Activity.RunOnUiThread(() =>
-                {
-                    _feedAdapter?.NotifyDataSetChanged();
-                });
         }
 
         private void OpenLogin()
@@ -236,48 +241,7 @@ namespace Steepshot.Fragment
         public override void OnDetach()
         {
             base.OnDetach();
-            _presenter.PostsLoaded -= OnPostLoaded;
-            _presenter.PostsCleared -= OnPostCleared;
             Cheeseknife.Reset(this);
-        }
-
-        private class FeedsScrollListener : RecyclerView.OnScrollListener
-        {
-            readonly FeedPresenter _presenter;
-            int _prevPos;
-
-            public FeedsScrollListener(FeedPresenter presenter)
-            {
-                _presenter = presenter;
-                _presenter.PostsCleared += () =>
-                {
-                    _prevPos = 0;
-                };
-            }
-
-            public async override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
-            {
-                //int pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastCompletelyVisibleItemPosition();
-                var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
-                if (pos > _prevPos && pos != _prevPos)
-                {
-                    if (pos == recyclerView.GetAdapter().ItemCount - 1)
-                    {
-                        if (pos < ((FeedAdapter)recyclerView.GetAdapter()).ItemCount)
-                        {
-                            if (string.IsNullOrEmpty(_presenter.Tag))
-                            {
-                                await _presenter.GetTopPosts(_presenter.GetCurrentType());
-                            }
-                            else
-                            {
-                                await _presenter.GetSearchedPosts();
-                            }
-                            _prevPos = pos;
-                        }
-                    }
-                }
-            }
         }
     }
 }
