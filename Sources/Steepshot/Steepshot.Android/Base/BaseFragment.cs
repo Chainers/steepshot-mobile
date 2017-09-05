@@ -1,4 +1,7 @@
-﻿using Android.Content;
+﻿using System.Collections.Generic;
+using Android.App;
+using Android.Content;
+using Steepshot.Core;
 
 namespace Steepshot.Base
 {
@@ -22,6 +25,35 @@ namespace Steepshot.Base
         {
             get;
             set;
+        }
+
+        protected virtual void ShowAlert(int messageid)
+        {
+            var message = GetString(messageid);
+            var alert = new AlertDialog.Builder(Context);
+            alert.SetTitle(Localization.Messages.Error);
+            alert.SetMessage(message);
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        protected virtual void ShowAlert(string message)
+        {
+            var alert = new AlertDialog.Builder(Context);
+            alert.SetMessage(message);
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        protected virtual void ShowAlert(List<string> messages)
+        {
+            var alert = new AlertDialog.Builder(Context);
+            alert.SetMessage(string.Join(System.Environment.NewLine, messages));
+            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
+            Dialog dialog = alert.Create();
+            dialog.Show();
         }
     }
 }
