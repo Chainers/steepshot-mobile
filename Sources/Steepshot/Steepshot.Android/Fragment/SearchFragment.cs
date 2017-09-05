@@ -143,7 +143,7 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
-            base.CreatePresenter();
+            //base.CreatePresenter();
         }
 
         private void SwitchSearchType()

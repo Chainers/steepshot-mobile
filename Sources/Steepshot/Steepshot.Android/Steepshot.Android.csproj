@@ -96,7 +96,7 @@
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
-    <Compile Include="Fragment\FollowingFragment.cs" />
+    <Compile Include="Fragment\DropdownFragment.cs" />
     <Compile Include="Fragment\PhotoFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
