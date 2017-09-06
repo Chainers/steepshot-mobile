@@ -84,12 +84,12 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            
             try
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
                 if (s != null && s != CustomTag && _bar != null)
                 {
+                    Activity.Intent.RemoveExtra("SEARCH");
                     Title.Text = _presenter.Tag = CustomTag = s;
                     _bar.Visibility = ViewStates.Visible;
                     _presenter.ClearPosts();
