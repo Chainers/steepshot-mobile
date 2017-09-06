@@ -23,6 +23,7 @@
             public const string ErrorCameraZoom = "getZoomedRect() not supported with FitXy";
             public const string FollowError = "Follow page follow error: ";
             public const string PostTagsError = "Post tags page get items error: ";
+            public const string InternetUnavailable = "Check your internet connection";
 
             /// <summary>
             ///  $"The server did not accept the request! Reason ({code}) {msg}";

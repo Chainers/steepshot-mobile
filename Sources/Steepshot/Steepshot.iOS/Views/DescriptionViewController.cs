@@ -13,21 +13,12 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class DescriptionViewController : BaseViewController
+    public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        protected DescriptionViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
-        public DescriptionViewController()
-        {
-        }
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
         }
-        private PostDescriptionPresenter _presenter;
         public UIImage ImageAsset;
 
         private TagsCollectionViewSource _collectionviewSource;

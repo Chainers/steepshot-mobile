@@ -37,6 +37,7 @@ namespace Steepshot.iOS
             builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
             builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
             builder.RegisterInstance(new SaverService()).As<ISaverService>();
+            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>();
 
             AppSettings.Container = builder.Build();
 
