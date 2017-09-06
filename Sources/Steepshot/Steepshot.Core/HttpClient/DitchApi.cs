@@ -43,6 +43,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<VoteResponse>() { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Identifier);
@@ -75,6 +78,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<FollowResponse>() { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var op = request.Type == FollowType.Follow
@@ -97,6 +103,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<LoginResponse>() { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var keys = ToKeyArr(request.PostingKey);
@@ -122,6 +131,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<CreateCommentResponse>() { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Url);
@@ -141,6 +153,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<ImageUploadResponse>() { Errors = errors.Errors };
             return await Task.Run(async () =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
@@ -176,6 +191,9 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts)
         {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<LogoutResponse>() { Errors = errors.Errors };
             return await Task.Run(() => new OperationResult<LogoutResponse>
             {
                 Result = new LogoutResponse(true)

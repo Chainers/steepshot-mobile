@@ -15,15 +15,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class SettingsViewController : BaseViewController
     {
-        protected SettingsViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logi   
-        }
-
-        public SettingsViewController()
-        {
-        }
-
         private UserInfo _steemAcc;
         private UserInfo _golosAcc;
         private bool _isTabBarNeedResfresh;

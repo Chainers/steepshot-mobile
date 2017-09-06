@@ -22,15 +22,6 @@ namespace Steepshot.iOS.Views
 
         private bool _isCameraAccessDenied;
 
-        protected PhotoViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
-        public PhotoViewController()
-        {
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();

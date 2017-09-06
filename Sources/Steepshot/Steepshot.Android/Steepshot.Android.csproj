@@ -96,7 +96,7 @@
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
-    <Compile Include="Fragment\FollowingFragment.cs" />
+    <Compile Include="Fragment\DropdownFragment.cs" />
     <Compile Include="Fragment\PhotoFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
@@ -107,6 +107,9 @@
     <Compile Include="Services\AppInfo.cs" />
     <Compile Include="Services\SaverService.cs" />
     <Compile Include="Utils\ScrollListner.cs" />
+    <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Base\BaseFragmentWithPresenter.cs" />
+    <Compile Include="Base\BaseActivityWithPresenter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

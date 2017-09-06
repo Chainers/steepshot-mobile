@@ -9,20 +9,21 @@ using Android.Media;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using Autofac;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivity
+    public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
-        private PostDescriptionPresenter _presenter;
         public static int TagRequestCode = 1225;
         private string _path;
 
@@ -118,7 +119,6 @@ namespace Steepshot.Activity
         protected override void OnPostCreate(Bundle savedInstanceState)
         {
             base.OnPostCreate(savedInstanceState);
-
             AddTags(_tags);
         }
 
@@ -134,6 +134,9 @@ namespace Steepshot.Activity
         {
             try
             {
+                if (!AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable())
+                    return;
+
                 if (string.IsNullOrEmpty(_description.Text))
                 {
                     Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
@@ -147,7 +150,8 @@ namespace Steepshot.Activity
 
                     if (resp.Errors.Count > 0)
                     {
-                        Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
+                        if (!string.IsNullOrEmpty(resp.Errors[0]))
+                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
                     }
                     else
                     {
