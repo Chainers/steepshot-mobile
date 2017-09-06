@@ -18,19 +18,18 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BaseViewController
+    public partial class FeedViewController : BaseViewControllerWithPresenter<FeedPresenter>
     {
-        protected FeedViewController(IntPtr handle) : base(handle) { }
         public FeedViewController(bool isFeed = false)
         {
             _isHomeFeed = isFeed;
         }
+
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isHomeFeed);
         }
 
-        private FeedPresenter _presenter;
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
 
@@ -91,12 +90,13 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.Flagged += Flagged;
 
             _refreshControl = new UIRefreshControl();
-            _refreshControl.ValueChanged += (sender, e) =>
+            _refreshControl.ValueChanged += async (sender, e) =>
             {
                 if (_isFeedRefreshing)
                     return;
                 _isFeedRefreshing = true;
-                RefreshTable();
+                await RefreshTable();
+                _refreshControl.EndRefreshing();
             };
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
@@ -151,30 +151,6 @@ namespace Steepshot.iOS.Views
             }
             SetNavBar();
             GetPosts();
-            _presenter.PostsLoaded += _presenter_PostsLoaded;
-        }
-
-        private void _presenter_PostsLoaded()
-        {
-            foreach (var r in _presenter.Posts)
-            {
-                var at = new NSMutableAttributedString();
-                at.Append(new NSAttributedString(r.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                at.Append(new NSAttributedString($" {r.Title}"));
-                _collectionViewSource.FeedStrings.Add(at);
-            }
-
-            feedCollection.ReloadData();
-            feedCollection.CollectionViewLayout.InvalidateLayout();
-            if (_refreshControl.Refreshing)
-            {
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
-            }
-            else
-            {
-                activityIndicator.StopAnimating();
-            }
         }
 
         public override void ViewWillAppear(bool animated)
@@ -198,11 +174,11 @@ namespace Steepshot.iOS.Views
             base.ViewWillDisappear(animated);
         }
 
-        private void RefreshTable()
+        private async Task RefreshTable()
         {
             _collectionViewSource.FeedStrings.Clear();
             _presenter.ClearPosts();
-            GetPosts(false, true);
+            await GetPosts(false, true);
         }
 
         void LoginTapped(object sender, EventArgs e)
@@ -239,7 +215,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public void GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
+        public async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             if (activityIndicator.IsAnimating)
                 return;
@@ -247,14 +223,36 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StartAnimating();
             noFeedLabel.Hidden = true;
 
+            List<string> errors;
             if (CurrentPostCategory == null)
             {
-                _presenter.GetTopPosts(_currentPostType, clearOld);
+                errors = await _presenter.GetTopPosts(clearOld);
             }
             else
             {
                 _presenter.Tag = CurrentPostCategory;
-                _presenter.GetSearchedPosts();
+                errors = await _presenter.GetSearchedPosts();
+            }
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
+            foreach (var r in _presenter.Posts)
+            {
+                var at = new NSMutableAttributedString();
+                at.Append(new NSAttributedString(r.Author, Helpers.Constants.NicknameAttribute));
+                at.Append(new NSAttributedString($" {r.Title}"));
+                _collectionViewSource.FeedStrings.Add(at);
+            }
+
+            feedCollection.ReloadData();
+            feedCollection.CollectionViewLayout.InvalidateLayout();
+            if (_refreshControl.Refreshing)
+            {
+                _refreshControl.EndRefreshing();
+                _isFeedRefreshing = false;
+            }
+            else
+            {
+                activityIndicator.StopAnimating();
             }
         }
 
@@ -265,19 +263,12 @@ namespace Steepshot.iOS.Views
                 LoginTapped(null, null);
                 return;
             }
-            try
-            {
-                var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-                if (!voteResponse.Success)
-                    ShowAlert(voteResponse.Errors[0]);
+            var errors = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUrl));
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
 
-                feedCollection.ReloadData();
-                flowLayout.InvalidateLayout();
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
-            }
+            feedCollection.ReloadData();
+            flowLayout.InvalidateLayout();
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
@@ -315,20 +306,12 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-            try
-            {
-                var flagRequest = new VoteRequest(BasePresenter.User.UserInfo, vote ? VoteType.Flag : VoteType.Down, postUrl);
-                var flagResponse = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-                if (!flagResponse.Success)
-                    ShowAlert(flagResponse.Errors[0]);
+            var errors = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
 
-                feedCollection.ReloadData();
-                flowLayout.InvalidateLayout();
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
-            }
+            feedCollection.ReloadData();
+            flowLayout.InvalidateLayout();
         }
 
         private void SetNavBar()

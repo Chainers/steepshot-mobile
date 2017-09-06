@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
     {
         public event Action VotersLoaded;
         public List<VotersResult> Users = new List<VotersResult>();
-        private bool _hasItems = true;
+        public bool _hasItems = true;
         private string _offsetUrl = string.Empty;
         private readonly int _itemsLimit = 60;
 
