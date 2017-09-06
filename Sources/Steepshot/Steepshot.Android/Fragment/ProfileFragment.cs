@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
@@ -27,6 +28,8 @@ namespace Steepshot.Fragment
         UserProfilePresenter _presenter;
         private readonly string _profileId;
         private UserProfileResponse _profile;
+        private Typeface font;
+        private Typeface semibold_font;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
@@ -71,6 +74,8 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
+            font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
             _backButton.Visibility = ViewStates.Gone;
             if (_profileId == BasePresenter.User.Login)
                 _followCont.Visibility = ViewStates.Gone;
@@ -149,7 +154,7 @@ namespace Steepshot.Fragment
             {
                 if (_feedAdapter == null)
                 {
-                    _feedAdapter = new FeedAdapter(Context, _presenter.Posts);
+                    _feedAdapter = new FeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
                     _feedAdapter.PhotoClick += OnClick;
                     _feedAdapter.LikeAction += FeedAdapter_LikeAction;
                     _feedAdapter.UserAction += FeedAdapter_UserAction;

@@ -30,27 +30,27 @@ namespace Steepshot.Utils
             var period = DateTime.UtcNow.Subtract(date);
             if (period.Days / 365 != 0)
             {
-                return $"{period.Days / 365} y";
+                return $"{period.Days / 365} years ago";
             }
             else if (period.Days / 30 != 0)
             {
-                return $"{period.Days / 30} M";
+                return $"{period.Days / 30} month ago";
             }
             else if (period.Days != 0)
             {
-                return $"{period.Days} d";
+                return $"{period.Days} days ago";
             }
             else if (period.Hours != 0)
             {
-                return $"{period.Hours} h";
+                return $"{period.Hours} hrs ago";
             }
             else if (period.Minutes != 0)
             {
-                return $"{period.Minutes} m";
+                return $"{period.Minutes} min ago";
             }
             else if (period.Seconds != 0)
             {
-                return $"{period.Seconds} s";
+                return $"{period.Seconds} sec ago";
             }
             return "";
         }

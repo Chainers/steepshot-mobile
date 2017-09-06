@@ -1,5 +1,6 @@
 using System;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -28,6 +29,8 @@ namespace Steepshot.Fragment
             set => _presenter.Tag = value;
         }
         private readonly bool _isFeed;
+        private Typeface font;
+        private Typeface semibold_font;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.feed_list)] RecyclerView _feedList;
@@ -79,6 +82,7 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
+            
             try
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
@@ -100,7 +104,10 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             if (BasePresenter.User.IsAuthenticated)
                 _login.Visibility = ViewStates.Gone;
-
+            font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
+            Title.Typeface = font;
+            _login.Typeface = font;
             if (_isFeed)
             {
                 Title.Text = "Feed";
@@ -110,7 +117,7 @@ namespace Steepshot.Fragment
             else
                 Title.Text = "Trending";
 
-            _feedAdapter = new FeedAdapter(Context, _presenter.Posts);
+            _feedAdapter = new FeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _feedList.AddOnScrollListener(new FeedsScrollListener(_presenter));

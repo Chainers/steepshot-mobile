@@ -42,7 +42,7 @@
             public const string RapidPosting = "You post so fast. Try it later";
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";
-            public const string Likes = "likes";
+            public const string Likes = "like's";
             public const string Follow = "Follow";
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
