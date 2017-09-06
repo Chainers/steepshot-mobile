@@ -22,7 +22,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new FollowersPresenter();
-            base.CreatePresenter();
         }
 
         public override void ViewDidLoad()

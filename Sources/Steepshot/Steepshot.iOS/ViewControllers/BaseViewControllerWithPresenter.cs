@@ -1,9 +1,8 @@
-﻿using Steepshot.Core;
-using Steepshot.Core.Presenters;
+﻿using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter
+    public abstract class BaseViewControllerWithPresenter<T> : BaseViewController where T : BasePresenter
     {
         protected T _presenter;
 
@@ -13,12 +12,6 @@ namespace Steepshot.iOS.ViewControllers
             base.ViewDidLoad();
         }
 
-        protected virtual void CreatePresenter()
-        {
-            _presenter.InternetConnectionWarning += () =>
-            {
-                ShowAlert(Localization.Errors.InternetUnavailable);
-            };
-        }
+        protected abstract void CreatePresenter();
     }
 }

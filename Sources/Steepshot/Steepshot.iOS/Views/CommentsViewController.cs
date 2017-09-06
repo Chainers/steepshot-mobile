@@ -18,7 +18,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new CommentsPresenter();
-            base.CreatePresenter();
         }
 
         private readonly CommentsTableViewSource _tableSource = new CommentsTableViewSource();

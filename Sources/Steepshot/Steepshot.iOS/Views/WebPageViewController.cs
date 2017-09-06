@@ -1,5 +1,6 @@
 using System;
 using Foundation;
+using Steepshot.Core;
 using UIKit;
 
 namespace Steepshot.iOS.Views
@@ -16,7 +17,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             webView.ScalesPageToFit = true;
-            webView.LoadRequest(new NSUrlRequest(new NSUrl("https://steemit.com/pick_account")));
+            webView.LoadRequest(new NSUrlRequest(new NSUrl(Constants.SteemitRegUrl)));
             /*
 			webView.LoadStarted += (sender, e) =>
 			{

@@ -33,7 +33,6 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();
-            base.CreatePresenter();
         }
 
         protected override void OnCreate(Bundle savedInstanceState)

@@ -20,7 +20,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new TagsPresenter();
-            base.CreatePresenter();
         }
         private TagsCollectionViewSource _collectionviewSource;
         private CancellationTokenSource _cts;
