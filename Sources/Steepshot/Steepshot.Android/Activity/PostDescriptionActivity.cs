@@ -9,11 +9,13 @@ using Android.Media;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
+using Autofac;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -117,7 +119,6 @@ namespace Steepshot.Activity
         protected override void OnPostCreate(Bundle savedInstanceState)
         {
             base.OnPostCreate(savedInstanceState);
-
             AddTags(_tags);
         }
 
@@ -133,7 +134,7 @@ namespace Steepshot.Activity
         {
             try
             {
-                if (!_presenter.CheckInternetConnection())
+                if (!AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable())
                     return;
 
                 if (string.IsNullOrEmpty(_description.Text))
@@ -253,7 +254,6 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
-            base.CreatePresenter();
         }
     }
 }

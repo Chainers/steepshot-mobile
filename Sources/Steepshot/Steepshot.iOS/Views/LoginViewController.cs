@@ -15,7 +15,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new SignInPresenter();
-            base.CreatePresenter();
         }
 
         public string AvatarLink { get; set; }

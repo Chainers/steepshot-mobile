@@ -150,7 +150,6 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new TagsPresenter();
-            base.CreatePresenter();
         }
     }
 }

@@ -32,28 +32,23 @@ namespace Steepshot.Base
 
         protected virtual void ShowAlert(int messageid)
         {
-            var message = GetString(messageid);
-            var alert = new AlertDialog.Builder(this);
-            alert.SetTitle(Localization.Messages.Error);
-            alert.SetMessage(message);
-            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
-            Dialog dialog = alert.Create();
-            dialog.Show();
+            Show(GetString(messageid));
         }
 
         protected virtual void ShowAlert(string message)
         {
-            var alert = new AlertDialog.Builder(this);
-            alert.SetMessage(message);
-            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
-            Dialog dialog = alert.Create();
-            dialog.Show();
+            Show(message);
         }
 
         protected virtual void ShowAlert(List<string> messages)
         {
+            Show(string.Join(System.Environment.NewLine, messages));
+        }
+
+        private void Show(string text)
+        {
             var alert = new AlertDialog.Builder(this);
-            alert.SetMessage(string.Join(System.Environment.NewLine, messages));
+            alert.SetMessage(text);
             alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();

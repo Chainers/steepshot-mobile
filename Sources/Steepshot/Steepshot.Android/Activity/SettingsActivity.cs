@@ -195,7 +195,6 @@ namespace Steepshot.Activity
         protected override void CreatePresenter()
         {
             _presenter = new SettingsPresenter();
-            base.CreatePresenter();
         }
     }
 }

@@ -18,7 +18,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
-            base.CreatePresenter();
         }
         public UIImage ImageAsset;
 
