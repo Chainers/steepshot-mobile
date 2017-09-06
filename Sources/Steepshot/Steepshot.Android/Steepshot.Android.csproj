@@ -162,6 +162,14 @@
     <AndroidResource Include="Resources\layout\lyt_tags.axml" />
     <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
     <AndroidResource Include="Resources\layout\tab_main.axml" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_selected.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -435,6 +443,11 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\launch_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
+    <AndroidAsset Include="Assets\OpenSans-Semibold.ttf" />
+    <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

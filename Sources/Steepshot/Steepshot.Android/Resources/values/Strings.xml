@@ -16,7 +16,7 @@
   <string name = "new_photos">New photos"</string>
   <string name = "hot">Hot"</string>
   <string name = "Trending">Trending</string>
-  <string name = "view_n_comments">View {0} comments</string>
+  <string name = "view_n_comments">See all {0} comments</string>
   <string name = "title_comment"><b>{0}</b> {1}</string>
   <string name = "first_title_comment">Post first comment</string>
   <string name = "time_hours">{0} hours</string>
@@ -56,8 +56,8 @@
   <string name = "text_following">Following</string>
   <string name = "text_follow">Follow</string>
   <string name = "text_unfollow">Unfollow</string>
-	<string name = "photos">Photos</string>
-	<string name ="add_description">Add Description</string>
+  <string name = "photos">Photos</string>
+  <string name ="add_description">Add Description</string>
 
   
   <!-- The class name to the ScrollingChildBehavior required for AppBarLayout -->

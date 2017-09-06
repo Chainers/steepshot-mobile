@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Views;
@@ -20,11 +21,13 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         private readonly string _commentPattern = "<b>{0}</b> {1}";
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
+        private Typeface[] _fonts;
 
-        public FeedAdapter(Context context, List<Post> posts)
+        public FeedAdapter(Context context, List<Post> posts, Typeface[] fonts)
         {
             _context = context;
             _posts = posts;
+            _fonts = fonts;
         }
 
         public Post GetItem(int position)
@@ -44,7 +47,8 @@ namespace Steepshot.Adapter
             if (post.Title != null)
             {
                 vh.FirstComment.Visibility = ViewStates.Visible;
-                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
+                //vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
+                vh.FirstComment.Text = post.Title;
             }
             else
             {
@@ -79,7 +83,7 @@ namespace Steepshot.Adapter
             {
                 vh.Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             }
-            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -87,7 +91,7 @@ namespace Steepshot.Adapter
             var itemView = LayoutInflater.From(parent.Context).
                     Inflate(Resource.Layout.lyt_feed_item, parent, false);
 
-            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _fonts);
             return vh;
         }
 
@@ -102,10 +106,11 @@ namespace Steepshot.Adapter
             public TextView Likes { get; }
             public TextView Cost { get; }
             public ImageButton Like { get; }
+            public LinearLayout CommentFooter { get; }
             Post _post;
             readonly Action<int> _likeAction;
 
-            public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
+            public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
             {
                 Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
                 Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -121,6 +126,14 @@ namespace Steepshot.Adapter
                 Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
                 Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
                 Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+                CommentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
+
+                Author.Typeface = font[1];
+                Time.Typeface = font[0];
+                Likes.Typeface = font[1];
+                Cost.Typeface = font[1];
+                FirstComment.Typeface = font[0];
+                CommentSubtitle.Typeface = font[0];
 
                 _likeAction = likeAction;
 
@@ -128,8 +141,7 @@ namespace Steepshot.Adapter
                 Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
                 Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
                 Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                FirstComment.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-                CommentSubtitle.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
+                CommentFooter.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
                 Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
                 Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
             }
@@ -138,7 +150,7 @@ namespace Steepshot.Adapter
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
                 }
                 _likeAction?.Invoke(AdapterPosition);
             }
