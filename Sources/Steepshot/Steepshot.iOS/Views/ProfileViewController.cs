@@ -23,7 +23,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new UserProfilePresenter(Username);
-            base.CreatePresenter();
         }
 
         private UserProfileResponse _userData;

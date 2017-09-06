@@ -20,7 +20,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
-            base.CreatePresenter();
         }
 
         private bool _navigationBarHidden;

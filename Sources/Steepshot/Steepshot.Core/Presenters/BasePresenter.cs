@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using Autofac;
 using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -20,10 +17,6 @@ namespace Steepshot.Core.Presenters
         public static bool ShouldUpdateProfile;
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
-
-        private const int ConnectionWarningTimeout = 10;
-        private static DateTime _lastConnectionWarningTimeout;
-        public Action InternetConnectionWarning;
 
         protected static ISteepshotApiClient Api
         {
@@ -85,17 +78,6 @@ namespace Steepshot.Core.Presenters
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
             return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
-        }
-
-        protected bool CheckInternetConnection()
-        {
-            var available = AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable();
-            if (!available && DateTime.Now.Subtract(_lastConnectionWarningTimeout).TotalSeconds > ConnectionWarningTimeout)
-            {
-                _lastConnectionWarningTimeout = DateTime.Now;
-                InternetConnectionWarning?.Invoke();
-            }
-            return available;
         }
     }
 }

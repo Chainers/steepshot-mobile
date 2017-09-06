@@ -28,7 +28,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isHomeFeed);
-            base.CreatePresenter();
         }
 
         private PostType _currentPostType = PostType.Top;

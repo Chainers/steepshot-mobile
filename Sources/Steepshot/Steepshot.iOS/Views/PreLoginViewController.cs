@@ -14,7 +14,6 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();
-            base.CreatePresenter();
         }
 
         public KnownChains NewAccountNetwork;
