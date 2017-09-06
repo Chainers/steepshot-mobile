@@ -20,20 +20,20 @@ namespace Steepshot.Core.Presenters
         {
             List<string> errors = null;
 
-			if (_prevQuery[searchType] == query)
+            if (_prevQuery[searchType] == query)
                 return errors;
 
-			if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People))
-				|| string.IsNullOrEmpty(query) && searchType == SearchType.People)
-				return errors;
+            if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People))
+                || string.IsNullOrEmpty(query) && searchType == SearchType.People)
+                return errors;
 
-			_prevQuery[searchType] = query;
+            _prevQuery[searchType] = query;
 
-			try
-			{
-				_cts?.Cancel();
-			}
-			catch (ObjectDisposedException) {}
+            try
+            {
+                _cts?.Cancel();
+            }
+            catch (ObjectDisposedException) { }
 
             try
             {
@@ -70,14 +70,14 @@ namespace Steepshot.Core.Presenters
                         errors = response.Errors;
                 }
             }
-            catch(TaskCanceledException e)
+            catch (TaskCanceledException e)
             {
                 throw e;
             }
-			catch (Exception ex)
-			{
-				Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
-			}
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+            }
             return errors;
         }
     }

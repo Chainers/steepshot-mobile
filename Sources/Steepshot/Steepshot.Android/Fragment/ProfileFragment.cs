@@ -22,9 +22,8 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class ProfileFragment : BaseFragment
+    public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
-        UserProfilePresenter _presenter;
         private readonly string _profileId;
         private UserProfileResponse _profile;
 
@@ -313,28 +312,20 @@ namespace Steepshot.Fragment
                 ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
         }
 
-        async void FeedAdapter_LikeAction(int position)
+        private async void FeedAdapter_LikeAction(int position)
         {
-            try
+            if (BasePresenter.User.IsAuthenticated)
             {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    var response = await _presenter.Vote(position);
+                var errors = await _presenter.Vote(position);
+                if (errors != null && errors.Count != 0)
+                    ShowAlert(errors[0]);
 
-					if (!response.Success)
-						Toast.MakeText(Context, response.Errors[0], ToastLength.Long).Show();
-
-                    _postsList?.GetAdapter()?.NotifyDataSetChanged();
-                }
-                else
-                {
-                    var intent = new Intent(Context, typeof(PreSignInActivity));
-                    StartActivity(intent);
-                }
+                _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
-            catch (Exception ex)
+            else
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                var intent = new Intent(Context, typeof(PreSignInActivity));
+                StartActivity(intent);
             }
         }
 
