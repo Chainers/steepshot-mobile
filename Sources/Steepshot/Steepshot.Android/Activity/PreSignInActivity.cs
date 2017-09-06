@@ -14,9 +14,8 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PreSignInActivity : BaseActivity
+    public class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
-        PreSignInPresenter _presenter;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;

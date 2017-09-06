@@ -18,20 +18,13 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BaseViewController
+    public partial class ProfileViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
     {
-        protected ProfileViewController(IntPtr handle) : base(handle) { }
-
-        public ProfileViewController()
-        {
-        }
-
         protected override void CreatePresenter()
         {
             _presenter = new UserProfilePresenter(Username);
         }
 
-        UserProfilePresenter _presenter;
         private UserProfileResponse _userData;
         public string Username = BasePresenter.User.Login;
         private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
@@ -331,21 +324,11 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            try
-            {
-                var voteResponse = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUri));
-                if (voteResponse.Success)
-                    collectionView.ReloadData();
-
-                else
-                    ShowAlert(voteResponse.Errors[0]);
-
-                //success.Invoke(postUri, voteResponse);
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
-            }
+            var errors = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUri));
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
+            collectionView.ReloadData();
+            collectionView.CollectionViewLayout.InvalidateLayout();
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
@@ -386,39 +369,11 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-            try
-            {
-                //var flagRequest = new FlagRequest(BasePresenter.User.UserInfo, vote, postUrl);
-                //var flagResponse = await Api.Flag(flagRequest);
-                var flagResponse = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-                if (flagResponse.Success)
-                {
-                    collectionView.ReloadData();
-                    /*
-                    var u = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == postUrl);
-                    if (u != null)
-                    {
-                        u.Flag = flagResponse.Result.IsFlagged;
-                        if (flagResponse.Result.IsFlagged)
-                        {
-                            if (u.Vote)
-                                if (u.NetVotes == 1)
-                                    u.NetVotes = -1;
-                                else
-                                    u.NetVotes--;
-                            u.Vote = false;
-                        }
-                    }*/
-                }
-                else
-                    ShowAlert(flagResponse.Errors[0]);
-
-                //action.Invoke(postUrl, flagResponse);
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
-            }
+            var errors = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
+            collectionView.ReloadData();
+            collectionView.CollectionViewLayout.InvalidateLayout();
         }
 
         public async Task Follow()
@@ -456,4 +411,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-

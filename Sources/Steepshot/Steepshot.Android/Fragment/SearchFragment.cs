@@ -14,10 +14,9 @@ using Steepshot.Core.Presenters;
 
 namespace Steepshot.Fragment
 {
-    public class SearchFragment : BaseFragment
+    public class SearchFragment : BaseFragmentWithPresenter<SearchPresenter>
     {
         private Timer _timer;
-        private SearchPresenter _presenter;
         private SearchType _searchType = SearchType.Tags;
 
 #pragma warning disable 0649, 4014
@@ -144,6 +143,7 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
+            //base.CreatePresenter();
         }
 
         private void SwitchSearchType()

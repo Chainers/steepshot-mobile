@@ -10,21 +10,14 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class VotersViewController : BaseViewController
+    public partial class VotersViewController : BaseViewControllerWithPresenter<VotersPresenter>
     {
-        protected VotersViewController(IntPtr handle) : base(handle) { }
-        private VotersPresenter _presenter;
-        public VotersViewController()
+        protected override void CreatePresenter()
         {
+            _presenter = new VotersPresenter();
         }
 
-		protected override void CreatePresenter()
-		{
-			_presenter = new VotersPresenter();
-		}
-
         public string PostUrl;
-        private bool _hasItems = true;
         private VotersTableViewSource _tableSource = new VotersTableViewSource();
 
         public override void ViewDidLoad()
@@ -45,7 +38,7 @@ namespace Steepshot.iOS.Views
 
             _tableSource.ScrolledToBottom += async () =>
             {
-                if (_hasItems)
+                if (_presenter._hasItems)
                     await GetItems();
             };
 
@@ -75,11 +68,12 @@ namespace Steepshot.iOS.Views
                 await _presenter.GetItems(PostUrl).ContinueWith((g) =>
                 {
                     var errors = g.Result;
-                    InvokeOnMainThread(() => {
-                        if(errors != null && errors.Count > 0)
+                    InvokeOnMainThread(() =>
+                    {
+                        if (errors != null && errors.Count > 0)
                             ShowAlert(errors[0]);
-						votersTable.ReloadData();
-						progressBar.StopAnimating();
+                        votersTable.ReloadData();
+                        progressBar.StopAnimating();
                     });
                 });
             }
@@ -94,4 +88,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.ViewControllers;
 
 namespace Steepshot.iOS.Helpers
 {
