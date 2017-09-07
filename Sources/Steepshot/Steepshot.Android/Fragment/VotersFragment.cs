@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -9,6 +10,7 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -45,14 +47,14 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _viewTitle.Text = Localization.Messages.Voters;
             _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new VotersAdapter(Activity, _presenter.Users);
+            _votersAdapter = new VotersAdapter(Activity, _presenter.Voters);
             _votersAdapter.Click += OnClick;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
-            scrollListner.ScrolledToBottom += LoadVoters;
+            scrollListner.ScrolledToBottom += LoadNext;
             _votersList.AddOnScrollListener(scrollListner);
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
-            LoadVoters();
+            LoadNext();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -61,17 +63,30 @@ namespace Steepshot.Fragment
             Activity.OnBackPressed();
         }
 
-        private void LoadVoters()
+        private async void LoadNext()
         {
-            _presenter.GetItems(_url).ContinueWith((errors) =>
+            try
             {
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
+                var errors = await _presenter.LoadNext(_url, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+
+                if (errors != null && errors.Count > 0)
+                    ShowAlert(errors);
+                else
                     _votersAdapter?.NotifyDataSetChanged();
-                });
-            });
+            }
+            catch (System.OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (Exception ex)
+            {
+                Reporter.SendCrash(ex);
+            }
+            finally
+            {
+                if (_bar != null)
+                    _bar.Visibility = ViewStates.Gone;
+            }
         }
 
         private void OnClick(int pos)

@@ -155,14 +155,14 @@ namespace Steepshot.Core.HttpClient
         {
             var errors = CheckInternetConnection();
             if (errors != null)
-                return new OperationResult<ImageUploadResponse>() { Errors = errors.Errors };
+                return new OperationResult<ImageUploadResponse> { Errors = errors.Errors };
             return await Task.Run(async () =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
                 var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.PostingKey), op);
                 var trx = _jsonConverter.Serialize(tr);
 
-                Ditch.Helpers.Transliteration.PrepareTags(request.Tags);
+                PostOperation.PrepareTags(request.Tags);
                 var uploadResponse = await UploadWithPrepare(request, trx, cts);
 
                 var result = new OperationResult<ImageUploadResponse>();
