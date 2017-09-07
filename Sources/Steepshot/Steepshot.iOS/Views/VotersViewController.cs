@@ -79,7 +79,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             finally
             {

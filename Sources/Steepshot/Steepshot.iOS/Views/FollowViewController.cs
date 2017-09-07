@@ -102,13 +102,13 @@ namespace Steepshot.iOS.Views
                     if (user != null)
                         success = user.HasFollowed = response.Result.IsSuccess;
                 }
-                else
-                    Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                //else
+                    //Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
 
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             finally
             {
