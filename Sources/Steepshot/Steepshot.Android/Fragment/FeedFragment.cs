@@ -140,7 +140,7 @@ namespace Steepshot.Fragment
                 else
                     errors = await _presenter.GetSearchedPosts(clearOld);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                    ShowAlert(errors);
 
                 if (_bar != null)
                 {
@@ -196,7 +196,7 @@ namespace Steepshot.Fragment
             {
                 var errors = await _presenter.Vote(position);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                    ShowAlert(errors);
 
                 _feedAdapter?.NotifyDataSetChanged();
             }

@@ -318,7 +318,7 @@ namespace Steepshot.Fragment
             {
                 var errors = await _presenter.Vote(position);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                    ShowAlert(errors);
 
                 _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
