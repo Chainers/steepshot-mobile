@@ -49,7 +49,7 @@ namespace Steepshot.Core.Presenters
                 {
                     _offsetUrl = string.Empty;
                     _hasItems = true;
-                    Posts.Clear();
+                    Posts?.Clear();
                 }
 
                 if (!_hasItems)
@@ -64,7 +64,7 @@ namespace Steepshot.Core.Presenters
 					ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
-                errors = response.Errors;
+                errors = response?.Errors;
 				if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
                 {
                     var lastItem = response.Result.Results.Last();
@@ -80,7 +80,7 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             return errors;
         }

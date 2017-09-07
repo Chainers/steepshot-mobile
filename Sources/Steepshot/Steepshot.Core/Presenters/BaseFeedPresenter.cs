@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
@@ -38,7 +37,7 @@ namespace Steepshot.Core.Presenters
             }
             catch(Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             return errors;
         }
@@ -68,7 +67,7 @@ namespace Steepshot.Core.Presenters
             }
             catch(Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             return errors;
         }

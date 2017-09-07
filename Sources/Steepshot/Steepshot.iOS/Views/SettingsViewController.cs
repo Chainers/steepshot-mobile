@@ -33,7 +33,8 @@ namespace Steepshot.iOS.Views
             _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
             _previousNetwork = Chain;
-            versionLabel.Text = Localization.Messages.AppVersion(AppSettings.Container.Resolve<IAppInfo>().GetAppVersion(), NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString());
+            var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+            versionLabel.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
             //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
