@@ -92,14 +92,13 @@ namespace Steepshot.Fragment
                     Activity.Intent.RemoveExtra("SEARCH");
                     Title.Text = _presenter.Tag = CustomTag = s;
                     _bar.Visibility = ViewStates.Visible;
-                    _presenter.ClearPosts();
                     _scrollListner.ClearPosition();
-                    LoadPosts();
+                    LoadPosts(true);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                Reporter.SendCrash(ex);
             }
             if (IsInitialized)
                 return;
@@ -123,7 +122,7 @@ namespace Steepshot.Fragment
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += LoadPosts;
+            _scrollListner.ScrolledToBottom += () => LoadPosts();
             _feedList.AddOnScrollListener(_scrollListner);
             _feedAdapter.LikeAction += FeedAdapter_LikeAction;
             _feedAdapter.UserAction += FeedAdapter_UserAction;
@@ -133,28 +132,34 @@ namespace Steepshot.Fragment
             LoadPosts();
             _refresher.Refresh += delegate
                 {
-                    _presenter.ClearPosts();
                     _scrollListner.ClearPosition();
-                    LoadPosts();
+                    LoadPosts(true);
                 };
         }
 
-        private async void LoadPosts()
+        private async void LoadPosts(bool clearOld = false)
         {
-            List<string> errors;
-            if (string.IsNullOrEmpty(CustomTag))
-                errors = await _presenter.GetTopPosts();
-            else
-                errors = await _presenter.GetSearchedPosts();
-            if (errors != null && errors.Count != 0)
-                ShowAlert(errors[0]);
-
-            if (_bar != null)
+            try
             {
-                _bar.Visibility = ViewStates.Gone;
-                _refresher.Refreshing = false;
+                List<string> errors;
+                if (string.IsNullOrEmpty(CustomTag))
+                    errors = await _presenter.GetTopPosts(clearOld);
+                else
+                    errors = await _presenter.GetSearchedPosts(clearOld);
+                if (errors != null && errors.Count != 0)
+                    ShowAlert(errors[0]);
+
+                if (_bar != null)
+                {
+                    _bar.Visibility = ViewStates.Gone;
+                    _refresher.Refreshing = false;
+                }
+                _feedAdapter?.NotifyDataSetChanged();
             }
-            _feedAdapter?.NotifyDataSetChanged();
+            catch(Exception)
+            {
+                //Catching rethrowed task canceled exception from presenter
+            }
         }
 
         public void OnSearchPosts(string title, PostType type)
@@ -163,9 +168,8 @@ namespace Steepshot.Fragment
             _bar.Visibility = ViewStates.Visible;
             _presenter.PostType = type;
             _presenter.Tag = null;
-            _presenter.ClearPosts();
             _scrollListner.ClearPosition();
-            LoadPosts();
+            LoadPosts(true);
         }
 
         public void PhotoClick(int position)

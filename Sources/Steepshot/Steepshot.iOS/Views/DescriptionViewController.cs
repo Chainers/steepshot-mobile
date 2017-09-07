@@ -106,13 +106,13 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash(Localization.Errors.PhotoUploadError + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
+                    //Reporter.SendCrash(Localization.Errors.PhotoUploadError + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
                     ShowAlert(imageUploadResponse.Errors[0]);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             finally
             {
