@@ -45,7 +45,9 @@ namespace Steepshot.Core.Presenters
             List<string> errors = null;
             try
             {
-                if (!_hasItems || Processing)
+                if (clearOld)
+                    ClearPosts();
+                if (!_hasItems)
                     return errors;
                 try
                 {
@@ -58,8 +60,6 @@ namespace Steepshot.Core.Presenters
 
                 using (_cts = new CancellationTokenSource())
                 {
-                    Processing = true;
-
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
@@ -97,29 +97,27 @@ namespace Steepshot.Core.Presenters
                                 _hasItems = false;
 
                             _offsetUrl = lastItem.Url;
-
-                            if (clearOld)
-                                Posts.Clear();
-
                             Posts.AddRange(response.Result.Results);
                         }
                     }
                 }
             }
+            catch (TaskCanceledException e)
+            {
+                throw e;
+            }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
-            }
-            finally
-            {
-                Processing = false;
+                Reporter.SendCrash(ex);
             }
             return errors;
         }
 
-        public async Task<List<string>> GetSearchedPosts()
+        public async Task<List<string>> GetSearchedPosts(bool clearOld = false)
         {
             List<string> errors = null;
+            if (clearOld)
+                ClearPosts();
             if (!_hasItems)
                 return errors;
             try
@@ -134,7 +132,6 @@ namespace Steepshot.Core.Presenters
             {
                 using (_cts = new CancellationTokenSource())
                 {
-                    Processing = true;
                     var postrequest = new PostsByCategoryRequest(PostType, Tag)
                     {
                         Login = User.Login,
@@ -162,13 +159,13 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
+            catch (TaskCanceledException e)
+            {
+                throw e;
+            }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
-            }
-            finally
-            {
-                Processing = false;
+                Reporter.SendCrash(ex);
             }
             return errors;
         }
