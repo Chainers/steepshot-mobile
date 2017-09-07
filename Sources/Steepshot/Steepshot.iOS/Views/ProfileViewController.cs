@@ -277,13 +277,13 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
+                    //Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             finally
             {
@@ -363,7 +363,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
         }
 
