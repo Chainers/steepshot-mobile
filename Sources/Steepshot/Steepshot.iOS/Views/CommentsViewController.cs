@@ -80,7 +80,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             finally
             {
@@ -108,7 +108,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
         }
 
@@ -130,7 +130,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
         }
 

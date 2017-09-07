@@ -121,7 +121,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                Reporter.SendCrash(ex);
             }
         }
 
@@ -263,7 +263,7 @@ namespace Steepshot.Fragment
             else
             {
                 _spinner.Visibility = ViewStates.Gone;
-                Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, BasePresenter.AppVersion);
+                //Reporter.SendCrash(response.Errors[0]);
                 Toast.MakeText(Context, response.Errors[0], ToastLength.Short).Show();
             }
         }
