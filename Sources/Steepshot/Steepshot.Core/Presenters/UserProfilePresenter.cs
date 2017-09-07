@@ -80,7 +80,7 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                Reporter.SendCrash(ex);
             }
             return errors;
         }
