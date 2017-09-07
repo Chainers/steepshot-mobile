@@ -1,55 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
     public class VotersPresenter : BasePresenter
     {
-        public event Action VotersLoaded;
-        public List<VotersResult> Users = new List<VotersResult>();
-        public bool _hasItems = true;
+        private const int ItemsLimit = 40;
         private string _offsetUrl = string.Empty;
-        private readonly int _itemsLimit = 60;
 
-        public async Task<List<string>> GetItems(string url)
+        public readonly List<VotersResult> Voters;
+        private bool IsLastReaded { get; set; }
+
+        public VotersPresenter()
         {
-            List<string> errors = null;
-            try
+            Voters = new List<VotersResult>();
+        }
+
+        public async Task<List<string>> LoadNext(string url, CancellationTokenSource cts)
+        {
+            if (IsLastReaded)
+                return null;
+
+            var request = new InfoRequest(url)
             {
-                if (!_hasItems)
-                    return errors;
+                Offset = _offsetUrl,
+                Limit = ItemsLimit
+            };
 
-                var request = new InfoRequest(url)
+            var response = await Api.GetPostVoters(request, cts);
+
+            if (response.Success)
+            {
+                var voters = response.Result.Results;
+                if (voters.Count > 0)
                 {
-                    Offset = _offsetUrl,
-                    Limit = _itemsLimit
-                };
-
-                var response = await Api.GetPostVoters(request);
-                errors = response.Errors;
-                if (response.Success && response.Result?.Results != null && response.Result.Results.Count > 0)
-                {
-                    var lastItem = response.Result.Results.Last();
-                    if (lastItem.Username != _offsetUrl)
-                        response.Result.Results.Remove(lastItem);
-                    else
-                        _hasItems = false;
-
-                    _offsetUrl = lastItem.Username;
-                    Users.AddRange(response.Result.Results);
+                    Voters.AddRange(string.IsNullOrEmpty(_offsetUrl) ? voters : voters.Skip(1));
+                    _offsetUrl = voters.Last().Username;
                 }
-                VotersLoaded?.Invoke();
+
+                if (voters.Count < Math.Min(OffsetLimitFields.ServerMaxCount, ItemsLimit))
+                    IsLastReaded = true;
             }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex);
-            }
-            return errors;
+            return response.Errors;
         }
     }
 }

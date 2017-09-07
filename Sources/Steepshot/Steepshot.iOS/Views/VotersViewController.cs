@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Threading;
 using Foundation;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -18,7 +18,7 @@ namespace Steepshot.iOS.Views
         }
 
         public string PostUrl;
-        private VotersTableViewSource _tableSource = new VotersTableViewSource();
+        private readonly VotersTableViewSource _tableSource = new VotersTableViewSource();
 
         public override void ViewDidLoad()
         {
@@ -28,7 +28,7 @@ namespace Steepshot.iOS.Views
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
-            _tableSource.TableItems = _presenter.Users;
+            _tableSource.TableItems = _presenter.Voters;
             _tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
@@ -36,13 +36,12 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
 
-            _tableSource.ScrolledToBottom += async () =>
+            _tableSource.ScrolledToBottom += () =>
             {
-                if (_presenter._hasItems)
-                    await GetItems();
+                LoadNext();
             };
 
-            GetItems();
+            LoadNext();
         }
 
         private void OnPostLoaded()
@@ -57,7 +56,7 @@ namespace Steepshot.iOS.Views
             base.ViewWillAppear(animated);
         }
 
-        public async Task GetItems()
+        private async void LoadNext()
         {
             if (progressBar.IsAnimating)
                 return;
@@ -65,17 +64,17 @@ namespace Steepshot.iOS.Views
             try
             {
                 progressBar.StartAnimating();
-                await _presenter.GetItems(PostUrl).ContinueWith((g) =>
-                {
-                    var errors = g.Result;
-                    InvokeOnMainThread(() =>
-                    {
-                        if (errors != null && errors.Count > 0)
-                            ShowAlert(errors[0]);
-                        votersTable.ReloadData();
-                        progressBar.StopAnimating();
-                    });
-                });
+
+                var errors = await _presenter.LoadNext(PostUrl, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+
+                if (errors != null && errors.Count > 0)
+                    ShowAlert(errors[0]);
+                else
+                    votersTable.ReloadData();
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
             }
             catch (Exception ex)
             {
