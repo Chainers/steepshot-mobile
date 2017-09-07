@@ -20,16 +20,17 @@ namespace Steepshot.Activity
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            Construct();
+            if(AppSettings.Container == null)
+                Construct();
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject, BasePresenter.User.Login);
+                Reporter.SendCrash((Exception)e.ExceptionObject);
             };
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-                Reporter.SendCrash(e.Exception, BasePresenter.User.Login);
+                Reporter.SendCrash(e.Exception);
             };
 
             bool isKeyValid = true;
