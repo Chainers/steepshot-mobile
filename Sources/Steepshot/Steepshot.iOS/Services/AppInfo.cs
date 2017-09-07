@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿using System;
+using Foundation;
 using iOS.Hardware;
 using Steepshot.Core.Services;
 using UIKit;
@@ -10,6 +11,11 @@ namespace Steepshot.iOS.Services
         public string GetAppVersion()
         {
             return NSBundle.MainBundle.InfoDictionary["CFBundleShortVersionString"].ToString();
+        }
+
+        public string GetBuildVersion()
+        {
+            return NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString();
         }
 
         public string GetModel()
