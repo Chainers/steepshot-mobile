@@ -94,7 +94,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
             if (IsInitialized)
                 return;
@@ -149,7 +149,7 @@ namespace Steepshot.Fragment
                 }
                 _feedAdapter?.NotifyDataSetChanged();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //Catching rethrowed task canceled exception from presenter
             }

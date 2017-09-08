@@ -71,7 +71,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewDidUnload()
         {
-            _presenter.Cancel();
+            _presenter.LoadCancel();
             base.ViewDidUnload();
         }
     }

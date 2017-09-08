@@ -23,7 +23,14 @@ namespace Steepshot.Core.Tests
         static BaseTests()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>();
+
+            builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
+            builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+
+
             AppSettings.Container = builder.Build();
 
             Users = new Dictionary<string, UserInfo>()
