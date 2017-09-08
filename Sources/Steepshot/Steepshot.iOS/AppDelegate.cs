@@ -34,20 +34,21 @@ namespace Steepshot.iOS
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
-            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>();
-            builder.RegisterInstance(new SaverService()).As<ISaverService>();
-            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>();
+            builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
+            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject);
+                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                Reporter.SendCrash(e.Exception);
+                AppSettings.Reporter.SendCrash(e.Exception);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
