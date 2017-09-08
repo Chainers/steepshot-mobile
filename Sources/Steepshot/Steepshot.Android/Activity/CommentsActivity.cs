@@ -68,7 +68,7 @@ namespace Steepshot.Activity
                 }
                 catch (Exception ex)
                 {
-                    Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex);
                     Toast.MakeText(this, Localization.Errors.Unknownerror, ToastLength.Short).Show();
                 }
                 if (_sendSpinner != null && _post != null)
@@ -137,7 +137,7 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

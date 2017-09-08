@@ -63,7 +63,7 @@ namespace Steepshot.Fragment
 
         public override void OnDestroy()
         {
-            _presenter.Cancel();
+            _presenter.LoadCancel();
             base.OnDestroy();
         }
 
