@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -10,7 +9,6 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -63,30 +61,23 @@ namespace Steepshot.Fragment
             Activity.OnBackPressed();
         }
 
+        public override void OnDestroy()
+        {
+            _presenter.Cancel();
+            base.OnDestroy();
+        }
+
         private async void LoadNext()
         {
-            try
-            {
-                var errors = await _presenter.LoadNext(_url, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+            var errors = await _presenter.TryLoadNext(_url);
 
-                if (errors != null && errors.Count > 0)
-                    ShowAlert(errors);
-                else
-                    _votersAdapter?.NotifyDataSetChanged();
-            }
-            catch (System.OperationCanceledException)
-            {
-                // to do nothing
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                if (_bar != null)
-                    _bar.Visibility = ViewStates.Gone;
-            }
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                _votersAdapter?.NotifyDataSetChanged();
+
+            if (_bar != null)
+                _bar.Visibility = ViewStates.Gone;
         }
 
         private void OnClick(int pos)
