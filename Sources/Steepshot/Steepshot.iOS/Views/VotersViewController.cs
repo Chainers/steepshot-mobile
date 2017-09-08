@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading;
-using Foundation;
+﻿using Foundation;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -12,13 +9,18 @@ namespace Steepshot.iOS.Views
 {
     public partial class VotersViewController : BaseViewControllerWithPresenter<VotersPresenter>
     {
+        public string PostUrl;
+        private readonly VotersTableViewSource _tableSource;
+
+        public VotersViewController()
+        {
+            _tableSource = new VotersTableViewSource();
+        }
+
         protected override void CreatePresenter()
         {
             _presenter = new VotersPresenter();
         }
-
-        public string PostUrl;
-        private readonly VotersTableViewSource _tableSource = new VotersTableViewSource();
 
         public override void ViewDidLoad()
         {
@@ -44,12 +46,6 @@ namespace Steepshot.iOS.Views
             LoadNext();
         }
 
-        private void OnPostLoaded()
-        {
-            votersTable.ReloadData();
-            progressBar.StopAnimating();
-        }
-
         public override void ViewWillAppear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);
@@ -61,29 +57,22 @@ namespace Steepshot.iOS.Views
             if (progressBar.IsAnimating)
                 return;
 
-            try
-            {
-                progressBar.StartAnimating();
+            progressBar.StartAnimating();
 
-                var errors = await _presenter.LoadNext(PostUrl, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+            var errors = await _presenter.TryLoadNext(PostUrl);
 
-                if (errors != null && errors.Count > 0)
-                    ShowAlert(errors[0]);
-                else
-                    votersTable.ReloadData();
-            }
-            catch (OperationCanceledException)
-            {
-                // to do nothing
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                progressBar.StopAnimating();
-            }
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                votersTable.ReloadData();
+
+            progressBar.StopAnimating();
+        }
+
+        public override void ViewDidUnload()
+        {
+            _presenter.Cancel();
+            base.ViewDidUnload();
         }
     }
 }
