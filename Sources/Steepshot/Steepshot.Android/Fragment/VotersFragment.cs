@@ -45,14 +45,14 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _viewTitle.Text = Localization.Messages.Voters;
             _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new VotersAdapter(Activity, _presenter.Users);
+            _votersAdapter = new VotersAdapter(Activity, _presenter.Voters);
             _votersAdapter.Click += OnClick;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
-            scrollListner.ScrolledToBottom += LoadVoters;
+            scrollListner.ScrolledToBottom += LoadNext;
             _votersList.AddOnScrollListener(scrollListner);
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
-            LoadVoters();
+            LoadNext();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -61,17 +61,23 @@ namespace Steepshot.Fragment
             Activity.OnBackPressed();
         }
 
-        private void LoadVoters()
+        public override void OnDestroy()
         {
-            _presenter.GetItems(_url).ContinueWith((errors) =>
-            {
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
-                    _votersAdapter?.NotifyDataSetChanged();
-                });
-            });
+            _presenter.LoadCancel();
+            base.OnDestroy();
+        }
+
+        private async void LoadNext()
+        {
+            var errors = await _presenter.TryLoadNext(_url);
+
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                _votersAdapter?.NotifyDataSetChanged();
+
+            if (_bar != null)
+                _bar.Visibility = ViewStates.Gone;
         }
 
         private void OnClick(int pos)
