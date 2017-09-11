@@ -166,7 +166,7 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
             finally
             {
@@ -219,7 +219,7 @@ namespace Steepshot.Activity
                   }
                   catch (Exception ex)
                   {
-                      Reporter.SendCrash(ex);
+                      AppSettings.Reporter.SendCrash(ex);
                   }
                   return null;
               });

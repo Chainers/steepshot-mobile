@@ -141,7 +141,7 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

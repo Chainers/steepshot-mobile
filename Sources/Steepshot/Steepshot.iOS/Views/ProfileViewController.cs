@@ -283,7 +283,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 errorMessage.Hidden = false;
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
             finally
             {
@@ -363,7 +363,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

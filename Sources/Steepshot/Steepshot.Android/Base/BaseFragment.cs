@@ -39,7 +39,8 @@ namespace Steepshot.Base
 
         protected virtual void ShowAlert(List<string> messages)
         {
-            Show(string.Join(System.Environment.NewLine, messages));
+            Show(messages[0]);
+            //   Show(string.Join(System.Environment.NewLine, messages));
         }
 
         private void Show(string text)
