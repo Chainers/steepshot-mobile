@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Autofac;
 using Ditch;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Services;
+using Steepshot.Core.Tests.Stubs;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -18,6 +22,17 @@ namespace Steepshot.Core.Tests
 
         static BaseTests()
         {
+            var builder = new ContainerBuilder();
+
+            builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
+            builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+
+
+            AppSettings.Container = builder.Build();
+
             Users = new Dictionary<string, UserInfo>()
             {
                 {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "5JXCxj6YyyGUTJo9434ZrQ5gfxk59rE3yukN42WBA6t58yTPRTG"}},

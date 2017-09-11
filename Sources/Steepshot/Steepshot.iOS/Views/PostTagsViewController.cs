@@ -119,12 +119,12 @@ namespace Steepshot.iOS.Views
                         tagsTable.ReloadData();
                     }
                     //else
-                        //Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                    //Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

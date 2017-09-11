@@ -77,7 +77,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 
