@@ -84,8 +84,8 @@ namespace Steepshot.Fragment
 
         private List<string> GetImages()
         {
-            String dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
-            String picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
+            var dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
+            var picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
 
             var dcimPhotos = new File(dcimPath);
             var cameraPhotos = new File(dcimPath, "Camera");
