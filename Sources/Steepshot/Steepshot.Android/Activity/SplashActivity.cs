@@ -20,17 +20,17 @@ namespace Steepshot.Activity
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            if(AppSettings.Container == null)
+            if (AppSettings.Container == null)
                 Construct();
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                Reporter.SendCrash((Exception)e.ExceptionObject);
+                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
             };
 
             TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-                Reporter.SendCrash(e.Exception);
+                AppSettings.Reporter.SendCrash(e.Exception);
             };
 
             bool isKeyValid = true;
@@ -51,10 +51,11 @@ namespace Steepshot.Activity
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterInstance(new AppInfo()).As<IAppInfo>();
-            builder.RegisterType<DataProvider>().As<IDataProvider>();
-            builder.RegisterInstance(new SaverService()).As<ISaverService>();
-            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>();
+            builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
+            builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 
             Picasso.Builder d = new Picasso.Builder(this);
             Cache = new LruCache(this);

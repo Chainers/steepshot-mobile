@@ -98,7 +98,7 @@ namespace Steepshot.Fragment
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
             if (IsInitialized)
                 return;
@@ -147,7 +147,7 @@ namespace Steepshot.Fragment
                 else
                     errors = await _presenter.GetSearchedPosts(clearOld);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                    ShowAlert(errors);
 
                 if (_bar != null)
                 {
@@ -156,7 +156,7 @@ namespace Steepshot.Fragment
                 }
                 _feedAdapter?.NotifyDataSetChanged();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //Catching rethrowed task canceled exception from presenter
             }
@@ -203,7 +203,7 @@ namespace Steepshot.Fragment
             {
                 var errors = await _presenter.Vote(position);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                    ShowAlert(errors);
 
                 _feedAdapter?.NotifyDataSetChanged();
             }
