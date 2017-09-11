@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using CoreGraphics;
 using Ditch;
@@ -17,7 +18,7 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        
+
         public static KnownChains Chain { get; set; }
         public static List<string> TagsList { get; set; }
         public static string AppVersion { get; set; }
@@ -188,6 +189,12 @@ namespace Steepshot.iOS.ViewControllers
             alert.AddButton(Localization.Messages.Ok);
             alert.Show();
         }
+
+        protected void ShowAlert(IEnumerable<string> messages)
+        {
+            ShowAlert(messages.First());
+        }
+
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
         {
