@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.Content;
-using Android.Database;
 using Android.Graphics;
 using Android.OS;
 using Android.Provider;
@@ -9,6 +9,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Java.IO;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -24,21 +25,9 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
 #pragma warning restore 0649
 
-        private GridImageAdapter<string> _adapter;
+        private GridImageAdapter _adapter;
         private string _photoUri;
-
-        private GridImageAdapter<string> Adapter
-        {
-            get
-            {
-                if (_adapter == null)
-                {
-                    _adapter = new GridImageAdapter<string>(Context, GetAllShownImagesPaths());
-                    _adapter.Click += StartPost;
-                }
-                return _adapter;
-            }
-        }
+        private List<string> _userPhotos = new List<string>();
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -63,10 +52,11 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _switchButton.SetImageResource(Resource.Drawable.ic_camera);
             _switchButton.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
-
             _imagesList.SetLayoutManager(new GridLayoutManager(Context, 3));
             _imagesList.AddItemDecoration(new GridItemdecoration(2, 3));
-            _imagesList.SetAdapter(Adapter);
+            _adapter = new GridImageAdapter(Context, _userPhotos);
+            _adapter.Click += StartPost;
+            _imagesList.SetAdapter(_adapter);
         }
 
         public override void OnDestroyView()
@@ -88,30 +78,34 @@ namespace Steepshot.Fragment
         private void StartPost(int obj)
         {
             var i = new Intent(Context, typeof(PostDescriptionActivity));
-            i.PutExtra("FILEPATH", Adapter.GetItem(obj));
+            i.PutExtra("FILEPATH", _adapter.GetItem(obj));
             Context.StartActivity(i);
         }
 
-        private List<string> GetAllShownImagesPaths()
+        private List<string> GetImages()
         {
-            var listOfAllImages = new List<string>();
-            AddMediaStoreImages(listOfAllImages);
-            AddSteepshotPictures(listOfAllImages);
-            listOfAllImages.Reverse();
-            return listOfAllImages;
+            var dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
+            var picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
+
+            var dcimPhotos = new File(dcimPath);
+            var cameraPhotos = new File(dcimPath, "Camera");
+            var screenshots = new File(dcimPath, "Screenshots");
+            var steepshotPhotos = new File(picturePath, "Steepshot");
+
+            var photos = new List<File>();
+            AddPhotos(photos, new File[] { dcimPhotos, cameraPhotos, screenshots, steepshotPhotos });
+            return photos.Where(f => IsImage(f))
+                          .OrderByDescending(f => f.LastModified())
+                          .Select(i => i.AbsolutePath).ToList();
         }
 
-        private void AddMediaStoreImages(List<string> listOfAllImages)
+        private void AddPhotos(List<File> list, File[] array)
         {
-            var uri = MediaStore.Images.Media.ExternalContentUri;
-            string[] projection = { MediaStore.MediaColumns.Data, MediaStore.Images.Media.InterfaceConsts.BucketDisplayName };
-            var loader = new CursorLoader(Context, uri, projection, null, null, MediaStore.Images.Media.InterfaceConsts.DateAdded);
-            var cursor = (ICursor)loader.LoadInBackground();
-            var columnIndexData = cursor.GetColumnIndexOrThrow(MediaStore.MediaColumns.Data);
-            while (cursor.MoveToNext())
+            foreach (var item in array)
             {
-                var absolutePathOfImage = cursor.GetString(columnIndexData);
-                listOfAllImages.Add(absolutePathOfImage);
+                var dcimPhotosList = item.ListFiles();
+                if (dcimPhotosList != null)
+                    list.AddRange(dcimPhotosList);
             }
         }
 
@@ -132,7 +126,30 @@ namespace Steepshot.Fragment
                        || f.AbsolutePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
                        || f.AbsolutePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)
                        || f.AbsolutePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase));
+        }
 
+        public override bool CustomUserVisibleHint
+        {
+            get => base.CustomUserVisibleHint;
+            set
+            {
+                if (!value)
+                    _adapter?.ClearCache();
+                UserVisibleHint = value;
+            }
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            var newImages = GetImages();
+            if (!_userPhotos.SequenceEqual(newImages))
+            {
+                _userPhotos.Clear();
+                _userPhotos.AddRange(newImages);
+                _adapter.ClearCache();
+                _adapter?.NotifyDataSetChanged();
+            }
         }
 
         private Java.IO.File GetSteepshotDirectory()
