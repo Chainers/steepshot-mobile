@@ -10,9 +10,10 @@ namespace Steepshot.Fragment
             {
                 foreach (var frag in fm.Fragments)
                 {
-                    if (frag != null && frag.IsVisible && frag is BackStackFragment)
+                    var backStack = frag as BackStackFragment;
+                    if (backStack != null && backStack.IsVisible)
                     {
-                        if (((BackStackFragment)frag).OnBackPressed())
+                        if (backStack.OnBackPressed())
                         {
                             return true;
                         }
@@ -24,19 +25,14 @@ namespace Steepshot.Fragment
 
         protected bool OnBackPressed()
         {
-            var fm = ChildFragmentManager;
-            if (HandleBackPressed(fm))
-            {
+            if (HandleBackPressed(ChildFragmentManager))
                 return true;
-            }
-            else if (UserVisibleHint && fm.BackStackEntryCount > 0)
+            else if (UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
             {
-                fm.PopBackStack();
+                ChildFragmentManager.PopBackStack();
                 return true;
             }
             return false;
         }
-
-
     }
 }
