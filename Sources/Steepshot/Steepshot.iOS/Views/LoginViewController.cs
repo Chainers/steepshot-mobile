@@ -109,8 +109,7 @@ namespace Steepshot.iOS.Views
                 var response = await _presenter.SignIn(Username, password.Text);
                 if (response.Success)
                 {
-
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain);
 
                     var myViewController = new MainTabBarController();
 
@@ -137,12 +136,6 @@ namespace Steepshot.iOS.Views
                 loginButton.SetTitleColor(titleColor, UIControlState.Disabled);
                 activityIndicator.StopAnimating();
             }
-        }
-
-        public override void ViewWillDisappear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(true, true);
-            ViewDidDisappear(animated);
         }
     }
 }
