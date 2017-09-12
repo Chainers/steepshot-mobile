@@ -90,7 +90,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<CreateCommentResponse>(response.Content, errorResult);
         }
 
-        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts, bool isNeedRewards)
         {
             var parameters = CreateSessionParameter(request.SessionId);
             var response = await Gateway.Upload("post", request.Title, request.Photo, parameters, request.Tags, cts: cts);
