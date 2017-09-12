@@ -3,6 +3,7 @@ using System.IO;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -44,7 +45,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new CreateCommentRequest(new UserInfo { SessionId = "sessionId" }, "", "test", "test");
+                new CreateCommentRequest(new UserInfo { SessionId = "sessionId" }, "", "test", "test", AppSettings.AppInfo);
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
