@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -20,7 +21,7 @@ namespace Steepshot.Core.Tests
             var file = File.ReadAllBytes(GetTestImagePath());
 
             var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
-            var createPostResponse = Api[apiName].Upload(createPostRequest).Result;
+            var createPostResponse = Api[apiName].Upload(createPostRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             AssertResult(createPostResponse);
             Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
@@ -42,7 +43,7 @@ namespace Steepshot.Core.Tests
             Thread.Sleep(TimeSpan.FromSeconds(20));
             const string body = "Ллойс!";
             const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, title);
+            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, title, AppSettings.AppInfo);
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest).Result;
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);

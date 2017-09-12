@@ -5,6 +5,7 @@ using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -553,6 +554,8 @@ namespace Steepshot.Core.Tests
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
                         response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
+                        response2.Errors.Contains("Duplicate transaction check failed") ||
+                        response2.Errors.Contains("Vote weight cannot be 0.") ||
                         response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
@@ -576,6 +579,8 @@ namespace Steepshot.Core.Tests
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
                         response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
+                        response2.Errors.Contains("Duplicate transaction check failed") ||
+                        response2.Errors.Contains("Vote weight cannot be 0.") ||
                         response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
@@ -633,20 +638,6 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response);
             Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
-        }
-
-        [Test, Sequential]
-        public void Follow_Invalid_Username([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            var request = new FollowRequest(Authenticate(name), FollowType.Follow, "qwet32qwe3qwewfoc020mm2nndasdwe");
-
-            // Act
-            var response = Api[name].Follow(request).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Errors.Contains("User does not exist."), string.Join(Environment.NewLine, response.Errors));
         }
 
         [Test, Sequential]
@@ -756,7 +747,7 @@ namespace Steepshot.Core.Tests
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
             const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, title);
+            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, title, AppSettings.AppInfo);
 
             // Act
             var response1 = Api[name].CreateComment(createCommentRequest).Result;
@@ -765,7 +756,7 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response1);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds."), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds.") || response2.Errors.Contains("Duplicate transaction check failed"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -1220,7 +1211,7 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "title", "cat1", "cat2", "cat3", "cat4");
 
             // Act
-            var response = Api[name].Upload(request).Result;
+            var response = Api[name].Upload(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             // Assert
             AssertResult(response);
@@ -1235,7 +1226,7 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
             // Act
-            var response = Api[name].Upload(request).Result;
+            var response = Api[name].Upload(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             // Assert
             AssertResult(response);
