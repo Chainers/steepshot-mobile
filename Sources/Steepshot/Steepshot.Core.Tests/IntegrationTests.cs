@@ -446,14 +446,16 @@ namespace Steepshot.Core.Tests
 
             // Act
             var response = Api[name].Vote(request).Result;
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
             var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+                        || response2.Errors.Contains("Duplicate transaction check failed")
+                        || response2.Errors.Contains("Vote weight cannot be 0.")
+                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -469,14 +471,16 @@ namespace Steepshot.Core.Tests
 
             // Act
             var response = Api[name].Vote(request).Result;
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
             var response2 = Api[name].Vote(request).Result;
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("Can only vote once every 3 seconds") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+                        || response2.Errors.Contains("Duplicate transaction check failed")
+                        || response2.Errors.Contains("Vote weight cannot be 0.")
+                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -552,11 +556,11 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
-                        response2.Errors.Contains("Duplicate transaction check failed") ||
-                        response2.Errors.Contains("Vote weight cannot be 0.") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+                        || response2.Errors.Contains("Duplicate transaction check failed")
+                        || response2.Errors.Contains("Vote weight cannot be 0.")
+                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
@@ -577,11 +581,11 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way") ||
-                        response2.Errors.Contains("('Can only vote once every 3 seconds.',)") ||
-                        response2.Errors.Contains("Duplicate transaction check failed") ||
-                        response2.Errors.Contains("Vote weight cannot be 0.") ||
-                        response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+                        || response2.Errors.Contains("Duplicate transaction check failed")
+                        || response2.Errors.Contains("Vote weight cannot be 0.")
+                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
         [Test, Sequential]
