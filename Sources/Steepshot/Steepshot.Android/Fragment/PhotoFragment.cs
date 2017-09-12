@@ -84,8 +84,8 @@ namespace Steepshot.Fragment
 
         private List<string> GetImages()
         {
-            String dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
-            String picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
+            var dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
+            var picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
 
             var dcimPhotos = new File(dcimPath);
             var cameraPhotos = new File(dcimPath, "Camera");
@@ -93,26 +93,20 @@ namespace Steepshot.Fragment
             var steepshotPhotos = new File(picturePath, "Steepshot");
 
             var photos = new List<File>();
-
-            var dcimPhotosList = dcimPhotos.ListFiles();
-            if (dcimPhotosList != null)
-                photos.AddRange(dcimPhotosList);
-
-            var cameraPhotosList = cameraPhotos.ListFiles();
-            if (cameraPhotosList != null)
-                photos.AddRange(cameraPhotosList);
-
-            var screenshotsList = screenshots.ListFiles();
-            if (screenshotsList != null)
-                photos.AddRange(screenshotsList);
-
-            var steepshotPhotosList = steepshotPhotos.ListFiles();
-            if (steepshotPhotosList != null)
-                photos.AddRange(steepshotPhotosList);
-
+            AddPhotos(photos, new File[] { dcimPhotos, cameraPhotos, screenshots, steepshotPhotos });
             return photos.Where(f => IsImage(f))
                           .OrderByDescending(f => f.LastModified())
                           .Select(i => i.AbsolutePath).ToList();
+        }
+
+        private void AddPhotos(List<File> list, File[] array)
+        {
+            foreach (var item in array)
+            {
+                var dcimPhotosList = item.ListFiles();
+                if (dcimPhotosList != null)
+                    list.AddRange(dcimPhotosList);
+            }
         }
 
         private void AddSteepshotPictures(List<string> listOfAllImages)
