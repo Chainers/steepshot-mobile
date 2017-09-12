@@ -235,7 +235,7 @@ namespace Steepshot.iOS.Views
             }
             if (errors != null && errors.Count() != 0)
                 ShowAlert(errors[0]);
-            foreach (var r in _presenter.Posts)
+            foreach (var r in _presenter.Posts.Skip(_collectionViewSource.FeedStrings.Count()))
             {
                 var at = new NSMutableAttributedString();
                 at.Append(new NSAttributedString(r.Author, Helpers.Constants.NicknameAttribute));
