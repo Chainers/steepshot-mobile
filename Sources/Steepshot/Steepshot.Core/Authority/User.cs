@@ -45,6 +45,16 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public bool IsNeedRewards
+        {
+            get => UserInfo.IsNeedRewards;
+            set
+            {
+                UserInfo.IsNeedRewards = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
 
         public List<string> PostBlacklist => UserInfo.PostBlacklist;
 

@@ -218,7 +218,8 @@ namespace Steepshot.iOS.Views
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_user_placeholder");
 
-                    _profileHeader.Balance.SetTitle($"{_userData.EstimatedBalance.ToString()}{Currency}", UIControlState.Normal);
+                    _profileHeader.Balance.Hidden = !BasePresenter.User.IsNeedRewards;
+                    _profileHeader.Balance.SetTitle($"{_userData.EstimatedBalance.ToString()}{BasePresenter.Currency}", UIControlState.Normal);
                     _profileHeader.SettingsButton.Hidden = Username != BasePresenter.User.Login;
 
                     var buttonsAttributes = new UIStringAttributes
