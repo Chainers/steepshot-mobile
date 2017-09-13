@@ -44,7 +44,7 @@ namespace Steepshot.iOS.Cells
                                                                              .FadeAnimation(false, false, 0)
                                                                              .DownSample(width: (int)avatar.Frame.Width)
                                                                              .Into(avatar);
-            bodyLabel.Text = _currentPost.Body;
+            commentText.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
             costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
@@ -57,10 +57,10 @@ namespace Steepshot.iOS.Cells
                 {
                     GoToProfile(_currentPost.Author);
                 });
-				UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
-				{
-					GoToProfile(_currentPost.Author);
-				});
+                UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
+                {
+                    GoToProfile(_currentPost.Author);
+                });
                 avatar.AddGestureRecognizer(tap);
                 costLabel.AddGestureRecognizer(moneyTap);
 

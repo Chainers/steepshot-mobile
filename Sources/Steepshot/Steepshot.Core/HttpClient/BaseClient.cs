@@ -389,9 +389,9 @@ namespace Steepshot.Core.HttpClient
         {
             var parameters = new List<RequestParameter>();
             AddLoginParameter(parameters, login);
-            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.QueryString });
+            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.RequestBody });
             if (!string.IsNullOrEmpty(target))
-                parameters.Add(new RequestParameter { Key = "target", Value = target, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "target", Value = target, Type = ParameterType.RequestBody });
             var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
         }
 
