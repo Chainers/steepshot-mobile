@@ -52,7 +52,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
-        Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
@@ -105,7 +105,7 @@ namespace Steepshot.Core.HttpClient
         ///             Content-Disposition: form-data; name="photo"; filename="cat636206837437954906"
         ///             Content-Type: application/octet-stream
         /// </summary>
-        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts);
         
         Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null);
 

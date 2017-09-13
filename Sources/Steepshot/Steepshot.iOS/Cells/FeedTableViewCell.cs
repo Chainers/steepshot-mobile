@@ -4,6 +4,7 @@ using System.Net;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -154,7 +155,7 @@ namespace Steepshot.iOS.Cells
                 {
                     likeButton.Selected = post.IsSucces;
                     likeButton.Enabled = true;
-                    rewards.Text = $"{BaseViewController.Currency}{post.NewTotalPayoutReward.ToString()}";
+                    rewards.Text = $"{BasePresenter.Currency}{post.NewTotalPayoutReward.ToString()}";
 
                     _currentPost.NetVotes++;
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";

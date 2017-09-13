@@ -14,7 +14,7 @@ namespace Steepshot.Activity
     public class PostPreviewActivity : BaseActivity
     {
         private string _path;
-        
+
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.photo)] ScaleImageView _photo;
 #pragma warning restore 0649
@@ -33,7 +33,7 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

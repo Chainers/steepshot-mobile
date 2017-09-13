@@ -10,21 +10,13 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class LoginViewController : BaseViewController
+    public partial class LoginViewController : BaseViewControllerWithPresenter<SignInPresenter>
     {
-        protected LoginViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
-        public LoginViewController() { }
-
         protected override void CreatePresenter()
         {
             _presenter = new SignInPresenter();
         }
 
-        private SignInPresenter _presenter;
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 
@@ -117,8 +109,7 @@ namespace Steepshot.iOS.Views
                 var response = await _presenter.SignIn(Username, password.Text);
                 if (response.Success)
                 {
-
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, Chain);
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain);
 
                     var myViewController = new MainTabBarController();
 
@@ -136,7 +127,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
             finally
             {
@@ -146,12 +137,5 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StopAnimating();
             }
         }
-
-        public override void ViewWillDisappear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(true, true);
-            ViewDidDisappear(animated);
-        }
     }
 }
-
