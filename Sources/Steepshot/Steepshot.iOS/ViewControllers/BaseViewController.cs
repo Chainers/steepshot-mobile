@@ -8,28 +8,20 @@ using Ditch;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
-using Steepshot.Core.HttpClient;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using UIKit;
-using KnownChains = Steepshot.Core.KnownChains;
 
 namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-
-        public static KnownChains Chain { get; set; }
         public static List<string> TagsList { get; set; }
-        public static string AppVersion { get; set; }
 
-        public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
         public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
         public static string Pp => BasePresenter.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
-
 
         protected UIView Activeview;
         protected nfloat ScrollAmount = 0.0f;
@@ -40,21 +32,7 @@ namespace Steepshot.iOS.ViewControllers
         protected NSObject CloseKeyboardToken;
         protected NSObject ForegroundToken;
 
-        private static ISteepshotApiClient _apiClient;
-
         public static bool ShouldProfileUpdate { get; set; }
-
-        public static bool NetworkChanged { get; set; }
-
-        protected static ISteepshotApiClient Api
-        {
-            get
-            {
-                if (_apiClient == null)
-                    SwitchChain(Chain);
-                return _apiClient;
-            }
-        }
 
         public static string CurrentPostCategory { get; set; }
 
@@ -62,7 +40,6 @@ namespace Steepshot.iOS.ViewControllers
         {
             BasePresenter.User = new User();
             BasePresenter.User.Load();
-            Chain = BasePresenter.User.Chain;
             TagsList = new List<string>();
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
@@ -99,31 +76,6 @@ namespace Steepshot.iOS.ViewControllers
             CloseKeyboardToken.Dispose();
             ForegroundToken.Dispose();
             base.ViewDidDisappear(animated);
-        }
-
-        public static void SwitchChain(bool isDev)
-        {
-            if (AppSettings.IsDev == isDev && _apiClient != null)
-                return;
-
-            AppSettings.IsDev = isDev;
-
-            InitApiClient(Chain, AppSettings.IsDev);
-        }
-
-        public static void SwitchChain(KnownChains chain)
-        {
-            if (Chain == chain && _apiClient != null)
-                return;
-
-            Chain = chain;
-
-            InitApiClient(chain, AppSettings.IsDev);
-        }
-
-        private static void InitApiClient(KnownChains chain, bool isDev)
-        {
-            _apiClient = new DitchApi(chain, isDev);
         }
 
         protected virtual void KeyBoardUpNotification(NSNotification notification)
@@ -201,7 +153,7 @@ namespace Steepshot.iOS.ViewControllers
             var dVal = value.ToDouble();
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
-            return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
+            return $"{BasePresenter.Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
     }
 }
