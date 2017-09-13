@@ -7,5 +7,6 @@ namespace Steepshot.Core.Services
         string GetPlatform();
         string GetModel();
         string GetOsVersion();
+        string GetBuildVersion();
     }
 }

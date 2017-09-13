@@ -1,6 +1,6 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
@@ -19,6 +19,12 @@ namespace Steepshot.iOS.Cells
 		UIKit.UILabel bodyLabel { get; set; }
 
 		[Outlet]
+		UIKit.UITextView commentText { get; set; }
+
+		[Outlet]
+		UIKit.UITextView commentTextView { get; set; }
+
+		[Outlet]
 		UIKit.UILabel costLabel { get; set; }
 
 		[Outlet]
@@ -29,6 +35,9 @@ namespace Steepshot.iOS.Cells
 
 		[Outlet]
 		UIKit.UILabel loginLabel { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint textViewHeight { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -40,6 +49,11 @@ namespace Steepshot.iOS.Cells
 			if (bodyLabel != null) {
 				bodyLabel.Dispose ();
 				bodyLabel = null;
+			}
+
+			if (commentTextView != null) {
+				commentTextView.Dispose ();
+				commentTextView = null;
 			}
 
 			if (costLabel != null) {
@@ -60,6 +74,16 @@ namespace Steepshot.iOS.Cells
 			if (loginLabel != null) {
 				loginLabel.Dispose ();
 				loginLabel = null;
+			}
+
+			if (commentText != null) {
+				commentText.Dispose ();
+				commentText = null;
+			}
+
+			if (textViewHeight != null) {
+				textViewHeight.Dispose ();
+				textViewHeight = null;
 			}
 		}
 	}
