@@ -37,7 +37,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(string comment, string url)
         {
-            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, comment, AppSettings.AppInfo);
+            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv);
         }
     }
