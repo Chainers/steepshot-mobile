@@ -45,7 +45,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new CreateCommentRequest(new UserInfo { SessionId = "sessionId" }, "", "test", "test", AppSettings.AppInfo);
+                new CreateCommentRequest(new UserInfo { SessionId = "sessionId" }, "", "test", AppSettings.AppInfo);
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
