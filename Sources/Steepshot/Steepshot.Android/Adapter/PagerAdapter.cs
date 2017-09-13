@@ -3,16 +3,22 @@ using Android.Support.V4.App;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 
-
 namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
-        public int[] TabIcos = new[] {
-            Resource.Drawable.ic_home,
-            Resource.Drawable.ic_browse,
-            Resource.Drawable.ic_camera_new,
-            Resource.Drawable.ic_profile_new
+        public int[] TabIconsInactive = new[] {
+            Resource.Drawable.home,
+            Resource.Drawable.search,
+            Resource.Drawable.create,
+            Resource.Drawable.profile
+        };
+
+        public int[] TabIconsActive = new[] {
+            Resource.Drawable.home_active,
+            Resource.Drawable.search_active,
+            Resource.Drawable.create_active,
+            Resource.Drawable.profile_active
         };
 
         private readonly List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
@@ -22,7 +28,7 @@ namespace Steepshot.Adapter
             InitializeTabs();
         }
 
-        public override int Count => TabIcos.Length;
+        public override int Count => TabIconsInactive.Length;
 
         public override Android.Support.V4.App.Fragment GetItem(int position)
         {
@@ -37,7 +43,7 @@ namespace Steepshot.Adapter
                 return;
             }
 
-            for (var i = 0; i < TabIcos.Length; i++)
+            for (var i = 0; i < TabIconsInactive.Length; i++)
             {
                 Android.Support.V4.App.Fragment frag;
                 switch (i)
