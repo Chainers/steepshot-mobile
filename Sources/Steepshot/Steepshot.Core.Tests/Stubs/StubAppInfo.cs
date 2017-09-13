@@ -6,27 +6,27 @@ namespace Steepshot.Core.Tests.Stubs
     {
         public string GetAppVersion()
         {
-            throw new System.NotImplementedException();
+            return GetBuildVersion();
         }
 
         public string GetPlatform()
         {
-            throw new System.NotImplementedException();
+            return "test";
         }
 
         public string GetModel()
         {
-            throw new System.NotImplementedException();
+            return "test";
         }
 
         public string GetOsVersion()
         {
-            throw new System.NotImplementedException();
+            return GetBuildVersion();
         }
 
         public string GetBuildVersion()
         {
-            throw new System.NotImplementedException();
+            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

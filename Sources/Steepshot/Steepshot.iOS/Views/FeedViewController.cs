@@ -235,7 +235,7 @@ namespace Steepshot.iOS.Views
             }
             if (errors != null && errors.Count() != 0)
                 ShowAlert(errors[0]);
-            foreach (var r in _presenter.Posts)
+            foreach (var r in _presenter.Posts.Skip(_collectionViewSource.FeedStrings.Count()))
             {
                 var at = new NSMutableAttributedString();
                 at.Append(new NSAttributedString(r.Author, Helpers.Constants.NicknameAttribute));
@@ -376,7 +376,7 @@ namespace Steepshot.iOS.Views
                    ToogleDropDownList();
                    _presenter.ClearPosts();
                    feedCollection.ReloadData();
-                   _currentPostType = PostType.New;
+                   _presenter.PostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
                    GetPosts();
@@ -394,7 +394,7 @@ namespace Steepshot.iOS.Views
                    ToogleDropDownList();
                    _presenter.ClearPosts();
                    feedCollection.ReloadData();
-                   _currentPostType = PostType.Hot;
+                   _presenter.PostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
                    GetPosts();
@@ -412,7 +412,7 @@ namespace Steepshot.iOS.Views
                    ToogleDropDownList();
                    _presenter.ClearPosts();
                    feedCollection.ReloadData();
-                   _currentPostType = PostType.Top;
+                   _presenter.PostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
                    GetPosts();

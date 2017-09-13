@@ -105,7 +105,7 @@ namespace Steepshot.Core.HttpClient
         ///             Content-Disposition: form-data; name="photo"; filename="cat636206837437954906"
         ///             Content-Type: application/octet-stream
         /// </summary>
-        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts);
         
         Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null);
 

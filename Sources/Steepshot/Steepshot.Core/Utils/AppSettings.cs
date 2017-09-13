@@ -19,6 +19,12 @@ namespace Steepshot.Core.Utils
             get { return _saverService ?? (_saverService = Container.Resolve<ISaverService>()); }
         }
 
+        private static IAppInfo _appInfo;
+        public static IAppInfo AppInfo
+        {
+            get { return _appInfo ?? (_appInfo = Container.Resolve<IAppInfo>()); }
+        }
+
         public static bool IsDev
         {
             get => SaverService.Get<bool>("isdev");
