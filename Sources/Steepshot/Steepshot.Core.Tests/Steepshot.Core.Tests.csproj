@@ -163,12 +163,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseTests.cs" />
+    <Compile Include="HttpClient\ApiTest.cs" />
     <Compile Include="Presenters\VotersPresenterTest.cs" />
     <Compile Include="Stubs\StubAppInfo.cs" />
     <Compile Include="Stubs\StubConnectionService.cs" />
     <Compile Include="HttpClient\BaseClientTest.cs" />
     <Compile Include="IntegrationTests.cs" />
-    <Compile Include="IntegrationTestsChangingState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stubs\StubDataProvider.cs" />
     <Compile Include="Stubs\StubReporterService.cs" />

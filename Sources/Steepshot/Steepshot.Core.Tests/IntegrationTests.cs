@@ -750,8 +750,7 @@ namespace Steepshot.Core.Tests
             var userPostsResponse = Api[name].GetUserPosts(userPostsRequest).Result;
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
-            const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, title, AppSettings.AppInfo);
+            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, AppSettings.AppInfo);
 
             // Act
             var response1 = Api[name].CreateComment(createCommentRequest).Result;

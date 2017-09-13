@@ -115,7 +115,7 @@ namespace Steepshot.Core.HttpClient
         {
             var errors = CheckInternetConnection();
             if (errors != null)
-                return new OperationResult<LoginResponse>() { Errors = errors.Errors };
+                return new OperationResult<LoginResponse> { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var keys = ToKeyArr(request.PostingKey);

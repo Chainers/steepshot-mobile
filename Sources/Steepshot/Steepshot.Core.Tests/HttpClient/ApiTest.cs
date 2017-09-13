@@ -6,14 +6,30 @@ using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
-namespace Steepshot.Core.Tests
+namespace Steepshot.Core.Tests.HttpClient
 {
     [TestFixture]
-    public class IntegrationTestsChangingState : BaseTests
+    public class ApiTest : BaseTests
     {
+        [Test, Sequential]
+        public void LoginWithPostingKeyTest([Values("Steem", "Golos")] string apiName)
+        {
+            var api = Api[apiName];
+            var user = Users[apiName];
+
+            // Arrange
+            var request = new AuthorizedRequest(user);
+
+            // Act
+            var response = api.LoginWithPostingKey(request).Result;
+
+            // Assert
+            AssertResult(response);
+            Assert.That(response.Result.IsLoggedIn, Is.True);
+        }
 
         [Test, Sequential]
-        public void BlockchainStateChangingTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
+        public void UploadWithPrepareTest([Values("Steem", "Golos")] string apiName)
         {
             var user = Authenticate(apiName);
 
@@ -37,13 +53,24 @@ namespace Steepshot.Core.Tests
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
             Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
+        }
+
+        [Test, Sequential]
+        public void CreateCommentTest([Values("Steem", "Golos")] string apiName)
+        {
+            var user = Authenticate(apiName);
+
+            // Load last created post
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            AssertResult(userPostsResponse);
+            var lastPost = userPostsResponse.Result.Results.First();
 
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
             const string body = "Ллойс!";
-            const string title = "Лучший камент ever";
-            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, title, AppSettings.AppInfo);
+            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, AppSettings.AppInfo);
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest).Result;
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);
@@ -55,8 +82,20 @@ namespace Steepshot.Core.Tests
             var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
             var commentsResponse = Api[apiName].GetComments(getCommentsRequest).Result;
             AssertResult(commentsResponse);
-            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(title));
+            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(body));
             Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
+        }
+
+        [Test, Sequential]
+        public void VotePostTest([Values("Steem", "Golos")] string apiName)
+        {
+            var user = Authenticate(apiName);
+
+            // Load last created post
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            AssertResult(userPostsResponse);
+            var lastPost = userPostsResponse.Result.Results.First();
 
             // 3) Vote down
             var voteDownRequest = new VoteRequest(user, VoteType.Down, lastPost.Url);
@@ -93,6 +132,21 @@ namespace Steepshot.Core.Tests
             // Check if last post was voted
             AssertResult(userPostsResponse2);
             Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.True);
+        }
+
+        [Test, Sequential]
+        public void VoteCommentTest([Values("Steem", "Golos")] string apiName)
+        {
+            var user = Authenticate(apiName);
+
+            // Load last created post
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            AssertResult(userPostsResponse);
+            var lastPost = userPostsResponse.Result.Results.First();
+            // Load comments for this post and check them
+            var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
+            var commentsResponse = Api[apiName].GetComments(getCommentsRequest).Result;
 
             // 5) Vote up comment
             var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
@@ -128,23 +182,31 @@ namespace Steepshot.Core.Tests
             // Check if last comment was voted
             AssertResult(commentsResponse3);
             Assert.That(commentsResponse3.Result.Results.First().Vote, Is.False);
+        }
+
+        [Test, Sequential]
+        public void FollowTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
+        {
+            var user = Authenticate(apiName);
 
             // 7) Follow
-            // Wait for data to be writed into blockchain
-            Thread.Sleep(TimeSpan.FromSeconds(15));
             var followRequest = new FollowRequest(user, FollowType.Follow, followUser);
             var followResponse = Api[apiName].Follow(followRequest).Result;
             AssertResult(followResponse);
             Assert.That(followResponse.Result.IsSuccess, Is.True);
 
             // 8) UnFollow
-            // Wait for data to be writed into blockchain
-            Thread.Sleep(TimeSpan.FromSeconds(15));
             var unfollowRequest = new FollowRequest(user, FollowType.UnFollow, followUser);
             var unfollowResponse = Api[apiName].Follow(unfollowRequest).Result;
             AssertResult(unfollowResponse);
             Assert.That(unfollowResponse.Result.IsSuccess, Is.False);
+        }
 
+        [Test, Sequential]
+        public void LogoutTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
+        {
+            var user = Authenticate(apiName);
+            
             // 9) Logout
             var logoutRequest = new AuthorizedRequest(user);
             var logoutResponse = Api[apiName].Logout(logoutRequest).Result;
