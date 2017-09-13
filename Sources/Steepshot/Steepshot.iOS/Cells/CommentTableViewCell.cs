@@ -3,6 +3,7 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -48,6 +49,7 @@ namespace Steepshot.iOS.Cells
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
             costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            costLabel.Hidden = !BasePresenter.User.IsNeedRewards;
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
 
