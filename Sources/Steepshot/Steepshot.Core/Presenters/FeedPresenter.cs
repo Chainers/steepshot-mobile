@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,19 +13,17 @@ namespace Steepshot.Core.Presenters
     public class FeedPresenter : BaseFeedPresenter
     {
         private readonly bool _isFeed;
-        public event Action PostsLoaded;
-        public event Action PostsCleared;
         private CancellationTokenSource _cts;
-        private PostType _type = PostType.Top;
+        public PostType PostType = PostType.Top;
         public bool Processing;
         private bool _hasItems = true;
-		public bool HasItems
-		{
-			get
-			{
-				return _hasItems;
-			}
-		}
+        public bool HasItems
+        {
+            get
+            {
+                return _hasItems;
+            }
+        }
         private string _offsetUrl = string.Empty;
         private const int PostsCount = 20;
         public string Tag;
@@ -34,31 +33,22 @@ namespace Steepshot.Core.Presenters
             _isFeed = isFeed;
         }
 
-        public PostType GetCurrentType()
-        {
-            return _type;
-        }
-
-        public async Task ViewLoad()
-        {
-			if (Posts.Count == 0)
-				await GetTopPosts(_type, true);
-        }
-        
         public void ClearPosts()
         {
             Posts.Clear();
             _hasItems = true;
             _offsetUrl = string.Empty;
-            PostsCleared?.Invoke();
         }
 
-        public async Task GetTopPosts(PostType type, bool clearOld = false)
+        public async Task<List<string>> GetTopPosts(bool clearOld = false)
         {
+            List<string> errors = null;
             try
             {
-                if (!_hasItems || Processing)
-                    return;
+                if (clearOld)
+                    ClearPosts();
+                if (!_hasItems)
+                    return errors;
                 try
                 {
                     _cts?.Cancel();
@@ -70,9 +60,6 @@ namespace Steepshot.Core.Presenters
 
                 using (_cts = new CancellationTokenSource())
                 {
-                    _type = type;
-                    Processing = true;
-
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
@@ -88,17 +75,17 @@ namespace Steepshot.Core.Presenters
                     }
                     else
                     {
-                        var postrequest = new PostsRequest(type)
+                        var postrequest = new PostsRequest(PostType)
                         {
                             Login = User.Login,
                             Limit = PostsCount,
                             Offset = _offsetUrl,
-							ShowNsfw = User.IsNsfw,
-							ShowLowRated = User.IsLowRated
+                            ShowNsfw = User.IsNsfw,
+                            ShowLowRated = User.IsLowRated
                         };
                         response = await Api.GetPosts(postrequest, _cts);
                     }
-                    //TODO:KOA -- Errors not processed
+                    errors = response.Errors;
                     if (response.Success && response.Result?.Results != null)
                     {
                         if (response.Result.Results.Count != 0)
@@ -110,35 +97,29 @@ namespace Steepshot.Core.Presenters
                                 _hasItems = false;
 
                             _offsetUrl = lastItem.Url;
-
-                            if (clearOld)
-                            {
-                                Posts.Clear();
-                            }
-                            foreach (var item in response.Result.Results)
-                            {
-                                Posts.Add(item);
-                            }
+                            Posts.AddRange(response.Result.Results);
                         }
                     }
-                    PostsLoaded?.Invoke();
                 }
+            }
+            catch (TaskCanceledException e)
+            {
+                throw e;
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
-            finally
-            {
-                Processing = false;
-            }
+            return errors;
         }
 
-        public async Task GetSearchedPosts()
+        public async Task<List<string>> GetSearchedPosts(bool clearOld = false)
         {
+            List<string> errors = null;
+            if (clearOld)
+                ClearPosts();
             if (!_hasItems)
-                return;
-
+                return errors;
             try
             {
                 _cts?.Cancel();
@@ -151,18 +132,17 @@ namespace Steepshot.Core.Presenters
             {
                 using (_cts = new CancellationTokenSource())
                 {
-                    Processing = true;
-                    var postrequest = new PostsByCategoryRequest(_type, Tag)
+                    var postrequest = new PostsByCategoryRequest(PostType, Tag)
                     {
                         Login = User.Login,
                         Limit = PostsCount,
                         Offset = _offsetUrl,
-						ShowNsfw = User.IsNsfw,
-						ShowLowRated = User.IsLowRated
+                        ShowNsfw = User.IsNsfw,
+                        ShowLowRated = User.IsLowRated
                     };
 
                     var posts = await Api.GetPostsByCategory(postrequest, _cts);
-                    //TODO:KOA -- Errors not processed
+                    errors = posts.Errors;
                     if (posts.Success && posts.Result?.Results != null)
                     {
                         if (posts.Result.Results.Count != 0)
@@ -176,18 +156,18 @@ namespace Steepshot.Core.Presenters
                             _offsetUrl = lastItem.Url;
                             Posts.AddRange(posts.Result.Results);
                         }
-                        PostsLoaded?.Invoke();
                     }
                 }
             }
+            catch (TaskCanceledException e)
+            {
+                throw e;
+            }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
-            finally
-            {
-                Processing = false;
-            }
+            return errors;
         }
     }
 }

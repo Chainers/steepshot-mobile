@@ -9,6 +9,8 @@ namespace Steepshot.Core.Models.Requests
 
     public class OffsetLimitFields
     {
+        public const int ServerMaxCount = 20;
+
         public string Offset { get; set; } = string.Empty;
         public int Limit { get; set; } = 10;
     }

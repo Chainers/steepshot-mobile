@@ -17,9 +17,8 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class CommentsActivity : BaseActivity
+    public class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
     {
-        CommentsPresenter _presenter;
         List<Post> _posts;
         CommentAdapter _adapter;
         string _uid;
@@ -69,7 +68,7 @@ namespace Steepshot.Activity
                 }
                 catch (Exception ex)
                 {
-                    Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                    AppSettings.Reporter.SendCrash(ex);
                     Toast.MakeText(this, Localization.Errors.Unknownerror, ToastLength.Short).Show();
                 }
                 if (_sendSpinner != null && _post != null)
@@ -92,7 +91,7 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
 
             _uid = Intent.GetStringExtra("uid");
-            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false) {StackFromEnd = true};
+            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false) { StackFromEnd = true };
             _comments.SetLayoutManager(_manager);
             _posts = await _presenter.GetComments(_uid);
             _adapter = new CommentAdapter(this, _posts);
@@ -138,19 +137,19 @@ namespace Steepshot.Activity
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BasePresenter.AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new CommentsPresenter();
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
             Cheeseknife.Reset(this);
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new CommentsPresenter();
         }
     }
 }

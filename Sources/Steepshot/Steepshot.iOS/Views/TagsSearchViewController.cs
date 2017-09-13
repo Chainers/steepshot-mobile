@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -16,20 +10,16 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsSearchViewController : BaseViewController
+    public partial class TagsSearchViewController : BaseViewControllerWithPresenter<SearchPresenter>
     {
         private Timer _timer;
         private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
         private UserSearchTableViewSource _usersSource = new UserSearchTableViewSource();
-        private CancellationTokenSource _cts;
         private SearchType _searchType = SearchType.Tags;
 
-        protected TagsSearchViewController(IntPtr handle) : base(handle)
+        protected override void CreatePresenter()
         {
-        }
-
-        public TagsSearchViewController()
-        {
+            _presenter = new SearchPresenter();
         }
 
         private bool _navigationBarHidden;
@@ -51,17 +41,16 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             _timer = new Timer(OnTimer);
-
+            _tagsSource.Tags = _presenter.Tags;
             tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
             _tagsSource.RowSelectedEvent += TableTagSelected;
-
+            _usersSource.Users = _presenter.Users;
             usersTable.Source = _usersSource;
             usersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             usersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
             _usersSource.RowSelectedEvent += TableTagSelected;
-
 
             searchTextField.ShouldReturn += (textField) =>
             {
@@ -94,100 +83,50 @@ namespace Steepshot.iOS.Views
            });
         }
 
-        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>() { { SearchType.People, null }, { SearchType.Tags, null } };
-
         private async void Search(string query)
         {
-            if (_prevQuery[_searchType] == query)
-                return;
-            if ((query != null && (query.Length == 1 || (query.Length == 2 && _searchType == SearchType.People))) || (string.IsNullOrEmpty(query) && _searchType == SearchType.People))
-                return;
-
-            _prevQuery[_searchType] = query;
             noTagsLabel.Hidden = true;
             activityIndicator.StartAnimating();
-            bool dontStop = false;
-            try
-            {
-                _cts?.Cancel();
-            }
-            catch (ObjectDisposedException)
-            {
 
-            }
             try
             {
-                using (_cts = new CancellationTokenSource())
+                var errors = await _presenter.SearchCategories(query, _searchType);
+                if (errors != null && errors.Count > 0)
+                    ShowAlert(errors[0]);
+                else
                 {
-                    OperationResult response;
-                    if (string.IsNullOrEmpty(query))
+
+                    bool shouldHide;
+                    if (_searchType == SearchType.Tags)
                     {
-                        var request = new OffsetLimitFields();
-                        response = await Api.GetCategories(request, _cts);
+                        tagsTable.ReloadData();
+                        shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query);
-                        if (_searchType == SearchType.Tags)
-                        {
-                            response = await Api.SearchCategories(request, _cts);
-                        }
-                        else
-                        {
-                            response = await Api.SearchUser(request, _cts);
-                        }
+                        usersTable.ReloadData();
+                        shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
                     }
-
-                    if (response.Success)
+                    if (shouldHide)
                     {
-                        bool shouldHide;
-                        if (_searchType == SearchType.Tags)
-                        {
-                            _tagsSource.Tags.Clear();
-                            _tagsSource.Tags = ((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results;
-                            tagsTable.ReloadData();
-                            shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
-                        }
-                        else
-                        {
-                            _usersSource.Users.Clear();
-                            _usersSource.Users = ((OperationResult<SearchResponse<UserSearchResult>>)response).Result?.Results;
-                            usersTable.ReloadData();
-                            shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
-                        }
-
-                        if (shouldHide)
-                        {
-                            noTagsLabel.Hidden = false;
-                            tagsTable.Hidden = true;
-                            usersTable.Hidden = true;
-                        }
-                        else
-                        {
-                            noTagsLabel.Hidden = true;
-                            if (_searchType == SearchType.People)
-                                usersTable.Hidden = false;
-                            else
-                                tagsTable.Hidden = false;
-                        }
+                        noTagsLabel.Hidden = false;
+                        tagsTable.Hidden = true;
+                        usersTable.Hidden = true;
                     }
                     else
-                        Reporter.SendCrash($"{Localization.Errors.PostTagsError} {string.Join(Environment.NewLine, response.Errors)}", BasePresenter.User.Login, AppVersion);
+                    {
+                        noTagsLabel.Hidden = true;
+                        if (_searchType == SearchType.People)
+                            usersTable.Hidden = false;
+                        else
+                            tagsTable.Hidden = false;
+                    }
                 }
+                activityIndicator.StopAnimating();
             }
-            catch (TaskCanceledException)
+            catch (Exception)
             {
-                //everything is ok
-                dontStop = true;
-            }
-            catch (Exception ex)
-            {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
-            }
-            finally
-            {
-                if (!dontStop)
-                    activityIndicator.StopAnimating();
+
             }
         }
 
@@ -227,11 +166,5 @@ namespace Steepshot.iOS.Views
                 usersTable.Hidden = false;
             }
         }
-    }
-
-    public enum SearchType
-    {
-        Tags,
-        People
     }
 }
