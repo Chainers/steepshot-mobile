@@ -24,6 +24,7 @@
             public const string FollowError = "Follow page follow error: ";
             public const string PostTagsError = "Post tags page get items error: ";
             public const string InternetUnavailable = "Check your internet connection";
+            public const string IncorrectIdentifier = "Incorrect identifier";
 
             /// <summary>
             ///  $"The server did not accept the request! Reason ({code}) {msg}";

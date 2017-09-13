@@ -9,7 +9,7 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request)
         {
-            return await Api.Upload(request);
+            return await Api.Upload(request, null);
         }
     }
 }

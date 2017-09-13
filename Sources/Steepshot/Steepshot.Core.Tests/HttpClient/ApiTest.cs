@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -34,9 +35,9 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
-
+            user.IsNeedRewards = false;
             var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
-            var createPostResponse = Api[apiName].Upload(createPostRequest).Result;
+            var createPostResponse = Api[apiName].Upload(createPostRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             AssertResult(createPostResponse);
             Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
@@ -69,7 +70,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
             const string body = "Ллойс!";
-            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body);
+            var createCommentRequest = new CreateCommentRequest(user, lastPost.Url, body, AppSettings.AppInfo);
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest).Result;
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsCreated, Is.True);
@@ -205,7 +206,7 @@ namespace Steepshot.Core.Tests.HttpClient
         public void LogoutTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
         {
             var user = Authenticate(apiName);
-            
+
             // 9) Logout
             var logoutRequest = new AuthorizedRequest(user);
             var logoutResponse = Api[apiName].Logout(logoutRequest).Result;
