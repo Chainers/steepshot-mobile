@@ -5,6 +5,7 @@ using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -66,7 +67,9 @@ namespace Steepshot.iOS.Cells
                                                      .Into(bodyImage);
 
             cellText.Text = _currentPost.Author;
+            rewards.Hidden = !BasePresenter.User.IsNeedRewards;
             rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
