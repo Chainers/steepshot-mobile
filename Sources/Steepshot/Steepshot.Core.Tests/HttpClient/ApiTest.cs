@@ -35,7 +35,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
-
+            user.IsNeedRewards = false;
             var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
             var createPostResponse = Api[apiName].Upload(createPostRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
@@ -206,7 +206,7 @@ namespace Steepshot.Core.Tests.HttpClient
         public void LogoutTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
         {
             var user = Authenticate(apiName);
-            
+
             // 9) Logout
             var logoutRequest = new AuthorizedRequest(user);
             var logoutResponse = Api[apiName].Logout(logoutRequest).Result;

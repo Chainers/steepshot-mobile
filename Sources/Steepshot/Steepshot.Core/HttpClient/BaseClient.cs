@@ -425,7 +425,7 @@ namespace Steepshot.Core.HttpClient
             if (errorResult == null)
             {
                 var parameters = CreateSessionParameter(request.SessionId);
-                if (request.IsNeedRewards)
+                if (!request.IsNeedRewards)
                     parameters.Add(new RequestParameter { Key = "set_beneficiary", Value = "steepshot_no_rewards", Type = ParameterType.RequestBody });
                 response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
                 errorResult = CheckErrors(response);
