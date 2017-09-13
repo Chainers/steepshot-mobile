@@ -174,6 +174,38 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\home.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\home.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\home.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\home_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\home_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\home_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\search.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\search.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\search.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\search_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\search_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\search_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\profile.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\profile.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\profile.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\profile_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\profile_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\profile_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\create.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\create.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\create.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\create_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\create_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\create_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\grid.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\grid.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\grid.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\grid.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\grid_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\grid_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\grid_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\grid_active.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">

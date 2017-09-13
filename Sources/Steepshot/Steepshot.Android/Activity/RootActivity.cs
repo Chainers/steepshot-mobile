@@ -1,7 +1,6 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
@@ -46,7 +45,7 @@ namespace Steepshot.Activity
             for (var i = 0; i < _tabLayout.TabCount; i++)
             {
                 var tab = _tabLayout.GetTabAt(i);
-                tab?.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIcos[i]));
+                tab?.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
 
             _viewPager.AddOnPageChangeListener(this);
@@ -69,7 +68,9 @@ namespace Steepshot.Activity
             for (var i = 0; i < _tabLayout.TabCount; i++)
             {
                 var tab = _tabLayout.GetTabAt(i);
-                tab?.Icon.SetColorFilter(i == position ? Color.Black : Color.LightGray, PorterDuff.Mode.SrcIn);
+                tab?.SetIcon(i == position
+                             ? ContextCompat.GetDrawable(this, _adapter.TabIconsActive[i])
+                             : ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
         }
 
