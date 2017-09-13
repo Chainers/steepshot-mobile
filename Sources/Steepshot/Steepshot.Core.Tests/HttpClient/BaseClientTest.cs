@@ -1,5 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using Ditch;
+using Ditch.Operations.Get;
+using Ditch.Operations.Post;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 
@@ -8,7 +14,6 @@ namespace Steepshot.Core.Tests.HttpClient
     [TestFixture]
     public class BaseClientTest : BaseTests
     {
-
         [Test, Sequential]
         public void GetPostVotersTest([Values("Steem", "Golos")] string apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")] string url)
         {
@@ -26,7 +31,6 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.IsTrue(result.Count == count);
             Assert.IsTrue(result.Results.Count == count);
         }
-
 
         [Test, Sequential]
         public void GetPostVotersCancelTestTest([Values("Steem", "Golos")] string apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")] string url)
