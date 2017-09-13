@@ -133,7 +133,7 @@ namespace Steepshot.Core.HttpClient
         {
             var errors = CheckInternetConnection();
             if (errors != null)
-                return new OperationResult<CreateCommentResponse>() { Errors = errors.Errors };
+                return new OperationResult<CreateCommentResponse> { Errors = errors.Errors };
             return await Task.Run(() =>
             {
                 var authPost = UrlToAuthorAndPermlink(request.Url);
