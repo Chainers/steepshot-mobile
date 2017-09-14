@@ -48,7 +48,7 @@ namespace Steepshot.Activity
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
 #if DEBUG
-            _password.Text = "***REMOVED***";
+            _password.Text = "5**************************************************";
 #endif
 
             _password.TextChanged += TextChanged;

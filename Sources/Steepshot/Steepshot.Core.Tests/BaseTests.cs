@@ -20,8 +20,8 @@ namespace Steepshot.Core.Tests
         {
             Users = new Dictionary<string, UserInfo>()
             {
-                {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}},
-                {"Golos",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}}
+                {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "5**************************************************"}},
+                {"Golos",new UserInfo{Login = "joseph.kalu", PostingKey = "5**************************************************"}}
             };
 
             Api = new Dictionary<string, ISteepshotApiClient>
