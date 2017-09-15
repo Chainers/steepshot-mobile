@@ -17,11 +17,11 @@ namespace Steepshot.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        private readonly List<Post> _posts;
-        private readonly Context _context;
-        private readonly string _commentPattern = "<b>{0}</b> {1}";
+        protected readonly List<Post> _posts;
+        protected readonly Context _context;
+        protected readonly string _commentPattern = "<b>{0}</b> {1}";
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
-        private Typeface[] _fonts;
+        protected Typeface[] _fonts;
 
         public FeedAdapter(Context context, List<Post> posts, Typeface[] fonts)
         {
@@ -47,7 +47,7 @@ namespace Steepshot.Adapter
             if (post.Title != null)
             {
                 vh.FirstComment.Visibility = ViewStates.Visible;
-                //vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
+                //vh.FirstComment.TextFormatted = H_userAction_userActiontml.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
                 vh.FirstComment.Text = post.Title;
             }
             else
@@ -94,74 +94,104 @@ namespace Steepshot.Adapter
             var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _fonts);
             return vh;
         }
+    }
 
-        public class FeedViewHolder : RecyclerView.ViewHolder
+    public class FeedViewHolder : RecyclerView.ViewHolder
+    {
+        public ImageView Photo { get; }
+        public ImageView Avatar { get; }
+        public TextView Author { get; }
+        public TextView FirstComment { get; }
+        public TextView CommentSubtitle { get; }
+        public TextView Time { get; }
+        public TextView Likes { get; }
+        public TextView Cost { get; }
+        public ImageButton Like { get; }
+        public LinearLayout CommentFooter { get; }
+        protected Post _post;
+        protected readonly Action<int> _likeAction;
+        protected readonly Action<int> _userAction;
+        protected readonly Action<int> _commentAction;
+        protected readonly Action<int> _photoAction;
+        protected readonly Action<int> _votersAction;
+
+        protected int correction = 0;
+
+        public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
         {
-            public ImageView Photo { get; }
-            public ImageView Avatar { get; }
-            public TextView Author { get; }
-            public TextView FirstComment { get; }
-            public TextView CommentSubtitle { get; }
-            public TextView Time { get; }
-            public TextView Likes { get; }
-            public TextView Cost { get; }
-            public ImageButton Like { get; }
-            public LinearLayout CommentFooter { get; }
-            Post _post;
-            readonly Action<int> _likeAction;
+            Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+            Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
+            Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
 
-            public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
+            var parameters = Photo.LayoutParameters;
+            parameters.Height = height;
+            Photo.LayoutParameters = parameters;
+
+            FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
+            CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
+            Time = itemView.FindViewById<TextView>(Resource.Id.time);
+            Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+            Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+            Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+            CommentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
+
+            Author.Typeface = font[1];
+            Time.Typeface = font[0];
+            Likes.Typeface = font[1];
+            Cost.Typeface = font[1];
+            FirstComment.Typeface = font[0];
+            CommentSubtitle.Typeface = font[0];
+
+            _likeAction = likeAction;
+            _userAction = userAction;
+            _commentAction = commentAction;
+            _photoAction = photoAction;
+            _votersAction = votersAction;
+
+            Like.Click += Like_Click;
+            Avatar.Click += UserAction;
+            Author.Click += UserAction;
+            Cost.Click += UserAction;
+            CommentFooter.Click += CommentAction;
+            Likes.Click += VotersAction;
+            Photo.Click += PhotoAction;
+        }
+
+        protected virtual void UserAction(object sender, EventArgs e)
+        {
+            _userAction?.Invoke(AdapterPosition);
+        }
+
+        protected virtual void CommentAction(object sender, EventArgs e)
+        {
+            _commentAction?.Invoke(AdapterPosition);
+        }
+
+        protected virtual void VotersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(AdapterPosition);
+        }
+
+        protected virtual void PhotoAction(object sender, EventArgs e)
+        {
+            _photoAction?.Invoke(AdapterPosition);
+        }
+
+        protected virtual void Like_Click(object sender, EventArgs e)
+        {
+            if (BasePresenter.User.IsAuthenticated)
             {
-                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
-                Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-                Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
-
-                var parameters = Photo.LayoutParameters;
-                parameters.Height = height;
-                Photo.LayoutParameters = parameters;
-
-                FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
-                CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
-                Time = itemView.FindViewById<TextView>(Resource.Id.time);
-                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
-                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-                Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
-                CommentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
-
-                Author.Typeface = font[1];
-                Time.Typeface = font[0];
-                Likes.Typeface = font[1];
-                Cost.Typeface = font[1];
-                FirstComment.Typeface = font[0];
-                CommentSubtitle.Typeface = font[0];
-
-                _likeAction = likeAction;
-
-                Like.Click += Like_Click;
-                Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                CommentFooter.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-                Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
-                Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
+                Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
             }
+            _likeAction?.Invoke(AdapterPosition);
+        }
 
-            void Like_Click(object sender, EventArgs e)
-            {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-                }
-                _likeAction?.Invoke(AdapterPosition);
-            }
-
-            public void UpdateData(Post post, Context context)
-            {
-                _post = post;
-                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
-                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
-                Time.Text = post.Created.ToPostTime();
-            }
+        public void UpdateData(Post post, Context context)
+        {
+            _post = post;
+            Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            Time.Text = post.Created.ToPostTime();
         }
     }
 }

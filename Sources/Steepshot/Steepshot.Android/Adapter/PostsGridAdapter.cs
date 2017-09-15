@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -10,10 +11,9 @@ namespace Steepshot.Adapter
 {
     public class PostsGridAdapter : RecyclerView.Adapter
     {
-        readonly List<Post> _posts;
-        private readonly Context _context;
-
-        public System.Action<int> Click;
+        protected readonly List<Post> _posts;
+        protected readonly Context _context;
+        public Action<int> Click;
 
         public PostsGridAdapter(Context context, List<Post> posts)
         {
@@ -34,7 +34,6 @@ namespace Steepshot.Adapter
                    .NoFade()
                    .Resize(_context.Resources.DisplayMetrics.WidthPixels / 3 - 2, _context.Resources.DisplayMetrics.WidthPixels / 3 - 2)
                    .CenterCrop()
-                   .Priority(Picasso.Priority.Low)
                    .Into(((ImageViewHolder)holder).Photo);
         }
 
@@ -47,25 +46,24 @@ namespace Steepshot.Adapter
             var vh = new ImageViewHolder(view, Click);
             return vh;
         }
+    }
 
-        public class ImageViewHolder : RecyclerView.ViewHolder
+    public class ImageViewHolder : RecyclerView.ViewHolder
+    {
+        public ImageView Photo { get; }
+        protected readonly Action<int> _click;
+
+        public ImageViewHolder(View itemView, Action<int> click) : base(itemView)
         {
-            public ImageView Photo { get; }
-            readonly System.Action<int> _click;
+            _click = click;
+            Photo = (ImageView)itemView;
+            Photo.Clickable = true;
+            Photo.Click += OnClick;
+        }
 
-            public ImageViewHolder(View itemView, System.Action<int> click) : base(itemView)
-            {
-                _click = click;
-                Photo = (ImageView)itemView;
-                Photo.Clickable = true;
-                Photo.Click += OnClick;
-            }
-
-            private void OnClick(object sender, System.EventArgs e)
-            {
-                _click.Invoke(AdapterPosition);
-            }
-
+        protected virtual void OnClick(object sender, EventArgs e)
+        {
+            _click.Invoke(AdapterPosition);
         }
     }
 }

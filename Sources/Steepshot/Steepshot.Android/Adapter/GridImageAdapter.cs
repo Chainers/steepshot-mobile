@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
@@ -13,7 +14,7 @@ namespace Steepshot.Adapter
     {
         private List<string> _posts;
         private readonly Context _context;
-        public System.Action<int> Click;
+        public Action<int> Click;
         public override int ItemCount => _posts.Count;
         public static Bitmap[] bitmaps;
         private readonly int cellSize;
@@ -33,7 +34,7 @@ namespace Steepshot.Adapter
         public override async void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var photoUrl = _posts[position];
-            var iHolder = (ImageViewHolder)holder;
+            var iHolder = (GalleryImageViewHolder)holder;
             iHolder.CurrentPhotoId = position;
             if (bitmaps[position] == null)
             {
@@ -64,7 +65,7 @@ namespace Steepshot.Adapter
             view.SetScaleType(ImageView.ScaleType.CenterCrop);
             view.LayoutParameters = new ViewGroup.LayoutParams(cellSize, cellSize);
 
-            return new ImageViewHolder(view, Click);
+            return new GalleryImageViewHolder(view, Click);
         }
 
         public void ClearCache()
@@ -73,17 +74,12 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class ImageViewHolder : RecyclerView.ViewHolder
+    public class GalleryImageViewHolder : ImageViewHolder
     {
         public int CurrentPhotoId;
-        public ImageView Photo { get; }
 
-        public ImageViewHolder(View itemView, System.Action<int> click) : base(itemView)
+        public GalleryImageViewHolder(View itemView, Action<int> click) : base(itemView, click)
         {
-            Photo = (ImageView)itemView;
-            Photo.Clickable = true;
-            Photo.Click += (sender, e) => click.Invoke(AdapterPosition);
         }
     }
 }
-
