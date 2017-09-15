@@ -208,7 +208,6 @@
     <AndroidResource Include="Resources\drawable-mdpi\grid_active.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\grid_active.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\grid_active.png" />
-    <AndroidResource Include="Resources\layout\lyt_new_profile.axml" />
     <AndroidResource Include="Resources\drawable-hdpi\balance.png" />
     <AndroidResource Include="Resources\drawable-mdpi\balance.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\balance.png" />

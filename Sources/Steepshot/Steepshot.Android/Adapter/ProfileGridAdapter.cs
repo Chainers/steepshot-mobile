@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -14,14 +15,15 @@ namespace Steepshot.Adapter
     public class ProfileGridAdapter : PostsGridAdapter
     {
         private Typeface[] _fonts;
-        private bool isNeedRefreshHeader;
         private UserProfileResponse _profileData;
 
-        public UserProfileResponse ProfileData
+        public Action FollowersAction, FollowingAction, BalanceAction;
+        public Action<bool> FollowAction;
+
+		public UserProfileResponse ProfileData
         {
             set
             {
-                isNeedRefreshHeader = true;
                 _profileData = value;
             }
         }
@@ -38,13 +40,7 @@ namespace Steepshot.Adapter
             if (position != 0)
                 base.OnBindViewHolder(holder, position - 1);
             else
-            {
-                if (isNeedRefreshHeader)
-                {
-                    ((HeaderViewHolder)holder).UpdateHeader(_profileData);
-                    isNeedRefreshHeader = false;
-                }
-            }
+                ((HeaderViewHolder)holder).UpdateHeader(_profileData);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -52,7 +48,7 @@ namespace Steepshot.Adapter
             if (viewType == 0)
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                var vh = new HeaderViewHolder(itemView, _context, _fonts);
+                var vh = new HeaderViewHolder(itemView, _context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
                 return vh;
             }
             else
@@ -100,7 +96,13 @@ namespace Steepshot.Adapter
         private LinearLayout _followers_btn;
         private RelativeLayout _balance_container;
 
-        public HeaderViewHolder(View itemView, Context context, Typeface[] font) : base(itemView)
+        private readonly Action _followersAction;
+        private readonly Action _followingAction;
+        private readonly Action<bool> _followAction;
+        private readonly Action _balanceAction;
+
+        public HeaderViewHolder(View itemView, Context context, Typeface[] font,
+                                Action followersAction, Action followingAction, Action balanceAction, Action<bool> followAction) : base(itemView)
         {
             _context = context;
 
@@ -134,31 +136,72 @@ namespace Steepshot.Adapter
             _followers_title.Typeface = font[0];
             _balance_text.Typeface = font[0];
             _balance.Typeface = font[0];
+
+            _followersAction = followersAction;
+            _followingAction = followingAction;
+            _balanceAction = balanceAction;
+            _followAction = followAction;
+
+            _following_btn.Click += (sender, e) => { _followingAction?.Invoke(); };
+            _followers_btn.Click += (sender, e) => { _followersAction?.Invoke(); };
+            _balance_container.Click += (sender, e) => { _balanceAction?.Invoke(); };
+            //_follow_btn.Click += (sender, e) => { _followAction?.Invoke(); };
         }
 
         public void UpdateHeader(UserProfileResponse _profile)
         {
             if (_profile != null)
             {
-                Picasso.With(_context).Load(_profile?.ProfileImage)
-                       .Resize(200, 200)
-                       .CenterCrop()
-                       .Into(_profile_image);
+                var blackTextColor = GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb15_24_30));
+                var siteTextColor = GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb231_72_0));
+                if (!string.IsNullOrEmpty(_profile?.ProfileImage))
+                {
+                    Picasso.With(_context).Load(_profile?.ProfileImage)
+                           .Resize(300, 300)
+                           .CenterCrop()
+                           .Into(_profile_image);
+                }
 
-                _name.Text = _profile?.Name;
+                if (!string.IsNullOrEmpty(_profile?.Name))
+                {
+                    _name.Text = _profile?.Name;
+                    _name.SetTextColor(blackTextColor);
+                }
+                else if (BasePresenter.User.Login != _profile.Username)
+                    _name.Visibility = ViewStates.Gone;
 
-                _place.Text = _profile.Location.Trim();
+                if (!string.IsNullOrEmpty(_profile?.Location))
+                    _place.Text = _profile.Location.Trim();
+                else if (BasePresenter.User.Login != _profile.Username)
+                    _place.Visibility = ViewStates.Gone;
 
-                _description.Text = _profile.About;
-                _site.Text = _profile.Website;
+                if (!string.IsNullOrEmpty(_profile?.About))
+                {
+                    _description.Text = _profile.About;
+                    _description.SetTextColor(blackTextColor);
+                }
+                else if (BasePresenter.User.Login != _profile.Username)
+                    _description.Visibility = ViewStates.Gone;
+
+                if (!string.IsNullOrEmpty(_profile?.Website))
+                {
+                    _site.Text = _profile.Website;
+                    _site.SetTextColor(siteTextColor);
+                }
+                else if (BasePresenter.User.Login != _profile.Username)
+                    _site.Visibility = ViewStates.Gone;
 
                 _photos_count.Text = _profile.PostCount.ToString();
-
                 _following_count.Text = _profile.FollowingCount.ToString();
                 _followers_count.Text = _profile.FollowersCount.ToString();
 
-                _balance.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance, _context.GetString(Resource.String.cost_param_on_balance));
+                _balance.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance);
             }
+        }
+
+        public static Color GetColorFromInteger(int color)
+        {
+            return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
         }
     }
 

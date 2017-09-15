@@ -14,9 +14,7 @@ namespace Steepshot.Core.Presenters
         private readonly string _username;
         private bool _hasItems = true;
         private string _offsetUrl = string.Empty;
-        private const int PostsCount = 40;
-        public event Action PostsLoaded;
-        public event Action PostsCleared;
+        private const int PostsCount = 20;
 
         public UserProfilePresenter(string username)
         {
@@ -28,16 +26,15 @@ namespace Steepshot.Core.Presenters
             Posts.Clear();
             _hasItems = true;
             _offsetUrl = string.Empty;
-            PostsCleared?.Invoke();
         }
 
-        public async Task<OperationResult<UserProfileResponse>> GetUserInfo(string user, bool requireUpdate = false)
+        public Task<OperationResult<UserProfileResponse>> GetUserInfo(string user)
         {
             var req = new UserProfileRequest(user)
             {
                 Login = User.Login
             };
-            return await Api.GetUserProfile(req);
+            return Api.GetUserProfile(req);
         }
 
         public async Task<List<string>> GetUserPosts(bool needRefresh = false)
@@ -46,11 +43,7 @@ namespace Steepshot.Core.Presenters
             try
             {
                 if (needRefresh)
-                {
-                    _offsetUrl = string.Empty;
-                    _hasItems = true;
-                    Posts?.Clear();
-                }
+                    ClearPosts();
 
                 if (!_hasItems)
                     return errors;
@@ -75,7 +68,6 @@ namespace Steepshot.Core.Presenters
 
                     _offsetUrl = lastItem.Url;
                     Posts.AddRange(response.Result.Results);
-                    PostsLoaded?.Invoke();
                 }
             }
             catch (Exception ex)
@@ -85,15 +77,10 @@ namespace Steepshot.Core.Presenters
             return errors;
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
+        public Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
         {
             var request = new FollowRequest(User.UserInfo, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
-            var resp = await Api.Follow(request);
-            if (resp.Errors.Count == 0)
-            {
-                //userData.HasFollowed = (resp.Result.IsSuccess) ? 1 : 0;
-            }
-            return resp;
+            return Api.Follow(request);
         }
     }
 }
