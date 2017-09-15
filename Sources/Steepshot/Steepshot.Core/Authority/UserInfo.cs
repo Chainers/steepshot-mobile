@@ -20,6 +20,8 @@ namespace Steepshot.Core.Authority
 
         public bool IsLowRated { get; set; } = false;
 
+        public bool IsNeedRewards { get; set; } = false;
+
         public bool IsDev { get; set; } = false;
 
         public List<string> PostBlacklist { get; set; } = new List<string>();

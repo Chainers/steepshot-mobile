@@ -37,6 +37,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton reportButton { get; set; }
 
 		[Outlet]
+		UIKit.UISwitch rewardSwitcher { get; set; }
+
+		[Outlet]
 		UIKit.UIButton steemButton { get; set; }
 
 		[Outlet]
@@ -124,6 +127,11 @@ namespace Steepshot.iOS.Views
 			if (versionLabel != null) {
 				versionLabel.Dispose ();
 				versionLabel = null;
+			}
+
+			if (rewardSwitcher != null) {
+				rewardSwitcher.Dispose ();
+				rewardSwitcher = null;
 			}
 		}
 	}

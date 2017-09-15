@@ -23,6 +23,8 @@
             public const string ErrorCameraZoom = "getZoomedRect() not supported with FitXy";
             public const string FollowError = "Follow page follow error: ";
             public const string PostTagsError = "Post tags page get items error: ";
+            public const string InternetUnavailable = "Check your internet connection";
+            public const string IncorrectIdentifier = "Incorrect identifier";
 
             /// <summary>
             ///  $"The server did not accept the request! Reason ({code}) {msg}";
@@ -48,7 +50,7 @@
             public const string Error = "Error";
             public const string Ok = "Ok";
             public const string Voters = "Voters";
-            public const string ViewComments = "View {} comments";
+            public const string ViewComments = "View {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";
             public const string Cancel = "Cancel";

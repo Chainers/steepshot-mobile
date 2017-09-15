@@ -15,17 +15,8 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PostTagsViewController : BaseViewController
+    public partial class PostTagsViewController : BaseViewControllerWithPresenter<TagsPresenter>
     {
-        TagsPresenter _presenter;
-        protected PostTagsViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logic.
-        }
-
-        public PostTagsViewController()
-        {
-        }
         protected override void CreatePresenter()
         {
             _presenter = new TagsPresenter();
@@ -127,13 +118,13 @@ namespace Steepshot.iOS.Views
                         _tagsSource.Tags = response.Result?.Results;
                         tagsTable.ReloadData();
                     }
-                    else
-                        Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                    //else
+                    //Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 

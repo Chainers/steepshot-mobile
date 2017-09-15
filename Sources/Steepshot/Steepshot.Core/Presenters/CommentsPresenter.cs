@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -36,7 +37,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(string comment, string url)
         {
-            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, comment);
+            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv);
         }
     }

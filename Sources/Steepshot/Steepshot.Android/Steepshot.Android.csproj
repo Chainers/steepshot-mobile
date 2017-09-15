@@ -96,7 +96,7 @@
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
-    <Compile Include="Fragment\FollowingFragment.cs" />
+    <Compile Include="Fragment\DropdownFragment.cs" />
     <Compile Include="Fragment\PhotoFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
@@ -107,6 +107,10 @@
     <Compile Include="Services\AppInfo.cs" />
     <Compile Include="Services\SaverService.cs" />
     <Compile Include="Utils\ScrollListner.cs" />
+    <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Base\BaseFragmentWithPresenter.cs" />
+    <Compile Include="Base\BaseActivityWithPresenter.cs" />
+    <Compile Include="Utils\BitmapUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -173,8 +177,8 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch, Version=2.2.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.2.2.5\lib\netstandard1.3\Ditch.dll</HintPath>
+    <Reference Include="Ditch, Version=2.2.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.2.2.6\lib\netstandard1.3\Ditch.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>

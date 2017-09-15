@@ -24,5 +24,10 @@ namespace Steepshot.Services
         {
             return Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionName;
         }
+
+        public string GetBuildVersion()
+        {
+            return Application.Context.ApplicationContext.PackageManager.GetPackageInfo(Application.Context.ApplicationContext.PackageName, 0).VersionCode.ToString();
+        }
     }
 }
