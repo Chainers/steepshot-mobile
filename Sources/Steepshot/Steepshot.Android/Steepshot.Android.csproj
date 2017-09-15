@@ -111,6 +111,8 @@
     <Compile Include="Base\BaseFragmentWithPresenter.cs" />
     <Compile Include="Base\BaseActivityWithPresenter.cs" />
     <Compile Include="Utils\BitmapUtils.cs" />
+    <Compile Include="Adapter\ProfileGridAdapter.cs" />
+    <Compile Include="Adapter\ProfileFeedAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -206,13 +208,26 @@
     <AndroidResource Include="Resources\drawable-mdpi\grid_active.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\grid_active.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\grid_active.png" />
+    <AndroidResource Include="Resources\layout\lyt_new_profile.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\balance.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\balance.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\balance.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\balance.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\forward.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\forward.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\forward.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\forward.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\settings.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\settings.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\settings.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\settings.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\back_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\back_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\back_arrow.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.1\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Cheeseknife">
-      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
@@ -325,6 +340,9 @@
     </Reference>
     <Reference Include="ZXingNetMobile, Version=2.2.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.2.9\lib\MonoAndroid403\ZXingNetMobile.dll</HintPath>
+    </Reference>
+    <Reference Include="Cheeseknife">
+      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
