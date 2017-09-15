@@ -16,14 +16,8 @@ namespace Steepshot.Core.Tests.HttpClient
         {
             var api = Api[apiName];
             var user = Users[apiName];
-
-            // Arrange
             var request = new AuthorizedRequest(user);
-
-            // Act
             var response = api.LoginWithPostingKey(request).Result;
-
-            // Assert
             AssertResult(response);
             Assert.That(response.Result.IsLoggedIn, Is.True);
         }
@@ -51,7 +45,8 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
             AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.First();
+            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.Equals(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
+            Assert.IsNotNull(lastPost);
             Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
         }
 
@@ -82,8 +77,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
             var commentsResponse = Api[apiName].GetComments(getCommentsRequest).Result;
             AssertResult(commentsResponse);
-            Assert.That(commentsResponse.Result.Results.First().Title, Is.EqualTo(body));
-            Assert.That(commentsResponse.Result.Results.First().Body, Is.EqualTo(body));
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url == createCommentResponse.Result.Permlink));
         }
 
         [Test, Sequential]
@@ -113,7 +107,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsResponse3 = Api[apiName].GetUserPosts(userPostsRequest).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse3);
-            Assert.That(userPostsResponse3.Result.Results.First().Vote, Is.False);
+            var post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
+            Assert.IsNotNull(post);
+            Assert.That(post.Vote, Is.False);
 
             // 4) Vote up
             var voteUpRequest = new VoteRequest(user, VoteType.Up, lastPost.Url);
@@ -131,7 +127,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsResponse2 = Api[apiName].GetUserPosts(userPostsRequest).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse2);
-            Assert.That(userPostsResponse2.Result.Results.First().Vote, Is.True);
+            post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
+            Assert.IsNotNull(post);
+            Assert.That(post.Vote, Is.True);
         }
 
         [Test, Sequential]
@@ -164,7 +162,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse2 = Api[apiName].GetComments(getCommentsRequest).Result;
             // Check if last comment was voted
             AssertResult(commentsResponse2);
-            Assert.That(commentsResponse2.Result.Results.First().Vote, Is.True);
+            var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.Equals(commentUrl, StringComparison.OrdinalIgnoreCase));
+            Assert.IsNotNull(comm);
+            Assert.That(comm.Vote, Is.True);
 
             // 6) Vote down comment
             var voteDownCommentRequest = new VoteRequest(user, VoteType.Down, commentUrl);
@@ -181,7 +181,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse3 = Api[apiName].GetComments(getCommentsRequest).Result;
             // Check if last comment was voted
             AssertResult(commentsResponse3);
-            Assert.That(commentsResponse3.Result.Results.First().Vote, Is.False);
+            comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(commentUrl, StringComparison.OrdinalIgnoreCase));
+            Assert.IsNotNull(comm);
+            Assert.That(comm.Vote, Is.False);
         }
 
         [Test, Sequential]
