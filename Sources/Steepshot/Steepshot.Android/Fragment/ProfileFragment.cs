@@ -1,24 +1,18 @@
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
-using Android.Support.Design.Widget;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Refractored.Controls;
-using Square.Picasso;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -29,17 +23,69 @@ namespace Steepshot.Fragment
         private UserProfileResponse _profile;
         private Typeface font;
         private Typeface semibold_font;
+        private ScrollListener _scrollListner;
+        private LinearLayoutManager _linearLayoutManager;
+        private GridLayoutManager _gridLayoutManager;
 
 #pragma warning disable 0649, 4014
-
-        //[InjectView(Resource.Id.btn_back)] ImageButton _backButton;
+        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
         [InjectView(Resource.Id.btn_switcher)] ImageButton _switcher;
         [InjectView(Resource.Id.posts_list)] RecyclerView _postsList;
-        //[InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
-        //[InjectView(Resource.Id.cl_profile)] CoordinatorLayout _content;
+        [InjectView(Resource.Id.loading_spinner)] ProgressBar _loadingSpinner;
+        [InjectView(Resource.Id.list_spinner)] ProgressBar _listSpinner;
         [InjectView(Resource.Id.refresher)] SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.btn_settings)] ImageButton _settings;
+        [InjectView(Resource.Id.profile_login)] TextView _login;
+        [InjectView(Resource.Id.list_layout)] RelativeLayout _listLayout;
 #pragma warning restore 0649
+
+        [InjectOnClick(Resource.Id.btn_settings)]
+        public void OnSettingsClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(SettingsActivity));
+            StartActivity(intent);
+        }
+
+        ProfileFeedAdapter _profileFeedAdapter;
+        ProfileFeedAdapter ProfileFeedAdapter
+        {
+            get
+            {
+                if (_profileFeedAdapter == null)
+                {
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
+                    _profileFeedAdapter.PhotoClick += OnPhotoClick;
+                    _profileFeedAdapter.LikeAction += LikeAction;
+                    _profileFeedAdapter.UserAction += UserAction;
+                    _profileFeedAdapter.CommentAction += CommentAction;
+                    _profileFeedAdapter.VotersClick += VotersAction;
+                    _profileFeedAdapter.FollowersAction += OnFollowersClick;
+                    _profileFeedAdapter.FollowingAction += OnFollowingClick;
+                }
+                return _profileFeedAdapter;
+            }
+        }
+
+        ProfileGridAdapter _profileGridAdapter;
+        ProfileGridAdapter ProfileGridAdapter
+        {
+            get
+            {
+                if (_profileGridAdapter == null)
+                {
+                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
+                    _profileGridAdapter.Click += OnPhotoClick;
+                    _profileGridAdapter.FollowersAction += OnFollowersClick;
+                    _profileGridAdapter.FollowingAction += OnFollowingClick;
+                }
+                return _profileGridAdapter;
+            }
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new UserProfilePresenter(_profileId);
+        }
 
         public ProfileFragment(string profileId)
         {
@@ -63,52 +109,108 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-            var login = Activity.FindViewById<TextView>(Resource.Id.profile_login);
-            login.Typeface = semibold_font;
-            //_backButton.Visibility = ViewStates.Gone;
-            //if (_profileId == BasePresenter.User.Login)
-            //_followCont.Visibility = ViewStates.Gone;
-            //else
-            //_settings.Visibility = ViewStates.Gone;
+            _login.Typeface = semibold_font;
 
-            var layoutManager = new GridLayoutManager(Context, 3);
-            layoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
+            if (_profileId != BasePresenter.User.Login)
+            {
+                _settings.Visibility = ViewStates.Invisible;
+                _backButton.Visibility = ViewStates.Visible;
+                _login.Text = _profileId;
+            }
 
-            _postsList.SetLayoutManager(layoutManager);
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += () => GetUserPosts();
+
+            _linearLayoutManager = new LinearLayoutManager(Context);
+            _gridLayoutManager = new GridLayoutManager(Context, 3);
+            _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
+
+            _postsList.SetLayoutManager(_gridLayoutManager);
             _postsList.AddItemDecoration(new GridItemdecoration(2, 3));
-            _postsList.AddOnScrollListener(new FeedsScrollListener(_presenter));
+            _postsList.AddOnScrollListener(_scrollListner);
             _postsList.SetAdapter(ProfileGridAdapter);
 
-            /*_refresher.Refresh += async delegate
+            _refresher.Refresh += async delegate
             {
-                await UpdateProfile();
+                await UpdatePage();
                 _refresher.Refreshing = false;
-            };*/
-            //LoadProfile();
+            };
             LoadProfile();
-            _presenter.GetUserPosts(false);
+            GetUserPosts();
         }
 
-        public class ProfileSpanSizeLookup : GridLayoutManager.SpanSizeLookup
+        public override bool CustomUserVisibleHint
         {
-            public override int GetSpanSize(int position)
+            get => base.CustomUserVisibleHint;
+            set
             {
-                if (position == 0)
-                    return 3;
-                else
-                    return 1;
+                if (value && BasePresenter.ShouldUpdateProfile)
+                {
+                    UpdatePage();
+                    BasePresenter.ShouldUpdateProfile = false;
+                }
+                UserVisibleHint = value;
             }
         }
 
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
+        private async Task GetUserPosts(bool isRefresh = false)
         {
-            var intent = new Intent(Context, typeof(SettingsActivity));
-            StartActivity(intent);
+            var errors = await _presenter.GetUserPosts(isRefresh);
+            if (errors != null && errors.Count != 0)
+                ShowAlert(errors);
+
+            if (_listSpinner != null)
+                _listSpinner.Visibility = ViewStates.Gone;
+            _postsList?.GetAdapter()?.NotifyDataSetChanged();
         }
 
-        //[InjectOnClick(Resource.Id.follow_btn)]
-        public async void OnFollowClick(object sender, EventArgs e)
+        private async Task UpdatePage()
+        {
+            _scrollListner.ClearPosition();
+            LoadProfile();
+            await GetUserPosts(true);
+        }
+
+        [InjectOnClick(Resource.Id.btn_switcher)]
+        public void OnSwitcherClick(object sender, EventArgs e)
+        {
+            if (_postsList.GetLayoutManager() is GridLayoutManager)
+            {
+                _switcher.SetImageResource(Resource.Drawable.grid);
+                _postsList.SetLayoutManager(_linearLayoutManager);
+                _postsList.SetAdapter(ProfileFeedAdapter);
+            }
+            else
+            {
+                _switcher.SetImageResource(Resource.Drawable.grid_active);
+                _postsList.SetLayoutManager(_gridLayoutManager);
+                _postsList.AddItemDecoration(new GridItemdecoration(2, 3));
+                _postsList.SetAdapter(ProfileGridAdapter);
+            }
+        }
+
+        private async Task LoadProfile()
+        {
+            var response = await _presenter.GetUserInfo(_profileId);
+            if (response.Success)
+            {
+                if (_listLayout != null)
+                    _listLayout.Visibility = ViewStates.Visible;
+
+                ProfileGridAdapter.ProfileData = response.Result;
+                ProfileFeedAdapter.ProfileData = response.Result;
+                _postsList?.GetAdapter()?.NotifyDataSetChanged();
+            }
+            else
+            {
+                if (response.Errors != null && response.Errors.Count != 0)
+                    ShowAlert(response.Errors);
+            }
+            if (_listLayout != null)
+                _loadingSpinner.Visibility = ViewStates.Gone;
+        }
+
+        private async void OnFollowClick(object sender, EventArgs e)
         {
             /*
             try
@@ -137,210 +239,47 @@ namespace Steepshot.Fragment
             }*/
         }
 
-        //[InjectOnClick(Resource.Id.following_btn)]
-        public void OnFollowingClick(object sender, EventArgs e)
-        {
-            Activity.Intent.PutExtra("isFollowers", false);
-            Activity.Intent.PutExtra("username", _profileId);
-            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
-        }
-
-        //[InjectOnClick(Resource.Id.followers_btn)]
-        public void OnFollowersClick(object sender, EventArgs e)
-        {
-            Activity.Intent.PutExtra("isFollowers", true);
-            Activity.Intent.PutExtra("username", _profileId);
-            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
-        }
-
-        ProfileFeedAdapter _profileFeedAdapter;
-        ProfileFeedAdapter ProfileFeedAdapter
-        {
-            get
-            {
-                if (_profileFeedAdapter == null)
-                {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
-                    _profileFeedAdapter.PhotoClick += OnClick;
-                    _profileFeedAdapter.LikeAction += FeedAdapter_LikeAction;
-                    _profileFeedAdapter.UserAction += FeedAdapter_UserAction;
-                    _profileFeedAdapter.CommentAction += FeedAdapter_CommentAction;
-                    _profileFeedAdapter.VotersClick += FeedAdapter_VotersAction;
-                }
-                return _profileFeedAdapter;
-            }
-        }
-
-        ProfileGridAdapter _profileGridAdapter;
-        ProfileGridAdapter ProfileGridAdapter
-        {
-            get
-            {
-                if (_profileGridAdapter == null)
-                {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
-                    _profileGridAdapter.Click += OnClick;
-                }
-                return _profileGridAdapter;
-            }
-        }
-
-        public override bool CustomUserVisibleHint
-        {
-            get => base.CustomUserVisibleHint;
-            set
-            {
-                if (value && BasePresenter.ShouldUpdateProfile)
-                {
-                    UpdateProfile();
-                    BasePresenter.ShouldUpdateProfile = false;
-                }
-                UserVisibleHint = value;
-            }
-        }
-
-        public void OnClick(int position)
+        public void OnPhotoClick(int position)
         {
             var intent = new Intent(Context, typeof(PostPreviewActivity));
             intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
             StartActivity(intent);
         }
 
-        public async Task UpdateProfile()
+        private void OnFollowingClick()
         {
-            _presenter.ClearPosts();
-            await LoadProfile();
+            Activity.Intent.PutExtra("isFollowers", false);
+            Activity.Intent.PutExtra("username", _profileId);
+            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
-
-        [InjectOnClick(Resource.Id.btn_switcher)]
-        public void OnSwitcherClick(object sender, EventArgs e)
+        private void OnFollowersClick()
         {
-            if (_postsList.GetLayoutManager() is GridLayoutManager)
-            {
-                _switcher.SetImageResource(Resource.Drawable.grid);
-                _postsList.SetLayoutManager(new LinearLayoutManager(Context));
-                _postsList.SetAdapter(ProfileFeedAdapter);
-            }
-            else
-            {
-                _switcher.SetImageResource(Resource.Drawable.grid_active);
-
-
-                var layoutManager = new GridLayoutManager(Context, 3);
-                layoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
-
-                _postsList.SetLayoutManager(layoutManager);
-                _postsList.AddItemDecoration(new GridItemdecoration(2, 3));
-                _postsList.AddOnScrollListener(new FeedsScrollListener(_presenter));
-                _postsList.SetAdapter(ProfileGridAdapter);
-            }
+            Activity.Intent.PutExtra("isFollowers", true);
+            Activity.Intent.PutExtra("username", _profileId);
+            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
-        private async Task LoadProfile()
-        {
-            var response = await _presenter.GetUserInfo(_profileId, true);
-            if(response.Success)
-            {
-                ProfileGridAdapter.ProfileData = response.Result;
-                ProfileFeedAdapter.ProfileData = response.Result;
-                _postsList?.GetAdapter()?.NotifyDataSetChanged();
-            }
-
-            /*
-            _presenter.GetUserPosts(needRefresh);
-            OperationResult<UserProfileResponse> response;
-            int i = 0;
-            do
-            {
-                response = await _presenter.GetUserInfo(_profileId, needRefresh);
-                i++;
-            } while (!response.Success && i <= 5);
-
-            if (response.Success)
-            {
-                _profile = response.Result;
-                var culture = new CultureInfo("en-US");
-                _joinedText.Text = $"Joined {_profile.Created.ToString("Y", culture)}";
-                if (!string.IsNullOrEmpty(_profile.Location))
-                    _place.Text = _profile.Location;
-                else
-                    _place.Visibility = ViewStates.Gone;
-
-                if (!string.IsNullOrEmpty(_profile.About))
-                    _description.Text = _profile.About;
-                else
-                    _description.Visibility = ViewStates.Gone;
-
-                _profileName.Text = string.IsNullOrEmpty(_profile.Name) ? _profile.Username : _profile.Name;
-                if (!string.IsNullOrEmpty(_profile.ProfileImage))
-                    Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Priority(Picasso.Priority.Low).Into(_profileImage);
-                else
-                    Picasso.With(Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
-                _costButton.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance, GetString(Resource.String.cost_param_on_balance));
-                _photosCount.Text = _profile.PostCount.ToString();
-                _site.Text = _profile.Website;
-                if (!string.IsNullOrEmpty(_profile.Location))
-                    _place.Text = _profile.Location.Trim();
-                _followingCount.Text = _profile.FollowingCount.ToString();
-                _followersCount.Text = _profile.FollowersCount.ToString();
-                _spinner.Visibility = ViewStates.Gone;
-                _content.Visibility = ViewStates.Visible;
-                _followBtn.Text = (_profile.HasFollowed == 0) ? GetString(Resource.String.text_follow) : GetString(Resource.String.text_unfollow);
-            }
-            else
-            {
-                _spinner.Visibility = ViewStates.Gone;
-                //Reporter.SendCrash(response.Errors[0]);
-                Toast.MakeText(Context, response.Errors[0], ToastLength.Short).Show();
-            }*/
-        }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter(_profileId);
-            _presenter.PostsLoaded += () =>
-            {
-                Activity.RunOnUiThread(() =>
-                {
-                    _postsList?.GetAdapter()?.NotifyDataSetChanged();
-                });
-            };
-            _presenter.PostsCleared += () =>
-            {
-                Activity.RunOnUiThread(() =>
-                {
-                    _postsList?.GetAdapter()?.NotifyDataSetChanged();
-                });
-            };
-        }
-
-        void FeedAdapter_CommentAction(int position)
+        private void CommentAction(int position)
         {
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra("uid", _presenter.Posts[position].Url);
             Context.StartActivity(intent);
         }
 
-        void FeedAdapter_VotersAction(int position)
+        private void VotersAction(int position)
         {
             Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
-        void FeedAdapter_UserAction(int position)
+        private void UserAction(int position)
         {
             if (_profileId != _presenter.Posts[position].Author)
                 ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
         }
 
-        private async void FeedAdapter_LikeAction(int position)
+        private async void LikeAction(int position)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
@@ -357,33 +296,20 @@ namespace Steepshot.Fragment
             }
         }
 
-        private class FeedsScrollListener : RecyclerView.OnScrollListener
+        public override void OnDetach()
         {
-            readonly UserProfilePresenter _presenter;
-            int _prevPos;
-            public FeedsScrollListener(UserProfilePresenter presenter)
-            {
-                _presenter = presenter;
-                presenter.PostsCleared += () =>
-                {
-                    _prevPos = 0;
-                };
-            }
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
 
-            public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
+        public class ProfileSpanSizeLookup : GridLayoutManager.SpanSizeLookup
+        {
+            public override int GetSpanSize(int position)
             {
-                var pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
-                if (pos > _prevPos && pos != _prevPos)
-                {
-                    if (pos == recyclerView.GetAdapter().ItemCount - 1)
-                    {
-                        if (pos < (recyclerView.GetAdapter()).ItemCount)
-                        {
-                            _presenter.GetUserPosts();
-                            _prevPos = pos;
-                        }
-                    }
-                }
+                if (position == 0)
+                    return 3;
+                else
+                    return 1;
             }
         }
     }

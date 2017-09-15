@@ -12,16 +12,15 @@ namespace Steepshot.Adapter
     public class ProfileFeedAdapter : FeedAdapter
     {
         public override int ItemCount => _posts.Count + 1;
-        private bool isNeedRefreshHeader;
         private UserProfileResponse _profileData;
-
+        public Action FollowersAction, FollowingAction, BalanceAction;
+        public Action<bool> FollowAction;
         public ProfileFeedAdapter(Context context, List<Post> posts, Typeface[] fonts) : base(context, posts, fonts) { }
 
         public UserProfileResponse ProfileData
         {
             set
             {
-                isNeedRefreshHeader = true;
                 _profileData = value;
             }
         }
@@ -29,13 +28,7 @@ namespace Steepshot.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (position == 0)
-            {
-                if (isNeedRefreshHeader)
-                {
-                    ((HeaderViewHolder)holder).UpdateHeader(_profileData);
-                    isNeedRefreshHeader = false;
-                }
-            }
+                ((HeaderViewHolder)holder).UpdateHeader(_profileData);
             else
                 base.OnBindViewHolder(holder, position - 1);
         }
@@ -45,7 +38,7 @@ namespace Steepshot.Adapter
             if (viewType == 0)
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                var vh = new HeaderViewHolder(itemView, _context, _fonts);
+                var vh = new HeaderViewHolder(itemView, _context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
                 return vh;
             }
             else

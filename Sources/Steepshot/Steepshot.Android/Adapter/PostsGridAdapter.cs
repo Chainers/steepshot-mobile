@@ -14,11 +14,13 @@ namespace Steepshot.Adapter
         protected readonly List<Post> _posts;
         protected readonly Context _context;
         public Action<int> Click;
+        private int _cellSize;
 
         public PostsGridAdapter(Context context, List<Post> posts)
         {
             _context = context;
             _posts = posts;
+            _cellSize = (_context.Resources.DisplayMetrics.WidthPixels - 4 * 2) / 3;
         }
 
         public Post GetItem(int position)
@@ -32,7 +34,7 @@ namespace Steepshot.Adapter
         {
             Picasso.With(_context).Load(_posts[position].Body)
                    .NoFade()
-                   .Resize(_context.Resources.DisplayMetrics.WidthPixels / 3 - 2, _context.Resources.DisplayMetrics.WidthPixels / 3 - 2)
+                   .Resize(_cellSize, _cellSize)
                    .CenterCrop()
                    .Into(((ImageViewHolder)holder).Photo);
         }
@@ -41,7 +43,7 @@ namespace Steepshot.Adapter
         {
             var view = new ImageView(_context);
             view.SetScaleType(ImageView.ScaleType.CenterInside);
-            view.LayoutParameters = new ViewGroup.LayoutParams(_context.Resources.DisplayMetrics.WidthPixels / 3 - 1, _context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
+            view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
 
             var vh = new ImageViewHolder(view, Click);
             return vh;
