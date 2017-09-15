@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using Autofac;
 using Ditch;
@@ -33,17 +34,17 @@ namespace Steepshot.Core.Tests
 
             AppSettings.Container = builder.Build();
 
-            Users = new Dictionary<string, UserInfo>()
+            Users = new Dictionary<string, UserInfo>
             {
-                {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}},
-                {"Golos",new UserInfo{Login = "joseph.kalu", PostingKey = "***REMOVED***"}}
+                {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
+                {"Golos", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}}
             };
 
             Api = new Dictionary<string, ISteepshotApiClient>
             {
                 //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
                 //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
-                
+
                 {"Steem", new DitchApi(KnownChains.Steem, false)},
                 {"Golos", new DitchApi(KnownChains.Golos, false)}
             };
@@ -51,19 +52,19 @@ namespace Steepshot.Core.Tests
 
         protected UserInfo Authenticate(string name)
         {
-            ISteepshotApiClient api = Api[name];
+            //ISteepshotApiClient api = Api[name];
             UserInfo user = Users[name];
 
-            // Arrange
-            var request = new AuthorizedRequest(user);
+            //// Arrange
+            //var request = new AuthorizedRequest(user);
 
-            // Act
-            var response = api.LoginWithPostingKey(request).Result;
+            //// Act
+            //var response = api.LoginWithPostingKey(request).Result;
 
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.IsLoggedIn, Is.True);
-            user.SessionId = response.Result.SessionId;
+            //// Assert
+            //AssertResult(response);
+            //Assert.That(response.Result.IsLoggedIn, Is.True);
+            //user.SessionId = response.Result.SessionId;
             return user;
         }
 
