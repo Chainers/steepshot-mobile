@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -46,7 +45,12 @@ namespace Steepshot.Core.HttpClient
         {
             var errors = CheckInternetConnection();
             if (errors != null)
-                return new OperationResult<VoteResponse>() { Errors = errors.Errors };
+                return new OperationResult<VoteResponse> { Errors = errors.Errors };
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<VoteResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
             return await Task.Run(() =>
             {
                 string author;
@@ -61,7 +65,7 @@ namespace Steepshot.Core.HttpClient
 
                 var weigth = (short)(request.Type == VoteType.Up ? 10000 : 0);
                 var op = new VoteOperation(request.Login, author, permlink, weigth);
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<VoteResponse>();
                 if (!resp.IsError)
@@ -91,13 +95,18 @@ namespace Steepshot.Core.HttpClient
             var errors = CheckInternetConnection();
             if (errors != null)
                 return new OperationResult<FollowResponse> { Errors = errors.Errors };
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<FollowResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
             return await Task.Run(() =>
             {
                 var op = request.Type == FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
 
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<FollowResponse>();
 
@@ -116,14 +125,13 @@ namespace Steepshot.Core.HttpClient
             var errors = CheckInternetConnection();
             if (errors != null)
                 return new OperationResult<LoginResponse> { Errors = errors.Errors };
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<LoginResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
             return await Task.Run(() =>
             {
-                var keys = ToKeyArr(request.PostingKey);
-                var invalidKey = keys.Any(k => k.Length == 0);
-                if (invalidKey)
-                    return new OperationResult<LoginResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
-
-
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
                 var resp = OperationManager.VerifyAuthority(keys, op);
 
@@ -144,6 +152,11 @@ namespace Steepshot.Core.HttpClient
             var errors = CheckInternetConnection();
             if (errors != null)
                 return new OperationResult<CreateCommentResponse> { Errors = errors.Errors };
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<CreateCommentResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
             return await Task.Run(() =>
             {
                 string author;
@@ -158,11 +171,14 @@ namespace Steepshot.Core.HttpClient
 
                 var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
-                var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), op);
+                var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<CreateCommentResponse>();
                 if (!resp.IsError)
+                {
                     result.Result = new CreateCommentResponse(true);
+                    result.Result.Permlink = op.Permlink;
+                }
                 else
                     OnError(resp, result);
                 Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url);
@@ -175,10 +191,15 @@ namespace Steepshot.Core.HttpClient
             var errors = CheckInternetConnection();
             if (errors != null)
                 return new OperationResult<ImageUploadResponse> { Errors = errors.Errors };
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<ImageUploadResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
             return await Task.Run(async () =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, ToKeyArr(request.PostingKey), op);
+                var tr = OperationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, op);
                 var trx = _jsonConverter.Serialize(tr);
 
                 PostOperation.PrepareTags(request.Tags);
@@ -194,9 +215,12 @@ namespace Steepshot.Core.HttpClient
                         meta = meta.Replace(Environment.NewLine, string.Empty);
                     }
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
-                    var resp = OperationManager.BroadcastOperations(ToKeyArr(request.PostingKey), post);
+                    var resp = OperationManager.BroadcastOperations(keys, post);
                     if (!resp.IsError)
+                    {
+                        upResp.Payload.Permlink = post.Permlink;
                         result.Result = upResp.Payload;
+                    }
                     else
                         OnError(resp, result);
 
@@ -214,7 +238,7 @@ namespace Steepshot.Core.HttpClient
         {
             var errors = CheckInternetConnection();
             if (errors != null)
-                return new OperationResult<LogoutResponse>() { Errors = errors.Errors };
+                return new OperationResult<LogoutResponse> { Errors = errors.Errors };
             return await Task.Run(() => new OperationResult<LogoutResponse>
             {
                 Result = new LogoutResponse(true)
@@ -245,7 +269,10 @@ namespace Steepshot.Core.HttpClient
 
         private List<byte[]> ToKeyArr(string postingKey)
         {
-            return new List<byte[]> { Ditch.Helpers.Base58.TryGetBytes(postingKey) };
+            var key = Ditch.Helpers.Base58.TryGetBytes(postingKey);
+            if (key == null || key.Length != 32)
+                return null;
+            return new List<byte[]> { key };
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
@@ -293,7 +320,11 @@ namespace Steepshot.Core.HttpClient
                                 }
                                 goto default;
                             }
-                        //case 13: unknown key
+                        case 13: //unknown key
+                            {
+                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                break;
+                            }
                         //case 3000000: "transaction exception"
                         //case 3010000: "missing required active authority"
                         //case 3020000: "missing required owner authority"

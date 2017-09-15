@@ -26,8 +26,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
-                        response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.")
+                        || response.Errors.Contains("Invalid posting key.")
+                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test, Sequential]
@@ -43,8 +44,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
-                        response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.")
+                        || response.Errors.Contains("Invalid posting key.")
+                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test, Sequential]
@@ -60,8 +62,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.") ||
-                        response.Errors.Contains("Invalid posting key."));
+            Assert.That(response.Errors.Contains("Invalid private posting key.")
+                        || response.Errors.Contains("Invalid posting key.")
+                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test, Sequential]
@@ -125,6 +128,7 @@ namespace Steepshot.Core.Tests
             var request = new UserPostsRequest(user.Login);
             request.Offset = offset;
             request.Limit = 3;
+            request.ShowLowRated = true;
 
             // Act
             var response = Api[name].GetUserPosts(request).Result;

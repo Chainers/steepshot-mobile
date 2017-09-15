@@ -11,5 +11,7 @@ namespace Steepshot.Core.Models.Responses
         {
             _isCreated = isCreated;
         }
+
+        public string Permlink { get; set; }
     }
 }
