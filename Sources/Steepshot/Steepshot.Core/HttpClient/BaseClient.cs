@@ -38,16 +38,16 @@ namespace Steepshot.Core.HttpClient
             return new List<RequestParameter>();
         }
 
-        protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit)
+        protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit, bool isGet)
         {
             var parameters = new List<RequestParameter>();
             if (!string.IsNullOrWhiteSpace(offset))
             {
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
             }
             if (limit > 0)
             {
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
             }
             return parameters;
         }
@@ -397,25 +397,25 @@ namespace Steepshot.Core.HttpClient
 
         #endregion Get requests
 
-        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit)
+        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit, bool isGet = true)
         {
             if (!string.IsNullOrWhiteSpace(offset))
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
 
             if (limit > 0)
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
-        private void AddLoginParameter(List<RequestParameter> parameters, string login)
+        private void AddLoginParameter(List<RequestParameter> parameters, string login, bool isGet = true)
         {
             if (!string.IsNullOrEmpty(login))
-                parameters.Add(new RequestParameter { Key = "login", Value = login, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "username", Value = login, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
-        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request)
+        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request, bool isGet = true)
         {
-            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = ParameterType.QueryString });
-            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = ParameterType.QueryString });
+            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts)
