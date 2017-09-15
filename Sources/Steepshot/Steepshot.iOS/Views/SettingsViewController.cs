@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Autofac;
-using Foundation;
 using MessageUI;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
@@ -15,15 +14,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class SettingsViewController : BaseViewController
     {
-        protected SettingsViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logi   
-        }
-
-        public SettingsViewController()
-        {
-        }
-
         private UserInfo _steemAcc;
         private UserInfo _golosAcc;
         private bool _isTabBarNeedResfresh;
@@ -35,14 +25,14 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.Translucent = false;
             base.ViewDidLoad();
             nsfwSwitch.On = BasePresenter.User.IsNsfw;
-
-            nsfwSwitch.On = BasePresenter.User.IsNsfw;
             lowRatedSwitch.On = BasePresenter.User.IsLowRated;
+            rewardSwitcher.On = BasePresenter.User.IsNeedRewards;
             NavigationController.SetNavigationBarHidden(false, false);
             _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
-            _previousNetwork = Chain;
-            versionLabel.Text = Localization.Messages.AppVersion(AppSettings.Container.Resolve<IAppInfo>().GetAppVersion(), NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString());
+            _previousNetwork = BasePresenter.Chain;
+            var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+            versionLabel.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
             //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
@@ -63,13 +53,13 @@ namespace Steepshot.iOS.Views
             else
                 golosViewHeight.Constant = 0;
 
-            HighlightView(Chain);
+            HighlightView(BasePresenter.Chain);
             SetAddButton();
 
             addAccountButton.TouchDown += (sender, e) =>
             {
                 var myViewController = new PreLoginViewController();
-                myViewController.NewAccountNetwork = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
                 NavigationController.PushViewController(myViewController, true);
             };
 
@@ -122,12 +112,15 @@ namespace Steepshot.iOS.Views
             {
                 BasePresenter.User.IsNsfw = nsfwSwitch.On;
             };
+            rewardSwitcher.ValueChanged += (sender, e) =>
+            {
+                BasePresenter.User.IsNeedRewards = rewardSwitcher.On;
+            };
         }
 
         public override void ViewWillDisappear(bool animated)
         {
-            NetworkChanged = _previousNetwork != Chain;
-            ShouldProfileUpdate = _previousNetwork != Chain;
+            ShouldProfileUpdate = _previousNetwork != BasePresenter.Chain;
 
             if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
                 NavigationController.SetNavigationBarHidden(true, true);
@@ -136,11 +129,11 @@ namespace Steepshot.iOS.Views
 
         private void SwitchNetwork(UserInfo user)
         {
-            if (Chain == user.Chain)
+            if (BasePresenter.Chain == user.Chain)
                 return;
             BasePresenter.User.SwitchUser(user);
             HighlightView(user.Chain);
-            SwitchChain(user.Chain);
+            BasePresenter.SwitchChain(user.Chain);
 
             SetAddButton();
 
@@ -182,14 +175,14 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (Chain != network)
+                if (BasePresenter.Chain != network)
                 {
-                    HighlightView(Chain);
+                    HighlightView(BasePresenter.Chain);
                     SetAddButton();
                 }
                 else
                 {
-                    SwitchNetwork(Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
+                    BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                 }
             }
             BasePresenter.User.Save();

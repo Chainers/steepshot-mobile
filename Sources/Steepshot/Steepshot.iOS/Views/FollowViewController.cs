@@ -13,28 +13,16 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FollowViewController : BaseViewController
+    public partial class FollowViewController : BaseViewControllerWithPresenter<FollowersPresenter>
     {
         private FollowTableViewSource _tableSource;
         public string Username = BasePresenter.User.Login;
         public FriendsType FriendsType = FriendsType.Followers;
-        FollowersPresenter _presenter;
-        private string _offsetUrl;
-        private bool _hasItems = true;
 
-        protected FollowViewController(IntPtr handle) : base(handle)
+        protected override void CreatePresenter()
         {
-            // Note: this .ctor should not contain any initialization logi
+            _presenter = new FollowersPresenter();
         }
-
-        public FollowViewController()
-        {
-        }
-
-		protected override void CreatePresenter()
-		{
-			_presenter = new FollowersPresenter();
-		}
 
         public override void ViewDidLoad()
         {
@@ -54,7 +42,7 @@ namespace Steepshot.iOS.Views
 
             _tableSource.ScrolledToBottom += () =>
             {
-                if (_hasItems)
+                if (_presenter._hasItems)
                     GetItems();
             };
 
@@ -94,8 +82,8 @@ namespace Steepshot.iOS.Views
                     ShowAlert(errorsList[0]);
                 InvokeOnMainThread(() =>
                 {
-					followTableView.ReloadData();
-					progressBar.StopAnimating();
+                    followTableView.ReloadData();
+                    progressBar.StopAnimating();
                 });
             });
         }
@@ -107,20 +95,20 @@ namespace Steepshot.iOS.Views
             try
             {
                 var request = new FollowRequest(BasePresenter.User.UserInfo, followType, author);
-                var response = await Api.Follow(request);
+                var response = await _presenter.Follow(_presenter.Users.First(fgh => fgh.Author == author));
                 if (response.Success)
                 {
                     var user = _tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
                     if (user != null)
                         success = user.HasFollowed = response.Result.IsSuccess;
                 }
-                else
-                    Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
+                //else
+                //Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
 
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
             finally
             {
@@ -129,4 +117,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-

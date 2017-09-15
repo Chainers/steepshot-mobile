@@ -216,3 +216,4 @@ com_crashlytics_export_strings.xml
 Resource.designer.cs
 packages/
 *.userprefs
+Sources/Steepshot/Steepshot.Core.Tests/app.config

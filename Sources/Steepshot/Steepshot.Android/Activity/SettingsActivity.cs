@@ -7,6 +7,7 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Autofac;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
@@ -14,13 +15,14 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SettingsActivity : BaseActivity
+    public class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
     {
-        SettingsPresenter _presenter;
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.civ_avatar)] private CircleImageView _avatar;
         [InjectView(Resource.Id.steem_text)] private TextView _steemText;
@@ -30,6 +32,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.add_account)] private AppCompatButton _addButton;
         [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
         [InjectView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
+        [InjectView(Resource.Id.version_textview)] private TextView _versionText;
 #pragma warning restore 0649
         UserInfo _steemAcc;
         UserInfo _golosAcc;
@@ -40,14 +43,14 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Inject(this);
             LoadAvatar();
-
+            var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+            _versionText.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             var accounts = BasePresenter.User.GetAllAccounts();
 
             SetAddButton(accounts.Count);
 
             _steemAcc = accounts.FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = accounts.FirstOrDefault(a => a.Chain == KnownChains.Golos);
-
 
             if (_steemAcc != null)
             {

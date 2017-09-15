@@ -11,6 +11,7 @@ namespace Steepshot.Core.Models.Requests
 
             Title = title;
             Tags = tags;
+            IsNeedRewards = user.IsNeedRewards;
         }
 
         public UploadImageRequest(UserInfo user, string title, byte[] photo, params string[] tags) : this(user, title, tags)
@@ -26,7 +27,11 @@ namespace Steepshot.Core.Models.Requests
         }
 
         public string Title { get; }
+
         public byte[] Photo { get; }
+
         public string[] Tags { get; }
+
+        public bool IsNeedRewards { get; }
     }
 }

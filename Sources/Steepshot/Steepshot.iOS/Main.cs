@@ -19,7 +19,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, BaseViewController.AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
     }

@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
+using Autofac;
 using Ditch;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Services;
+using Steepshot.Core.Tests.Stubs;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -18,17 +23,28 @@ namespace Steepshot.Core.Tests
 
         static BaseTests()
         {
-            Users = new Dictionary<string, UserInfo>()
+            var builder = new ContainerBuilder();
+
+            builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
+            builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+
+
+            AppSettings.Container = builder.Build();
+
+            Users = new Dictionary<string, UserInfo>
             {
-                {"Steem",new UserInfo{Login = "joseph.kalu", PostingKey = "5**************************************************"}},
-                {"Golos",new UserInfo{Login = "joseph.kalu", PostingKey = "5**************************************************"}}
+                {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
+                {"Golos", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}}
             };
 
             Api = new Dictionary<string, ISteepshotApiClient>
             {
                 //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
                 //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
-                
+
                 {"Steem", new DitchApi(KnownChains.Steem, false)},
                 {"Golos", new DitchApi(KnownChains.Golos, false)}
             };
@@ -36,19 +52,19 @@ namespace Steepshot.Core.Tests
 
         protected UserInfo Authenticate(string name)
         {
-            ISteepshotApiClient api = Api[name];
+            //ISteepshotApiClient api = Api[name];
             UserInfo user = Users[name];
 
-            // Arrange
-            var request = new AuthorizedRequest(user);
+            //// Arrange
+            //var request = new AuthorizedRequest(user);
 
-            // Act
-            var response = api.LoginWithPostingKey(request).Result;
+            //// Act
+            //var response = api.LoginWithPostingKey(request).Result;
 
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.IsLoggedIn, Is.True);
-            user.SessionId = response.Result.SessionId;
+            //// Assert
+            //AssertResult(response);
+            //Assert.That(response.Result.IsLoggedIn, Is.True);
+            //user.SessionId = response.Result.SessionId;
             return user;
         }
 

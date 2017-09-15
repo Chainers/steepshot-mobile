@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using RestSharp.Portable;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -19,6 +21,9 @@ namespace Steepshot.Core.HttpClient
         protected readonly string Url;
 
         protected IApiGateway Gateway => _gateway ?? (_gateway = new ApiGateway(Url));
+
+        private IConnectionService _connectionService;
+        private IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
 
         private readonly JsonNetConverter _jsonConverter;
 
@@ -33,16 +38,16 @@ namespace Steepshot.Core.HttpClient
             return new List<RequestParameter>();
         }
 
-        protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit)
+        protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit, bool isGet)
         {
             var parameters = new List<RequestParameter>();
             if (!string.IsNullOrWhiteSpace(offset))
             {
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
             }
             if (limit > 0)
             {
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
             }
             return parameters;
         }
@@ -105,172 +110,237 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
-            AddCensorParameters(parameters, request);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
+                AddCensorParameters(parameters, request);
 
-            var endpoint = $"user/{request.Username}/posts";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"user/{request.Username}/posts";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredPostsRequests request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
-            AddCensorParameters(parameters, request);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
+                AddCensorParameters(parameters, request);
 
-            var endpoint = "recent";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = "recent";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
-            AddCensorParameters(parameters, request);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
+                AddCensorParameters(parameters, request);
 
-            var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
-            AddCensorParameters(parameters, request);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
+                AddCensorParameters(parameters, request);
 
-            var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-            var endpoint = $"post/{request.Url}/voters";
+                var endpoint = $"post/{request.Url}/voters";
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse<VotersResult>>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<SearchResponse<VotersResult>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"post/{request.Url}/comments";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"post/{request.Url}/comments";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<GetCommentResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<GetCommentResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddLoginParameter(parameters, request.Login);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"user/{request.Username}/info";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"user/{request.Username}/info";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserProfileResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+
+            return CreateResult<UserProfileResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddLoginParameter(parameters, request.Login);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserFriendsResponse>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserFriendsResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts)
         {
-            var response = await Gateway.Get("tos", new List<RequestParameter>(), cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<TermOfServiceResponse>(response.Content, errorResult);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                response = await Gateway.Get("tos", new List<RequestParameter>(), cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<TermOfServiceResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddLoginParameter(parameters, request.Login);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddLoginParameter(parameters, request.Login);
 
-            var endpoint = $"post/{request.Url}/info";
-            if (!string.IsNullOrWhiteSpace(request.Login))
-                endpoint = request.Login + "/" + endpoint;
+                var endpoint = $"post/{request.Url}/info";
+                if (!string.IsNullOrWhiteSpace(request.Login))
+                    endpoint = request.Login + "/" + endpoint;
 
-            var response = await Gateway.Get(endpoint, parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<Post>(response.Content, errorResult);
+                response = await Gateway.Get(endpoint, parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<Post>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
 
-            var response = await Gateway.Get("user/search", parameters, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<SearchResponse<UserSearchResult>>(response.Content, errorResult);
+                response = await Gateway.Get("user/search", parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<SearchResponse<UserSearchResult>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
         {
-            var response = await Gateway.Get($"user/{request.Username}/exists", new List<RequestParameter>(), cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UserExistsResponse>(response.Content, errorResult);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                response = await Gateway.Get($"user/{request.Username}/exists", new List<RequestParameter>(), cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UserExistsResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationTokenSource cts)
         {
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-            var response = await Gateway.Get("categories/top", parameters, cts);
-            var errorResult = CheckErrors(response);
-
-            var result = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+                response = await Gateway.Get("categories/top", parameters, cts);
+                errorResult = CheckErrors(response);
+            }
+            var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
             if (result.Success)
             {
                 foreach (var category in result.Result.Results)
@@ -284,20 +354,25 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
         {
-            var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
-            if (query != request.Query)
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
             {
-                query = $"ru--{query}";
+                var query = Ditch.Helpers.Transliteration.ToEng(request.Query);
+                if (query != request.Query)
+                {
+                    query = $"ru--{query}";
+                }
+                request.Query = query;
+
+                var parameters = new List<RequestParameter>();
+                AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+
+                response = await Gateway.Get("categories/search", parameters, cts);
+                errorResult = CheckErrors(response);
             }
-            request.Query = query;
-
-            var parameters = new List<RequestParameter>();
-            AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
-
-            var response = await Gateway.Get("categories/search", parameters, cts);
-            var errorResult = CheckErrors(response);
-            var result = CreateResult<SearchResponse<SearchResult>>(response.Content, errorResult);
+            var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
 
             if (result.Success)
             {
@@ -310,44 +385,62 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async void Trace(string endpoint, string login, List<string> resultErrors)
+        public async void Trace(string endpoint, string login, List<string> resultErrors, string target)
         {
             var parameters = new List<RequestParameter>();
             AddLoginParameter(parameters, login);
-            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.QueryString });
+            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.RequestBody });
+            if (!string.IsNullOrEmpty(target))
+                parameters.Add(new RequestParameter { Key = "target", Value = target, Type = ParameterType.RequestBody });
             var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
         }
 
         #endregion Get requests
 
-        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit)
+        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit, bool isGet = true)
         {
             if (!string.IsNullOrWhiteSpace(offset))
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
 
             if (limit > 0)
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
-        private void AddLoginParameter(List<RequestParameter> parameters, string login)
+        private void AddLoginParameter(List<RequestParameter> parameters, string login, bool isGet = true)
         {
             if (!string.IsNullOrEmpty(login))
-                parameters.Add(new RequestParameter { Key = "login", Value = login, Type = ParameterType.QueryString });
+                parameters.Add(new RequestParameter { Key = "username", Value = login, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
-        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request)
+        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request, bool isGet = true)
         {
-            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = ParameterType.QueryString });
-            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = ParameterType.QueryString });
+            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
         }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts)
         {
-            var parameters = CreateSessionParameter(request.SessionId);
+            OperationResult errorResult = CheckInternetConnection();
+            IRestResponse response = null;
+            if (errorResult == null)
+            {
+                var parameters = CreateSessionParameter(request.SessionId);
+                if (!request.IsNeedRewards)
+                    parameters.Add(new RequestParameter { Key = "set_beneficiary", Value = "steepshot_no_rewards", Type = ParameterType.RequestBody });
+                response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
+                errorResult = CheckErrors(response);
+            }
+            return CreateResult<UploadResponse>(response?.Content, errorResult);
+        }
 
-            var response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UploadResponse>(response.Content, errorResult);
+        protected OperationResult CheckInternetConnection()
+        {
+            var available = ConnectionService.IsConnectionAvailable();
+            if (!available)
+            {
+                return new OperationResult() { Errors = new List<string>() { Localization.Errors.InternetUnavailable } };
+            }
+            return null;
         }
     }
 }

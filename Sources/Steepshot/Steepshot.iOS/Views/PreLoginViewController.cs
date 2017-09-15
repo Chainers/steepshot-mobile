@@ -9,18 +9,8 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PreLoginViewController : BaseViewController
+    public partial class PreLoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
-        PreSignInPresenter _presenter;
-        protected PreLoginViewController(IntPtr handle) : base(handle)
-        {
-            // Note: this .ctor should not contain any initialization logi  
-        }
-
-        public PreLoginViewController()
-        {
-        }
-
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();
@@ -31,7 +21,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            SetText(Chain);
+            SetText(BasePresenter.Chain);
             loginButton.TouchDown += (sender, e) => GetUserInfo();
             loginLabel.Font = Constants.Bold175;
             signLabel.Font = Constants.Bold125;
@@ -41,7 +31,7 @@ namespace Steepshot.iOS.Views
             devSwitch.On = AppSettings.IsDev;
             devSwitch.ValueChanged += (sender, e) =>
             {
-                SwitchChain(((UISwitch)sender).On);
+                BasePresenter.SwitchChain(((UISwitch)sender).On);
             };
             loginText.ShouldReturn += (textField) =>
             {
@@ -68,30 +58,28 @@ namespace Steepshot.iOS.Views
             NavigationItem.TitleView = tw;
 
             picker.Model = new NetworkPickerViewModel(NetworkSwithed);
-            picker.Select(Convert.ToInt32(Chain != KnownChains.Steem), 0, true);
+            picker.Select(Convert.ToInt32(BasePresenter.Chain != KnownChains.Steem), 0, true);
 
             if (NewAccountNetwork != KnownChains.None)
             {
                 picker.Hidden = true;
-                SwitchChain(NewAccountNetwork);
+                BasePresenter.SwitchChain(NewAccountNetwork);
             }
 
             UITapGestureRecognizer devTap = new UITapGestureRecognizer(
                 () =>
             {
                 devSwitch.Hidden = !devSwitch.Hidden;
-            }
-            );
+            });
             devTap.NumberOfTapsRequired = 10;
 
             UITapGestureRecognizer golosTap = new UITapGestureRecognizer(
                 () =>
                 {
-                    var network = Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                    var network = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
                     SetText(network);
-                    SwitchChain(network);
-                }
-            );
+                    BasePresenter.SwitchChain(network);
+                });
             golosTap.NumberOfTapsRequired = 5;
 
             golosHidden.AddGestureRecognizer(devTap);
@@ -109,14 +97,14 @@ namespace Steepshot.iOS.Views
             base.ViewDidDisappear(animated);
             if (IsMovingFromParentViewController && NewAccountNetwork != KnownChains.None)
             {
-                SwitchChain(NewAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                BasePresenter.SwitchChain(NewAccountNetwork == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
         }
 
         private void NetworkSwithed(KnownChains network)
         {
             SetText(network);
-            SwitchChain(network);
+            BasePresenter.SwitchChain(network);
         }
 
         private void SetText(KnownChains network)
@@ -150,7 +138,7 @@ namespace Steepshot.iOS.Views
             }
             catch (Exception ex)
             {
-                Reporter.SendCrash(ex, BasePresenter.User.Login, AppVersion);
+                AppSettings.Reporter.SendCrash(ex);
             }
             finally
             {
@@ -203,4 +191,3 @@ namespace Steepshot.iOS.Views
         }
     }
 }
-
