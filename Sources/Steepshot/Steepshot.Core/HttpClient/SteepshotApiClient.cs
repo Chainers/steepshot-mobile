@@ -24,7 +24,7 @@ namespace Steepshot.Core.HttpClient
                 {
                     Key = "application/json",
                     Value = request,
-                    Type = ParameterType.GetOrPost
+                    Type = ParameterType.RequestBody
                 }
             };
 
@@ -58,7 +58,7 @@ namespace Steepshot.Core.HttpClient
             {
                 Key = "application/json",
                 Value = request,
-                Type = ParameterType.GetOrPost
+                Type = ParameterType.RequestBody
             });
 
             var response = await Gateway.Post($"post/{request.Identifier}/{request.Type.GetDescription()}", parameters, cts);
@@ -82,7 +82,7 @@ namespace Steepshot.Core.HttpClient
             {
                 Key = "application/json",
                 Value = request,
-                Type = ParameterType.GetOrPost
+                Type = ParameterType.RequestBody
             });
 
             var response = await Gateway.Post($"post/{request.Url}/comment", parameters, cts);
