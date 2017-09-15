@@ -16,8 +16,12 @@ namespace Steepshot.Core.Models.Responses
     public class ImageUploadResponse
     {
         public string Title { get; set; }
+
         public List<string> Tags { get; set; }
+
         public string Body { get; set; }
+
+        public string Permlink { get; set; }
     }
 
     //    {
@@ -53,9 +57,11 @@ namespace Steepshot.Core.Models.Responses
     //        ]
     //    }
     //}
+
     public class UploadResponse
     {
         public ImageUploadResponse Payload { get; set; }
+        
         public object Meta { get; set; }
     }
 }
