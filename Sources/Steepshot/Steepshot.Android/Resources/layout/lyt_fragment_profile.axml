@@ -78,7 +78,10 @@
                 <android.support.v7.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/posts_list" />
+                    android:id="@+id/posts_list"
+                    android:clipToPadding="false"
+                    android:paddingLeft="1px"
+                    android:paddingRight="1px" />
             </android.support.v4.widget.SwipeRefreshLayout>
             <ProgressBar
                 android:id="@+id/list_spinner"
