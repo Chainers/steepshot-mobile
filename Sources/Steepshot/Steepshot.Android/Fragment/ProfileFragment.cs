@@ -126,7 +126,7 @@ namespace Steepshot.Fragment
             _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
 
             _postsList.SetLayoutManager(_gridLayoutManager);
-            _postsList.AddItemDecoration(new GridItemdecoration(2, 3));
+            _postsList.AddItemDecoration(new ProfileGridItemdecoration(1));
             _postsList.AddOnScrollListener(_scrollListner);
             _postsList.SetAdapter(ProfileGridAdapter);
 

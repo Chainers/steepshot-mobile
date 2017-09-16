@@ -20,7 +20,7 @@ namespace Steepshot.Adapter
         {
             _context = context;
             _posts = posts;
-            _cellSize = (_context.Resources.DisplayMetrics.WidthPixels - 4 * 2) / 3;
+            _cellSize = (_context.Resources.DisplayMetrics.WidthPixels - 2 * 4) / 3;
         }
 
         public Post GetItem(int position)
