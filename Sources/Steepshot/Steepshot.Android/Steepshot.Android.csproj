@@ -141,7 +141,7 @@
     <AndroidResource Include="Resources\drawable\primary_order.xml" />
     <AndroidResource Include="Resources\drawable\white_bottom_shadow.xml" />
     <AndroidResource Include="Resources\drawable\white_corner_primary_btn.xml" />
-    <AndroidResource Include="Resources\drawable\white_corner.xml" />
+    <AndroidResource Include="Resources\drawable\follow_button_corners.xml" />
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\image_grid_item.axml" />
