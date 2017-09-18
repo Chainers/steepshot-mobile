@@ -12,23 +12,15 @@ namespace Steepshot.Adapter
     public class ProfileFeedAdapter : FeedAdapter
     {
         public override int ItemCount => _posts.Count + 1;
-        private UserProfileResponse _profileData;
+        public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
-        public Action<bool> FollowAction;
+        public Action FollowAction;
         public ProfileFeedAdapter(Context context, List<Post> posts, Typeface[] fonts) : base(context, posts, fonts) { }
-
-        public UserProfileResponse ProfileData
-        {
-            set
-            {
-                _profileData = value;
-            }
-        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (position == 0)
-                ((HeaderViewHolder)holder).UpdateHeader(_profileData);
+                ((HeaderViewHolder)holder).UpdateHeader(ProfileData);
             else
                 base.OnBindViewHolder(holder, position - 1);
         }

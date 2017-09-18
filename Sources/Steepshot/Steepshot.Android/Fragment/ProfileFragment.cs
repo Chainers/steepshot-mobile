@@ -20,7 +20,6 @@ namespace Steepshot.Fragment
     public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private readonly string _profileId;
-        private UserProfileResponse _profile;
         private Typeface font;
         private Typeface semibold_font;
         private ScrollListener _scrollListner;
@@ -61,6 +60,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.VotersClick += VotersAction;
                     _profileFeedAdapter.FollowersAction += OnFollowersClick;
                     _profileFeedAdapter.FollowingAction += OnFollowingClick;
+                    _profileFeedAdapter.FollowAction += async () => await OnFollowClick();
                 }
                 return _profileFeedAdapter;
             }
@@ -77,6 +77,7 @@ namespace Steepshot.Fragment
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
+                    _profileGridAdapter.FollowAction += async () => await OnFollowClick();
                 }
                 return _profileGridAdapter;
             }
@@ -171,6 +172,12 @@ namespace Steepshot.Fragment
             await GetUserPosts(true);
         }
 
+        [InjectOnClick(Resource.Id.btn_back)]
+        public void GoBackClick(object sender, EventArgs e)
+        {
+            Activity.OnBackPressed();
+        }
+
         [InjectOnClick(Resource.Id.btn_switcher)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
@@ -210,33 +217,18 @@ namespace Steepshot.Fragment
                 _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
-        private async void OnFollowClick(object sender, EventArgs e)
+        private async Task OnFollowClick()
         {
-            /*
-            try
+            var resp = await _presenter.Follow(ProfileGridAdapter.ProfileData.HasFollowed);
+
+            if (resp.Result.IsSuccess)
             {
-                _followSpinner.Visibility = ViewStates.Visible;
-                _followBtn.Visibility = ViewStates.Invisible;
-                var resp = await _presenter.Follow(_profile.HasFollowed);
-                if (_followBtn == null)
-                    return;
-                if (resp.Errors.Count == 0)
-                {
-                    _followBtn.Text = resp.Result.IsSuccess
-                        ? GetString(Resource.String.text_unfollow)
-                        : GetString(Resource.String.text_follow);
-                }
-                else
-                {
-                    Toast.MakeText(Activity, resp.Errors[0], ToastLength.Long).Show();
-                }
-                _followSpinner.Visibility = ViewStates.Invisible;
-                _followBtn.Visibility = ViewStates.Visible;
+                var hasFollowed = ProfileGridAdapter.ProfileData.HasFollowed == 1 ? 0 : 1;
+                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = hasFollowed;
+                _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }*/
+            else if (resp.Errors != null && resp.Errors.Count != 0)
+                ShowAlert(resp.Errors);
         }
 
         public void OnPhotoClick(int position)
