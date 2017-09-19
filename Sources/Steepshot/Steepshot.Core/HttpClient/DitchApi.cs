@@ -214,7 +214,7 @@ namespace Steepshot.Core.HttpClient
                         meta = meta.Replace(Environment.NewLine, string.Empty);
 
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
-                    var ops = upResp.Beneficiaries != null
+                    var ops = upResp.Beneficiaries != null && upResp.Beneficiaries.Any()
                         ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _chainInfo.SbdSymbol, upResp.Beneficiaries) }
                         : new BaseOperation[] { post };
 
