@@ -11,11 +11,13 @@
         android:layout_height="wrap_content" />
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_layout"
+        android:elevation="10dp"
         app:tabMode="fixed"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_alignParentBottom="true"
         app:tabGravity="fill"
         app:tabMaxWidth="0dp"
+        android:background="@color/white"
         app:tabIndicatorColor="@android:color/transparent" />
 </RelativeLayout>

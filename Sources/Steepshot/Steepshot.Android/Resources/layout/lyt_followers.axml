@@ -3,23 +3,28 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
+    <android.support.design.widget.AppBarLayout
         android:id="@+id/follow_panel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <include
-            layout="@layout/top_panel" />
-        <TextView
-            android:id="@+id/people_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0 people"
-            android:layout_marginRight="15dp"
-            android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
+            android:layout_height="wrap_content">
+            <include
+                layout="@layout/top_panel" />
+            <TextView
+                android:id="@+id/people_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 people"
+                android:layout_marginRight="15dp"
+                android:textSize="14sp"
+                android:textColor="@color/rgb15_24_30"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+    </android.support.design.widget.AppBarLayout>
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
