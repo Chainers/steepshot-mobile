@@ -1,4 +1,5 @@
 using System;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -20,9 +21,13 @@ namespace Steepshot.Fragment
         private string _username;
 
 #pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.Title)] private TextView _viewTitle;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.followers_list)] private RecyclerView _followersList;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.people_count)] private TextView _people_count;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -40,15 +45,27 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
+
+            var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
+
             var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+            var count = Activity.Intent.GetIntExtra("count", 0);
+            _people_count.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
             _friendsType = isFollowers ? FriendsType.Followers : FriendsType.Following;
 
             LoadItems();
 
-            _viewTitle.Text = isFollowers ? GetString(Resource.String.text_followers) : GetString(Resource.String.text_following);
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = isFollowers ? "Followers" : "Following";
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users);
+            _viewTitle.Typeface = semibold_font;
+            _people_count.Typeface = font;
+
+            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users, new Typeface[] { font, semibold_font });
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
@@ -92,7 +109,6 @@ namespace Steepshot.Fragment
                         _bar.Visibility = ViewStates.Gone;
                     if (errors != null && errors.Count > 0)
                         Toast.MakeText(Context, errors[0], ToastLength.Long).Show();
-
                     else
                         _followersAdapter?.NotifyDataSetChanged();
                 });

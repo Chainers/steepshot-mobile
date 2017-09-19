@@ -69,6 +69,11 @@ namespace Steepshot.Utils
             }
             return inSampleSize;
         }
+
+        public static Color GetColorFromInteger(int color)
+        {
+            return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
+        }
         /*
         public virtual string ToPath(T itm)
         {

@@ -223,6 +223,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\back_arrow.png" />
+    <AndroidResource Include="Resources\layout\top_panel.axml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">

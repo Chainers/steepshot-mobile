@@ -8,8 +8,10 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -146,8 +148,8 @@ namespace Steepshot.Adapter
         {
             if (_profile != null)
             {
-                var blackTextColor = GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb15_24_30));
-                var siteTextColor = GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb231_72_0));
+                var blackTextColor = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb15_24_30));
+                var siteTextColor = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb231_72_0));
                 if (!string.IsNullOrEmpty(_profile?.ProfileImage))
                 {
                     Picasso.With(_context).Load(_profile?.ProfileImage)
@@ -162,16 +164,16 @@ namespace Steepshot.Adapter
                 {
                     var background = (GradientDrawable)_follow_button.Background;
                     background.SetColor(Color.White);
-                    background.SetStroke(1, GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb244_244_246)));
-                    _follow_button.Text = "Unfollow";
-                    _follow_button.SetTextColor(GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb15_24_30)));
+                    background.SetStroke(1, BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb244_244_246)));
+                    _follow_button.Text = Localization.Messages.Unfollow;
+                    _follow_button.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb15_24_30)));
                 }
                 else
                 {
                     var background = (GradientDrawable)_follow_button.Background;
-                    background.SetColor(GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb231_72_0)));
+                    background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(_context, Resource.Color.rgb231_72_0)));
                     background.SetStroke(0, Color.White);
-                    _follow_button.Text = "Follow";
+                    _follow_button.Text = Localization.Messages.Follow;
                     _follow_button.SetTextColor(Color.White);
                 }
 
@@ -210,11 +212,6 @@ namespace Steepshot.Adapter
 
                 _balance.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance);
             }
-        }
-
-        public static Color GetColorFromInteger(int color)
-        {
-            return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
         }
     }
 
