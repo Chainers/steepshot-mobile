@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
+
 namespace Steepshot.Core.Authority
 {
     public class UserInfo
@@ -20,7 +24,7 @@ namespace Steepshot.Core.Authority
 
         public bool IsLowRated { get; set; } = false;
 
-        public bool IsNeedRewards { get; set; } = false;
+        public bool IsNeedRewards { get; set; } = AppSettings.Container.Resolve<IAppInfo>().GetPlatform() == "Android";
 
         public bool IsDev { get; set; } = false;
 
