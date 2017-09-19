@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -9,6 +11,8 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -18,17 +22,13 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         public Action<int> FollowAction;
         public Action<int> UserAction;
+        private Typeface[] _fonts;
 
-        public FollowersAdapter(Context context, List<UserFriend> collection)
+        public FollowersAdapter(Context context, List<UserFriend> collection, Typeface[] fonts)
         {
             _context = context;
             _collection = collection;
-        }
-
-        public void Clear()
-        {
-            _collection.Clear();
-            NotifyDataSetChanged();
+            _fonts = fonts;
         }
 
         public void InverseFollow(int pos)
@@ -49,22 +49,19 @@ namespace Steepshot.Adapter
             if (vh == null) return;
 
             var item = _collection[position];
-            vh.FriendAvatar.SetImageResource(0);
+            vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             vh.FriendName.Text = item.Author;
-            vh.Reputation.Text = item.Reputation.ToString();
+            vh.FriendLogin.Text = item.Author;
             if (!string.IsNullOrEmpty(item.Avatar))
-                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-            else
-                Picasso.With(_context).Load(Resource.Drawable.ic_user_placeholder).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-            //vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
+                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(150, 0).Into(vh.FriendAvatar);
 
-            vh.UpdateData(item);
+            vh.UpdateData(item, _context);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
-            var vh = new FollowersViewHolder(itemView, FollowAction, UserAction);
+            var vh = new FollowersViewHolder(itemView, FollowAction, UserAction, _context, _fonts);
             return vh;
         }
 
@@ -72,23 +69,29 @@ namespace Steepshot.Adapter
         {
             public CircleImageView FriendAvatar { get; }
             public TextView FriendName { get; }
-            public TextView Reputation { get; }
-            private AppCompatButton FollowUnfollow { get; }
+            public TextView FriendLogin { get; }
+            private Button FollowButton { get; }
 
             private UserFriend _userFriendst;
             private readonly Action<int> _followAction;
             private readonly Action<int> _userAction;
+            private Context _context;
 
-            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction)
+            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction, Context context, Typeface[] fonts)
                 : base(itemView)
             {
+                _context = context;
                 FriendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
-                FriendName = itemView.FindViewById<TextView>(Resource.Id.friend_name);
-                Reputation = itemView.FindViewById<TextView>(Resource.Id.reputation);
-                FollowUnfollow = itemView.FindViewById<AppCompatButton>(Resource.Id.btn_follow_unfollow);
+                FriendLogin = itemView.FindViewById<TextView>(Resource.Id.username);
+                FriendName = itemView.FindViewById<TextView>(Resource.Id.name);
+                FollowButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
+
+                FriendLogin.Typeface = fonts[1];
+                FriendName.Typeface = fonts[0];
+
                 _followAction = followAction;
                 _userAction = userAction;
-                FollowUnfollow.Click += Follow_Click;
+                FollowButton.Click += Follow_Click;
                 FriendName.Clickable = true;
                 FriendName.Click += User_Click;
                 FriendAvatar.Clickable = true;
@@ -103,30 +106,35 @@ namespace Steepshot.Adapter
             void Follow_Click(object sender, EventArgs e)
             {
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriendst.HasFollowed);
+                CheckFollow(this, !_userFriendst.HasFollowed, _context);
             }
 
-            private void CheckFollow(FollowersViewHolder vh, bool follow)
+            private void CheckFollow(FollowersViewHolder vh, bool follow, Context context)
             {
-                if (!follow)
+                if (BasePresenter.User.Login == vh.FriendLogin.Text)
+                    vh.FollowButton.Visibility = ViewStates.Gone;
+                else if (follow)
                 {
-                    vh.FollowUnfollow.Text = Localization.Messages.Follow;
-                    vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
-                    vh.FollowUnfollow.SetTextColor(Color.LightGray);
-                    //vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
+                    var background = (GradientDrawable)vh.FollowButton.Background;
+                    background.SetColor(Color.White);
+                    background.SetStroke(1, BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb244_244_246)));
+                    vh.FollowButton.Text = Localization.Messages.Unfollow;
+                    vh.FollowButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb15_24_30)));
                 }
                 else
                 {
-                    vh.FollowUnfollow.Text = Localization.Messages.Unfollow;
-                    vh.FollowUnfollow.SetTextColor(Color.LightGray);
-                    //  vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.gray_border);
+                    var background = (GradientDrawable)vh.FollowButton.Background;
+                    background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
+                    background.SetStroke(0, Color.White);
+                    vh.FollowButton.Text = Localization.Messages.Follow;
+                    vh.FollowButton.SetTextColor(Color.White);
                 }
             }
 
-            public void UpdateData(UserFriend userFriendst)
+            public void UpdateData(UserFriend userFriendst, Context context)
             {
                 _userFriendst = userFriendst;
-                CheckFollow(this, _userFriendst.HasFollowed);
+                CheckFollow(this, _userFriendst.HasFollowed, context);
             }
         }
     }

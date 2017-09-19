@@ -242,6 +242,7 @@ namespace Steepshot.Fragment
         {
             Activity.Intent.PutExtra("isFollowers", false);
             Activity.Intent.PutExtra("username", _profileId);
+            Activity.Intent.PutExtra("count", ProfileFeedAdapter.ProfileData.FollowingCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
@@ -249,6 +250,7 @@ namespace Steepshot.Fragment
         {
             Activity.Intent.PutExtra("isFollowers", true);
             Activity.Intent.PutExtra("username", _profileId);
+            Activity.Intent.PutExtra("count", ProfileFeedAdapter.ProfileData.FollowersCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
