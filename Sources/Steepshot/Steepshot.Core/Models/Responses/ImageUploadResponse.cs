@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Ditch.Operations.Post;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -61,7 +62,9 @@ namespace Steepshot.Core.Models.Responses
     public class UploadResponse
     {
         public ImageUploadResponse Payload { get; set; }
-        
+
         public object Meta { get; set; }
+
+        public Beneficiary[] Beneficiaries { get; set; }
     }
 }

@@ -211,11 +211,16 @@ namespace Steepshot.Core.HttpClient
                     var upResp = uploadResponse.Result;
                     var meta = upResp.Meta.ToString();
                     if (!string.IsNullOrWhiteSpace(meta))
-                    {
                         meta = meta.Replace(Environment.NewLine, string.Empty);
-                    }
+
                     var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
-                    var resp = OperationManager.BroadcastOperations(keys, post);
+                    var ops = upResp.Beneficiaries != null
+                        ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _chainInfo.SbdSymbol, upResp.Beneficiaries) }
+                        : new BaseOperation[] { post };
+
+                    var resp = OperationManager.BroadcastOperations(keys, ops);
+
+
                     if (!resp.IsError)
                     {
                         upResp.Payload.Permlink = post.Permlink;
