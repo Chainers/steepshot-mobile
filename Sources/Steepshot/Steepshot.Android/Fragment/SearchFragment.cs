@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.InputMethods;
@@ -11,21 +13,25 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class SearchFragment : BaseFragmentWithPresenter<SearchPresenter>
     {
         private Timer _timer;
-        private SearchType _searchType = SearchType.Tags;
+        private SearchType _searchType = SearchType.People;
+        private Typeface _font;
+        private Typeface _semiboldFont;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView _categories;
         [InjectView(Resource.Id.users)] RecyclerView _users;
-        [InjectView(Resource.Id.search_view)] Android.Support.V7.Widget.SearchView _searchView;
+        [InjectView(Resource.Id.search_view)] EditText _searchView;
         [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
         [InjectView(Resource.Id.tags_button)] Button _tagsButton;
         [InjectView(Resource.Id.people_button)] Button _peopleButton;
+        [InjectView(Resource.Id.clear_button)] Button _clearButton;
 #pragma warning restore 0649
 
         CategoriesAdapter _categoriesAdapter;
@@ -46,7 +52,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-            _searchView.QueryTextChange += (sender, e) =>
+            _searchView.TextChanged += (sender, e) =>
             {
                 _timer.Change(500, Timeout.Infinite);
             };
@@ -64,8 +70,11 @@ namespace Steepshot.Fragment
             _categoriesAdapter.Click += OnClick;
             _usersSearchAdapter.Click += OnClick;
             _timer = new Timer(OnTimer);
-            _searchView.Iconified = false;
-            _searchView.ClearFocus();
+            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
+
+            _searchView.Typeface = _font;
+            _clearButton.Typeface = _font;
             SwitchSearchType();
         }
 
@@ -99,7 +108,7 @@ namespace Steepshot.Fragment
             {
                 if (_usersSearchAdapter.Items.Count > pos)
                 {
-                    var user = _usersSearchAdapter.Items[pos].Username;
+                    var user = _usersSearchAdapter.Items[pos].Name;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user));
                 }
             }
@@ -120,7 +129,7 @@ namespace Steepshot.Fragment
             {
                 _spinner.Visibility = ViewStates.Visible;
 
-                var errors = await _presenter.SearchCategories(_searchView.Query, _searchType);
+                var errors = await _presenter.SearchCategories(_searchView.Text, _searchType);
                 if (errors != null && errors.Count > 0)
                     Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
                 else
@@ -143,7 +152,6 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new SearchPresenter();
-            //base.CreatePresenter();
         }
 
         private void SwitchSearchType()
@@ -153,21 +161,25 @@ namespace Steepshot.Fragment
             {
                 _users.Visibility = ViewStates.Gone;
                 _categories.Visibility = ViewStates.Visible;
-                _tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
-                _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
+                _tagsButton.Typeface = _semiboldFont;
+                _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
+                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
 
-                _peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
-                _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
+                _peopleButton.Typeface = _font;
+                _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
+                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
             }
             else
             {
                 _users.Visibility = ViewStates.Visible;
                 _categories.Visibility = ViewStates.Gone;
-                _peopleButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Bold);
-                _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 17);
+                _peopleButton.Typeface = _semiboldFont;
+                _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
+                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
 
-                _tagsButton.SetTypeface(null, Android.Graphics.TypefaceStyle.Normal);
-                _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 15);
+                _tagsButton.Typeface = _font;
+                _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
+                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
             }
         }
 
