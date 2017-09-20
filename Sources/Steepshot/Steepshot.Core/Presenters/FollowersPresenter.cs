@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
     public class FollowersPresenter : BasePresenter
     {
         public readonly List<UserFriend> Users = new List<UserFriend>();
-        public bool _hasItems = true;
+        public bool HasItems = true;
         private string _offsetUrl = string.Empty;
         private readonly int _itemsLimit = 60;
 
@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
             List<string> errors = null;
             try
             {
-                if (!_hasItems)
+                if (!HasItems)
                     return errors;
                 var request = new UserFriendsRequest(username, followType)
                 {
@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
                     if (lastItem.Author != _offsetUrl)
                         response.Result.Results.Remove(lastItem);
                     else
-                        _hasItems = false;
+                        HasItems = false;
 
                     _offsetUrl = lastItem.Author;
                     Users.AddRange(response.Result.Results);

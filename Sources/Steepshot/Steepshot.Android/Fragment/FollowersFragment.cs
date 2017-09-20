@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
             _viewTitle.Typeface = semibold_font;
             _people_count.Typeface = font;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users, new Typeface[] { font, semibold_font });
+            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] { font, semibold_font });
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
