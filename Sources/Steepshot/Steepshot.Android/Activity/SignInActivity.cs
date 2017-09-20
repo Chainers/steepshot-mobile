@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -46,7 +47,20 @@ namespace Steepshot.Activity
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
 #if DEBUG
-            _password.Text = "***REMOVED***";
+            try
+            {
+                var stream = Assets.Open("DebugWif.txt");
+                using (var sr = new StreamReader(stream))
+                {
+                    var wif = sr.ReadToEnd();
+                    _password.Text = wif;
+                }
+                stream.Dispose();
+            }
+            catch
+            {
+                //todo nothing
+            }
 #endif
 
             _password.TextChanged += TextChanged;
