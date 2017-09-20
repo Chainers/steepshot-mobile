@@ -23,11 +23,13 @@ namespace Steepshot.Adapter
         public Action<int> FollowAction;
         public Action<int> UserAction;
         private Typeface[] _fonts;
+        private FollowersPresenter _presenter;
 
-        public FollowersAdapter(Context context, List<UserFriend> collection, Typeface[] fonts)
+        public FollowersAdapter(Context context, List<UserFriend> collection, FollowersPresenter presenter, Typeface[] fonts)
         {
             _context = context;
             _collection = collection;
+            _presenter = presenter;
             _fonts = fonts;
         }
 
@@ -36,12 +38,21 @@ namespace Steepshot.Adapter
             _collection[pos].HasFollowed = !_collection[pos].HasFollowed;
         }
 
+        public override int GetItemViewType(int position)
+        {
+            if(_collection.Count == position)
+            {
+                return (int)ViewType.Loader;
+            }
+            return (int)ViewType.Cell;
+        }
+
         public UserFriend GetItem(int position)
         {
             return _collection[position];
         }
 
-        public override int ItemCount => _collection.Count;
+        public override int ItemCount => _collection.Count == 0 || !_presenter.HasItems ? _collection.Count : _collection.Count + 1;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -60,9 +71,24 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
-            var vh = new FollowersViewHolder(itemView, FollowAction, UserAction, _context, _fonts);
-            return vh;
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var cellView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
+                    var cellVh = new FollowersViewHolder(cellView, FollowAction, UserAction, _context, _fonts);
+                    return cellVh;
+            }
+        }
+
+        public class LoaderViewHolder : RecyclerView.ViewHolder
+        {
+            public LoaderViewHolder(View itemView) : base(itemView)
+            {
+            }
         }
 
         private class FollowersViewHolder : RecyclerView.ViewHolder

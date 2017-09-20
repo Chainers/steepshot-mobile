@@ -113,6 +113,7 @@
     <Compile Include="Utils\BitmapUtils.cs" />
     <Compile Include="Adapter\ProfileGridAdapter.cs" />
     <Compile Include="Adapter\ProfileFeedAdapter.cs" />
+    <Compile Include="Utils\Constants.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -224,6 +225,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\back_arrow.png" />
     <AndroidResource Include="Resources\layout\top_panel.axml" />
+    <AndroidResource Include="Resources\layout\loading_item.axml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
