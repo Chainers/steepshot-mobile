@@ -226,6 +226,12 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\back_arrow.png" />
     <AndroidResource Include="Resources\layout\top_panel.axml" />
     <AndroidResource Include="Resources\layout\loading_item.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\search_small.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\search_small.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\search_small.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\input.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\input.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\input.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">

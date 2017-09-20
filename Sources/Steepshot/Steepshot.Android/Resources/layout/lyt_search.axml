@@ -9,50 +9,89 @@
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/color_primary"
-        android:padding="10dp"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <android.support.v7.widget.SearchView
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="20dp">
+        <ImageView
+            android:id="@+id/search_small"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/search_small"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp" />
+        <EditText
             android:id="@+id/search_view"
+            android:layout_width="wrap_content"
+            android:layout_height="20dp"
+            android:hint="Type something to search"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:textColor="@color/rgb15_24_30"
+            android:layout_marginBottom="9dp"
+            android:background="@android:color/transparent"
+            android:textCursorDrawable="@drawable/input"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/search_small"
+            android:layout_toLeftOf="@+id/clear_button" />
+        <Button
+            android:id="@+id/clear_button"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:text="Clear"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:padding="0dp"
+            android:textColor="@color/rgb151_155_158"
+            android:layout_marginLeft="8dp"
+            android:background="@android:color/transparent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+        <View
             android:layout_width="match_parent"
-            android:background="@android:color/white"
-            android:layout_height="match_parent"
-            android:focusableInTouchMode="true"
-            android:iconifiedByDefault="true"
-            app:showAsAction="always"
-            app:iconifiedByDefault="true" />
+            android:layout_height="1dp"
+            android:background="@color/rgb244_244_246"
+            android:layout_below="@+id/search_view" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/search_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar">
-        <Button
-            android:id="@+id/tags_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="by Tags"
-            android:background="@android:color/transparent"
-            android:textAllCaps="false" />
+        android:layout_below="@+id/toolbar"
+        android:layout_alignLeft="@+id/toolbar"
+        android:layout_marginTop="34dp"
+        android:layout_marginBottom="34dp">
         <Button
             android:id="@+id/people_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="by People"
+            android:layout_width="66dp"
+            android:layout_height="27dp"
+            android:text="People"
+            android:textSize="20sp"
+            android:textColor="@color/rgb15_24_30"
             android:textAllCaps="false"
+            android:layout_marginRight="30dp"
             android:background="@android:color/transparent"
-            android:layout_toRightOf="@+id/tags_button" />
+            android:gravity="bottom" />
+        <Button
+            android:id="@+id/tags_button"
+            android:layout_width="85dp"
+            android:layout_height="27dp"
+            android:text="Hashtag"
+            android:background="@android:color/transparent"
+            android:textSize="14sp"
+            android:textColor="@color/rgb151_155_158"
+            android:textAllCaps="false"
+            android:gravity="bottom"
+            android:layout_toRightOf="@+id/people_button" />
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/categories"
+        android:id="@+id/users"
         android:layout_below="@+id/search_type"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="0.0dp" />
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/users"
+        android:id="@+id/categories"
         android:layout_below="@+id/search_type"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
