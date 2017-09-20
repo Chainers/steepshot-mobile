@@ -5,6 +5,7 @@ using FFImageLoading;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -54,7 +55,7 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
             postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
 #if DEBUG
-            password.Text = "***REMOVED***";
+            password.Text = DebugHelper.GetTestWif();
 #endif
             password.ShouldReturn += (textField) =>
             {
