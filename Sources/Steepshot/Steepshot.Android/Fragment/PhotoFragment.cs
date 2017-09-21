@@ -145,7 +145,7 @@ namespace Steepshot.Fragment
 
         private void AddPathToPhotoDirectories(File file, string fileName)
         {
-            if (!file.IsDirectory)
+            if (!file.IsDirectory || file.Name.StartsWith("."))
                 return;
 
             if (file.Name.Equals(Constants.Steepshot, StringComparison.OrdinalIgnoreCase) || file.ListFiles().Any(IsImage))
