@@ -62,7 +62,8 @@
                 android:background="@android:color/transparent"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:padding="10dp" />
+                android:padding="10dp"
+                android:maxLength="255" />
             <Steepshot.Utils.TagLayout
                 android:id="@+id/tag_container"
                 android:layout_width="match_parent"
