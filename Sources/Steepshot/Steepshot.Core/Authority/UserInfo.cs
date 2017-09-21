@@ -29,5 +29,7 @@ namespace Steepshot.Core.Authority
         public bool IsDev { get; set; } = false;
 
         public List<string> PostBlacklist { get; set; } = new List<string>();
+
+        public Dictionary<string, string> PhotoDirectories { get; set; } = new Dictionary<string, string>();
     }
 }
