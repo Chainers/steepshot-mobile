@@ -108,7 +108,7 @@ namespace Steepshot.Fragment
             {
                 if (_usersSearchAdapter.Items.Count > pos)
                 {
-                    var user = _usersSearchAdapter.Items[pos].Name;
+                    var user = _usersSearchAdapter.Items[pos].Username;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user));
                 }
             }
