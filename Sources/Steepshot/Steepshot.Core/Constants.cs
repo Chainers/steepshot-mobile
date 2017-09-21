@@ -13,5 +13,6 @@
         public const string GolosUrlQa = "https://qa.golos.steepshot.org/api/v1/";
 
         public const string SteemitRegUrl = "https://steemit.com/pick_account";
+        public const string GolosRegUrl = "https://golos.io/enter_email";
     }
 }
