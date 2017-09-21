@@ -13,16 +13,17 @@ using Java.IO;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public delegate void VoidDelegate();
     public class PhotoFragment : BaseFragment
     {
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.images_list)] RecyclerView _imagesList;
         [InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
+        [InjectView(Resource.Id.spinner_photoDir)] Spinner _photoDir;
 #pragma warning restore 0649
 
         private GridImageAdapter _adapter;
@@ -57,6 +58,14 @@ namespace Steepshot.Fragment
             _adapter = new GridImageAdapter(Context, _userPhotos);
             _adapter.Click += StartPost;
             _imagesList.SetAdapter(_adapter);
+            InitPhotoDirectories();
+            _photoDir.Adapter = new ArrayAdapter<String>(Context, Resource.Drawable.spinner_item, BasePresenter.User.PhotoDirectories.Select(i => i.Key).ToArray());
+            _photoDir.ItemSelected += _photoDir_ItemSelected;
+        }
+
+        private void _photoDir_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
+        {
+            SwitchPhotoDir();
         }
 
         public override void OnDestroyView()
@@ -68,7 +77,11 @@ namespace Steepshot.Fragment
         [InjectOnClick(Resource.Id.btn_switch)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
-            var directory = GetSteepshotDirectory();
+            var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+            var directory = new File(directoryPictures, "Steepshot");
+            if (!directory.Exists())
+                directory.Mkdirs();
+
             _photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
             var intent = new Intent(MediaStore.ActionImageCapture);
             intent.PutExtra(MediaStore.ExtraOutput, Android.Net.Uri.Parse(_photoUri.ToFilePath()));
@@ -82,44 +95,76 @@ namespace Steepshot.Fragment
             Context.StartActivity(i);
         }
 
-        private List<string> GetImages()
+        private void InitPhotoDirectories()
         {
-            var dcimPath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim).AbsolutePath;
-            var picturePath = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures).AbsolutePath;
+            if (!BasePresenter.User.PhotoDirectories.Any())
+            {
+                AddPathToPhotoDirectories(Android.OS.Environment.DirectoryDcim);
+                AddPathToPhotoDirectories(Android.OS.Environment.DirectoryPictures);
+                BasePresenter.User.Save();
+            }
+        }
 
-            var dcimPhotos = new File(dcimPath);
-            var cameraPhotos = new File(dcimPath, "Camera");
-            var screenshots = new File(dcimPath, "Screenshots");
-            var steepshotPhotos = new File(picturePath, "Steepshot");
+        private IEnumerable<string> GetImages(string name = null)
+        {
+            if (!BasePresenter.User.PhotoDirectories.Any())
+                return new List<string>();
 
             var photos = new List<File>();
-            AddPhotos(photos, new File[] { dcimPhotos, cameraPhotos, screenshots, steepshotPhotos });
-            return photos.Where(f => IsImage(f))
-                          .OrderByDescending(f => f.LastModified())
-                          .Select(i => i.AbsolutePath).ToList();
+            var dir = string.IsNullOrEmpty(name)
+                ? BasePresenter.User.PhotoDirectories.FirstOrDefault()
+                : BasePresenter.User.PhotoDirectories.FirstOrDefault(i => i.Key.Equals(name, StringComparison.OrdinalIgnoreCase));
+            AddPhotos(photos, dir.Value);
+            return photos.OrderByDescending(f => f.LastModified()).Select(i => i.AbsolutePath);
         }
 
-        private void AddPhotos(List<File> list, File[] array)
+        private void SwitchPhotoDir()
         {
-            foreach (var item in array)
+            var itm = _photoDir.SelectedItem.ToString();
+            var newImages = GetImages(itm);
+            if (!_userPhotos.SequenceEqual(newImages))
             {
-                var dcimPhotosList = item.ListFiles();
-                if (dcimPhotosList != null)
-                    list.AddRange(dcimPhotosList);
+                _userPhotos.Clear();
+                _userPhotos.AddRange(newImages);
+                _adapter.ClearCache();
+                _adapter?.NotifyDataSetChanged();
             }
         }
 
-        private void AddSteepshotPictures(List<string> listOfAllImages)
+        private void AddPathToPhotoDirectories(string dir)
         {
-            var sdCardRoot = GetSteepshotDirectory();
-            foreach (var f in sdCardRoot.ListFiles())
+            var file = Android.OS.Environment.GetExternalStoragePublicDirectory(dir);
+
+            if (file.IsDirectory && !BasePresenter.User.PhotoDirectories.ContainsKey(file.Name))
+                BasePresenter.User.PhotoDirectories.Add(file.Name, file.AbsolutePath);
+            var plen = file.AbsolutePath.Length;
+            foreach (var difFile in file.ListFiles())
             {
-                if (IsImage(f))
-                    listOfAllImages.Add(f.AbsolutePath);
+                var name = difFile.AbsolutePath.Remove(0, plen);
+                if (difFile.IsDirectory && !BasePresenter.User.PhotoDirectories.ContainsKey(name))
+                    BasePresenter.User.PhotoDirectories.Add(name, difFile.AbsolutePath);
             }
         }
 
-        private bool IsImage(Java.IO.File f)
+        private void AddPhotos(List<File> list, string dir)
+        {
+            var file = new File(dir);
+            if (!file.Exists())
+                return;
+
+            var dcimPhotosList = file.ListFiles();
+            if (dcimPhotosList != null)
+                list.AddRange(dcimPhotosList.Where(IsImage));
+
+        }
+
+        private void AddPhotos(List<File> list, IEnumerable<string> dirs)
+        {
+            foreach (var dir in dirs)
+                AddPhotos(list, dir);
+        }
+
+        private bool IsImage(File f)
         {
             return f.IsFile && (
                        f.AbsolutePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)
@@ -142,23 +187,7 @@ namespace Steepshot.Fragment
         public override void OnResume()
         {
             base.OnResume();
-            var newImages = GetImages();
-            if (!_userPhotos.SequenceEqual(newImages))
-            {
-                _userPhotos.Clear();
-                _userPhotos.AddRange(newImages);
-                _adapter.ClearCache();
-                _adapter?.NotifyDataSetChanged();
-            }
-        }
-
-        private Java.IO.File GetSteepshotDirectory()
-        {
-            var dir = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-            var file = new Java.IO.File(dir, "Steepshot");
-            if (!file.Exists())
-                file.Mkdirs();
-            return file;
+            SwitchPhotoDir();
         }
     }
 }

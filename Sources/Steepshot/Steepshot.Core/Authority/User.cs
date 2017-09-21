@@ -56,6 +56,18 @@ namespace Steepshot.Core.Authority
             }
         }
 
+
+        public Dictionary<string, string> PhotoDirectories
+        {
+            get => UserInfo.PhotoDirectories;
+            set
+            {
+                UserInfo.PhotoDirectories = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public List<string> PostBlacklist => UserInfo.PostBlacklist;
 
         public string Login => UserInfo.Login;
