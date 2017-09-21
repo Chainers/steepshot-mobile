@@ -13,6 +13,7 @@ using Java.IO;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -29,6 +30,7 @@ namespace Steepshot.Fragment
         private GridImageAdapter _adapter;
         private string _photoUri;
         private List<string> _userPhotos = new List<string>();
+        private List<KeyValuePair<string, string>> PhotoDirectories { get; set; } = new List<KeyValuePair<string, string>>();
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -59,12 +61,23 @@ namespace Steepshot.Fragment
             _adapter.Click += StartPost;
             _imagesList.SetAdapter(_adapter);
             InitPhotoDirectories();
-            _photoDir.Adapter = new ArrayAdapter<String>(Context, Resource.Drawable.spinner_item, BasePresenter.User.PhotoDirectories.Select(i => i.Key).ToArray());
+            var adapter = new ArrayAdapter<String>(Context, Resource.Drawable.spinner_item, PhotoDirectories.Select(i => i.Key).ToArray());
+            _photoDir.Adapter = adapter;
+
+            var index = 0;
+            for (int i = 0; i < PhotoDirectories.Count; i++)
+            {
+                if (PhotoDirectories[i].Key.LastIndexOf(BasePresenter.User.DefaultPhotoDirectory, StringComparison.OrdinalIgnoreCase) != -1)
+                    index = i;
+            }
+
+            _photoDir.SetSelection(index);
             _photoDir.ItemSelected += _photoDir_ItemSelected;
         }
 
         private void _photoDir_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
         {
+            BasePresenter.User.DefaultPhotoDirectory = _photoDir.SelectedItem.ToString();
             SwitchPhotoDir();
         }
 
@@ -78,7 +91,7 @@ namespace Steepshot.Fragment
         public void OnSwitcherClick(object sender, EventArgs e)
         {
             var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-            var directory = new File(directoryPictures, "Steepshot");
+            var directory = new File(directoryPictures, Constants.Steepshot);
             if (!directory.Exists())
                 directory.Mkdirs();
 
@@ -97,31 +110,30 @@ namespace Steepshot.Fragment
 
         private void InitPhotoDirectories()
         {
-            if (!BasePresenter.User.PhotoDirectories.Any())
-            {
-                AddPathToPhotoDirectories(Android.OS.Environment.DirectoryDcim);
-                AddPathToPhotoDirectories(Android.OS.Environment.DirectoryPictures);
-                BasePresenter.User.Save();
-            }
+            var dcim = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+            AddPathToPhotoDirectories(dcim, dcim.Name);
+            var pic = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+            AddPathToPhotoDirectories(pic, pic.Name);
         }
 
         private IEnumerable<string> GetImages(string name = null)
         {
-            if (!BasePresenter.User.PhotoDirectories.Any())
+            if (!PhotoDirectories.Any())
                 return new List<string>();
 
             var photos = new List<File>();
             var dir = string.IsNullOrEmpty(name)
-                ? BasePresenter.User.PhotoDirectories.FirstOrDefault()
-                : BasePresenter.User.PhotoDirectories.FirstOrDefault(i => i.Key.Equals(name, StringComparison.OrdinalIgnoreCase));
+                ? PhotoDirectories.FirstOrDefault()
+                : PhotoDirectories.FirstOrDefault(i => i.Key.LastIndexOf(name, StringComparison.OrdinalIgnoreCase) != -1);
+            if (string.IsNullOrEmpty(dir.Value))
+                return new List<string>();
             AddPhotos(photos, dir.Value);
             return photos.OrderByDescending(f => f.LastModified()).Select(i => i.AbsolutePath);
         }
 
         private void SwitchPhotoDir()
         {
-            var itm = _photoDir.SelectedItem.ToString();
-            var newImages = GetImages(itm);
+            var newImages = GetImages(BasePresenter.User.DefaultPhotoDirectory);
             if (!_userPhotos.SequenceEqual(newImages))
             {
                 _userPhotos.Clear();
@@ -131,18 +143,21 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void AddPathToPhotoDirectories(string dir)
+        private void AddPathToPhotoDirectories(File file, string fileName)
         {
-            var file = Android.OS.Environment.GetExternalStoragePublicDirectory(dir);
+            if (!file.IsDirectory)
+                return;
 
-            if (file.IsDirectory && !BasePresenter.User.PhotoDirectories.ContainsKey(file.Name))
-                BasePresenter.User.PhotoDirectories.Add(file.Name, file.AbsolutePath);
-            var plen = file.AbsolutePath.Length;
+            if (file.Name.Equals(Constants.Steepshot, StringComparison.OrdinalIgnoreCase) || file.ListFiles().Any(IsImage))
+                PhotoDirectories.Add(new KeyValuePair<string, string>(fileName, file.AbsolutePath));
+
             foreach (var difFile in file.ListFiles())
             {
-                var name = difFile.AbsolutePath.Remove(0, plen);
-                if (difFile.IsDirectory && !BasePresenter.User.PhotoDirectories.ContainsKey(name))
-                    BasePresenter.User.PhotoDirectories.Add(name, difFile.AbsolutePath);
+                if (file.IsDirectory)
+                {
+                    var name = difFile.AbsolutePath.Remove(0, file.AbsolutePath.Length);
+                    AddPathToPhotoDirectories(difFile, name);
+                }
             }
         }
 

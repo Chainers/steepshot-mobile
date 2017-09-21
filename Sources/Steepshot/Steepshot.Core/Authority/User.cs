@@ -55,14 +55,13 @@ namespace Steepshot.Core.Authority
                     _data.Update(UserInfo);
             }
         }
-
-
-        public Dictionary<string, string> PhotoDirectories
+        
+        public string DefaultPhotoDirectory
         {
-            get => UserInfo.PhotoDirectories;
+            get => UserInfo.DefaultPhotoDirectory;
             set
             {
-                UserInfo.PhotoDirectories = value;
+                UserInfo.DefaultPhotoDirectory = value;
                 if (IsAuthenticated)
                     _data.Update(UserInfo);
             }
