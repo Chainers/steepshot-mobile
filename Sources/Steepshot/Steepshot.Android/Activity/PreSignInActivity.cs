@@ -83,6 +83,15 @@ namespace Steepshot.Activity
             }
         }
 
+        [InjectOnClick(Resource.Id.reg_button)]
+        private void RegistrationClick(object sender, EventArgs e)
+        {
+            var url = BasePresenter.Chain == KnownChains.Steem ? Constants.SteemitRegUrl : Constants.GolosRegUrl;
+            var uri = Android.Net.Uri.Parse(url);
+            Intent browserIntent = new Intent(Intent.ActionView, uri);
+            StartActivity(browserIntent);
+        }
+
         protected override void OnDestroy()
         {
             if (_newChain != KnownChains.None)
