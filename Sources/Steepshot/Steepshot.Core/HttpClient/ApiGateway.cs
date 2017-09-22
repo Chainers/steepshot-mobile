@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
 using RestSharp.Portable.HttpClient;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.HttpClient
@@ -19,7 +20,7 @@ namespace Steepshot.Core.HttpClient
     {
         Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
         Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
+        Task<IRestResponse> Upload(string endpoint, UploadImageRequest request, IEnumerable<RequestParameter> parameters, string trx = null, CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
@@ -50,21 +51,24 @@ namespace Steepshot.Core.HttpClient
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters,
-                                          IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(string endpoint, UploadImageRequest request, IEnumerable<RequestParameter> parameters, string trx, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
-            request.Method = Method.POST;
-            request.AddFile("photo", file, filename);
-            request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
-            request.AddParameter("title", filename);
-            if (!string.IsNullOrWhiteSpace(username)) request.AddParameter("username", username);
-            if (!string.IsNullOrWhiteSpace(trx)) request.AddParameter("trx", trx);
-            foreach (var tag in tags)
+            var restRequest = CreateRequest(endpoint, parameters);
+            restRequest.Method = Method.POST;
+            restRequest.AddFile("photo", request.Photo, request.Title);
+            restRequest.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
+            restRequest.AddParameter("title", request.Title);
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                restRequest.AddParameter("description", request.Description);
+            if (!string.IsNullOrWhiteSpace(request.Login))
+                restRequest.AddParameter("username", request.Login);
+            if (!string.IsNullOrWhiteSpace(trx))
+                restRequest.AddParameter("trx", trx);
+            foreach (var tag in request.Tags)
             {
-                request.AddParameter("tags", tag);
+                restRequest.AddParameter("tags", tag);
             }
-            return Execute(request, cts);
+            return Execute(restRequest, cts);
         }
 
         private Task<IRestResponse> Execute(IRestRequest request, CancellationTokenSource cts)
@@ -76,9 +80,7 @@ namespace Steepshot.Core.HttpClient
         {
             var restRequest = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
             foreach (var parameter in parameters)
-            {
                 restRequest.AddParameter(parameter.Key, parameter.Value, parameter.Type);
-            }
 
             return restRequest;
         }

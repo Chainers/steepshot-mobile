@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Helpers

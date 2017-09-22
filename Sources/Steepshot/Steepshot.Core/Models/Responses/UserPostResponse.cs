@@ -4,12 +4,12 @@ using Steepshot.Core.Models.Common;
 namespace Steepshot.Core.Models.Responses
 {
     ///{
-    ///  "count": 30,
+    ///  "offset": "/spam/@joseph.kalu/test-post-mon-jan-16-103314-2017",
+    ///  "count": 1,
     ///  "results": []
     ///}
-    public class GetCommentResponse
+    public class UserPostResponse : OffsetCountFields
     {
-        public int Count { get; set; }
         public List<Post> Results { get; set; }
     }
 }

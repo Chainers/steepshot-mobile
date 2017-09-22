@@ -219,3 +219,4 @@ packages/
 Sources/Steepshot/Steepshot.Core.Tests/app.config
 Sources/Steepshot/Steepshot.Android/Assets/DebugWif.txt
 Sources/Steepshot/Steepshot.iOS/Debug.plist
+Sources/Steepshot/.vs/

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
@@ -189,9 +190,13 @@ namespace Steepshot.Fragment
 
         public void OnClick(int position)
         {
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
-            StartActivity(intent);
+            var photo = _presenter.Posts[position].Photos.FirstOrDefault();
+            if (photo != null)
+            {
+                var intent = new Intent(Context, typeof(PostPreviewActivity));
+                intent.PutExtra("PhotoURL", photo);
+                StartActivity(intent);
+            }
         }
 
         public async Task UpdateProfile()

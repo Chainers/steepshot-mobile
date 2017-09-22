@@ -1,6 +1,6 @@
 ﻿using System;
 using Foundation;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Models.Common;
 using UIKit;
 
 namespace Steepshot.iOS.Cells
