@@ -53,7 +53,10 @@ namespace Steepshot.Core.HttpClient
         public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters,
                                           IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
+            foreach (var parameter in parameters)
+                request.AddParameter(parameter.Key, parameter.Value);
+
             request.Method = Method.POST;
             request.AddFile("photo", file, filename);
             request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
