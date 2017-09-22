@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Core
+﻿using System.Runtime.InteropServices;
+
+namespace Steepshot.Core
 {
     public class Constants
     {
@@ -6,6 +8,7 @@
         public const string ReportPassword = "steep7788";
         public const string UserContextKey = "UserCredentials";
         public const string IsDevKey = "IsDev";
+        public const string Steepshot = "Steepshot";
 
         public const string SteemUrl = "https://steepshot.org/api/v1/";
         public const string SteemUrlQa = "https://qa.steepshot.org/api/v1/";
