@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>Steepshot</string>
 	<key>CFBundleIdentifier</key>
-	<string>chainartsoft.Steepshot</string>
+	<string>com.chainartsoft.Steepshot</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.0.5</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -35,7 +35,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>34.0.0</string>
+	<string>35.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/Lato-Bold.ttf</string>
