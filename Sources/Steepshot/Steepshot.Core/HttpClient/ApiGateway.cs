@@ -17,9 +17,9 @@ namespace Steepshot.Core.HttpClient
 
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint, KeyValueList parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Post(string endpoint, KeyValueList parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
+        Task<IRestResponse> Get(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Post(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Upload(GatewayVersion version, string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
@@ -36,23 +36,23 @@ namespace Steepshot.Core.HttpClient
             _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
-        public Task<IRestResponse> Get(string endpoint, KeyValueList parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Get(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = CreateRequest(version, endpoint, parameters);
             request.Method = Method.GET;
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Post(string endpoint, KeyValueList parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Post(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = CreateRequest(version, endpoint, parameters);
             request.Method = Method.POST;
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = CreateRequest(version, endpoint, parameters);
             request.Method = Method.POST;
             request.AddFile("photo", file, filename);
             request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
@@ -71,12 +71,25 @@ namespace Steepshot.Core.HttpClient
             return cts != null ? _restClient.Execute(request, cts.Token) : _restClient.Execute(request);
         }
 
-        private IRestRequest CreateRequest(string endpoint, KeyValueList parameters)
+        private IRestRequest CreateRequest(GatewayVersion version, string endpoint, KeyValueList parameters)
         {
-            var restRequest = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
+            var resource = GetResource(version, endpoint);
+            var restRequest = new RestRequest(resource) { Serializer = new JsonNetConverter() };
             foreach (var parameter in parameters)
                 restRequest.AddParameter(parameter.Key, parameter.Value);
             return restRequest;
+        }
+
+        private string GetResource(GatewayVersion version, string endpoint)
+        {
+            switch (version)
+            {
+                case GatewayVersion.V1:
+                    return $@"v1\{endpoint}";
+                case GatewayVersion.V1P1:
+                    return $@"v1\{endpoint}";
+            }
+            return string.Empty;
         }
     }
 }
