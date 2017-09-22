@@ -6,6 +6,7 @@ using Android.OS;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -14,7 +15,7 @@ using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "Steepshot", MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
+    [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
     public class SplashActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
