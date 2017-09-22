@@ -185,8 +185,7 @@ namespace Steepshot.Utils
         private Java.IO.File GetDirectoryForPictures()
         {
             var dir = new Java.IO.File(
-                Android.OS.Environment.GetExternalStoragePublicDirectory(
-                    Android.OS.Environment.DirectoryPictures), "Steepshot");
+                Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), Constants.Steepshot);
             if (!dir.Exists())
             {
                 dir.Mkdirs();
