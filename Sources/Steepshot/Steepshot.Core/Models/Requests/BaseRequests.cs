@@ -21,11 +21,12 @@ namespace Steepshot.Core.Models.Requests
         public int Limit { get; set; }
     }
 
-    public class NamedInfoRequest : NamedRequestWithOffsetLimitFields
+    public class NamedInfoRequest : CensoredNamedRequestWithOffsetLimitFields
     {
         public NamedInfoRequest(string url)
         {
-            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
+            if (string.IsNullOrWhiteSpace(url))
+                throw new ArgumentNullException(nameof(url));
 
             Url = url;
         }
