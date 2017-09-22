@@ -17,7 +17,7 @@ namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        private const bool IsDev = true;
+        private const bool IsDev = false;
         protected static readonly Dictionary<string, UserInfo> Users;
         protected static readonly Dictionary<string, ISteepshotApiClient> Api;
         protected static readonly Dictionary<string, ChainInfo> Chain;
