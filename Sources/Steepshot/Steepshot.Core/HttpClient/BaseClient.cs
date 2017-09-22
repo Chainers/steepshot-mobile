@@ -33,11 +33,6 @@ namespace Steepshot.Core.HttpClient
             _jsonConverter = new JsonNetConverter();
         }
 
-        protected List<RequestParameter> CreateSessionParameter(string sessionId)
-        {
-            return new List<RequestParameter>();
-        }
-
         protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit, bool isGet)
         {
             var parameters = new List<RequestParameter>();
@@ -104,7 +99,6 @@ namespace Steepshot.Core.HttpClient
 
             return result;
         }
-
 
         #region Get requests
 
@@ -424,10 +418,10 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = CreateSessionParameter(request.SessionId);
+                var parameters = new List<RequestParameter>();
                 if (!request.IsNeedRewards)
                     parameters.Add(new RequestParameter { Key = "set_beneficiary", Value = "steepshot_no_rewards", Type = ParameterType.RequestBody });
-                response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
+                response = await Gateway.Upload("post/prepare", request, parameters, trx, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UploadResponse>(response?.Content, errorResult);

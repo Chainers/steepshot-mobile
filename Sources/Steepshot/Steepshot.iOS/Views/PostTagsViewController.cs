@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;

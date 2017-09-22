@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;

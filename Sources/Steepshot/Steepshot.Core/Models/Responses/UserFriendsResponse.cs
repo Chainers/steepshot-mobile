@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -17,13 +18,5 @@ namespace Steepshot.Core.Models.Responses
     public class UserFriendsResponse : OffsetCountFields
     {
         public List<UserFriend> Results { get; set; }
-    }
-
-    public class UserFriend
-    {
-        public string Avatar { get; set; }
-        public string Author { get; set; }
-        public int Reputation { get; set; }
-        public bool HasFollowed { get; set; }
     }
 }

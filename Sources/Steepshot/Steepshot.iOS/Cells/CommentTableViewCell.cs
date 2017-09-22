@@ -2,6 +2,7 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.ViewControllers;
