@@ -182,7 +182,9 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\58x58.png">
       <InProject>false</InProject>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\1024x1024.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\1024x1024.png">
+      <InProject>false</InProject>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
