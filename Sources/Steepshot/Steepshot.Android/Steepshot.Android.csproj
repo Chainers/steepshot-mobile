@@ -166,6 +166,7 @@
     <AndroidResource Include="Resources\layout\lyt_tags.axml" />
     <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
     <AndroidResource Include="Resources\layout\tab_main.axml" />
+    <AndroidResource Include="Resources\drawable\circle_border.xml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
