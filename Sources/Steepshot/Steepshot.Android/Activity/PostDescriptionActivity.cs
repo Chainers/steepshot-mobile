@@ -11,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using Autofac;
 using Com.Lilarcor.Cheeseknife;
+using Java.IO;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -184,32 +185,15 @@ namespace Steepshot.Activity
               {
                   try
                   {
-                      var bitmap = BitmapFactory.DecodeFile(path);
-                      bitmap = RotateImageIfRequired(bitmap, path);
+                      var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1200, 1200);
+                      bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
 
                       if (bitmap == null)
                           return null;
 
-                      var fi = new FileInfo(path);
-                      var cmpr = 100;
-                      if (fi.Length > 5000000)
-                          cmpr = 30;
-                      else if (fi.Length > 3000000)
-                          cmpr = 40;
-                      else if (fi.Length > 2000000)
-                          cmpr = 50;
-                      else if (fi.Length > 1600000)
-                          cmpr = 60;
-                      else if (fi.Length > 1400000)
-                          cmpr = 70;
-                      else if (fi.Length > 1200000)
-                          cmpr = 80;
-                      else if (fi.Length > 1000000)
-                          cmpr = 90;
-
                       using (var stream = new MemoryStream())
                       {
-                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, cmpr, stream))
+                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
                           {
                               var outbytes = stream.ToArray();
                               bitmap.Recycle();
@@ -224,33 +208,7 @@ namespace Steepshot.Activity
                   return null;
               });
         }
-
-        private static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
-        {
-            var ei = new ExifInterface(selectedImage);
-            var orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
-
-            switch ((Android.Media.Orientation)orientation)
-            {
-                case Android.Media.Orientation.Rotate90:
-                    return RotateImage(img, 90);
-                case Android.Media.Orientation.Rotate180:
-                    return RotateImage(img, 180);
-                case Android.Media.Orientation.Rotate270:
-                    return RotateImage(img, 270);
-                default:
-                    return img;
-            }
-        }
-
-        private static Bitmap RotateImage(Bitmap img, int degree)
-        {
-            var matrix = new Matrix();
-            matrix.PostRotate(degree);
-            var rotatedImg = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
-            return rotatedImg;
-        }
-
+        
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
