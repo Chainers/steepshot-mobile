@@ -157,6 +157,8 @@ namespace Steepshot.Activity
                 if (arrayToUpload != null)
                 {
                     var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, arrayToUpload, _tags.ToArray());
+                    if(!string.IsNullOrEmpty(_editTextDescription.Text))
+                        request.Description = _editTextDescription.Text; 
                     var resp = await _presenter.Upload(request);
 
                     if (resp.Errors.Count > 0)
