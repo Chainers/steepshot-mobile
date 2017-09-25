@@ -11,7 +11,6 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -24,9 +23,9 @@ namespace Steepshot.Adapter
         public Action<int> FollowAction;
         public Action<int> UserAction;
         private Typeface[] _fonts;
-        private FollowersPresenter _presenter;
+        private ListPresenter _presenter;
 
-        public FollowersAdapter(Context context, List<UserFriend> collection, FollowersPresenter presenter, Typeface[] fonts)
+        public FollowersAdapter(Context context, List<UserFriend> collection, ListPresenter presenter, Typeface[] fonts)
         {
             _context = context;
             _collection = collection;
@@ -53,7 +52,7 @@ namespace Steepshot.Adapter
             return _collection[position];
         }
 
-        public override int ItemCount => _collection.Count == 0 || !_presenter.HasItems ? _collection.Count : _collection.Count + 1;
+        public override int ItemCount => _collection.Count == 0 || _presenter.IsLastReaded ? _collection.Count : _collection.Count + 1;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -62,7 +61,13 @@ namespace Steepshot.Adapter
 
             var item = _collection[position];
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-            vh.FriendName.Text = item.Author;
+            if (string.IsNullOrEmpty(item.Name))
+                vh.FriendName.Visibility = ViewStates.Gone;
+            else
+            {
+                vh.FriendName.Visibility = ViewStates.Visible;
+                vh.FriendName.Text = item.Name;
+            }
             vh.FriendLogin.Text = item.Author;
             if (!string.IsNullOrEmpty(item.Avatar))
                 Picasso.With(_context).Load(item.Avatar).NoFade().Resize(150, 0).Into(vh.FriendAvatar);

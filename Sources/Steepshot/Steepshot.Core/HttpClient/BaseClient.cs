@@ -292,7 +292,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<Post>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, string username, CancellationTokenSource cts)
         {
             OperationResult errorResult = CheckInternetConnection();
             IRestResponse response = null;
@@ -301,11 +301,12 @@ namespace Steepshot.Core.HttpClient
                 var parameters = new KeyValueList();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 parameters.Add("query", request.Query);
+                parameters.Add("username", username);
 
-                response = await Gateway.Get(GatewayVersion.V1, "user/search", parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, "user/search", parameters, cts);
                 errorResult = CheckErrors(response);
             }
-            return CreateResult<SearchResponse<UserSearchResult>>(response?.Content, errorResult);
+            return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)

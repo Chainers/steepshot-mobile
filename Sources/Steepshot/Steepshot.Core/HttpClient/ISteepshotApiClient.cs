@@ -160,7 +160,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&amp;limit=5&amp;query=aar HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, string username, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:

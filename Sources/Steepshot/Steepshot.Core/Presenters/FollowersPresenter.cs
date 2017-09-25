@@ -9,25 +9,23 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class FollowersPresenter : BasePresenter
+    public class FollowersPresenter : ListPresenter
     {
         public readonly List<UserFriend> Users = new List<UserFriend>();
-        public bool HasItems = true;
-        private string _offsetUrl = string.Empty;
-        private readonly int _itemsLimit = 60;
+        private const int ItemsLimit = 40;
 
         public async Task<List<string>> GetItems(FriendsType followType, string username)
         {
             List<string> errors = null;
             try
             {
-                if (!HasItems)
+                if (IsLastReaded)
                     return errors;
                 var request = new UserFriendsRequest(username, followType)
                 {
                     Login = User.Login,
-                    Offset = _offsetUrl,
-                    Limit = _itemsLimit
+                    Offset = OffsetUrl,
+                    Limit = ItemsLimit
                 };
 
                 var response = await Api.GetUserFriends(request);
@@ -35,12 +33,12 @@ namespace Steepshot.Core.Presenters
                 if (response.Success && response.Result?.Results != null && response.Result.Results.Count > 0)
                 {
                     var lastItem = response.Result.Results.Last();
-                    if (lastItem.Author != _offsetUrl)
+                    if (lastItem.Author != OffsetUrl)
                         response.Result.Results.Remove(lastItem);
                     else
-                        HasItems = false;
+                        IsLastReaded = false;
 
-                    _offsetUrl = lastItem.Author;
+                    OffsetUrl = lastItem.Author;
                     Users.AddRange(response.Result.Results);
                 }
             }
