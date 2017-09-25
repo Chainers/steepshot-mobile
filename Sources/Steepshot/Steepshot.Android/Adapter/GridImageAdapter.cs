@@ -53,7 +53,7 @@ namespace Steepshot.Adapter
         {
             return Task.Run(() =>
             {
-                var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(post, 150, 150);
+                var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(post, 512, 512);
                 return BitmapUtils.RotateImageIfRequired(bitmap, post);
             });
         }
