@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
@@ -13,6 +14,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -23,6 +25,8 @@ namespace Steepshot.Fragment
         private SearchType _searchType = SearchType.People;
         private Typeface _font;
         private Typeface _semiboldFont;
+        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
+        ScrollListener scrollListner;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView _categories;
@@ -35,7 +39,7 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         CategoriesAdapter _categoriesAdapter;
-        UsersSearchAdapter _usersSearchAdapter;
+        FollowersAdapter _usersSearchAdapter;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -60,18 +64,23 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
+            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
+
             _categoriesAdapter = new CategoriesAdapter();
             _categoriesAdapter.Items = _presenter.Tags;
-            _usersSearchAdapter = new UsersSearchAdapter(Activity);
-            _usersSearchAdapter.Items = _presenter.Users;
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] {_font, _semiboldFont });
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
+            scrollListner = new ScrollListener();
+            scrollListner.ScrolledToBottom += async () => await GetTags(false);
+            _users.AddOnScrollListener(scrollListner);
+
             _categoriesAdapter.Click += OnClick;
-            _usersSearchAdapter.Click += OnClick;
+            _usersSearchAdapter.UserAction += OnClick;
+            _usersSearchAdapter.FollowAction += Follow;
             _timer = new Timer(OnTimer);
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
             _searchView.Typeface = _font;
             _clearButton.Typeface = _font;
@@ -106,11 +115,35 @@ namespace Steepshot.Fragment
             }
             else if (_searchType == SearchType.People)
             {
-                if (_usersSearchAdapter.Items.Count > pos)
+                
+                if (_presenter.Users.Count > pos)
                 {
-                    var user = _usersSearchAdapter.Items[pos].Username;
+                    var user = _presenter.Users[pos].Author;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user));
                 }
+            }
+        }
+
+        async void Follow(int position)
+        {
+            try
+            {
+                var response = await _presenter.Follow(_presenter.Users[position]);
+                if (response.Success)
+                {
+                    _presenter.Users[position].HasFollowed = !_presenter.Users[position].HasFollowed;
+                    _usersSearchAdapter.NotifyDataSetChanged();
+                }
+                else
+                {
+                    Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
+                    _usersSearchAdapter.InverseFollow(position);
+                    _usersSearchAdapter.NotifyDataSetChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 
@@ -118,18 +151,27 @@ namespace Steepshot.Fragment
         {
             Activity.RunOnUiThread(() =>
            {
-               _usersSearchAdapter.Items.Clear();
-               GetTags();
+                GetTags(true);
            });
         }
 
-        private async Task GetTags()
+        private async Task GetTags(bool clear)
         {
             try
             {
-                _spinner.Visibility = ViewStates.Visible;
-
-                var errors = await _presenter.SearchCategories(_searchView.Text, _searchType);
+                if (clear)
+                {
+                    if (_prevQuery[_searchType] == _searchView.Text)
+                        return;
+                    if (_searchType == SearchType.People)
+                        _presenter.Users.Clear();
+                    else
+                        _presenter.Tags.Clear();
+                    scrollListner.ClearPosition();
+                    _prevQuery[_searchType] = _searchView.Text;
+                    _spinner.Visibility = ViewStates.Visible;
+                }
+                var errors = await _presenter.SearchCategories(_searchView.Text, _searchType, clear);
                 if (errors != null && errors.Count > 0)
                     Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
                 else
@@ -143,9 +185,9 @@ namespace Steepshot.Fragment
                 if (_spinner != null)
                     _spinner.Visibility = ViewStates.Gone;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
+
             }
         }
 
@@ -156,7 +198,6 @@ namespace Steepshot.Fragment
 
         private void SwitchSearchType()
         {
-            GetTags();
             if (_searchType == SearchType.Tags)
             {
                 _users.Visibility = ViewStates.Gone;
@@ -181,6 +222,7 @@ namespace Steepshot.Fragment
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
                 _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
             }
+            GetTags(true);
         }
 
         public override void OnDetach()

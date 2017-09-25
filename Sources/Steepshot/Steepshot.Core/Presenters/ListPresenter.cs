@@ -7,22 +7,22 @@ namespace Steepshot.Core.Presenters
 {
     public class ListPresenter : BasePresenter
     {
-        private readonly object _synk;
+        private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
 
-        protected bool IsLastReaded { get; set; }
+        public bool IsLastReaded { get; set; }
         protected const int ServerMaxCount = 20;
         protected string OffsetUrl = string.Empty;
 
 
         protected ListPresenter()
         {
-            _synk = new object();
+            _sync = new object();
         }
 
         protected async Task<TResult> RunAsSingleTask<T, TResult>(Func<T, CancellationTokenSource, Task<TResult>> func, T parameters)
         {
-            lock (_synk)
+            lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
                     return default(TResult);
@@ -42,7 +42,7 @@ namespace Steepshot.Core.Presenters
             }
             finally
             {
-                lock (_synk)
+                lock (_sync)
                 {
                     _singleTaskCancellationTokenSource.Dispose();
                     _singleTaskCancellationTokenSource = null;
@@ -53,7 +53,7 @@ namespace Steepshot.Core.Presenters
 
         public void LoadCancel()
         {
-            lock (_synk)
+            lock (_sync)
                 _singleTaskCancellationTokenSource?.Cancel();
         }
     }

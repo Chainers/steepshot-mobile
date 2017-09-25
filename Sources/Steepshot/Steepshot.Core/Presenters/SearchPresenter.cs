@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
@@ -9,31 +10,32 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class SearchPresenter : BasePresenter
+    public class SearchPresenter : ListPresenter
     {
         private CancellationTokenSource _cts;
         public List<SearchResult> Tags = new List<SearchResult>();
-        public List<UserSearchResult> Users = new List<UserSearchResult>();
-        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
+        public List<UserFriend> Users = new List<UserFriend>();
+        private const int ItemsLimit = 40;
 
-        public async Task<List<string>> SearchCategories(string query, SearchType searchType)
+        public async Task<List<string>> SearchCategories(string query, SearchType searchType, bool clear)
         {
             List<string> errors = null;
-
-            if (_prevQuery[searchType] == query)
-                return errors;
 
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People))
                 || string.IsNullOrEmpty(query) && searchType == SearchType.People)
                 return errors;
-
-            _prevQuery[searchType] = query;
 
             try
             {
                 _cts?.Cancel();
             }
             catch (ObjectDisposedException) { }
+
+            if (clear)
+            {
+                OffsetUrl = string.Empty;
+                IsLastReaded = false;
+            }
 
             try
             {
@@ -47,23 +49,35 @@ namespace Steepshot.Core.Presenters
                     }
                     else
                     {
-                        var request = new SearchWithQueryRequest(query);
+                        var request = new SearchWithQueryRequest(query)
+                        {
+                            Limit = ItemsLimit
+                        };
                         if (searchType == SearchType.Tags)
                             response = await Api.SearchCategories(request, _cts);
                         else
-                            response = await Api.SearchUser(request, _cts);
+                        {
+                            request.Offset = OffsetUrl;
+                            response = await Api.SearchUser(request, User.Login, _cts);
+                        }
                     }
                     if (response.Success)
                     {
                         if (searchType == SearchType.Tags)
                         {
-                            Tags.Clear();
                             Tags.AddRange(((OperationResult<SearchResponse<SearchResult>>)response).Result?.Results);
                         }
                         else
                         {
-                            Users.Clear();
-                            Users.AddRange(((OperationResult<SearchResponse<UserSearchResult>>)response).Result?.Results);
+                            var users = ((OperationResult<SearchResponse<UserFriend>>)response).Result?.Results;
+                            if (users.Count > 0)
+                            {
+                                Users.AddRange(string.IsNullOrEmpty(OffsetUrl) ? users : users.Skip(1));
+                                OffsetUrl = users.Last().Author;
+                            }
+
+                            if (users.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                                IsLastReaded = true;
                         }
                     }
                     else
@@ -79,6 +93,12 @@ namespace Steepshot.Core.Presenters
                 AppSettings.Reporter.SendCrash(ex);
             }
             return errors;
+        }
+
+        public async Task<OperationResult<FollowResponse>> Follow(UserFriend item)
+        {
+            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? FollowType.UnFollow : FollowType.Follow, item.Author);
+            return await Api.Follow(request);
         }
     }
 }
