@@ -32,7 +32,7 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var photo = _posts[position].Photos.FirstOrDefault();
+            var photo = _posts[position].Photos?.FirstOrDefault();
             if (photo != null)
             {
                 Picasso.With(_context).Load(photo)

@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
             //TODO: KOA: delete try{}catch ???
             try
             {
-                var photo = post.Photos.FirstOrDefault();
+                var photo = post.Photos?.FirstOrDefault();
                 if (photo != null)
                     Picasso.With(_context).Load(photo).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
             }

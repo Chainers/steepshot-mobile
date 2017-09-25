@@ -168,7 +168,7 @@ namespace Steepshot.Fragment
 
         public void PhotoClick(int position)
         {
-            var photo = _presenter.Posts[position].Photos.FirstOrDefault();
+            var photo = _presenter.Posts[position].Photos?.FirstOrDefault();
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
