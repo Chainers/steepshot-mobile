@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
@@ -174,9 +175,13 @@ namespace Steepshot.Fragment
 
         public void PhotoClick(int position)
         {
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra("PhotoURL", _presenter.Posts[position].Body);
-            StartActivity(intent);
+            var photo = _presenter.Posts[position].Photos?.FirstOrDefault();
+            if (photo != null)
+            {
+                var intent = new Intent(Context, typeof(PostPreviewActivity));
+                intent.PutExtra("PhotoURL", photo);
+                StartActivity(intent);
+            }
         }
 
         void FeedAdapter_CommentAction(int position)

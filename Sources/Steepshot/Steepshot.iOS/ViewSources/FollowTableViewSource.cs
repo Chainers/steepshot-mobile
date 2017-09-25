@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Cells;
 using UIKit;

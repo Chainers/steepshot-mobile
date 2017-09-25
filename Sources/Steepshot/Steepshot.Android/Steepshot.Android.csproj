@@ -232,6 +232,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\input.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\input.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\input.png" />
+    <AndroidResource Include="Resources\drawable\circle_border.xml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">

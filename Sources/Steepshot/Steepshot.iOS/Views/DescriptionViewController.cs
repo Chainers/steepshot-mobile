@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;

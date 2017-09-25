@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Models.Responses;
+﻿using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Models
 {

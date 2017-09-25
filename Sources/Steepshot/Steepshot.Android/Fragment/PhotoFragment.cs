@@ -97,7 +97,7 @@ namespace Steepshot.Fragment
         public void OnSwitcherClick(object sender, EventArgs e)
         {
             var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-            var directory = new File(directoryPictures, Constants.Steepshot);
+            var directory = new File(directoryPictures, Core.Constants.Steepshot);
             if (!directory.Exists())
                 directory.Mkdirs();
 
@@ -154,7 +154,7 @@ namespace Steepshot.Fragment
             if (!file.IsDirectory || file.Name.StartsWith("."))
                 return;
 
-            if (file.Name.Equals(Constants.Steepshot, StringComparison.OrdinalIgnoreCase) || file.ListFiles().Any(IsImage))
+            if (file.Name.Equals(Core.Constants.Steepshot, StringComparison.OrdinalIgnoreCase) || file.ListFiles().Any(IsImage))
                 PhotoDirectories.Add(new KeyValuePair<string, string>(fileName, file.AbsolutePath));
 
             foreach (var difFile in file.ListFiles())

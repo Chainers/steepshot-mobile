@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -8,6 +9,7 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -60,16 +62,22 @@ namespace Steepshot.Adapter
                 : _context.GetString(Resource.String.first_title_comment);
 
             vh.UpdateData(post, _context);
+
+            //TODO: KOA: delete try{}catch ???
             try
             {
-                Picasso.With(_context).Load(post.Body).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
+                var photo = post.Photos?.FirstOrDefault();
+                if (photo != null)
+                    Picasso.With(_context).Load(photo).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
             }
             catch
             {
                 //TODO:KOA: Empty try{}catch
             }
+
             if (!string.IsNullOrEmpty(post.Avatar))
             {
+                //TODO: KOA: delete try{}catch ???
                 try
                 {
                     Picasso.With(_context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(80, 0).Into(vh.Avatar);

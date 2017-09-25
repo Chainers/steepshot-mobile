@@ -3,7 +3,7 @@ using Android.Media;
 
 namespace Steepshot.Utils
 {
-    public class BitmapUtils
+    public static class BitmapUtils
     {
         public static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
         {
@@ -33,15 +33,9 @@ namespace Steepshot.Utils
 
         public static Bitmap DecodeSampledBitmapFromResource(string path, int reqWidth, int reqHeight)
         {
-            // Читаем с inJustDecodeBounds=true для определения размеров
-            var options = new BitmapFactory.Options();
-            options.InJustDecodeBounds = true;
+            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
             BitmapFactory.DecodeFile(path, options);
-
-            // Вычисляем inSampleSize
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
-
-            // Читаем с использованием inSampleSize коэффициента
             options.InJustDecodeBounds = false;
             options.InPreferredConfig = Bitmap.Config.Rgb565;
             return BitmapFactory.DecodeFile(path, options);
@@ -49,7 +43,6 @@ namespace Steepshot.Utils
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
-            // Реальные размеры изображения 
             var height = options.OutHeight;
             var width = options.OutWidth;
             int inSampleSize = 1;
@@ -59,13 +52,8 @@ namespace Steepshot.Utils
                 var halfHeight = height / 2;
                 var halfWidth = width / 2;
 
-                // Вычисляем наибольший inSampleSize, который будет кратным двум
-                // и оставит полученные размеры больше, чем требуемые 
-                while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth)
-                {
+                while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth)
                     inSampleSize *= 2;
-                }
             }
             return inSampleSize;
         }
@@ -74,6 +62,7 @@ namespace Steepshot.Utils
         {
             return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
         }
+
         /*
         public virtual string ToPath(T itm)
         {
