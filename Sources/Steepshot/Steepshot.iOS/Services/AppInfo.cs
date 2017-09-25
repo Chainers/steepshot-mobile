@@ -1,5 +1,4 @@
-﻿using System;
-using Foundation;
+﻿using Foundation;
 using iOS.Hardware;
 using Steepshot.Core.Services;
 using UIKit;

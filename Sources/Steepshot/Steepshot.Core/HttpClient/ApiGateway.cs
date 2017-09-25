@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
 using RestSharp.Portable.HttpClient;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.HttpClient
@@ -17,9 +17,9 @@ namespace Steepshot.Core.HttpClient
 
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint, KeyValueList parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Post(string endpoint, KeyValueList parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
+        Task<IRestResponse> Get(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Post(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, KeyValueList parameters, string trx = null, CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
@@ -36,34 +36,37 @@ namespace Steepshot.Core.HttpClient
             _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
-        public Task<IRestResponse> Get(string endpoint, KeyValueList parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Get(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = CreateRequest(version, endpoint, parameters);
             request.Method = Method.GET;
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Post(string endpoint, KeyValueList parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Post(GatewayVersion version, string endpoint, KeyValueList parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var request = CreateRequest(version, endpoint, parameters);
             request.Method = Method.POST;
             return Execute(request, cts);
         }
-
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, KeyValueList parameters, IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, KeyValueList parameters, string trx, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
-            request.Method = Method.POST;
-            request.AddFile("photo", file, filename);
-            request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
-            request.AddParameter("title", filename);
-            if (!string.IsNullOrWhiteSpace(username)) request.AddParameter("username", username);
-            if (!string.IsNullOrWhiteSpace(trx)) request.AddParameter("trx", trx);
-            foreach (var tag in tags)
+            var restRequest = CreateRequest(version, endpoint, parameters);
+            restRequest.Method = Method.POST;
+            restRequest.AddFile("photo", request.Photo, request.Title);
+            restRequest.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
+            restRequest.AddParameter("title", request.Title);
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                restRequest.AddParameter("description", request.Description);
+            if (!string.IsNullOrWhiteSpace(request.Login))
+                restRequest.AddParameter("username", request.Login);
+            if (!string.IsNullOrWhiteSpace(trx))
+                restRequest.AddParameter("trx", trx);
+            foreach (var tag in request.Tags)
             {
-                request.AddParameter("tags", tag);
+                restRequest.AddParameter("tags", tag);
             }
-            return Execute(request, cts);
+            return Execute(restRequest, cts);
         }
 
         private Task<IRestResponse> Execute(IRestRequest request, CancellationTokenSource cts)
@@ -71,12 +74,25 @@ namespace Steepshot.Core.HttpClient
             return cts != null ? _restClient.Execute(request, cts.Token) : _restClient.Execute(request);
         }
 
-        private IRestRequest CreateRequest(string endpoint, KeyValueList parameters)
+        private IRestRequest CreateRequest(GatewayVersion version, string endpoint, KeyValueList parameters)
         {
-            var restRequest = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
+            var resource = GetResource(version, endpoint);
+            var restRequest = new RestRequest(resource) { Serializer = new JsonNetConverter() };
             foreach (var parameter in parameters)
                 restRequest.AddParameter(parameter.Key, parameter.Value);
             return restRequest;
+        }
+
+        private string GetResource(GatewayVersion version, string endpoint)
+        {
+            switch (version)
+            {
+                case GatewayVersion.V1:
+                    return $@"v1\{endpoint}";
+                case GatewayVersion.V1P1:
+                    return $@"v1_1\{endpoint}";
+            }
+            return string.Empty;
         }
     }
 }
