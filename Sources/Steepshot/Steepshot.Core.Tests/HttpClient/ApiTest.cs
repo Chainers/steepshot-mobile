@@ -43,9 +43,11 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
             AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.Equals(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
+            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(lastPost);
             Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
         }
@@ -57,6 +59,8 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
@@ -77,7 +81,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
             var commentsResponse = Api[apiName].GetComments(getCommentsRequest).Result;
             AssertResult(commentsResponse);
-            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url == createCommentResponse.Result.Permlink));
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentResponse.Result.Permlink)));
         }
 
         [Test, Sequential]
@@ -87,9 +91,11 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
             AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.First();
+            var lastPost = userPostsResponse.Result.Results.First(i => i.Vote);
 
             // 3) Vote down
             var voteDownRequest = new VoteRequest(user, VoteType.Down, lastPost.Url);
@@ -195,13 +201,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var followRequest = new FollowRequest(user, FollowType.Follow, followUser);
             var followResponse = Api[apiName].Follow(followRequest).Result;
             AssertResult(followResponse);
-            Assert.That(followResponse.Result.IsSuccess, Is.True);
+            Assert.IsTrue(followResponse.Result.IsSuccess);
 
             // 8) UnFollow
             var unfollowRequest = new FollowRequest(user, FollowType.UnFollow, followUser);
             var unfollowResponse = Api[apiName].Follow(unfollowRequest).Result;
             AssertResult(unfollowResponse);
-            Assert.That(unfollowResponse.Result.IsSuccess, Is.False);
+            Assert.IsTrue(unfollowResponse.Result.IsSuccess);
         }
 
         [Test, Sequential]

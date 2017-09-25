@@ -17,6 +17,7 @@ namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
+        private const bool IsDev = false;
         protected static readonly Dictionary<string, UserInfo> Users;
         protected static readonly Dictionary<string, ISteepshotApiClient> Api;
         protected static readonly Dictionary<string, ChainInfo> Chain;
@@ -33,7 +34,7 @@ namespace Steepshot.Core.Tests
 
 
             AppSettings.Container = builder.Build();
-
+            AppSettings.IsDev = IsDev;
             Users = new Dictionary<string, UserInfo>
             {
                 {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
@@ -45,8 +46,8 @@ namespace Steepshot.Core.Tests
                 //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
                 //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
 
-                {"Steem", new DitchApi(KnownChains.Steem, false)},
-                {"Golos", new DitchApi(KnownChains.Golos, false)}
+                {"Steem", new DitchApi(KnownChains.Steem, IsDev)},
+                {"Golos", new DitchApi(KnownChains.Golos, IsDev)}
             };
         }
 

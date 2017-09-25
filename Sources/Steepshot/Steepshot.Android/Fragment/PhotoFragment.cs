@@ -87,6 +87,12 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
 
+        [InjectOnClick(Resource.Id.spinner_container)]
+        public void SpinnerClick(object sender, EventArgs e)
+        {
+            _photoDir.PerformClick();
+        }
+
         [InjectOnClick(Resource.Id.btn_switch)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
