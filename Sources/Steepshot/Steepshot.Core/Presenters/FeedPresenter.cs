@@ -63,7 +63,7 @@ namespace Steepshot.Core.Presenters
                     OperationResult<UserPostResponse> response;
                     if (_isFeed)
                     {
-                        var f = new CensoredPostsRequests
+                        var f = new CensoredNamedRequestWithOffsetLimitFields
                         {
                             Login = User.Login,
                             Limit = PostsCount,

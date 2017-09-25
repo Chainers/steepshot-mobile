@@ -7,25 +7,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <Spinner
-            android:id="@+id/spinner_photoDir"
-            android:background="@color/color_primary"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:popupBackground="@color/color_primary" />
-        <ImageView
-            android:id="@+id/pop_up_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:layout_toRightOf="@+id/spinner_photoDir"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_popup_arrow_down"
-            android:layout_marginLeft="5dp" />
+        android:background="@color/color_primary">
         <ImageButton
             android:id="@+id/btn_switch"
             android:layout_width="50dp"
@@ -33,7 +15,32 @@
             android:src="@drawable/ic_camera"
             android:tint="@android:color/white"
             android:scaleType="center"
+            android:layout_alignParentLeft="true"
             android:background="@android:color/transparent" />
+        <RelativeLayout
+            android:id="@+id/spinner_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:layout_marginEnd="50dp"
+            android:layout_toRightOf="@+id/btn_switch">
+            <Spinner
+                android:id="@+id/spinner_photoDir"
+                android:background="@color/color_primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clickable="false"
+                android:popupBackground="@color/color_primary" />
+            <ImageView
+                android:id="@+id/pop_up_arrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/spinner_photoDir"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_popup_arrow_down"
+                android:layout_marginLeft="5dp" />
+        </RelativeLayout>
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

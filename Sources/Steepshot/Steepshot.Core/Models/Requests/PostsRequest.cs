@@ -2,13 +2,13 @@
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class CensoredPostsRequests : NamedRequestWithOffsetLimitFields
+    public class CensoredNamedRequestWithOffsetLimitFields : NamedRequestWithOffsetLimitFields
     {
 		public bool ShowNsfw { get; set; }
 		public bool ShowLowRated { get; set; }
     }
 
-    public class UserPostsRequest : CensoredPostsRequests
+    public class UserPostsRequest : CensoredNamedRequestWithOffsetLimitFields
     {
         public UserPostsRequest(string username)
         {
@@ -27,7 +27,7 @@ namespace Steepshot.Core.Models.Requests
         New
     }
 
-    public class PostsRequest : CensoredPostsRequests
+    public class PostsRequest : CensoredNamedRequestWithOffsetLimitFields
     {
         public PostsRequest(PostType type)
         {
