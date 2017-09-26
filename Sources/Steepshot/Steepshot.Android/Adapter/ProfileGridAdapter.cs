@@ -22,20 +22,22 @@ namespace Steepshot.Adapter
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
         public UserProfileResponse ProfileData;
+        private bool _isHeaderNeeded;
 
-        public ProfileGridAdapter(Context context, List<Post> posts, Typeface[] fonts) : base(context, posts)
+        public ProfileGridAdapter(Context context, List<Post> posts, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, posts)
         {
             _fonts = fonts;
+            _isHeaderNeeded = isHeaderNeeded;
         }
 
-        public override int ItemCount => _posts.Count + 1;
+        public override int ItemCount => _isHeaderNeeded ? _posts.Count + 1 : _posts.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            if (position != 0)
-                base.OnBindViewHolder(holder, position - 1);
-            else
+            if (position == 0 && _isHeaderNeeded)
                 ((HeaderViewHolder)holder).UpdateHeader(ProfileData);
+            else
+                base.OnBindViewHolder(holder, _isHeaderNeeded ? position - 1 : position);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -51,21 +53,16 @@ namespace Steepshot.Adapter
                 var view = new ImageView(_context);
                 view.SetScaleType(ImageView.ScaleType.CenterInside);
                 view.LayoutParameters = new ViewGroup.LayoutParams(_context.Resources.DisplayMetrics.WidthPixels / 3 - 1, _context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
-                var vh = new ProfileImageViewHolder(view, Click);
+                var vh = new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
                 return vh;
             }
         }
 
         public override int GetItemViewType(int position)
         {
-            if (isPositionHeader(position))
+            if (position == 0 && _isHeaderNeeded)
                 return 0;
             return 1;
-        }
-
-        private bool isPositionHeader(int position)
-        {
-            return position == 0;
         }
     }
 
@@ -218,13 +215,16 @@ namespace Steepshot.Adapter
 
     public class ProfileImageViewHolder : ImageViewHolder
     {
-        public ProfileImageViewHolder(View itemView, Action<int> click) : base(itemView, click)
+        private bool _isHeaderNeeded;
+
+        public ProfileImageViewHolder(View itemView, Action<int> click, bool isHeaderNeeded) : base(itemView, click)
         {
+            _isHeaderNeeded = isHeaderNeeded;
         }
 
         protected override void OnClick(object sender, EventArgs e)
         {
-            _click.Invoke(AdapterPosition - 1);
+            _click?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
     }
 }

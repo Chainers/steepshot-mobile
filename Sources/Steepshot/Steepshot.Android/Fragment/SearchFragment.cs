@@ -23,8 +23,7 @@ namespace Steepshot.Fragment
     {
         private Timer _timer;
         private SearchType _searchType = SearchType.People;
-        private Typeface _font;
-        private Typeface _semiboldFont;
+        private Typeface _font, _semiboldFont;
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
         ScrollListener scrollListner;
 
@@ -69,7 +68,7 @@ namespace Steepshot.Fragment
 
             _categoriesAdapter = new CategoriesAdapter();
             _categoriesAdapter.Items = _presenter.Tags;
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] {_font, _semiboldFont });
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] { _font, _semiboldFont });
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -85,6 +84,10 @@ namespace Steepshot.Fragment
             _searchView.Typeface = _font;
             _clearButton.Typeface = _font;
             SwitchSearchType();
+            _searchView.RequestFocus();
+
+            var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+            imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
         }
 
         [InjectOnClick(Resource.Id.tags_button)]
