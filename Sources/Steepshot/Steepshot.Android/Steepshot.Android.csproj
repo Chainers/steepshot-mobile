@@ -114,6 +114,7 @@
     <Compile Include="Adapter\ProfileGridAdapter.cs" />
     <Compile Include="Adapter\ProfileFeedAdapter.cs" />
     <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Fragment\PreSearchFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -233,6 +234,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\input.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\input.png" />
     <AndroidResource Include="Resources\drawable\circle_border.xml" />
+    <AndroidResource Include="Resources\layout\lyt_presearch.axml" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.1.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -513,9 +515,6 @@
     <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
     <AndroidAsset Include="Assets\DebugWif.txt.template" />
     <AndroidAsset Include="Assets\DebugWif.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\spinner_item.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

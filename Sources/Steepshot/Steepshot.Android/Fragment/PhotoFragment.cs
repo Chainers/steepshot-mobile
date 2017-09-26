@@ -24,7 +24,7 @@ namespace Steepshot.Fragment
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.images_list)] RecyclerView _imagesList;
         [InjectView(Resource.Id.btn_switch)] ImageButton _switchButton;
-        [InjectView(Resource.Id.spinner_photoDir)] Spinner _photoDir;
+        //[InjectView(Resource.Id.spinner_photoDir)] Spinner _photoDir;
 #pragma warning restore 0649
 
         private GridImageAdapter _adapter;
@@ -61,8 +61,8 @@ namespace Steepshot.Fragment
             _adapter.Click += StartPost;
             _imagesList.SetAdapter(_adapter);
             InitPhotoDirectories();
-            var adapter = new ArrayAdapter<String>(Context, Resource.Drawable.spinner_item, PhotoDirectories.Select(i => i.Key).ToArray());
-            _photoDir.Adapter = adapter;
+            //var adapter = new ArrayAdapter<String>(Context, Resource.Drawable.spinner_item, PhotoDirectories.Select(i => i.Key).ToArray());
+            //_photoDir.Adapter = adapter;
 
             var index = 0;
             for (int i = 0; i < PhotoDirectories.Count; i++)
@@ -71,15 +71,15 @@ namespace Steepshot.Fragment
                     index = i;
             }
 
-            _photoDir.SetSelection(index);
-            _photoDir.ItemSelected += _photoDir_ItemSelected;
+            //_photoDir.SetSelection(index);
+            //_photoDir.ItemSelected += _photoDir_ItemSelected;
         }
 
-        private void _photoDir_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
-        {
-            BasePresenter.User.DefaultPhotoDirectory = _photoDir.SelectedItem.ToString();
-            SwitchPhotoDir();
-        }
+        //private void _photoDir_ItemSelected(object sender, AdapterView.ItemSelectedEventArgs e)
+        //{
+        //    BasePresenter.User.DefaultPhotoDirectory = _photoDir.SelectedItem.ToString();
+        //    SwitchPhotoDir();
+        //}
 
         public override void OnDestroyView()
         {
@@ -87,11 +87,11 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.spinner_container)]
-        public void SpinnerClick(object sender, EventArgs e)
-        {
-            _photoDir.PerformClick();
-        }
+        //[InjectOnClick(Resource.Id.spinner_container)]
+        //public void SpinnerClick(object sender, EventArgs e)
+        //{
+        //    _photoDir.PerformClick();
+        //}
 
         [InjectOnClick(Resource.Id.btn_switch)]
         public void OnSwitcherClick(object sender, EventArgs e)
@@ -121,25 +121,34 @@ namespace Steepshot.Fragment
             var pic = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
             AddPathToPhotoDirectories(pic, pic.Name);
         }
-
+        
         private IEnumerable<string> GetImages(string name = null)
         {
             if (!PhotoDirectories.Any())
                 return new List<string>();
 
             var photos = new List<File>();
-            var dir = string.IsNullOrEmpty(name)
-                ? PhotoDirectories.FirstOrDefault()
-                : PhotoDirectories.FirstOrDefault(i => i.Key.LastIndexOf(name, StringComparison.OrdinalIgnoreCase) != -1);
-            if (string.IsNullOrEmpty(dir.Value))
-                return new List<string>();
-            AddPhotos(photos, dir.Value);
+
+            //    var dir = string.IsNullOrEmpty(name)
+            //        ? PhotoDirectories.FirstOrDefault()
+            //        : PhotoDirectories.FirstOrDefault(i => i.Key.LastIndexOf(name, StringComparison.OrdinalIgnoreCase) != -1);
+            //    if (string.IsNullOrEmpty(dir.Value))
+            //        return new List<string>();
+            //    AddPhotos(photos, dir.Value);
+
+            foreach (var dir in PhotoDirectories)
+            {
+                if (string.IsNullOrEmpty(dir.Value))
+                    return new List<string>();
+                AddPhotos(photos, dir.Value);
+            }
             return photos.OrderByDescending(f => f.LastModified()).Select(i => i.AbsolutePath);
         }
 
         private void SwitchPhotoDir()
         {
-            var newImages = GetImages(BasePresenter.User.DefaultPhotoDirectory);
+            //    var newImages = GetImages(BasePresenter.User.DefaultPhotoDirectory);
+            var newImages = GetImages();
             if (!_userPhotos.SequenceEqual(newImages))
             {
                 _userPhotos.Clear();
