@@ -50,12 +50,6 @@ namespace Steepshot.Fragment
             _isFeed = isFeed;
         }
 
-        [InjectOnClick(Resource.Id.btn_search)]
-        public void OnSearch(object sender, EventArgs e)
-        {
-            ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
-        }
-
         [InjectOnClick(Resource.Id.btn_login)]
         public void OnLogin(object sender, EventArgs e)
         {

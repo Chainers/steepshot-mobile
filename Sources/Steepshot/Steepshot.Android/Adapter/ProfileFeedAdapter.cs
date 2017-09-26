@@ -16,14 +16,19 @@ namespace Steepshot.Adapter
         public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
-        public ProfileFeedAdapter(Context context, List<Post> posts, Typeface[] fonts) : base(context, posts, fonts) { }
+        private bool _isHeaderNeeded;
+
+        public ProfileFeedAdapter(Context context, List<Post> posts, Typeface[] fonts, bool isHeaderNeeded = true): base(context, posts, fonts)
+        {
+            _isHeaderNeeded = isHeaderNeeded;
+        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            if (position == 0)
+            if (position == 0 && _isHeaderNeeded)
                 ((HeaderViewHolder)holder).UpdateHeader(ProfileData);
             else
-                base.OnBindViewHolder(holder, position - 1);
+                base.OnBindViewHolder(holder, _isHeaderNeeded ? position - 1 : position);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -37,14 +42,14 @@ namespace Steepshot.Adapter
             else
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                var vh = new ProfileFeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _fonts);
+                var vh = new ProfileFeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _fonts, _isHeaderNeeded);
                 return vh;
             }
         }
 
         public override int GetItemViewType(int position)
         {
-            if (position == 0)
+            if (position == 0 && _isHeaderNeeded)
                 return 0;
             return 1;
         }
@@ -52,29 +57,32 @@ namespace Steepshot.Adapter
 
     public class ProfileFeedViewHolder : FeedViewHolder
     {
-        public ProfileFeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font)
+        private bool _isHeaderNeeded;
+
+        public ProfileFeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font, bool isHeaderNeeded)
             : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, height, font)
         {
+            _isHeaderNeeded = isHeaderNeeded;
         }
 
         protected override void UserAction(object sender, EventArgs e)
         {
-            _userAction?.Invoke(AdapterPosition - 1);
+            _userAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
 
         protected override void CommentAction(object sender, EventArgs e)
         {
-            _commentAction?.Invoke(AdapterPosition - 1);
+            _commentAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
 
         protected override void VotersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(AdapterPosition - 1);
+            _votersAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
 
         protected override void PhotoAction(object sender, EventArgs e)
         {
-            _photoAction?.Invoke(AdapterPosition - 1);
+            _photoAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
 
         protected override void Like_Click(object sender, EventArgs e)
@@ -83,7 +91,7 @@ namespace Steepshot.Adapter
             {
                 Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
             }
-            _likeAction?.Invoke(AdapterPosition - 1);
+            _likeAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
     }
 }

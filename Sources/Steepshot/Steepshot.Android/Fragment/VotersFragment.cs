@@ -43,7 +43,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-            _viewTitle.Text = Localization.Messages.Voters;
+            //_viewTitle.Text = Localization.Messages.Voters;
             _url = Activity.Intent.GetStringExtra("url");
             _votersAdapter = new VotersAdapter(Activity, _presenter.Voters);
             _votersAdapter.Click += OnClick;
