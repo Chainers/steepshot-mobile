@@ -33,14 +33,9 @@ namespace Steepshot.Utils
 
         public static Bitmap DecodeSampledBitmapFromResource(string path, int reqWidth, int reqHeight)
         {
-            // Читаем с inJustDecodeBounds=true для определения размеров
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
             BitmapFactory.DecodeFile(path, options);
-
-            // Вычисляем inSampleSize
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
-
-            // Читаем с использованием inSampleSize коэффициента
             options.InJustDecodeBounds = false;
             options.InPreferredConfig = Bitmap.Config.Rgb565;
             return BitmapFactory.DecodeFile(path, options);
@@ -48,7 +43,6 @@ namespace Steepshot.Utils
 
         private static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
-            // Реальные размеры изображения 
             var height = options.OutHeight;
             var width = options.OutWidth;
             var inSampleSize = 1;

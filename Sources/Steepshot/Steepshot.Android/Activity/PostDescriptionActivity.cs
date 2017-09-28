@@ -38,6 +38,9 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.description_scroll)] ScrollView _descriptionScroll;
         [InjectView(Resource.Id.tag_container)] TagLayout _tagLayout;
         [InjectView(Resource.Id.photo)] ImageView _photoFrame;
+
+        [InjectView(Resource.Id.description_title)] private TextView _descriptionTitle;
+        [InjectView(Resource.Id.description_edit)] private EditText _editTextDescription;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_post)]
@@ -52,6 +55,13 @@ namespace Steepshot.Activity
         public void OnBack(object sender, EventArgs e)
         {
             OnBackPressed();
+        }
+
+        [InjectOnClick(Resource.Id.toggle_description)]
+        public void ToggleDescription(object sender, EventArgs e)
+        {
+            _descriptionTitle.Visibility = _descriptionTitle.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
+            _editTextDescription.Visibility = _editTextDescription.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -147,6 +157,8 @@ namespace Steepshot.Activity
                 if (arrayToUpload != null)
                 {
                     var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, arrayToUpload, _tags.ToArray());
+                    if(!string.IsNullOrEmpty(_editTextDescription.Text))
+                        request.Description = _editTextDescription.Text; 
                     var resp = await _presenter.Upload(request);
 
                     if (resp.Errors.Count > 0)

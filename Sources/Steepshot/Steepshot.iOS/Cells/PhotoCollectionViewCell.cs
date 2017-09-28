@@ -3,7 +3,7 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Photos;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
