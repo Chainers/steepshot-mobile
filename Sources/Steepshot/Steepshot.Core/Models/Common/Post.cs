@@ -27,11 +27,14 @@ namespace Steepshot.Core.Models.Common
     public class Post
     {
         public string Body { get; set; }
+        public string[] Photos { get; set; }
+        public string Discription { get; set; }
         public string Title { get; set; }
         public string Url { get; set; }
         public string Category { get; set; }
         public string Author { get; set; }
         public string Avatar { get; set; }
+        public string CoverImage { get; set; }
         public int AuthorRewards { get; set; }
         public int AuthorReputation { get; set; }
         public int NetVotes { get; set; }
@@ -45,9 +48,7 @@ namespace Steepshot.Core.Models.Common
         public bool Vote { get; set; }
         public bool Flag { get; set; }
         public string[] Tags { get; set; }
-        public int Depth { get; set; }
-        public string[] Photos { get; set; }
-        public string Discription { get; set; }
         public Size ImageSize { get; set; }
+        public int Depth { get; set; }
     }
 }
