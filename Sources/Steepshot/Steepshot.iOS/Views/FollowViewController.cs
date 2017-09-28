@@ -41,7 +41,7 @@ namespace Steepshot.iOS.Views
 
             _tableSource.ScrolledToBottom += () =>
             {
-                if (_presenter._hasItems)
+                if (!_presenter.IsLastReaded)
                     GetItems();
             };
 

@@ -90,7 +90,7 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                var errors = await _presenter.SearchCategories(query, _searchType);
+                var errors = await _presenter.SearchCategories(query, _searchType, false);
                 if (errors != null && errors.Count > 0)
                     ShowAlert(errors[0]);
                 else
