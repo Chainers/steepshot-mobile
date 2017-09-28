@@ -252,6 +252,31 @@ namespace Steepshot.Core.HttpClient
 
         #endregion Post requests
 
+        #region Get
+
+        public async Task<OperationResult<Discussion>> GetDiscussion(string author, string permlink)
+        {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<Discussion> { Errors = errors.Errors };
+
+            return await Task.Run(() =>
+            {
+                var resp = OperationManager.GetContent(author, permlink);
+
+                var result = new OperationResult<Discussion>();
+
+                if (!resp.IsError)
+                    result.Result = resp.Result;
+                else
+                    OnError(resp, result);
+
+                return result;
+            });
+        }
+
+        #endregion
+
         private bool TryCastUrlToAuthorAndPermlink(string url, out string author, out string permlink)
         {
             var start = url.LastIndexOf('@');
