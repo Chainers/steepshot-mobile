@@ -67,6 +67,7 @@
     <Compile Include="Activity\PostDescriptionActivity.cs" />
     <Compile Include="Activity\ProfileActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
+    <Compile Include="Activity\TestActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
     <Compile Include="Activity\SignInActivity.cs" />
     <Compile Include="Activity\SplashActivity.cs" />
@@ -122,6 +123,7 @@
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

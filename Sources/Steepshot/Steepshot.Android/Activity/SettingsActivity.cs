@@ -33,6 +33,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
         [InjectView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
         [InjectView(Resource.Id.version_textview)] private TextView _versionText;
+        [InjectView(Resource.Id.tests)] private AppCompatButton _testsButton;
 #pragma warning restore 0649
         UserInfo _steemAcc;
         UserInfo _golosAcc;
@@ -81,6 +82,18 @@ namespace Steepshot.Activity
             HighlightView();
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
+
+            if (BasePresenter.User.IsDev || BasePresenter.User.Login.Equals("joseph.kalu"))
+            {
+                _testsButton.Visibility = ViewStates.Visible;
+                _testsButton.Click += StartTestActivity;
+            }
+        }
+        
+        private void StartTestActivity(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(TestActivity));
+            StartActivity(intent);
         }
 
         private async void LoadAvatar()
