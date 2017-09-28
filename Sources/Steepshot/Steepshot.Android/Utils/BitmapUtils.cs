@@ -41,20 +41,15 @@ namespace Steepshot.Utils
             return BitmapFactory.DecodeFile(path, options);
         }
 
-        public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+        private static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
             var height = options.OutHeight;
             var width = options.OutWidth;
             int inSampleSize = 1;
 
-            if (height > reqHeight || width > reqWidth)
-            {
-                var halfHeight = height / 2;
-                var halfWidth = width / 2;
+            while (height / inSampleSize > reqHeight || width / inSampleSize > reqWidth)
+                inSampleSize *= 2;
 
-                while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth)
-                    inSampleSize *= 2;
-            }
             return inSampleSize;
         }
 
