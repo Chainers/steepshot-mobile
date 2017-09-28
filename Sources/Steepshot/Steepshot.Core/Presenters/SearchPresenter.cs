@@ -58,7 +58,8 @@ namespace Steepshot.Core.Presenters
                         else
                         {
                             request.Offset = OffsetUrl;
-                            response = await Api.SearchUser(request, User.Login, _cts);
+                            request.Login = User.Login;
+                            response = await Api.SearchUser(request, _cts);
                         }
                     }
                     if (response.Success)

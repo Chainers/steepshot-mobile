@@ -280,16 +280,16 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<Post>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, string username, CancellationTokenSource cts)
+        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             OperationResult errorResult = CheckInternetConnection();
             IRestResponse response = null;
             if (errorResult == null)
             {
                 var parameters = new KeyValueList();
+                AddLoginParameter(parameters, request.Login);
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 parameters.Add("query", request.Query);
-                parameters.Add("username", username);
 
                 response = await Gateway.Get(GatewayVersion.V1P1, "user/search", parameters, cts);
                 errorResult = CheckErrors(response);
