@@ -47,7 +47,7 @@ namespace Steepshot.Core.HttpClient
         ///     2) GET https://steepshot.org/api/v1/posts/food/top?offset=%2Ftravel%2F%40sweetsssj%2Ftravel-with-me-39-my-appointment-with-gulangyu&amp;limit=5 HTTP/1.1
         /// </summary>
         Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null);
-        
+
         /// <summary>
         ///     Examples:
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
@@ -106,7 +106,7 @@ namespace Steepshot.Core.HttpClient
         ///             Content-Type: application/octet-stream
         /// </summary>
         Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts);
-        
+
         Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null);
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&amp;limit=5&amp;query=aar HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, string username, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
