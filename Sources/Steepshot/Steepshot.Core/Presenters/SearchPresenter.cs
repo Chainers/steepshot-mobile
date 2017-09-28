@@ -13,7 +13,7 @@ namespace Steepshot.Core.Presenters
     {
         private CancellationTokenSource _cts;
         public List<SearchResult> Tags = new List<SearchResult>();
-        public List<UserSearchResult> Users = new List<UserSearchResult>();
+        public List<UserFriend> Users = new List<UserFriend>();
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
 
         public async Task<List<string>> SearchCategories(string query, SearchType searchType)
@@ -63,7 +63,7 @@ namespace Steepshot.Core.Presenters
                         else
                         {
                             Users.Clear();
-                            Users.AddRange(((OperationResult<SearchResponse<UserSearchResult>>)response).Result?.Results);
+                            Users.AddRange(((OperationResult<SearchResponse<UserFriend>>)response).Result?.Results);
                         }
                     }
                     else

@@ -1271,7 +1271,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Count > 0);
             Assert.That(response.Result.TotalCount >= 0);
             Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Username, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
         [Test, Sequential]
@@ -1338,7 +1338,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
             Assert.That(response.Result.TotalCount >= limit);
             Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Username, Is.EqualTo("abit"));
+            Assert.That(response.Result.Results.First().Author, Is.EqualTo("abit"));
         }
 
         [Test, Sequential]

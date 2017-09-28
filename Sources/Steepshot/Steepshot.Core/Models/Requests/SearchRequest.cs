@@ -8,5 +8,7 @@
         }
 
         public string Query { get; set; }
+
+        public string Login { get; set; }
     }
 }
