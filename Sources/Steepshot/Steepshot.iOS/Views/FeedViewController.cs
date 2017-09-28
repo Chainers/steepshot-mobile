@@ -72,7 +72,7 @@ namespace Steepshot.iOS.Views
 
                  }
                  catch (Exception ex) { }
-             }, commentString: _collectionViewSource.FeedStrings);
+            }, commentString: _collectionViewSource.FeedStrings, posts: _presenter.Posts);
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
             _collectionViewSource.IsGrid = false;
