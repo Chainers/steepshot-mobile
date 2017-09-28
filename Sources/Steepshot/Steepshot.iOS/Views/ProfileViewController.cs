@@ -83,7 +83,7 @@ namespace Steepshot.iOS.Views
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }, _collectionViewSource.FeedStrings);
+            }, _collectionViewSource.FeedStrings, _presenter.Posts);
 
             collectionView.Delegate = _gridDelegate;
 
