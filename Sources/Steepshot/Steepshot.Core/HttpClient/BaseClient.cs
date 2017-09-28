@@ -33,18 +33,6 @@ namespace Steepshot.Core.HttpClient
             _jsonConverter = new JsonNetConverter();
         }
 
-        protected KeyValueList CreateOffsetLimitParameters(string offset, int limit)
-        {
-            var parameters = new KeyValueList();
-            if (!string.IsNullOrWhiteSpace(offset))
-                parameters.Add("offset", offset);
-
-            if (limit > 0)
-                parameters.Add("limit", limit);
-
-            return parameters;
-        }
-
         protected OperationResult CheckErrors(IRestResponse response)
         {
             var result = new OperationResult();
@@ -377,7 +365,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async void Trace(string endpoint, string login, List<string> resultErrors, string target)
+        protected async void Trace(string endpoint, string login, List<string> resultErrors, string target)
         {
             var parameters = new KeyValueList();
             AddLoginParameter(parameters, login);
