@@ -86,7 +86,6 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-
         #region Get requests
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts)
@@ -408,7 +407,8 @@ namespace Steepshot.Core.HttpClient
                 var parameters = new KeyValueList();
                 if (!request.IsNeedRewards)
                     parameters.Add("set_beneficiary", "steepshot_no_rewards");
-                response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
+
+                response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, parameters, trx, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UploadResponse>(response?.Content, errorResult);

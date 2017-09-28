@@ -30,6 +30,8 @@ namespace Steepshot.Core.Models.Requests
 
         public byte[] Photo { get; }
 
+        public string Description { get; set; }
+
         public string[] Tags { get; }
 
         public bool IsNeedRewards { get; }
