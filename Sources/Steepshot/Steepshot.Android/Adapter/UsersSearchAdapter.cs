@@ -6,14 +6,12 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
-
 
 namespace Steepshot.Adapter
 {
     public class UsersSearchAdapter : RecyclerView.Adapter
     {
-        public List<UserSearchResult> Items;
+        public List<UserFriend> Items;
         public Action<int> Click;
         private readonly Context _context;
         public override int ItemCount => Items.Count;
@@ -21,7 +19,7 @@ namespace Steepshot.Adapter
         public UsersSearchAdapter(Context context)
         {
             _context = context;
-            Items = new List<UserSearchResult>();
+            Items = new List<UserFriend>();
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -35,7 +33,7 @@ namespace Steepshot.Adapter
             else
                 ((UsersSearchViewHolder)holder).Name.Visibility = ViewStates.Gone;
 
-            ((UsersSearchViewHolder)holder).Username.Text = user.Username;
+            ((UsersSearchViewHolder)holder).Username.Text = user.Author;
 
             /*if (user.Percent != 0)
 			{
@@ -45,11 +43,11 @@ namespace Steepshot.Adapter
 			else*/
             ((UsersSearchViewHolder)holder).Percent.Visibility = ViewStates.Gone;
 
-            if (!string.IsNullOrEmpty(user.ProfileImage))
+            if (!string.IsNullOrEmpty(user.Avatar))
             {
                 try
                 {
-                    Picasso.With(_context).Load(user.ProfileImage).NoFade().Resize(80, 0).Into(((UsersSearchViewHolder)holder).Avatar);
+                    Picasso.With(_context).Load(user.Avatar).NoFade().Resize(80, 0).Into(((UsersSearchViewHolder)holder).Avatar);
                 }
                 catch
                 {
