@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using AVFoundation;
 using CoreGraphics;
@@ -307,12 +308,15 @@ namespace Steepshot.iOS.Views
             if (!IsGrid)
             {
                 //54 - margins sum
-                var textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
+                CGRect textSize = new CGRect();
+                if (_commentString.Any())
+                    textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
+                
                 //165 => 485-320 cell height without image size
                 var cellHeight = 165 + UIScreen.MainScreen.Bounds.Width;
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
             }
-            return Steepshot.iOS.Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+            return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
         }
     }
 }
