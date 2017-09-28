@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Ditch;
 using Ditch.Errors;
 using Ditch.JsonRpc;
+using Ditch.Operations.Enums;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
 using Steepshot.Core.Extensions;
@@ -102,10 +103,10 @@ namespace Steepshot.Core.HttpClient
 
             return await Task.Run(() =>
             {
-                var op = request.Type == FollowType.Follow
-                    ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
-                    : new UnfollowOperation(request.Login, request.Username, request.Login);
-
+                var fType = request.Type == Models.Requests.FollowType.Follow
+                    ? new[] { Ditch.Operations.Enums.FollowType.blog }
+                    : null;
+                var op = new FollowOperation(request.Login, request.Username, fType, request.Login);
                 var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<FollowResponse>();
