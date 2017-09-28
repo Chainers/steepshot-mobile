@@ -48,5 +48,6 @@ namespace Steepshot.Core.Models.Common
         public int Depth { get; set; }
         public string[] Photos { get; set; }
         public string Discription { get; set; }
+        public Size ImageSize { get; set; }
     }
 }
