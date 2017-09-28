@@ -45,7 +45,7 @@ namespace Steepshot.Utils
         {
             var height = options.OutHeight;
             var width = options.OutWidth;
-            int inSampleSize = 1;
+            var inSampleSize = 1;
 
             while (height / inSampleSize > reqHeight || width / inSampleSize > reqWidth)
                 inSampleSize *= 2;
