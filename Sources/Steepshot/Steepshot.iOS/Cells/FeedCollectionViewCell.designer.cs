@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Cells
 {
@@ -35,6 +35,9 @@ namespace Steepshot.iOS.Cells
 
 		[Outlet]
 		UIKit.UIButton flagButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint imageHeight { get; set; }
 
 		[Outlet]
 		UIKit.NSLayoutConstraint imageWidth { get; set; }
@@ -111,6 +114,11 @@ namespace Steepshot.iOS.Cells
 				netVotes = null;
 			}
 
+			if (postTimeStamp != null) {
+				postTimeStamp.Dispose ();
+				postTimeStamp = null;
+			}
+
 			if (rewards != null) {
 				rewards.Dispose ();
 				rewards = null;
@@ -121,9 +129,9 @@ namespace Steepshot.iOS.Cells
 				viewCommentButton = null;
 			}
 
-			if (postTimeStamp != null) {
-				postTimeStamp.Dispose ();
-				postTimeStamp = null;
+			if (imageHeight != null) {
+				imageHeight.Dispose ();
+				imageHeight = null;
 			}
 		}
 	}
