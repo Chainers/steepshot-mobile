@@ -8,7 +8,6 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core
@@ -19,6 +18,7 @@ namespace Steepshot.Core
         private readonly UserInfo _user;
         private readonly IAppInfo _appInfo;
         public event Action<string> StepFinished;
+        private readonly StringBuilder _log = new StringBuilder();
 
         public MobileAutoTests(ISteepshotApiClient api, UserInfo user, IAppInfo appInfo)
         {
@@ -27,38 +27,53 @@ namespace Steepshot.Core
             _appInfo = appInfo;
         }
 
-
-        public Task RunTests()
+        public Task RunDitchApiTests()
         {
             return Task.Run(() =>
             {
                 try
                 {
                     var num = 1;
-                    var log = new StringBuilder();
-                    GetUserPostsTest(log, num++);
-                    GetUserRecentPostsTest(log, num++);
-                    GetPostsTest(log, num++);
-                    GetPostsByCategoryTest(log, num++);
-                    GetPostVotersTest(log, num++);
-                    GetCommentsTest(log, num++);
-                    GetUserProfileTest(log, num++);
-                    GetUserFriendsTest(log, num++);
-                    TermsOfServiceTest(log, num++);
-                    GetPostInfoTest(log, num++);
-                    SearchUserTest(log, num++);
-                    UserExistsCheckTest(log, num++);
-                    GetCategoriesTest(log, num++);
-                    SearchCategoriesTest(log, num++);
-
-                    LoginWithPostingKeyTest(log, num++);
-                    VoteTest(log, num++);
-                    FollowTest(log, num++);
-                    CreateCommentTest(log, num++);
-                    UploadTest(log, num++);
-                    LogoutTest(log, num++);
-                    log.Append("Test End;");
-                    StepFinished?.Invoke(log.ToString());
+                    _log.AppendLine("DitchApi tests started");
+                    LoginWithPostingKeyTest(_log, num++);
+                    VoteTest(_log, num++);
+                    FollowTest(_log, num++);
+                    CreateCommentTest(_log, num++);
+                    UploadTest(_log, num++);
+                    LogoutTest(_log, num++);
+                    _log.AppendLine("Tests End;");
+                    StepFinished?.Invoke(_log.ToString());
+                }
+                catch (Exception e)
+                {
+                    StepFinished?.Invoke($"{e.Message} {e.StackTrace}");
+                }
+            });
+        }
+        public Task RunServerTests()
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    var num = 1;
+                    _log.AppendLine("DitchApi tests started");
+                    GetUserPostsTest(_log, num++);
+                    GetUserRecentPostsTest(_log, num++);
+                    GetPostsTest(_log, num++);
+                    GetPostsByCategoryTest(_log, num++);
+                    GetPostVotersTest(_log, num++);
+                    GetCommentsTest(_log, num++);
+                    GetUserProfileTest(_log, num++);
+                    GetUserFriendsTest(_log, num++);
+                    TermsOfServiceTest(_log, num++);
+                    GetPostInfoTest(_log, num++);
+                    SearchUserTest(_log, num++);
+                    UserExistsCheckTest(_log, num++);
+                    GetCategoriesTest(_log, num++);
+                    SearchCategoriesTest(_log, num++);
+                    _log.AppendLine("Tests End;");
+                    StepFinished?.Invoke(_log.ToString());
                 }
                 catch (Exception e)
                 {
@@ -269,18 +284,21 @@ namespace Steepshot.Core
             }
 
             var ditchApi = _api as DitchApi;
-            var operationResult = ditchApi.GetDiscussion(_user.Login, response.Result.Permlink)
-                .Result;
+            if (ditchApi != null)
+            {
+                var operationResult = ditchApi.GetDiscussion(_user.Login, response.Result.Permlink)
+                    .Result;
 
-            if (!operationResult.Success)
-            {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, operationResult.Errors)}");
-                return;
-            }
-            if (operationResult.Result.Beneficiaries.Length == 0)
-            {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} Empty beneficeares");
-                return;
+                if (!operationResult.Success)
+                {
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, operationResult.Errors)}");
+                    return;
+                }
+                if (operationResult.Result.Beneficiaries.Length == 0)
+                {
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} Empty beneficeares");
+                    return;
+                }
             }
 
             sb.AppendLine("pass.");
@@ -566,7 +584,7 @@ namespace Steepshot.Core
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
-            request.Offset = response.Result.Results.Last().Username;
+            request.Offset = response.Result.Results.Last().Author;
             response = _api.SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
@@ -692,12 +710,6 @@ namespace Steepshot.Core
 
                     var voters = itm as VotersResult;
                     if (voters != null && !voters.Username.Equals(offset))
-                    {
-                        sb.AppendLine($"warn. Reason:{Environment.NewLine} First Username mast be {offset}");
-                        return true;
-                    }
-                    var userSearchResult = itm as UserSearchResult;
-                    if (userSearchResult != null && !userSearchResult.Username.Equals(offset))
                     {
                         sb.AppendLine($"warn. Reason:{Environment.NewLine} First Username mast be {offset}");
                         return true;

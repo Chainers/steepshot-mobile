@@ -32,7 +32,8 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.run_api_tests)]
         private async void RunApiTest(object sender, EventArgs e)
         {
-            await _testContainer.RunTests();
+            await _testContainer.RunServerTests();
+            await _testContainer.RunDitchApiTests();
         }
 
         private void UpdateResult(string text)
