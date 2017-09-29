@@ -221,7 +221,13 @@ namespace Steepshot.iOS.Views
             {
                 using (var m = new PHImageManager())
                 {
-                    m.RequestImageData(collectionCell.Asset, new PHImageRequestOptions(), (data, dataUti, orientation, info) =>
+                    var options = new PHImageRequestOptions();
+
+                    options.DeliveryMode = PHImageRequestOptionsDeliveryMode.FastFormat;
+                    options.Synchronous = false;
+                    options.NetworkAccessAllowed = true;
+
+                    m.RequestImageData(collectionCell.Asset, options, (data, dataUti, orientation, info) =>
                        {
                            if (data != null)
                            {
