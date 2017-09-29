@@ -80,6 +80,13 @@ namespace Steepshot.iOS.Cells
             flagButton.Enabled = true;
             postTimeStamp.Text = _currentPost.Created.ToPostTime();
 
+            imageWidth.Constant = UIScreen.MainScreen.Bounds.Width;
+            imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
+            if(_currentPost.ImageSize.Width != 0)
+                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+            else
+                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
+
             if (!_isButtonBinded)
             {
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;

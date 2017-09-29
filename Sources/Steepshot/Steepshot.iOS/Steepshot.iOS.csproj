@@ -332,6 +332,7 @@
     <Compile Include="Services\SaverService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="ViewControllers\BaseViewControllerWithPresenter.cs" />
+    <Compile Include="Helpers\PhotoHeight.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

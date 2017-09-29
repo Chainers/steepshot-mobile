@@ -8,7 +8,9 @@ using CoreGraphics;
 using Foundation;
 using Photos;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 
@@ -219,7 +221,13 @@ namespace Steepshot.iOS.Views
             {
                 using (var m = new PHImageManager())
                 {
-                    m.RequestImageData(collectionCell.Asset, new PHImageRequestOptions(), (data, dataUti, orientation, info) =>
+                    var options = new PHImageRequestOptions();
+
+                    options.DeliveryMode = PHImageRequestOptionsDeliveryMode.FastFormat;
+                    options.Synchronous = false;
+                    options.NetworkAccessAllowed = true;
+
+                    m.RequestImageData(collectionCell.Asset, options, (data, dataUti, orientation, info) =>
                        {
                            if (data != null)
                            {
@@ -282,12 +290,14 @@ namespace Steepshot.iOS.Views
         Action<NSIndexPath> _cellClick;
         public bool IsGrid = true;
         List<NSMutableAttributedString> _commentString;
+        List<Post> _posts;
 
-        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null)
+        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, List<Post> posts = null)
         {
             _scrolledAction = scrolled;
             _cellClick = cellClick;
             _commentString = commentString;
+            _posts = posts;
         }
 
         public override void Scrolled(UIScrollView scrollView)
@@ -307,13 +317,14 @@ namespace Steepshot.iOS.Views
         {
             if (!IsGrid)
             {
+                var correction = PhotoHeight.Get(_posts[indexPath.Row].ImageSize);
                 //54 - margins sum
                 CGRect textSize = new CGRect();
                 if (_commentString.Any())
                     textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
                 
                 //165 => 485-320 cell height without image size
-                var cellHeight = 165 + UIScreen.MainScreen.Bounds.Width;
+                var cellHeight = 165 + correction;
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
             }
             return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
