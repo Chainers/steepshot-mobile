@@ -22,6 +22,7 @@ namespace Steepshot.iOS.Views
 
         private readonly CommentsTableViewSource _tableSource = new CommentsTableViewSource();
         public string PostUrl;
+        private bool _navigationBarHidden;
 
         public override void ViewDidLoad()
         {
@@ -57,10 +58,17 @@ namespace Steepshot.iOS.Views
             GetComments();
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            _navigationBarHidden = NavigationController.NavigationBarHidden;
+            NavigationController.SetNavigationBarHidden(false, true);
+            base.ViewWillAppear(animated);
+        }
+
         public override void ViewWillDisappear(bool animated)
         {
             if (IsMovingFromParentViewController)
-                NavigationController.SetNavigationBarHidden(true, true);
+                NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
             base.ViewWillDisappear(animated);
         }
 

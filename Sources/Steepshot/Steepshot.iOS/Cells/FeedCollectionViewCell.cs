@@ -82,6 +82,10 @@ namespace Steepshot.iOS.Cells
 
             imageWidth.Constant = UIScreen.MainScreen.Bounds.Width;
             imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
+            if(_currentPost.ImageSize.Width != 0)
+                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+            else
+                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
 
             if (!_isButtonBinded)
             {
