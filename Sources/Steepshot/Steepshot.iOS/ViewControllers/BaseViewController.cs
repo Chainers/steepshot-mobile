@@ -83,7 +83,7 @@ namespace Steepshot.iOS.ViewControllers
             if (ScrollAmount > 0)
                 return;
 
-            CGRect r = UIKeyboard.FrameBeginFromNotification(notification);
+            CGRect r = UIKeyboard.FrameEndFromNotification(notification);
             if (Activeview == null)
             {
                 foreach (UIView view in View.Subviews)
