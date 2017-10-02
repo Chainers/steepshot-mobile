@@ -198,6 +198,7 @@ namespace Steepshot.iOS.Views
             try
             {
                 var response = await _presenter.GetUserInfo(Username);
+                _refreshControl.EndRefreshing();
                 if (response.Success)
                 {
                     _userData = response.Result;
@@ -267,8 +268,7 @@ namespace Steepshot.iOS.Views
 
                     if (!_refreshControl.Refreshing)
                     {
-                        _profileHeader.View.SetNeedsLayout();
-                        _profileHeader.View.LayoutIfNeeded();
+                        _profileHeader.View.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, 0);
                         var size = _profileHeader.View.SystemLayoutSizeFittingSize(new CGSize(UIScreen.MainScreen.Bounds.Width, 300));
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
