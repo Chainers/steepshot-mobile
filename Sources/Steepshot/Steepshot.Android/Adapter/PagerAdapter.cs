@@ -55,7 +55,7 @@ namespace Steepshot.Adapter
                         frag = HostFragment.NewInstance(new PreSearchFragment());
                         break;
                     case 2:
-                        frag = HostFragment.NewInstance(new PhotoFragment());
+                        frag = new Android.Support.V4.App.Fragment();
                         break;
                     case 3:
                         frag = HostFragment.NewInstance(new ProfileFragment(BasePresenter.User.Login));
