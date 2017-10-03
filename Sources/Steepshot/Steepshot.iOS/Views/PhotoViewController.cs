@@ -77,16 +77,14 @@ namespace Steepshot.iOS.Views
             var inSampleSize = 1.0;
             if(height > reqHeight)
             {
-                inSampleSize = 1 - reqHeight / height;
+                inSampleSize = reqHeight / height;
             }
             if(width > reqWidth)
             {
-                inSampleSize = Math.Min(inSampleSize, 1 - reqWidth / width);
+                inSampleSize = Math.Min(inSampleSize, reqWidth / width);
             }
 
-            while (height / inSampleSize > reqHeight || width / inSampleSize > reqWidth)
-                inSampleSize++;
-            return new CGSize(width / inSampleSize, height / inSampleSize);
+            return new CGSize(width * inSampleSize, height * inSampleSize);
 		}
 
 		private UIImage NormalizeImage(UIImage sourceImage)
