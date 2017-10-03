@@ -3,6 +3,7 @@ using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
+using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Java.IO;
 using Steepshot.Base;
@@ -14,11 +15,16 @@ namespace Steepshot.Fragment
 #pragma warning disable 0649, 4014, 0618
     public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback
     {
-        private ISurfaceHolder holder;
-        private Camera camera;
+        private ISurfaceHolder _holder;
+        private Camera _camera;
         private int _cameraId = 0;
         private const bool _fullScreen = true;
-        [InjectView(Resource.Id.surfaceView)] private SurfaceView sv;
+        [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
+        [InjectView(Resource.Id.close_button)] private ImageButton _closeButton;
+        [InjectView(Resource.Id.flash_button)] private ImageButton _flashButton;
+        [InjectView(Resource.Id.shot_button)] private ImageButton _shotButton;
+        [InjectView(Resource.Id.revert_button)] private ImageButton _revertButton;
+        [InjectView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -32,34 +38,34 @@ namespace Steepshot.Fragment
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            holder = sv.Holder;
-            holder.SetType(SurfaceType.PushBuffers);
-            holder.AddCallback(this);
+            _holder = _sv.Holder;
+            _holder.SetType(SurfaceType.PushBuffers);
+            _holder.AddCallback(this);
         }
 
         public override void OnResume()
         {
             base.OnResume();
-            camera = Camera.Open(_cameraId);
+            _camera = Camera.Open(_cameraId);
             SetPreviewSize(_fullScreen);
         }
 
         public override void OnPause()
         {
             base.OnPause();
-            if (camera != null)
-                camera.Release();
-            camera = null;
+            if (_camera != null)
+                _camera.Release();
+            _camera = null;
         }
 
         public void SurfaceChanged(ISurfaceHolder holder, [GeneratedEnum] Format format, int width, int height)
         {
-            camera.StopPreview();
+            _camera.StopPreview();
             SetCameraDisplayOrientation(_cameraId);
             try
             {
-                camera.SetPreviewDisplay(holder);
-                camera.StartPreview();
+                _camera.SetPreviewDisplay(holder);
+                _camera.StartPreview();
             }
             catch (Exception ex)
             {
@@ -71,8 +77,8 @@ namespace Steepshot.Fragment
         {
             try
             {
-                camera.SetPreviewDisplay(holder);
-                camera.StartPreview();
+                _camera.SetPreviewDisplay(holder);
+                _camera.StartPreview();
             }
             catch (IOException ex)
             {
@@ -84,7 +90,7 @@ namespace Steepshot.Fragment
         {
             Display display = Activity.WindowManager.DefaultDisplay;
             bool widthIsMax = display.Width > display.Height;
-            var size = camera.GetParameters().PreviewSize;
+            var size = _camera.GetParameters().PreviewSize;
 
             RectF rectDisplay = new RectF();
             RectF rectPreview = new RectF();
@@ -105,8 +111,8 @@ namespace Steepshot.Fragment
                 matrix.Invert(matrix);
             }
             matrix.MapRect(rectPreview);
-            sv.LayoutParameters.Height = (int)(rectPreview.Bottom);
-            sv.LayoutParameters.Width = (int)(rectPreview.Right);
+            _sv.LayoutParameters.Height = (int)(rectPreview.Bottom);
+            _sv.LayoutParameters.Width = (int)(rectPreview.Right);
         }
 
         void SetCameraDisplayOrientation(int cameraId)
@@ -142,13 +148,13 @@ namespace Steepshot.Fragment
                 result += 360;
             }
             result = result % 360;
-            camera.SetDisplayOrientation(result);
+            _camera.SetDisplayOrientation(result);
 
-            var parameters = camera.GetParameters();
+            var parameters = _camera.GetParameters();
             if(parameters.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousVideo))
             {
                 parameters.FocusMode = Camera.Parameters.FocusModeContinuousVideo;
-                camera.SetParameters(parameters);
+                _camera.SetParameters(parameters);
             }
         }
 
