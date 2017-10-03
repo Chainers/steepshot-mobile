@@ -113,6 +113,7 @@
     <Compile Include="Base\BaseActivityWithPresenter.cs" />
     <Compile Include="Utils\BitmapUtils.cs" />
     <Compile Include="Activity\CameraActivity.cs" />
+    <Compile Include="Fragment\OldCameraFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -121,6 +122,7 @@
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
     <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
+    <AndroidResource Include="Resources\layout\lyt_old_camera.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
