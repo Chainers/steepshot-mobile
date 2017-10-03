@@ -69,7 +69,11 @@ namespace Steepshot.Core.Presenters
 
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
+#if DEBUG
+            _apiClient = new ApiPositiveStub();
+#else
             _apiClient = new DitchApi(chain, isDev);
+#endif
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
