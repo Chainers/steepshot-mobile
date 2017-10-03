@@ -123,6 +123,22 @@
     <None Include="Assets\AboutAssets.txt" />
     <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
     <AndroidResource Include="Resources\layout\lyt_old_camera.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\revert.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\revert.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\revert.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\revert.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\flash.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\flash.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\flash.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\flash.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\shot.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\shot.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\shot.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\shot.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\close.png" />
+    <AndroidResource Include="Resources\drawable-hdpi\close.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\close.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\close.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
