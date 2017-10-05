@@ -282,7 +282,7 @@ namespace Steepshot.Fragment
         {
             Task.Run(() => {
                 var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
+                var directory = new Java.IO.File(directoryPictures, Core.Constants.Steepshot);
                 if (!directory.Exists())
                     directory.Mkdirs();
 
