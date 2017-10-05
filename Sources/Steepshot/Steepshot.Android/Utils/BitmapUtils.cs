@@ -23,7 +23,7 @@ namespace Steepshot.Utils
             }
         }
 
-        private static Bitmap RotateImage(Bitmap img, int degree)
+        public static Bitmap RotateImage(Bitmap img, int degree)
         {
             var matrix = new Matrix();
             matrix.PostRotate(degree);
@@ -41,7 +41,7 @@ namespace Steepshot.Utils
             return BitmapFactory.DecodeFile(path, options);
         }
 
-        private static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
+        public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
             var height = options.OutHeight;
             var width = options.OutWidth;
