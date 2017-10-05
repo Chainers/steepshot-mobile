@@ -13,7 +13,7 @@ namespace Steepshot.Activity
         {
             RequestWindowFeature(WindowFeatures.NoTitle);
             Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
-
+            Window.AddFlags(WindowManagerFlags.KeepScreenOn);
             base.OnCreate(savedInstanceState);
 
             var fragmentTransaction = SupportFragmentManager.BeginTransaction();

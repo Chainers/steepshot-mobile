@@ -33,6 +33,16 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="@android:color/transparent" />
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        android:visibility="gone"
+        android:layout_marginBottom="21dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminateTint="@color/color_primary"
+        android:layout_centerInParent="true" />
     <ImageButton
         android:id="@+id/revert_button"
         android:src="@drawable/revert"
