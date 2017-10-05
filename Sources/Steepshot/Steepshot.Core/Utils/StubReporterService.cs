@@ -1,7 +1,7 @@
 ﻿using System;
 using Steepshot.Core.Services;
 
-namespace Steepshot.Core.Tests.Stubs
+namespace Steepshot.Core.Utils
 {
     public class StubReporterService : IReporterService
     {
