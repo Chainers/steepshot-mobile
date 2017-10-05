@@ -42,11 +42,16 @@ namespace Steepshot.Base
 
         protected virtual void ShowAlert(List<string> messages)
         {
+            if (messages == null || messages.Count == 0)
+                return;
+
             Show(string.Join(System.Environment.NewLine, messages));
         }
 
         private void Show(string text)
         {
+            if (string.IsNullOrEmpty(text))
+                return;
             var alert = new AlertDialog.Builder(this);
             alert.SetMessage(text);
             alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
