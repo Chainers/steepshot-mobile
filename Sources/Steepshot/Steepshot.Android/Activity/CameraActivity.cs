@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.OS;
+using Android.Views;
 using Steepshot.Base;
 using Steepshot.Fragment;
 
@@ -10,10 +11,13 @@ namespace Steepshot.Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            RequestWindowFeature(WindowFeatures.NoTitle);
+            Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
+            Window.AddFlags(WindowManagerFlags.KeepScreenOn);
             base.OnCreate(savedInstanceState);
 
             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-            CurrentHostFragment = HostFragment.NewInstance(new PhotoFragment());
+            CurrentHostFragment = HostFragment.NewInstance(new OldCameraFragment());
             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
             fragmentTransaction.Commit();
         }
