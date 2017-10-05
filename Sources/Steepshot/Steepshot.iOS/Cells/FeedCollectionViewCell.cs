@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -59,17 +60,18 @@ namespace Steepshot.iOS.Cells
                                                      .DownSample(width: 20)
                                                      .Into(avatarImage);
 
-
-            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
-                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                     .Retry(2, 200)
-                                                     .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                     .Into(bodyImage);
+            var photo = _currentPost.Photos?.FirstOrDefault();
+            if (photo != null)
+                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .Retry(2, 200)
+                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                                         .Into(bodyImage);
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
             rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            
+
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
@@ -82,7 +84,7 @@ namespace Steepshot.iOS.Cells
 
             imageWidth.Constant = UIScreen.MainScreen.Bounds.Width;
             imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
-            if(_currentPost.ImageSize.Width != 0)
+            if (_currentPost.ImageSize.Width != 0)
                 bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             else
                 bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
@@ -92,7 +94,9 @@ namespace Steepshot.iOS.Cells
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
-                    ImagePreview(bodyImage.Image, _currentPost.Body);
+                    var photoUrl = _currentPost.Photos?.FirstOrDefault();
+                    if (photoUrl != null)
+                        ImagePreview(bodyImage.Image, photoUrl);
                 });
                 bodyImage.AddGestureRecognizer(tap);
 

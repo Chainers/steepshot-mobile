@@ -41,7 +41,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter.Posts, new Typeface[] { _font, _semiboldFont }, false);
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -59,7 +59,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter.Posts, new Typeface[] { _font, _semiboldFont }, false);
+                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -192,7 +192,10 @@ namespace Steepshot.Fragment
 
         public void OnPhotoClick(int position)
         {
-            var photo = _presenter.Posts[position].Body;//.Photos?.FirstOrDefault();
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            var photo = post.Photos?.FirstOrDefault();
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
@@ -220,20 +223,29 @@ namespace Steepshot.Fragment
 
         private void UserAction(int position)
         {
-            if (BasePresenter.User.Login != _presenter.Posts[position].Author)
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            if (BasePresenter.User.Login != post.Author)
+                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
         private void CommentAction(int position)
         {
+            var post = _presenter[position];
+            if (post == null)
+                return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", _presenter.Posts[position].Url);
+            intent.PutExtra("uid", post.Url);
             Context.StartActivity(intent);
         }
 
         private void VotersAction(int position)
         {
-            Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            Activity.Intent.PutExtra("url", post.Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 

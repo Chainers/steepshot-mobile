@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
@@ -10,20 +11,25 @@ namespace Steepshot.iOS.ViewSources
 {
     public class ProfileCollectionViewSource : UICollectionViewSource
     {
-        public List<Post> PhotoList = new List<Post>();
-        public List<NSMutableAttributedString> FeedStrings = new List<NSMutableAttributedString>();
-
-        public bool IsGrid = true;
+        public readonly List<NSMutableAttributedString> FeedStrings;
         public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
         public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
         public event HeaderTappedHandler GoToProfile;
         public event HeaderTappedHandler GoToComments;
         public event HeaderTappedHandler GoToVoters;
         public event ImagePreviewHandler ImagePreview;
+        public bool IsGrid = true;
+        private readonly BaseFeedPresenter _presenter;
 
+        public ProfileCollectionViewSource(BaseFeedPresenter presenter)
+        {
+            FeedStrings = new List<NSMutableAttributedString>();
+            _presenter = presenter;
+        }
+        
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
-            return PhotoList.Count;
+            return _presenter.Count;
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
@@ -79,11 +85,16 @@ namespace Steepshot.iOS.ViewSources
             }
             try
             {
-                cell.UpdateCell(PhotoList[(int)indexPath.Item], FeedStrings[(int)indexPath.Item]);
+                var post = _presenter[(int)indexPath.Item];
+                if (post != null)
+                    cell.UpdateCell(post, FeedStrings[(int)indexPath.Item]);
             }
             catch (Exception ex)
             {
                 //ignore ^^
+#if DEBUG
+                Console.WriteLine(ex.Message + ex.StackTrace);
+#endif
             }
             return cell;
         }

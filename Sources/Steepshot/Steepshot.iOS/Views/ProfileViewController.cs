@@ -27,7 +27,7 @@ namespace Steepshot.iOS.Views
 
         private UserProfileResponse _userData;
         public string Username = BasePresenter.User.Login;
-        private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
+        private ProfileCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
         private ProfileHeaderViewController _profileHeader;
@@ -44,7 +44,7 @@ namespace Steepshot.iOS.Views
                 topViewHeight.Constant = 0;
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-            _collectionViewSource.PhotoList = _presenter.Posts;
+            _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             _collectionViewSource.Voted += (vote, postUri, success) => Vote(vote, postUri, success);
             _collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
             _collectionViewSource.GoToComments += (postUrl) =>
@@ -79,11 +79,11 @@ namespace Steepshot.iOS.Views
                 {
                     var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
 
-                    if (_collectionViewSource.PhotoList.Count <= _lastRow && !_refreshControl.Refreshing)
+                    if (_presenter.Count <= _lastRow && !_refreshControl.Refreshing)
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }, _collectionViewSource.FeedStrings, _presenter.Posts);
+            }, _collectionViewSource.FeedStrings, _presenter);
 
             collectionView.Delegate = _gridDelegate;
 
@@ -197,8 +197,11 @@ namespace Steepshot.iOS.Views
             errorMessage.Hidden = true;
             try
             {
-                var response = await _presenter.GetUserInfo(Username);
+                var response = await _presenter.TryGetUserInfo(Username);
                 _refreshControl.EndRefreshing();
+                if (response == null)
+                    return;
+
                 if (response.Success)
                 {
                     _userData = response.Result;
@@ -298,22 +301,28 @@ namespace Steepshot.iOS.Views
                 return;
             _isPostsLoading = true;
 
-            await _presenter.GetUserPosts(needRefresh).ContinueWith((p) =>
+            var errors = await _presenter.TryLoadNextPosts(needRefresh);
+            if (errors != null && errors.Count() != 0)
+                ShowAlert(errors[0]);
+            else
             {
-                foreach (var r in _presenter.Posts)
+                for (int i = 0; i < _presenter.Count; i++)
                 {
-                    var at = new NSMutableAttributedString();
-                    at.Append(new NSAttributedString(r.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                    at.Append(new NSAttributedString($" {r.Title}"));
-                    _collectionViewSource.FeedStrings.Add(at);
+                    var post = _presenter[i];
+                    if (post != null)
+                    {
+                        var at = new NSMutableAttributedString();
+                        at.Append(new NSAttributedString(post.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
+                        at.Append(new NSAttributedString($" {post.Title}"));
+                        _collectionViewSource.FeedStrings.Add(at);
+                    }
                 }
-                InvokeOnMainThread(() =>
-                {
-                    collectionView.ReloadData();
-                    collectionView.CollectionViewLayout.InvalidateLayout();
-                });
+
+                collectionView.ReloadData();
+                collectionView.CollectionViewLayout.InvalidateLayout();
+
                 _isPostsLoading = false;
-            });
+            }
         }
 
 
@@ -325,11 +334,15 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var errors = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUri));
-            if (errors != null && errors.Count() != 0)
-                ShowAlert(errors[0]);
-            collectionView.ReloadData();
-            collectionView.CollectionViewLayout.InvalidateLayout();
+            var index = _presenter.IndexOf(p => p.Url == postUri);
+            if (index != -1)
+            {
+                var errors = await _presenter.Vote(index);
+                if (errors != null && errors.Count() != 0)
+                    ShowAlert(errors[0]);
+                collectionView.ReloadData();
+                collectionView.CollectionViewLayout.InvalidateLayout();
+            }
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
@@ -352,12 +365,11 @@ namespace Steepshot.iOS.Views
             {
                 BasePresenter.User.PostBlacklist.Add(url);
                 BasePresenter.User.Save();
-                var postToHide = _collectionViewSource.PhotoList.FirstOrDefault(p => p.Url == url);
-                if (postToHide != null)
+                var index = _presenter.IndexOf(p => p.Url == url);
+                if (index != -1)
                 {
-                    var postIndex = _collectionViewSource.PhotoList.IndexOf(postToHide);
-                    _collectionViewSource.PhotoList.Remove(postToHide);
-                    _collectionViewSource.FeedStrings.RemoveAt(postIndex);
+                    _presenter.RemovePostsAt(index);
+                    _collectionViewSource.FeedStrings.RemoveAt(index);
                     collectionView.ReloadData();
                     collectionView.CollectionViewLayout.InvalidateLayout();
                 }
@@ -370,16 +382,20 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-            var errors = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-            if (errors != null && errors.Count() != 0)
-                ShowAlert(errors[0]);
-            collectionView.ReloadData();
-            collectionView.CollectionViewLayout.InvalidateLayout();
+            var index = _presenter.IndexOf(p => p.Url == postUrl);
+            if (index != -1)
+            {
+                var errors = await _presenter.FlagPhoto(index);
+                if (errors != null && errors.Count() != 0)
+                    ShowAlert(errors[0]);
+                collectionView.ReloadData();
+                collectionView.CollectionViewLayout.InvalidateLayout();
+            }
         }
 
         public async Task Follow()
         {
-            var resp = await _presenter.Follow(_userData.HasFollowed);
+            var resp = await _presenter.TryFollow(_userData.HasFollowed);
             if (resp.Success)
             {
                 _userData.HasFollowed = resp.Result.IsSuccess ? 1 : 0;

@@ -3,24 +3,57 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class BaseFeedPresenter : BasePresenter
+    public class BaseFeedPresenter : ListPresenter
     {
-        private List<Post> _posts;
+        protected readonly List<Post> Posts;
 
-        public List<Post> Posts
+        public override int Count => Posts.Count;
+
+        public Post this[int position]
         {
-            get { return _posts; }
-            set { _posts = value; }
+            get
+            {
+                lock (Posts)
+                {
+                    if (position > -1 && position < Posts.Count)
+                        return Posts[position];
+                }
+                return null;
+            }
         }
 
         protected BaseFeedPresenter()
         {
-            _posts = new List<Post>();
+            Posts = new List<Post>();
+        }
+
+        public void ClearPosts()
+        {
+            lock (Posts)
+                Posts.Clear();
+            IsLastReaded = false;
+            OffsetUrl = string.Empty;
+        }
+
+        public void RemovePostsAt(int index)
+        {
+            lock (Posts)
+                Posts.RemoveAt(index);
+        }
+
+        public int IndexOf(Func<Post, bool> func)
+        {
+            lock (Posts)
+            {
+                for (var i = 0; i < Posts.Count; i++)
+                    if (func(Posts[i]))
+                        return i;
+            }
+            return -1;
         }
         
         public async Task<List<string>> Vote(int position)
@@ -28,7 +61,9 @@ namespace Steepshot.Core.Presenters
             List<string> errors = null;
             try
             {
-                var post = Posts[position];
+                Post post;
+                lock (Posts)
+                    post = Posts[position];
                 var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
                 var response = await Api.Vote(request);
                 errors = response.Errors;
@@ -39,6 +74,10 @@ namespace Steepshot.Core.Presenters
                     post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                     post.NetVotes = response.Result.NetVotes;
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
             }
             catch (Exception ex)
             {
@@ -52,7 +91,9 @@ namespace Steepshot.Core.Presenters
             List<string> errors = null;
             try
             {
-                var post = Posts[position];
+                Post post;
+                lock (Posts)
+                    post = Posts[position];
                 var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
                 var response = await Api.Vote(request);
                 errors = response.Errors;
@@ -63,6 +104,10 @@ namespace Steepshot.Core.Presenters
                     post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                     post.NetVotes = response.Result.NetVotes;
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
             }
             catch (Exception ex)
             {

@@ -8,7 +8,7 @@ using CoreGraphics;
 using Foundation;
 using Photos;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewSources;
@@ -33,6 +33,7 @@ namespace Steepshot.iOS.Views
 
             photoButton.TouchDown += PhotoButton_TouchDown;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+            //TODO:KOA: await o.O
             RequestPhotoAuth();
             AuthorizeCameraUse();
         }
@@ -89,7 +90,6 @@ namespace Steepshot.iOS.Views
 
         private UIImage NormalizeImage(UIImage sourceImage)
         {
-            var imgSize = sourceImage.Size;
             var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
             UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
@@ -182,9 +182,7 @@ namespace Steepshot.iOS.Views
         public void SetupLiveCameraStream()
         {
             _captureSession = new AVCaptureSession();
-
-            var viewLayer = liveCameraStream.Layer;
-
+            
             var videoPreviewLayer = new AVCaptureVideoPreviewLayer(_captureSession)
             {
                 Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width) //liveCameraStream.Frame
@@ -197,6 +195,7 @@ namespace Steepshot.iOS.Views
             _captureDeviceInput = AVCaptureDeviceInput.FromDevice(captureDevice);
             _captureSession.AddInput(_captureDeviceInput);
 
+            //TODO:KOA: to do nothing o.O
             var dictionary = new NSMutableDictionary();
             dictionary[AVVideo.CodecKey] = new NSNumber((int)AVVideoCodec.JPEG);
             _stillImageOutput = new AVCaptureStillImageOutput()
@@ -308,14 +307,14 @@ namespace Steepshot.iOS.Views
         Action<NSIndexPath> _cellClick;
         public bool IsGrid = true;
         List<NSMutableAttributedString> _commentString;
-        List<Post> _posts;
+        BaseFeedPresenter presenter;
 
-        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, List<Post> posts = null)
+        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, BaseFeedPresenter presenter = null)
         {
             _scrolledAction = scrolled;
             _cellClick = cellClick;
             _commentString = commentString;
-            _posts = posts;
+            this.presenter = presenter;
         }
 
         public override void Scrolled(UIScrollView scrollView)
@@ -335,15 +334,19 @@ namespace Steepshot.iOS.Views
         {
             if (!IsGrid)
             {
-                var correction = PhotoHeight.Get(_posts[indexPath.Row].ImageSize);
-                //54 - margins sum
-                CGRect textSize = new CGRect();
-                if (_commentString.Any())
-                    textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
+                var post = presenter[indexPath.Row];
+                if (post != null)
+                {
+                    var correction = PhotoHeight.Get(post.ImageSize);
+                    //54 - margins sum
+                    CGRect textSize = new CGRect();
+                    if (_commentString.Any())
+                        textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
 
-                //165 => 485-320 cell height without image size
-                var cellHeight = 165 + correction;
-                return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+                    //165 => 485-320 cell height without image size
+                    var cellHeight = 165 + correction;
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+                }
             }
             return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
         }
