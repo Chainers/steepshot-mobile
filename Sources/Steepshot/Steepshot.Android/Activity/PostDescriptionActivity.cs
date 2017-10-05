@@ -27,6 +27,7 @@ namespace Steepshot.Activity
     {
         public static int TagRequestCode = 1225;
         private string _path;
+        private bool _shouldCompress;
 
         private string[] _tags = new string[0];
         private FrameLayout _add;
@@ -76,6 +77,7 @@ namespace Steepshot.Activity
             _photoFrame.LayoutParameters = parameters;
             _postButton.Enabled = true;
             _path = Intent.GetStringExtra("FILEPATH");
+            _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
 
             Cache.Clear();
             GC.Collect();
@@ -85,7 +87,6 @@ namespace Steepshot.Activity
                    .Resize(Resources.DisplayMetrics.WidthPixels, 0)
                    .Into(_photoFrame);
         }
-
 
         public void AddTags(string[] tags)
         {
@@ -197,15 +198,21 @@ namespace Steepshot.Activity
               {
                   try
                   {
-                      var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1200, 1200);
-                      bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
+                      Bitmap bitmap;
+                      if (_shouldCompress)
+                      {
+                          bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1600, 1600);
+                          bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
+                      }
+                      else
+                          bitmap = BitmapFactory.DecodeFile(path);
 
                       if (bitmap == null)
                           return null;
 
                       using (var stream = new MemoryStream())
                       {
-                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
+                        if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
                           {
                               var outbytes = stream.ToArray();
                               bitmap.Recycle();

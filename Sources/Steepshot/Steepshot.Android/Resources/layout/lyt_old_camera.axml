@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+    <ImageButton
+        android:id="@+id/close_button"
+        android:src="@drawable/close"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/transparent" />
+    <ImageButton
+        android:id="@+id/flash_button"
+        android:src="@drawable/flash"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent" />
+    <ImageButton
+        android:id="@+id/shot_button"
+        android:src="@drawable/shot"
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        android:layout_marginBottom="21dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent" />
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="62dp"
+        android:layout_height="62dp"
+        android:visibility="gone"
+        android:layout_marginBottom="21dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminateTint="@color/color_primary"
+        android:layout_centerInParent="true" />
+    <ImageButton
+        android:id="@+id/revert_button"
+        android:src="@drawable/revert"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="21dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent" />
+    <RelativeLayout
+        android:id="@+id/gallery_button"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:clickable="true"
+        android:layout_marginBottom="21dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true">
+        <refractored.controls.CircleImageView
+            android:id="@+id/gallery_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/black"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>
