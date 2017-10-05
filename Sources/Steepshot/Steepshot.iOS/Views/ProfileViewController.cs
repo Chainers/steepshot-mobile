@@ -306,7 +306,7 @@ namespace Steepshot.iOS.Views
                 ShowAlert(errors[0]);
             else
             {
-                for (int i = 0; i < _presenter.Count; i++)
+                for (int i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
                 {
                     var post = _presenter[i];
                     if (post != null)
