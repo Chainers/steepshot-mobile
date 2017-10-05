@@ -6,7 +6,6 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -45,7 +44,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             //_viewTitle.Text = Localization.Messages.Voters;
             _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new VotersAdapter(Activity, _presenter.Voters);
+            _votersAdapter = new VotersAdapter(Activity, _presenter);
             _votersAdapter.Click += OnClick;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
@@ -82,7 +81,10 @@ namespace Steepshot.Fragment
 
         private void OnClick(int pos)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_votersAdapter.Items[pos].Username));
+            var voiter = _presenter[pos];
+            if (voiter == null)
+                return;
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(voiter.Username));
         }
 
         public override void OnDetach()

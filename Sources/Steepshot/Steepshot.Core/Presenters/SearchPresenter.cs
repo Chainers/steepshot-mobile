@@ -16,6 +16,7 @@ namespace Steepshot.Core.Presenters
         public List<SearchResult> Tags = new List<SearchResult>();
         public List<UserFriend> Users = new List<UserFriend>();
         private const int ItemsLimit = 40;
+        public override int Count => Users.Count;
 
         public async Task<List<string>> SearchCategories(string query, SearchType searchType, bool clear)
         {

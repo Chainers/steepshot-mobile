@@ -1,31 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Square.Picasso;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 
 
 namespace Steepshot.Adapter
 {
     public class VotersAdapter : RecyclerView.Adapter
     {
-        public List<VotersResult> Items;
         public Action<int> Click;
         private readonly Context _context;
-        public override int ItemCount => Items.Count;
+        private readonly VotersPresenter _presenter;
+        public override int ItemCount => _presenter.Count;
 
-        public VotersAdapter(Context context, List<VotersResult> items)
+        public VotersAdapter(Context context, VotersPresenter presenter)
         {
             _context = context;
-            Items = items;
+            _presenter = presenter;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var user = Items[position];
+            var user = _presenter[position];
+            if (user == null)
+                return;
+
             if (!string.IsNullOrEmpty(user.Name))
             {
                 ((UsersSearchViewHolder)holder).Name.Visibility = ViewStates.Visible;

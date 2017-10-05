@@ -5,19 +5,34 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
     public class VotersPresenter : ListPresenter
     {
         private const int ItemsLimit = 40;
-        public readonly List<VotersResult> Voters;
+        private readonly List<VotersResult> _voters;
+
+        public override int Count => _voters.Count;
+
+        public VotersResult this[int position]
+        {
+            get
+            {
+                lock (_voters)
+                {
+                    if (position > -1 && position < _voters.Count)
+                        return _voters[position];
+                }
+                return null;
+            }
+        }
 
         public VotersPresenter()
         {
-            Voters = new List<VotersResult>();
+            _voters = new List<VotersResult>();
         }
+
 
         public async Task<List<string>> TryLoadNext(string url)
         {
@@ -41,7 +56,9 @@ namespace Steepshot.Core.Presenters
                 var voters = response.Result.Results;
                 if (voters.Count > 0)
                 {
-                    Voters.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+                    lock (_voters)
+                        _voters.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+
                     OffsetUrl = voters.Last().Username;
                 }
 

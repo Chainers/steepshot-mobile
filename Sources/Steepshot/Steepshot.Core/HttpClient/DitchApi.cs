@@ -76,7 +76,8 @@ namespace Steepshot.Core.HttpClient
                         //Convert Money type to double
                         result.Result = new VoteResponse(true)
                         {
-                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue
+                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue,
+                            NetVotes = content.Result.NetVotes,
                         };
                     }
                 }

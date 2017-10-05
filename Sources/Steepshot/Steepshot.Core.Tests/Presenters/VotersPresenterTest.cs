@@ -12,11 +12,10 @@ namespace Steepshot.Core.Tests.Presenters
         {
             BasePresenter.SwitchChain(apiName);
             var presenter = new VotersPresenter();
-            Assert.IsNotNull(presenter.Voters);
-            Assert.IsTrue(presenter.Voters.Count == 0);
+            Assert.IsTrue(presenter.Count == 0);
             var errors = await presenter.TryLoadNext(url);
             Assert.IsTrue(errors == null || errors.Count == 0);
-            Assert.IsTrue(presenter.Voters.Count > 0);
+            Assert.IsTrue(presenter.Count > 0);
         }
     }
 }

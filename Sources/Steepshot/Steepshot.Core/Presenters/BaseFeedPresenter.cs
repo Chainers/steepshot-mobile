@@ -10,30 +10,34 @@ namespace Steepshot.Core.Presenters
 {
     public class BaseFeedPresenter : BasePresenter
     {
-        public List<Post> Posts = new List<Post>();
+        private List<Post> _posts;
 
+        public List<Post> Posts
+        {
+            get { return _posts; }
+            set { _posts = value; }
+        }
+
+        protected BaseFeedPresenter()
+        {
+            _posts = new List<Post>();
+        }
+        
         public async Task<List<string>> Vote(int position)
         {
             List<string> errors = null;
             try
             {
                 var post = Posts[position];
-                var voteRequest = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
-                var response = await Api.Vote(voteRequest);
+                var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+                var response = await Api.Vote(request);
                 errors = response.Errors;
                 if (response.Success)
                 {
-                    post.Vote = !Posts[position].Vote;
-                    if (post.NetVotes == -1)
-                        post.NetVotes = 1;
-                    else
-                    {
-                        post.NetVotes = (post.Vote) ?
-                            post.NetVotes + 1 :
-                            post.NetVotes - 1;
-                    }
-                    post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                    post.Vote = !post.Vote;
                     post.Flag = false;
+                    post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                    post.NetVotes = response.Result.NetVotes;
                 }
             }
             catch (Exception ex)
@@ -49,21 +53,15 @@ namespace Steepshot.Core.Presenters
             try
             {
                 var post = Posts[position];
-                var flagRequest = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
-                var flagResponse = await Api.Vote(flagRequest);
-                errors = flagResponse.Errors;
-                if (flagResponse.Success)
+                var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
+                var response = await Api.Vote(request);
+                errors = response.Errors;
+                if (response.Success)
                 {
-                    post.Flag = flagResponse.Result.IsSucces;
-                    if (flagResponse.Result.IsSucces)
-                    {
-                        if (post.Vote)
-                            if (post.NetVotes == 1)
-                                post.NetVotes = -1;
-                            else
-                                post.NetVotes--;
-                        post.Vote = false;
-                    }
+                    post.Flag = !post.Flag;
+                    post.Vote = false;
+                    post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                    post.NetVotes = response.Result.NetVotes;
                 }
             }
             catch (Exception ex)
