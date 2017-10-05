@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
@@ -83,6 +85,24 @@ namespace Steepshot.Core.Presenters
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
                 dVal *= CurencyConvertationDic[value.Currency];
             return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
+        }
+
+
+        protected async Task<TResult> TryRunTask<T, TResult>(Func<T, Task<TResult>> func, T parameters)
+        {
+            try
+            {
+                return await func(parameters);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return default(TResult);
         }
     }
 }

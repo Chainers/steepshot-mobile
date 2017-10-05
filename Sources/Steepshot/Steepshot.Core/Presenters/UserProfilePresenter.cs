@@ -1,35 +1,70 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class UserProfilePresenter : BaseFeedPresenter
+    public sealed class UserProfilePresenter : BaseFeedPresenter
     {
         private readonly string _username;
         private const int ItemsLimit = 20;
-        private bool IsLastReaded = false;
-        private string OffsetUrl = string.Empty;
-        protected const int ServerMaxCount = 20;
 
         public UserProfilePresenter(string username)
         {
             _username = username;
         }
 
-        public void ClearPosts()
+        public async Task<List<string>> TryLoadNextPosts(bool needRefresh = false)
         {
-            Posts.Clear();
-            IsLastReaded = false;
-            OffsetUrl = string.Empty;
+            if (needRefresh)
+                ClearPosts();
+
+            if (IsLastReaded)
+                return null;
+
+            return await RunAsSingleTask(LoadNextPosts);
         }
 
-        public Task<OperationResult<UserProfileResponse>> GetUserInfo(string user)
+        private async Task<List<string>> LoadNextPosts(CancellationTokenSource cts)
+        {
+            var req = new UserPostsRequest(_username)
+            {
+                Login = User.Login,
+                Offset = OffsetUrl,
+                Limit = ItemsLimit,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
+            };
+            var response = await Api.GetUserPosts(req);
+
+            if (response.Success)
+            {
+                var voters = response.Result.Results;
+                if (voters.Count > 0)
+                {
+                    lock (Posts)
+                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+
+                    OffsetUrl = voters.Last().Url;
+                }
+                if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                    IsLastReaded = true;
+            }
+            return response.Errors;
+        }
+
+
+        public Task<OperationResult<UserProfileResponse>> TryGetUserInfo(string user)
+        {
+            return TryRunTask(GetUserInfo, user);
+        }
+
+        private Task<OperationResult<UserProfileResponse>> GetUserInfo(string user)
         {
             var req = new UserProfileRequest(user)
             {
@@ -38,48 +73,13 @@ namespace Steepshot.Core.Presenters
             return Api.GetUserProfile(req);
         }
 
-        public async Task<List<string>> GetUserPosts(bool needRefresh = false)
+
+        public Task<OperationResult<FollowResponse>> TryFollow(int hasFollowed)
         {
-            List<string> errors = null;
-            try
-            {
-                if (needRefresh)
-                    ClearPosts();
-
-                if (IsLastReaded)
-                    return errors;
-
-                var req = new UserPostsRequest(_username)
-                {
-                    Login = User.Login,
-                    Offset = OffsetUrl,
-                    Limit = ItemsLimit,
-                    ShowNsfw = User.IsNsfw,
-                    ShowLowRated = User.IsLowRated
-                };
-                var response = await Api.GetUserPosts(req);
-                errors = response?.Errors;
-
-                if (response.Success)
-                {
-                    var voters = response.Result.Results;
-                    if (voters.Count > 0)
-                    {
-                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
-                        OffsetUrl = voters.Last().Url;
-                    }
-                    if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                        IsLastReaded = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            return errors;
+            return TryRunTask(Follow, hasFollowed);
         }
 
-        public Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
+        private Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
         {
             var request = new FollowRequest(User.UserInfo, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
             return Api.Follow(request);

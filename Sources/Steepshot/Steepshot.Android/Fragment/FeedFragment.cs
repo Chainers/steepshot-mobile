@@ -113,7 +113,7 @@ namespace Steepshot.Fragment
             else
                 Title.Text = "Trending";
 
-            _feedAdapter = new FeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
+            _feedAdapter = new FeedAdapter(Context, _presenter, new[] { font, semibold_font });
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _scrollListner = new ScrollListener();
@@ -169,31 +169,42 @@ namespace Steepshot.Fragment
 
         public void PhotoClick(int position)
         {
-            var photo = _presenter.Posts[position].Photos?.FirstOrDefault();
-            if (photo != null)
-            {
-                var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
-                StartActivity(intent);
-            }
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            var photo = post.Photos?.FirstOrDefault();
+            if (photo == null)
+                return;
+            var intent = new Intent(Context, typeof(PostPreviewActivity));
+            intent.PutExtra("PhotoURL", photo);
+            StartActivity(intent);
         }
 
         void FeedAdapter_CommentAction(int position)
         {
+            var post = _presenter[position];
+            if (post == null)
+                return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", _presenter.Posts[position].Url);
+            intent.PutExtra("uid", post.Url);
             Context.StartActivity(intent);
         }
 
         void FeedAdapter_VotersAction(int position)
         {
-            Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            Activity.Intent.PutExtra("url", post.Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
         void FeedAdapter_UserAction(int position)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
         private async void FeedAdapter_LikeAction(int position)

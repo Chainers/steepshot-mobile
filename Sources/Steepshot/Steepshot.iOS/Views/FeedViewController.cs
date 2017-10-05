@@ -20,20 +20,10 @@ namespace Steepshot.iOS.Views
 {
     public partial class FeedViewController : BaseViewControllerWithPresenter<FeedPresenter>
     {
-        public FeedViewController(bool isFeed = false)
-        {
-            _isHomeFeed = isFeed;
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new FeedPresenter(_isHomeFeed);
-        }
-
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
 
-        private ProfileCollectionViewSource _collectionViewSource = new ProfileCollectionViewSource();
+        private ProfileCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private int _lastRow;
 
@@ -46,10 +36,21 @@ namespace Steepshot.iOS.Views
         UINavigationController _navController;
         UINavigationItem _navItem;
 
-        private bool _isHomeFeed;
+        private readonly bool _isHomeFeed;
 
         UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
+
+
+        public FeedViewController(bool isFeed = false)
+        {
+            _isHomeFeed = isFeed;
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new FeedPresenter(_isHomeFeed);
+        }
 
         public override void ViewDidLoad()
         {
@@ -57,27 +58,30 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
-
+            _collectionViewSource = new ProfileCollectionViewSource(_presenter);
+            //TODO:KOA: rewrite as function
             _gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
              {
+                 //TODO:KOA: remove try catch
                  try
                  {
                      var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-                     if (_collectionViewSource.PhotoList.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
+                     if (_presenter.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
 
                      {
+                         //TODO:KOA: await o.O
                          GetPosts();
                      }
                      _lastRow = newlastRow;
 
                  }
                  catch (Exception ex) { }
-            }, commentString: _collectionViewSource.FeedStrings, posts: _presenter.Posts);
+             }, commentString: _collectionViewSource.FeedStrings, presenter: _presenter);
+
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
             _collectionViewSource.IsGrid = false;
             _gridDelegate.IsGrid = false;
-            _collectionViewSource.PhotoList = _presenter.Posts;
             feedCollection.Source = _collectionViewSource;
             feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
@@ -85,6 +89,7 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource.Voted += (vote, url, action) =>
             {
+                //TODO:KOA: await o.O
                 Vote(vote, url, action);
             };
             _collectionViewSource.Flagged += Flagged;
@@ -104,9 +109,9 @@ namespace Steepshot.iOS.Views
             if (TabBarController != null)
             {
                 TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-                TabBarController.NavigationController.NavigationBar.BarTintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
+                TabBarController.NavigationController.NavigationBar.BarTintColor = Helpers.Constants.NavBlue;
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-                TabBarController.TabBar.TintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
+                TabBarController.TabBar.TintColor = Helpers.Constants.NavBlue;
 
                 foreach (var controler in TabBarController.ViewControllers)
                 {
@@ -158,7 +163,7 @@ namespace Steepshot.iOS.Views
             if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
             {
                 _currentPostCategory = CurrentPostCategory;
-                _collectionViewSource.PhotoList.Clear();
+                _presenter.ClearPosts();
                 _collectionViewSource.FeedStrings.Clear();
                 _tw.Text = CurrentPostCategory;
                 GetPosts();
@@ -233,14 +238,20 @@ namespace Steepshot.iOS.Views
                 _presenter.Tag = CurrentPostCategory;
                 errors = await _presenter.GetSearchedPosts();
             }
-            if (errors != null && errors.Count() != 0)
+            if (errors != null && errors.Count != 0)
                 ShowAlert(errors[0]);
-            foreach (var r in _presenter.Posts.Skip(_collectionViewSource.FeedStrings.Count()))
+
+            //TODO:KOA: ... doesn't look good
+            for (var i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
             {
-                var at = new NSMutableAttributedString();
-                at.Append(new NSAttributedString(r.Author, Helpers.Constants.NicknameAttribute));
-                at.Append(new NSAttributedString($" {r.Title}"));
-                _collectionViewSource.FeedStrings.Add(at);
+                var post = _presenter[i];
+                if (post != null)
+                {
+                    var at = new NSMutableAttributedString();
+                    at.Append(new NSAttributedString(post.Author, Helpers.Constants.NicknameAttribute));
+                    at.Append(new NSAttributedString($" {post.Title}"));
+                    _collectionViewSource.FeedStrings.Add(at);
+                }
             }
 
             feedCollection.ReloadData();
@@ -263,12 +274,16 @@ namespace Steepshot.iOS.Views
                 LoginTapped(null, null);
                 return;
             }
-            var errors = await _presenter.Vote(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-            if (errors != null && errors.Count() != 0)
-                ShowAlert(errors[0]);
+            var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
+            if (postIndex != -1)
+            {
+                var errors = await _presenter.Vote(postIndex);
+                if (errors != null && errors.Count != 0)
+                    ShowAlert(errors[0]);
 
-            feedCollection.ReloadData();
-            flowLayout.InvalidateLayout();
+                feedCollection.ReloadData();
+                flowLayout.InvalidateLayout();
+            }
         }
 
         private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
@@ -291,12 +306,14 @@ namespace Steepshot.iOS.Views
             {
                 BasePresenter.User.PostBlacklist.Add(url);
                 BasePresenter.User.Save();
-                var postToHide = _collectionViewSource.PhotoList.First(p => p.Url == url);
-                var postIndex = _collectionViewSource.PhotoList.IndexOf(postToHide);
-                _collectionViewSource.PhotoList.Remove(postToHide);
-                _collectionViewSource.FeedStrings.RemoveAt(postIndex);
-                feedCollection.ReloadData();
-                flowLayout.InvalidateLayout();
+                var postIndex = _presenter.IndexOf(p => p.Url == url);
+                if (postIndex != -1)
+                {
+                    _presenter.RemovePostsAt(postIndex);
+                    _collectionViewSource.FeedStrings.RemoveAt(postIndex);
+                    feedCollection.ReloadData();
+                    flowLayout.InvalidateLayout();
+                }
             }
             catch (Exception ex)
             {
@@ -304,10 +321,15 @@ namespace Steepshot.iOS.Views
             }
         }
 
+        //TODO:KOA: unused vote and action
         private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
         {
-            var errors = await _presenter.FlagPhoto(_presenter.Posts.FindIndex(p => p.Url == postUrl));
-            if (errors != null && errors.Count() != 0)
+            var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
+            if (postIndex == -1)
+                return;
+
+            var errors = await _presenter.FlagPhoto(postIndex);
+            if (errors != null && errors.Count != 0)
                 ShowAlert(errors[0]);
 
             feedCollection.ReloadData();
@@ -355,7 +377,7 @@ namespace Steepshot.iOS.Views
                 _navItem.SetLeftBarButtonItem(null, false);
 
             NavigationController.NavigationBar.TintColor = UIColor.White;
-            NavigationController.NavigationBar.BarTintColor = Steepshot.iOS.Helpers.Constants.NavBlue;
+            NavigationController.NavigationBar.BarTintColor = Helpers.Constants.NavBlue;
         }
 
         private UIView CreateDropDownList()
@@ -379,6 +401,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
+                   //TODO:KOA: await o.O
                    RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
@@ -397,6 +420,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
+                   //TODO:KOA: await o.O
                    RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
@@ -415,6 +439,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
+                   //TODO:KOA: await o.O
                    RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });

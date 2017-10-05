@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -9,7 +8,6 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -24,13 +22,13 @@ namespace Steepshot.Adapter
         public UserProfileResponse ProfileData;
         private bool _isHeaderNeeded;
 
-        public ProfileGridAdapter(Context context, List<Post> posts, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, posts)
+        public ProfileGridAdapter(Context context, BaseFeedPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter)
         {
             _fonts = fonts;
             _isHeaderNeeded = isHeaderNeeded;
         }
 
-        public override int ItemCount => _isHeaderNeeded ? _posts.Count + 1 : _posts.Count;
+        public override int ItemCount => _isHeaderNeeded ? Presenter.Count + 1 : Presenter.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -45,14 +43,14 @@ namespace Steepshot.Adapter
             if (viewType == 0)
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                var vh = new HeaderViewHolder(itemView, _context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                var vh = new HeaderViewHolder(itemView, Context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
                 return vh;
             }
             else
             {
-                var view = new ImageView(_context);
+                var view = new ImageView(Context);
                 view.SetScaleType(ImageView.ScaleType.CenterInside);
-                view.LayoutParameters = new ViewGroup.LayoutParams(_context.Resources.DisplayMetrics.WidthPixels / 3 - 1, _context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
+                view.LayoutParameters = new ViewGroup.LayoutParams(Context.Resources.DisplayMetrics.WidthPixels / 3 - 1, Context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
                 var vh = new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
                 return vh;
             }
@@ -224,7 +222,7 @@ namespace Steepshot.Adapter
 
         protected override void OnClick(object sender, EventArgs e)
         {
-            _click?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
+            Click?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
     }
 }

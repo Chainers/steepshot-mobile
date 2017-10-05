@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public class VotersPresenter : ListPresenter
+    public sealed class VotersPresenter : ListPresenter
     {
         private const int ItemsLimit = 40;
         private readonly List<VotersResult> _voters;

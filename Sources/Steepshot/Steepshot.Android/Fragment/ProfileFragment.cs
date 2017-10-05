@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
@@ -13,7 +12,6 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -22,8 +20,8 @@ namespace Steepshot.Fragment
     public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private readonly string _profileId;
-        private Typeface font;
-        private Typeface semibold_font;
+        private Typeface _font;
+        private Typeface _semiboldFont;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -54,7 +52,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -75,7 +73,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter.Posts, new Typeface[] { font, semibold_font });
+                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont });
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
@@ -110,9 +108,9 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-            font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-            _login.Typeface = semibold_font;
+            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
+            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
+            _login.Typeface = _semiboldFont;
 
             if (_profileId != BasePresenter.User.Login)
             {
@@ -158,7 +156,7 @@ namespace Steepshot.Fragment
 
         private async Task GetUserPosts(bool isRefresh = false)
         {
-            var errors = await _presenter.GetUserPosts(isRefresh);
+            var errors = await _presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
 
@@ -170,7 +168,7 @@ namespace Steepshot.Fragment
         private async Task UpdatePage()
         {
             _scrollListner.ClearPosition();
-            LoadProfile();
+            await LoadProfile();
             await GetUserPosts(true);
         }
 
@@ -200,8 +198,8 @@ namespace Steepshot.Fragment
 
         private async Task LoadProfile()
         {
-            var response = await _presenter.GetUserInfo(_profileId);
-            if (response.Success)
+            var response = await _presenter.TryGetUserInfo(_profileId);
+            if (response != null && response.Success)
             {
                 if (_listLayout != null)
                     _listLayout.Visibility = ViewStates.Visible;
@@ -212,16 +210,19 @@ namespace Steepshot.Fragment
             }
             else
             {
-                if (response.Errors != null && response.Errors.Count != 0)
+                if (response != null && response.Errors != null && response.Errors.Count != 0)
                     ShowAlert(response.Errors);
             }
+            //TODO:KOA: probably _loadingSpinner instead _listLayout o.O?
             if (_listLayout != null)
                 _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
         private async Task OnFollowClick()
         {
-            var resp = await _presenter.Follow(ProfileGridAdapter.ProfileData.HasFollowed);
+            var resp = await _presenter.TryFollow(ProfileGridAdapter.ProfileData.HasFollowed);
+            if (resp == null)
+                return;
 
             if (resp.Result.IsSuccess)
             {
@@ -235,7 +236,10 @@ namespace Steepshot.Fragment
 
         public void OnPhotoClick(int position)
         {
-            var photo = _presenter.Posts[position].Photos?.FirstOrDefault();
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            var photo = post.Photos?.FirstOrDefault();
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
@@ -262,21 +266,30 @@ namespace Steepshot.Fragment
 
         private void CommentAction(int position)
         {
+            var post = _presenter[position];
+            if (post == null)
+                return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", _presenter.Posts[position].Url);
+            intent.PutExtra("uid", post.Url);
             Context.StartActivity(intent);
         }
 
         private void VotersAction(int position)
         {
-            Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            Activity.Intent.PutExtra("url", post.Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
         private void UserAction(int position)
         {
-            if (_profileId != _presenter.Posts[position].Author)
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
+            var post = _presenter[position];
+            if (post == null)
+                return;
+            if (_profileId != post.Author)
+                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
         private async void LikeAction(int position)
