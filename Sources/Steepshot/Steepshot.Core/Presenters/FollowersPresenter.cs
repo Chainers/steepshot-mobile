@@ -13,6 +13,7 @@ namespace Steepshot.Core.Presenters
     {
         public readonly List<UserFriend> Users = new List<UserFriend>();
         private const int ItemsLimit = 40;
+        public override int Count => Users.Count;
 
         public async Task<List<string>> GetItems(FriendsType followType, string username)
         {

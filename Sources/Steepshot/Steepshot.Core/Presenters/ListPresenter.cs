@@ -5,7 +5,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class ListPresenter : BasePresenter
+    public abstract class ListPresenter : BasePresenter
     {
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
@@ -14,18 +14,24 @@ namespace Steepshot.Core.Presenters
         protected const int ServerMaxCount = 20;
         protected string OffsetUrl = string.Empty;
 
+        public abstract int Count { get; }
 
         protected ListPresenter()
         {
             _sync = new object();
         }
 
-        protected async Task<TResult> RunAsSingleTask<T, TResult>(Func<T, CancellationTokenSource, Task<TResult>> func, T parameters)
+        protected async Task<TResult> RunAsSingleTask<T, TResult>(Func<T, CancellationTokenSource, Task<TResult>> func, T parameters, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
-                    return default(TResult);
+                {
+                    if (cancelPrevTask)
+                        _singleTaskCancellationTokenSource.Cancel();
+                    else
+                        return default(TResult);
+                }
                 _singleTaskCancellationTokenSource = new CancellationTokenSource();
             }
             try

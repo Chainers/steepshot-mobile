@@ -10,12 +10,6 @@ namespace Steepshot.iOS.Views
     public partial class VotersViewController : BaseViewControllerWithPresenter<VotersPresenter>
     {
         public string PostUrl;
-        private readonly VotersTableViewSource _tableSource;
-
-        public VotersViewController()
-        {
-            _tableSource = new VotersTableViewSource();
-        }
 
         protected override void CreatePresenter()
         {
@@ -25,20 +19,22 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            votersTable.Source = _tableSource;
+
+            var tableSource = new VotersTableViewSource(_presenter);
+            votersTable.Source = tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
-            _tableSource.TableItems = _presenter.Voters;
-            _tableSource.RowSelectedEvent += (row) =>
+
+            tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = _tableSource.TableItems[row].Username;
+                myViewController.Username = _presenter[row].Username;
                 NavigationController.PushViewController(myViewController, true);
             };
 
-            _tableSource.ScrolledToBottom += () =>
+            tableSource.ScrolledToBottom += () =>
             {
                 LoadNext();
             };

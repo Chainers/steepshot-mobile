@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditch;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -254,7 +255,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts = null)
         {
-            return new OperationResult<VoteResponse> { Result = new VoteResponse(true) };
+            return new OperationResult<VoteResponse> { Result = new VoteResponse(true) { NetVotes = request.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = new Money(10000, 1, "GBG") } };
         }
 
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationTokenSource cts = null)

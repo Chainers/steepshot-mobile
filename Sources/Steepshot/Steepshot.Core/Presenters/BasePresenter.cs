@@ -7,7 +7,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class BasePresenter
+    public abstract class BasePresenter
     {
         private static ISteepshotApiClient _apiClient;
         public static string AppVersion { get; set; }
