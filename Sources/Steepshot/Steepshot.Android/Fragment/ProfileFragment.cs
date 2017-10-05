@@ -250,10 +250,19 @@ namespace Steepshot.Fragment
                     _description.Visibility = ViewStates.Gone;
 
                 _profileName.Text = string.IsNullOrEmpty(_profile.Name) ? _profile.Username : _profile.Name;
+                var width = 500;
                 if (!string.IsNullOrEmpty(_profile.ProfileImage))
-                    Picasso.With(Context).Load(_profile.ProfileImage).Placeholder(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Priority(Picasso.Priority.Low).Into(_profileImage);
+                    Picasso.With(Context)
+                        .Load(_profile.ProfileImage)
+                        .Placeholder(Resource.Drawable.ic_user_placeholder)
+                        .Resize(width, width)
+                        .Priority(Picasso.Priority.Low)
+                        .Into(_profileImage);
                 else
-                    Picasso.With(Context).Load(Resource.Drawable.ic_user_placeholder).Resize(_profileImage.Width, 0).Into(_profileImage);
+                    Picasso.With(Context)
+                        .Load(Resource.Drawable.ic_user_placeholder)
+                        .Resize(width, width)
+                        .Into(_profileImage);
                 _costButton.Text = BasePresenter.ToFormatedCurrencyString(_profile.EstimatedBalance, GetString(Resource.String.cost_param_on_balance));
                 _photosCount.Text = _profile.PostCount.ToString();
                 _site.Text = _profile.Website;
@@ -263,7 +272,9 @@ namespace Steepshot.Fragment
                 _followersCount.Text = _profile.FollowersCount.ToString();
                 _spinner.Visibility = ViewStates.Gone;
                 _content.Visibility = ViewStates.Visible;
-                _followBtn.Text = (_profile.HasFollowed == 0) ? GetString(Resource.String.text_follow) : GetString(Resource.String.text_unfollow);
+                _followBtn.Text = (_profile.HasFollowed == 0)
+                    ? GetString(Resource.String.text_follow)
+                    : GetString(Resource.String.text_unfollow);
             }
             else
             {

@@ -56,7 +56,11 @@ namespace Steepshot.Activity
             builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
             builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
+#if DEBUG
+            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+#else
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
+#endif
 
             Picasso.Builder d = new Picasso.Builder(this);
             Cache = new LruCache(this);
