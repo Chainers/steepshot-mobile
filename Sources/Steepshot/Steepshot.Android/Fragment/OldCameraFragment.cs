@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.Hardware;
@@ -11,6 +12,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -21,19 +23,25 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback
+    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
         private ISurfaceHolder _holder;
         private Camera _camera;
         private int _cameraId = 0;
-        private const bool _fullScreen = false;
+        private const bool _fullScreen = true;
         private const int galleryRequestCode = 228;
         private CameraOrientationEventListener _orientationListner;
+        private int _orientation;
 
         [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
         [InjectView(Resource.Id.flash_button)] private ImageButton _flashButton;
         [InjectView(Resource.Id.shot_button)] private ImageButton _shotButton;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
         [InjectView(Resource.Id.revert_button)] private ImageButton _revertButton;
+        [InjectView(Resource.Id.close_button)] private ImageButton _closeButton;
+        [InjectView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
+        [InjectView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
+
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -46,17 +54,19 @@ namespace Steepshot.Fragment
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
-            _holder = _sv.Holder;
-            _holder.SetType(SurfaceType.PushBuffers);
-            _holder.AddCallback(this);
+            if (Camera.NumberOfCameras < 2)
+                _revertButton.Visibility = ViewStates.Gone;
+            _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal, _cameraId);
+
         }
 
         public override void OnResume()
         {
             base.OnResume();
-            _camera = Camera.Open(_cameraId);
-            SetPreviewSize(_fullScreen);
+            _holder = _sv.Holder;
+            _holder.SetType(SurfaceType.PushBuffers);
+            _holder.AddCallback(this);
+            EnableCamera(_cameraId);
             _orientationListner.Enable();
         }
 
@@ -67,6 +77,16 @@ namespace Steepshot.Fragment
                 _camera.Release();
             _camera = null;
             _orientationListner.Disable();
+
+            _holder.RemoveCallback(this);
+            _holder.Dispose();
+            _holder = null;
+        }
+
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
@@ -79,10 +99,21 @@ namespace Steepshot.Fragment
             }
         }
 
+        [InjectOnClick(Resource.Id.flash_button)]
+        private void FlashClick(object sender, EventArgs e)
+        {
+            var parameters = _camera.GetParameters();
+            if (parameters.SupportedFlashModes != null && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOff) && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOn))
+            {
+                parameters.FlashMode = parameters.FlashMode != Camera.Parameters.FlashModeOff ? Camera.Parameters.FlashModeOff : Camera.Parameters.FlashModeOn;
+                _camera.SetParameters(parameters);
+            }
+        }
+
         [InjectOnClick(Resource.Id.shot_button)]
         private void TakePhotoClick(object sender, EventArgs e)
         {
-            _camera?.TakePicture(null, null, this);
+            _camera?.TakePicture(this, null, this);
         }
 
         [InjectOnClick(Resource.Id.close_button)]
@@ -102,19 +133,7 @@ namespace Steepshot.Fragment
 
         public void SurfaceChanged(ISurfaceHolder holder, [GeneratedEnum] Format format, int width, int height)
         {
-            if (_camera == null)
-                return;
-            _camera.StopPreview();
-            SetCameraDisplayOrientation(_cameraId);
-            try
-            {
-                _camera.SetPreviewDisplay(holder);
-                _camera.StartPreview();
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
+            
         }
 
         public void SurfaceCreated(ISurfaceHolder holder)
@@ -138,8 +157,13 @@ namespace Steepshot.Fragment
             bool widthIsMax = display.Width > display.Height;
 
             var parameters = _camera.GetParameters();
-            var cameraSizes = GetSizes(parameters.SupportedPreviewSizes, parameters.SupportedPictureSizes);           
 
+            if (parameters.SupportedFlashModes == null || parameters.SupportedFlashModes.Count() == 1)
+                _flashButton.Visibility = ViewStates.Gone;
+            else
+                _flashButton.Visibility = ViewStates.Visible;
+
+            var cameraSizes = GetSizes(parameters.SupportedPreviewSizes, parameters.SupportedPictureSizes);
             parameters.SetPictureSize(cameraSizes.Item2.Width, cameraSizes.Item2.Height);
             parameters.SetPreviewSize(cameraSizes.Item1.Width, cameraSizes.Item1.Height);
             _camera.SetParameters(parameters);
@@ -230,43 +254,69 @@ namespace Steepshot.Fragment
             parameters.PictureFormat = ImageFormat.Jpeg;
             parameters.JpegQuality = 90;
 
-            if (parameters.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousVideo))
+            if (parameters.SupportedFocusModes != null && parameters.SupportedFocusModes.Contains(Camera.Parameters.FocusModeContinuousVideo))
             {
                 parameters.FocusMode = Camera.Parameters.FocusModeContinuousVideo;
             }
+            if (parameters.SupportedFlashModes != null && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOff))
+            {
+                parameters.FlashMode = Camera.Parameters.FlashModeOff;
+            }
+            if (parameters.SupportedSceneModes != null && parameters.SupportedSceneModes.Contains(Camera.Parameters.SceneModeAuto))
+            {
+                parameters.SceneMode = Camera.Parameters.SceneModeAuto;
+            }
+            if (parameters.SupportedWhiteBalance != null && parameters.SupportedWhiteBalance.Contains(Camera.Parameters.WhiteBalanceAuto))
+            {
+                parameters.WhiteBalance = Camera.Parameters.WhiteBalanceAuto;
+            }
             _camera.SetParameters(parameters);
-
         }
 
         public void SurfaceDestroyed(ISurfaceHolder holder)
         {
-
+            
         }
 
         public void OnPictureTaken(byte[] data, Camera camera)
         {
-            var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-            var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
-            if (!directory.Exists())
-                directory.Mkdirs();
+            Task.Run(() => {
+                var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
+                if (!directory.Exists())
+                    directory.Mkdirs();
 
-            var _photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
+                var _photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
 
-            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length, options);
+                var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+                var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length, options);
 
-            options.InSampleSize = BitmapUtils.CalculateInSampleSize(options, 1600, 1600);
-            options.InJustDecodeBounds = false;
+                options.InSampleSize = BitmapUtils.CalculateInSampleSize(options, 1600, 1600);
+                options.InJustDecodeBounds = false;
 
-            bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length, options);
-            bitmap = BitmapUtils.RotateImage(bitmap, _orientationListner.Orientation);
-            var stream = new FileStream(_photoUri, FileMode.Create);
-            bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+                bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length, options);
+                bitmap = BitmapUtils.RotateImage(bitmap, _orientation);
+                var stream = new FileStream(_photoUri, FileMode.Create);
+                bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
 
-            var i = new Intent(Context, typeof(PostDescriptionActivity));
-            i.PutExtra("FILEPATH", _photoUri);
-            i.PutExtra("SHOULD_COMPRESS", false);
-            StartActivity(i);
+                var i = new Intent(Context, typeof(PostDescriptionActivity));
+                i.PutExtra("FILEPATH", _photoUri);
+                i.PutExtra("SHOULD_COMPRESS", false);
+
+                Activity.RunOnUiThread(() => 
+                {
+                    StartActivity(i);
+                    if (_progressBar != null)
+                    {
+                        _progressBar.Visibility = ViewStates.Gone;
+                        _shotButton.Visibility = ViewStates.Visible;
+                        _flashButton.Enabled = true;
+                        _galleryButton.Enabled = true;
+                        _revertButton.Enabled = true;
+                        _closeButton.Enabled = true;
+                    }
+                });
+            });
         }
 
         private string GetPathToImage(Android.Net.Uri uri)
@@ -288,6 +338,48 @@ namespace Steepshot.Fragment
                 path = cursor.GetString(columnIndex);
             }
             return path;
+        }
+
+        public void OnShutter()
+        {
+            _orientation = _orientationListner.Orientation;
+            _progressBar.Visibility = ViewStates.Visible;
+            _shotButton.Visibility = ViewStates.Gone;
+            _flashButton.Enabled = false;
+            _galleryButton.Enabled = false;
+            _revertButton.Enabled = false;
+            _closeButton.Enabled = false;
+        }
+
+        [InjectOnClick(Resource.Id.revert_button)]
+        public void SwitchCamera(object sender, EventArgs e)
+        {
+            if (_camera != null)
+            {
+                _camera.StopPreview();
+                _camera.Release();
+                _camera = null;
+            }
+
+            var cameraToSwitch = _cameraId == 0 ? 1 : 0;
+            EnableCamera(cameraToSwitch);
+        }
+
+        private void EnableCamera(int cameraToSwitch)
+        {
+            _camera = Camera.Open(cameraToSwitch);
+            _orientationListner.CameraId = _cameraId = cameraToSwitch;
+            SetPreviewSize(_fullScreen);
+            SetCameraDisplayOrientation(_cameraId);
+            try
+            {
+                _camera.SetPreviewDisplay(_holder);
+                _camera.StartPreview();
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
         }
     }
 }
