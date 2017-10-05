@@ -57,7 +57,7 @@
     </RelativeLayout>
     <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/profile_image"
-        android:layout_width="100dp"
+        android:layout_width="75dp"
         android:layout_gravity="center_horizontal"
         android:layout_height="75dp"
         app:civ_border_width="1dp"
@@ -81,31 +81,31 @@
             android:textColor="@color/white"
             android:textSize="10sp"
             android:background="@drawable/white_corner_primary_btn" />
-      <RelativeLayout
-        android:id="@+id/follow_cont"
-        android:layout_toRightOf="@+id/cost_btn"
-        android:layout_marginLeft="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:padding="5dp"
-        android:background="@drawable/white_solid_btn">
-        <Button
-            android:id="@+id/follow_btn"
+        <RelativeLayout
+            android:id="@+id/follow_cont"
+            android:layout_toRightOf="@+id/cost_btn"
+            android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
-            android:text="@string/follow"
-            android:textColor="@color/color_primary"
-            android:textSize="10sp"
-            android:background="@android:color/transparent" />
-        <ProgressBar
-    android:id="@+id/follow_spinner"
-    android:layout_width="15dp"
-    android:layout_height="15dp"
-    android:visibility="invisible"
-    android:indeterminateTintMode="src_atop"
-    android:indeterminateTint="@color/color_primary"
-    android:layout_centerInParent="true" />
-      </RelativeLayout>
+            android:padding="5dp"
+            android:background="@drawable/white_solid_btn">
+            <Button
+                android:id="@+id/follow_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="@string/follow"
+                android:textColor="@color/color_primary"
+                android:textSize="10sp"
+                android:background="@android:color/transparent" />
+            <ProgressBar
+                android:id="@+id/follow_spinner"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:visibility="invisible"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="@color/color_primary"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
     </RelativeLayout>
     <TextView
         android:id="@+id/description"

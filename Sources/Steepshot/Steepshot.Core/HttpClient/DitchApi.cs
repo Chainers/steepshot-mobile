@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Ditch;
 using Ditch.Errors;
 using Ditch.JsonRpc;
-using Ditch.Operations.Enums;
 using Ditch.Operations.Get;
 using Ditch.Operations.Post;
 using Steepshot.Core.Extensions;
@@ -214,7 +213,8 @@ namespace Steepshot.Core.HttpClient
                     if (!string.IsNullOrWhiteSpace(meta))
                         meta = meta.Replace(Environment.NewLine, string.Empty);
 
-                    var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
+                    var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
+                    var post = new PostOperation(category, request.Login, request.Title, upResp.Payload.Body, meta);
                     var ops = upResp.Beneficiaries != null && upResp.Beneficiaries.Any()
                         ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _chainInfo.SbdSymbol, upResp.Beneficiaries) }
                         : new BaseOperation[] { post };

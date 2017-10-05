@@ -51,6 +51,7 @@ namespace Steepshot.iOS.Views
             var photo = UIImage.LoadFromData(jpegImageAsNsData);
             var cropY = (int)(photo.Size.Height - photo.Size.Width) / 2;
             UIImage cropped = CropImage(photo, 0, cropY, (int)photo.Size.Width, (int)photo.Size.Width);
+            cropped = NormalizeImage(cropped);
             GoToDescription(cropped);
         }
 
@@ -69,19 +70,36 @@ namespace Steepshot.iOS.Views
             context.Dispose();
             return modifiedImage;
         }
+		private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
+		{
+			var height = sourceImage.Size.Height;
+			var width = sourceImage.Size.Width;
+            var inSampleSize = 1.0;
+            if(height > reqHeight)
+            {
+                inSampleSize = reqHeight / height;
+            }
+            if(width > reqWidth)
+            {
+                inSampleSize = Math.Min(inSampleSize, reqWidth / width);
+            }
 
-        private UIImage NormalizeImage(UIImage sourceImage)
-        {
-            var imgSize = sourceImage.Size;
-            UIGraphics.BeginImageContextWithOptions(sourceImage.Size, false, sourceImage.CurrentScale);
+            return new CGSize(width * inSampleSize, height * inSampleSize);
+		}
 
-            var drawRect = new CGRect(0, 0, imgSize.Width, imgSize.Height);
-            sourceImage.Draw(drawRect);
-            var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
+		private UIImage NormalizeImage(UIImage sourceImage)
+		{
+			var imgSize = sourceImage.Size;
+			var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
+			UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
-            return modifiedImage;
-        }
+			var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
+			sourceImage.Draw(drawRect);
+			var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+			UIGraphics.EndImageContext();
+
+			return modifiedImage;
+		}
 
         private async Task RequestPhotoAuth()
         {
