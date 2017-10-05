@@ -40,7 +40,7 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetUserPosts(req);
+            var response = await Api.GetUserPosts(req, cts);
 
             if (response.Success)
             {
@@ -61,28 +61,28 @@ namespace Steepshot.Core.Presenters
 
         public Task<OperationResult<UserProfileResponse>> TryGetUserInfo(string user)
         {
-            return TryRunTask(GetUserInfo, user);
+            return TryRunTask(GetUserInfo, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), user);
         }
 
-        private Task<OperationResult<UserProfileResponse>> GetUserInfo(string user)
+        private Task<OperationResult<UserProfileResponse>> GetUserInfo(CancellationTokenSource cts, string user)
         {
             var req = new UserProfileRequest(user)
             {
                 Login = User.Login
             };
-            return Api.GetUserProfile(req);
+            return Api.GetUserProfile(req, cts);
         }
 
 
         public Task<OperationResult<FollowResponse>> TryFollow(int hasFollowed)
         {
-            return TryRunTask(Follow, hasFollowed);
+            return TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed);
         }
 
-        private Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
+        private Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, int hasFollowed)
         {
             var request = new FollowRequest(User.UserInfo, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
-            return Api.Follow(request);
+            return Api.Follow(request, cts);
         }
     }
 }

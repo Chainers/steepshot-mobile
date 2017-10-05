@@ -17,7 +17,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var api = Api[apiName];
             var user = Users[apiName];
             var request = new AuthorizedRequest(user);
-            var response = api.LoginWithPostingKey(request).Result;
+            var response = api.LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             AssertResult(response);
             Assert.That(response.Result.IsLoggedIn, Is.True);
         }
@@ -45,7 +45,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(lastPost);
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
 
@@ -93,7 +93,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => i.Vote);
 
@@ -110,7 +110,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
             userPostsRequest.Login = user.Login;
-            var userPostsResponse3 = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse3 = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse3);
             var post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -130,7 +130,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Thread.Sleep(TimeSpan.FromSeconds(15));
             // Provide sessionId with request to be able read voting information
             userPostsRequest.Login = user.Login;
-            var userPostsResponse2 = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse2 = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse2);
             post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -145,7 +145,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login);
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest).Result;
+            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
             // Load comments for this post and check them

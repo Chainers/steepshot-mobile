@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
+using Android.Text;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -53,7 +54,7 @@ namespace Steepshot.Activity
 
         readonly List<SearchResult> _selectedCategories = new List<SearchResult>();
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -67,32 +68,8 @@ namespace Steepshot.Activity
 
             _close.Click += (sender, e) => OnBackPressed();
 
-            _searchBox.TextChanged += (sender, e) =>
-            {
-                if (_searchBox.Text.Length > 1)
-                {
-                    _addCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
-                    _presenter.SearchTags(_searchBox.Text).ContinueWith((arg) =>
-                    {
-                        _adapter.Reset(arg.Result.Result.Results);
-                        RunOnUiThread(() => _adapter.NotifyDataSetChanged());
-                    });
-                }
-                else
-                {
-                    _addCustomTagButton.Visibility = Android.Views.ViewStates.Gone;
-                }
-            };
-
-
+            _searchBox.TextChanged += SearcTextChanged;
             _adapter.Click += Adapter_Click;
-
-            _presenter.GetTopTags().ContinueWith((arg) =>
-            {
-                _adapter.Reset(arg.Result.Result.Results);
-                RunOnUiThread(() => _adapter.NotifyDataSetChanged());
-            });
-
 
             var b = Intent?.GetBundleExtra("TAGS");
             if (b != null)
@@ -100,6 +77,45 @@ namespace Steepshot.Activity
                 var tags = b.GetStringArray("TAGS");
                 foreach (var tag in tags)
                     AddTag(tag);
+            }
+
+            //TODO: KOA: await in OnCreate o.O
+            var resp = await _presenter.TryGetTopTags();
+            if (resp != null)
+            {
+                if (resp.Success)
+                {
+                    _adapter.Reset(resp.Result.Results);
+                    _adapter.NotifyDataSetChanged();
+                }
+                else
+                {
+                    ShowAlert(resp.Errors);
+                }
+            }
+        }
+
+        private async void SearcTextChanged(object sender, TextChangedEventArgs textChangedEventArgs)
+        {
+            if (_searchBox.Text.Length > 1)
+            {
+                _addCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
+                var rez = await _presenter.TrySearchTags(_searchBox.Text);
+                if (rez == null)
+                    return;
+                if (rez.Success)
+                {
+                    _adapter.Reset(rez.Result.Results);
+                    _adapter.NotifyDataSetChanged();
+                }
+                else
+                {
+                    ShowAlert(rez.Errors);
+                }
+            }
+            else
+            {
+                _addCustomTagButton.Visibility = Android.Views.ViewStates.Gone;
             }
         }
 
