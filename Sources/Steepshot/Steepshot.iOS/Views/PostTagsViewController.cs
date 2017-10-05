@@ -105,17 +105,25 @@ namespace Steepshot.iOS.Views
                     OperationResult<SearchResponse<SearchResult>> response;
                     if (string.IsNullOrEmpty(query))
                     {
-                        response = await _presenter.GetTopTags();
+                        response = await _presenter.TryGetTopTags(_cts);
                     }
                     else
                     {
-                        response = await _presenter.SearchTags(query);
+                        response = await _presenter.TrySearchTags(query, _cts);
                     }
+
+                    if (response == null)
+                        return;
+
                     if (response.Success)
                     {
                         _tagsSource.Tags.Clear();
                         _tagsSource.Tags = response.Result?.Results;
                         tagsTable.ReloadData();
+                    }
+                    else
+                    {
+                        ShowAlert(response.Errors);
                     }
                     //else
                     //Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);

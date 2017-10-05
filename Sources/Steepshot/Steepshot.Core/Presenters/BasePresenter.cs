@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
 using Steepshot.Core.Authority;
@@ -88,11 +89,12 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        protected async Task<TResult> TryRunTask<T, TResult>(Func<T, Task<TResult>> func, T parameters)
+
+        protected async Task<TResult> TryRunTask<T, TResult>(Func<CancellationTokenSource, T, Task<TResult>> func, CancellationTokenSource cts, T parameters)
         {
             try
             {
-                return await func(parameters);
+                return await func(cts, parameters);
             }
             catch (OperationCanceledException)
             {
@@ -106,11 +108,11 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        protected async Task<TResult> TryRunTask<TResult>(Func<Task<TResult>> func)
+        protected async Task<TResult> TryRunTask<TResult>(Func<CancellationTokenSource, Task<TResult>> func, CancellationTokenSource cts)
         {
             try
             {
-                return await func();
+                return await func(cts);
             }
             catch (OperationCanceledException)
             {

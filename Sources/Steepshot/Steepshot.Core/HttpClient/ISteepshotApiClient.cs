@@ -21,7 +21,7 @@ namespace Steepshot.Core.HttpClient
         ///     2) GET https://steepshot.org/api/v1/user/joseph.kalu/posts?offset=%2Fcat1%2F%40joseph.kalu%2Fcat636203389144533548&amp;limit=3 HTTP/1.1
         ///            Cookie: sessionid=q9umzz8q17bclh8yvkkipww3e96dtdn3
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
@@ -39,14 +39,14 @@ namespace Steepshot.Core.HttpClient
         ///     3) GET https://steepshot.org/api/v1/posts/top HTTP/1.1
         ///     4) GET https://steepshot.org/api/v1/posts/top?offset=%2Fsteemit%2F%40heiditravels%2Felevate-your-social-media-experience-with-steemit&amp;limit=3 HTTP/1.1
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/posts/food/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/posts/food/top?offset=%2Ftravel%2F%40sweetsssj%2Ftravel-with-me-39-my-appointment-with-gulangyu&amp;limit=5 HTTP/1.1
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
@@ -107,21 +107,21 @@ namespace Steepshot.Core.HttpClient
         /// </summary>
         Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts);
 
-        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null);
+        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/categories/top HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/top?offset=food&amp;limit=5 HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/categories/search?query=foo HTTP/1.1
         ///     2) GET https://steepshot.org/api/v1/categories/search?offset=life&amp;limit=5&amp;query=lif HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
@@ -148,24 +148,24 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/tos HTTP/1.1
         /// </summary>
-        Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts = null);
+        Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
         /// </summary>
-        Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&amp;limit=5&amp;query=aar HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/pussyhunter123/exists HTTP/1.1
         /// </summary>
-        Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts);
     }
 }

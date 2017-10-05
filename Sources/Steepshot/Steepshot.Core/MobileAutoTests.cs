@@ -207,7 +207,7 @@ namespace Steepshot.Core
             StepFinished?.Invoke(sb.ToString());
 
             var request = new AuthorizedRequest(_user);
-            var response = _api.LoginWithPostingKey(request).Result;
+            var response = _api.LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             if (!response.Success)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
@@ -310,7 +310,7 @@ namespace Steepshot.Core
             StepFinished?.Invoke(sb.ToString());
 
             var logoutRequest = new AuthorizedRequest(_user);
-            var logoutResponse = _api.Logout(logoutRequest).Result;
+            var logoutResponse = _api.Logout(logoutRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
             if (!logoutResponse.Success)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, logoutResponse.Errors)}");
@@ -327,13 +327,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new UserPostsRequest(_user.Login) { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetUserPosts(request).Result;
+            var response = _api.GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetUserPosts(request).Result;
+            response = _api.GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -354,13 +354,13 @@ namespace Steepshot.Core
                 ShowNsfw = _user.IsNsfw,
                 ShowLowRated = _user.IsLowRated
             };
-            var response = _api.GetUserRecentPosts(request).Result;
+            var response = _api.GetUserRecentPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetUserRecentPosts(request).Result;
+            response = _api.GetUserRecentPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -375,13 +375,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new PostsRequest(PostType.New) { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetPosts(request).Result;
+            var response = _api.GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetPosts(request).Result;
+            response = _api.GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
@@ -396,13 +396,13 @@ namespace Steepshot.Core
 
             var limit = 3;
             var request = new PostsByCategoryRequest(PostType.New, "steepshot") { ShowNsfw = _user.IsNsfw, ShowLowRated = _user.IsLowRated, Limit = limit };
-            var response = _api.GetPostsByCategory(request).Result;
+            var response = _api.GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
             request.Offset = response.Result.Results.Last().Url;
-            response = _api.GetPostsByCategory(request).Result;
+            response = _api.GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             if (IsError2(sb, limit, response, request.Offset))
                 return;
