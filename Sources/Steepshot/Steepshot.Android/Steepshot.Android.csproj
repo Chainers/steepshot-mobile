@@ -114,6 +114,7 @@
     <Compile Include="Utils\BitmapUtils.cs" />
     <Compile Include="Activity\CameraActivity.cs" />
     <Compile Include="Fragment\OldCameraFragment.cs" />
+    <Compile Include="Utils\CameraOrientationEventListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
