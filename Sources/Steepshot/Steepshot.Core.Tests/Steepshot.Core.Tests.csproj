@@ -145,7 +145,6 @@
     <Compile Include="Stubs\StubAppInfo.cs" />
     <Compile Include="Stubs\StubConnectionService.cs" />
     <Compile Include="Stubs\StubDataProvider.cs" />
-    <Compile Include="Stubs\StubReporterService.cs" />
     <Compile Include="Stubs\StubSaverService.cs" />
     <Compile Include="UnitTests.cs" />
   </ItemGroup>

@@ -51,6 +51,7 @@ namespace Steepshot.iOS.Views
             var photo = UIImage.LoadFromData(jpegImageAsNsData);
             var cropY = (int)(photo.Size.Height - photo.Size.Width) / 2;
             UIImage cropped = CropImage(photo, 0, cropY, (int)photo.Size.Width, (int)photo.Size.Width);
+            cropped = NormalizeImage(cropped);
             GoToDescription(cropped);
         }
 
@@ -69,13 +70,30 @@ namespace Steepshot.iOS.Views
             context.Dispose();
             return modifiedImage;
         }
+        private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
+        {
+            var height = sourceImage.Size.Height;
+            var width = sourceImage.Size.Width;
+            var inSampleSize = 1.0;
+            if (height > reqHeight)
+            {
+                inSampleSize = reqHeight / height;
+            }
+            if (width > reqWidth)
+            {
+                inSampleSize = Math.Min(inSampleSize, reqWidth / width);
+            }
+
+            return new CGSize(width * inSampleSize, height * inSampleSize);
+        }
 
         private UIImage NormalizeImage(UIImage sourceImage)
         {
             var imgSize = sourceImage.Size;
-            UIGraphics.BeginImageContextWithOptions(sourceImage.Size, false, sourceImage.CurrentScale);
+            var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
+            UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
-            var drawRect = new CGRect(0, 0, imgSize.Width, imgSize.Height);
+            var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
             sourceImage.Draw(drawRect);
             var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
@@ -322,7 +340,7 @@ namespace Steepshot.iOS.Views
                 CGRect textSize = new CGRect();
                 if (_commentString.Any())
                     textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
-                
+
                 //165 => 485-320 cell height without image size
                 var cellHeight = 165 + correction;
                 return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
