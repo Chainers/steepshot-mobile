@@ -139,7 +139,7 @@ namespace Steepshot.Activity
                     }
                     else
                     {
-                        ShowAlert(response.Errors[0]);
+                        ShowAlert(response.Errors);
                         _spinner.Visibility = ViewStates.Invisible;
                         ((AppCompatButton)sender).Visibility = ViewStates.Visible;
                         ((AppCompatButton)sender).Enabled = true;

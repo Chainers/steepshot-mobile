@@ -104,5 +104,23 @@ namespace Steepshot.Core.Presenters
             }
             return default(TResult);
         }
+
+
+        protected async Task<TResult> TryRunTask<TResult>(Func<Task<TResult>> func)
+        {
+            try
+            {
+                return await func();
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return default(TResult);
+        }
     }
 }
