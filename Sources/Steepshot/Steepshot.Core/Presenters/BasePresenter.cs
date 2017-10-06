@@ -89,25 +89,8 @@ namespace Steepshot.Core.Presenters
         }
 
 
-
-        protected async Task<TResult> TryRunTask<T, TResult>(Func<CancellationTokenSource, T, Task<TResult>> func, CancellationTokenSource cts, T parameters)
-        {
-            try
-            {
-                return await func(cts, parameters);
-            }
-            catch (OperationCanceledException)
-            {
-                // to do nothing
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            return default(TResult);
-        }
-
-
+        #region TryRunTask
+        
         protected async Task<TResult> TryRunTask<TResult>(Func<CancellationTokenSource, Task<TResult>> func, CancellationTokenSource cts)
         {
             try
@@ -124,5 +107,41 @@ namespace Steepshot.Core.Presenters
             }
             return default(TResult);
         }
+
+        protected async Task<TResult> TryRunTask<T1, TResult>(Func<CancellationTokenSource, T1, Task<TResult>> func, CancellationTokenSource cts, T1 param1)
+        {
+            try
+            {
+                return await func(cts, param1);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return default(TResult);
+        }
+
+        protected async Task<TResult> TryRunTask<T1, T2, TResult>(Func<CancellationTokenSource, T1, T2, Task<TResult>> func, CancellationTokenSource cts, T1 param1, T2 param2)
+        {
+            try
+            {
+                return await func(cts, param1, param2);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return default(TResult);
+        }
+
+        #endregion
     }
 }

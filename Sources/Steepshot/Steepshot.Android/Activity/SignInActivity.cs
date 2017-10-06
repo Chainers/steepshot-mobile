@@ -110,11 +110,14 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
+            var appCompatButton = sender as AppCompatButton;
+            if (appCompatButton == null)
+                return;
+            var login = _username;
+            var pass = _password?.Text;
+
             try
             {
-                var login = _username;
-                var pass = _password.Text;
-
                 if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
                 {
                     Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
@@ -122,17 +125,18 @@ namespace Steepshot.Activity
                 }
 
                 _spinner.Visibility = ViewStates.Visible;
-                ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
-                ((AppCompatButton)sender).Enabled = false;
+                appCompatButton.Visibility = ViewStates.Invisible;
+                appCompatButton.Enabled = false;
 
-                var response = await _presenter.SignIn(login, pass);
+                var response = await _presenter.TrySignIn(login, pass);
 
                 if (response != null)
                 {
                     if (response.Success)
                     {
                         _newChain = KnownChains.None;
-                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
+                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain,
+                            true);
                         var intent = new Intent(this, typeof(RootActivity));
                         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                         StartActivity(intent);
@@ -140,22 +144,18 @@ namespace Steepshot.Activity
                     else
                     {
                         ShowAlert(response.Errors);
-                        _spinner.Visibility = ViewStates.Invisible;
-                        ((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                        ((AppCompatButton)sender).Enabled = true;
                     }
-                }
-                else
-                {
-                    ShowAlert(Resource.String.error_connect_to_server);
-                    _spinner.Visibility = ViewStates.Invisible;
-                    ((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                    ((AppCompatButton)sender).Enabled = true;
                 }
             }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+            }
+            finally
+            {
+                appCompatButton.Enabled = true;
+                appCompatButton.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Invisible;
             }
         }
 

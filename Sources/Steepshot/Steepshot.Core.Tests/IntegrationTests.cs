@@ -22,7 +22,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             // Assert
             AssertResult(response);
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             // Assert
             AssertResult(response);
@@ -58,7 +58,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
 
             // Assert
             AssertResult(response);

@@ -13,7 +13,7 @@ namespace Steepshot.Core.HttpClient
         ///     1) POST https://steepshot.org/api/v1/login-with-posting HTTP/1.1
         ///             {"username":"joseph.kalu","posting_key":"test1234"}
         /// </summary>
-        Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts);
 
         /// <summary>
         ///     Examples:
