@@ -38,7 +38,7 @@ namespace Steepshot.Activity
             /*
             if (!_presenter.IsGuest)
             {
-                isKeyValid = (await _presenter.SignIn(BasePresenter.User.Login, BasePresenter.User.UserInfo.PostingKey)).Success;
+                isKeyValid = (await _presenter.TrySignIn(BasePresenter.User.Login, BasePresenter.User.UserInfo.PostingKey)).Success;
                 if (!isKeyValid)
                 {
                     BasePresenter.User.UserInfo.PostingKey = null;

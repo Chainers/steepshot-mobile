@@ -107,19 +107,22 @@ namespace Steepshot.iOS.Views
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
             {
-                var response = await _presenter.SignIn(Username, password.Text);
-                if (response.Success)
+                var response = await _presenter.TrySignIn(Username, password.Text);
+                if (response != null)
                 {
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
+                    if (response.Success)
+                    {
+                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
 
-                    var myViewController = new MainTabBarController();
+                        var myViewController = new MainTabBarController();
 
-                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                    NavigationController.PopViewController(true);
-                }
-                else
-                {
-                    ShowAlert(response.Errors[0]);
+                        NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                        NavigationController.PopViewController(true);
+                    }
+                    else
+                    {
+                        ShowAlert(response.Errors[0]);
+                    }
                 }
             }
             catch (ArgumentNullException)
