@@ -82,10 +82,15 @@ namespace Steepshot.Activity
             Cache.Clear();
             GC.Collect();
 
-            Picasso.With(this).Load(_path.ToFilePath())
-                   .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
-                   .Resize(Resources.DisplayMetrics.WidthPixels, 0)
-                   .Into(_photoFrame);
+            if (!_shouldCompress)
+                _photoFrame.SetImageURI(Android.Net.Uri.Parse(_path));
+            else
+            {
+                Picasso.With(this).Load(_path.ToFilePath())
+                       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
+                       .Resize(Resources.DisplayMetrics.WidthPixels, 0)
+                       .Into(_photoFrame);
+            }
         }
 
         public void AddTags(string[] tags)
@@ -198,26 +203,38 @@ namespace Steepshot.Activity
               {
                   try
                   {
-                      Bitmap bitmap;
                       if (_shouldCompress)
                       {
-                          bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1600, 1600);
-                          bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
+                          Bitmap bitmap;
+                          if (_shouldCompress)
+                          {
+                              bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1600, 1600);
+                              bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
+                          }
+                          else
+                              bitmap = BitmapFactory.DecodeFile(path);
+
+                          if (bitmap == null)
+                              return null;
+
+                          using (var stream = new MemoryStream())
+                          {
+                              if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
+                              {
+                                  var outbytes = stream.ToArray();
+                                  bitmap.Recycle();
+                                  return outbytes;
+                              }
+                          }
                       }
                       else
-                          bitmap = BitmapFactory.DecodeFile(path);
-
-                      if (bitmap == null)
-                          return null;
-
-                      using (var stream = new MemoryStream())
                       {
-                        if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
-                          {
-                              var outbytes = stream.ToArray();
-                              bitmap.Recycle();
-                              return outbytes;
-                          }
+                          var photo = new Java.IO.File(path);
+                          var stream = new Java.IO.FileInputStream(photo);
+                          var outbytes = new byte[photo.Length()];
+                          stream.Read(outbytes);
+                          stream.Close();
+                          return outbytes;
                       }
                   }
                   catch (Exception ex)

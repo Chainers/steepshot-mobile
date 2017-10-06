@@ -64,7 +64,6 @@
             android:id="@+id/gallery_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@android:color/black"
             android:layout_centerInParent="true" />
     </RelativeLayout>
 </RelativeLayout>
