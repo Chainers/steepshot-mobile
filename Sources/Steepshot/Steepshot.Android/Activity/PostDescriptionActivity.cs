@@ -5,13 +5,11 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
-using Android.Media;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 using Autofac;
 using Com.Lilarcor.Cheeseknife;
-using Java.IO;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -32,7 +30,7 @@ namespace Steepshot.Activity
         private FrameLayout _add;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.d_edit)] EditText _description;
+        [InjectView(Resource.Id.d_edit)] EditText _tbTitle;
         [InjectView(Resource.Id.load_layout)] RelativeLayout _loadLayout;
         [InjectView(Resource.Id.btn_post)] Button _postButton;
         [InjectView(Resource.Id.description_scroll)] ScrollView _descriptionScroll;
@@ -40,7 +38,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.photo)] ImageView _photoFrame;
 
         [InjectView(Resource.Id.description_title)] private TextView _descriptionTitle;
-        [InjectView(Resource.Id.description_edit)] private EditText _editTextDescription;
+        [InjectView(Resource.Id.description_edit)] private EditText _tbDescription;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_post)]
@@ -61,7 +59,7 @@ namespace Steepshot.Activity
         public void ToggleDescription(object sender, EventArgs e)
         {
             _descriptionTitle.Visibility = _descriptionTitle.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
-            _editTextDescription.Visibility = _editTextDescription.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
+            _tbDescription.Visibility = _tbDescription.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -148,7 +146,7 @@ namespace Steepshot.Activity
                 if (!AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable())
                     return;
 
-                if (string.IsNullOrEmpty(_description.Text))
+                if (string.IsNullOrEmpty(_tbTitle.Text))
                 {
                     Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
                     return;
@@ -156,9 +154,10 @@ namespace Steepshot.Activity
                 var arrayToUpload = await CompressPhoto(_path);
                 if (arrayToUpload != null)
                 {
-                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _description.Text, arrayToUpload, _tags.ToArray());
-                    if(!string.IsNullOrEmpty(_editTextDescription.Text))
-                        request.Description = _editTextDescription.Text; 
+                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _tbTitle.Text, arrayToUpload, _tags.ToArray())
+                    {
+                        Description = _tbDescription.Text
+                    };
                     var resp = await _presenter.Upload(request);
 
                     if (resp.Errors.Count > 0)
@@ -220,7 +219,7 @@ namespace Steepshot.Activity
                   return null;
               });
         }
-        
+
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
