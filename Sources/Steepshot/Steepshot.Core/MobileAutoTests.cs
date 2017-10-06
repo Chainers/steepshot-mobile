@@ -40,7 +40,6 @@ namespace Steepshot.Core
                     FollowTest(_log, num++);
                     CreateCommentTest(_log, num++);
                     UploadTest(_log, num++);
-                    LogoutTest(_log, num++);
                     _log.AppendLine("Tests End;");
                     StepFinished?.Invoke(_log.ToString());
                 }
@@ -303,22 +302,7 @@ namespace Steepshot.Core
 
             sb.AppendLine("pass.");
         }
-
-        private void LogoutTest(StringBuilder sb, int num)
-        {
-            sb.Append($"{num}) LogoutTest : ");
-            StepFinished?.Invoke(sb.ToString());
-
-            var logoutRequest = new AuthorizedRequest(_user);
-            var logoutResponse = _api.Logout(logoutRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
-            if (!logoutResponse.Success)
-            {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, logoutResponse.Errors)}");
-                return;
-            }
-            sb.AppendLine("pass.");
-        }
-
+        
         //base
         private void GetUserPostsTest(StringBuilder sb, int num)
         {

@@ -360,12 +360,7 @@ namespace Steepshot.Core.HttpClient
 
             return new OperationResult<SearchResponse<SearchResult>> { Result = rez };
         }
-
-        public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts = null)
-        {
-            return new OperationResult<LogoutResponse> { Result = new LogoutResponse(true) };
-        }
-
+        
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts = null)
         {
             var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);

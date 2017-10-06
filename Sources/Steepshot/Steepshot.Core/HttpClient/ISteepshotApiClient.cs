@@ -125,13 +125,6 @@ namespace Steepshot.Core.HttpClient
 
         /// <summary>
         ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/logout HTTP/1.1
-        ///             Cookie: sessionid=rm8haiqibvsvpv7f495mg17sdzje29aw
-        /// </summary>
-        Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts = null);
-
-        /// <summary>
-        ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/user/joseph.kalu/info HTTP/1.1
         /// </summary>
         Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts = null);

@@ -209,17 +209,5 @@ namespace Steepshot.Core.Tests.HttpClient
             AssertResult(unfollowResponse);
             Assert.IsTrue(unfollowResponse.Result.IsSuccess);
         }
-
-        [Test, Sequential]
-        public void LogoutTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
-        {
-            var user = Authenticate(apiName);
-
-            // 9) Logout
-            var logoutRequest = new AuthorizedRequest(user);
-            var logoutResponse = Api[apiName].Logout(logoutRequest).Result;
-            AssertResult(logoutResponse);
-            Assert.That(logoutResponse.Result.IsLoggedOut, Is.True);
-        }
     }
 }

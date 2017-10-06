@@ -241,17 +241,6 @@ namespace Steepshot.Core.HttpClient
             });
         }
 
-        public async Task<OperationResult<LogoutResponse>> Logout(AuthorizedRequest request, CancellationTokenSource cts)
-        {
-            var errors = CheckInternetConnection();
-            if (errors != null)
-                return new OperationResult<LogoutResponse> { Errors = errors.Errors };
-            return await Task.Run(() => new OperationResult<LogoutResponse>
-            {
-                Result = new LogoutResponse(true)
-            });
-        }
-
         #endregion Post requests
 
         #region Get

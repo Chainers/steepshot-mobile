@@ -89,7 +89,7 @@ namespace Steepshot.Activity
                 _testsButton.Click += StartTestActivity;
             }
         }
-        
+
         private void StartTestActivity(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(TestActivity));
@@ -98,8 +98,10 @@ namespace Steepshot.Activity
 
         private async void LoadAvatar()
         {
-            var info = await _presenter.GetUserInfo();
-            if (info.Success && !string.IsNullOrEmpty(info.Result.ProfileImage))
+            //TODO: avatar was already loaded for profile activity! Remove SettingsPresenter.
+            var info = await _presenter.TryGetUserInfo();
+
+            if (info != null && info.Success && !string.IsNullOrEmpty(info.Result.ProfileImage))
             {
                 Picasso.With(ApplicationContext).Load(info.Result.ProfileImage).Into(_avatar);
             }
@@ -168,7 +170,6 @@ namespace Steepshot.Activity
 
         private void RemoveChain(KnownChains chain)
         {
-            //_presenter.Logout();
             var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
             {
