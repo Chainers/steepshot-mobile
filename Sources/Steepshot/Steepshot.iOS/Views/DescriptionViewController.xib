@@ -190,38 +190,6 @@
             </constraints>
         </view>
     </objects>
-    <resources>
-        <image name="ic_photo_holder.png" width="64" height="64"/>
-        <image name="ic_user_placeholder.png" width="70" height="70"/>
-        <image name="ic_conversation.png" width="66" height="66"/>
-        <image name="white-arrow-down.png" width="256" height="256"/>
-        <image name="ic_cross.png" width="24" height="24"/>
-        <image name="ic_micro_heart.png" width="24" height="24"/>
-        <image name="ic_send.png" width="52" height="52"/>
-        <image name="eye.png" width="18" height="13.666667"/>
-        <image name="golos.png" width="22" height="22"/>
-        <image name="logo_login.png" width="120" height="120"/>
-        <image name="steem.png" width="22" height="22"/>
-        <image name="splash.png" width="250" height="150"/>
-        <image name="qr.png" width="36" height="36"/>
-        <image name="rotate.png" width="25" height="21.666666"/>
-        <image name="home.png" width="25" height="25"/>
-        <image name="browse.png" width="25" height="25"/>
-        <image name="camera.png" width="25" height="25"/>
-        <image name="profile.png" width="25" height="25"/>
-        <image name="gallery.png" width="25" height="25"/>
-        <image name="take_photo.png" width="65" height="65"/>
-        <image name="list.png" width="13.666667" height="14.333333"/>
-        <image name="grid.png" width="14.666667" height="14.666667"/>
-        <image name="gear.png" width="21" height="21"/>
-        <image name="wallet.png" width="13.666667" height="11.666667"/>
-        <image name="flag.png" width="25" height="25"/>
-        <image name="small_camera.png" width="25" height="25"/>
-        <image name="heart_black.png" width="25" height="25"/>
-        <image name="heart.png" width="25" height="25"/>
-        <image name="search.png" width="25" height="25"/>
-        <image name="flag_active.png" width="25" height="25"/>
-    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina47"/>
     </simulatedMetricsContainer>
