@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Steepshot.Core.Presenters
 {
-    public class SearchPresenter : ListPresenter
+    public sealed class SearchPresenter : ListPresenter
     {
         public FollowersPresenter FollowersPresenter { get; }
         public TagsPresenter TagsPresenter { get; }

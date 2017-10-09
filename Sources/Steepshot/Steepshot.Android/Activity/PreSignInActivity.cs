@@ -119,7 +119,7 @@ namespace Steepshot.Activity
                 ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
                 ((AppCompatButton)sender).Enabled = false;
 
-                var response = await _presenter.GetAccountInfo(login);
+                var response = await _presenter.TryGetAccountInfo(login);
 
                 if (response != null)
                 {
