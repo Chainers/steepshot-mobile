@@ -14,7 +14,6 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -66,9 +65,8 @@ namespace Steepshot.Fragment
             _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
-            _categoriesAdapter = new CategoriesAdapter();
-            _categoriesAdapter.Items = _presenter.Tags;
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] { _font, _semiboldFont });
+            _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.FollowersPresenter, new[] { _font, _semiboldFont });
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -113,40 +111,41 @@ namespace Steepshot.Fragment
             }
             if (_searchType == SearchType.Tags)
             {
-                Activity.Intent.PutExtra("SEARCH", _categoriesAdapter.GetItem(pos).Name);
+                var user = _presenter.TagsPresenter[pos];
+                if (user == null)
+                    return;
+
+                Activity.Intent.PutExtra("SEARCH", user.Name);
                 Activity.OnBackPressed();
             }
             else if (_searchType == SearchType.People)
             {
-                
-                if (_presenter.Users.Count > pos)
+
+                if (_presenter.FollowersPresenter.Count > pos)
                 {
-                    var user = _presenter.Users[pos].Author;
-                    ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user));
+                    var user = _presenter.FollowersPresenter[pos];
+                    if (user == null)
+                        return;
+                    ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
                 }
             }
         }
 
         async void Follow(int position)
         {
-            try
+            var user = _presenter.FollowersPresenter[position];
+            if (user == null)
+                return;
+
+            var response = await _presenter.FollowersPresenter.TryFollow(user);
+            if (response.Success)
             {
-                var response = await _presenter.Follow(_presenter.Users[position]);
-                if (response.Success)
-                {
-                    _presenter.Users[position].HasFollowed = !_presenter.Users[position].HasFollowed;
-                    _usersSearchAdapter.NotifyDataSetChanged();
-                }
-                else
-                {
-                    Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
-                    _usersSearchAdapter.InverseFollow(position);
-                    _usersSearchAdapter.NotifyDataSetChanged();
-                }
+                user.HasFollowed = !user.HasFollowed;
+                _usersSearchAdapter.NotifyDataSetChanged();
             }
-            catch (Exception ex)
+            else
             {
-                AppSettings.Reporter.SendCrash(ex);
+                ShowAlert(response.Errors);
             }
         }
 
@@ -154,7 +153,7 @@ namespace Steepshot.Fragment
         {
             Activity.RunOnUiThread(() =>
            {
-                GetTags(true);
+               GetTags(true);
            });
         }
 
@@ -167,14 +166,14 @@ namespace Steepshot.Fragment
                     if (_prevQuery[_searchType] == _searchView.Text)
                         return;
                     if (_searchType == SearchType.People)
-                        _presenter.Users.Clear();
+                        _presenter.FollowersPresenter.Clear();
                     else
-                        _presenter.Tags.Clear();
+                        _presenter.TagsPresenter.Clear();
                     scrollListner.ClearPosition();
                     _prevQuery[_searchType] = _searchView.Text;
                     _spinner.Visibility = ViewStates.Visible;
                 }
-                var errors = await _presenter.SearchCategories(_searchView.Text, _searchType, clear);
+                var errors = await _presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
                 if (errors != null && errors.Count > 0)
                     Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
                 else

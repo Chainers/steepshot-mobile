@@ -7,6 +7,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -16,7 +17,6 @@ namespace Steepshot.Fragment
 {
     public class FollowersFragment : BaseFragmentWithPresenter<FollowersPresenter>
     {
-        private FriendsType _friendsType;
         private FollowersAdapter _followersAdapter;
         private string _username;
 
@@ -49,23 +49,23 @@ namespace Steepshot.Fragment
             var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
-            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+
             var count = Activity.Intent.GetIntExtra("count", 0);
             _people_count.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
-            _friendsType = isFollowers ? FriendsType.Followers : FriendsType.Following;
+
 
             LoadItems();
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = isFollowers ? "Followers" : "Following";
+            _viewTitle.Text = _presenter.FollowType.GetDescription();
 
             _viewTitle.Typeface = semibold_font;
             _people_count.Typeface = font;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users, _presenter, new Typeface[] { font, semibold_font });
+            _followersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
@@ -79,16 +79,16 @@ namespace Steepshot.Fragment
         {
             try
             {
-                var response = await _presenter.Follow(_presenter.Users[position]);
+                var response = await _presenter.TryFollow(_presenter[position]);
                 if (response.Success)
                 {
-                    _presenter.Users[position].HasFollowed = !_presenter.Users[position].HasFollowed;
+                    _presenter[position].HasFollowed = !_presenter[position].HasFollowed;
                     _followersAdapter.NotifyDataSetChanged();
                 }
                 else
                 {
                     Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
-                    _followersAdapter.InverseFollow(position);
+                    _presenter.InverseFollow(position);
                     _followersAdapter.NotifyDataSetChanged();
                 }
             }
@@ -100,7 +100,7 @@ namespace Steepshot.Fragment
 
         private void LoadItems()
         {
-            _presenter.GetItems(_friendsType, _username).ContinueWith((e) =>
+            _presenter.TryLoadNextUserFriends(_username).ContinueWith((e) =>
             {
                 var errors = e.Result;
                 Activity.RunOnUiThread(() =>
@@ -117,7 +117,11 @@ namespace Steepshot.Fragment
 
         private void UserAction(int position)
         {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Users[position].Author));
+            var user = _presenter[position];
+            if (user == null)
+                return;
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -128,7 +132,8 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            _presenter = new FollowersPresenter();
+            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+            _presenter = new FollowersPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
         }
 
         public override void OnDetach()

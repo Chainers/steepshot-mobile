@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -63,7 +62,7 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
-            _adapter = new TagsAdapter();
+            _adapter = new TagsAdapter(_presenter);
             _tagsList.SetAdapter(_adapter);
 
             _close.Click += (sender, e) => OnBackPressed();
@@ -79,20 +78,11 @@ namespace Steepshot.Activity
                     AddTag(tag);
             }
 
-            //TODO: KOA: await in OnCreate o.O
-            var resp = await _presenter.TryGetTopTags();
-            if (resp != null)
-            {
-                if (resp.Success)
-                {
-                    _adapter.Reset(resp.Result.Results);
-                    _adapter.NotifyDataSetChanged();
-                }
-                else
-                {
-                    ShowAlert(resp.Errors);
-                }
-            }
+            var errors = await _presenter.TryGetTopTags();
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                _adapter?.NotifyDataSetChanged();
         }
 
         private async void SearcTextChanged(object sender, TextChangedEventArgs textChangedEventArgs)
@@ -100,18 +90,12 @@ namespace Steepshot.Activity
             if (_searchBox.Text.Length > 1)
             {
                 _addCustomTagButton.Visibility = Android.Views.ViewStates.Visible;
-                var rez = await _presenter.TrySearchTags(_searchBox.Text);
-                if (rez == null)
-                    return;
-                if (rez.Success)
-                {
-                    _adapter.Reset(rez.Result.Results);
-                    _adapter.NotifyDataSetChanged();
-                }
+                _presenter.Clear();
+                var errors = await _presenter.TryLoadNext(_searchBox.Text);
+                if (errors != null && errors.Count > 0)
+                    ShowAlert(errors);
                 else
-                {
-                    ShowAlert(rez.Errors);
-                }
+                    _adapter?.NotifyDataSetChanged();
             }
             else
             {
@@ -121,7 +105,10 @@ namespace Steepshot.Activity
 
         void Adapter_Click(int obj)
         {
-            AddTag(_adapter.GetItem(obj));
+            var user = _presenter[obj];
+            if (user == null)
+                return;
+            AddTag(user);
         }
 
         public void AddTag(string s)
