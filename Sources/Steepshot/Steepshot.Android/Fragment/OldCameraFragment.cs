@@ -59,7 +59,22 @@ namespace Steepshot.Fragment
             _orientationListner.OrientationChanged += (orientation) =>
             {
                 var parameters = _camera?.GetParameters();
-                parameters?.SetRotation(_cameraId != 0 && orientation == 90 ? 270 : orientation);
+
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.GetCameraInfo(_cameraId, info);
+
+                orientation = (orientation + 45) / 90 * 90;
+                int rotation = 0;
+                if (info.Facing == Camera.CameraInfo.CameraFacingFront)
+                {
+                    rotation = (info.Orientation - orientation + 360) % 360;
+                }
+                else
+                {  // back-facing camera
+                    rotation = (info.Orientation + orientation) % 360;
+                }
+
+                parameters?.SetRotation(rotation);
                 _camera?.SetParameters(parameters);
             };
             GetGalleryIcon();
@@ -284,7 +299,6 @@ namespace Steepshot.Fragment
             {
                 parameters.WhiteBalance = Camera.Parameters.WhiteBalanceAuto;
             }
-            parameters?.SetRotation(_cameraId != 0 && _orientationListner.Orientation == 90 ? 270 : _orientationListner.Orientation);
             _camera.SetParameters(parameters);
         }
 
