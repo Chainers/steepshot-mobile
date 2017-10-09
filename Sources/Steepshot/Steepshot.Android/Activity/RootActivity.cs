@@ -9,6 +9,7 @@ using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 
 namespace Steepshot.Activity
@@ -26,6 +27,9 @@ namespace Steepshot.Activity
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            if (BasePresenter.User.IsAuthenticated && !BasePresenter.User.IsNeedRewards)
+                BasePresenter.User.IsNeedRewards = true; // for android users set true by default
+
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Inject(this);
