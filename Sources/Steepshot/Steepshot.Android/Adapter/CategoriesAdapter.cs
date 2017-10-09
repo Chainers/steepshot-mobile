@@ -1,39 +1,26 @@
-using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 
 
 namespace Steepshot.Adapter
 {
     public class CategoriesAdapter : RecyclerView.Adapter
     {
-        public List<SearchResult> Items = new List<SearchResult>();
-
+        private readonly TagsPresenter _tagsPresenter;
         public System.Action<int> Click;
 
-        public void Clear()
+        public CategoriesAdapter(TagsPresenter tagsPresenter)
         {
-            Items.Clear();
+            _tagsPresenter = tagsPresenter;
         }
 
-        public void Reset(List<SearchResult> items)
-        {
-            Items = items;
-        }
-
-        public SearchResult GetItem(int position)
-        {
-            return Items[position];
-        }
-
-        public override int ItemCount => Items.Count;
+        public override int ItemCount => _tagsPresenter.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            ((TagViewHolder)holder).Tag.Text = Items[position].Name;
+            ((TagViewHolder)holder).Tag.Text = _tagsPresenter[position].Name;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -18,48 +17,46 @@ namespace Steepshot.Adapter
 {
     public class FollowersAdapter : RecyclerView.Adapter
     {
-        private readonly List<UserFriend> _collection;
         private readonly Context _context;
+        private readonly FollowersPresenter _presenter;
+        private readonly Typeface[] _fonts;
         public Action<int> FollowAction;
         public Action<int> UserAction;
-        private Typeface[] _fonts;
-        private ListPresenter _presenter;
 
-        public FollowersAdapter(Context context, List<UserFriend> collection, ListPresenter presenter, Typeface[] fonts)
+        public FollowersAdapter(Context context, FollowersPresenter presenter, Typeface[] fonts)
         {
             _context = context;
-            _collection = collection;
             _presenter = presenter;
             _fonts = fonts;
         }
-
-        public void InverseFollow(int pos)
-        {
-            _collection[pos].HasFollowed = !_collection[pos].HasFollowed;
-        }
-
+        
         public override int GetItemViewType(int position)
         {
-            if(_collection.Count == position)
-            {
+            if (_presenter.Count == position)
                 return (int)ViewType.Loader;
-            }
+
             return (int)ViewType.Cell;
         }
 
-        public UserFriend GetItem(int position)
+        public override int ItemCount
         {
-            return _collection[position];
+            get
+            {
+                var count = _presenter.Count;
+                return count == 0 || _presenter.IsLastReaded ? count : count + 1;
+            }
         }
-
-        public override int ItemCount => _collection.Count == 0 || _presenter.IsLastReaded ? _collection.Count : _collection.Count + 1;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as FollowersViewHolder;
-            if (vh == null) return;
+            if (vh == null)
+                return;
 
-            var item = _collection[position];
+            var item = _presenter[position];
+            if (item == null)
+                return;
+
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             if (string.IsNullOrEmpty(item.Name))
                 vh.FriendName.Visibility = ViewStates.Gone;

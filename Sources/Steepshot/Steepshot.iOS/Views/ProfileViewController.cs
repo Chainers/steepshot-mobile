@@ -152,17 +152,13 @@ namespace Steepshot.iOS.Views
 
             _profileHeader.FollowingButton.TouchDown += (sender, e) =>
             {
-                var myViewController = new FollowViewController();
-                myViewController.Username = Username;
-                myViewController.FriendsType = FriendsType.Following;
+                var myViewController = new FollowViewController(FriendsType.Following, Username);
                 NavigationController.PushViewController(myViewController, true);
             };
 
             _profileHeader.FollowersButton.TouchDown += (sender, e) =>
             {
-                var myViewController = new FollowViewController();
-                myViewController.Username = Username;
-                myViewController.FriendsType = FriendsType.Followers;
+                var myViewController = new FollowViewController(FriendsType.Followers, Username);
                 NavigationController.PushViewController(myViewController, true);
             };
         }

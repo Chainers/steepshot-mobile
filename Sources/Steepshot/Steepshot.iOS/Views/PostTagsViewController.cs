@@ -1,12 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -16,23 +14,25 @@ namespace Steepshot.iOS.Views
 {
     public partial class PostTagsViewController : BaseViewControllerWithPresenter<TagsPresenter>
     {
+        private TagsCollectionViewSource _collectionviewSource;
+        private PostTagsTableViewSource _tagsSource;
+        private Timer _timer;
+
+
         protected override void CreatePresenter()
         {
             _presenter = new TagsPresenter();
         }
-        private TagsCollectionViewSource _collectionviewSource;
-        private CancellationTokenSource _cts;
-        private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
-        private Timer _timer;
 
-        public override void ViewDidLoad()
+
+        public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
             _timer = new Timer(OnTimer);
             //Table initialization
+            _tagsSource = new PostTagsTableViewSource(_presenter);
             tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
-            GetTags(null);
             _tagsSource.RowSelectedEvent += TableTagSelected;
 
             //Collection view initialization
@@ -63,11 +63,20 @@ namespace Steepshot.iOS.Views
             };
 
             Activeview = searchText;
+            
+            var errors = await _presenter.TryGetTopTags();
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                tagsTable.ReloadData();
         }
 
         private void TableTagSelected(int row)
         {
-            AddTag(_tagsSource.Tags[row].Name);
+            var tag = _presenter[row];
+            if (tag == null)
+                return;
+            AddTag(tag.Name);
         }
 
         private void CollectionTagSelected(int row)
@@ -76,12 +85,9 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.ReloadData();
         }
 
-        private void OnTimer(object state)
+        private async void OnTimer(object state)
         {
-            InvokeOnMainThread(() =>
-           {
-               GetTags(searchText.Text);
-           });
+            await GetTags(searchText.Text);
         }
 
         private async Task GetTags(string query)
@@ -89,50 +95,21 @@ namespace Steepshot.iOS.Views
             if (query != null && query.Length == 1)
                 return;
 
-            try
+            _presenter.Clear();
+            List<string> errors;
+            if (string.IsNullOrEmpty(query))
             {
-                _cts?.Cancel();
+                errors = await _presenter.TryGetTopTags();
             }
-            catch (ObjectDisposedException)
+            else
             {
-
+                errors = await _presenter.TryLoadNext(query);
             }
 
-            try
-            {
-                using (_cts = new CancellationTokenSource())
-                {
-                    OperationResult<SearchResponse<SearchResult>> response;
-                    if (string.IsNullOrEmpty(query))
-                    {
-                        response = await _presenter.TryGetTopTags(_cts);
-                    }
-                    else
-                    {
-                        response = await _presenter.TrySearchTags(query, _cts);
-                    }
-
-                    if (response == null)
-                        return;
-
-                    if (response.Success)
-                    {
-                        _tagsSource.Tags.Clear();
-                        _tagsSource.Tags = response.Result?.Results;
-                        tagsTable.ReloadData();
-                    }
-                    else
-                    {
-                        ShowAlert(response.Errors);
-                    }
-                    //else
-                    //Reporter.SendCrash(Localization.Errors.PostTagsError + response.Errors[0], BasePresenter.User.Login, AppVersion);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
+            if (errors != null && errors.Count > 0)
+                ShowAlert(errors);
+            else
+                tagsTable.ReloadData();
         }
 
         private void AddTags(object sender, EventArgs e)

@@ -41,7 +41,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNext, url);
         }
 
-        private async Task<List<string>> LoadNext(string url, CancellationTokenSource cts)
+        private async Task<List<string>> LoadNext(CancellationTokenSource cts, string url)
         {
             var request = new InfoRequest(url)
             {

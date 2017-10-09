@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -14,21 +12,27 @@ namespace Steepshot.iOS.Views
 {
     public partial class FollowViewController : BaseViewControllerWithPresenter<FollowersPresenter>
     {
+        private readonly FriendsType _friendsType;
+        private readonly string _username;
         private FollowTableViewSource _tableSource;
-        public string Username = BasePresenter.User.Login;
-        public FriendsType FriendsType = FriendsType.Followers;
+       
+
+        public FollowViewController(FriendsType friendsType, string username)
+        {
+            _friendsType = friendsType;
+            _username = username;
+        }
 
         protected override void CreatePresenter()
         {
-            _presenter = new FollowersPresenter();
+            _presenter = new FollowersPresenter(_friendsType);
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            _tableSource = new FollowTableViewSource();
-            _tableSource.TableItems = _presenter.Users;
+            _tableSource = new FollowTableViewSource(_presenter);
             followTableView.Source = _tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
@@ -63,7 +67,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (Username == BasePresenter.User.Login)
+            if (_username == BasePresenter.User.Login)
                 NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
@@ -74,7 +78,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             progressBar.StartAnimating();
-            await _presenter.GetItems(FriendsType, Username).ContinueWith((errors) =>
+            await _presenter.TryLoadNextUserFriends(_username).ContinueWith((errors) =>
             {
                 var errorsList = errors.Result;
                 if (errorsList != null && errorsList.Count > 0)
@@ -88,31 +92,22 @@ namespace Steepshot.iOS.Views
         }
 
 
-        public async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
+        private async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
         {
             bool? success = null;
-            try
+            var user = _presenter.FirstOrDefault(fgh => fgh.Author == author);
+            if (user != null)
             {
-                var request = new FollowRequest(BasePresenter.User.UserInfo, followType, author);
-                var response = await _presenter.Follow(_presenter.Users.First(fgh => fgh.Author == author));
-                if (response.Success)
+                var response = await _presenter.TryFollow(user);
+                if (response != null)
                 {
-                    var user = _tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
-                    if (user != null)
-                        success = user.HasFollowed = response.Result.IsSuccess;
+                    if (response.Success)
+                        success = user.HasFollowed = followType == FollowType.Follow;
+                    else
+                        ShowAlert(response.Errors);
                 }
-                //else
-                //Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
-
             }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                callback(author, success);
-            }
+            callback(author, success);
         }
     }
 }
