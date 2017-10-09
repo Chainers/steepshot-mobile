@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>Steepshot</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.chainartsoft.Steepshot</string>
+	<string>com.chainartsoft.SteepshotDebug</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.0.5</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -42,6 +42,19 @@
 		<string>Fonts/Lato-Heavy.ttf</string>
 		<string>Fonts/Lato-Regular.ttf</string>
 		<string>Fonts/Lato-Semibold.ttf</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>steepshot</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.chainartsoft.steepshot</string>
+			<key>CFBundleURLTypes</key>
+			<string>Viewer</string>
+		</dict>
 	</array>
 </dict>
 </plist>
