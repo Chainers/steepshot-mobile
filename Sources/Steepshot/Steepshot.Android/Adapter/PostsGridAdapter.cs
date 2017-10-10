@@ -11,12 +11,12 @@ namespace Steepshot.Adapter
 {
     public class PostsGridAdapter : RecyclerView.Adapter
     {
-        protected readonly BaseFeedPresenter Presenter;
+        protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
         public Action<int> Click;
         private int _cellSize;
 
-        public PostsGridAdapter(Context context, BaseFeedPresenter presenter)
+        public PostsGridAdapter(Context context, BasePostPresenter presenter)
         {
             Context = context;
             Presenter = presenter;

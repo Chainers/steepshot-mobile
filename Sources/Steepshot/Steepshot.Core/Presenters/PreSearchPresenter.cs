@@ -7,7 +7,7 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class PreSearchPresenter : BaseFeedPresenter
+    public sealed class PreSearchPresenter : BasePostPresenter
     {
         public PostType PostType = PostType.Top;
         private const int ItemsLimit = 20;

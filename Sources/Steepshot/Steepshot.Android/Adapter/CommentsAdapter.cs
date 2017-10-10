@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 
 
@@ -14,33 +12,22 @@ namespace Steepshot.Adapter
 {
     public class CommentAdapter : RecyclerView.Adapter
     {
-        List<Post> _posts;
-        readonly Context _context;
-
+        private readonly CommentsPresenter _commentsPresenter;
+        private readonly Context _context;
         public Action<int> LikeAction, UserAction;
+        public override int ItemCount => _commentsPresenter.Count;
 
-        public CommentAdapter(Context context, List<Post> posts)
+
+        public CommentAdapter(Context context, CommentsPresenter commentsPresenter)
         {
             _context = context;
-            _posts = posts;
+            _commentsPresenter = commentsPresenter;
         }
-
-        public void Reload(List<Post> posts)
-        {
-            _posts = posts;
-            NotifyDataSetChanged();
-        }
-
-        public Post GetItem(int position)
-        {
-            return _posts[position];
-        }
-        public override int ItemCount => _posts.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as CommentViewHolder;
-            var post = _posts[position];
+            var post = _commentsPresenter[position];
             vh?.UpdateData(post, _context);
         }
 
@@ -106,7 +93,7 @@ namespace Steepshot.Adapter
                     Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
                 Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
-                
+
                 Likes.Text = post.NetVotes.ToString();
                 Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
                 CheckLikeVisibility(post.NetVotes);

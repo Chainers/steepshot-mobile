@@ -26,9 +26,8 @@ namespace Steepshot.iOS.ViewSources
 			{
 				cell.GoToProfile += (username) =>
 				{
-					if(GoToProfile != null)
-						GoToProfile(username);
-				};
+                    GoToProfile?.Invoke(username);
+                };
 			}
 			cell.UpdateCell(TableItems[indexPath.Row]);
 			return cell;
