@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
 
             _url = Activity.Intent.GetStringExtra("url");
             _votersAdapter = new FollowersAdapter<VotersResult>(Activity, _presenter, new[] { font, semibold_font });
-            //_votersAdapter.Click += OnClick;
+            _votersAdapter.UserAction += OnClick;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadNext;

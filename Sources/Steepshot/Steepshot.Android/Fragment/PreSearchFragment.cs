@@ -246,6 +246,7 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             Activity.Intent.PutExtra("url", post.Url);
+            Activity.Intent.PutExtra("count", post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
