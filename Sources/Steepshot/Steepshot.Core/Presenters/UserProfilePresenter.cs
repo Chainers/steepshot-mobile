@@ -9,7 +9,7 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserProfilePresenter : BaseFeedPresenter
+    public sealed class UserProfilePresenter : BasePostPresenter
     {
         private readonly string _username;
         private const int ItemsLimit = 20;

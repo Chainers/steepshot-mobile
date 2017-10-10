@@ -19,9 +19,9 @@ namespace Steepshot.iOS.ViewSources
         public event HeaderTappedHandler GoToVoters;
         public event ImagePreviewHandler ImagePreview;
         public bool IsGrid = true;
-        private readonly BaseFeedPresenter _presenter;
+        private readonly BasePostPresenter _presenter;
 
-        public ProfileCollectionViewSource(BaseFeedPresenter presenter)
+        public ProfileCollectionViewSource(BasePostPresenter presenter)
         {
             FeedStrings = new List<NSMutableAttributedString>();
             _presenter = presenter;

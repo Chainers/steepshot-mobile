@@ -9,7 +9,7 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public class FeedPresenter : BaseFeedPresenter
+    public sealed class FeedPresenter : BasePostPresenter
     {
         private readonly bool _isFeed;
         public PostType PostType = PostType.Top;
