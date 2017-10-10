@@ -50,7 +50,7 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetUserFriends(request, cts);
-            if (response.Success && response.Result?.Results != null)
+            if (response.Success)
             {
                 var result = response.Result.Results;
                 if (result.Count > 0)
