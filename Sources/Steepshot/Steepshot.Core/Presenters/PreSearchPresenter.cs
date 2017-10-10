@@ -13,11 +13,8 @@ namespace Steepshot.Core.Presenters
         private const int ItemsLimit = 20;
         public string Tag;
 
-        public async Task<List<string>> TryLoadNextTopPosts(bool clearOld = false)
+        public async Task<List<string>> TryLoadNextTopPosts()
         {
-            if (clearOld)
-                Clear();
-
             if (IsLastReaded)
                 return null;
 
@@ -53,11 +50,8 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
-        public async Task<List<string>> TryGetSearchedPosts(bool clearOld = false)
+        public async Task<List<string>> TryGetSearchedPosts()
         {
-            if (clearOld)
-                Clear();
-
             if (IsLastReaded)
                 return null;
 
