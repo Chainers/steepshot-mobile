@@ -36,36 +36,21 @@ namespace Steepshot.Fragment
         private Typeface semibold_font;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.feed_list)] RecyclerView _feedList;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _bar;
-        [InjectView(Resource.Id.pop_up_arrow)] ImageView _arrow;
-        [InjectView(Resource.Id.btn_login)] Button _login;
-        [InjectView(Resource.Id.Title)] public TextView Title;
-        [InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.btn_search)] ImageButton _search;
+        [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
 #pragma warning restore 0649
 
         public FeedFragment(bool isFeed = false)
         {
             _isFeed = isFeed;
         }
-
+        /*
         [InjectOnClick(Resource.Id.btn_login)]
         public void OnLogin(object sender, EventArgs e)
         {
             OpenLogin();
-        }
-
-        [InjectOnClick(Resource.Id.Title)]
-        public void OnTitleClick(object sender, EventArgs e)
-        {
-            if (_isFeed)
-                return;
-            if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
-                ShowDropdown();
-            else
-                HideDropdown();
-        }
+        }*/
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -79,6 +64,7 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
+            /*
             try
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
@@ -94,17 +80,17 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-            }
+            }*/
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-            if (BasePresenter.User.IsAuthenticated)
-                _login.Visibility = ViewStates.Gone;
+            //if (BasePresenter.User.IsAuthenticated)
+            //_login.Visibility = ViewStates.Gone;
             font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-            Title.Typeface = font;
-            _login.Typeface = font;
-            if (_isFeed)
+            //Title.Typeface = font;
+            //_login.Typeface = font;
+            /*if (_isFeed)
             {
                 Title.Text = "Feed";
                 _arrow.Visibility = ViewStates.Gone;
@@ -112,7 +98,7 @@ namespace Steepshot.Fragment
             }
             else
                 Title.Text = "Trending";
-
+*/
             _feedAdapter = new FeedAdapter(Context, _presenter, new[] { font, semibold_font });
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
@@ -155,7 +141,7 @@ namespace Steepshot.Fragment
 
         public void OnSearchPosts(string title, PostType type)
         {
-            Title.Text = title;
+            //Title.Text = title;
             _bar.Visibility = ViewStates.Visible;
             _presenter.PostType = type;
             _presenter.Tag = null;
@@ -217,7 +203,7 @@ namespace Steepshot.Fragment
             else
                 OpenLogin();
         }
-
+        /*
         public void ShowDropdown()
         {
             _arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate180));
@@ -234,7 +220,7 @@ namespace Steepshot.Fragment
                                 .Remove(ChildFragmentManager.FindFragmentByTag(FollowingFragmentId))
                                 .Commit();
         }
-
+*/
         protected override void CreatePresenter()
         {
             _presenter = new FeedPresenter(_isFeed);

@@ -9,11 +9,11 @@ using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-
     public class FeedAdapter : RecyclerView.Adapter
     {
         protected readonly BasePostPresenter Presenter;
@@ -21,9 +21,7 @@ namespace Steepshot.Adapter
         protected readonly Typeface[] Fonts;
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-
         public override int ItemCount => Presenter.Count;
-
 
         public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
         {
@@ -31,7 +29,6 @@ namespace Steepshot.Adapter
             Presenter = presenter;
             Fonts = fonts;
         }
-
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -43,19 +40,17 @@ namespace Steepshot.Adapter
             if (post == null)
                 return;
 
+            vh.Avatar.SetImageResource(Resource.Drawable.holder);
             vh.Photo.SetImageResource(0);
 
             vh.Author.Text = post.Author;
-            if (post.Title != null)
+            if (!string.IsNullOrEmpty(post.Title))
             {
                 vh.FirstComment.Visibility = ViewStates.Visible;
-                //vh.FirstComment.TextFormatted = H_userAction_userActiontml.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
                 vh.FirstComment.Text = post.Title;
             }
             else
-            {
                 vh.FirstComment.Visibility = ViewStates.Gone;
-            }
 
             vh.CommentSubtitle.Text = post.Children > 0
                 ? string.Format(Context.GetString(Resource.String.view_n_comments), post.Children)
@@ -63,42 +58,24 @@ namespace Steepshot.Adapter
 
             vh.UpdateData(post, Context);
 
-            //TODO: KOA: delete try{}catch ???
-            try
+            var photo = post.Photos?.FirstOrDefault();
+            if (photo != null)
             {
-                var photo = post.Photos?.FirstOrDefault();
-                if (photo != null)
-                    Picasso.With(Context).Load(photo).NoFade().Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
-            }
-            catch
-            {
-                //TODO:KOA: Empty try{}catch
+                Picasso.With(Context).Load(photo).NoFade().Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
+                var parameters = vh.Photo.LayoutParameters;
+                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1500);
+                vh.Photo.LayoutParameters = parameters;
             }
 
             if (!string.IsNullOrEmpty(post.Avatar))
-            {
-                //TODO: KOA: delete try{}catch ???
-                try
-                {
-                    Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(80, 0).Into(vh.Avatar);
-                }
-                catch
-                {
-                    //TODO:KOA: Empty try{}catch
-                }
-            }
-            else
-            {
-                vh.Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-            }
+                Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
+
             vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).
-                    Inflate(Resource.Layout.lyt_feed_item, parent, false);
-
+            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
             var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, Fonts);
             return vh;
         }
