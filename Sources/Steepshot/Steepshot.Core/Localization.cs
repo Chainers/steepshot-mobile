@@ -49,7 +49,7 @@
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
             public const string Ok = "Ok";
-            public const string Voters = "Voters";
+            public const string Voters = "Likes";
             public const string ViewComments = "View {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";
