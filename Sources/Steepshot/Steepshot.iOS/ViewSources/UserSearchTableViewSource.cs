@@ -16,7 +16,7 @@ namespace Steepshot.iOS.ViewSources
         {
             _followersPresenter = followersPresenter;
         }
-        
+
         public override nint RowsInSection(UITableView tableview, nint section)
         {
             return _followersPresenter.Count;
@@ -26,7 +26,8 @@ namespace Steepshot.iOS.ViewSources
         {
             var cell = (UsersSearchViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
             var user = _followersPresenter[indexPath.Row]; //TODO:KOA: if null?
-            cell.UpdateCell(user);
+            if (user != null)
+                cell.UpdateCell(user);
             return cell;
         }
 

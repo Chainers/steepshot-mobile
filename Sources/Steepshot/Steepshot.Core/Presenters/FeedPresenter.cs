@@ -21,11 +21,8 @@ namespace Steepshot.Core.Presenters
             _isFeed = isFeed;
         }
 
-        public async Task<List<string>> TryLoadNextTopPosts(bool needRefresh = false)
+        public async Task<List<string>> TryLoadNextTopPosts()
         {
-            if (needRefresh)
-                Clear();
-
             if (IsLastReaded)
                 return null;
 
@@ -76,11 +73,8 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<List<string>> TryLoadNextSearchedPosts(bool needRefresh = false)
+        public async Task<List<string>> TryLoadNextSearchedPosts()
         {
-            if (needRefresh)
-                Clear();
-
             if (IsLastReaded)
                 return null;
             return await RunAsSingleTask(LoadNextSearchedPosts);

@@ -255,19 +255,25 @@ namespace Steepshot.Fragment
             if (_spinner != null)
                 _spinner.Visibility = ViewStates.Visible;
 
+            if (clearOld)
+                _presenter.Clear();
+
             List<string> errors;
             if (string.IsNullOrEmpty(CustomTag))
-                errors = await _presenter.TryLoadNextTopPosts(clearOld);
+                errors = await _presenter.TryLoadNextTopPosts();
             else
-                errors = await _presenter.TryGetSearchedPosts(clearOld);
+                errors = await _presenter.TryGetSearchedPosts();
 
-            if (errors != null && errors.Count != 0)
-                ShowAlert(errors);
+            if (errors != null)
+            {
+                if (errors.Any())
+                    ShowAlert(errors);
+                else
+                    _searchList?.GetAdapter()?.NotifyDataSetChanged();
+            }
 
             if (_spinner != null)
                 _spinner.Visibility = ViewStates.Gone;
-
-            _searchList?.GetAdapter()?.NotifyDataSetChanged();
         }
 
         protected override void CreatePresenter()

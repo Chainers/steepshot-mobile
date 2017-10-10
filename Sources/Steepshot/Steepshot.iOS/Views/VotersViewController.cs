@@ -30,7 +30,7 @@ namespace Steepshot.iOS.Views
             tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = _presenter[row].Username;
+                myViewController.Username = _presenter[row]?.Username;
                 NavigationController.PushViewController(myViewController, true);
             };
 
