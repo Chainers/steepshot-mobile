@@ -8,6 +8,7 @@ using Ditch;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
 
@@ -142,9 +143,18 @@ namespace Steepshot.iOS.ViewControllers
             alert.Show();
         }
 
-        protected void ShowAlert(IEnumerable<string> messages)
+        protected void ShowAlert(ICollection<string> messages)
         {
+            if (messages == null || !messages.Any())
+                return;
             ShowAlert(messages.First());
+        }
+
+        protected void ShowAlert(OperationResult result)
+        {
+            if (result == null)
+                return;
+            ShowAlert(result.Errors);
         }
 
 

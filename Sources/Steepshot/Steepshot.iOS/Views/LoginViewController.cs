@@ -111,7 +111,7 @@ namespace Steepshot.iOS.Views
                 if (response == null) // cancelled
                     return;
 
-                if (response.Success)
+                if (response != null && response.Success)
                 {
                     BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
 
@@ -122,7 +122,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    ShowAlert(response.Errors[0]);
+                    ShowAlert(response);
                 }
             }
             catch (ArgumentNullException)
