@@ -134,27 +134,23 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts(bool clearOld = false)
         {
-            try
-            {
-                List<string> errors;
-                if (string.IsNullOrEmpty(CustomTag))
-                    errors = await _presenter.GetTopPosts(clearOld);
-                else
-                    errors = await _presenter.GetSearchedPosts(clearOld);
-                if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
+            List<string> errors;
+            if (string.IsNullOrEmpty(CustomTag))
+                errors = await _presenter.TryLoadNextTopPosts(clearOld);
+            else
+                errors = await _presenter.TryLoadNextSearchedPosts(clearOld);
 
-                if (_bar != null)
-                {
-                    _bar.Visibility = ViewStates.Gone;
-                    _refresher.Refreshing = false;
-                }
-                _feedAdapter?.NotifyDataSetChanged();
-            }
-            catch (Exception)
+            if (_bar != null)
             {
-                //Catching rethrowed task canceled exception from presenter
+                _bar.Visibility = ViewStates.Gone;
+                _refresher.Refreshing = false;
             }
+
+            if (errors == null)
+                return;
+
+            ShowAlert(errors);
+            _feedAdapter?.NotifyDataSetChanged();
         }
 
         public void OnSearchPosts(string title, PostType type)

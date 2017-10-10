@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Foundation;
 using Steepshot.Core;
@@ -92,11 +93,12 @@ namespace Steepshot.iOS.Views
             try
             {
                 var errors = await _presenter.TrySearchCategories(query, _searchType, false);
-                if (errors != null && errors.Count > 0)
-                    ShowAlert(errors[0]);
+                if (errors == null)
+                    return;
+                if (errors.Any())
+                    ShowAlert(errors);
                 else
                 {
-
                     bool shouldHide;
                     if (_searchType == SearchType.Tags)
                     {

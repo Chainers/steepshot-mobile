@@ -28,7 +28,6 @@ namespace Steepshot.iOS.Views
         private int _lastRow;
 
         private UIView _dropdown;
-        private nfloat _dropDownListOffsetFromTop;
         private UILabel _tw;
         private UIImageView _arrow;
         private bool IsDropDownOpen => _dropdown.Frame.Y > 0;
@@ -52,7 +51,7 @@ namespace Steepshot.iOS.Views
             _presenter = new FeedPresenter(_isHomeFeed);
         }
 
-        public override void ViewDidLoad()
+        public override async void ViewDidLoad()
         {
             base.ViewDidLoad();
 
@@ -60,22 +59,13 @@ namespace Steepshot.iOS.Views
             _navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             //TODO:KOA: rewrite as function
-            _gridDelegate = new CollectionViewFlowDelegate(scrolled: () =>
+            _gridDelegate = new CollectionViewFlowDelegate(scrolled: async () =>
              {
-                 //TODO:KOA: remove try catch
-                 try
-                 {
-                     var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-                     if (_presenter.Count <= _lastRow && _presenter.HasItems && !_isFeedRefreshing)
+                 var newlastRow = feedCollection.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
+                 if (_presenter.Count <= _lastRow && !_presenter.IsLastReaded && !_isFeedRefreshing)
+                     await GetPosts();
 
-                     {
-                         //TODO:KOA: await o.O
-                         GetPosts();
-                     }
-                     _lastRow = newlastRow;
-
-                 }
-                 catch (Exception ex) { }
+                 _lastRow = newlastRow;
              }, commentString: _collectionViewSource.FeedStrings, presenter: _presenter);
 
             if (_navController != null)
@@ -87,10 +77,9 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
 
-            _collectionViewSource.Voted += (vote, url, action) =>
+            _collectionViewSource.Voted += async (vote, url, action) =>
             {
-                //TODO:KOA: await o.O
-                Vote(vote, url, action);
+                await Vote(url);
             };
             _collectionViewSource.Flagged += Flagged;
 
@@ -116,7 +105,7 @@ namespace Steepshot.iOS.Views
                 foreach (var controler in TabBarController.ViewControllers)
                 {
                     controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
-                };
+                }
             }
 
             _collectionViewSource.GoToProfile += username =>
@@ -155,10 +144,10 @@ namespace Steepshot.iOS.Views
                 _dropdown = CreateDropDownList();
             }
             SetNavBar();
-            GetPosts();
+            await GetPosts();
         }
 
-        public override void ViewWillAppear(bool animated)
+        public override async void ViewWillAppear(bool animated)
         {
             if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
             {
@@ -166,7 +155,7 @@ namespace Steepshot.iOS.Views
                 _presenter.ClearPosts();
                 _collectionViewSource.FeedStrings.Clear();
                 _tw.Text = CurrentPostCategory;
-                GetPosts();
+                await GetPosts();
             }
 
             base.ViewWillAppear(animated);
@@ -220,7 +209,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
+        private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             if (activityIndicator.IsAnimating)
                 return;
@@ -231,15 +220,15 @@ namespace Steepshot.iOS.Views
             List<string> errors;
             if (CurrentPostCategory == null)
             {
-                errors = await _presenter.GetTopPosts(clearOld);
+                errors = await _presenter.TryLoadNextTopPosts(clearOld);
             }
             else
             {
                 _presenter.Tag = CurrentPostCategory;
-                errors = await _presenter.GetSearchedPosts();
+                errors = await _presenter.TryLoadNextSearchedPosts();
             }
             if (errors != null && errors.Count != 0)
-                ShowAlert(errors[0]);
+                ShowAlert(errors);
 
             //TODO:KOA: ... doesn't look good
             for (var i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
@@ -267,7 +256,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task Vote(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
+        private async Task Vote(string postUrl)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -278,8 +267,7 @@ namespace Steepshot.iOS.Views
             if (postIndex != -1)
             {
                 var errors = await _presenter.Vote(postIndex);
-                if (errors != null && errors.Count != 0)
-                    ShowAlert(errors[0]);
+                ShowAlert(errors);
 
                 feedCollection.ReloadData();
                 flowLayout.InvalidateLayout();
@@ -294,7 +282,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(vote, postUrl, action)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(postUrl)));
             actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(postUrl)));
             actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
             PresentViewController(actionSheetAlert, true, null);
@@ -321,8 +309,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        //TODO:KOA: unused vote and action
-        private async Task FlagPhoto(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
+        private async Task FlagPhoto(string postUrl)
         {
             var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
             if (postIndex == -1)
@@ -330,7 +317,7 @@ namespace Steepshot.iOS.Views
 
             var errors = await _presenter.FlagPhoto(postIndex);
             if (errors != null && errors.Count != 0)
-                ShowAlert(errors[0]);
+                ShowAlert(errors);
 
             feedCollection.ReloadData();
             flowLayout.InvalidateLayout();
@@ -382,7 +369,6 @@ namespace Steepshot.iOS.Views
 
         private UIView CreateDropDownList()
         {
-            _dropDownListOffsetFromTop = _navController.NavigationBar.Frame.Height + UIApplication.SharedApplication.StatusBarFrame.Height;
             var view = new UIView();
             view.BackgroundColor = UIColor.White;
 
@@ -391,7 +377,7 @@ namespace Steepshot.iOS.Views
             var newPhotosButton = new UIButton(new CGRect(0, 0, _navController.NavigationBar.Frame.Width, 50));
             newPhotosButton.SetTitle(Localization.Messages.NewPhotos, UIControlState.Normal); //ToConstants name
             newPhotosButton.BackgroundColor = buttonColor;
-            newPhotosButton.TouchDown += ((e, obj) =>
+            newPhotosButton.TouchDown += async (e, obj) =>
                {
                    if (_currentPostType == PostType.New && CurrentPostCategory != null)
                        return;
@@ -401,16 +387,15 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   //TODO:KOA: await o.O
-                   RefreshTable();
+                   await RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               });
+               };
 
             var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, _navController.NavigationBar.Frame.Width, 50));
             hotButton.SetTitle(Localization.Messages.Hot, UIControlState.Normal); //ToConstants name
             hotButton.BackgroundColor = buttonColor;
 
-            hotButton.TouchDown += ((e, obj) =>
+            hotButton.TouchDown += async (e, obj) =>
                {
                    if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
                        return;
@@ -420,16 +405,15 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   //TODO:KOA: await o.O
-                   RefreshTable();
+                   await RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               });
+               };
 
             var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
             trendingButton.SetTitle(Localization.Messages.Trending, UIControlState.Normal); //ToConstants name
             trendingButton.BackgroundColor = buttonColor;
 
-            trendingButton.TouchDown += ((e, obj) =>
+            trendingButton.TouchDown += async (e, obj) =>
                {
                    if (_currentPostType == PostType.Top && CurrentPostCategory != null)
                        return;
@@ -439,10 +423,9 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   //TODO:KOA: await o.O
-                   RefreshTable();
+                   await RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               });
+               };
 
             view.Add(newPhotosButton);
             view.Add(hotButton);
