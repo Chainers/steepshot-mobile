@@ -111,7 +111,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Follow(CancellationTokenSource cts, UserFriend item)
         {
-            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
+            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.Follow : Models.Requests.FollowType.UnFollow, item.Author);
             var response = await Api.Follow(request, cts);
             if (response.Success)
             {
