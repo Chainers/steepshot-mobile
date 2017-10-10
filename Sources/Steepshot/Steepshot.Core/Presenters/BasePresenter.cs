@@ -70,7 +70,7 @@ namespace Steepshot.Core.Presenters
         private static void InitApiClient(KnownChains chain, bool isDev)
         {
 #if DEBUG
-            //_apiClient = new ApiPositiveStub();
+            // _apiClient = new ApiPositiveStub();
             _apiClient = new DitchApi(chain, isDev);
 #else
             _apiClient = new DitchApi(chain, isDev);

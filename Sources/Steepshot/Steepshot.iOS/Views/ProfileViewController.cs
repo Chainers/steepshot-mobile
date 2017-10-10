@@ -300,10 +300,10 @@ namespace Steepshot.iOS.Views
 
             await _presenter.GetUserPosts(needRefresh).ContinueWith((p) =>
             {
-                foreach (var r in _presenter.Posts)
+                foreach (var r in _presenter.Posts.Skip(_collectionViewSource.FeedStrings.Count()))
                 {
                     var at = new NSMutableAttributedString();
-                    at.Append(new NSAttributedString(r.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
+                    at.Append(new NSAttributedString(r.Author, Helpers.Constants.NicknameAttribute));
                     at.Append(new NSAttributedString($" {r.Title}"));
                     _collectionViewSource.FeedStrings.Add(at);
                 }
