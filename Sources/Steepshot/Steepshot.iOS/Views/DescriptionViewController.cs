@@ -185,7 +185,7 @@ namespace Steepshot.iOS.Views
                 {
                     Description = descriptionTextField.Text
                 };
-                var imageUploadResponse = await _presenter.Upload(request);
+                var imageUploadResponse = await _presenter.TryUpload(request);
 
                 if (imageUploadResponse.Success)
                 {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -7,9 +8,14 @@ namespace Steepshot.Core.Presenters
 {
     public class PostDescriptionPresenter : BasePresenter
     {
-        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request)
+        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request)
         {
-            return await Api.Upload(request, null);
+            return await TryRunTask(Upload, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), request);
+        }
+
+        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationTokenSource cts, UploadImageRequest request)
+        {
+            return await Api.Upload(request, cts);
         }
     }
 }

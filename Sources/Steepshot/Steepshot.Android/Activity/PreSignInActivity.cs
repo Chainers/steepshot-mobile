@@ -8,6 +8,8 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 
@@ -105,53 +107,35 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
-            try
+            var login = _username.Text?.ToLower().Trim();
+
+            if (string.IsNullOrEmpty(login))
             {
-                var login = _username.Text?.ToLower();
-
-                if (string.IsNullOrEmpty(login))
-                {
-                    Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
-                    return;
-                }
-
-                _spinner.Visibility = ViewStates.Visible;
-                ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
-                ((AppCompatButton)sender).Enabled = false;
-
-                var response = await _presenter.TryGetAccountInfo(login);
-
-                if (response != null)
-                {
-                    if (response.Success)
-                    {
-                        var intent = new Intent(this, typeof(SignInActivity));
-                        intent.PutExtra("login", login);
-                        intent.PutExtra("avatar_url", response.Result.ProfileImage);
-                        intent.PutExtra("newChain", (int)_newChain);
-                        _newChain = KnownChains.None;
-                        StartActivity(intent);
-                    }
-                    else
-                    {
-                        ShowAlert(response.Errors);
-                        _spinner.Visibility = ViewStates.Invisible;
-                        ((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                        ((AppCompatButton)sender).Enabled = true;
-                    }
-                }
-                else
-                {
-                    ShowAlert(Resource.String.error_connect_to_server);
-                    _spinner.Visibility = ViewStates.Invisible;
-                    ((AppCompatButton)sender).Visibility = ViewStates.Visible;
-                    ((AppCompatButton)sender).Enabled = true;
-                }
+                ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                return;
             }
-            catch (Exception ex)
+
+            _spinner.Visibility = ViewStates.Visible;
+            ((AppCompatButton)sender).Visibility = ViewStates.Invisible;
+            ((AppCompatButton)sender).Enabled = false;
+
+            var response = await _presenter.TryGetAccountInfo(login);
+            if (response != null && response.Success)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                var intent = new Intent(this, typeof(SignInActivity));
+                intent.PutExtra("login", login);
+                intent.PutExtra("avatar_url", response.Result.ProfileImage);
+                intent.PutExtra("newChain", (int)_newChain);
+                _newChain = KnownChains.None;
+                StartActivity(intent);
             }
+            else
+            {
+                ShowAlert(response);
+            }
+            _spinner.Visibility = ViewStates.Invisible;
+            ((AppCompatButton)sender).Visibility = ViewStates.Visible;
+            ((AppCompatButton)sender).Enabled = true;
         }
 
         private void SetLabelsText()

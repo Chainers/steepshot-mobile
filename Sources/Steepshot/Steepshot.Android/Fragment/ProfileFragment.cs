@@ -210,28 +210,26 @@ namespace Steepshot.Fragment
             }
             else
             {
-                if (response != null && response.Errors != null && response.Errors.Count != 0)
-                    ShowAlert(response.Errors);
+                ShowAlert(response);
             }
-            //TODO:KOA: probably _loadingSpinner instead _listLayout o.O?
-            if (_listLayout != null)
+            if (_loadingSpinner != null)
                 _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
         private async Task OnFollowClick()
         {
-            var resp = await _presenter.TryFollow(ProfileGridAdapter.ProfileData.HasFollowed);
-            if (resp == null)
+            var response = await _presenter.TryFollow(ProfileGridAdapter.ProfileData.HasFollowed);
+            if (response == null) // cancelled
                 return;
 
-            if (resp.Result.IsSuccess)
+            if (response.Result.IsSuccess)
             {
                 var hasFollowed = ProfileGridAdapter.ProfileData.HasFollowed == 1 ? 0 : 1;
                 ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = hasFollowed;
                 _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
-            else if (resp.Errors != null && resp.Errors.Count != 0)
-                ShowAlert(resp.Errors);
+            else if (response.Errors != null && response.Errors.Count != 0)
+                ShowAlert(response.Errors);
         }
 
         public void OnPhotoClick(int position)
