@@ -24,7 +24,7 @@ namespace Steepshot.Core.Presenters
         public async Task<List<string>> TryLoadNextTopPosts(bool needRefresh = false)
         {
             if (needRefresh)
-                ClearPosts();
+                Clear();
 
             if (IsLastReaded)
                 return null;
@@ -64,8 +64,8 @@ namespace Steepshot.Core.Presenters
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    lock (Posts)
-                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
 
                     OffsetUrl = results.Last().Url;
                 }
@@ -79,7 +79,7 @@ namespace Steepshot.Core.Presenters
         public async Task<List<string>> TryLoadNextSearchedPosts(bool needRefresh = false)
         {
             if (needRefresh)
-                ClearPosts();
+                Clear();
 
             if (IsLastReaded)
                 return null;
@@ -103,8 +103,8 @@ namespace Steepshot.Core.Presenters
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    lock (Posts)
-                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
 
                     OffsetUrl = results.Last().Url;
                 }

@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class SearchPresenter : ListPresenter
+    public sealed class SearchPresenter : ListPresenter<object>
     {
         public FollowersPresenter FollowersPresenter { get; }
         public TagsPresenter TagsPresenter { get; }
 
-        [Obsolete("Use concrete presenter count")]
-        public override int Count => Math.Max(FollowersPresenter.Count, TagsPresenter.Count);
-
+        public override int Count => throw new NotSupportedException();
 
         public SearchPresenter()
         {

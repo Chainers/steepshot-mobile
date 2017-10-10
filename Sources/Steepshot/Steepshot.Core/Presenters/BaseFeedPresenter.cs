@@ -7,50 +7,20 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class BaseFeedPresenter : ListPresenter
+    public class BaseFeedPresenter : ListPresenter<Post>
     {
-        protected readonly List<Post> Posts;
-
-        public override int Count => Posts.Count;
-
-        public Post this[int position]
-        {
-            get
-            {
-                lock (Posts)
-                {
-                    if (position > -1 && position < Posts.Count)
-                        return Posts[position];
-                }
-                return null;
-            }
-        }
-
-        protected BaseFeedPresenter()
-        {
-            Posts = new List<Post>();
-        }
-
-        public void ClearPosts()
-        {
-            lock (Posts)
-                Posts.Clear();
-            IsLastReaded = false;
-            OffsetUrl = string.Empty;
-        }
-
         public void RemovePostsAt(int index)
         {
-            lock (Posts)
-                Posts.RemoveAt(index);
+            lock (Items)
+                Items.RemoveAt(index);
         }
 
         public int IndexOf(Func<Post, bool> func)
         {
-            lock (Posts)
+            lock (Items)
             {
-                for (var i = 0; i < Posts.Count; i++)
-                    if (func(Posts[i]))
+                for (var i = 0; i < Items.Count; i++)
+                    if (func(Items[i]))
                         return i;
             }
             return -1;
@@ -62,8 +32,8 @@ namespace Steepshot.Core.Presenters
             try
             {
                 Post post;
-                lock (Posts)
-                    post = Posts[position];
+                lock (Items)
+                    post = Items[position];
                 var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
                 var response = await Api.Vote(request);
                 errors = response.Errors;
@@ -92,8 +62,8 @@ namespace Steepshot.Core.Presenters
             try
             {
                 Post post;
-                lock (Posts)
-                    post = Posts[position];
+                lock (Items)
+                    post = Items[position];
                 var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
                 var response = await Api.Vote(request);
                 errors = response.Errors;

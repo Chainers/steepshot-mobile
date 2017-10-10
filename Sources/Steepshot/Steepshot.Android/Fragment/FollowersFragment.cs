@@ -54,7 +54,6 @@ namespace Steepshot.Fragment
             _people_count.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
 
-
             LoadItems();
 
             _backButton.Visibility = ViewStates.Visible;

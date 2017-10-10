@@ -8,32 +8,9 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class TagsPresenter : ListPresenter
+    public sealed class TagsPresenter : ListPresenter<SearchResult>
     {
         private const int ItemsLimit = 40;
-        private readonly List<SearchResult> _tags;
-
-        public override int Count => _tags.Count;
-
-        public SearchResult this[int position]
-        {
-            get
-            {
-                lock (_tags)
-                {
-                    if (position > -1 && position < _tags.Count)
-                        return _tags[position];
-                }
-                return null;
-            }
-        }
-
-        public TagsPresenter()
-        {
-            _tags = new List<SearchResult>();
-        }
-
-
 
         public async Task<List<string>> TryLoadNext(string s)
         {
@@ -55,8 +32,8 @@ namespace Steepshot.Core.Presenters
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
                 {
-                    lock (_tags)
-                        _tags.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
 
                     OffsetUrl = tags.Last().Name;
                 }
@@ -66,7 +43,6 @@ namespace Steepshot.Core.Presenters
             }
             return response.Errors;
         }
-
 
         public async Task<List<string>> TryGetTopTags()
         {
@@ -88,8 +64,8 @@ namespace Steepshot.Core.Presenters
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
                 {
-                    lock (_tags)
-                        _tags.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
 
                     OffsetUrl = tags.Last().Name;
                 }
@@ -98,14 +74,6 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
             }
             return response.Errors;
-        }
-
-        public void Clear()
-        {
-            lock (_tags)
-                _tags.Clear();
-            OffsetUrl = string.Empty;
-            IsLastReaded = false;
         }
     }
 }
