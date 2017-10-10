@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Widget;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 
@@ -51,6 +52,35 @@ namespace Steepshot.Base
             if (response == null)
                 return;
             ShowAlert(response.Errors);
+        }
+
+
+        protected void ShowAlert(int messageid, ToastLength length)
+        {
+            Toast.MakeText(Activity, GetString(messageid), length)
+                .Show();
+        }
+
+        protected void ShowAlert(string message, ToastLength length)
+        {
+            Toast.MakeText(Activity, message, length)
+                .Show();
+        }
+
+        protected void ShowAlert(List<string> messages, ToastLength length)
+        {
+            if (messages == null || messages.Count == 0)
+                return;
+
+            Toast.MakeText(Activity, string.Join(System.Environment.NewLine, messages), length)
+                .Show();
+        }
+
+        protected void ShowAlert(OperationResult response, ToastLength length)
+        {
+            if (response == null)
+                return;
+            ShowAlert(response.Errors, length);
         }
 
         private void Show(string text)

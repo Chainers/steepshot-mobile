@@ -59,19 +59,19 @@ namespace Steepshot.Base
         }
 
 
-        protected virtual void ShowAlert(int messageid, ToastLength length)
+        protected void ShowAlert(int messageid, ToastLength length)
         {
             Toast.MakeText(this, GetString(messageid), length)
                 .Show();
         }
 
-        protected virtual void ShowAlert(string message, ToastLength length)
+        protected void ShowAlert(string message, ToastLength length)
         {
             Toast.MakeText(this, message, length)
                 .Show();
         }
 
-        protected virtual void ShowAlert(List<string> messages, ToastLength length)
+        protected void ShowAlert(List<string> messages, ToastLength length)
         {
             if (messages == null || messages.Count == 0)
                 return;
