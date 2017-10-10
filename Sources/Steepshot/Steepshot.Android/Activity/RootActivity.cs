@@ -9,6 +9,7 @@ using Android.Support.V4.View;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 
 namespace Steepshot.Activity
