@@ -72,8 +72,7 @@ namespace Steepshot.Core.Presenters
             };
             return Api.GetUserProfile(req, cts);
         }
-
-
+        
         public Task<OperationResult<FollowResponse>> TryFollow(int hasFollowed)
         {
             return TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
@@ -138,16 +139,13 @@ namespace Steepshot.Fragment
             if (user == null)
                 return;
 
-            var response = await _presenter.FollowersPresenter.TryFollow(user);
-            if (response.Success)
-            {
-                user.HasFollowed = !user.HasFollowed;
-                _usersSearchAdapter.NotifyDataSetChanged();
-            }
+            var errors = await _presenter.FollowersPresenter.TryFollow(user);
+            if (errors == null)
+                return;
+            if (errors.Any())
+                ShowAlert(errors);
             else
-            {
-                ShowAlert(response.Errors);
-            }
+                _usersSearchAdapter.NotifyDataSetChanged();
         }
 
         private void OnTimer(object state)

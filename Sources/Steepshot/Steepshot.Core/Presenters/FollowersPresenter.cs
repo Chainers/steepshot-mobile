@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -105,27 +104,20 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<OperationResult<FollowResponse>> TryFollow(UserFriend item)
+        public async Task<List<string>> TryFollow(UserFriend item)
         {
             return await TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), item);
         }
 
-        private async Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, UserFriend item)
+        private async Task<List<string>> Follow(CancellationTokenSource cts, UserFriend item)
         {
             var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
-            return await Api.Follow(request, cts);
-        }
-
-        public void InverseFollow(int position)
-        {
-            lock (Items)
+            var response = await Api.Follow(request, cts);
+            if (response.Success)
             {
-                if (position > -1 && position < Items.Count)
-                {
-                    var user = Items[position];
-                    user.HasFollowed = !user.HasFollowed;
-                }
+                item.HasFollowed = !item.HasFollowed;
             }
+            return response.Errors;
         }
     }
 }

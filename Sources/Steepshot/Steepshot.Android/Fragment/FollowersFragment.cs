@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -77,24 +78,15 @@ namespace Steepshot.Fragment
 
         async void Follow(int position)
         {
-            try
+            var errors = await _presenter.TryFollow(_presenter[position]);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors, ToastLength.Short);
+            else
             {
-                var response = await _presenter.TryFollow(_presenter[position]);
-                if (response.Success)
-                {
-                    _presenter[position].HasFollowed = !_presenter[position].HasFollowed;
-                    _followersAdapter.NotifyDataSetChanged();
-                }
-                else
-                {
-                    Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
-                    _presenter.InverseFollow(position);
-                    _followersAdapter.NotifyDataSetChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
+                _followersAdapter.NotifyDataSetChanged();
             }
         }
 
