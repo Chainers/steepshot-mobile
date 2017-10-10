@@ -75,7 +75,7 @@ namespace Steepshot.Core.Presenters
 
         public Task<OperationResult<FollowResponse>> TryFollow(int hasFollowed)
         {
-            return TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow);
+            return TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed > 0 ? FollowType.UnFollow : FollowType.Follow);
         }
 
         private Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, FollowType followType)
