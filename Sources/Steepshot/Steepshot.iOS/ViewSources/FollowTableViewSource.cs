@@ -30,7 +30,9 @@ namespace Steepshot.iOS.ViewSources
                     GoToProfile?.Invoke(username);
                 };
             }
-            cell.UpdateCell(Presenter[indexPath.Row]);
+            var user = Presenter[indexPath.Row];
+            if (user != null)
+                cell.UpdateCell(user);
             return cell;
         }
     }

@@ -15,7 +15,9 @@ namespace Steepshot.iOS.ViewSources
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var cell = (UsersSearchViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
-            cell.UpdateCell(Presenter[indexPath.Row]);
+            var user = Presenter[indexPath.Row];
+            if (user != null)
+                cell.UpdateCell(user);
             return cell;
         }
 

@@ -28,6 +28,8 @@ namespace Steepshot.Adapter
         {
             var vh = holder as CommentViewHolder;
             var post = _commentsPresenter[position];
+            if (post == null)
+                return;
             vh?.UpdateData(post, _context);
         }
 

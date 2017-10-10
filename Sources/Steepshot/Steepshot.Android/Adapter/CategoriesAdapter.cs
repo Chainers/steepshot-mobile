@@ -20,7 +20,10 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            ((TagViewHolder)holder).Tag.Text = _tagsPresenter[position].Name;
+            var tag = _tagsPresenter[position];
+            if (tag == null)
+                return;
+            ((TagViewHolder)holder).Tag.Text = tag.Name;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
