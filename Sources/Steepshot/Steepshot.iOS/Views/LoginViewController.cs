@@ -108,21 +108,21 @@ namespace Steepshot.iOS.Views
             try
             {
                 var response = await _presenter.TrySignIn(Username, password.Text);
-                if (response != null)
+                if (response == null) // cancelled
+                    return;
+
+                if (response.Success)
                 {
-                    if (response.Success)
-                    {
-                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
 
-                        var myViewController = new MainTabBarController();
+                    var myViewController = new MainTabBarController();
 
-                        NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                        NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-                        ShowAlert(response.Errors[0]);
-                    }
+                    NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
+                    NavigationController.PopViewController(true);
+                }
+                else
+                {
+                    ShowAlert(response.Errors[0]);
                 }
             }
             catch (ArgumentNullException)

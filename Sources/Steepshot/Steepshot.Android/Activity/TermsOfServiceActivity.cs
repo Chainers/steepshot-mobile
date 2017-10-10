@@ -25,14 +25,14 @@ namespace Steepshot.Activity
 
         private async void LoadText()
         {
-            var info = await _presenter.TryGetTermsOfService();
-            if (info == null)
+            var response = await _presenter.TryGetTermsOfService();
+            if (response == null) // cancelled
                 return;
 
-            if (info.Success)
-                _termsOfService.Text = info.Result.Text;
+            if (response.Success)
+                _termsOfService.Text = response.Result.Text;
             else
-                ShowAlert(info.Errors);
+                ShowAlert(response.Errors);
         }
 
         [InjectOnClick(Resource.Id.go_back)]

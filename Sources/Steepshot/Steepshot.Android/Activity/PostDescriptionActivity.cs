@@ -159,17 +159,19 @@ namespace Steepshot.Activity
                     {
                         Description = _tbDescription.Text
                     };
-                    var resp = await _presenter.Upload(request);
+                    var resp = await _presenter.TryUpload(request);
+                    if (resp == null)
+                        return;
 
-                    if (resp.Errors.Count > 0)
-                    {
-                        if (!string.IsNullOrEmpty(resp.Errors[0]))
-                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
-                    }
-                    else
+                    if (resp.Success)
                     {
                         BasePresenter.ShouldUpdateProfile = true;
                         Finish();
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(resp.Errors[0]))
+                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
                     }
                 }
                 else
@@ -211,7 +213,7 @@ namespace Steepshot.Activity
 
                       using (var stream = new MemoryStream())
                       {
-                        if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
+                          if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
                           {
                               var outbytes = stream.ToArray();
                               bitmap.Recycle();

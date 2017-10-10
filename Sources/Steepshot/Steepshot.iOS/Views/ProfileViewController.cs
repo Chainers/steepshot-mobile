@@ -195,7 +195,7 @@ namespace Steepshot.iOS.Views
             {
                 var response = await _presenter.TryGetUserInfo(Username);
                 _refreshControl.EndRefreshing();
-                if (response == null)
+                if (response == null) // cancelled
                     return;
 
                 if (response.Success)
@@ -389,16 +389,18 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public async Task Follow()
+        private async Task Follow()
         {
-            var resp = await _presenter.TryFollow(_userData.HasFollowed);
-            if (resp.Success)
+            var response = await _presenter.TryFollow(_userData.HasFollowed);
+            if (response == null) // cancelled
+                return;
+            if (response.Success)
             {
-                _userData.HasFollowed = resp.Result.IsSuccess ? 1 : 0;
+                _userData.HasFollowed = response.Result.IsSuccess ? 1 : 0;
                 ToogleFollowButton();
             }
             else
-                ShowAlert(resp.Errors[0]);
+                ShowAlert(response.Errors[0]);
         }
 
         void LoginTapped()

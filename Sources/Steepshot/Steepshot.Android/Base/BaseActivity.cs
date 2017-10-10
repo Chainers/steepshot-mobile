@@ -2,8 +2,10 @@
 using Android.App;
 using Android.Content;
 using Android.Support.V7.App;
+using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Fragment;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 
@@ -30,23 +32,61 @@ namespace Steepshot.Base
             CurrentHostFragment.ReplaceFragment(frag, true);
         }
 
-        protected virtual void ShowAlert(int messageid)
+
+        protected void ShowAlert(int messageid)
         {
             Show(GetString(messageid));
         }
 
-        protected virtual void ShowAlert(string message)
+        protected void ShowAlert(string message)
         {
             Show(message);
         }
 
-        protected virtual void ShowAlert(List<string> messages)
+        protected void ShowAlert(List<string> messages)
         {
             if (messages == null || messages.Count == 0)
                 return;
 
             Show(string.Join(System.Environment.NewLine, messages));
         }
+
+        protected void ShowAlert(OperationResult response)
+        {
+            if (response == null)
+                return;
+            ShowAlert(response.Errors);
+        }
+
+
+        protected virtual void ShowAlert(int messageid, ToastLength length)
+        {
+            Toast.MakeText(this, GetString(messageid), length)
+                .Show();
+        }
+
+        protected virtual void ShowAlert(string message, ToastLength length)
+        {
+            Toast.MakeText(this, message, length)
+                .Show();
+        }
+
+        protected virtual void ShowAlert(List<string> messages, ToastLength length)
+        {
+            if (messages == null || messages.Count == 0)
+                return;
+
+            Toast.MakeText(this, string.Join(System.Environment.NewLine, messages), length)
+                .Show();
+        }
+
+        protected void ShowAlert(OperationResult response, ToastLength length)
+        {
+            if (response == null)
+                return;
+            ShowAlert(response.Errors, length);
+        }
+
 
         private void Show(string text)
         {

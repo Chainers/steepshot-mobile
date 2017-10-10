@@ -2,6 +2,7 @@
 using Android.App;
 using Android.Content;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Base
 {
@@ -27,20 +28,29 @@ namespace Steepshot.Base
             set;
         }
 
-        protected virtual void ShowAlert(int messageid)
+        protected void ShowAlert(int messageid)
         {
             Show(GetString(messageid));
         }
 
-        protected virtual void ShowAlert(string message)
+        protected void ShowAlert(string message)
         {
             Show(message);
         }
 
-        protected virtual void ShowAlert(List<string> messages)
+        protected void ShowAlert(List<string> messages)
         {
-            Show(messages[0]);
-            //   Show(string.Join(System.Environment.NewLine, messages));
+            if (messages == null || messages.Count == 0)
+                return;
+
+            Show(string.Join(System.Environment.NewLine, messages));
+        }
+
+        protected void ShowAlert(OperationResult response)
+        {
+            if (response == null)
+                return;
+            ShowAlert(response.Errors);
         }
 
         private void Show(string text)
