@@ -22,7 +22,7 @@ namespace Steepshot.Fragment
         {
             _parent.CustomTag = null;
             _parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.New);
-            _parent.HideDropdown();
+            //_parent.HideDropdown();
         }
 
         [InjectOnClick(Resource.Id.btn_hot)]
@@ -30,7 +30,7 @@ namespace Steepshot.Fragment
         {
             _parent.CustomTag = null;
             _parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.Hot);
-            _parent.HideDropdown();
+            //_parent.HideDropdown();
         }
 
         [InjectOnClick(Resource.Id.btn_trending)]
@@ -38,7 +38,7 @@ namespace Steepshot.Fragment
         {
             _parent.CustomTag = null;
             _parent.OnSearchPosts(((AppCompatButton)sender).Text, Core.Models.Requests.PostType.Top);
-            _parent.HideDropdown();
+            //_parent.HideDropdown();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

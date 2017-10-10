@@ -3,61 +3,27 @@
     android:layout_width="match_parent"
     android:background="@android:color/white"
     android:layout_height="match_parent">
-    <RelativeLayout
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@android:color/white"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:textColor="@color/rgb15_24_30"
-            android:textSize="14sp"
-            android:text="@string/text_login"
-            android:id="@+id/btn_login" />
-        <TextView
-            android:text="@string/following"
-            android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@color/rgb15_24_30"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
-        <ImageView
-            android:id="@+id/pop_up_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/Title"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_popup_arrow_down"
-            android:layout_marginLeft="5dp" />
-        <ImageButton
-            android:id="@+id/btn_search"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_search"
-            android:scaleType="center"
-            android:layout_alignParentRight="true"
-            android:background="@android:color/transparent" />
-    </RelativeLayout>
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/group"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="10dp" />
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/feed_refresher"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/logo">
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <android.support.v7.widget.RecyclerView
+                android:id="@+id/feed_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/feed_list" />
+                android:layout_height="match_parent" />
         </FrameLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
     <ProgressBar
@@ -65,6 +31,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/color_primary"
+        android:indeterminateTint="@color/rgb15_24_30"
         android:layout_centerInParent="true" />
 </RelativeLayout>

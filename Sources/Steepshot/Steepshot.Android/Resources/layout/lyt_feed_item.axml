@@ -19,7 +19,7 @@
                 android:id="@+id/profile_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_user_placeholder" />
+                android:src="@drawable/holder" />
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/text_container"

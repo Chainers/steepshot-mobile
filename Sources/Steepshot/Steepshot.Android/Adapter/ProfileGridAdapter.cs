@@ -153,6 +153,8 @@ namespace Steepshot.Adapter
                            .CenterCrop()
                            .Into(_profile_image);
                 }
+                else
+                    _profile_image.SetImageResource(Resource.Drawable.holder);
 
                 if (BasePresenter.User.Login == _profile.Username)
                     _follow_button.Visibility = ViewStates.Gone;
