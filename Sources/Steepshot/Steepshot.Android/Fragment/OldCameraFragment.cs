@@ -28,6 +28,8 @@ namespace Steepshot.Fragment
         private ISurfaceHolder _holder;
         private Camera _camera;
         private int _cameraId = 0;
+        private int _currentRotation = 0;
+        private int _rotationOnShutter = 0;
         private const bool _fullScreen = true;
         private const int galleryRequestCode = 228;
         private CameraOrientationEventListener _orientationListner;
@@ -59,21 +61,17 @@ namespace Steepshot.Fragment
             _orientationListner.OrientationChanged += (orientation) =>
             {
                 var parameters = _camera?.GetParameters();
-
                 Camera.CameraInfo info = new Camera.CameraInfo();
                 Camera.GetCameraInfo(_cameraId, info);
 
                 orientation = (orientation + 45) / 90 * 90;
                 int rotation = 0;
                 if (info.Facing == Camera.CameraInfo.CameraFacingFront)
-                {
                     rotation = (info.Orientation - orientation + 360) % 360;
-                }
                 else
-                {  // back-facing camera
                     rotation = (info.Orientation + orientation) % 360;
-                }
 
+                _currentRotation = rotation;
                 parameters?.SetRotation(rotation);
                 _camera?.SetParameters(parameters);
             };
@@ -234,7 +232,6 @@ namespace Steepshot.Fragment
                         {
                             difference = t;
                             rez = new Tuple<Camera.Size, Camera.Size>(previewSize, pictureSize);
-
                         }
                     }
                 }
@@ -322,6 +319,17 @@ namespace Steepshot.Fragment
                 stream.Write(data);
                 stream.Close();
 
+                ExifInterface exifInterface = new ExifInterface(_photoUri);
+                var orientation = exifInterface.GetAttributeInt(ExifInterface.TagOrientation, 0);
+
+                if (orientation != 1 || orientation == 0)
+                {
+                    var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
+                    bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);
+                    var rotationStream = new System.IO.FileStream(_photoUri, System.IO.FileMode.Create);
+                    bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
+                }
+
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra("FILEPATH", _photoUri);
                 i.PutExtra("SHOULD_COMPRESS", false);
@@ -365,6 +373,7 @@ namespace Steepshot.Fragment
 
         public void OnShutter()
         {
+            _rotationOnShutter = _currentRotation;
             _progressBar.Visibility = ViewStates.Visible;
             _shotButton.Visibility = ViewStates.Gone;
             _flashButton.Enabled = false;

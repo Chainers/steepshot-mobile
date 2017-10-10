@@ -32,6 +32,8 @@ namespace Steepshot.Activity
         private string[] _tags = new string[0];
         private FrameLayout _add;
 
+        private Bitmap _btmp;
+
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.d_edit)] EditText _description;
         [InjectView(Resource.Id.load_layout)] RelativeLayout _loadLayout;
@@ -79,17 +81,16 @@ namespace Steepshot.Activity
             _path = Intent.GetStringExtra("FILEPATH");
             _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
 
-            Cache.Clear();
-            GC.Collect();
-
             if (!_shouldCompress)
                 _photoFrame.SetImageURI(Android.Net.Uri.Parse(_path));
             else
             {
-                Picasso.With(this).Load(_path.ToFilePath())
-                       .MemoryPolicy(MemoryPolicy.NoCache, MemoryPolicy.NoStore)
-                       .Resize(Resources.DisplayMetrics.WidthPixels, 0)
-                       .Into(_photoFrame);
+                Task.Run(() =>
+                {
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromResource(_path, 1600, 1600);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, _path);
+                    _photoFrame.SetImageBitmap(_btmp);
+                });
             }
         }
 
@@ -144,6 +145,11 @@ namespace Steepshot.Activity
         {
             base.OnDestroy();
             Cheeseknife.Reset(this);
+            if (_btmp != null)
+            {
+                _btmp.Recycle();
+                _btmp = null;
+            }
             GC.Collect();
         }
 
@@ -205,24 +211,12 @@ namespace Steepshot.Activity
                   {
                       if (_shouldCompress)
                       {
-                          Bitmap bitmap;
-                          if (_shouldCompress)
-                          {
-                              bitmap = BitmapUtils.DecodeSampledBitmapFromResource(path, 1600, 1600);
-                              bitmap = BitmapUtils.RotateImageIfRequired(bitmap, path);
-                          }
-                          else
-                              bitmap = BitmapFactory.DecodeFile(path);
-
-                          if (bitmap == null)
-                              return null;
-
                           using (var stream = new MemoryStream())
                           {
-                              if (bitmap.Compress(Bitmap.CompressFormat.Jpeg, _shouldCompress ? 90 : 100, stream))
+                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
                               {
                                   var outbytes = stream.ToArray();
-                                  bitmap.Recycle();
+                                  _btmp.Recycle();
                                   return outbytes;
                               }
                           }
