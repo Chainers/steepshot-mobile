@@ -134,11 +134,14 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts(bool clearOld = false)
         {
+            if(clearOld)
+                _presenter.Clear();
+
             List<string> errors;
             if (string.IsNullOrEmpty(CustomTag))
-                errors = await _presenter.TryLoadNextTopPosts(clearOld);
+                errors = await _presenter.TryLoadNextTopPosts();
             else
-                errors = await _presenter.TryLoadNextSearchedPosts(clearOld);
+                errors = await _presenter.TryLoadNextSearchedPosts();
 
             if (_bar != null)
             {
