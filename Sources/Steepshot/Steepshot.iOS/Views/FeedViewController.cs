@@ -266,7 +266,7 @@ namespace Steepshot.iOS.Views
             var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
             if (postIndex != -1)
             {
-                var errors = await _presenter.Vote(postIndex);
+                var errors = await _presenter.TryVote(postIndex);
                 ShowAlert(errors);
 
                 feedCollection.ReloadData();
@@ -315,7 +315,7 @@ namespace Steepshot.iOS.Views
             if (postIndex == -1)
                 return;
 
-            var errors = await _presenter.FlagPhoto(postIndex);
+            var errors = await _presenter.TryFlag(postIndex);
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
 

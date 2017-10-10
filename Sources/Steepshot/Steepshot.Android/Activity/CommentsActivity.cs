@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -10,8 +10,6 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 
@@ -20,7 +18,6 @@ namespace Steepshot.Activity
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
     {
-        List<Post> _posts;
         CommentAdapter _adapter;
         string _uid;
         LinearLayoutManager _manager;
@@ -44,43 +41,37 @@ namespace Steepshot.Activity
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                try
+                if (_textInput.Text != string.Empty)
                 {
-                    if (_textInput.Text != string.Empty)
+                    _sendSpinner.Visibility = ViewStates.Visible;
+                    _post.Visibility = ViewStates.Invisible;
+                    var resp = await _presenter.TryCreateComment(_textInput.Text, _uid);
+                    if (resp.Success)
                     {
-                        _sendSpinner.Visibility = ViewStates.Visible;
-                        _post.Visibility = ViewStates.Invisible;
-                        var resp = await _presenter.CreateComment(_textInput.Text, _uid);
-                        if (resp.Success)
+                        if (_textInput != null)
                         {
-                            if (_textInput != null)
+                            _textInput.Text = string.Empty;
+                            var errors = await _presenter.TryLoadNextComments(_uid);
+                            if (errors != null)
                             {
-                                _textInput.Text = string.Empty;
-                                var posts = await _presenter.GetComments(_uid);
-                                _adapter?.Reload(posts);
-                                _manager?.ScrollToPosition(posts.Count - 1);
+                                _adapter?.NotifyDataSetChanged();
+                                _manager?.ScrollToPosition(errors.Count - 1);
                             }
                         }
-                        else
-                        {
-                            Toast.MakeText(this, Localization.Messages.RapidPosting, ToastLength.Short).Show();
-                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    Toast.MakeText(this, Localization.Errors.Unknownerror, ToastLength.Short).Show();
-                }
-                if (_sendSpinner != null && _post != null)
-                {
-                    _sendSpinner.Visibility = ViewStates.Invisible;
-                    _post.Visibility = ViewStates.Visible;
+                    else
+                    {
+                        ShowAlert(Localization.Messages.RapidPosting, ToastLength.Short);
+                    }
+                    if (_sendSpinner != null)
+                        _sendSpinner.Visibility = ViewStates.Invisible;
+                    if (_post != null)
+                        _post.Visibility = ViewStates.Visible;
                 }
             }
             else
             {
-                Toast.MakeText(this, GetString(Resource.String.need_login), ToastLength.Short).Show();
+                ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
             }
         }
 
@@ -94,8 +85,7 @@ namespace Steepshot.Activity
             _uid = Intent.GetStringExtra("uid");
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false) { StackFromEnd = true };
             _comments.SetLayoutManager(_manager);
-            _posts = await _presenter.GetComments(_uid);
-            _adapter = new CommentAdapter(this, _posts);
+            _adapter = new CommentAdapter(this, _presenter);
             if (_comments != null)
             {
                 _comments.SetAdapter(_adapter);
@@ -103,12 +93,23 @@ namespace Steepshot.Activity
                 _adapter.LikeAction += FeedAdapter_LikeAction;
                 _adapter.UserAction += FeedAdapter_UserAction;
             }
+
+            var errors = await _presenter.TryLoadNextComments(_uid);
+            if (errors == null)
+                return;
+            if (errors.Any())
+                ShowAlert(errors, ToastLength.Short);
+            else
+                _adapter?.NotifyDataSetChanged();
         }
 
         void FeedAdapter_UserAction(int position)
         {
+            var user = _presenter[position];
+            if (user == null)
+                return;
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra("ID", _presenter.Posts[position].Author);
+            intent.PutExtra("ID", user.Author);
             StartActivity(intent);
         }
 
@@ -118,17 +119,14 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    var response = await _presenter.Vote(_presenter.Posts[position]);
+                    var errors = await _presenter.TryVote(position);
+                    if (errors == null)
+                        return;
 
-                    if (response.Success)
-                    {
-                        _presenter.Posts[position].Vote = !_presenter.Posts[position].Vote;
-                        _adapter?.NotifyDataSetChanged();
-                    }
+                    if (errors.Any())
+                        ShowAlert(errors, ToastLength.Short);
                     else
-                    {
-                        Toast.MakeText(this, response.Errors[0], ToastLength.Short).Show();
-                    }
+                        _adapter?.NotifyDataSetChanged();
                 }
                 else
                 {

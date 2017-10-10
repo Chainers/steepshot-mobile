@@ -8,6 +8,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -15,7 +16,7 @@ namespace Steepshot.Fragment
 {
     public class VotersFragment : BaseFragmentWithPresenter<VotersPresenter>
     {
-        private VotersAdapter _votersAdapter;
+        private FollowersAdapter<VotersResult> _votersAdapter;
         private string _url;
 
 #pragma warning disable 0649, 4014
@@ -63,8 +64,8 @@ namespace Steepshot.Fragment
             _viewTitle.Text = Localization.Messages.Voters;
 
             _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
-            _votersAdapter.Click += OnClick;
+            _votersAdapter = new FollowersAdapter<VotersResult>(Activity, _presenter, new[] { font, semibold_font });
+            //_votersAdapter.Click += OnClick;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadNext;

@@ -276,9 +276,9 @@ namespace Steepshot.iOS.Views
         Action<NSIndexPath> _cellClick;
         public bool IsGrid = true;
         List<NSMutableAttributedString> _commentString;
-        BaseFeedPresenter presenter;
+        BasePostPresenter presenter;
 
-        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, BaseFeedPresenter presenter = null)
+        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, BasePostPresenter presenter = null)
         {
             _scrolledAction = scrolled;
             _cellClick = cellClick;

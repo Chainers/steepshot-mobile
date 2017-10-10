@@ -75,70 +75,58 @@ namespace Steepshot.iOS.Views
         public async Task GetComments()
         {
             progressBar.StartAnimating();
-            try
+
+            _presenter.ClearPosts();
+            var errors = await _presenter.TryLoadNextComments(PostUrl);
+            if (errors == null)
+                return;
+            if (errors.Any())
+                ShowAlert(errors);
+            else
             {
-                var result = await _presenter.GetComments(PostUrl);
-                _tableSource.TableItems.Clear();
-                _tableSource.TableItems.AddRange(result);
                 commentsTable.ReloadData();
-                //kostil?
+                //TODO:KOA: WTF?
                 commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
                 await Task.Delay(TimeSpan.FromMilliseconds(10));
                 commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
             }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                progressBar.StopAnimating();
-            }
+
+            progressBar.StopAnimating();
         }
 
-        public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
+        private async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
             }
-            try
+
+            var errors = await _presenter.TryVote(p => p.Url == postUrl);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors);
+            else
             {
-                var result = await _presenter.Vote(_presenter.Posts.First(p => p.Url == postUrl));
-                if (result != null && result.Success)
-                {
-                    _tableSource.TableItems.First(p => p.Url == postUrl).Vote = vote;
-                    action.Invoke(postUrl, result.Result);
-                }
-                else
-                    ShowAlert(result);
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
+                //TODO:KOA: NOTWORK
+                //action.Invoke(postUrl, errors);
             }
         }
 
-        public async Task CreateComment()
+        private async Task CreateComment()
         {
-            try
+            if (!BasePresenter.User.IsAuthenticated)
             {
-                if (!BasePresenter.User.IsAuthenticated)
-                {
-                    LoginTapped();
-                    return;
-                }
-                var response = await _presenter.CreateComment(commentTextView.Text, PostUrl);
-                if (response.Success)
-                {
-                    commentTextView.Text = string.Empty;
-                    await GetComments();
-                }
+                LoginTapped();
+                return;
             }
-            catch (Exception ex)
+            var response = await _presenter.TryCreateComment(commentTextView.Text, PostUrl);
+            if (response.Success)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                commentTextView.Text = string.Empty;
+                await GetComments();
             }
         }
 

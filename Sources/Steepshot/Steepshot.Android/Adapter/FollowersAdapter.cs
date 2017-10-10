@@ -68,7 +68,7 @@ namespace Steepshot.Adapter
                 var result = item as UserFriend;
                 name = result.Name;
             }
-
+            /*
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             if (string.IsNullOrEmpty(name))
                 vh.FriendName.Visibility = ViewStates.Gone;
@@ -81,7 +81,7 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(item.Avatar))
                 Picasso.With(_context).Load(item.Avatar).NoFade().Resize(150, 0).Into(vh.FriendAvatar);
 
-            vh.UpdateData(item, _context);
+            vh.UpdateData(item, _context);*/
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
