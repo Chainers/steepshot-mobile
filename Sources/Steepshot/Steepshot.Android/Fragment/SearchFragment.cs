@@ -37,7 +37,7 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         CategoriesAdapter _categoriesAdapter;
-        FollowersAdapter _usersSearchAdapter;
+        FollowersAdapter<> _usersSearchAdapter;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)

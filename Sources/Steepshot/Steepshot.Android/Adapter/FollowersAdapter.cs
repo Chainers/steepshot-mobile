@@ -15,15 +15,15 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class FollowersAdapter : RecyclerView.Adapter
+    public class FollowersAdapter<T> : RecyclerView.Adapter where T : class, new()
     {
         private readonly Context _context;
-        private readonly FollowersPresenter _presenter;
+        private readonly ListPresenter<T> _presenter;
         private readonly Typeface[] _fonts;
         public Action<int> FollowAction;
         public Action<int> UserAction;
 
-        public FollowersAdapter(Context context, FollowersPresenter presenter, Typeface[] fonts)
+        public FollowersAdapter(Context context, ListPresenter<T> presenter, Typeface[] fonts)
         {
             _context = context;
             _presenter = presenter;
@@ -57,13 +57,25 @@ namespace Steepshot.Adapter
             if (item == null)
                 return;
 
+            string name;
+            var votersResult = item as VotersResult;
+            if(votersResult != null)
+            {
+                name = votersResult.Name;
+            }
+            else
+            {
+                var result = item as UserFriend;
+                name = result.Name;
+            }
+
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-            if (string.IsNullOrEmpty(item.Name))
+            if (string.IsNullOrEmpty(name))
                 vh.FriendName.Visibility = ViewStates.Gone;
             else
             {
                 vh.FriendName.Visibility = ViewStates.Visible;
-                vh.FriendName.Text = item.Name;
+                vh.FriendName.Text = name;
             }
             vh.FriendLogin.Text = item.Author;
             if (!string.IsNullOrEmpty(item.Avatar))

@@ -9,52 +9,27 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class FollowersPresenter : ListPresenter
+    public sealed class FollowersPresenter : ListPresenter<UserFriend>
     {
         private const int ItemsLimit = 40;
-        private readonly List<UserFriend> _users;
         private readonly FriendsType? _followType;
 
         public FriendsType? FollowType => _followType;
-        public override int Count => _users.Count;
-
-        public UserFriend this[int position]
-        {
-            get
-            {
-                lock (_users)
-                {
-                    if (position > -1 && position < _users.Count)
-                        return _users[position];
-                }
-                return null;
-            }
-        }
 
         public FollowersPresenter()
         {
-            _users = new List<UserFriend>();
         }
 
-        public FollowersPresenter(FriendsType followType) : this()
+        public FollowersPresenter(FriendsType followType)
         {
             _followType = followType;
         }
 
-        public void Clear()
-        {
-            lock (_users)
-                _users.Clear();
-            OffsetUrl = string.Empty;
-            IsLastReaded = false;
-        }
-
         public UserFriend FirstOrDefault(Func<UserFriend, bool> func)
         {
-            lock (_users)
-                return _users.FirstOrDefault(func);
+            lock (Items)
+                return Items.FirstOrDefault(func);
         }
-
 
         public async Task<List<string>> TryLoadNextUserFriends(string username)
         {
@@ -81,8 +56,8 @@ namespace Steepshot.Core.Presenters
                 var result = response.Result.Results;
                 if (result.Count > 0)
                 {
-                    lock (_users)
-                        _users.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -117,8 +92,8 @@ namespace Steepshot.Core.Presenters
                 var result = response.Result.Results;
                 if (result.Count > 0)
                 {
-                    lock (_users)
-                        _users.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -143,11 +118,11 @@ namespace Steepshot.Core.Presenters
 
         public void InverseFollow(int position)
         {
-            lock (_users)
+            lock (Items)
             {
-                if (position > -1 && position < _users.Count)
+                if (position > -1 && position < Items.Count)
                 {
-                    var user = _users[position];
+                    var user = Items[position];
                     user.HasFollowed = !user.HasFollowed;
                 }
             }

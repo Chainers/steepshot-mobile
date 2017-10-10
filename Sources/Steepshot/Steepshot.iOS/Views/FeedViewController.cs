@@ -152,7 +152,7 @@ namespace Steepshot.iOS.Views
             if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
             {
                 _currentPostCategory = CurrentPostCategory;
-                _presenter.ClearPosts();
+                _presenter.Clear();
                 _collectionViewSource.FeedStrings.Clear();
                 _tw.Text = CurrentPostCategory;
                 await GetPosts();
@@ -171,7 +171,7 @@ namespace Steepshot.iOS.Views
         private async Task RefreshTable()
         {
             _collectionViewSource.FeedStrings.Clear();
-            _presenter.ClearPosts();
+            _presenter.Clear();
             await GetPosts(false, true);
         }
 
@@ -382,7 +382,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.New && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _presenter.ClearPosts();
+                   _presenter.Clear();
                    feedCollection.ReloadData();
                    _presenter.PostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
@@ -400,7 +400,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _presenter.ClearPosts();
+                   _presenter.Clear();
                    feedCollection.ReloadData();
                    _presenter.PostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
@@ -418,7 +418,7 @@ namespace Steepshot.iOS.Views
                    if (_currentPostType == PostType.Top && CurrentPostCategory != null)
                        return;
                    ToogleDropDownList();
-                   _presenter.ClearPosts();
+                   _presenter.Clear();
                    feedCollection.ReloadData();
                    _presenter.PostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;

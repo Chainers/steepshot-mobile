@@ -8,31 +8,9 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class VotersPresenter : ListPresenter
+    public sealed class VotersPresenter : ListPresenter<VotersResult>
     {
         private const int ItemsLimit = 40;
-        private readonly List<VotersResult> _voters;
-
-        public override int Count => _voters.Count;
-
-        public VotersResult this[int position]
-        {
-            get
-            {
-                lock (_voters)
-                {
-                    if (position > -1 && position < _voters.Count)
-                        return _voters[position];
-                }
-                return null;
-            }
-        }
-
-        public VotersPresenter()
-        {
-            _voters = new List<VotersResult>();
-        }
-
 
         public async Task<List<string>> TryLoadNext(string url)
         {
@@ -56,8 +34,8 @@ namespace Steepshot.Core.Presenters
                 var voters = response.Result.Results;
                 if (voters.Count > 0)
                 {
-                    lock (_voters)
-                        _voters.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
 
                     OffsetUrl = voters.Last().Username;
                 }

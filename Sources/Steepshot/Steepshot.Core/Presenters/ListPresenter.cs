@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public abstract class ListPresenter : BasePresenter
+    public abstract class ListPresenter<T> : BasePresenter
     {
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
@@ -14,11 +15,35 @@ namespace Steepshot.Core.Presenters
         protected const int ServerMaxCount = 20;
         protected string OffsetUrl = string.Empty;
 
-        public abstract int Count { get; }
+        public virtual int Count => Items.Count;
+        protected readonly List<T> Items;
+        
+
+        public T this[int position]
+        {
+            get
+            {
+                lock (Items)
+                {
+                    if (position > -1 && position < Items.Count)
+                        return Items[position];
+                }
+                return default(T);
+            }
+        }
 
         protected ListPresenter()
         {
             _sync = new object();
+            Items = new List<T>();
+        }
+
+        public void Clear()
+        {
+            lock (Items)
+                Items.Clear();
+            IsLastReaded = false;
+            OffsetUrl = string.Empty;
         }
 
         protected async Task<TResult> RunAsSingleTask<TResult>(Func<CancellationTokenSource, Task<TResult>> func, bool cancelPrevTask = true)
