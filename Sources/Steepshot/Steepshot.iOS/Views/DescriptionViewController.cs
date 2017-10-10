@@ -185,9 +185,9 @@ namespace Steepshot.iOS.Views
                 {
                     Description = descriptionTextField.Text
                 };
-                var imageUploadResponse = await _presenter.TryUpload(request);
+                var result = await _presenter.TryUpload(request);
 
-                if (imageUploadResponse.Success)
+                if (result != null && result.Success)
                 {
                     TagsList.Clear();
                     ShouldProfileUpdate = true;
@@ -195,8 +195,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    //Reporter.SendCrash(Localization.Errors.PhotoUploadError + imageUploadResponse.Errors[0], BasePresenter.User.Login, AppVersion);
-                    ShowAlert(imageUploadResponse.Errors[0]);
+                    ShowAlert(result);
                 }
             }
             catch (Exception ex)

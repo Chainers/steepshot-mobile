@@ -291,15 +291,18 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public async Task GetUserPosts(bool needRefresh = false)
+        private async Task GetUserPosts(bool needRefresh = false)
         {
             if (_isPostsLoading)
                 return;
             _isPostsLoading = true;
 
             var errors = await _presenter.TryLoadNextPosts(needRefresh);
-            if (errors != null && errors.Count() != 0)
-                ShowAlert(errors[0]);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors);
             else
             {
                 for (int i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
@@ -334,8 +337,9 @@ namespace Steepshot.iOS.Views
             if (index != -1)
             {
                 var errors = await _presenter.Vote(index);
-                if (errors != null && errors.Count() != 0)
-                    ShowAlert(errors[0]);
+                if (errors == null)
+                    return;
+                ShowAlert(errors);
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
             }
@@ -382,8 +386,7 @@ namespace Steepshot.iOS.Views
             if (index != -1)
             {
                 var errors = await _presenter.FlagPhoto(index);
-                if (errors != null && errors.Count() != 0)
-                    ShowAlert(errors[0]);
+                ShowAlert(errors);
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
             }
@@ -392,15 +395,13 @@ namespace Steepshot.iOS.Views
         private async Task Follow()
         {
             var response = await _presenter.TryFollow(_userData.HasFollowed);
-            if (response == null) // cancelled
-                return;
-            if (response.Success)
+            if (response != null && response.Success)
             {
                 _userData.HasFollowed = response.Result.IsSuccess ? 1 : 0;
                 ToogleFollowButton();
             }
             else
-                ShowAlert(response.Errors[0]);
+                ShowAlert(response);
         }
 
         void LoginTapped()

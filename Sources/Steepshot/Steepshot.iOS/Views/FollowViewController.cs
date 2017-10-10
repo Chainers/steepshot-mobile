@@ -15,7 +15,7 @@ namespace Steepshot.iOS.Views
         private readonly FriendsType _friendsType;
         private readonly string _username;
         private FollowTableViewSource _tableSource;
-       
+
 
         public FollowViewController(FriendsType friendsType, string username)
         {
@@ -81,8 +81,7 @@ namespace Steepshot.iOS.Views
             await _presenter.TryLoadNextUserFriends(_username).ContinueWith((errors) =>
             {
                 var errorsList = errors.Result;
-                if (errorsList != null && errorsList.Count > 0)
-                    ShowAlert(errorsList[0]);
+                ShowAlert(errorsList);
                 InvokeOnMainThread(() =>
                 {
                     followTableView.ReloadData();

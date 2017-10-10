@@ -105,14 +105,14 @@ namespace Steepshot.iOS.Views
             }
             try
             {
-                var response = await _presenter.Vote(_presenter.Posts.First(p => p.Url == postUrl));
-                if (response.Success)
+                var result = await _presenter.Vote(_presenter.Posts.First(p => p.Url == postUrl));
+                if (result != null && result.Success)
                 {
                     _tableSource.TableItems.First(p => p.Url == postUrl).Vote = vote;
-                    action.Invoke(postUrl, response.Result);
+                    action.Invoke(postUrl, result.Result);
                 }
                 else
-                    ShowAlert(response.Errors[0]);
+                    ShowAlert(result);
             }
             catch (Exception ex)
             {
