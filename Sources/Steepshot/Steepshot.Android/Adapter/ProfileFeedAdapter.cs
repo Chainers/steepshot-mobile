@@ -16,7 +16,7 @@ namespace Steepshot.Adapter
         public Action FollowAction;
         private bool _isHeaderNeeded;
 
-        public ProfileFeedAdapter(Context context, BaseFeedPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter, fonts)
+        public ProfileFeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter, fonts)
         {
             _isHeaderNeeded = isHeaderNeeded;
         }

@@ -16,7 +16,7 @@ namespace Steepshot.Adapter
 
     public class FeedAdapter : RecyclerView.Adapter
     {
-        protected readonly BaseFeedPresenter Presenter;
+        protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
         protected readonly Typeface[] Fonts;
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
@@ -25,7 +25,7 @@ namespace Steepshot.Adapter
         public override int ItemCount => Presenter.Count;
 
 
-        public FeedAdapter(Context context, BaseFeedPresenter presenter, Typeface[] fonts)
+        public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
         {
             Context = context;
             Presenter = presenter;

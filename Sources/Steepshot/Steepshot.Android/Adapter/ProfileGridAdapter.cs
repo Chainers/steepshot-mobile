@@ -22,7 +22,7 @@ namespace Steepshot.Adapter
         public UserProfileResponse ProfileData;
         private bool _isHeaderNeeded;
 
-        public ProfileGridAdapter(Context context, BaseFeedPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileGridAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter)
         {
             _fonts = fonts;
             _isHeaderNeeded = isHeaderNeeded;

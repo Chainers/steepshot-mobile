@@ -336,7 +336,7 @@ namespace Steepshot.iOS.Views
             var index = _presenter.IndexOf(p => p.Url == postUri);
             if (index != -1)
             {
-                var errors = await _presenter.Vote(index);
+                var errors = await _presenter.TryVote(index);
                 if (errors == null)
                     return;
                 ShowAlert(errors);
@@ -385,7 +385,7 @@ namespace Steepshot.iOS.Views
             var index = _presenter.IndexOf(p => p.Url == postUrl);
             if (index != -1)
             {
-                var errors = await _presenter.FlagPhoto(index);
+                var errors = await _presenter.TryFlag(index);
                 ShowAlert(errors);
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
