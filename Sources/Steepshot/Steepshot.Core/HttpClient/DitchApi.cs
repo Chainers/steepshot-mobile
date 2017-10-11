@@ -102,10 +102,9 @@ namespace Steepshot.Core.HttpClient
 
             return await Task.Run(() =>
             {
-                var fType = request.Type == Models.Requests.FollowType.Follow
-                    ? new[] { Ditch.Operations.Enums.FollowType.blog }
-                    : null;
-                var op = new FollowOperation(request.Login, request.Username, fType, request.Login);
+                var op = request.Type == FollowType.Follow
+                    ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
+                    : new UnfollowOperation(request.Login, request.Username, request.Login);
                 var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<FollowResponse>();
@@ -315,20 +314,20 @@ namespace Steepshot.Core.HttpClient
                     switch (response.Error.Code)
                     {
                         case (int)ErrorCodes.ConnectionTimeoutError:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
+                                break;
+                            }
                         case (int)ErrorCodes.ResponseTimeoutError:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
+                                break;
+                            }
                         default:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
+                                break;
+                            }
                     }
                 }
                 else if (response.Error is ResponseError)
@@ -339,23 +338,23 @@ namespace Steepshot.Core.HttpClient
                     switch (typedError.Data.Code)
                     {
                         case 10: //Assert Exception
-                        {
-                            if (typedError.Data.Stack.Any())
                             {
-                                var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
-                                if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
+                                if (typedError.Data.Stack.Any())
                                 {
-                                    operationResult.Errors.Add(match.Value);
-                                    break;
+                                    var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
+                                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
+                                    {
+                                        operationResult.Errors.Add(match.Value);
+                                        break;
+                                    }
                                 }
+                                goto default;
                             }
-                            goto default;
-                        }
                         case 13: //unknown key
-                        {
-                            operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                break;
+                            }
                         //case 3000000: "transaction exception"
                         //case 3010000: "missing required active authority"
                         //case 3020000: "missing required owner authority"
@@ -364,19 +363,19 @@ namespace Steepshot.Core.HttpClient
                         //case 3050000: "irrelevant signature included"
                         //case 3060000: "duplicate signature included"
                         case 3030000:
-                        {
-                            if (t.Name == "LoginResponse")
                             {
-                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                if (t.Name == "LoginResponse")
+                                {
+                                    operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                    break;
+                                }
+                                goto default;
+                            }
+                        default:
+                            {
+                                operationResult.Errors.Add(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
                                 break;
                             }
-                            goto default;
-                        }
-                        default:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
-                            break;
-                        }
                     }
                 }
                 else
