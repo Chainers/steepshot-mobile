@@ -118,16 +118,13 @@ namespace SteepshotShareExtension
         }
 
         private string SavePhotosToSharedStorage(UIImage photo, int imageIndex)
-        {            
+        {
             var nsFileManager = new NSFileManager();
             var containerUrl = nsFileManager.GetContainerUrl(APP_SHARE_GROUP);
-            var fileName = string.Format("image{0}", imageIndex);
-            //var filePath = Path.Combine(containerUrl.Path, fileName);
-            //photo.AsJPEG(1).Save(filePath, true);
-            var nsUser = new NSUserDefaults(APP_SHARE_GROUP);
-            nsUser.SetValueForKey(photo.AsJPEG(1), new NSString("fs"));
-            return fileName;
+            var fileName = string.Format("image{0}.jpg", imageIndex);
+            var filePath = Path.Combine(containerUrl.Path, fileName);
+            photo.AsJPEG(1).Save(filePath, true);
+            return filePath;
         }
     }
 }
-
