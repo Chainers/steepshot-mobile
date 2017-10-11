@@ -56,7 +56,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:layout_above="@+id/login">
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -150,6 +151,16 @@
                 android:layout_alignParentBottom="true" />
         </RelativeLayout>
     </android.support.design.widget.CoordinatorLayout>
+    <Button
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:text="Login"
+        android:background="@color/rgb231_72_0"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textAllCaps="false" />
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"

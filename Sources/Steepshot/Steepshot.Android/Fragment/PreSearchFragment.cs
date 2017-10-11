@@ -76,6 +76,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.clear_button)] Button _clearButton;
         [InjectView(Resource.Id.btn_switcher)] ImageButton _switcher;
         [InjectView(Resource.Id.refresher)] SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.login)] Button _loginButton;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.clear_button)]
@@ -129,6 +130,12 @@ namespace Steepshot.Fragment
             }
         }
 
+        [InjectOnClick(Resource.Id.login)]
+        public void OnLogin(object sender, EventArgs e)
+        {
+            OpenLogin();
+        }
+
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -165,12 +172,15 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
+            if (BasePresenter.User.IsAuthenticated)
+                _loginButton.Visibility = ViewStates.Gone;
+
             _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
             _searchView.Typeface = _font;
             _clearButton.Typeface = _font;
-
+            _loginButton.Typeface = _semiboldFont;
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += async () => await LoadPosts();
 
@@ -215,10 +225,8 @@ namespace Steepshot.Fragment
                 _searchList?.GetAdapter()?.NotifyDataSetChanged();
             }
             else
-            {
-                var intent = new Intent(Context, typeof(PreSignInActivity));
-                StartActivity(intent);
-            }
+                OpenLogin();
+            
         }
 
         private void UserAction(int position)
@@ -279,6 +287,12 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             _presenter = new PreSearchPresenter();
+        }
+
+        private void OpenLogin()
+        {
+            var intent = new Intent(Activity, typeof(PreSignInActivity));
+            StartActivity(intent);
         }
 
         private void SwitchSearchType(PostType postType)

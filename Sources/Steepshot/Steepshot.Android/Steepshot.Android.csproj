@@ -144,12 +144,15 @@
     <AndroidResource Include="Resources\drawable-hdpi\close.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\close.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\close.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\group.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\group.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\group.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\logo_small.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\logo_small.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\logo_small.png" />
     <AndroidResource Include="Resources\drawable-mdpi\holder.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\holder.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\holder.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\logo_big.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\logo_big.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\logo_big.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
