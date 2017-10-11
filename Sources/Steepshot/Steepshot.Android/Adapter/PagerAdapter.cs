@@ -49,7 +49,7 @@ namespace Steepshot.Adapter
                 switch (i)
                 {
                     case 0:
-                        frag = HostFragment.NewInstance(new FeedFragment(true));
+                        frag = HostFragment.NewInstance(new FeedFragment());
                         break;
                     case 1:
                         frag = HostFragment.NewInstance(new PreSearchFragment());

@@ -7,7 +7,7 @@
         android:id="@+id/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/group"
+        android:src="@drawable/logo_small"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="15dp"
         android:layout_marginBottom="10dp" />

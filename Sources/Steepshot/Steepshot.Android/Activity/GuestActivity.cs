@@ -13,7 +13,7 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
 
             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-            CurrentHostFragment = HostFragment.NewInstance(new FeedFragment());
+            CurrentHostFragment = HostFragment.NewInstance(new PreSearchFragment());
             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
             fragmentTransaction.Commit();
         }
