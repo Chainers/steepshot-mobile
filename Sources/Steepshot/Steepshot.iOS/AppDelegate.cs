@@ -67,15 +67,25 @@ namespace Steepshot.iOS
 
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
-            var urlCollection = url.ToString().Replace("steepshot://", string.Empty).Split('%');
-            //var nsUserDefaults = new NSUserDefaults()
-            var nsFileManager = new NSFileManager();
-            var imageData = nsFileManager.Contents(urlCollection[0]);
-            var sharedPhoto = UIImage.LoadFromData(imageData);
-            var descriptionViewController = new DescriptionViewController();
-            descriptionViewController.ImageAsset = sharedPhoto;
             var tabController = Window.RootViewController as UINavigationController;
-            tabController.PushViewController(descriptionViewController, true);
+            Task.Delay(500).ContinueWith(_ => InvokeOnMainThread(() =>
+            {
+                if (BasePresenter.User.IsAuthenticated)
+                {
+                    var urlCollection = url.ToString().Replace("steepshot://", string.Empty).Split('%');
+                    var nsFileManager = new NSFileManager();
+                    var imageData = nsFileManager.Contents(urlCollection[0]);
+                    var sharedPhoto = UIImage.LoadFromData(imageData);
+                    var descriptionViewController = new DescriptionViewController();
+                    descriptionViewController.ImageAsset = sharedPhoto;
+                    tabController.PushViewController(descriptionViewController, true);
+                }
+                else
+                {
+                    var preLoginViewController = new PreLoginViewController();
+                    tabController.PushViewController(preLoginViewController, true);
+                }
+            }));
             return true;
         }
 
