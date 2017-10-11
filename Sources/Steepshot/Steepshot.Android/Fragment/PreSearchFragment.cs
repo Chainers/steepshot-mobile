@@ -27,6 +27,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
+        private PostGridItemdecoration _gridItemDecoration;
 
         public string CustomTag
         {
@@ -119,13 +120,14 @@ namespace Steepshot.Fragment
             {
                 _switcher.SetImageResource(Resource.Drawable.grid);
                 _searchList.SetLayoutManager(_linearLayoutManager);
+                _searchList.RemoveItemDecoration(_gridItemDecoration);
                 _searchList.SetAdapter(ProfileFeedAdapter);
             }
             else
             {
                 _switcher.SetImageResource(Resource.Drawable.grid_active);
                 _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(new PostGridItemdecoration());
+                _searchList.AddItemDecoration(_gridItemDecoration);
                 _searchList.SetAdapter(ProfileGridAdapter);
             }
         }
@@ -148,7 +150,7 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            try
+            try //TODO:KOA: is try catch realy needed?
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
                 if (s != null && s != CustomTag && _spinner != null)
@@ -186,9 +188,10 @@ namespace Steepshot.Fragment
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
-
+            
+            _gridItemDecoration = new PostGridItemdecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
-            _searchList.AddItemDecoration(new PostGridItemdecoration());
+            _searchList.AddItemDecoration(_gridItemDecoration);
             _searchList.AddOnScrollListener(_scrollListner);
             _searchList.SetAdapter(ProfileGridAdapter);
             SwitchSearchType(PostType.Top);
