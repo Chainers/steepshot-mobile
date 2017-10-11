@@ -43,16 +43,14 @@ namespace Steepshot.Adapter
             if (viewType == 0)
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                var vh = new HeaderViewHolder(itemView, Context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
-                return vh;
+                return new HeaderViewHolder(itemView, Context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
             }
             else
             {
                 var view = new ImageView(Context);
                 view.SetScaleType(ImageView.ScaleType.CenterInside);
-                view.LayoutParameters = new ViewGroup.LayoutParams(Context.Resources.DisplayMetrics.WidthPixels / 3 - 1, Context.Resources.DisplayMetrics.WidthPixels / 3 - 1);
-                var vh = new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
-                return vh;
+                view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
+                return new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
             }
         }
 

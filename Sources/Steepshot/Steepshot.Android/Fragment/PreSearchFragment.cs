@@ -52,14 +52,14 @@ namespace Steepshot.Fragment
             }
         }
 
-        ProfileGridAdapter _profileGridAdapter;
-        ProfileGridAdapter ProfileGridAdapter
+        PostsGridAdapter _profileGridAdapter;
+        PostsGridAdapter ProfileGridAdapter
         {
             get
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
+                    _profileGridAdapter = new PostsGridAdapter(Context, _presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -125,7 +125,7 @@ namespace Steepshot.Fragment
             {
                 _switcher.SetImageResource(Resource.Drawable.grid_active);
                 _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(new ProfileGridItemdecoration(1));
+                _searchList.AddItemDecoration(new PostGridItemdecoration());
                 _searchList.SetAdapter(ProfileGridAdapter);
             }
         }
@@ -188,7 +188,7 @@ namespace Steepshot.Fragment
             _gridLayoutManager = new GridLayoutManager(Context, 3);
 
             _searchList.SetLayoutManager(_gridLayoutManager);
-            _searchList.AddItemDecoration(new ProfileGridItemdecoration(1));
+            _searchList.AddItemDecoration(new PostGridItemdecoration());
             _searchList.AddOnScrollListener(_scrollListner);
             _searchList.SetAdapter(ProfileGridAdapter);
             SwitchSearchType(PostType.Top);
@@ -226,7 +226,7 @@ namespace Steepshot.Fragment
             }
             else
                 OpenLogin();
-            
+
         }
 
         private void UserAction(int position)
