@@ -267,7 +267,10 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Visible;
 
             if (clearOld)
+            {
                 _presenter.Clear();
+                _scrollListner.ClearPosition();
+            }
 
             List<string> errors;
             if (string.IsNullOrEmpty(CustomTag))
