@@ -127,7 +127,7 @@ namespace Steepshot.Fragment
             _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
 
             _postsList.SetLayoutManager(_gridLayoutManager);
-            _postsList.AddItemDecoration(new ProfileGridItemdecoration(1));
+            _postsList.AddItemDecoration(new PostGridItemdecoration(true));
             _postsList.AddOnScrollListener(_scrollListner);
             _postsList.SetAdapter(ProfileGridAdapter);
 
@@ -191,7 +191,7 @@ namespace Steepshot.Fragment
             {
                 _switcher.SetImageResource(Resource.Drawable.grid_active);
                 _postsList.SetLayoutManager(_gridLayoutManager);
-                _postsList.AddItemDecoration(new ProfileGridItemdecoration(1));
+                _postsList.AddItemDecoration(new PostGridItemdecoration(true));
                 _postsList.SetAdapter(ProfileGridAdapter);
             }
         }

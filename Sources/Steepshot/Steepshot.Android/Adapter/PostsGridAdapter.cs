@@ -14,16 +14,16 @@ namespace Steepshot.Adapter
         protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
         public Action<int> Click;
-        private int _cellSize;
+        protected readonly int _cellSize;
+        public override int ItemCount => Presenter.Count;
+
 
         public PostsGridAdapter(Context context, BasePostPresenter presenter)
         {
             Context = context;
             Presenter = presenter;
-            _cellSize = (Context.Resources.DisplayMetrics.WidthPixels - 2 * 4) / 3;
+            _cellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
         }
-        
-        public override int ItemCount => Presenter.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -36,7 +36,7 @@ namespace Steepshot.Adapter
                 return;
             Picasso.With(Context).Load(photo)
                 .NoFade()
-                .Resize(Context.Resources.DisplayMetrics.WidthPixels / 3 - 2, Context.Resources.DisplayMetrics.WidthPixels / 3 - 2)
+                .Resize(_cellSize, _cellSize)
                 .CenterCrop()
                 .Priority(Picasso.Priority.Low)
                 .Into(((ImageViewHolder)holder).Photo);
@@ -47,9 +47,7 @@ namespace Steepshot.Adapter
             var view = new ImageView(Context);
             view.SetScaleType(ImageView.ScaleType.CenterInside);
             view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
-
-            var vh = new ImageViewHolder(view, Click);
-            return vh;
+            return new ImageViewHolder(view, Click);
         }
     }
 
