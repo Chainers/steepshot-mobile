@@ -25,6 +25,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
+        private PostGridItemdecoration _gridItemDecoration;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
@@ -126,8 +127,9 @@ namespace Steepshot.Fragment
             _gridLayoutManager = new GridLayoutManager(Context, 3);
             _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
 
+            _gridItemDecoration = new PostGridItemdecoration(true);
             _postsList.SetLayoutManager(_gridLayoutManager);
-            _postsList.AddItemDecoration(new PostGridItemdecoration(true));
+            _postsList.AddItemDecoration(_gridItemDecoration);
             _postsList.AddOnScrollListener(_scrollListner);
             _postsList.SetAdapter(ProfileGridAdapter);
 
@@ -185,13 +187,14 @@ namespace Steepshot.Fragment
             {
                 _switcher.SetImageResource(Resource.Drawable.grid);
                 _postsList.SetLayoutManager(_linearLayoutManager);
+                _postsList.RemoveItemDecoration(_gridItemDecoration);
                 _postsList.SetAdapter(ProfileFeedAdapter);
             }
             else
             {
                 _switcher.SetImageResource(Resource.Drawable.grid_active);
                 _postsList.SetLayoutManager(_gridLayoutManager);
-                _postsList.AddItemDecoration(new PostGridItemdecoration(true));
+                _postsList.AddItemDecoration(_gridItemDecoration);
                 _postsList.SetAdapter(ProfileGridAdapter);
             }
         }
