@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -27,7 +27,7 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="buzzbeergeek" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fnL-d0-hVK">
-                        <rect key="frame" x="51" y="17" width="104.5" height="18"/>
+                        <rect key="frame" x="51" y="16.5" width="104.5" height="18"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -59,7 +59,7 @@
                         </constraints>
                     </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZa-PT-Ha5">
-                        <rect key="frame" x="349" y="11" width="30" height="30"/>
+                        <rect key="frame" x="349" y="10.5" width="30" height="30"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="30" id="SBH-4M-NVq"/>
                             <constraint firstAttribute="height" constant="30" id="yCk-EX-80e"/>
@@ -73,11 +73,23 @@
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="248" scrollEnabled="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w1I-EV-1GW">
                         <rect key="frame" x="51" y="43" width="328" height="430.5"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <mutableString key="text">www.steepshot.io Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim www.google.com xercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat no proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
+                        <string key="text">www.steepshot.io Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim www.google.com xercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat no proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                         <dataDetectorType key="dataDetectorTypes" link="YES"/>
                     </textView>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hOJ-Wm-UsP">
+                        <rect key="frame" x="357" y="474" width="30" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="30" id="sbD-Mx-UeL"/>
+                            <constraint firstAttribute="height" constant="30" id="waL-Sb-0rW"/>
+                        </constraints>
+                        <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <state key="normal" backgroundImage="flag.png"/>
+                        <state key="selected" backgroundImage="flag_active.png">
+                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        </state>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="bhf-a7-Kmk" firstAttribute="centerY" secondItem="g0G-Jy-lq2" secondAttribute="centerY" id="5eU-er-SUK"/>
@@ -90,6 +102,7 @@
                     <constraint firstItem="AyA-AD-KaR" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leadingMargin" id="MdO-jz-pHn"/>
                     <constraint firstItem="AyA-AD-KaR" firstAttribute="top" secondItem="g0G-Jy-lq2" secondAttribute="bottom" constant="10" id="Pfc-eS-GGo"/>
                     <constraint firstAttribute="bottomMargin" secondItem="AyA-AD-KaR" secondAttribute="bottom" id="SO3-a4-5ei"/>
+                    <constraint firstItem="AyA-AD-KaR" firstAttribute="top" secondItem="hOJ-Wm-UsP" secondAttribute="bottom" constant="8.5" id="Tbu-Ug-T9U"/>
                     <constraint firstItem="bhf-a7-Kmk" firstAttribute="leading" secondItem="g0G-Jy-lq2" secondAttribute="trailing" constant="3" id="bdM-eM-ODT"/>
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="centerY" secondItem="j3L-Au-o6s" secondAttribute="centerY" id="cpt-2X-8EN"/>
                     <constraint firstItem="YZa-PT-Ha5" firstAttribute="trailing" secondItem="w1I-EV-1GW" secondAttribute="trailing" id="eSx-Lf-RYo"/>
@@ -97,6 +110,7 @@
                     <constraint firstItem="bhf-a7-Kmk" firstAttribute="top" secondItem="w1I-EV-1GW" secondAttribute="bottom" constant="10" id="pcJ-Ph-1gz"/>
                     <constraint firstItem="msO-ct-rLQ" firstAttribute="leading" secondItem="bhf-a7-Kmk" secondAttribute="trailing" constant="18" id="th0-5H-Ukf"/>
                     <constraint firstItem="w1I-EV-1GW" firstAttribute="top" secondItem="j3L-Au-o6s" secondAttribute="bottom" id="w8y-jx-DE4"/>
+                    <constraint firstItem="hOJ-Wm-UsP" firstAttribute="trailing" secondItem="YTl-1W-gDM" secondAttribute="trailingMargin" constant="8" id="xzz-3a-MaF"/>
                     <constraint firstItem="w1I-EV-1GW" firstAttribute="leading" secondItem="fnL-d0-hVK" secondAttribute="leading" id="zPX-JL-YOC"/>
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="trailing" constant="8" id="za0-AC-ge5"/>
                 </constraints>
@@ -105,6 +119,7 @@
                 <outlet property="avatar" destination="j3L-Au-o6s" id="kft-ef-5tU"/>
                 <outlet property="commentText" destination="w1I-EV-1GW" id="U92-Y9-mAe"/>
                 <outlet property="costLabel" destination="msO-ct-rLQ" id="UBR-c5-hOn"/>
+                <outlet property="flagButton" destination="hOJ-Wm-UsP" id="name-outlet-hOJ-Wm-UsP"/>
                 <outlet property="likeButton" destination="YZa-PT-Ha5" id="zTg-TT-IFI"/>
                 <outlet property="likeLabel" destination="bhf-a7-Kmk" id="65t-th-lvQ"/>
                 <outlet property="loginLabel" destination="fnL-d0-hVK" id="pgJ-OM-R1L"/>
@@ -113,6 +128,8 @@
         </tableViewCell>
     </objects>
     <resources>
+        <image name="flag.png" width="25" height="25"/>
+        <image name="flag_active.png" width="25" height="25"/>
         <image name="heart.png" width="25" height="25"/>
         <image name="heart_black.png" width="25" height="25"/>
         <image name="ic_micro_heart.png" width="24" height="24"/>
