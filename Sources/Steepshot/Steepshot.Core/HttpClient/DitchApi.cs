@@ -63,7 +63,12 @@ namespace Steepshot.Core.HttpClient
                     };
                 }
 
-                var weigth = (short)(request.Type == VoteType.Up ? 10000 : 0);
+                short weigth = 0;
+                if (request.Type == VoteType.Up)
+                    weigth = 10000;
+                if (request.Type == VoteType.Flag)
+                    weigth = -10000;
+
                 var op = new VoteOperation(request.Login, author, permlink, weigth);
                 var resp = OperationManager.BroadcastOperations(keys, op);
 
