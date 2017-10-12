@@ -35,14 +35,14 @@ namespace Steepshot.Fragment
             set => _presenter.Tag = value;
         }
 
-        ProfileFeedAdapter _profileFeedAdapter;
-        ProfileFeedAdapter ProfileFeedAdapter
+        FeedAdapter _profileFeedAdapter;
+        FeedAdapter ProfileFeedAdapter
         {
             get
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
+                    _profileFeedAdapter = new FeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -53,14 +53,14 @@ namespace Steepshot.Fragment
             }
         }
 
-        PostsGridAdapter _profileGridAdapter;
-        PostsGridAdapter ProfileGridAdapter
+        GridAdapter _profileGridAdapter;
+        GridAdapter ProfileGridAdapter
         {
             get
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new PostsGridAdapter(Context, _presenter);
+                    _profileGridAdapter = new GridAdapter(Context, _presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -116,6 +116,7 @@ namespace Steepshot.Fragment
         [InjectOnClick(Resource.Id.btn_switcher)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
+            _scrollListner.ClearPosition();
             if (_searchList.GetLayoutManager() is GridLayoutManager)
             {
                 _switcher.SetImageResource(Resource.Drawable.grid);
@@ -188,7 +189,7 @@ namespace Steepshot.Fragment
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
-            
+
             _gridItemDecoration = new PostGridItemdecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
             _searchList.AddItemDecoration(_gridItemDecoration);
@@ -268,6 +269,7 @@ namespace Steepshot.Fragment
 
             if (clearOld)
             {
+                _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
             }
@@ -303,49 +305,48 @@ namespace Steepshot.Fragment
 
         private void SwitchSearchType(PostType postType)
         {
-            _presenter.PostType = postType;
+            Button btn1, btn2, btn3;
             switch (postType)
             {
-                case PostType.Top:
-                    _trendingButton.Typeface = _semiboldFont;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _hotButton.Typeface = _font;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _newButton.Typeface = _font;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-                    break;
                 case PostType.Hot:
-                    _hotButton.Typeface = _semiboldFont;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _trendingButton.Typeface = _font;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _newButton.Typeface = _font;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-                    break;
+                    {
+                        btn1 = _hotButton;
+                        btn2 = _trendingButton;
+                        btn3 = _newButton;
+                        break;
+                    }
                 case PostType.New:
-                    _newButton.Typeface = _semiboldFont;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _hotButton.Typeface = _font;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _trendingButton.Typeface = _font;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-                    break;
+                    {
+                        btn1 = _newButton;
+                        btn2 = _hotButton;
+                        btn3 = _trendingButton;
+                        break;
+                    }
+                default:
+                    {
+                        btn1 = _trendingButton;
+                        btn2 = _hotButton;
+                        btn3 = _newButton;
+                        break;
+                    }
             }
+
+            var clMain = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30));
+            var clPrim = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158));
+
+            btn1.Typeface = _semiboldFont;
+            btn1.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
+            btn1.SetTextColor(clMain);
+
+            btn2.Typeface = _font;
+            btn2.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
+            btn2.SetTextColor(clPrim);
+
+            btn3.Typeface = _font;
+            btn3.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
+            btn3.SetTextColor(clPrim);
+
+            _presenter.PostType = postType;
             LoadPosts(true);
         }
     }

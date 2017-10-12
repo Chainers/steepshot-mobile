@@ -14,7 +14,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class ProfileGridAdapter : PostsGridAdapter
+    public class ProfileGridAdapter : GridAdapter
     {
         private Typeface[] _fonts;
         public Action FollowersAction, FollowingAction, BalanceAction;
