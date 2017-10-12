@@ -77,7 +77,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Flag(CancellationTokenSource cts, Post post)
         {
-            var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
+            var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request);
 
             if (response.Success)
