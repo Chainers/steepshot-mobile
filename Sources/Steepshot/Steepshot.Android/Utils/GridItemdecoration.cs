@@ -2,17 +2,17 @@
 
 namespace Steepshot.Utils
 {
-    public class PostGridItemdecoration : RecyclerView.ItemDecoration
+    public class GridItemDecoration : RecyclerView.ItemDecoration
     {
-        private bool _skipFirst;
+        private readonly bool _skipFirst;
 
-        public PostGridItemdecoration()
+        public GridItemDecoration()
         {
             _skipFirst = false;
         }
 
 
-        public PostGridItemdecoration(bool skipFirst)
+        public GridItemDecoration(bool skipFirst)
         {
             _skipFirst = skipFirst;
         }

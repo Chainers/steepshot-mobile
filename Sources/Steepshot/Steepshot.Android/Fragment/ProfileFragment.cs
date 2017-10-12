@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
-        private PostGridItemdecoration _gridItemDecoration;
+        private GridItemDecoration _gridItemDecoration;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
@@ -127,7 +127,7 @@ namespace Steepshot.Fragment
             _gridLayoutManager = new GridLayoutManager(Context, 3);
             _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
 
-            _gridItemDecoration = new PostGridItemdecoration(true);
+            _gridItemDecoration = new GridItemDecoration(true);
             _postsList.SetLayoutManager(_gridLayoutManager);
             _postsList.AddItemDecoration(_gridItemDecoration);
             _postsList.AddOnScrollListener(_scrollListner);
