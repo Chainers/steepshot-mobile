@@ -17,7 +17,7 @@ namespace Steepshot.Core.Presenters
 
         public virtual int Count => Items.Count;
         protected readonly List<T> Items;
-        
+
 
         public T this[int position]
         {
@@ -75,8 +75,11 @@ namespace Steepshot.Core.Presenters
             {
                 lock (_sync)
                 {
-                    _singleTaskCancellationTokenSource.Dispose();
-                    _singleTaskCancellationTokenSource = null;
+                    if (_singleTaskCancellationTokenSource != null)
+                    {
+                        _singleTaskCancellationTokenSource.Dispose();
+                        _singleTaskCancellationTokenSource = null;
+                    }
                 }
             }
             return default(TResult);
@@ -111,8 +114,11 @@ namespace Steepshot.Core.Presenters
             {
                 lock (_sync)
                 {
-                    _singleTaskCancellationTokenSource.Dispose();
-                    _singleTaskCancellationTokenSource = null;
+                    if (_singleTaskCancellationTokenSource != null)
+                    {
+                        _singleTaskCancellationTokenSource.Dispose();
+                        _singleTaskCancellationTokenSource = null;
+                    }
                 }
             }
             return default(TResult);
@@ -147,8 +153,11 @@ namespace Steepshot.Core.Presenters
             {
                 lock (_sync)
                 {
-                    _singleTaskCancellationTokenSource.Dispose();
-                    _singleTaskCancellationTokenSource = null;
+                    if (_singleTaskCancellationTokenSource != null)
+                    {
+                        _singleTaskCancellationTokenSource.Dispose();
+                        _singleTaskCancellationTokenSource = null;
+                    }
                 }
             }
             return default(TResult);

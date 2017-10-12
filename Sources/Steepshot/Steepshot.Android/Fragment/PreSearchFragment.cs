@@ -33,14 +33,14 @@ namespace Steepshot.Fragment
         private GridItemDecoration _gridItemDecoration;
 
         private List<Button> _buttonsList;
-        private const int _animationDuration = 300;
-        private const int _minFontSize = 14;
-        private const int _maxFontSize = 20;
+        private const int AnimationDuration = 300;
+        private const int MinFontSize = 14;
+        private const int MaxFontSize = 20;
         private int _bottomPadding;
-        private ValueAnimator fontGrowingAnimation;
-        private ValueAnimator fontReductionAnimation;
-        private ValueAnimator grayToBlackAnimation;
-        private ValueAnimator blackToGrayAnimation;
+        private ValueAnimator _fontGrowingAnimation;
+        private ValueAnimator _fontReductionAnimation;
+        private ValueAnimator _grayToBlackAnimation;
+        private ValueAnimator _blackToGrayAnimation;
         private Button _activeButton;
         private Button _currentButton;
 
@@ -106,21 +106,21 @@ namespace Steepshot.Fragment
         }
 
         [InjectOnClick(Resource.Id.trending_button)]
-        public void OnTrendClick(object sender, EventArgs e)
+        public async void OnTrendClick(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.Top);
+            await SwitchSearchType(PostType.Top);
         }
 
         [InjectOnClick(Resource.Id.hot_button)]
-        public void OnTopClick(object sender, EventArgs e)
+        public async void OnTopClick(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.Hot);
+            await SwitchSearchType(PostType.Hot);
         }
 
         [InjectOnClick(Resource.Id.new_button)]
-        public void OnNewClick(object sender, EventArgs e)
+        public async void OnNewClick(object sender, EventArgs e)
         {
-            SwitchSearchType(PostType.New);
+            await SwitchSearchType(PostType.New);
         }
 
         [InjectOnClick(Resource.Id.toolbar)]
@@ -133,6 +133,7 @@ namespace Steepshot.Fragment
         public void OnSwitcherClick(object sender, EventArgs e)
         {
             _scrollListner.ClearPosition();
+            _searchList.ScrollToPosition(0);
             if (_searchList.GetLayoutManager() is GridLayoutManager)
             {
                 _switcher.SetImageResource(Resource.Drawable.grid);
@@ -165,7 +166,7 @@ namespace Steepshot.Fragment
             return V;
         }
 
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        public override async void OnViewCreated(View view, Bundle savedInstanceState)
         {
             try //TODO:KOA: is try catch realy needed?
             {
@@ -178,7 +179,7 @@ namespace Steepshot.Fragment
                     _spinner.Visibility = ViewStates.Visible;
                     _clearButton.Visibility = ViewStates.Visible;
                     _scrollListner.ClearPosition();
-                    LoadPosts(true);
+                    await LoadPosts(true);
                 }
             }
             catch (Exception ex)
@@ -295,6 +296,7 @@ namespace Steepshot.Fragment
                 _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
+                _searchList.ScrollToPosition(0);
             }
 
             List<string> errors;
@@ -326,7 +328,7 @@ namespace Steepshot.Fragment
             StartActivity(intent);
         }
 
-        private void SwitchSearchType(PostType postType)
+        private async Task SwitchSearchType(PostType postType)
         {
             if (postType == _presenter.PostType)
                 return;
@@ -346,44 +348,44 @@ namespace Steepshot.Fragment
                     break;
             }
             _presenter.PostType = postType;
-            LoadPosts(true);
+            await LoadPosts(true);
         }
 
         private void SetAnimation()
         {
-            fontGrowingAnimation = ValueAnimator.OfFloat(_minFontSize, _maxFontSize);
-            fontGrowingAnimation.SetDuration(_animationDuration);
+            _fontGrowingAnimation = ValueAnimator.OfFloat(MinFontSize, MaxFontSize);
+            _fontGrowingAnimation.SetDuration(AnimationDuration);
 
-            fontReductionAnimation = ValueAnimator.OfFloat(_maxFontSize, _minFontSize);
-            fontReductionAnimation.SetDuration(_animationDuration);
+            _fontReductionAnimation = ValueAnimator.OfFloat(MaxFontSize, MinFontSize);
+            _fontReductionAnimation.SetDuration(AnimationDuration);
 
-            grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
-            grayToBlackAnimation.SetDuration(_animationDuration);
+            _grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
+            _grayToBlackAnimation.SetDuration(AnimationDuration);
 
-            blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
-            blackToGrayAnimation.SetDuration(_animationDuration);
+            _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
+            _blackToGrayAnimation.SetDuration(AnimationDuration);
 
-            fontGrowingAnimation.Update += (sender, e) =>
+            _fontGrowingAnimation.Update += (sender, e) =>
             {
                 _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
             };
 
-            fontReductionAnimation.Update += (sender, e) =>
+            _fontReductionAnimation.Update += (sender, e) =>
             {
                 _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
             };
 
-            grayToBlackAnimation.Update += (sender, e) =>
+            _grayToBlackAnimation.Update += (sender, e) =>
             {
                 _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
             };
 
-            blackToGrayAnimation.Update += (sender, e) =>
+            _blackToGrayAnimation.Update += (sender, e) =>
             {
                 _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
             };
 
-            blackToGrayAnimation.AnimationEnd += (sender, e) =>
+            _blackToGrayAnimation.AnimationEnd += (sender, e) =>
             {
                 _currentButton = _activeButton;
             };
@@ -409,10 +411,10 @@ namespace Steepshot.Fragment
             currentButtonLayoutParameters.AddRule(LayoutRules.RightOf, lastButton.Id);
             _currentButton.LayoutParameters = currentButtonLayoutParameters;
 
-            fontGrowingAnimation.Start();
-            fontReductionAnimation.Start();
-            grayToBlackAnimation.Start();
-            blackToGrayAnimation.Start();
+            _fontGrowingAnimation.Start();
+            _fontReductionAnimation.Start();
+            _grayToBlackAnimation.Start();
+            _blackToGrayAnimation.Start();
         }
     }
 }
