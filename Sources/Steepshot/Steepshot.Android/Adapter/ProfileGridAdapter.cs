@@ -156,7 +156,7 @@ namespace Steepshot.Adapter
 
                 if (BasePresenter.User.Login == _profile.Username)
                     _follow_button.Visibility = ViewStates.Gone;
-                else if (_profile.HasFollowed == 1)
+                else if (_profile.HasFollowed)
                 {
                     var background = (GradientDrawable)_follow_button.Background;
                     background.SetColor(Color.White);

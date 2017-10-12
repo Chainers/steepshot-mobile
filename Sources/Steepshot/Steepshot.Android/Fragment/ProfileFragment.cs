@@ -225,14 +225,15 @@ namespace Steepshot.Fragment
             if (response == null) // cancelled
                 return;
 
-            if (response.Result.IsSuccess)
+            if (response.Success)
             {
-                var hasFollowed = ProfileGridAdapter.ProfileData.HasFollowed == 1 ? 0 : 1;
-                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = hasFollowed;
+                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !ProfileGridAdapter.ProfileData.HasFollowed;
                 _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
-            else if (response.Errors != null && response.Errors.Count != 0)
+            else
+            {
                 ShowAlert(response.Errors);
+            }
         }
 
         public void OnPhotoClick(int position)
