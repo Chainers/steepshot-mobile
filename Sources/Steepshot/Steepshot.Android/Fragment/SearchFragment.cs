@@ -133,7 +133,7 @@ namespace Steepshot.Fragment
             }
         }
 
-        async void Follow(int position)
+        private async void Follow(int position)
         {
             var user = _presenter.FollowersPresenter[position];
             if (user == null)

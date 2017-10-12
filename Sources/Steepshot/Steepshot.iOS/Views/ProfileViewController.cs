@@ -395,9 +395,12 @@ namespace Steepshot.iOS.Views
         private async Task Follow()
         {
             var response = await _presenter.TryFollow(_userData.HasFollowed);
-            if (response != null && response.Success)
+            if(response == null)
+                return;
+
+            if (response.Success)
             {
-                _userData.HasFollowed = response.Result.IsSuccess ? 1 : 0;
+                _userData.HasFollowed = !_userData.HasFollowed;
                 ToogleFollowButton();
             }
             else
@@ -419,10 +422,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if (_userData.HasFollowed == 0)
-                    _profileHeader.FollowButton.SetTitle(Localization.Messages.Follow, UIControlState.Normal);
-                else
-                    _profileHeader.FollowButton.SetTitle(Localization.Messages.Unfollow, UIControlState.Normal);
+                _profileHeader.FollowButton.SetTitle(_userData.HasFollowed ? Localization.Messages.Unfollow : Localization.Messages.Follow,UIControlState.Normal);
             }
         }
     }
