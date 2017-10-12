@@ -171,14 +171,12 @@ namespace Steepshot.Fragment
             try //TODO:KOA: is try catch realy needed?
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
-                if (s != null && s != CustomTag && _spinner != null)
+                if (s != null && s != CustomTag)
                 {
                     Activity.Intent.RemoveExtra("SEARCH");
                     _searchView.Text = _presenter.Tag = CustomTag = s;
                     _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-                    _spinner.Visibility = ViewStates.Visible;
                     _clearButton.Visibility = ViewStates.Visible;
-                    _scrollListner.ClearPosition();
                     await LoadPosts(true);
                 }
             }
@@ -224,8 +222,8 @@ namespace Steepshot.Fragment
             _refresher.Refresh += async delegate
             {
                 await LoadPosts(true);
-                _refresher.Refreshing = false;
             };
+            await LoadPosts();
         }
 
         public void OnPhotoClick(int position)
@@ -288,7 +286,7 @@ namespace Steepshot.Fragment
 
         private async Task LoadPosts(bool clearOld = false)
         {
-            if (_spinner != null)
+            if (_spinner != null && !_refresher.Refreshing)
                 _spinner.Visibility = ViewStates.Visible;
 
             if (clearOld)
@@ -305,15 +303,17 @@ namespace Steepshot.Fragment
             else
                 errors = await _presenter.TryGetSearchedPosts();
 
-            if (errors != null)
-            {
-                if (errors.Any())
-                    ShowAlert(errors);
-                else
-                    _searchList?.GetAdapter()?.NotifyDataSetChanged();
-            }
+            if (errors == null)
+                return;
 
-            if (_spinner != null)
+            if (errors.Any())
+                ShowAlert(errors);
+            else
+                _searchList?.GetAdapter()?.NotifyDataSetChanged();
+
+            if (_refresher.Refreshing)
+                _refresher.Refreshing = false;
+            else if (_spinner != null)
                 _spinner.Visibility = ViewStates.Gone;
         }
 
