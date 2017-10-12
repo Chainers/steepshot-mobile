@@ -27,7 +27,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
-        private PostGridItemdecoration _gridItemDecoration;
+        private GridItemDecoration _gridItemDecoration;
 
         public string CustomTag
         {
@@ -190,7 +190,7 @@ namespace Steepshot.Fragment
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
 
-            _gridItemDecoration = new PostGridItemdecoration();
+            _gridItemDecoration = new GridItemDecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
             _searchList.AddItemDecoration(_gridItemDecoration);
             _searchList.AddOnScrollListener(_scrollListner);
