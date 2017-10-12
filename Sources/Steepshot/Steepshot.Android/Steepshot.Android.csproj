@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Steepshot</RootNamespace>
     <AssemblyName>Steepshot.Android</AssemblyName>
-    <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v7.1</TargetFrameworkVersion>
     <AndroidApplication>True</AndroidApplication>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
@@ -74,13 +74,12 @@
     <Compile Include="Activity\TagsActivity.cs" />
     <Compile Include="Activity\TermsOfServiceActivity.cs" />
     <Compile Include="Activity\PreSignInActivity.cs" />
-    <Compile Include="Adapter\GridImageAdapter.cs" />
+    <Compile Include="Adapter\GridAdapter.cs" />
     <Compile Include="Adapter\CategoriesAdapter.cs" />
     <Compile Include="Adapter\CommentsAdapter.cs" />
     <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Adapter\FollowersAdapter.cs" />
     <Compile Include="Adapter\PagerAdapter.cs" />
-    <Compile Include="Adapter\PostsGridAdapter.cs" />
     <Compile Include="Adapter\TagsAdapter.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
     <Compile Include="Adapter\VotersAdapter.cs" />
@@ -98,7 +97,6 @@
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
     <Compile Include="Fragment\DropdownFragment.cs" />
-    <Compile Include="Fragment\PhotoFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
     <Compile Include="Fragment\HostFragment.cs" />
@@ -177,7 +175,6 @@
     <AndroidResource Include="Resources\drawable\follow_button_corners.xml" />
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
-    <AndroidResource Include="Resources\layout\image_grid_item.axml" />
     <AndroidResource Include="Resources\layout\lyr_search_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_add_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_category_item.axml" />
@@ -188,7 +185,6 @@
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_following.axml" />
-    <AndroidResource Include="Resources\layout\lyt_fragment_photo.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
     <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
@@ -200,7 +196,6 @@
     <AndroidResource Include="Resources\layout\lyt_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_tags.axml" />
     <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
-    <AndroidResource Include="Resources\layout\tab_main.axml" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />

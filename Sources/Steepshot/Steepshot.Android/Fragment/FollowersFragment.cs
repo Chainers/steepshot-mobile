@@ -76,7 +76,7 @@ namespace Steepshot.Fragment
             _followersAdapter.UserAction += UserAction;
         }
 
-        async void Follow(int position)
+        private async void Follow(int position)
         {
             var errors = await _presenter.TryFollow(_presenter[position]);
             if (errors == null)
