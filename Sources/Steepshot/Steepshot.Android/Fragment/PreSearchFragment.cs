@@ -30,6 +30,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
+        private GridItemDecoration _gridItemDecoration;
 
         private List<Button> _buttonsList;
         private const int _animationDuration = 300;
@@ -49,14 +50,14 @@ namespace Steepshot.Fragment
             set => _presenter.Tag = value;
         }
 
-        ProfileFeedAdapter _profileFeedAdapter;
-        ProfileFeedAdapter ProfileFeedAdapter
+        FeedAdapter _profileFeedAdapter;
+        FeedAdapter ProfileFeedAdapter
         {
             get
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
+                    _profileFeedAdapter = new FeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -67,14 +68,14 @@ namespace Steepshot.Fragment
             }
         }
 
-        ProfileGridAdapter _profileGridAdapter;
-        ProfileGridAdapter ProfileGridAdapter
+        GridAdapter _profileGridAdapter;
+        GridAdapter ProfileGridAdapter
         {
             get
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont }, false);
+                    _profileGridAdapter = new GridAdapter(Context, _presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -131,17 +132,19 @@ namespace Steepshot.Fragment
         [InjectOnClick(Resource.Id.btn_switcher)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
+            _scrollListner.ClearPosition();
             if (_searchList.GetLayoutManager() is GridLayoutManager)
             {
                 _switcher.SetImageResource(Resource.Drawable.grid);
                 _searchList.SetLayoutManager(_linearLayoutManager);
+                _searchList.RemoveItemDecoration(_gridItemDecoration);
                 _searchList.SetAdapter(ProfileFeedAdapter);
             }
             else
             {
                 _switcher.SetImageResource(Resource.Drawable.grid_active);
                 _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(new ProfileGridItemdecoration(1));
+                _searchList.AddItemDecoration(_gridItemDecoration);
                 _searchList.SetAdapter(ProfileGridAdapter);
             }
         }
@@ -164,7 +167,7 @@ namespace Steepshot.Fragment
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            try
+            try //TODO:KOA: is try catch realy needed?
             {
                 var s = Activity.Intent.GetStringExtra("SEARCH");
                 if (s != null && s != CustomTag && _spinner != null)
@@ -211,8 +214,9 @@ namespace Steepshot.Fragment
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
 
+            _gridItemDecoration = new GridItemDecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
-            _searchList.AddItemDecoration(new ProfileGridItemdecoration(1));
+            _searchList.AddItemDecoration(_gridItemDecoration);
             _searchList.AddOnScrollListener(_scrollListner);
             _searchList.SetAdapter(ProfileGridAdapter);
 
@@ -287,7 +291,11 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Visible;
 
             if (clearOld)
+            {
+                _presenter.LoadCancel();
                 _presenter.Clear();
+                _scrollListner.ClearPosition();
+            }
 
             List<string> errors;
             if (string.IsNullOrEmpty(CustomTag))
@@ -320,7 +328,6 @@ namespace Steepshot.Fragment
 
         private void SwitchSearchType(PostType postType)
         {
-            _presenter.PostType = postType;
             switch (postType)
             {
                 case PostType.Top:
@@ -336,6 +343,7 @@ namespace Steepshot.Fragment
                     AnimatedButtonSwitch();
                     break;
             }
+            _presenter.PostType = postType;
             LoadPosts(true);
         }
 

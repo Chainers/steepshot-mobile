@@ -73,15 +73,15 @@ namespace Steepshot.Core.Presenters
             return Api.GetUserProfile(req, cts);
         }
 
-        public Task<OperationResult<FollowResponse>> TryFollow(int hasFollowed)
+        public async Task<OperationResult<FollowResponse>> TryFollow(bool hasFollowed)
         {
-            return TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed > 0 ? FollowType.UnFollow : FollowType.Follow);
+            return await TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed ? FollowType.UnFollow : FollowType.Follow);
         }
 
-        private Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, FollowType followType)
+        private async Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, FollowType followType)
         {
             var request = new FollowRequest(User.UserInfo, followType, _username);
-            return Api.Follow(request, cts);
+            return await Api.Follow(request, cts);
         }
     }
 }

@@ -2,81 +2,52 @@
 
 namespace Steepshot.Utils
 {
-    public class GridItemdecoration : RecyclerView.ItemDecoration
+    public class GridItemDecoration : RecyclerView.ItemDecoration
     {
-        private readonly int _mSizeGridSpacingPx;
-        private readonly int _mGridSize;
+        private readonly bool _skipFirst;
 
-        private bool _mNeedLeftSpacing;
-
-        public GridItemdecoration(int gridSpacingPx, int gridSize)
+        public GridItemDecoration()
         {
-            _mSizeGridSpacingPx = gridSpacingPx;
-            _mGridSize = gridSize;
+            _skipFirst = false;
+        }
+
+
+        public GridItemDecoration(bool skipFirst)
+        {
+            _skipFirst = skipFirst;
         }
 
         public override void GetItemOffsets(Android.Graphics.Rect outRect, Android.Views.View view, RecyclerView parent, RecyclerView.State state)
         {
-            var frameWidth = (int)((parent.Width - (float)_mSizeGridSpacingPx * (_mGridSize - 1)) / _mGridSize);
-            var padding = parent.Width / _mGridSize - frameWidth;
-            var itemPosition = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
-
-            outRect.Top = itemPosition < _mGridSize ? 0 : _mSizeGridSpacingPx;
-
-            if (itemPosition % _mGridSize == 0)
+            var index = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
+            if (_skipFirst)
             {
-                outRect.Left = 0;
-                outRect.Right = padding;
-                _mNeedLeftSpacing = true;
-            }
-            else if ((itemPosition + 1) % _mGridSize == 0)
-            {
-                _mNeedLeftSpacing = false;
-                outRect.Right = 0;
-                outRect.Left = padding;
-            }
-            else if (_mNeedLeftSpacing)
-            {
-                _mNeedLeftSpacing = false;
-                outRect.Left = _mSizeGridSpacingPx - padding;
-                if ((itemPosition + 2) % _mGridSize == 0)
+                if (index == 0)
                 {
-                    outRect.Right = _mSizeGridSpacingPx - padding;
+                    base.GetItemOffsets(outRect, view, parent, state);
+                    return;
                 }
-                else
-                {
-                    outRect.Right = _mSizeGridSpacingPx / 2;
-                }
+                index--;
             }
-            else if ((itemPosition + 2) % _mGridSize == 0)
+
+            switch (index % 3)
             {
-                _mNeedLeftSpacing = false;
-                outRect.Left = _mSizeGridSpacingPx / 2;
-                outRect.Right = _mSizeGridSpacingPx - padding;
+                case 0:
+                    {
+                        outRect.Set(0, 0, 2, 3);
+                        break;
+                    }
+                case 1:
+                    {
+                        outRect.Set(1, 0, 1, 3);
+                        break;
+                    }
+                case 2:
+                    {
+                        outRect.Set(2, 0, 0, 3);
+                        break;
+                    }
             }
-            else
-            {
-                _mNeedLeftSpacing = false;
-                outRect.Left = _mSizeGridSpacingPx / 2;
-                outRect.Right = _mSizeGridSpacingPx / 2;
-            }
-            outRect.Bottom = 0;
-        }
-    }
-
-    public class ProfileGridItemdecoration : RecyclerView.ItemDecoration
-    {
-        private int mItemOffset;
-
-        public ProfileGridItemdecoration(int itemOffset)
-        {
-            mItemOffset = itemOffset;
-        }
-
-        public override void GetItemOffsets(Android.Graphics.Rect outRect, Android.Views.View view, RecyclerView parent, RecyclerView.State state)
-        {
-            base.GetItemOffsets(outRect, view, parent, state);
-            outRect.Set(mItemOffset, mItemOffset/2, mItemOffset, mItemOffset/2);
         }
     }
 }
