@@ -39,6 +39,11 @@ namespace Steepshot.iOS.Views
                 Vote(vote, url, action);
             };
 
+            _tableSource.Flaged += (vote, url, action) =>
+            {
+                Flag(vote, url, action);
+            };
+
             _tableSource.GoToProfile += (username) =>
             {
                 var myViewController = new ProfileViewController();
@@ -110,9 +115,44 @@ namespace Steepshot.iOS.Views
                 {
                     _tableSource.TableItems.First(p => p.Url == postUrl).Vote = vote;
                     action.Invoke(postUrl, response.Result);
+                    _tableSource.TableItems.First(p => p.Url == postUrl).Flag = false;
                 }
                 else
                     ShowAlert(response.Errors[0]);
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+        }
+
+
+
+        public async Task Flag(bool vote, string postUrl, Action<string, VoteResponse> action)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+            try
+            {
+                var post = _presenter.Posts.First(p => p.Url == postUrl);
+                var flagResponse = await _presenter.Flag(post);
+                if (flagResponse.Success)
+                {
+                    post.Flag = flagResponse.Result.IsSucces;
+                    if (flagResponse.Result.IsSucces)
+                    {
+                        if (post.Vote)
+                            if (post.NetVotes == 1)
+                                post.NetVotes = -1;
+                            else
+                                post.NetVotes--;
+                        post.Vote = false;
+                    }
+                    action.Invoke(postUrl, flagResponse.Result);
+                }
             }
             catch (Exception ex)
             {
