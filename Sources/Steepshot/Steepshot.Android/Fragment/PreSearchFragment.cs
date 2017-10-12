@@ -328,6 +328,8 @@ namespace Steepshot.Fragment
 
         private void SwitchSearchType(PostType postType)
         {
+            if (postType == _presenter.PostType)
+                return;
             switch (postType)
             {
                 case PostType.Top:
