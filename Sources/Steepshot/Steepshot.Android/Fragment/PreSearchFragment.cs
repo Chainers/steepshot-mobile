@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.Transitions;
 using Android.Support.V4.Content;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
@@ -27,6 +30,18 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
+
+        private List<Button> _buttonsList;
+        private const int _animationDuration = 300;
+        private const int _minFontSize = 14;
+        private const int _maxFontSize = 20;
+        private int _bottomPadding;
+        private ValueAnimator fontGrowingAnimation;
+        private ValueAnimator fontReductionAnimation;
+        private ValueAnimator grayToBlackAnimation;
+        private ValueAnimator blackToGrayAnimation;
+        private Button _activeButton;
+        private Button _currentButton;
 
         public string CustomTag
         {
@@ -67,16 +82,17 @@ namespace Steepshot.Fragment
         }
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.search_list)] RecyclerView _searchList;
-        [InjectView(Resource.Id.search_view)] TextView _searchView;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
-        [InjectView(Resource.Id.trending_button)] Button _trendingButton;
-        [InjectView(Resource.Id.hot_button)] Button _hotButton;
-        [InjectView(Resource.Id.new_button)] Button _newButton;
-        [InjectView(Resource.Id.clear_button)] Button _clearButton;
-        [InjectView(Resource.Id.btn_switcher)] ImageButton _switcher;
-        [InjectView(Resource.Id.refresher)] SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.login)] Button _loginButton;
+        [InjectView(Resource.Id.search_list)] private RecyclerView _searchList;
+        [InjectView(Resource.Id.search_view)] private TextView _searchView;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.trending_button)] private Button _trendingButton;
+        [InjectView(Resource.Id.hot_button)] private Button _hotButton;
+        [InjectView(Resource.Id.new_button)] private Button _newButton;
+        [InjectView(Resource.Id.clear_button)] private Button _clearButton;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.login)] private Button _loginButton;
+        [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.clear_button)]
@@ -178,6 +194,14 @@ namespace Steepshot.Fragment
             _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
+            SetAnimation();
+            _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
+            _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
+            _currentButton = _trendingButton;
+            _trendingButton.Typeface = _semiboldFont;
+            _hotButton.Typeface = _font;
+            _newButton.Typeface = _font;
+
             _searchView.Typeface = _font;
             _clearButton.Typeface = _font;
             _loginButton.Typeface = _semiboldFont;
@@ -191,7 +215,6 @@ namespace Steepshot.Fragment
             _searchList.AddItemDecoration(new ProfileGridItemdecoration(1));
             _searchList.AddOnScrollListener(_scrollListner);
             _searchList.SetAdapter(ProfileGridAdapter);
-            SwitchSearchType(PostType.Top);
 
             _refresher.Refresh += async delegate
             {
@@ -226,7 +249,7 @@ namespace Steepshot.Fragment
             }
             else
                 OpenLogin();
-            
+
         }
 
         private void UserAction(int position)
@@ -301,46 +324,85 @@ namespace Steepshot.Fragment
             switch (postType)
             {
                 case PostType.Top:
-                    _trendingButton.Typeface = _semiboldFont;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _hotButton.Typeface = _font;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _newButton.Typeface = _font;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                    _activeButton = _trendingButton;
+                    AnimatedButtonSwitch();
                     break;
                 case PostType.Hot:
-                    _hotButton.Typeface = _semiboldFont;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _trendingButton.Typeface = _font;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _newButton.Typeface = _font;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                    _activeButton = _hotButton;
+                    AnimatedButtonSwitch();
                     break;
                 case PostType.New:
-                    _newButton.Typeface = _semiboldFont;
-                    _newButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                    _newButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
-
-                    _hotButton.Typeface = _font;
-                    _hotButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _hotButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
-
-                    _trendingButton.Typeface = _font;
-                    _trendingButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                    _trendingButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                    _activeButton = _newButton;
+                    AnimatedButtonSwitch();
                     break;
             }
             LoadPosts(true);
+        }
+
+        private void SetAnimation()
+        {
+            fontGrowingAnimation = ValueAnimator.OfFloat(_minFontSize, _maxFontSize);
+            fontGrowingAnimation.SetDuration(_animationDuration);
+
+            fontReductionAnimation = ValueAnimator.OfFloat(_maxFontSize, _minFontSize);
+            fontReductionAnimation.SetDuration(_animationDuration);
+
+            grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
+            grayToBlackAnimation.SetDuration(_animationDuration);
+
+            blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
+            blackToGrayAnimation.SetDuration(_animationDuration);
+
+            fontGrowingAnimation.Update += (sender, e) =>
+            {
+                _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
+            };
+
+            fontReductionAnimation.Update += (sender, e) =>
+            {
+                _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
+            };
+
+            grayToBlackAnimation.Update += (sender, e) =>
+            {
+                _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
+            };
+
+            blackToGrayAnimation.Update += (sender, e) =>
+            {
+                _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
+            };
+
+            blackToGrayAnimation.AnimationEnd += (sender, e) =>
+            {
+                _currentButton = _activeButton;
+            };
+        }
+
+        private void AnimatedButtonSwitch()
+        {
+            TransitionManager.BeginDelayedTransition(_searchTypeLayout);
+
+            _activeButton.Typeface = _semiboldFont;
+            _currentButton.Typeface = _font;
+
+            _activeButton.SetPadding(0, 0, 0, 0);
+            _currentButton.SetPadding(0, 0, 0, _bottomPadding);
+
+            var lastButton = _buttonsList.OrderByDescending(b => b.GetX()).First();
+
+            RelativeLayout.LayoutParams activeButtonLayoutParameters = (RelativeLayout.LayoutParams)_activeButton.LayoutParameters;
+            activeButtonLayoutParameters.RemoveRule(LayoutRules.RightOf);
+            _activeButton.LayoutParameters = activeButtonLayoutParameters;
+
+            RelativeLayout.LayoutParams currentButtonLayoutParameters = (RelativeLayout.LayoutParams)_currentButton.LayoutParameters;
+            currentButtonLayoutParameters.AddRule(LayoutRules.RightOf, lastButton.Id);
+            _currentButton.LayoutParameters = currentButtonLayoutParameters;
+
+            fontGrowingAnimation.Start();
+            fontReductionAnimation.Start();
+            grayToBlackAnimation.Start();
+            blackToGrayAnimation.Start();
         }
     }
 }

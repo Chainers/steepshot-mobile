@@ -89,7 +89,7 @@
                         android:gravity="bottom" />
                     <Button
                         android:id="@+id/hot_button"
-                        android:layout_width="65dp"
+                        android:layout_width="90dp"
                         android:layout_height="27dp"
                         android:text="Hot"
                         android:background="@android:color/transparent"
@@ -97,10 +97,11 @@
                         android:textColor="@color/rgb151_155_158"
                         android:textAllCaps="false"
                         android:gravity="bottom"
-                        android:layout_toRightOf="@+id/trending_button" />
+                        android:paddingBottom="2dp"
+                        android:layout_toRightOf="@id/trending_button" />
                     <Button
                         android:id="@+id/new_button"
-                        android:layout_width="60dp"
+                        android:layout_width="90dp"
                         android:layout_height="27dp"
                         android:text="New"
                         android:background="@android:color/transparent"
@@ -108,7 +109,8 @@
                         android:textColor="@color/rgb151_155_158"
                         android:textAllCaps="false"
                         android:gravity="bottom"
-                        android:layout_toRightOf="@+id/hot_button" />
+                        android:layout_toRightOf="@id/hot_button"
+                        android:paddingBottom="2dp" />
                     <ImageButton
                         android:id="@+id/btn_switcher"
                         android:layout_width="22dp"
