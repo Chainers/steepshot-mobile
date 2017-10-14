@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<UserProfileResponse>> TryGetUserInfo()
         {
-            return await TryRunTask(GetUserInfo, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+            return await TryRunTask(GetUserInfo, CancellationToken.None);
         }
 
         private Task<OperationResult<UserProfileResponse>> GetUserInfo(CancellationTokenSource cts)

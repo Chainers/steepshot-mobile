@@ -22,7 +22,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -58,7 +58,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[name].LoginWithPostingKey(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].LoginWithPostingKey(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -76,7 +76,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[name].GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -112,7 +112,7 @@ namespace Steepshot.Core.Tests
             var request = new UserPostsRequest(user.Login + "x");
 
             // Act
-            var response = Api[name].GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -133,7 +133,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
 
             // Act
-            var response = Api[name].GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -154,7 +154,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[name].GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -169,7 +169,7 @@ namespace Steepshot.Core.Tests
             var request = new UserPostsRequest(user.Login);
 
             // Act
-            var response = Api[name].GetUserPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -187,7 +187,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[name].GetUserRecentPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserRecentPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -205,11 +205,11 @@ namespace Steepshot.Core.Tests
             {
                 Login = user.Login
             };
-            request.Offset = Api[name].GetUserRecentPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First().Url;
+            request.Offset = Api[name].GetUserRecentPosts(request, CancellationToken.None).Result.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api[name].GetUserRecentPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserRecentPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -228,7 +228,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -243,7 +243,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -255,11 +255,11 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var request = new PostsRequest(PostType.Hot);
-            request.Offset = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First().Url;
+            request.Offset = Api[name].GetPosts(request, CancellationToken.None).Result.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -277,7 +277,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Top) { Login = user.Login };
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -292,7 +292,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.Hot);
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -306,7 +306,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsRequest(PostType.New);
 
             // Act
-            var response = Api[name].GetPosts(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPosts(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -320,7 +320,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, category);
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -337,7 +337,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -351,7 +351,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "qweqweqweqewqwqweqe");
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -365,7 +365,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Top, "");
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -379,7 +379,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.Hot, category);
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -396,7 +396,7 @@ namespace Steepshot.Core.Tests
             var request = new PostsByCategoryRequest(PostType.New, "food");
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -411,11 +411,11 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
-            request.Offset = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First().Url;
+            request.Offset = Api[name].GetPostsByCategory(request, CancellationToken.None).Result.Result.Results.First().Url;
             request.Limit = 5;
 
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -434,7 +434,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[name].GetPostsByCategory(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostsByCategory(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -449,15 +449,15 @@ namespace Steepshot.Core.Tests
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First();
+            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Authenticate(name), VoteType.Up, lastPost.Url);
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
             Thread.Sleep(2000);
-            var response2 = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response2 = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response2);
@@ -477,15 +477,15 @@ namespace Steepshot.Core.Tests
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First();
+            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Authenticate(name), VoteType.Down, lastPost.Url);
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
             Thread.Sleep(2000);
-            var response2 = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response2 = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response2);
@@ -503,7 +503,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -517,7 +517,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -531,7 +531,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -545,7 +545,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Up, "qwe/@qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -560,14 +560,14 @@ namespace Steepshot.Core.Tests
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First();
+            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Authenticate(name), VoteType.Flag, lastPost.Url);
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
-            var response2 = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
+            var response2 = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response2);
@@ -586,14 +586,14 @@ namespace Steepshot.Core.Tests
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result.Result.Results.First();
+            var lastPost = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Authenticate(name), VoteType.Down, lastPost.Url);
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
-            var response2 = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
+            var response2 = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response2);
@@ -612,7 +612,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -626,7 +626,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -640,7 +640,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -654,7 +654,7 @@ namespace Steepshot.Core.Tests
             var request = new VoteRequest(Authenticate(name), VoteType.Flag, "qwe/@qwe");
 
             // Act
-            var response = Api[name].Vote(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Vote(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -670,7 +670,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest(url);
 
             // Act
-            var response = Api[name].GetComments(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetComments(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -706,7 +706,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest(url) { Login = user.Login };
 
             // Act
-            var response = Api[name].GetComments(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetComments(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -723,7 +723,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest(url);
 
             // Act
-            var response = Api[name].GetComments(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetComments(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -737,7 +737,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest("qwe");
 
             // Act
-            var response = Api[name].GetComments(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetComments(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -751,7 +751,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest("@asduj/qweqweqweqw");
 
             // Act
-            var response = Api[name].GetComments(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetComments(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -766,7 +766,7 @@ namespace Steepshot.Core.Tests
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var userPostsResponse = Api[name].GetUserPosts(userPostsRequest, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var userPostsResponse = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
             var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, AppSettings.AppInfo);
@@ -788,7 +788,7 @@ namespace Steepshot.Core.Tests
             var request = new OffsetLimitFields();
 
             // Act
-            var response = Api[name].GetCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -810,7 +810,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[name].GetCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -828,7 +828,7 @@ namespace Steepshot.Core.Tests
             var request = new OffsetLimitFields() { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[name].GetCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -845,7 +845,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("ru");
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -862,7 +862,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -878,7 +878,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("f");
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -892,7 +892,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -911,7 +911,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -929,7 +929,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("life") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -943,7 +943,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("lif");
 
             // Act
-            var response = Api[name].SearchCategories(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchCategories(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -960,7 +960,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileRequest(user);
 
             // Act
-            var response = Api[name].GetUserProfile(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserProfile(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -992,7 +992,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileRequest("qweqweqwe");
 
             // Act
-            var response = Api[name].GetUserProfile(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserProfile(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1006,7 +1006,7 @@ namespace Steepshot.Core.Tests
             var request = new UserProfileRequest(user) { Login = user };
 
             // Act
-            var response = Api[name].GetUserProfile(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserProfile(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1039,7 +1039,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsRequest(user.Login, FriendsType.Following);
 
             // Act
-            var response = Api[name].GetUserFriends(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserFriends(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1062,7 +1062,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
 
             // Act
-            var response = Api[name].GetUserFriends(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserFriends(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1085,7 +1085,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsRequest(user.Login + "x", FriendsType.Followers);
 
             // Act
-            var response = Api[name].GetUserFriends(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserFriends(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1103,7 +1103,7 @@ namespace Steepshot.Core.Tests
             request.Limit = 1;
 
             // Act
-            var response = Api[name].GetUserFriends(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserFriends(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1123,7 +1123,7 @@ namespace Steepshot.Core.Tests
             var request = new UserFriendsRequest(user.Login, FriendsType.Followers) { Login = user.Login };
 
             // Act
-            var response = Api[name].GetUserFriends(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetUserFriends(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1139,7 +1139,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             // Act
-            var response = Api[name].TermsOfService(CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].TermsOfService(CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1155,7 +1155,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[name].GetPostInfo(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostInfo(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1189,7 +1189,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[name].GetPostInfo(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostInfo(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1221,7 +1221,7 @@ namespace Steepshot.Core.Tests
             var request = new NamedInfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
             // Act
-            var response = Api[name].GetPostInfo(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].GetPostInfo(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1235,7 +1235,7 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "title", "cat1", "cat2", "cat3", "cat4");
 
             // Act
-            var response = Api[name].Upload(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Upload(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1250,7 +1250,7 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
             // Act
-            var response = Api[name].Upload(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].Upload(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1264,7 +1264,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("aar");
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1281,7 +1281,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1297,7 +1297,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("fo");
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1311,7 +1311,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1330,7 +1330,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1348,7 +1348,7 @@ namespace Steepshot.Core.Tests
             var request = new SearchWithQueryRequest("aar") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[name].SearchUser(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].SearchUser(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1362,7 +1362,7 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsRequests("pmartynov");
 
             // Act
-            var response = Api[name].UserExistsCheck(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].UserExistsCheck(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
@@ -1376,7 +1376,7 @@ namespace Steepshot.Core.Tests
             var request = new UserExistsRequests("pmartynov123");
 
             // Act
-            var response = Api[name].UserExistsCheck(request, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None)).Result;
+            var response = Api[name].UserExistsCheck(request, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response);
