@@ -36,7 +36,7 @@ namespace Steepshot.Core.Presenters
             if (post == null)
                 return null;
 
-            return await TryRunTask(Vote, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), post);
+            return await TryRunTask(Vote, CancellationToken.None, post);
         }
 
         public async Task<List<string>> TryVote(int position)
@@ -46,7 +46,7 @@ namespace Steepshot.Core.Presenters
                 post = Items[position];
             if (post == null)
                 return null;
-            return await TryRunTask(Vote, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), post);
+            return await TryRunTask(Vote, CancellationToken.None, post);
         }
 
         private async Task<List<string>> Vote(CancellationTokenSource cts, Post post)
@@ -72,7 +72,7 @@ namespace Steepshot.Core.Presenters
                 post = Items[position];
             if (post == null)
                 return null;
-            return await TryRunTask(Flag, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), post);
+            return await TryRunTask(Flag, CancellationToken.None, post);
         }
 
         private async Task<List<string>> Flag(CancellationTokenSource cts, Post post)

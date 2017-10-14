@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Cryptography.ECDSA;
 using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
@@ -12,72 +13,63 @@ namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
-        private static ISteepshotApiClient _apiClient;
+        protected static readonly ISteepshotApiClient Api;
+        private static readonly Dictionary<string, double> CurencyConvertationDic;
+        private static readonly CultureInfo CultureInfo;
+        public static bool ShouldUpdateProfile;
+
         public static string AppVersion { get; set; }
         public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
-        private static readonly Dictionary<string, double> CurencyConvertationDic;
-        private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
-        public static bool ShouldUpdateProfile;
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
 
-        protected static ISteepshotApiClient Api
-        {
-            get
-            {
-                if (_apiClient == null)
-                    SwitchChain(Chain);
-                return _apiClient;
-            }
-        }
-
         static BasePresenter()
         {
+            CultureInfo = CultureInfo.InvariantCulture;
             User = new User();
             User.Load();
             Chain = User.Chain;
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
+
+#if DEBUG
+            //_apiClient = new ApiPositiveStub();
+            Api = new DitchApi();
+            Api.Connect(Chain, AppSettings.IsDev);
+#else
+            _apiClient = new DitchApi();
+#endif
+            // static constructor initialization.
+            var init = new Secp256k1Manager();
         }
 
         public static void SwitchChain(bool isDev)
         {
-            if (AppSettings.IsDev == isDev && _apiClient != null)
+            if (AppSettings.IsDev == isDev)
                 return;
 
             AppSettings.IsDev = isDev;
-
-            InitApiClient(Chain, isDev);
+            Api.Connect(Chain, isDev);
         }
 
         public static void SwitchChain(UserInfo userInfo)
         {
-            if (Chain == userInfo.Chain && _apiClient != null)
+            if (Chain == userInfo.Chain)
                 return;
 
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            InitApiClient(userInfo.Chain, AppSettings.IsDev);
+            Api.Connect(userInfo.Chain, AppSettings.IsDev);
         }
 
         public static void SwitchChain(KnownChains chain)
         {
-            if (Chain == chain && _apiClient != null)
+            if (Chain == chain)
                 return;
 
             Chain = chain;
-            InitApiClient(chain, AppSettings.IsDev);
-        }
-
-        private static void InitApiClient(KnownChains chain, bool isDev)
-        {
-#if DEBUG
-            //_apiClient = new ApiPositiveStub();
-            _apiClient = new DitchApi(chain, isDev);
-#else
-            _apiClient = new DitchApi(chain, isDev);
-#endif
+            Api.Connect(chain, AppSettings.IsDev);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
@@ -90,12 +82,12 @@ namespace Steepshot.Core.Presenters
 
 
         #region TryRunTask
-        
-        protected async Task<TResult> TryRunTask<TResult>(Func<CancellationTokenSource, Task<TResult>> func, CancellationTokenSource cts)
+
+        protected async Task<TResult> TryRunTask<TResult>(Func<CancellationToken, Task<TResult>> func, CancellationToken ct)
         {
             try
             {
-                return await func(cts);
+                return await func(ct);
             }
             catch (OperationCanceledException)
             {
@@ -108,11 +100,11 @@ namespace Steepshot.Core.Presenters
             return default(TResult);
         }
 
-        protected async Task<TResult> TryRunTask<T1, TResult>(Func<CancellationTokenSource, T1, Task<TResult>> func, CancellationTokenSource cts, T1 param1)
+        protected async Task<TResult> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<TResult>> func, CancellationToken ct, T1 param1)
         {
             try
             {
-                return await func(cts, param1);
+                return await func(ct, param1);
             }
             catch (OperationCanceledException)
             {
@@ -125,11 +117,11 @@ namespace Steepshot.Core.Presenters
             return default(TResult);
         }
 
-        protected async Task<TResult> TryRunTask<T1, T2, TResult>(Func<CancellationTokenSource, T1, T2, Task<TResult>> func, CancellationTokenSource cts, T1 param1, T2 param2)
+        protected async Task<TResult> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<TResult>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
-                return await func(cts, param1, param2);
+                return await func(ct, param1, param2);
             }
             catch (OperationCanceledException)
             {

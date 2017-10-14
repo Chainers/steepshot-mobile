@@ -106,7 +106,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryFollow(UserFriend item)
         {
-            return await TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), item);
+            return await TryRunTask(Follow, CancellationToken.None, item);
         }
 
         private async Task<List<string>> Follow(CancellationTokenSource cts, UserFriend item)

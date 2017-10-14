@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
 
         public Task<OperationResult<UserProfileResponse>> TryGetUserInfo(string user)
         {
-            return TryRunTask(GetUserInfo, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), user);
+            return TryRunTask(GetUserInfo, CancellationToken.None, user);
         }
 
         private Task<OperationResult<UserProfileResponse>> GetUserInfo(CancellationTokenSource cts, string user)
@@ -75,7 +75,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<FollowResponse>> TryFollow(bool hasFollowed)
         {
-            return await TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), hasFollowed ? FollowType.UnFollow : FollowType.Follow);
+            return await TryRunTask(Follow, CancellationToken.None, hasFollowed ? FollowType.UnFollow : FollowType.Follow);
         }
 
         private async Task<OperationResult<FollowResponse>> Follow(CancellationTokenSource cts, FollowType followType)

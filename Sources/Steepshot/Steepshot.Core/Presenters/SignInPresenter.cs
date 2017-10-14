@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<LoginResponse>> TrySignIn(string login, string postingKey)
         {
-            return await TryRunTask(SignIn, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), login, postingKey);
+            return await TryRunTask(SignIn, CancellationToken.None, login, postingKey);
         }
 
         private Task<OperationResult<LoginResponse>> SignIn(CancellationTokenSource cts, string login, string postingKey)
