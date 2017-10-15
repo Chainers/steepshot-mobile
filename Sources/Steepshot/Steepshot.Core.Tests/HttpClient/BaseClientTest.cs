@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
-using Ditch;
-using Ditch.Operations.Get;
-using Ditch.Operations.Post;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 
@@ -23,7 +17,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 Limit = count,
                 Offset = string.Empty
             };
-            var task = Api[apiName].GetPostVoters(request, null);
+            var task = Api[apiName].GetPostVoters(request, CancellationToken.None);
             task.Wait();
             var responce = task.Result;
             Assert.IsTrue(responce.Success);
@@ -45,7 +39,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 };
 
                 var token = new CancellationTokenSource(50);
-                var task = Api[apiName].GetPostVoters(request, token);
+                var task = Api[apiName].GetPostVoters(request, token.Token);
                 task.Wait(token.Token);
                 var responce = task.Result;
                 Assert.IsTrue(responce.Success);

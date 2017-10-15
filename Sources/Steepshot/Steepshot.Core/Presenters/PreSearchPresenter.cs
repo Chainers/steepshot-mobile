@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextTopPosts);
         }
 
-        private async Task<List<string>> LoadNextTopPosts(CancellationTokenSource cts)
+        private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
         {
             var postrequest = new PostsRequest(PostType)
             {
@@ -31,7 +31,7 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetPosts(postrequest, cts);
+            var response = await Api.GetPosts(postrequest, ct);
 
             if (response.Success)
             {
@@ -58,7 +58,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(GetSearchedPosts);
         }
 
-        private async Task<List<string>> GetSearchedPosts(CancellationTokenSource cts)
+        private async Task<List<string>> GetSearchedPosts(CancellationToken ct)
         {
             var postrequest = new PostsByCategoryRequest(PostType, Tag)
             {
@@ -69,7 +69,7 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
 
-            var response = await Api.GetPostsByCategory(postrequest, cts);
+            var response = await Api.GetPostsByCategory(postrequest, ct);
             if (response.Success)
             {
                 var posts = response.Result.Results;

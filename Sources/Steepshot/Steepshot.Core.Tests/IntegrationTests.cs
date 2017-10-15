@@ -121,8 +121,8 @@ namespace Steepshot.Core.Tests
 
         [Test, Sequential]
         public void UserPosts_Offset_Limit(
-        [Values("Steem", "Golos")] string name,
-        [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string offset)
+            [Values("Steem", "Golos")] string name,
+            [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string offset)
         {
             // Arrange
             UserInfo user = Users[name];
@@ -663,8 +663,8 @@ namespace Steepshot.Core.Tests
 
         [Test, Sequential]
         public void Comments([Values("Steem", "Golos")] string name,
-                             [Values("@joseph.kalu/cat636203355240074655",
-                                     "@joseph.kalu/cat636281384922864910")] string url)
+            [Values("@joseph.kalu/cat636203355240074655",
+                "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
             var request = new NamedInfoRequest(url);
@@ -715,8 +715,8 @@ namespace Steepshot.Core.Tests
 
         [Test, Sequential]
         public void Comments_Without_SessionId_Check_False_Votes(
-        [Values("Steem", "Golos")] string name,
-        [Values("@dollarvigilante/could-ethereum-be-made-obsolete-by-the-new-decentralized-smart-contract-platform-eos",
+            [Values("Steem", "Golos")] string name,
+            [Values("@dollarvigilante/could-ethereum-be-made-obsolete-by-the-new-decentralized-smart-contract-platform-eos",
                 "@siberianshamen/chto-takoe-golos")] string url)
         {
             // Arrange
@@ -772,8 +772,8 @@ namespace Steepshot.Core.Tests
             var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, AppSettings.AppInfo);
 
             // Act
-            var response1 = Api[name].CreateComment(createCommentRequest).Result;
-            var response2 = Api[name].CreateComment(createCommentRequest).Result;
+            var response1 = Api[name].CreateComment(createCommentRequest, CancellationToken.None).Result;
+            var response2 = Api[name].CreateComment(createCommentRequest, CancellationToken.None).Result;
 
             // Assert
             AssertResult(response1);
@@ -1392,7 +1392,7 @@ namespace Steepshot.Core.Tests
             {
                 var request = new SearchWithQueryRequest("aar");
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
-                var operationResult = Api["Steem"].SearchUser(request, cts).Result;
+                var operationResult = Api["Steem"].SearchUser(request, cts.Token).Result;
             });
 
             // Assert

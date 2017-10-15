@@ -49,10 +49,10 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(Vote, CancellationToken.None, post);
         }
 
-        private async Task<List<string>> Vote(CancellationTokenSource cts, Post post)
+        private async Task<List<string>> Vote(CancellationToken ct, Post post)
         {
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
-            var response = await Api.Vote(request, cts);
+            var response = await Api.Vote(request, ct);
 
             if (response.Success)
             {
@@ -75,10 +75,10 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(Flag, CancellationToken.None, post);
         }
 
-        private async Task<List<string>> Flag(CancellationTokenSource cts, Post post)
+        private async Task<List<string>> Flag(CancellationToken ct, Post post)
         {
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
-            var response = await Api.Vote(request);
+            var response = await Api.Vote(request, ct);
 
             if (response.Success)
             {
