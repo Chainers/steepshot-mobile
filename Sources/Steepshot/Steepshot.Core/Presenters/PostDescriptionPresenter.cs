@@ -10,12 +10,12 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request)
         {
-            return await TryRunTask(Upload, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), request);
+            return await TryRunTask(Upload, CancellationToken.None, request);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationTokenSource cts, UploadImageRequest request)
+        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request)
         {
-            return await Api.Upload(request, cts);
+            return await Api.Upload(request, ct);
         }
     }
 }

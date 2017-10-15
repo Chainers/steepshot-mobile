@@ -46,7 +46,7 @@ namespace Steepshot.Core.Presenters
             OffsetUrl = string.Empty;
         }
 
-        protected async Task<TResult> RunAsSingleTask<TResult>(Func<CancellationTokenSource, Task<TResult>> func, bool cancelPrevTask = true)
+        protected async Task<TResult> RunAsSingleTask<TResult>(Func<CancellationToken, Task<TResult>> func, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
             }
             try
             {
-                return await func(_singleTaskCancellationTokenSource);
+                return await func(_singleTaskCancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -85,7 +85,7 @@ namespace Steepshot.Core.Presenters
             return default(TResult);
         }
 
-        protected async Task<TResult> RunAsSingleTask<T1, TResult>(Func<CancellationTokenSource, T1, Task<TResult>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<TResult> RunAsSingleTask<T1, TResult>(Func<CancellationToken, T1, Task<TResult>> func, T1 param1, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -100,7 +100,7 @@ namespace Steepshot.Core.Presenters
             }
             try
             {
-                return await func(_singleTaskCancellationTokenSource, param1);
+                return await func(_singleTaskCancellationTokenSource.Token, param1);
             }
             catch (OperationCanceledException)
             {
@@ -124,7 +124,7 @@ namespace Steepshot.Core.Presenters
             return default(TResult);
         }
 
-        protected async Task<TResult> RunAsSingleTask<T1, T2, TResult>(Func<CancellationTokenSource, T1, T2, Task<TResult>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
+        protected async Task<TResult> RunAsSingleTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<TResult>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -139,7 +139,7 @@ namespace Steepshot.Core.Presenters
             }
             try
             {
-                return await func(_singleTaskCancellationTokenSource, param1, param2);
+                return await func(_singleTaskCancellationTokenSource.Token, param1, param2);
             }
             catch (OperationCanceledException)
             {
