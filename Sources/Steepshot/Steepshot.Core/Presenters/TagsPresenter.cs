@@ -17,7 +17,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNext, s);
         }
 
-        private async Task<List<string>> LoadNext(CancellationTokenSource cts, string s)
+        private async Task<List<string>> LoadNext(CancellationToken ct, string s)
         {
             var request = new SearchWithQueryRequest(s)
             {
@@ -25,7 +25,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.SearchCategories(request, cts);
+            var response = await Api.SearchCategories(request, ct);
 
             if (response.Success)
             {
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(GetTopTags);
         }
 
-        private async Task<List<string>> GetTopTags(CancellationTokenSource cts)
+        private async Task<List<string>> GetTopTags(CancellationToken ct)
         {
             var request = new OffsetLimitFields()
             {
@@ -57,7 +57,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetCategories(request, cts);
+            var response = await Api.GetCategories(request, ct);
 
             if (response.Success)
             {

@@ -19,7 +19,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNext, url);
         }
 
-        private async Task<List<string>> LoadNext(CancellationTokenSource cts, string url)
+        private async Task<List<string>> LoadNext(CancellationToken ct, string url)
         {
             var request = new InfoRequest(url)
             {
@@ -27,7 +27,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetPostVoters(request, cts);
+            var response = await Api.GetPostVoters(request, ct);
 
             if (response.Success)
             {

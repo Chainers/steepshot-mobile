@@ -37,7 +37,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextUserFriends, username);
         }
 
-        private async Task<List<string>> LoadNextUserFriends(CancellationTokenSource cts, string username)
+        private async Task<List<string>> LoadNextUserFriends(CancellationToken ct, string username)
         {
             if (_followType == null)
                 return null;
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Presenters
                 Limit = ItemsLimit
             };
 
-            var response = await Api.GetUserFriends(request, cts);
+            var response = await Api.GetUserFriends(request, ct);
             if (response.Success)
             {
                 var result = response.Result.Results;
@@ -70,13 +70,13 @@ namespace Steepshot.Core.Presenters
 
 
 
-        public async Task<List<string>> TryLoadNextSearchUser(CancellationTokenSource cts, string query)
+        public async Task<List<string>> TryLoadNextSearchUser(CancellationToken ct, string query)
         {
-            return await LoadNextSearchUser(cts, query);
+            return await LoadNextSearchUser(ct, query);
         }
 
 
-        private async Task<List<string>> LoadNextSearchUser(CancellationTokenSource cts, string query)
+        private async Task<List<string>> LoadNextSearchUser(CancellationToken ct, string query)
         {
             var request = new SearchWithQueryRequest(query)
             {
@@ -85,7 +85,7 @@ namespace Steepshot.Core.Presenters
                 Login = User.Login
             };
 
-            var response = await Api.SearchUser(request, cts);
+            var response = await Api.SearchUser(request, ct);
             if (response.Success && response.Result?.Results != null)
             {
                 var result = response.Result.Results;
@@ -106,13 +106,13 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryFollow(UserFriend item)
         {
-            return await TryRunTask(Follow, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), item);
+            return await TryRunTask(Follow, CancellationToken.None, item);
         }
 
-        private async Task<List<string>> Follow(CancellationTokenSource cts, UserFriend item)
+        private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
         {
             var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
-            var response = await Api.Follow(request, cts);
+            var response = await Api.Follow(request, ct);
             if (response.Success)
             {
                 item.HasFollowed = !item.HasFollowed;
