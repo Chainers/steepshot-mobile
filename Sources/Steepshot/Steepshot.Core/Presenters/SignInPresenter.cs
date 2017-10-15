@@ -13,10 +13,10 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(SignIn, CancellationToken.None, login, postingKey);
         }
 
-        private Task<OperationResult<LoginResponse>> SignIn(CancellationTokenSource cts, string login, string postingKey)
+        private Task<OperationResult<LoginResponse>> SignIn(CancellationToken ct, string login, string postingKey)
         {
             var request = new AuthorizedRequest(login, postingKey);
-            return Api.LoginWithPostingKey(request, cts);
+            return Api.LoginWithPostingKey(request, ct);
         }
     }
 }
