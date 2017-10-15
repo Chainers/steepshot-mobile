@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
@@ -12,7 +13,12 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly JsonNetConverter _serializer = new JsonNetConverter();
         private readonly RestClient _restClient;
-        public string GatewayUrl { get; set; }
+
+        public string GatewayUrl
+        {
+            get => _restClient.BaseUrl?.AbsolutePath;
+            set => _restClient.BaseUrl = new Uri(value);
+        }
 
         public ApiGateway()
         {
@@ -72,9 +78,9 @@ namespace Steepshot.Core.HttpClient
             switch (version)
             {
                 case GatewayVersion.V1:
-                    return $@"{GatewayUrl}\v1\{endpoint}";
+                    return $@"v1/{endpoint}";
                 case GatewayVersion.V1P1:
-                    return $@"{GatewayUrl}\v1_1\{endpoint}";
+                    return $@"v1_1/{endpoint}";
             }
             return string.Empty;
         }
