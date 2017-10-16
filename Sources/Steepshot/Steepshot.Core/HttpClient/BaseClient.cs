@@ -18,7 +18,7 @@ namespace Steepshot.Core.HttpClient
     public class BaseClient
     {
         protected int Locked;
-        protected readonly ApiGateway Gateway;
+        protected ApiGateway Gateway;
         private IConnectionService _connectionService;
         private IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
 
@@ -27,7 +27,7 @@ namespace Steepshot.Core.HttpClient
         protected BaseClient()
         {
             _jsonConverter = new JsonNetConverter();
-            Gateway = new ApiGateway();
+            //Gateway = new ApiGateway();
         }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationToken ct)
