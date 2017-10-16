@@ -56,7 +56,12 @@ namespace Steepshot.Core.HttpClient
         }
 
 
-        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationTokenSource cts = null)
+        public bool Connect(KnownChains chain, bool isDev)
+        {
+            return true;
+        }
+
+        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             return new OperationResult<LoginResponse>
             {
@@ -64,7 +69,7 @@ namespace Steepshot.Core.HttpClient
             };
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
         {
             var resp = Converter.Deserialize<UserPostResponse>(GetUserPostsJson);
 
@@ -99,7 +104,7 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<UserPostResponse> { Result = resp };
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
         {
             var resp = string.IsNullOrEmpty(request.Offset)
                 ? Converter.Deserialize<UserPostResponse>(GetUserRecentPostsJson1)
@@ -121,7 +126,7 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<UserPostResponse> { Result = resp };
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationToken ct)
         {
             UserPostResponse resp = null;
             switch (request.Type)
@@ -174,7 +179,7 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<UserPostResponse> { Result = resp };
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
         {
             UserPostResponse resp = null;
             switch (request.Type)
@@ -232,8 +237,8 @@ namespace Steepshot.Core.HttpClient
 
             return new OperationResult<UserPostResponse> { Result = resp };
         }
-
-        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationTokenSource cts)
+        
+        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationToken ct)
         {
             var resp = Converter.Deserialize<SearchResponse<VotersResult>>(VotersResult1Json);
             var skip = 0;
@@ -253,17 +258,17 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<SearchResponse<VotersResult>> { Result = resp };
         }
 
-        public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
         {
             return new OperationResult<VoteResponse> { Result = new VoteResponse(true) { NetVotes = request.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = new Money(10000, 1, "GBG") } };
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
             return new OperationResult<FollowResponse> { Result = new FollowResponse(true) };
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
         {
             var rez = Converter.Deserialize<GetCommentResponse>(GetCommentsJson);
             if (string.IsNullOrEmpty(request.Login))
@@ -273,22 +278,22 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<GetCommentResponse> { Result = rez };
         }
 
-        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationToken ct)
         {
             return new OperationResult<CreateCommentResponse> { Result = new CreateCommentResponse(true) };
         }
-
-        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationTokenSource cts)
+        
+        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationToken ct)
         {
             return new OperationResult<ImageUploadResponse> { Result = new ImageUploadResponse() };
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationToken ct)
         {
             return new OperationResult<UploadResponse> { Result = new UploadResponse() };
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
         {
             List<string> tags = new List<string>();
             foreach (var item in Converter.Deserialize<UserPostResponse>(GetPostsTopJson).Results.Select(i => i.Tags))
@@ -321,7 +326,7 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<SearchResponse<SearchResult>> { Result = rez };
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationToken ct)
         {
             List<string> tags = new List<string>();
             foreach (var item in Converter.Deserialize<UserPostResponse>(GetPostsTopJson).Results.Select(i => i.Tags))
@@ -360,14 +365,14 @@ namespace Steepshot.Core.HttpClient
 
             return new OperationResult<SearchResponse<SearchResult>> { Result = rez };
         }
-        
-        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationTokenSource cts = null)
+
+        public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationToken ct)
         {
             var rez = Converter.Deserialize<UserProfileResponse>(GetUserProfileJson);
             return new OperationResult<UserProfileResponse> { Result = rez };
         }
 
-        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
         {
             var rez = request.Type == FriendsType.Followers
                 ? Converter.Deserialize<UserFriendsResponse>(GetUserFriendsFollowersJson)
@@ -375,18 +380,18 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<UserFriendsResponse> { Result = rez };
         }
 
-        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts = null)
+        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationToken ct)
         {
             return new OperationResult<TermOfServiceResponse> { Result = new TermOfServiceResponse { Text = "Bla bla text" } };
         }
 
         [Obsolete]
-        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationToken ct)
         {
             return new OperationResult<Post>();
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
         {
             List<string> tags = new List<string>();
             tags = tags.Union(Converter.Deserialize<UserPostResponse>(GetPostsTopJson).Results.Select(i => i.Author)).Distinct().ToList();
@@ -409,7 +414,7 @@ namespace Steepshot.Core.HttpClient
             return new OperationResult<SearchResponse<UserFriend>> { Result = rez };
         }
 
-        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts = null)
+        public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationToken ct)
         {
             return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = request.Username } };
         }

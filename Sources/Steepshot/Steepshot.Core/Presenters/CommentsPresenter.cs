@@ -19,14 +19,14 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextComments, postUrl);
         }
 
-        private async Task<List<string>> LoadNextComments(CancellationTokenSource cts, string postUrl)
+        private async Task<List<string>> LoadNextComments(CancellationToken ct, string postUrl)
         {
             var request = new NamedInfoRequest(postUrl)
             {
                 Login = User.Login
             };
 
-            var response = await Api.GetComments(request);
+            var response = await Api.GetComments(request, ct);
             if (response.Success)
             {
                 var results = response.Result.Results;
@@ -45,13 +45,13 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)
         {
-            return await TryRunTask(CreateComment, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None), comment, url);
+            return await TryRunTask(CreateComment, CancellationToken.None, comment, url);
         }
 
-        private async Task<OperationResult<CreateCommentResponse>> CreateComment(CancellationTokenSource cts, string comment, string url)
+        private async Task<OperationResult<CreateCommentResponse>> CreateComment(CancellationToken ct, string comment, string url)
         {
             var reqv = new CreateCommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
-            return await Api.CreateComment(reqv, cts);
+            return await Api.CreateComment(reqv, ct);
         }
     }
 }

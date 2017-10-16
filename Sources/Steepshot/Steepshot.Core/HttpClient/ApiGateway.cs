@@ -9,29 +9,23 @@ using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.HttpClient
 {
-    public interface IApiGateway
-    {
-        Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Post(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx = null, CancellationTokenSource cts = null);
-    }
-
-    public class ApiGateway : IApiGateway
+    public class ApiGateway
     {
         private readonly JsonNetConverter _serializer = new JsonNetConverter();
         private readonly RestClient _restClient;
 
-        public ApiGateway(string url)
+        public string GatewayUrl
         {
-            if (string.IsNullOrEmpty(url))
-            {
-                throw new ArgumentNullException(nameof(url));
-            }
-
-            _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
+            get => _restClient.BaseUrl?.ToString();
+            set => _restClient.BaseUrl = new Uri(value);
         }
 
-        public Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts)
+        public ApiGateway()
+        {
+            _restClient = new RestClient { IgnoreResponseStatusCode = true };
+        }
+
+        public Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken ct)
         {
             var resource = GetResource(version, endpoint);
             var request = new RestRequest(resource) { Serializer = _serializer };
@@ -39,10 +33,10 @@ namespace Steepshot.Core.HttpClient
                 request.AddParameter(parameter.Key, parameter.Value);
 
             request.Method = Method.GET;
-            return Execute(request, cts);
+            return _restClient.Execute(request, ct);
         }
 
-        public Task<IRestResponse> Post(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Post(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken ct)
         {
             var resource = GetResource(version, endpoint);
             var request = new RestRequest(resource)
@@ -51,9 +45,9 @@ namespace Steepshot.Core.HttpClient
                 Method = Method.POST
             };
             request.AddParameter(_serializer.ContentType, parameters, ParameterType.RequestBody);
-            return Execute(request, cts);
+            return _restClient.Execute(request, ct);
         }
-        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx, CancellationToken ct)
         {
             var resource = GetResource(version, endpoint);
             var restRequest = new RestRequest(resource)
@@ -76,12 +70,7 @@ namespace Steepshot.Core.HttpClient
             foreach (var tag in request.Tags)
                 restRequest.AddParameter("tags", tag);
 
-            return Execute(restRequest, cts);
-        }
-
-        private Task<IRestResponse> Execute(IRestRequest request, CancellationTokenSource cts)
-        {
-            return cts != null ? _restClient.Execute(request, cts.Token) : _restClient.Execute(request);
+            return _restClient.Execute(restRequest, ct);
         }
 
         private string GetResource(GatewayVersion version, string endpoint)
@@ -89,9 +78,9 @@ namespace Steepshot.Core.HttpClient
             switch (version)
             {
                 case GatewayVersion.V1:
-                    return $@"v1\{endpoint}";
+                    return $@"v1/{endpoint}";
                 case GatewayVersion.V1P1:
-                    return $@"v1_1\{endpoint}";
+                    return $@"v1_1/{endpoint}";
             }
             return string.Empty;
         }

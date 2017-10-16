@@ -31,7 +31,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(SearchCategories, query, searchType);
         }
 
-        private async Task<List<string>> SearchCategories(CancellationTokenSource cts, string query, SearchType searchType)
+        private async Task<List<string>> SearchCategories(CancellationToken ct, string query, SearchType searchType)
         {
             if (string.IsNullOrEmpty(query))
                 return await TagsPresenter.TryGetTopTags();
@@ -39,7 +39,7 @@ namespace Steepshot.Core.Presenters
             if (searchType == SearchType.Tags)
                 return await TagsPresenter.TryLoadNext(query);
 
-            return await FollowersPresenter.TryLoadNextSearchUser(cts, query);
+            return await FollowersPresenter.TryLoadNextSearchUser(ct, query);
         }
     }
 }

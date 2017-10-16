@@ -87,7 +87,8 @@ namespace Steepshot.Activity
             {
                 Task.Run(() =>
                 {
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromResource(_path, 1600, 1600);
+                    var fileDescriptor = ContentResolver.OpenFileDescriptor(Android.Net.Uri.Parse(_path), "r").FileDescriptor;
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
                     _btmp = BitmapUtils.RotateImageIfRequired(_btmp, _path);
                     _photoFrame.SetImageBitmap(_btmp);
                 });

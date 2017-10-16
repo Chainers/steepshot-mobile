@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using Autofac;
-using Ditch;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
@@ -20,7 +18,6 @@ namespace Steepshot.Core.Tests
         private const bool IsDev = false;
         protected static readonly Dictionary<string, UserInfo> Users;
         protected static readonly Dictionary<string, ISteepshotApiClient> Api;
-        protected static readonly Dictionary<string, ChainInfo> Chain;
 
         static BaseTests()
         {
@@ -43,12 +40,12 @@ namespace Steepshot.Core.Tests
 
             Api = new Dictionary<string, ISteepshotApiClient>
             {
-                //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
-                //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
-
-                {"Steem", new DitchApi(KnownChains.Steem, IsDev)},
-                {"Golos", new DitchApi(KnownChains.Golos, IsDev)}
+                {"Steem", new DitchApi()},
+                {"Golos", new DitchApi()}
             };
+
+            Api["Steem"].Connect(KnownChains.Steem, IsDev);
+            Api["Golos"].Connect(KnownChains.Golos, IsDev);
         }
 
         protected UserInfo Authenticate(string name)
