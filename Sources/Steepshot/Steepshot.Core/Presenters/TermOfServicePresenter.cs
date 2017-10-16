@@ -9,12 +9,12 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<TermOfServiceResponse>> TryGetTermsOfService()
         {
-            return await TryRunTask(TermsOfService, CancellationTokenSource.CreateLinkedTokenSource(CancellationToken.None));
+            return await TryRunTask(TermsOfService, CancellationToken.None);
         }
 
-        private async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationTokenSource cts)
+        private async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationToken ct)
         {
-            return await Api.TermsOfService(cts);
+            return await Api.TermsOfService(ct);
         }
     }
 }
