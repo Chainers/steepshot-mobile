@@ -157,6 +157,9 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
     <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\close_black.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
