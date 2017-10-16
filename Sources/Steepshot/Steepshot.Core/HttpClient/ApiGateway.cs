@@ -16,7 +16,7 @@ namespace Steepshot.Core.HttpClient
 
         public string GatewayUrl
         {
-            get => _restClient.BaseUrl?.AbsolutePath;
+            get => _restClient.BaseUrl?.ToString();
             set => _restClient.BaseUrl = new Uri(value);
         }
 
