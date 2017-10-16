@@ -71,9 +71,9 @@ namespace Steepshot.Core.HttpClient
             switch (version)
             {
                 case GatewayVersion.V1:
-                    return $@"/v1/{endpoint}";
+                    return $@"v1/{endpoint}";
                 case GatewayVersion.V1P1:
-                    return $@"/v1_1/{endpoint}";
+                    return $@"v1_1/{endpoint}";
             }
             return string.Empty;
         }
