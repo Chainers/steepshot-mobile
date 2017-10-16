@@ -37,8 +37,18 @@ namespace Steepshot.Utils
             BitmapFactory.DecodeFile(path, options);
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
             options.InJustDecodeBounds = false;
-            options.InPreferredConfig = Bitmap.Config.Rgb565;
+            options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
             return BitmapFactory.DecodeFile(path, options);
+        }
+
+        public static Bitmap DecodeSampledBitmapFromDescriptor(Java.IO.FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        {
+            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+            BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
+            options.InJustDecodeBounds = false;
+            options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
+            return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)

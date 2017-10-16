@@ -12,10 +12,12 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
+using Android.Content;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
+    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
     public class SplashActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -35,6 +37,7 @@ namespace Steepshot.Activity
             };
 
             bool isKeyValid = true;
+            //TODO:KOA: There had to be WIF check
             /*
             if (!_presenter.IsGuest)
             {
@@ -45,7 +48,25 @@ namespace Steepshot.Activity
                     Toast.MakeText(this, Localization.Errors.WrongPrivateKey, ToastLength.Long);
                 }
             }*/
-            StartActivity(BasePresenter.User.IsAuthenticated && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
+            if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
+            {
+                Intent intent = null;
+                if (BasePresenter.User.IsAuthenticated && isKeyValid)
+                {
+                    intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
+                    var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
+                    intent.PutExtra("FILEPATH", uri.ToString());
+                }
+                else
+                {
+                    intent = new Intent(this, typeof(PreSignInActivity));
+                }
+                StartActivity(intent);
+            }
+            else
+            {
+                StartActivity(BasePresenter.User.IsAuthenticated && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
+            }
         }
 
         private void Construct()
