@@ -117,6 +117,7 @@
     <Compile Include="Fragment\OldCameraFragment.cs" />
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
+    <Compile Include="Utils\ListItemDecoration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -154,6 +155,8 @@
     <AndroidResource Include="Resources\drawable-mdpi\edit.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\edit.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\edit.png" />
+    <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
+    <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
