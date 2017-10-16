@@ -41,6 +41,16 @@ namespace Steepshot.Utils
             return BitmapFactory.DecodeFile(path, options);
         }
 
+        public static Bitmap DecodeSampledBitmapFromDescriptor(Java.IO.FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        {
+            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
+            BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
+            options.InJustDecodeBounds = false;
+            options.InPreferredConfig = Bitmap.Config.Rgb565;
+            return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+        }
+
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
         {
             var height = options.OutHeight;

@@ -5,6 +5,7 @@ using Android.Content.PM;
 using Android.OS;
 using Autofac;
 using Square.Picasso;
+using Steepshot.Utils;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
