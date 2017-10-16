@@ -5,9 +5,11 @@ VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.iOS\Steepshot.iOS.csproj", "{4B259270-7F8D-4132-91C4-AD144D025A30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Steepshot.Core", "Steepshot.Core\Steepshot.Core.csproj", "{8C01B785-CFC3-4308-8BE9-BB2F043631DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Core", "Steepshot.Core\Steepshot.Core.csproj", "{8C01B785-CFC3-4308-8BE9-BB2F043631DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRavenPortable", "SharpRaven\SharpRavenPortable.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteepshotShareExtension", "SteepshotShareExtension\SteepshotShareExtension.csproj", "{2A76594C-2C20-4F34-A490-3485AAF46FAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,22 @@ Global
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|x86.ActiveCfg = Release|x86
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|Any CPU.Build.0 = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhone.Build.0 = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|x86.ActiveCfg = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|x86.Build.0 = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|Any CPU.Build.0 = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhone.ActiveCfg = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhone.Build.0 = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|x86.ActiveCfg = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|x86.Build.0 = Release|iPhone
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
