@@ -8,6 +8,7 @@ using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Adapter

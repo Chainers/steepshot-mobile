@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
@@ -48,7 +49,7 @@ namespace Steepshot.Core.Presenters
             try
             {
                 var post = Posts[position];
-                var flagRequest = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Flag : VoteType.Down, post.Url);
+                var flagRequest = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
                 var flagResponse = await Api.Vote(flagRequest);
                 errors = flagResponse.Errors;
                 if (flagResponse.Success)

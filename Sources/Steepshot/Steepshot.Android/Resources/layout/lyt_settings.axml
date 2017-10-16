@@ -189,6 +189,21 @@
                     android:layout_marginTop="1dp"
                     android:id="@+id/dtn_terms_of_service"
                     style="?android:attr/borderlessButtonStyle" />
+            <!--Test-->
+                <android.support.v7.widget.AppCompatButton
+                    android:text="Tests"
+                    android:textSize="@dimen/dp_button_text"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:background="@android:color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:layout_marginTop="1dp"
+                    android:id="@+id/tests"
+                  android:visibility="invisible"
+                    style="?android:attr/borderlessButtonStyle" />
             </LinearLayout>
         </RelativeLayout>
     </ScrollView>

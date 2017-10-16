@@ -1,5 +1,5 @@
 ﻿using Foundation;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Cells;
 using UIKit;
 

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -46,7 +47,24 @@ namespace Steepshot.Activity
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
 #if DEBUG
+<<<<<<< HEAD
             _password.Text = "5**************************************************";
+=======
+            try
+            {
+                var stream = Assets.Open("DebugWif.txt");
+                using (var sr = new StreamReader(stream))
+                {
+                    var wif = sr.ReadToEnd();
+                    _password.Text = wif;
+                }
+                stream.Dispose();
+            }
+            catch
+            {
+                //todo nothing
+            }
+>>>>>>> 510caea432cf952f2ff183455c236c4e7e2de723
 #endif
 
             _password.TextChanged += TextChanged;
@@ -118,7 +136,7 @@ namespace Steepshot.Activity
                     if (response.Success)
                     {
                         _newChain = KnownChains.None;
-                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain);
+                        BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
                         var intent = new Intent(this, typeof(RootActivity));
                         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                         StartActivity(intent);

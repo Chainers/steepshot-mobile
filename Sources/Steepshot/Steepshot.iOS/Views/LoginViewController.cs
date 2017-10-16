@@ -5,6 +5,7 @@ using FFImageLoading;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -54,7 +55,11 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
             postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
 #if DEBUG
+<<<<<<< HEAD
             password.Text = "5**************************************************";
+=======
+            password.Text = DebugHelper.GetTestWif();
+>>>>>>> 510caea432cf952f2ff183455c236c4e7e2de723
 #endif
             password.ShouldReturn += (textField) =>
             {
@@ -109,7 +114,7 @@ namespace Steepshot.iOS.Views
                 var response = await _presenter.SignIn(Username, password.Text);
                 if (response.Success)
                 {
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain);
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
 
                     var myViewController = new MainTabBarController();
 

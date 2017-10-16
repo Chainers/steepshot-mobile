@@ -140,7 +140,7 @@ namespace Steepshot.iOS.Views
             else
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = _usersSource.Users[row].Username;
+                myViewController.Username = _usersSource.Users[row].Author;
                 NavigationController.PushViewController(myViewController, true);
             }
         }

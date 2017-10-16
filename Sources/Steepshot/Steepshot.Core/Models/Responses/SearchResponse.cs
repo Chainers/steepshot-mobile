@@ -8,20 +8,4 @@ namespace Steepshot.Core.Models.Responses
         public int Count { get; set; }
         public List<T> Results { get; set; }
     }
-
-    public class SearchResult
-    {
-        public string Name { get; set; }
-    }
-
-    public class UserSearchResult : SearchResult
-    {
-        public string Username { get; set; }
-        public string ProfileImage { get; set; }
-    }
-
-    public class VotersResult : UserSearchResult
-    {
-        public double Percent { get; set; }
-    }
 }
