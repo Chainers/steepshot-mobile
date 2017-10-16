@@ -65,6 +65,7 @@ ipch/
 *.psess
 *.vsp
 *.vspx
+.vs
 
 # TFS 2012 Local Workspace
 $tf/
@@ -217,3 +218,6 @@ Resource.designer.cs
 packages/
 *.userprefs
 Sources/Steepshot/Steepshot.Core.Tests/app.config
+Sources/Steepshot/Steepshot.Android/Assets/DebugWif.txt
+Sources/Steepshot/Steepshot.iOS/Debug.plist
+Sources/Steepshot/.vs/

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Steepshot.Core.Authority;
 
@@ -16,13 +17,13 @@ namespace Steepshot.Core.Tests.Stubs
                 {
                     Chain = KnownChains.Golos,
                     Login = "joseph.kalu",
-                    PostingKey =  "***REMOVED***"
+                    PostingKey = ConfigurationManager.AppSettings["GolosWif"]
                 },
                 new UserInfo
                 {
                     Chain = KnownChains.Steem,
                     Login = "joseph.kalu",
-                    PostingKey =  "***REMOVED***"
+                    PostingKey = ConfigurationManager.AppSettings["SteemWif"]
                 }
             };
         }

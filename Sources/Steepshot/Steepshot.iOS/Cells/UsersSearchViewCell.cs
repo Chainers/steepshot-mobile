@@ -2,6 +2,7 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using UIKit;
 
@@ -13,7 +14,7 @@ namespace Steepshot.iOS.Cells
 		public static readonly UINib Nib;
 		private IScheduledWork _scheduledWorkAvatar;
 		protected UsersSearchViewCell(IntPtr handle) : base(handle) { }
-		private UserSearchResult _currentUser;
+		private UserFriend _currentUser;
 		private VotersResult _currentVoter;
 
 		static UsersSearchViewCell()
@@ -50,13 +51,13 @@ namespace Steepshot.iOS.Cells
 			login.Text = _currentVoter.Username;
 		}
 
-		public void UpdateCell(UserSearchResult user)
+		public void UpdateCell(UserFriend user)
 		{
 			_currentUser = user;
 			avatar.Image = UIImage.FromFile("ic_user_placeholder.png");
 
 			_scheduledWorkAvatar?.Cancel();
-			_scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.ProfileImage, TimeSpan.FromDays(30))
+			_scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
 																						 .Retry(2, 200)
 																						 .FadeAnimation(false, false, 0)
 																						 .DownSample(width: (int)avatar.Frame.Width)
@@ -69,7 +70,7 @@ namespace Steepshot.iOS.Cells
 			else
 				usernameHeight.Constant = 0;
 			
-			login.Text = _currentUser.Username;
+			login.Text = _currentUser.Author;
 		}
 	}
 }

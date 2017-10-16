@@ -6,6 +6,7 @@ using Android.OS;
 using Autofac;
 using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -14,7 +15,7 @@ using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "Steepshot", MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
+    [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
     public class SplashActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -55,7 +56,11 @@ namespace Steepshot.Activity
             builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
             builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
+#if DEBUG
+            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+#else
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
+#endif
 
             Picasso.Builder d = new Picasso.Builder(this);
             Cache = new LruCache(this);

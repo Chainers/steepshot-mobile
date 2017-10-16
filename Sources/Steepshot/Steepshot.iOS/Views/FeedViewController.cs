@@ -72,7 +72,7 @@ namespace Steepshot.iOS.Views
 
                  }
                  catch (Exception ex) { }
-             }, commentString: _collectionViewSource.FeedStrings);
+            }, commentString: _collectionViewSource.FeedStrings, posts: _presenter.Posts);
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
             _collectionViewSource.IsGrid = false;
@@ -379,7 +379,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.New;
                    _tw.Text = newPhotosButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   GetPosts();
+                   RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
 
@@ -397,7 +397,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Hot;
                    _tw.Text = hotButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   GetPosts();
+                   RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
 
@@ -415,7 +415,7 @@ namespace Steepshot.iOS.Views
                    _presenter.PostType = PostType.Top;
                    _tw.Text = trendingButton.TitleLabel.Text;
                    CurrentPostCategory = _currentPostCategory = null;
-                   GetPosts();
+                   RefreshTable();
                    feedCollection.SetContentOffset(new CGPoint(0, 0), false);
                });
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.iOS.Cells;
 using UIKit;
@@ -9,7 +10,7 @@ namespace Steepshot.iOS.ViewSources
 {
 	public class UserSearchTableViewSource : UITableViewSource
 	{
-		public List<UserSearchResult> Users = new List<UserSearchResult>();
+		public List<UserFriend> Users = new List<UserFriend>();
 		private const string CellIdentifier = nameof(UsersSearchViewCell);
 		public event RowSelectedHandler RowSelectedEvent;
 

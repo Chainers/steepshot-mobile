@@ -33,25 +33,6 @@ namespace Steepshot.Core.HttpClient
             _jsonConverter = new JsonNetConverter();
         }
 
-        protected List<RequestParameter> CreateSessionParameter(string sessionId)
-        {
-            return new List<RequestParameter>();
-        }
-
-        protected List<RequestParameter> CreateOffsetLimitParameters(string offset, int limit, bool isGet)
-        {
-            var parameters = new List<RequestParameter>();
-            if (!string.IsNullOrWhiteSpace(offset))
-            {
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
-            }
-            if (limit > 0)
-            {
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
-            }
-            return parameters;
-        }
-
         protected OperationResult CheckErrors(IRestResponse response)
         {
             var result = new OperationResult();
@@ -105,7 +86,6 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-
         #region Get requests
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationTokenSource cts)
@@ -114,37 +94,33 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
                 AddCensorParameters(parameters, request);
 
                 var endpoint = $"user/{request.Username}/posts";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredPostsRequests request, CancellationTokenSource cts)
+        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationTokenSource cts)
         {
             OperationResult errorResult = CheckInternetConnection();
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
                 AddCensorParameters(parameters, request);
 
                 var endpoint = "recent";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserPostResponse>(response?.Content, errorResult);
@@ -156,16 +132,14 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
                 AddCensorParameters(parameters, request);
 
                 var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserPostResponse>(response?.Content, errorResult);
@@ -177,16 +151,14 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
                 AddCensorParameters(parameters, request);
 
                 var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserPostResponse>(response?.Content, errorResult);
@@ -198,12 +170,12 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
                 var endpoint = $"post/{request.Url}/voters";
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<SearchResponse<VotersResult>>(response?.Content, errorResult);
@@ -215,15 +187,13 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
 
                 var endpoint = $"post/{request.Url}/comments";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<GetCommentResponse>(response?.Content, errorResult);
@@ -235,14 +205,12 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddLoginParameter(parameters, request.Login);
 
                 var endpoint = $"user/{request.Username}/info";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
 
@@ -255,15 +223,13 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
                 AddLoginParameter(parameters, request.Login);
 
                 var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserFriendsResponse>(response?.Content, errorResult);
@@ -275,7 +241,7 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                response = await Gateway.Get("tos", new List<RequestParameter>(), cts);
+                response = await Gateway.Get(GatewayVersion.V1, "tos", new Dictionary<string, object>(), cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<TermOfServiceResponse>(response?.Content, errorResult);
@@ -287,33 +253,33 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddLoginParameter(parameters, request.Login);
+                AddCensorParameters(parameters, request);
 
                 var endpoint = $"post/{request.Url}/info";
-                if (!string.IsNullOrWhiteSpace(request.Login))
-                    endpoint = request.Login + "/" + endpoint;
 
-                response = await Gateway.Get(endpoint, parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<Post>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
+        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts)
         {
             OperationResult errorResult = CheckInternetConnection();
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
+                AddLoginParameter(parameters, request.Login);
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+                parameters.Add("query", request.Query);
 
-                response = await Gateway.Get("user/search", parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1P1, "user/search", parameters, cts);
                 errorResult = CheckErrors(response);
             }
-            return CreateResult<SearchResponse<UserSearchResult>>(response?.Content, errorResult);
+            return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationTokenSource cts)
@@ -322,7 +288,7 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                response = await Gateway.Get($"user/{request.Username}/exists", new List<RequestParameter>(), cts);
+                response = await Gateway.Get(GatewayVersion.V1, $"user/{request.Username}/exists", new Dictionary<string, object>(), cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UserExistsResponse>(response?.Content, errorResult);
@@ -334,10 +300,10 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
 
-                response = await Gateway.Get("categories/top", parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1, "categories/top", parameters, cts);
                 errorResult = CheckErrors(response);
             }
             var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
@@ -365,11 +331,11 @@ namespace Steepshot.Core.HttpClient
                 }
                 request.Query = query;
 
-                var parameters = new List<RequestParameter>();
+                var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-                parameters.Add(new RequestParameter { Key = "query", Value = request.Query, Type = ParameterType.QueryString });
+                parameters.Add("query", request.Query);
 
-                response = await Gateway.Get("categories/search", parameters, cts);
+                response = await Gateway.Get(GatewayVersion.V1, "categories/search", parameters, cts);
                 errorResult = CheckErrors(response);
             }
             var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
@@ -385,37 +351,37 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async void Trace(string endpoint, string login, List<string> resultErrors, string target)
+        protected async void Trace(string endpoint, string login, List<string> resultErrors, string target)
         {
-            var parameters = new List<RequestParameter>();
+            var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, login);
-            parameters.Add(new RequestParameter { Key = "errors", Value = resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors), Type = ParameterType.RequestBody });
+            parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
             if (!string.IsNullOrEmpty(target))
-                parameters.Add(new RequestParameter { Key = "target", Value = target, Type = ParameterType.RequestBody });
-            var t = await Gateway.Post($@"log/{endpoint}", parameters, null);
+                parameters.Add("target", target);
+            var t = await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, null);
         }
 
         #endregion Get requests
 
-        private void AddOffsetLimitParameters(List<RequestParameter> parameters, string offset, int limit, bool isGet = true)
+        private void AddOffsetLimitParameters(Dictionary<string, object> parameters, string offset, int limit)
         {
             if (!string.IsNullOrWhiteSpace(offset))
-                parameters.Add(new RequestParameter { Key = "offset", Value = offset, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+                parameters.Add("offset", offset);
 
             if (limit > 0)
-                parameters.Add(new RequestParameter { Key = "limit", Value = limit, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+                parameters.Add("limit", limit);
         }
 
-        private void AddLoginParameter(List<RequestParameter> parameters, string login, bool isGet = true)
+        private void AddLoginParameter(Dictionary<string, object> parameters, string login)
         {
             if (!string.IsNullOrEmpty(login))
-                parameters.Add(new RequestParameter { Key = "username", Value = login, Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+                parameters.Add("username", login);
         }
 
-        private void AddCensorParameters(List<RequestParameter> parameters, CensoredPostsRequests request, bool isGet = true)
+        private void AddCensorParameters(Dictionary<string, object> parameters, CensoredNamedRequestWithOffsetLimitFields request)
         {
-            parameters.Add(new RequestParameter { Key = "show_nsfw", Value = Convert.ToInt32(request.ShowNsfw), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
-            parameters.Add(new RequestParameter { Key = "show_low_rated", Value = Convert.ToInt32(request.ShowLowRated), Type = isGet ? ParameterType.QueryString : ParameterType.RequestBody });
+            parameters.Add("show_nsfw", Convert.ToInt32(request.ShowNsfw));
+            parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
         }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationTokenSource cts)
@@ -424,10 +390,7 @@ namespace Steepshot.Core.HttpClient
             IRestResponse response = null;
             if (errorResult == null)
             {
-                var parameters = CreateSessionParameter(request.SessionId);
-                if (!request.IsNeedRewards)
-                    parameters.Add(new RequestParameter { Key = "set_beneficiary", Value = "steepshot_no_rewards", Type = ParameterType.RequestBody });
-                response = await Gateway.Upload("post/prepare", request.Title, request.Photo, parameters, request.Tags, request.Login, trx, cts);
+                response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, trx, cts);
                 errorResult = CheckErrors(response);
             }
             return CreateResult<UploadResponse>(response?.Content, errorResult);
@@ -438,7 +401,7 @@ namespace Steepshot.Core.HttpClient
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
             {
-                return new OperationResult() { Errors = new List<string>() { Localization.Errors.InternetUnavailable } };
+                return new OperationResult { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
             }
             return null;
         }

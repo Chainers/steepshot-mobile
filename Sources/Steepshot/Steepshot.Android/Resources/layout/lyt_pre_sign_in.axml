@@ -103,4 +103,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:visibility="gone" />
+    <Button
+        android:id="@+id/reg_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create a new account"
+        android:textColor="@color/light_blue"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/dp_button_text"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

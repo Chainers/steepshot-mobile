@@ -30,7 +30,7 @@ namespace Steepshot.Core.HttpClient
         ///     2) GET https://steepshot.org/api/v1/recent?offset=%2Fhealth%2F%40heiditravels%2Fwhat-are-you-putting-on-your-face&amp;limit=3 HTTP/1.1
         ///            Cookie: sessionid=h0loy20ff472dzlmwpafyd6aix07v3q6
         /// </summary>
-        Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredPostsRequests request, CancellationTokenSource cts = null);
+        Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:
@@ -160,7 +160,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET GET https://steepshot.org/api/v1/user/search?offset=gatilaar&amp;limit=5&amp;query=aar HTTP/1.1
         /// </summary>
-        Task<OperationResult<SearchResponse<UserSearchResult>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
+        Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationTokenSource cts = null);
 
         /// <summary>
         ///     Examples:

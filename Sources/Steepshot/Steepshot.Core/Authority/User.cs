@@ -56,6 +56,17 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public string DefaultPhotoDirectory
+        {
+            get => UserInfo.DefaultPhotoDirectory;
+            set
+            {
+                UserInfo.DefaultPhotoDirectory = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public List<string> PostBlacklist => UserInfo.PostBlacklist;
 
         public string Login => UserInfo.Login;
@@ -88,7 +99,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain)
+        public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain, bool isNeedRewards)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {
@@ -102,7 +113,8 @@ namespace Steepshot.Core.Authority
                 Login = login,
                 Chain = chain,
                 PostingKey = pass,
-                SessionId = sessionId
+                SessionId = sessionId,
+                IsNeedRewards = isNeedRewards
             };
 
             _data.Insert(userInfo);

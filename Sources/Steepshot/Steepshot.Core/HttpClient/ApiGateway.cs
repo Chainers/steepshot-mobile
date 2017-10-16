@@ -4,26 +4,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
 using RestSharp.Portable.HttpClient;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.HttpClient
 {
-    public class RequestParameter
-    {
-        public string Key { get; set; }
-        public object Value { get; set; }
-        public ParameterType Type { get; set; }
-    }
-
     public interface IApiGateway
     {
-        Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts);
-        Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters, IEnumerable<string> tags, string username = null, string trx = null, CancellationTokenSource cts = null);
+        Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Post(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts);
+        Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx = null, CancellationTokenSource cts = null);
     }
 
     public class ApiGateway : IApiGateway
     {
+        private readonly JsonNetConverter _serializer = new JsonNetConverter();
         private readonly RestClient _restClient;
 
         public ApiGateway(string url)
@@ -36,35 +31,52 @@ namespace Steepshot.Core.HttpClient
             _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
-        public Task<IRestResponse> Get(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
+            var resource = GetResource(version, endpoint);
+            var request = new RestRequest(resource) { Serializer = _serializer };
+            foreach (var parameter in parameters)
+                request.AddParameter(parameter.Key, parameter.Value);
+
             request.Method = Method.GET;
             return Execute(request, cts);
         }
 
-        public Task<IRestResponse> Post(string endpoint, IEnumerable<RequestParameter> parameters, CancellationTokenSource cts)
+        public Task<IRestResponse> Post(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
-            request.Method = Method.POST;
+            var resource = GetResource(version, endpoint);
+            var request = new RestRequest(resource)
+            {
+                Serializer = _serializer,
+                Method = Method.POST
+            };
+            request.AddParameter(_serializer.ContentType, parameters, ParameterType.RequestBody);
             return Execute(request, cts);
         }
-
-        public Task<IRestResponse> Upload(string endpoint, string filename, byte[] file, IEnumerable<RequestParameter> parameters,
-                                          IEnumerable<string> tags, string username, string trx, CancellationTokenSource cts)
+        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx, CancellationTokenSource cts)
         {
-            var request = CreateRequest(endpoint, parameters);
-            request.Method = Method.POST;
-            request.AddFile("photo", file, filename);
-            request.ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters;
-            request.AddParameter("title", filename);
-            if (!string.IsNullOrWhiteSpace(username)) request.AddParameter("username", username);
-            if (!string.IsNullOrWhiteSpace(trx)) request.AddParameter("trx", trx);
-            foreach (var tag in tags)
+            var resource = GetResource(version, endpoint);
+            var restRequest = new RestRequest(resource)
             {
-                request.AddParameter("tags", tag);
-            }
-            return Execute(request, cts);
+                Serializer = _serializer,
+                Method = Method.POST,
+                ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters
+            };
+
+            restRequest.AddFile("photo", request.Photo, request.Title);
+            restRequest.AddParameter("title", request.Title);
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                restRequest.AddParameter("description", request.Description);
+            if (!string.IsNullOrWhiteSpace(request.Login))
+                restRequest.AddParameter("username", request.Login);
+            if (!string.IsNullOrWhiteSpace(trx))
+                restRequest.AddParameter("trx", trx);
+            if (!request.IsNeedRewards)
+                restRequest.AddParameter("set_beneficiary", "steepshot_no_rewards");
+            foreach (var tag in request.Tags)
+                restRequest.AddParameter("tags", tag);
+
+            return Execute(restRequest, cts);
         }
 
         private Task<IRestResponse> Execute(IRestRequest request, CancellationTokenSource cts)
@@ -72,15 +84,16 @@ namespace Steepshot.Core.HttpClient
             return cts != null ? _restClient.Execute(request, cts.Token) : _restClient.Execute(request);
         }
 
-        private IRestRequest CreateRequest(string endpoint, IEnumerable<RequestParameter> parameters)
+        private string GetResource(GatewayVersion version, string endpoint)
         {
-            var restRequest = new RestRequest(endpoint) { Serializer = new JsonNetConverter() };
-            foreach (var parameter in parameters)
+            switch (version)
             {
-                restRequest.AddParameter(parameter.Key, parameter.Value, parameter.Type);
+                case GatewayVersion.V1:
+                    return $@"v1\{endpoint}";
+                case GatewayVersion.V1P1:
+                    return $@"v1_1\{endpoint}";
             }
-
-            return restRequest;
+            return string.Empty;
         }
     }
 }

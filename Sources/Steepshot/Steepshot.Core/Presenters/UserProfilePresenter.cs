@@ -12,11 +12,12 @@ namespace Steepshot.Core.Presenters
     public class UserProfilePresenter : BaseFeedPresenter
     {
         private readonly string _username;
-        private bool _hasItems = true;
-        private string _offsetUrl = string.Empty;
-        private const int PostsCount = 40;
         public event Action PostsLoaded;
         public event Action PostsCleared;
+        private bool IsLastReaded = false;
+        private string OffsetUrl = string.Empty;
+        private const int ItemsLimit = 20;
+        protected const int ServerMaxCount = 20;
 
         public UserProfilePresenter(string username)
         {
@@ -26,9 +27,9 @@ namespace Steepshot.Core.Presenters
         public void ClearPosts()
         {
             Posts.Clear();
-            _hasItems = true;
-            _offsetUrl = string.Empty;
             PostsCleared?.Invoke();
+            IsLastReaded = false;
+            OffsetUrl = string.Empty;
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserInfo(string user, bool requireUpdate = false)
@@ -47,35 +48,37 @@ namespace Steepshot.Core.Presenters
             {
                 if (needRefresh)
                 {
-                    _offsetUrl = string.Empty;
-                    _hasItems = true;
+                    OffsetUrl = string.Empty;
+                    IsLastReaded = false;
                     Posts?.Clear();
                 }
 
-                if (!_hasItems)
+                if (IsLastReaded)
                     return errors;
 
                 var req = new UserPostsRequest(_username)
                 {
                     Login = User.Login,
-                    Offset = _offsetUrl,
-                    Limit = PostsCount,
+                    Offset = OffsetUrl,
+                    Limit = ItemsLimit,
                     ShowNsfw = User.IsNsfw,
                     ShowLowRated = User.IsLowRated
                 };
                 var response = await Api.GetUserPosts(req);
                 errors = response?.Errors;
-                if (response.Success && response.Result?.Results != null && response.Result?.Results.Count != 0)
-                {
-                    var lastItem = response.Result.Results.Last();
-                    if (lastItem.Url != _offsetUrl)
-                        response.Result.Results.Remove(lastItem);
-                    else
-                        _hasItems = false;
 
-                    _offsetUrl = lastItem.Url;
-                    Posts.AddRange(response.Result.Results);
+                if (response.Success)
+                {
+                    var voters = response.Result.Results;
+                    if (voters.Count > 0)
+                    {
+                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+                        OffsetUrl = voters.Last().Url;
+                    }
+
                     PostsLoaded?.Invoke();
+                    if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                        IsLastReaded = true;
                 }
             }
             catch (Exception ex)

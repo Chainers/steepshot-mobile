@@ -27,6 +27,19 @@
             android:src="@drawable/ic_back"
             android:scaleType="center"
             android:background="@android:color/transparent" />
+        <Button
+            android:id="@+id/toggle_description"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/circle_border"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:textSize="25sp"
+            android:text="+"
+            android:paddingBottom="5px"
+            android:layout_marginRight="5dp" />
     </RelativeLayout>
     <ScrollView
         android:id="@+id/description_scroll"
@@ -52,7 +65,7 @@
                 android:layout_marginLeft="5dp"
                 android:textAllCaps="true"
                 android:textColor="@color/light_gray"
-                android:text="@string/add_description" />
+                android:text="Add title" />
             <EditText
                 android:id="@+id/d_edit"
                 android:layout_width="match_parent"
@@ -62,12 +75,37 @@
                 android:background="@android:color/transparent"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:padding="10dp" />
+                android:padding="10dp"
+                android:maxLength="255" />
+            <TextView
+                android:id="@+id/description_title"
+                android:layout_below="@+id/d_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:padding="5dp"
+                android:textSize="10sp"
+                android:layout_marginLeft="5dp"
+                android:textAllCaps="true"
+                android:textColor="@color/light_gray"
+                android:text="@string/add_description" />
+            <EditText
+                android:id="@+id/description_edit"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:gravity="start"
+                android:visibility="gone"
+                android:layout_below="@+id/description_title"
+                android:background="@android:color/transparent"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:padding="10dp"
+                android:maxLength="255" />
             <Steepshot.Utils.TagLayout
                 android:id="@+id/tag_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/d_edit" />
+                android:layout_below="@+id/description_edit" />
         </RelativeLayout>
     </ScrollView>
     <Button

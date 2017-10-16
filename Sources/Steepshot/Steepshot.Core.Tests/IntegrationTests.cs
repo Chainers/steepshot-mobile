@@ -73,7 +73,8 @@ namespace Steepshot.Core.Tests
             // Arrange
             UserInfo user = Users[name];
             var request = new UserPostsRequest(user.Login);
-
+            request.ShowNsfw = true;
+            request.ShowLowRated = true;
             // Act
             var response = Api[name].GetUserPosts(request).Result;
 
@@ -121,7 +122,7 @@ namespace Steepshot.Core.Tests
         [Test, Sequential]
         public void UserPosts_Offset_Limit(
         [Values("Steem", "Golos")] string name,
-        [Values("/cat1/@joseph.kalu/cat636203389144533548", "/cat1/@joseph.kalu/cat636281384922864910")] string offset)
+        [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string offset)
         {
             // Arrange
             UserInfo user = Users[name];
@@ -129,6 +130,7 @@ namespace Steepshot.Core.Tests
             request.Offset = offset;
             request.Limit = 3;
             request.ShowLowRated = true;
+            request.ShowNsfw = true;
 
             // Act
             var response = Api[name].GetUserPosts(request).Result;
@@ -149,7 +151,8 @@ namespace Steepshot.Core.Tests
             // Arrange
             UserInfo user = Users[name];
             var request = new UserPostsRequest(user.Login) { Login = user.Login };
-
+            request.ShowNsfw = true;
+            request.ShowLowRated = true;
             // Act
             var response = Api[name].GetUserPosts(request).Result;
 
@@ -178,7 +181,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new CensoredPostsRequests
+            var request = new CensoredNamedRequestWithOffsetLimitFields
             {
                 Login = user.Login
             };
@@ -198,7 +201,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             UserInfo user = Users[name];
-            var request = new CensoredPostsRequests
+            var request = new CensoredNamedRequestWithOffsetLimitFields
             {
                 Login = user.Login
             };
@@ -423,12 +426,13 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Posts_By_Category_With_SessionId([Values("Steem", "Golos")] string name, [Values("food", "ru--golos")] string category)
+        public void Posts_By_Category_With_SessionId([Values("Steem", "Golos")] string name, [Values("steepshot", "steepshot")] string category)
         {
             // Arrange
             UserInfo user = Users[name];
             var request = new PostsByCategoryRequest(PostType.Top, category) { Login = user.Login };
-
+            request.ShowNsfw = true;
+            request.ShowLowRated = true;
             // Act
             var response = Api[name].GetPostsByCategory(request).Result;
 
@@ -443,6 +447,8 @@ namespace Steepshot.Core.Tests
             // Load last post
             UserInfo user = Users[name];
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowLowRated = true;
+            userPostsRequest.ShowNsfw = true;
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
@@ -456,7 +462,8 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
+                        || response2.Errors.Contains("Cannot vote again on a comment after payout.")
                         || response2.Errors.Contains("Duplicate transaction check failed")
                         || response2.Errors.Contains("Vote weight cannot be 0.")
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
@@ -468,6 +475,8 @@ namespace Steepshot.Core.Tests
             // Load last post
             UserInfo user = Users[name];
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
@@ -480,8 +489,8 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
                         || response2.Errors.Contains("Duplicate transaction check failed")
                         || response2.Errors.Contains("Vote weight cannot be 0.")
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
@@ -549,6 +558,8 @@ namespace Steepshot.Core.Tests
             // Load last post
             UserInfo user = Users[name];
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
@@ -560,8 +571,8 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
                         || response2.Errors.Contains("Duplicate transaction check failed")
                         || response2.Errors.Contains("Vote weight cannot be 0.")
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
@@ -573,6 +584,8 @@ namespace Steepshot.Core.Tests
             // Load last post
             UserInfo user = Users[name];
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowNsfw = true;
+            userPostsRequest.ShowLowRated = true;
             var lastPost = Api[name].GetUserPosts(userPostsRequest).Result.Result.Results.First();
 
             // Arrange
@@ -585,8 +598,8 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds")
+            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
+                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
                         || response2.Errors.Contains("Duplicate transaction check failed")
                         || response2.Errors.Contains("Vote weight cannot be 0.")
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
@@ -751,6 +764,8 @@ namespace Steepshot.Core.Tests
             // Arrange
             UserInfo user = Users[name];
             var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowLowRated = true;
+            userPostsRequest.ShowNsfw = true;
             var userPostsResponse = Api[name].GetUserPosts(userPostsRequest).Result;
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
@@ -1133,11 +1148,12 @@ namespace Steepshot.Core.Tests
 
         [Test, Sequential]
         public void GetPostInfo([Values("Steem", "Golos")] string name,
-            [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
+            [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string url)
         {
             // Arrange
             var request = new NamedInfoRequest(url);
-
+            request.ShowNsfw = true;
+            request.ShowLowRated = true;
             // Act
             var response = Api[name].GetPostInfo(request).Result;
 
@@ -1170,7 +1186,8 @@ namespace Steepshot.Core.Tests
             // Arrange
             UserInfo user = Users[name];
             var request = new NamedInfoRequest(url) { Login = user.Login };
-
+            request.ShowNsfw = true;
+            request.ShowLowRated = true;
             // Act
             var response = Api[name].GetPostInfo(request).Result;
 
@@ -1254,7 +1271,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Count > 0);
             Assert.That(response.Result.TotalCount >= 0);
             Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Username, Is.Not.Empty);
+            Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
         [Test, Sequential]
@@ -1321,7 +1338,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
             Assert.That(response.Result.TotalCount >= limit);
             Assert.That(response.Result.Results, Is.Not.Empty);
-            Assert.That(response.Result.Results.First().Username, Is.EqualTo("abit"));
+            Assert.That(response.Result.Results.First().Author, Is.EqualTo("abit"));
         }
 
         [Test, Sequential]

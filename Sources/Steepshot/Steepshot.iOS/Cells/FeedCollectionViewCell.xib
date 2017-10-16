@@ -67,7 +67,7 @@
                                 <state key="highlighted" image="heart.png"/>
                             </button>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1HN-g5-LJ3">
-                                <rect key="frame" x="180" y="390" width="130" height="0.0"/>
+                                <rect key="frame" x="179.66666666666663" y="390" width="130.33333333333337" height="0.0"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -117,11 +117,12 @@
                             <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="CZd-21-mbX">
                                 <rect key="frame" x="0.0" y="45" width="320" height="320"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" secondItem="CZd-21-mbX" secondAttribute="height" multiplier="1:1" id="Syj-AE-3eW"/>
+                                    <constraint firstAttribute="height" constant="320" id="BLU-3d-Wzm"/>
+                                    <constraint firstAttribute="width" constant="320" id="sgj-oK-dY7"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qOn-sQ-E0v">
-                                <rect key="frame" x="49" y="370" width="131" height="40"/>
+                                <rect key="frame" x="49" y="370" width="130.66666666666666" height="40"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -184,6 +185,8 @@
                 <outlet property="contentView" destination="FaT-0u-dfJ" id="EHy-8I-Yjw"/>
                 <outlet property="contentViewWidth" destination="eHh-rT-52k" id="YUs-hv-fcQ"/>
                 <outlet property="flagButton" destination="uOb-p7-mhn" id="weF-wr-5LP"/>
+                <outlet property="imageHeight" destination="BLU-3d-Wzm" id="Hbf-5j-ivv"/>
+                <outlet property="imageWidth" destination="sgj-oK-dY7" id="lew-DZ-5oM"/>
                 <outlet property="likeButton" destination="eca-fi-pKp" id="TRz-gW-Pl8"/>
                 <outlet property="netVotes" destination="qOn-sQ-E0v" id="s33-Uw-oGB"/>
                 <outlet property="postTimeStamp" destination="CkO-zy-E75" id="m0o-X3-epb"/>

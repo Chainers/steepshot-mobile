@@ -63,7 +63,12 @@ namespace Steepshot.Core.HttpClient
                     };
                 }
 
-                var weigth = (short)(request.Type == VoteType.Up ? 10000 : 0);
+                short weigth = 0;
+                if (request.Type == VoteType.Up)
+                    weigth = 10000;
+                if (request.Type == VoteType.Flag)
+                    weigth = -10000;
+
                 var op = new VoteOperation(request.Login, author, permlink, weigth);
                 var resp = OperationManager.BroadcastOperations(keys, op);
 
@@ -105,7 +110,6 @@ namespace Steepshot.Core.HttpClient
                 var op = request.Type == FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, Ditch.Operations.Enums.FollowType.blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
-
                 var resp = OperationManager.BroadcastOperations(keys, op);
 
                 var result = new OperationResult<FollowResponse>();
@@ -211,11 +215,17 @@ namespace Steepshot.Core.HttpClient
                     var upResp = uploadResponse.Result;
                     var meta = upResp.Meta.ToString();
                     if (!string.IsNullOrWhiteSpace(meta))
-                    {
                         meta = meta.Replace(Environment.NewLine, string.Empty);
-                    }
-                    var post = new PostOperation("steepshot", request.Login, request.Title, upResp.Payload.Body, meta);
-                    var resp = OperationManager.BroadcastOperations(keys, post);
+
+                    var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
+                    var post = new PostOperation(category, request.Login, request.Title, upResp.Payload.Body, meta);
+                    var ops = upResp.Beneficiaries != null && upResp.Beneficiaries.Any()
+                        ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _chainInfo.SbdSymbol, upResp.Beneficiaries) }
+                        : new BaseOperation[] { post };
+
+                    var resp = OperationManager.BroadcastOperations(keys, ops);
+
+
                     if (!resp.IsError)
                     {
                         upResp.Payload.Permlink = post.Permlink;
@@ -246,6 +256,31 @@ namespace Steepshot.Core.HttpClient
         }
 
         #endregion Post requests
+
+        #region Get
+
+        public async Task<OperationResult<Discussion>> GetDiscussion(string author, string permlink)
+        {
+            var errors = CheckInternetConnection();
+            if (errors != null)
+                return new OperationResult<Discussion> { Errors = errors.Errors };
+
+            return await Task.Run(() =>
+            {
+                var resp = OperationManager.GetContent(author, permlink);
+
+                var result = new OperationResult<Discussion>();
+
+                if (!resp.IsError)
+                    result.Result = resp.Result;
+                else
+                    OnError(resp, result);
+
+                return result;
+            });
+        }
+
+        #endregion
 
         private bool TryCastUrlToAuthorAndPermlink(string url, out string author, out string permlink)
         {
