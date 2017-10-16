@@ -12,11 +12,10 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly JsonNetConverter _serializer = new JsonNetConverter();
         private readonly RestClient _restClient;
-        public string GatewayUrl { get; set; }
 
-        public ApiGateway()
+        public ApiGateway(string url)
         {
-            _restClient = new RestClient { IgnoreResponseStatusCode = true };
+            _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
         public Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken ct)
@@ -72,9 +71,9 @@ namespace Steepshot.Core.HttpClient
             switch (version)
             {
                 case GatewayVersion.V1:
-                    return $@"{GatewayUrl}\v1\{endpoint}";
+                    return $@"/v1/{endpoint}";
                 case GatewayVersion.V1P1:
-                    return $@"{GatewayUrl}\v1_1\{endpoint}";
+                    return $@"/v1_1/{endpoint}";
             }
             return string.Empty;
         }

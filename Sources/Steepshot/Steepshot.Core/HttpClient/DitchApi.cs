@@ -22,13 +22,13 @@ namespace Steepshot.Core.HttpClient
         private readonly JsonNetConverter _jsonConverter;
         private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         private readonly OperationManager _operationManager;
-        private CancellationTokenSource CtsMain;
+        private CancellationTokenSource _ctsMain;
 
         public DitchApi()
         {
             _jsonConverter = new JsonNetConverter();
             _operationManager = new OperationManager();
-            CtsMain = new CancellationTokenSource();
+            _ctsMain = new CancellationTokenSource();
         }
 
         public bool Connect(KnownChains chain, bool isDev)
@@ -46,14 +46,18 @@ namespace Steepshot.Core.HttpClient
                 cUrls = new List<string> { "wss://ws.golos.io" };
             }
 
-            if (Gateway.GatewayUrl == sUrl)
-                return true;
+            if (Gateway == null)
+            {
+                Gateway = new ApiGateway(sUrl);
+                var conectedTo1 = _operationManager.TryConnectTo(cUrls);
+                return !string.IsNullOrEmpty(conectedTo1);
+            }
 
             Locked = 1;
-            CtsMain.Cancel();
-            Gateway.GatewayUrl = sUrl;
+            _ctsMain.Cancel();
+            Gateway = new ApiGateway(sUrl);
             var conectedTo = _operationManager.TryConnectTo(cUrls);
-            CtsMain = new CancellationTokenSource();
+            _ctsMain = new CancellationTokenSource();
             Locked = 0;
             return !string.IsNullOrEmpty(conectedTo);
         }
@@ -72,7 +76,7 @@ namespace Steepshot.Core.HttpClient
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
                 return new OperationResult<VoteResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(() =>
             {
                 string author;
@@ -131,7 +135,7 @@ namespace Steepshot.Core.HttpClient
             if (keys == null)
                 return new OperationResult<FollowResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(() =>
             {
                 var op = request.Type == FollowType.Follow
@@ -164,7 +168,7 @@ namespace Steepshot.Core.HttpClient
             if (keys == null)
                 return new OperationResult<LoginResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(() =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
@@ -195,7 +199,7 @@ namespace Steepshot.Core.HttpClient
             if (keys == null)
                 return new OperationResult<CreateCommentResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(() =>
             {
                 string author;
@@ -238,7 +242,7 @@ namespace Steepshot.Core.HttpClient
             if (keys == null)
                 return new OperationResult<ImageUploadResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(async () =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
@@ -293,7 +297,7 @@ namespace Steepshot.Core.HttpClient
             if (errors != null)
                 return new OperationResult<Discussion> { Errors = errors.Errors };
 
-            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, _ctsMain.Token);
             return await Task.Run(() =>
             {
                 var resp = _operationManager.GetContent(author, permlink, token.Token);
