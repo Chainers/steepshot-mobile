@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.IO;
 using Autofac;
 using Foundation;
 using Steepshot.Core.Authority;
@@ -64,6 +65,30 @@ namespace Steepshot.iOS
             return true;
         }
 
+        public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
+        {
+            var tabController = Window.RootViewController as UINavigationController;
+            Task.Delay(500).ContinueWith(_ => InvokeOnMainThread(() =>
+            {
+                if (BasePresenter.User.IsAuthenticated)
+                {
+                    var urlCollection = url.ToString().Replace("steepshot://", string.Empty).Split('%');
+                    var nsFileManager = new NSFileManager();
+                    var imageData = nsFileManager.Contents(urlCollection[0]);
+                    var sharedPhoto = UIImage.LoadFromData(imageData);
+                    var descriptionViewController = new DescriptionViewController();
+                    descriptionViewController.ImageAsset = sharedPhoto;
+                    tabController.PushViewController(descriptionViewController, true);
+                }
+                else
+                {
+                    var preLoginViewController = new PreLoginViewController();
+                    tabController.PushViewController(preLoginViewController, true);
+                }
+            }));
+            return true;
+        }
+
         public override void OnResignActivation(UIApplication application)
         {
             /*
@@ -95,6 +120,7 @@ namespace Steepshot.iOS
 
         public override void OnActivated(UIApplication application)
         {
+            //SharePhoto();
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
             // If the application was previously in the background, optionally refresh the BasePresenter.User interface.
         }
