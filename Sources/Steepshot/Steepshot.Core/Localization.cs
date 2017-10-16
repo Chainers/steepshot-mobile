@@ -14,7 +14,7 @@
             public const string MissingSessionId = "SessionId field is missing.";
             public const string EmptyField = "This field may not be blank!";
             public const string Unknownerror = "Unknown error. Try again";
-            public const string EmptyDescription = "Description cannot be empty";
+            public const string EmptyDescription = "Title cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string PhotoCompressingError = "Photo compressing error";
             public const string PhotoUploadError = "Photo upload error: ";
