@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -39,6 +40,18 @@ namespace Steepshot.Core.Presenters
         {
             var reqv = new CreateCommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv);
+        }
+
+        public async Task<OperationResult<VoteResponse>> Flag(Post post)
+        {
+            if (!User.IsAuthenticated)
+                return new OperationResult<VoteResponse> { Errors = new List<string> { "Forbidden" } };
+
+            int diezid = post.Url.IndexOf('#');
+            string posturl = post.Url.Substring(diezid + 1);
+
+            var flagRequest = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            return await Api.Vote(flagRequest);
         }
     }
 }
