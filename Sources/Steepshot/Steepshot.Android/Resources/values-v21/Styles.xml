@@ -2,9 +2,9 @@
 <resources>
   <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:windowBackground">@drawable/splash</item>
-    <item name="colorPrimary">@color/blue</item>
-    <item name="colorPrimaryDark">@color/dark_blue</item>
-    <item name="colorAccent">@color/light_blue</item>
-    <item name="android:statusBarColor">@color/dark_blue</item>
+    <item name="colorPrimary">@color/white</item>
+    <item name="colorPrimaryDark">@color/white</item>
+    <item name="colorAccent">@color/white</item>
+    <item name="android:statusBarColor">@color/white</item>
   </style>
 </resources>
