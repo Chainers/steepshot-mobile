@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
-using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -18,6 +17,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -217,7 +217,7 @@ namespace Steepshot.Activity
 
                 if (string.IsNullOrEmpty(_title.Text))
                 {
-                    Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
+                    ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
                     return;
                 }
                 var arrayToUpload = await CompressPhoto(_path);
@@ -240,13 +240,17 @@ namespace Steepshot.Activity
                     else
                     {
                         if (!string.IsNullOrEmpty(resp.Errors[0]))
-                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
+                            ShowAlert(resp, ToastLength.Long);
                     }
                 }
                 else
                 {
-                    Toast.MakeText(this, Localization.Errors.PhotoCompressingError, ToastLength.Long).Show();
+                    ShowAlert(Localization.Errors.PhotoCompressingError, ToastLength.Long);
                 }
+            }
+            catch (ApplicationExceptionBase ex)
+            {
+                ShowAlert(ex.Message);
             }
             catch (Exception ex)
             {

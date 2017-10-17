@@ -120,7 +120,7 @@ namespace Steepshot.Activity
             {
                 if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
                 {
-                    Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
+                    ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
                     return;
                 }
 
@@ -143,7 +143,7 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    ShowAlert(response.Errors);
+                    ShowAlert(response);
                 }
             }
             catch (Exception ex)

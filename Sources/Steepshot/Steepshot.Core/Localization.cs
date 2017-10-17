@@ -12,9 +12,12 @@
             public const string ServeNotRespond = "The server does not respond to the request. Check your internet connection and try again.";
             public const string ServeUnexpectedError = "An unexpected error occurred. Check the Internet or try restarting the application.";
             public const string MissingSessionId = "SessionId field is missing.";
-            public const string EmptyField = "This field may not be blank!";
+            public const string EmptyCommentField = "Comment may not be blank!";
             public const string Unknownerror = "Unknown error. Try again";
-            public const string EmptyDescription = "Title cannot be empty";
+            public const string EmptyTitleField = "Title cannot be empty";
+            public const string EmptyPhotoField = "Photo cannot be empty";
+            public const string EmptyUrlField = "Url cannot be empty";
+            public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string PhotoCompressingError = "Photo compressing error";
             public const string PhotoUploadError = "Photo upload error: ";
@@ -36,6 +39,7 @@
             {
                 return $"The server did not accept the request! Reason ({code}) {msg}";
             }
+            
         }
 
         public class Messages

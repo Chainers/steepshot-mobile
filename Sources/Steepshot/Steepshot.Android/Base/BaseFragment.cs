@@ -29,11 +29,6 @@ namespace Steepshot.Base
             set;
         }
 
-        protected void ShowAlert(int messageid)
-        {
-            Show(GetString(messageid));
-        }
-
         protected void ShowAlert(string message)
         {
             Show(message);
@@ -55,13 +50,6 @@ namespace Steepshot.Base
             ShowAlert(response.Errors);
         }
 
-
-        protected void ShowAlert(int messageid, ToastLength length)
-        {
-            Toast.MakeText(Activity, GetString(messageid), length)
-                .Show();
-        }
-
         protected void ShowAlert(string message, ToastLength length)
         {
             Toast.MakeText(Activity, message, length)
@@ -74,7 +62,7 @@ namespace Steepshot.Base
                 return;
 
             Toast.MakeText(Activity, messages[0], length).Show();
-           // Toast.MakeText(Activity, string.Join(System.Environment.NewLine, messages), length).Show();
+            // Toast.MakeText(Activity, string.Join(System.Environment.NewLine, messages), length).Show();
         }
 
         protected void ShowAlert(OperationResult response, ToastLength length)

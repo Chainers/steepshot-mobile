@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -46,7 +47,7 @@ namespace Steepshot.Core.Presenters
             OffsetUrl = string.Empty;
         }
 
-        protected async Task<TResult> RunAsSingleTask<TResult>(Func<CancellationToken, Task<TResult>> func, bool cancelPrevTask = true)
+        protected async Task<List<string>> RunAsSingleTask(Func<CancellationToken, Task<List<string>>> func, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -55,7 +56,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return default(TResult);
+                        return null;
                 }
                 _singleTaskCancellationTokenSource = new CancellationTokenSource();
             }
@@ -67,6 +68,10 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
@@ -82,10 +87,10 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
-            return default(TResult);
+            return null;
         }
 
-        protected async Task<TResult> RunAsSingleTask<T1, TResult>(Func<CancellationToken, T1, Task<TResult>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<List<string>> RunAsSingleTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, T1 param1, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -94,7 +99,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return default(TResult);
+                        return null;
                 }
                 _singleTaskCancellationTokenSource = new CancellationTokenSource();
             }
@@ -106,6 +111,10 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
@@ -121,10 +130,10 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
-            return default(TResult);
+            return null;
         }
 
-        protected async Task<TResult> RunAsSingleTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<TResult>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
+        protected async Task<List<string>> RunAsSingleTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
         {
             lock (_sync)
             {
@@ -133,7 +142,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return default(TResult);
+                        return null;
                 }
                 _singleTaskCancellationTokenSource = new CancellationTokenSource();
             }
@@ -145,6 +154,10 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
@@ -160,7 +173,7 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
-            return default(TResult);
+            return null;
         }
 
         public void LoadCancel()

@@ -174,7 +174,7 @@ namespace Steepshot.Fragment
                 }
                 var errors = await _presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
                 if (errors != null && errors.Count > 0)
-                    Toast.MakeText(Activity, errors[0], ToastLength.Short).Show();
+                    ShowAlert(errors, ToastLength.Short);
                 else
                 {
                     if (_searchType == SearchType.Tags)

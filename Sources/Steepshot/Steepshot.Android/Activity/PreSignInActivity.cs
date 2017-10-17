@@ -8,8 +8,6 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 

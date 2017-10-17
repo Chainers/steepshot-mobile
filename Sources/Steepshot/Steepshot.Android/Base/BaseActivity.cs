@@ -32,12 +32,6 @@ namespace Steepshot.Base
             CurrentHostFragment.ReplaceFragment(frag, true);
         }
 
-
-        protected void ShowAlert(int messageid)
-        {
-            Show(GetString(messageid));
-        }
-
         protected void ShowAlert(string message)
         {
             Show(message);
@@ -57,13 +51,6 @@ namespace Steepshot.Base
             if (response == null)
                 return;
             ShowAlert(response.Errors);
-        }
-
-
-        protected void ShowAlert(int messageid, ToastLength length)
-        {
-            Toast.MakeText(this, GetString(messageid), length)
-                .Show();
         }
 
         protected void ShowAlert(string message, ToastLength length)
