@@ -61,5 +61,11 @@ namespace Steepshot.Utils
                 val = "file://" + val;
             return val;
         }
+
+        public static Android.Net.Uri ToUri(this string val)
+        {
+            var fPath = ToFilePath(val);
+            return Android.Net.Uri.Parse(fPath);
+        }
     }
 }

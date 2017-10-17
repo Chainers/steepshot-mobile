@@ -112,7 +112,7 @@ namespace Steepshot.Fragment
             if (resultCode == -1 && requestCode == galleryRequestCode)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra("FILEPATH", GetPathToImage(data.Data));
+                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
                 StartActivity(i);
             }
         }
@@ -331,7 +331,7 @@ namespace Steepshot.Fragment
                 }
 
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra("FILEPATH", _photoUri);
+                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, _photoUri);
                 i.PutExtra("SHOULD_COMPRESS", false);
 
                 Activity.RunOnUiThread(() =>
@@ -348,27 +348,6 @@ namespace Steepshot.Fragment
                     }
                 });
             });
-        }
-
-        private string GetPathToImage(Android.Net.Uri uri)
-        {
-            string doc_id = "";
-            using (var c1 = Activity.ContentResolver.Query(uri, null, null, null, null))
-            {
-                c1.MoveToFirst();
-                String document_id = c1.GetString(0);
-                doc_id = document_id.Substring(document_id.LastIndexOf(":") + 1);
-            }
-            string path = null;
-            string selection = MediaStore.Images.Media.InterfaceConsts.Id + " =? ";
-            using (var cursor = Activity.ManagedQuery(MediaStore.Images.Media.ExternalContentUri, null, selection, new string[] { doc_id }, null))
-            {
-                if (cursor == null) return path;
-                var columnIndex = cursor.GetColumnIndexOrThrow(MediaStore.Images.Media.InterfaceConsts.Data);
-                cursor.MoveToFirst();
-                path = cursor.GetString(columnIndex);
-            }
-            return path;
         }
 
         public void OnShutter()
@@ -431,8 +410,9 @@ namespace Steepshot.Fragment
                 var imageFile = new Java.IO.File(imageLocation);
                 if (imageFile.Exists())
                 {
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(imageFile.Path, 300, 300);
-                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageFile.Path);
+                    var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor;
+                    var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
+                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
                     _galleryIcon.SetImageBitmap(bitmap);
                 }
             }

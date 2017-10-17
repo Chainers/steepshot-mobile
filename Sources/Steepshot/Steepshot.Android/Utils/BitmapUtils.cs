@@ -1,16 +1,19 @@
 ﻿using Android.Graphics;
 using Android.Media;
+using Java.IO;
 
 namespace Steepshot.Utils
 {
     public static class BitmapUtils
     {
-        public static Bitmap RotateImageIfRequired(Bitmap img, string selectedImage)
+        public static Bitmap RotateImageIfRequired(Bitmap img, FileDescriptor fd, string url)
         {
-            var ei = new ExifInterface(selectedImage);
-            var orientation = ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
+            Orientation orientation;
+            if (!TryGetOrientation(fd, out orientation))
+                if (!TryGetOrientation(url, out orientation))
+                    return img;
 
-            switch ((Orientation)orientation)
+            switch (orientation)
             {
                 case Orientation.Rotate90:
                     return RotateImage(img, 90);
@@ -21,6 +24,38 @@ namespace Steepshot.Utils
                 default:
                     return img;
             }
+        }
+
+        private static bool TryGetOrientation(FileDescriptor fd, out Orientation rez)
+        {
+            try
+            {
+                var ei = new ExifInterface(fd);
+                rez = (Orientation)ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
+                return true;
+            }
+            catch
+            {
+                //nothing to do
+            }
+            rez = Orientation.Normal;
+            return false;
+        }
+
+        private static bool TryGetOrientation(string url, out Orientation rez)
+        {
+            try
+            {
+                var ei = new ExifInterface(url);
+                rez = (Orientation)ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
+                return true;
+            }
+            catch
+            {
+                //nothing to do
+            }
+            rez = Orientation.Normal;
+            return false;
         }
 
         public static Bitmap RotateImage(Bitmap img, int degree)
