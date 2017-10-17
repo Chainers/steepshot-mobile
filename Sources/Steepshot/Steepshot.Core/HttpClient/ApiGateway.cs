@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
@@ -14,15 +13,9 @@ namespace Steepshot.Core.HttpClient
         private readonly JsonNetConverter _serializer = new JsonNetConverter();
         private readonly RestClient _restClient;
 
-        public string GatewayUrl
+        public ApiGateway(string url)
         {
-            get => _restClient.BaseUrl?.ToString();
-            set => _restClient.BaseUrl = new Uri(value);
-        }
-
-        public ApiGateway()
-        {
-            _restClient = new RestClient { IgnoreResponseStatusCode = true };
+            _restClient = new RestClient(url) { IgnoreResponseStatusCode = true };
         }
 
         public Task<IRestResponse> Get(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken ct)

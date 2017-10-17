@@ -48,7 +48,8 @@ namespace Steepshot.Base
             if (messages == null || messages.Count == 0)
                 return;
 
-            Show(string.Join(System.Environment.NewLine, messages));
+            Show(messages[0]);
+            //Show(string.Join(System.Environment.NewLine, messages));
         }
 
         protected void ShowAlert(OperationResult response)
@@ -76,8 +77,8 @@ namespace Steepshot.Base
             if (messages == null || messages.Count == 0)
                 return;
 
-            Toast.MakeText(this, string.Join(System.Environment.NewLine, messages), length)
-                .Show();
+            Toast.MakeText(this, messages[0], length).Show();
+            //Toast.MakeText(this, string.Join(System.Environment.NewLine, messages), length).Show();
         }
 
         protected void ShowAlert(OperationResult response, ToastLength length)
