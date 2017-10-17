@@ -55,7 +55,7 @@ namespace Steepshot.Activity
                 {
                     intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                    intent.PutExtra("FILEPATH", uri.ToString());
+                    intent.PutExtra(PostDescriptionActivity.PhotoExtraPath, uri.ToString());
                 }
                 else
                 {

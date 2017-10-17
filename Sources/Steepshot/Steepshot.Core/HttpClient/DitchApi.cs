@@ -55,6 +55,7 @@ namespace Steepshot.Core.HttpClient
 
             Locked = 1;
             _ctsMain.Cancel();
+            //TODO:KOA:It would be nice to wait for tasks canleled before continuing..
             Gateway = new ApiGateway(sUrl);
             var conectedTo = _operationManager.TryConnectTo(cUrls);
             _ctsMain = new CancellationTokenSource();
