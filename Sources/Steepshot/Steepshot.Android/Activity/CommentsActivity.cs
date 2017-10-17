@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -26,8 +27,12 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.comments_list)] RecyclerView _comments;
         [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
         [InjectView(Resource.Id.text_input)] EditText _textInput;
-        [InjectView(Resource.Id.btn_post)] ImageButton _post;
-        [InjectView(Resource.Id.send_spinner)] ProgressBar _sendSpinner;
+        [InjectView(Resource.Id.btn_post)] LinearLayout _post;
+        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        //InjectView(Resource.Id.send_spinner)] ProgressBar _sendSpinner;
 #pragma warning restore 0649
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -39,11 +44,12 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
+
             if (BasePresenter.User.IsAuthenticated)
             {
                 if (_textInput.Text != string.Empty)
                 {
-                    _sendSpinner.Visibility = ViewStates.Visible;
+                    //_sendSpinner.Visibility = ViewStates.Visible;
                     _post.Visibility = ViewStates.Invisible;
                     var resp = await _presenter.TryCreateComment(_textInput.Text, _uid);
                     if (resp.Success)
@@ -63,8 +69,8 @@ namespace Steepshot.Activity
                     {
                         ShowAlert(Localization.Messages.RapidPosting, ToastLength.Short);
                     }
-                    if (_sendSpinner != null)
-                        _sendSpinner.Visibility = ViewStates.Invisible;
+                    //if (_sendSpinner != null)
+                    //_sendSpinner.Visibility = ViewStates.Invisible;
                     if (_post != null)
                         _post.Visibility = ViewStates.Visible;
                 }
@@ -82,10 +88,20 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_comments);
             Cheeseknife.Inject(this);
 
+            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
+            var semiboldFont = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
+
+            _textInput.Typeface = font;
+            _viewTitle.Typeface = semiboldFont;
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = "Post comments";
+
             _uid = Intent.GetStringExtra("uid");
-            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false) { StackFromEnd = true };
+            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
             _comments.SetLayoutManager(_manager);
-            _adapter = new CommentAdapter(this, _presenter);
+            _adapter = new CommentAdapter(this, _presenter, new[] { font, semiboldFont });
             if (_comments != null)
             {
                 _comments.SetAdapter(_adapter);
@@ -103,7 +119,7 @@ namespace Steepshot.Activity
                 _adapter?.NotifyDataSetChanged();
         }
 
-        void FeedAdapter_UserAction(int position)
+        private void FeedAdapter_UserAction(int position)
         {
             var user = _presenter[position];
             if (user == null)
@@ -113,7 +129,7 @@ namespace Steepshot.Activity
             StartActivity(intent);
         }
 
-        async void FeedAdapter_LikeAction(int position)
+        private async void FeedAdapter_LikeAction(int position)
         {
             try
             {
