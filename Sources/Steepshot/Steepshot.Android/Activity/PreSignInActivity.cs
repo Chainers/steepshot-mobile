@@ -102,7 +102,7 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.sign_in_btn)]
+        [InjectOnClick(Resource.Id.pre_sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var login = _username.Text?.ToLower().Trim();
