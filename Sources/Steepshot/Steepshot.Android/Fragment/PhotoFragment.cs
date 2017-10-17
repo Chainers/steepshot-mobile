@@ -45,7 +45,7 @@ namespace Steepshot.Fragment
             if (resultCode == -1 && requestCode == 0)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra("FILEPATH", _photoUri);
+                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, _photoUri);
                 StartActivity(i);
             }
         }
@@ -110,7 +110,7 @@ namespace Steepshot.Fragment
         private void StartPost(int obj)
         {
             var i = new Intent(Context, typeof(PostDescriptionActivity));
-            i.PutExtra("FILEPATH", _adapter.GetItem(obj));
+            i.PutExtra(PostDescriptionActivity.PhotoExtraPath, _adapter.GetItem(obj));
             Context.StartActivity(i);
         }
 
