@@ -1,12 +1,12 @@
 ﻿using System;
 using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
-
 
 namespace Steepshot.Adapter
 {
@@ -16,12 +16,13 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         public Action<int> LikeAction, UserAction;
         public override int ItemCount => _commentsPresenter.Count;
+        private Typeface[] _fonts;
 
-
-        public CommentAdapter(Context context, CommentsPresenter commentsPresenter)
+        public CommentAdapter(Context context, CommentsPresenter commentsPresenter, Typeface[] fonts)
         {
             _context = context;
             _commentsPresenter = commentsPresenter;
+            _fonts = fonts;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -35,9 +36,10 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).
-                    Inflate(Resource.Layout.lyt_comment_item, parent, false);
+            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
             var vh = new CommentViewHolder(itemView, LikeAction, UserAction);
+            vh.Author.Typeface = _fonts[1];
+            vh.Comment.Typeface = vh.Likes.Typeface = vh.Cost.Typeface = vh.Reply.Typeface = _fonts[0];
             return vh;
         }
 
@@ -48,8 +50,9 @@ namespace Steepshot.Adapter
             public TextView Comment { get; }
             public TextView Likes { get; }
             public TextView Cost { get; }
+            public TextView Reply { get; }
             public ImageButton Like { get; }
-            Post _post;
+            private Post _post;
             readonly Action<int> _likeAction;
 
             public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction) : base(itemView)
@@ -60,6 +63,7 @@ namespace Steepshot.Adapter
                 Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
                 Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
                 Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+                Reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
 
                 _likeAction = likeAction;
 
@@ -69,7 +73,7 @@ namespace Steepshot.Adapter
                 Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
             }
 
-            void Like_Click(object sender, EventArgs e)
+            private void Like_Click(object sender, EventArgs e)
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
@@ -78,7 +82,7 @@ namespace Steepshot.Adapter
                 _likeAction?.Invoke(AdapterPosition);
             }
 
-            void CheckLikeVisibility(int likes)
+            private void CheckLikeVisibility(int likes)
             {
                 Likes.Visibility = (likes > 0) ? ViewStates.Visible : ViewStates.Gone;
             }

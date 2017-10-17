@@ -1,40 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_main"
-    android:orientation="vertical"
     android:background="@android:color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
+    <android.support.design.widget.AppBarLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <TextView
-            android:text="Comments"
-            android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_back"
-            android:scaleType="center"
-            android:background="@android:color/transparent" />
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+        <include
+            layout="@layout/top_panel" />
+    </android.support.design.widget.AppBarLayout>
     <RelativeLayout
-        android:layout_below="@+id/toolbar"
-        android:layout_above="@+id/message"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_above="@+id/message">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/comments_list"
             android:layout_width="match_parent"
@@ -48,47 +29,52 @@
             android:layout_centerInParent="true" />
     </RelativeLayout>
     <RelativeLayout
-        android:layout_alignParentBottom="true"
         android:id="@+id/message"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#ECEFF1"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <EditText
-            android:id="@+id/text_input"
-            android:layout_width="match_parent"
-            android:layout_margin="10dp"
-            android:background="@android:color/white"
-            android:textColor="@android:color/black"
-            android:minHeight="40dp"
-            android:maxHeight="100dp"
-            android:textColorHint="#ECEFF1"
-            android:hint="Put your comment here"
-            android:padding="3dp"
-            android:layout_toStartOf="@+id/send_layout"
-            android:layout_height="wrap_content" />
-        <RelativeLayout
-            android:id="@+id/send_layout"
+        android:minHeight="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+        <LinearLayout
+            android:id="@+id/btn_post"
             android:layout_width="60dp"
-            android:layout_alignParentEnd="true"
-            android:layout_height="60dp">
-            <ImageButton
-                android:id="@+id/btn_post"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_send"
-                android:background="@android:color/transparent"
-                android:layout_centerVertical="true"
-                android:layout_width="60dp"
-                android:layout_height="60dp" />
-            <ProgressBar
-                android:id="@+id/send_spinner"
-                android:layout_width="20dp"
-                android:visibility="gone"
-                android:layout_height="20dp"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@color/color_primary"
-                android:layout_centerInParent="true" />
-        </RelativeLayout>
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:clickable="true">
+            <ImageView
+                android:id="@+id/btn_post_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center"
+                android:src="@drawable/send"
+                android:background="@drawable/white_rounded_border"
+                android:scaleType="center" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="60dp"
+            android:layout_toLeftOf="@id/btn_post">
+            <EditText
+                android:id="@+id/text_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginBottom="11dp"
+                android:background="@drawable/white_rounded_border"
+                android:textSize="14sp"
+                android:textColor="@color/rgb15_24_30"
+                android:textColorHint="@color/rgb151_155_158"
+                android:singleLine="false"
+                android:hint="Put your comment here..."
+                android:paddingLeft="25dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingRight="20dp" />
+        </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

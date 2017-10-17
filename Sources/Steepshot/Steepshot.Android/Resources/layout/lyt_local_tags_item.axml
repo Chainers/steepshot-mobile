@@ -25,12 +25,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="cryptocurrency"
+            android:gravity="center"
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30" />
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="11dp"
+            android:layout_height="11dp"
             android:layout_marginLeft="7dp"
-            android:src="@drawable/back_arrow" />
+            android:layout_marginTop="1dp"
+            android:layout_gravity="center"
+            android:src="@drawable/close_black" />
     </LinearLayout>
 </LinearLayout>
