@@ -27,7 +27,6 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetComments(request, ct);
-            Clear();
             if (response.Success)
             {
                 var results = response.Result.Results;
