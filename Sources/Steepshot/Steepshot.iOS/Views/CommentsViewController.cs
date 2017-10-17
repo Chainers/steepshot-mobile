@@ -76,7 +76,7 @@ namespace Steepshot.iOS.Views
         {
             progressBar.StartAnimating();
 
-            _presenter.ClearPosts();
+            _presenter.Clear();
             var errors = await _presenter.TryLoadNextComments(PostUrl);
             if (errors == null)
                 return;

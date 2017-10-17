@@ -63,6 +63,7 @@ namespace Steepshot.Activity
                     {
                         if (_textInput != null)
                         {
+                            _presenter.Clear();
                             var errors = await _presenter.TryLoadNextComments(_uid);
                             if (errors != null)
                             {
@@ -117,6 +118,7 @@ namespace Steepshot.Activity
                 _adapter.UserAction += FeedAdapter_UserAction;
             }
 
+            _presenter.Clear();
             var errors = await _presenter.TryLoadNextComments(_uid);
             if (errors == null)
                 return;
