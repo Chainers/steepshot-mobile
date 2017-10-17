@@ -160,6 +160,9 @@
     <AndroidResource Include="Resources\drawable-mdpi\close_black.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\close_black.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\send.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\send.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\send.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
