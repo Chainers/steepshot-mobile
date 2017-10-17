@@ -17,11 +17,13 @@ namespace Steepshot.iOS.Cells
         public static readonly UINib Nib;
         private bool _isButtonBinded;
         public event VoteEventHandler<VoteResponse> Voted;
+        public event VoteEventHandler<VoteResponse> Flaged;
         public event HeaderTappedHandler GoToProfile;
         private Post _currentPost;
         private IScheduledWork _scheduledWorkAvatar;
 
         public bool IsVotedSet => Voted != null;
+        public bool IsFlagedSet => Flaged != null;
         public bool IsGoToProfileSet => GoToProfile != null;
 
         static CommentTableViewCell()
@@ -53,6 +55,8 @@ namespace Steepshot.iOS.Cells
             costLabel.Hidden = !BasePresenter.User.IsNeedRewards;
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
+            flagButton.Selected = _currentPost.Flag;
+            flagButton.Enabled = true;
 
             if (!_isButtonBinded)
             {
@@ -68,6 +72,7 @@ namespace Steepshot.iOS.Cells
                 costLabel.AddGestureRecognizer(moneyTap);
 
                 likeButton.TouchDown += LikeTap;
+                flagButton.TouchDown += FlagTap;
                 _isButtonBinded = true;
             }
         }
@@ -81,6 +86,19 @@ namespace Steepshot.iOS.Cells
                 {
                     likeButton.Selected = post.IsSucces;
                     likeButton.Enabled = true;
+                }
+            });
+        }
+
+        private void FlagTap(object sender, EventArgs e)
+        {
+            flagButton.Enabled = false;
+            Flaged(!flagButton.Selected, _currentPost.Url, (postUrl, post) =>
+            {
+                if (postUrl == _currentPost.Url)
+                {
+                    flagButton.Selected = post.IsSucces;
+                    flagButton.Enabled = true;
                 }
             });
         }
