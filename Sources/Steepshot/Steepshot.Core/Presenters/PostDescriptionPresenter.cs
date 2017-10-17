@@ -15,7 +15,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request)
         {
-            return await TryRunTask(Upload, CancellationToken.None, request);
+            return await TryRunTask<UploadImageRequest, ImageUploadResponse>(Upload, CancellationToken.None, request);
         }
 
         private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request)

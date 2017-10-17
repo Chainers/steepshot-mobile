@@ -32,7 +32,7 @@ namespace Steepshot.Activity
             if (response.Success)
                 _termsOfService.Text = response.Result.Text;
             else
-                ShowAlert(response.Errors);
+                ShowAlert(response);
         }
 
         [InjectOnClick(Resource.Id.go_back)]

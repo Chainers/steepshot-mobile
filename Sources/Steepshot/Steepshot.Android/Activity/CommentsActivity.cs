@@ -67,7 +67,7 @@ namespace Steepshot.Activity
                     }
                     else
                     {
-                        ShowAlert(Localization.Messages.RapidPosting, ToastLength.Short);
+                        ShowAlert(resp, ToastLength.Short);
                     }
                     //if (_sendSpinner != null)
                     //_sendSpinner.Visibility = ViewStates.Invisible;

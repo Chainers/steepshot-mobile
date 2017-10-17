@@ -15,7 +15,6 @@ using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;

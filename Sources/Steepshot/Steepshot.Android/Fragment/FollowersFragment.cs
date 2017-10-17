@@ -12,7 +12,6 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -100,7 +99,7 @@ namespace Steepshot.Fragment
                     if (_bar != null)
                         _bar.Visibility = ViewStates.Gone;
                     if (errors != null && errors.Count > 0)
-                        Toast.MakeText(Context, errors[0], ToastLength.Long).Show();
+                        ShowAlert(errors, ToastLength.Long);
                     else
                         _followersAdapter?.NotifyDataSetChanged();
                 });
