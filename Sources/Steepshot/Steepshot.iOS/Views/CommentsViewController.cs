@@ -146,7 +146,7 @@ namespace Steepshot.iOS.Views
                     {
                         if (post.Vote)
                             if (post.NetVotes == 1)
-                                post.NetVotes = -1;
+                                post.NetVotes = 0;
                             else
                                 post.NetVotes--;
                         post.Vote = false;
