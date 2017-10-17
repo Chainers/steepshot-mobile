@@ -53,8 +53,9 @@ namespace Steepshot.Adapter
         {
             return Task.Run(() =>
             {
-                var bitmap = BitmapUtils.DecodeSampledBitmapFromResource(post, 512, 512);
-                return BitmapUtils.RotateImageIfRequired(bitmap, post);
+                var fileDescriptor = _context.ContentResolver.OpenFileDescriptor(post.ToUri(), "r").FileDescriptor;
+                var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 512, 512);
+                return BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, post);
             });
         }
 

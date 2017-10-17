@@ -57,9 +57,15 @@ namespace Steepshot.Utils
 
         public static string ToFilePath(this string val)
         {
-            if (!val.StartsWith("http") && !val.StartsWith("file://"))
+            if (!val.StartsWith("http") && !val.StartsWith("file://") && !val.StartsWith("content://"))
                 val = "file://" + val;
             return val;
+        }
+
+        public static Android.Net.Uri ToUri(this string val)
+        {
+            var fPath = ToFilePath(val);
+            return Android.Net.Uri.Parse(fPath);
         }
     }
 }

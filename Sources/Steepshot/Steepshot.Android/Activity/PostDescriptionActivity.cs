@@ -23,6 +23,7 @@ namespace Steepshot.Activity
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
     public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
+        public const string PhotoExtraPath = "PhotoExtraPath";
         public static int TagRequestCode = 1225;
         private string _path;
         private bool _shouldCompress;
@@ -76,17 +77,19 @@ namespace Steepshot.Activity
             parameters.Height = Resources.DisplayMetrics.WidthPixels;
             _photoFrame.LayoutParameters = parameters;
             _postButton.Enabled = true;
-            _path = Intent.GetStringExtra("FILEPATH");
+            _path = Intent.GetStringExtra(PhotoExtraPath);
             _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
+            var photoUri = Android.Net.Uri.Parse(_path);
 
             if (!_shouldCompress)
-                _photoFrame.SetImageURI(Android.Net.Uri.Parse(_path));
+                _photoFrame.SetImageURI(photoUri);
             else
             {
                 Task.Run(() =>
                 {
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromResource(_path, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, _path);
+                    var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
                     _photoFrame.SetImageBitmap(_btmp);
                 });
             }
@@ -212,7 +215,7 @@ namespace Steepshot.Activity
                       {
                           using (var stream = new MemoryStream())
                           {
-                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
+                              if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
                               {
                                   var outbytes = stream.ToArray();
                                   _btmp.Recycle();
