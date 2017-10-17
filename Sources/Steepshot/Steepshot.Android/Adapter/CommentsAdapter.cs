@@ -7,6 +7,7 @@ using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -51,6 +52,7 @@ namespace Steepshot.Adapter
             public TextView Likes { get; }
             public TextView Cost { get; }
             public TextView Reply { get; }
+            public TextView Time { get; }
             public ImageButton Like { get; }
             private Post _post;
             readonly Action<int> _likeAction;
@@ -64,6 +66,7 @@ namespace Steepshot.Adapter
                 Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
                 Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
                 Reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
+                Time = itemView.FindViewById<TextView>(Resource.Id.time);
 
                 _likeAction = likeAction;
 
@@ -77,7 +80,7 @@ namespace Steepshot.Adapter
             {
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
                 }
                 _likeAction?.Invoke(AdapterPosition);
             }
@@ -94,15 +97,16 @@ namespace Steepshot.Adapter
                 Comment.Text = post.Body;
 
                 if (!string.IsNullOrEmpty(post.Avatar))
-                    Picasso.With(context).Load(post.Avatar).Into(Avatar);
+                    Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(Avatar);
                 else
                     Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
-                Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
 
-                Likes.Text = post.NetVotes.ToString();
+                Likes.Text = $"{post.NetVotes} Like's";
                 Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
-                CheckLikeVisibility(post.NetVotes);
+                Time.Text = post.Created.ToPostTime();
+                //CheckLikeVisibility(post.NetVotes);
             }
         }
     }
