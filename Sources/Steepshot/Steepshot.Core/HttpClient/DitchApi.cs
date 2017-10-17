@@ -46,14 +46,18 @@ namespace Steepshot.Core.HttpClient
                 cUrls = new List<string> { "wss://ws.golos.io" };
             }
 
-            if (Gateway.GatewayUrl == sUrl)
-                return true;
+            if (Gateway == null)
+            {
+                Gateway = new ApiGateway(sUrl);
+                var conectedTo1 = _operationManager.TryConnectTo(cUrls);
+                return !string.IsNullOrEmpty(conectedTo1);
+            }
 
             Locked = 1;
             _ctsMain.Cancel();
-            Gateway.GatewayUrl = sUrl;
-            _ctsMain = new CancellationTokenSource();
+            Gateway = new ApiGateway(sUrl);
             var conectedTo = _operationManager.TryConnectTo(cUrls);
+            _ctsMain = new CancellationTokenSource();
             Locked = 0;
             return !string.IsNullOrEmpty(conectedTo);
         }
