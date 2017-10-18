@@ -1,11 +1,12 @@
 ﻿using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class VotersTableViewSource : BaseUiTableViewSource<VotersPresenter>
+    public class VotersTableViewSource : BaseUiTableViewSource<VotersResult>
     {
         private const string CellIdentifier = nameof(UsersSearchViewCell);
         public event RowSelectedHandler RowSelectedEvent;

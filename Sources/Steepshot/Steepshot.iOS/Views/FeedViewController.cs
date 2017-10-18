@@ -220,7 +220,9 @@ namespace Steepshot.iOS.Views
             List<string> errors;
             if (CurrentPostCategory == null)
             {
-                errors = await _presenter.TryLoadNextTopPosts(clearOld);
+                if (clearOld)
+                    _presenter.Clear();
+                errors = await _presenter.TryLoadNextTopPosts();
             }
             else
             {

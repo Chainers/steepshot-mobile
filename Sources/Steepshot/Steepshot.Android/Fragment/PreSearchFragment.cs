@@ -160,10 +160,10 @@ namespace Steepshot.Fragment
         {
             if (!IsInitialized)
             {
-                V = inflater.Inflate(Resource.Layout.lyt_presearch, null);
-                Cheeseknife.Inject(this, V);
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_presearch, null);
+                Cheeseknife.Inject(this, InflatedView);
             }
-            return V;
+            return InflatedView;
         }
 
         public override async void OnViewCreated(View view, Bundle savedInstanceState)

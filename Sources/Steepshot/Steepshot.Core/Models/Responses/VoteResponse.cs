@@ -13,7 +13,7 @@ namespace Steepshot.Core.Models.Responses
 
         public bool IsSucces => _isSucces || Message.Equals(ServerPositiveResponceMsg) || Message.Equals(ServerPositiveResponceMsg2);
 
-        public int NetVotes { get; internal set; }
+        public int NetVotes { get; set; }
 
         public VoteResponse(bool isSucces)
         {

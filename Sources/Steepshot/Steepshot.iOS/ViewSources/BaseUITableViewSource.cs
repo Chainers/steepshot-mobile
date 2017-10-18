@@ -6,13 +6,12 @@ using UIKit;
 namespace Steepshot.iOS.ViewSources
 {
     public abstract class BaseUiTableViewSource<T> : UITableViewSource
-        where T : ListPresenter
     {
         public delegate void ScrolledToBottomHandler();
         public event ScrolledToBottomHandler ScrolledToBottom;
-        protected readonly T Presenter;
+        protected readonly ListPresenter<T> Presenter;
 
-        protected BaseUiTableViewSource(T presenter)
+        protected BaseUiTableViewSource(ListPresenter<T> presenter)
         {
             Presenter = presenter;
         }
