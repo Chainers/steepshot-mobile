@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -23,13 +24,27 @@ namespace Steepshot.Adapter
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
         public override int ItemCount => Presenter.Count;
-        public bool ActionsEnabled { get; set; } = true;
+        private bool _actionsEnabled;
+        public bool ActionsEnabled
+        {
+            get
+            {
+                return _actionsEnabled;
+            }
+            set
+            {
+                _actionsEnabled = value;
+                if (_actionsEnabled == true)
+                    NotifyDataSetChanged();
+            }
+        }
 
         public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
         {
             Context = context;
             Presenter = presenter;
             Fonts = fonts;
+            _actionsEnabled = true;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -73,7 +88,7 @@ namespace Steepshot.Adapter
                 Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
 
             vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
-            vh.Like.Enabled = ActionsEnabled;
+            vh.Like.Enabled = _actionsEnabled;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -82,6 +97,7 @@ namespace Steepshot.Adapter
             var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, Fonts);
             return vh;
         }
+
     }
 
     public class FeedViewHolder : RecyclerView.ViewHolder
@@ -106,9 +122,11 @@ namespace Steepshot.Adapter
         protected int Correction = 0;
         private Animation _likeSetAnimation;
         private Animation _likeUnsetAnimation;
+        private Context _context;
 
         public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
         {
+            _context = itemView.RootView.Context;
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
             Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
@@ -132,8 +150,9 @@ namespace Steepshot.Adapter
             FirstComment.Typeface = font[0];
             CommentSubtitle.Typeface = font[0];
 
-            _likeSetAnimation = AnimationUtils.LoadAnimation(itemView.RootView.Context, Resource.Animation.like_set);
-            _likeUnsetAnimation = AnimationUtils.LoadAnimation(itemView.RootView.Context, Resource.Animation.like_unset);
+            _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            _likeUnsetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_unset);
+            _likeSetAnimation.AnimationEnd += (sender, e) => LikeAction?.Invoke(AdapterPosition);
             _likeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
 
             LikeAction = likeAction;
@@ -175,6 +194,7 @@ namespace Steepshot.Adapter
         {
             if (BasePresenter.User.IsAuthenticated)
             {
+                Like.Enabled = false;
                 if (Post.Vote)
                 {
                     Like.StartAnimation(_likeUnsetAnimation);
@@ -185,7 +205,6 @@ namespace Steepshot.Adapter
                     Like.StartAnimation(_likeSetAnimation);
                 }
             }
-            LikeAction?.Invoke(AdapterPosition);
         }
 
         public void UpdateData(Post post, Context context)
