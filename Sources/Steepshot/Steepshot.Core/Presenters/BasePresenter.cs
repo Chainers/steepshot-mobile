@@ -34,13 +34,8 @@ namespace Steepshot.Core.Presenters
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
-#if DEBUG
-            //_apiClient = new ApiPositiveStub();
             Api = new DitchApi();
             Api.Connect(Chain, AppSettings.IsDev);
-#else
-            _apiClient = new DitchApi();
-#endif
             // static constructor initialization.
             var init = new Secp256k1Manager();
         }

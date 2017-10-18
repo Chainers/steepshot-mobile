@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch;
+using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 
-namespace Steepshot.Core.HttpClient
+namespace Steepshot.Core.Tests.Stubs
 {
     public class ApiPositiveStub : ISteepshotApiClient
     {
