@@ -55,11 +55,7 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
             postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
 #if DEBUG
-<<<<<<< HEAD
-            password.Text = "5**************************************************";
-=======
             password.Text = DebugHelper.GetTestWif();
->>>>>>> 510caea432cf952f2ff183455c236c4e7e2de723
 #endif
             password.ShouldReturn += (textField) =>
             {
