@@ -11,16 +11,11 @@ using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace Steepshot.Base
 {
-    public abstract class BaseActivity : AppCompatActivity, IBaseView
+    public abstract class BaseActivity : AppCompatActivity
     {
-        public static LruCache Cache { get; set; }
+        protected static LruCache Cache { get; set; }
         protected HostFragment CurrentHostFragment;
-
-        public Context GetContext()
-        {
-            return this;
-        }
-
+        
         public override void OnBackPressed()
         {
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
