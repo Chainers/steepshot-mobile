@@ -47,9 +47,6 @@ namespace Steepshot.Activity
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
 #if DEBUG
-<<<<<<< HEAD
-            _password.Text = "5**************************************************";
-=======
             try
             {
                 var stream = Assets.Open("DebugWif.txt");
@@ -64,7 +61,6 @@ namespace Steepshot.Activity
             {
                 //todo nothing
             }
->>>>>>> 510caea432cf952f2ff183455c236c4e7e2de723
 #endif
 
             _password.TextChanged += TextChanged;
