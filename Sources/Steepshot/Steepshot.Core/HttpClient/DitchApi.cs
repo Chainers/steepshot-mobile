@@ -354,6 +354,11 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (typedError.Data.Stack.Any())
                                 {
+                                    if(typedError.Data.Stack[0].Format.Contains("STEEMIT_MAX_VOTE_CHANGES"))
+                                    {
+                                        operationResult.Errors.Add(Localization.Errors.MaxVoteChanges);
+                                        break;
+                                    }
                                     var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
                                     if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
                                     {
