@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.iOS", "Steepshot.iOS\Steepshot.iOS.csproj", "{4B259270-7F8D-4132-91C4-AD144D025A30}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpRavenPortable", "SharpRaven\SharpRavenPortable.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Steepshot.Core.Tests", "Steepshot.Core.Tests\Steepshot.Core.Tests.csproj", "{9A356640-F166-4D67-9BE6-F28427FB622F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteepshotShareExtension", "SteepshotShareExtension\SteepshotShareExtension.csproj", "{2A76594C-2C20-4F34-A490-3485AAF46FAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,8 +83,21 @@ Global
 		{9A356640-F166-4D67-9BE6-F28427FB622F}.Release|iPhone.Build.0 = Release|Any CPU
 		{9A356640-F166-4D67-9BE6-F28427FB622F}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{9A356640-F166-4D67-9BE6-F28427FB622F}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|Any CPU.ActiveCfg = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhone.Build.0 = Debug|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|Any CPU.ActiveCfg = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhone.ActiveCfg = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhone.Build.0 = Release|iPhone
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{2A76594C-2C20-4F34-A490-3485AAF46FAA}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {190399C5-B787-4391-AF1F-ACEE6203E4BA}
 	EndGlobalSection
 EndGlobal

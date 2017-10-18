@@ -34,9 +34,14 @@ namespace Steepshot.iOS.Views
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
             commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
             Activeview = commentTextView;
-            _tableSource.Voted += (vote, url, action) =>
+            _tableSource.Voted += async (vote, url, action) =>
             {
-                Vote(vote, url, action);
+                await Vote(vote, url, action);
+            };
+
+            _tableSource.Flaged += async (vote, url, action) =>
+            {
+                await Flag(vote, url, action);
             };
 
             _tableSource.GoToProfile += (username) =>
@@ -112,6 +117,27 @@ namespace Steepshot.iOS.Views
             {
                 //TODO:KOA: NOTWORK
                 //action.Invoke(postUrl, errors);
+            }
+        }
+
+        public async Task Flag(bool vote, string postUrl, Action<string, VoteResponse> action)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
+            var errors = await _presenter.TryFlag(p => p.Url == postUrl);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors);
+            else
+            {
+                //TODO:KOA: NOTWORK
+                //action.Invoke(postUrl, flagResponse.Result);
             }
         }
 
