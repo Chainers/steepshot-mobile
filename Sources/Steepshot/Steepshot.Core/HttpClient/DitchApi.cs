@@ -304,10 +304,18 @@ namespace Steepshot.Core.HttpClient
 
         private List<byte[]> ToKeyArr(string postingKey)
         {
-            var key = Ditch.Helpers.Base58.TryGetBytes(postingKey);
-            if (key == null || key.Length != 32)
-                return null;
-            return new List<byte[]> { key };
+            try
+            {
+                var key = Ditch.Helpers.Base58.TryGetBytes(postingKey);
+                if (key == null || key.Length != 32)
+                    return null;
+                return new List<byte[]> { key };
+            }
+            catch
+            {
+
+            }
+            return null;
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)
