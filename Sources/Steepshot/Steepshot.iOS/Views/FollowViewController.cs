@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models.Requests;
@@ -93,17 +94,17 @@ namespace Steepshot.iOS.Views
 
         private async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
         {
-            bool? success = null;
+            var success = false;
             var user = _presenter.FirstOrDefault(fgh => fgh.Author == author);
             if (user != null)
             {
-                var response = await _presenter.TryFollow(user);
-                if (response != null)
+                var errors = await _presenter.TryFollow(user);
+                if (errors != null)
                 {
-                    if (response.Success)
-                        success = user.HasFollowed = followType == FollowType.Follow;
+                    if (!errors.Any())
+                        success = true;
                     else
-                        ShowAlert(response.Errors);
+                        ShowAlert(errors);
                 }
             }
             callback(author, success);
