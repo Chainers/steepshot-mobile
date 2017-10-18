@@ -157,6 +157,11 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
     <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
+    <AndroidResource Include="Resources\Anim\like_set.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\Anim\like_unset.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -545,8 +550,6 @@
     <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
     <AndroidAsset Include="Assets\OpenSans-Semibold.ttf" />
     <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
-    <AndroidAsset Include="Assets\DebugWif.txt.template" />
-    <AndroidAsset Include="Assets\DebugWif.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
