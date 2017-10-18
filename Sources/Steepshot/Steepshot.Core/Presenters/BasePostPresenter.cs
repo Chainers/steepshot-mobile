@@ -65,6 +65,16 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
+        public async Task<List<string>> TryFlag(Func<Post, bool> func)
+        {
+            Post post;
+            lock (Items)
+                post = Items.FirstOrDefault(func);
+            if (post == null)
+                return null;
+            return await TryRunTask(Flag, CancellationToken.None, post);
+        }
+
         public async Task<List<string>> TryFlag(int position)
         {
             Post post;
