@@ -40,7 +40,8 @@ namespace Steepshot.Fragment
             get => base.UserVisibleHint;
             set
             {
-                ((BaseFragment)_fragment).CustomUserVisibleHint = value;
+                if (_fragment is BaseFragment bf)
+                    bf.CustomUserVisibleHint = value;
                 base.UserVisibleHint = value;
             }
         }

@@ -1,26 +1,20 @@
 ﻿using System.Collections.Generic;
 using Android.App;
-using Android.Content;
 using Android.Widget;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Base
 {
-    public abstract class BaseFragment : Android.Support.V4.App.Fragment, IBaseView
+    public abstract class BaseFragment : Android.Support.V4.App.Fragment
     {
         protected bool IsInitialized;
-        protected Android.Views.View V;
+        protected Android.Views.View InflatedView;
 
         public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             IsInitialized = true;
-        }
-
-        public Context GetContext()
-        {
-            return Context;
         }
 
         public virtual bool CustomUserVisibleHint
@@ -29,18 +23,11 @@ namespace Steepshot.Base
             set;
         }
 
-        protected void ShowAlert(string message)
-        {
-            Show(message);
-        }
-
         protected void ShowAlert(List<string> messages)
         {
             if (messages == null || messages.Count == 0)
                 return;
-
             Show(messages[0]);
-            //Show(string.Join(System.Environment.NewLine, messages));
         }
 
         protected void ShowAlert(OperationResult response)
@@ -50,19 +37,11 @@ namespace Steepshot.Base
             ShowAlert(response.Errors);
         }
 
-        protected void ShowAlert(string message, ToastLength length)
-        {
-            Toast.MakeText(Activity, message, length)
-                .Show();
-        }
-
         protected void ShowAlert(List<string> messages, ToastLength length)
         {
             if (messages == null || messages.Count == 0)
                 return;
-
             Toast.MakeText(Activity, messages[0], length).Show();
-            // Toast.MakeText(Activity, string.Join(System.Environment.NewLine, messages), length).Show();
         }
 
         protected void ShowAlert(OperationResult response, ToastLength length)
