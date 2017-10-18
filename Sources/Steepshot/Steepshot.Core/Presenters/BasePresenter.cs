@@ -11,7 +11,17 @@ namespace Steepshot.Core.Presenters
     {
         private static ISteepshotApiClient _apiClient;
         public static string AppVersion { get; set; }
-        public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
+
+        public static string Currency
+        {
+            get
+            {
+                if (AppSettings.AppInfo.GetPlatform() == "iOS")
+                    return "SBD";
+                return Chain == KnownChains.Steem ? "$" : "₽";
+            }
+        }
+
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
         public static bool ShouldUpdateProfile;
