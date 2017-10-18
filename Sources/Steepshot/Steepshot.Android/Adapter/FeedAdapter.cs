@@ -4,6 +4,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
@@ -22,6 +23,7 @@ namespace Steepshot.Adapter
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
         public override int ItemCount => Presenter.Count;
+        public bool ActionsEnabled { get; set; } = true;
 
         public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
         {
@@ -70,7 +72,8 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
 
-            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
+            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            vh.Like.Enabled = ActionsEnabled;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -101,6 +104,8 @@ namespace Steepshot.Adapter
         protected readonly Action<int> VotersAction;
 
         protected int Correction = 0;
+        private Animation _likeSetAnimation;
+        private Animation _likeUnsetAnimation;
 
         public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
         {
@@ -126,6 +131,10 @@ namespace Steepshot.Adapter
             Cost.Typeface = font[1];
             FirstComment.Typeface = font[0];
             CommentSubtitle.Typeface = font[0];
+
+            _likeSetAnimation = AnimationUtils.LoadAnimation(itemView.RootView.Context, Resource.Animation.like_set);
+            _likeUnsetAnimation = AnimationUtils.LoadAnimation(itemView.RootView.Context, Resource.Animation.like_unset);
+            _likeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
 
             LikeAction = likeAction;
             UserAction = userAction;
@@ -166,7 +175,15 @@ namespace Steepshot.Adapter
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                Like.SetImageResource(!Post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
+                if (Post.Vote)
+                {
+                    Like.StartAnimation(_likeUnsetAnimation);
+                }
+                else
+                {
+                    Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+                    Like.StartAnimation(_likeSetAnimation);
+                }
             }
             LikeAction?.Invoke(AdapterPosition);
         }
