@@ -45,7 +45,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)
         {
-            return await TryRunTask(CreateComment, CancellationToken.None, comment, url);
+            return await TryRunTask<string, string, CreateCommentResponse>(CreateComment, CancellationToken.None, comment, url);
         }
 
         private async Task<OperationResult<CreateCommentResponse>> CreateComment(CancellationToken ct, string comment, string url)

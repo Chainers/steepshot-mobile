@@ -1,6 +1,5 @@
 using System;
 using Android.OS;
-using Android.Support.V7.Widget;
 using Android.Views;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;

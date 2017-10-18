@@ -232,7 +232,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                ShowAlert(response.Errors);
+                ShowAlert(response);
             }
         }
 

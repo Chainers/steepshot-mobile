@@ -1,5 +1,4 @@
-﻿using System;
-namespace Steepshot.Utils
+﻿namespace Steepshot.Utils
 {
     public class Constants
     {

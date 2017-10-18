@@ -85,7 +85,7 @@
             android:textAllCaps="true"
             android:gravity="center"
             android:background="@android:color/transparent"
-            android:id="@+id/sign_in_btn" />
+            android:id="@+id/pre_sign_in_btn" />
         <ProgressBar
             android:id="@+id/loading_spinner"
             android:layout_width="20dp"

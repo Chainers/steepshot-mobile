@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
-using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -18,6 +17,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
@@ -29,6 +29,8 @@ namespace Steepshot.Activity
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
     public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
+        public const string PhotoExtraPath = "PhotoExtraPath";
+
         private string _path;
         private bool _shouldCompress;
         private Timer _timer;
@@ -78,18 +80,19 @@ namespace Steepshot.Activity
             _description.Typeface = font;
             _postButton.Typeface = semiboldFont;
 
-            _path = Intent.GetStringExtra("FILEPATH");
+            _path = Intent.GetStringExtra(PhotoExtraPath);
             _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
+            var photoUri = Android.Net.Uri.Parse(_path);
 
             if (!_shouldCompress)
-                _photoFrame.SetImageURI(Android.Net.Uri.Parse(_path));
+                _photoFrame.SetImageURI(photoUri);
             else
             {
                 Task.Run(() =>
                 {
-                    var fileDescriptor = ContentResolver.OpenFileDescriptor(Android.Net.Uri.Parse(_path), "r").FileDescriptor;
+                    var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
                     _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, _path);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
                     _photoFrame.SetImageBitmap(_btmp);
                 });
             }
@@ -214,7 +217,7 @@ namespace Steepshot.Activity
 
                 if (string.IsNullOrEmpty(_title.Text))
                 {
-                    Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
+                    ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
                     return;
                 }
                 var arrayToUpload = await CompressPhoto(_path);
@@ -237,13 +240,17 @@ namespace Steepshot.Activity
                     else
                     {
                         if (!string.IsNullOrEmpty(resp.Errors[0]))
-                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
+                            ShowAlert(resp, ToastLength.Long);
                     }
                 }
                 else
                 {
-                    Toast.MakeText(this, Localization.Errors.PhotoCompressingError, ToastLength.Long).Show();
+                    ShowAlert(Localization.Errors.PhotoCompressingError, ToastLength.Long);
                 }
+            }
+            catch (ApplicationExceptionBase ex)
+            {
+                ShowAlert(ex.Message);
             }
             catch (Exception ex)
             {
