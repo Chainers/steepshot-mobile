@@ -21,7 +21,15 @@ namespace Steepshot.Core.Presenters
         public static bool ShouldUpdateProfile;
 
         public static string AppVersion { get; set; }
-        public static string Currency => Chain == KnownChains.Steem ? "$" : "₽";
+        public static string Currency
+        {
+            get
+            {
+                if (AppSettings.AppInfo.GetPlatform() == "iOS")
+                    return "SBD";
+                return Chain == KnownChains.Steem ? "$" : "₽";
+            }
+        }
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
 
@@ -34,13 +42,8 @@ namespace Steepshot.Core.Presenters
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
-#if DEBUG
-            //_apiClient = new ApiPositiveStub();
             Api = new DitchApi();
             Api.Connect(Chain, AppSettings.IsDev);
-#else
-            _apiClient = new DitchApi();
-#endif
             // static constructor initialization.
             var init = new Secp256k1Manager();
         }

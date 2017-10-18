@@ -1,11 +1,12 @@
 ﻿using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class FollowTableViewSource : BaseUiTableViewSource<FollowersPresenter>
+    public class FollowTableViewSource : BaseUiTableViewSource<UserFriend>
     {
         string _cellIdentifier = nameof(FollowViewCell);
         public event FollowEventHandler Follow;
