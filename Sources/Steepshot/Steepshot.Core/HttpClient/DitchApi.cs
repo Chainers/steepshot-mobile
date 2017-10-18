@@ -55,6 +55,7 @@ namespace Steepshot.Core.HttpClient
 
             Locked = 1;
             _ctsMain.Cancel();
+            //TODO:KOA:It would be nice to wait for tasks canleled before continuing..
             Gateway = new ApiGateway(sUrl);
             var conectedTo = _operationManager.TryConnectTo(cUrls);
             _ctsMain = new CancellationTokenSource();
@@ -337,10 +338,18 @@ namespace Steepshot.Core.HttpClient
 
         private List<byte[]> ToKeyArr(string postingKey)
         {
-            var key = Ditch.Helpers.Base58.TryGetBytes(postingKey);
-            if (key == null || key.Length != 32)
-                return null;
-            return new List<byte[]> { key };
+            try
+            {
+                var key = Ditch.Helpers.Base58.TryGetBytes(postingKey);
+                if (key == null || key.Length != 32)
+                    return null;
+                return new List<byte[]> { key };
+            }
+            catch (Exception e)
+            {
+               //todo nothing
+            }
+            return null;
         }
 
         private void OnError<T>(JsonRpcResponse response, OperationResult<T> operationResult)

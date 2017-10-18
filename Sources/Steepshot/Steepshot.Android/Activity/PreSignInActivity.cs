@@ -8,8 +8,6 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 
@@ -104,7 +102,7 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.sign_in_btn)]
+        [InjectOnClick(Resource.Id.pre_sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var login = _username.Text?.ToLower().Trim();

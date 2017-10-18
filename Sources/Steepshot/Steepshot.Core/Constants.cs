@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Steepshot.Core
+﻿namespace Steepshot.Core
 {
     public enum GatewayVersion
     {

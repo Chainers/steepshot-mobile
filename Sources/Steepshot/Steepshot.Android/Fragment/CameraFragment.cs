@@ -61,7 +61,7 @@ namespace Steepshot.Fragment
         {
             _camera.StopPreview();
             var i = new Intent(Context, typeof(PostDescriptionActivity));
-            i.PutExtra("FILEPATH", path);
+            i.PutExtra(PostDescriptionActivity.PhotoExtraPath, path);
             Context.StartActivity(i);
         }
 

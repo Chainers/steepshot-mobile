@@ -1,5 +1,5 @@
-using System;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Models.Requests
@@ -9,9 +9,9 @@ namespace Steepshot.Core.Models.Requests
         public CreateCommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentNullException(nameof(url));
+                throw new UserException(Localization.Errors.EmptyUrlField);
             if (string.IsNullOrWhiteSpace(body))
-                throw new ArgumentNullException(nameof(body), Localization.Errors.EmptyField);
+                throw new UserException(Localization.Errors.EmptyCommentField);
 
             Url = url;
             Body = body;

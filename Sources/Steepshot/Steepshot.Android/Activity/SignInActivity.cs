@@ -29,6 +29,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.title)] TextView _title;
         [InjectView(Resource.Id.input_password)] EditText _password;
         [InjectView(Resource.Id.qr_button)] Button _buttonScanDefaultView;
+        [InjectView(Resource.Id.sign_in_btn)] AppCompatButton _signInBtn;
 #pragma warning restore 0649
 
         MobileBarcodeScanner _scanner;
@@ -71,6 +72,7 @@ namespace Steepshot.Activity
                 Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
+            _signInBtn.Click += SignInBtn_Click;
         }
 
         private async void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
@@ -87,7 +89,10 @@ namespace Steepshot.Activity
                 //Start scanning
                 var result = await _scanner.Scan();
                 if (result != null)
+                {
                     _password.Text = result.Text;
+                    SignInBtn_Click(_signInBtn, null);
+                }
             }
             catch (Exception ex)
             {
@@ -107,7 +112,6 @@ namespace Steepshot.Activity
             }
         }
 
-        [InjectOnClick(Resource.Id.sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var appCompatButton = sender as AppCompatButton;
@@ -120,7 +124,7 @@ namespace Steepshot.Activity
             {
                 if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
                 {
-                    Toast.MakeText(this, Localization.Errors.EmptyLogin, ToastLength.Short).Show();
+                    ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
                     return;
                 }
 
@@ -143,7 +147,7 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    ShowAlert(response.Errors);
+                    ShowAlert(response);
                 }
             }
             catch (Exception ex)

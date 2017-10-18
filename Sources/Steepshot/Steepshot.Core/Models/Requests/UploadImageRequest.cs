@@ -1,5 +1,6 @@
 ﻿using System;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -7,7 +8,8 @@ namespace Steepshot.Core.Models.Requests
     {
         private UploadImageRequest(UserInfo user, string title, params string[] tags) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(title)) throw new ArgumentNullException(nameof(title));
+            if (string.IsNullOrWhiteSpace(title))
+                throw new UserException(Localization.Errors.EmptyTitleField);
 
             Title = title;
             Tags = tags;
@@ -16,12 +18,16 @@ namespace Steepshot.Core.Models.Requests
 
         public UploadImageRequest(UserInfo user, string title, byte[] photo, params string[] tags) : this(user, title, tags)
         {
-            Photo = photo ?? throw new ArgumentNullException(nameof(photo));
+            if (photo == null || photo.Length == 0)
+                throw new UserException(Localization.Errors.EmptyPhotoField);
+
+            Photo = photo;
         }
 
         public UploadImageRequest(UserInfo user, string title, string photo, params string[] tags) : this(user, title, tags)
         {
-            if (string.IsNullOrWhiteSpace(photo)) throw new ArgumentNullException(nameof(photo));
+            if (string.IsNullOrWhiteSpace(photo))
+                throw new UserException(Localization.Errors.EmptyPhotoField);
 
             Photo = Convert.FromBase64String(photo);
         }

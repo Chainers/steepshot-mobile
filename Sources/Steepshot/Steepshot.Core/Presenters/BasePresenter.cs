@@ -8,6 +8,8 @@ using Ditch;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Exceptions;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Presenters
 {
@@ -83,7 +85,7 @@ namespace Steepshot.Core.Presenters
 
         #region TryRunTask
 
-        protected async Task<TResult> TryRunTask<TResult>(Func<CancellationToken, Task<TResult>> func, CancellationToken ct)
+        protected async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
         {
             try
             {
@@ -93,14 +95,20 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                var opr = new OperationResult<TResult>();
+                opr.Errors.Add(ex.Message);
+                return opr;
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
             }
-            return default(TResult);
+            return null;
         }
 
-        protected async Task<TResult> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<TResult>> func, CancellationToken ct, T1 param1)
+        protected async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -110,14 +118,20 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                var opr = new OperationResult<TResult>();
+                opr.Errors.Add(ex.Message);
+                return opr;
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
             }
-            return default(TResult);
+            return null;
         }
 
-        protected async Task<TResult> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<TResult>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
@@ -127,11 +141,81 @@ namespace Steepshot.Core.Presenters
             {
                 // to do nothing
             }
+            catch (ApplicationExceptionBase ex)
+            {
+                var opr = new OperationResult<TResult>();
+                opr.Errors.Add(ex.Message);
+                return opr;
+            }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
             }
-            return default(TResult);
+            return null;
+        }
+
+
+        protected async Task<List<string>> TryRunTask(Func<CancellationToken, Task<List<string>>> func, CancellationToken ct)
+        {
+            try
+            {
+                return await func(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return null;
+        }
+
+        protected async Task<List<string>> TryRunTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, CancellationToken ct, T1 param1)
+        {
+            try
+            {
+                return await func(ct, param1);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return null;
+        }
+
+        protected async Task<List<string>> TryRunTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, CancellationToken ct, T1 param1, T2 param2)
+        {
+            try
+            {
+                return await func(ct, param1, param2);
+            }
+            catch (OperationCanceledException)
+            {
+                // to do nothing
+            }
+            catch (ApplicationExceptionBase ex)
+            {
+                return new List<string> { ex.Message };
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            return null;
         }
 
         #endregion

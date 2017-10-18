@@ -157,11 +157,20 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\edit.png" />
     <AndroidResource Include="Resources\layout\lyt_local_tags_item.axml" />
     <AndroidResource Include="Resources\drawable\white_rounded_border.xml" />
+<<<<<<< HEAD
     <AndroidResource Include="Resources\Anim\like_set.xml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\Anim\like_unset.xml" />
+=======
+    <AndroidResource Include="Resources\drawable-mdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\close_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\send.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\send.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\send.png" />
+>>>>>>> e23b1f2254c16c644f7337daddea3a3a7157c53e
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
