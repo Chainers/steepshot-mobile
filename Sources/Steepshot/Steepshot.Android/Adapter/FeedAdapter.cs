@@ -25,18 +25,13 @@ namespace Steepshot.Adapter
 
         public override int ItemCount => Presenter.Count;
         private bool _actionsEnabled;
-        public bool ActionsEnabled
+        private int _waitingPosition;
+
+        public void SwitchActionsEnabled(int waitingPosition)
         {
-            get
-            {
-                return _actionsEnabled;
-            }
-            set
-            {
-                _actionsEnabled = value;
-                if (_actionsEnabled == true)
-                    NotifyDataSetChanged();
-            }
+            _waitingPosition = waitingPosition;
+            _actionsEnabled = !_actionsEnabled;
+            NotifyDataSetChanged();
         }
 
         public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
@@ -45,6 +40,7 @@ namespace Steepshot.Adapter
             Presenter = presenter;
             Fonts = fonts;
             _actionsEnabled = true;
+            _waitingPosition = -1;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -87,8 +83,25 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
 
-            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
-            vh.Like.Enabled = _actionsEnabled;
+            if (_waitingPosition == position && !_actionsEnabled)
+            {
+
+                if (!post.Vote)
+                {
+                    vh.Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+                    vh.Like.StartAnimation(vh.LikeSetAnimation);
+                }
+                else if (post.Vote)
+                {
+                    vh.Like.StartAnimation(vh.LikeUnsetAnimation);
+                }
+            }
+            else
+            {
+                vh.Like.ClearAnimation();
+                vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            }
+            vh.LikeActionEnabled = _actionsEnabled;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -120,8 +133,9 @@ namespace Steepshot.Adapter
         protected readonly Action<int> VotersAction;
 
         protected int Correction = 0;
-        private Animation _likeSetAnimation;
-        private Animation _likeUnsetAnimation;
+        public Animation LikeSetAnimation { get; set; }
+        public Animation LikeUnsetAnimation { get; set; }
+        public bool LikeActionEnabled { get; set; }
         private Context _context;
 
         public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
@@ -150,10 +164,11 @@ namespace Steepshot.Adapter
             FirstComment.Typeface = font[0];
             CommentSubtitle.Typeface = font[0];
 
-            _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
-            _likeUnsetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_unset);
-            _likeSetAnimation.AnimationEnd += (sender, e) => LikeAction?.Invoke(AdapterPosition);
-            _likeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
+            LikeActionEnabled = true;
+            LikeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            LikeSetAnimation.RepeatCount = int.MaxValue;
+            LikeUnsetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_unset);
+            LikeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
 
             LikeAction = likeAction;
             UserAction = userAction;
@@ -192,19 +207,8 @@ namespace Steepshot.Adapter
 
         protected virtual void DoLikeAction(object sender, EventArgs e)
         {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                Like.Enabled = false;
-                if (Post.Vote)
-                {
-                    Like.StartAnimation(_likeUnsetAnimation);
-                }
-                else
-                {
-                    Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
-                    Like.StartAnimation(_likeSetAnimation);
-                }
-            }
+            if (!LikeActionEnabled) return;
+            LikeAction.Invoke(AdapterPosition);
         }
 
         public void UpdateData(Post post, Context context)
