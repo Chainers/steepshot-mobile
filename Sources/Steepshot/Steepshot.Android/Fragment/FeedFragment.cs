@@ -131,7 +131,7 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                _feedAdapter.ActionsEnabled = false;
+                _feedAdapter.SwitchActionsEnabled(position);
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
@@ -139,7 +139,7 @@ namespace Steepshot.Fragment
                 {
                     await Task.Delay(3000);
                 }
-                _feedAdapter.ActionsEnabled = true;
+                _feedAdapter.SwitchActionsEnabled(-1);
             }
         }
 
