@@ -39,7 +39,7 @@ namespace Steepshot.Fragment
 #pragma warning restore 0649
 
         CategoriesAdapter _categoriesAdapter;
-        FollowersAdapter<UserFriend> _usersSearchAdapter;
+        FollowersAdapter _usersSearchAdapter;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -68,7 +68,7 @@ namespace Steepshot.Fragment
             _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
 
             _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter<UserFriend>(Activity, _presenter.FollowersPresenter, new[] { _font, _semiboldFont });
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.FollowersPresenter, new[] { _font, _semiboldFont });
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -144,8 +144,8 @@ namespace Steepshot.Fragment
                 return;
             if (errors.Any())
                 ShowAlert(errors);
-            else
-                _usersSearchAdapter.NotifyDataSetChanged();
+
+            _usersSearchAdapter.NotifyDataSetChanged();
         }
 
         private void OnTimer(object state)
