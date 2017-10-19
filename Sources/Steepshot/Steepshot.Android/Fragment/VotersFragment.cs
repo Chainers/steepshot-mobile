@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -16,7 +18,7 @@ namespace Steepshot.Fragment
 {
     public class VotersFragment : BaseFragmentWithPresenter<VotersPresenter>
     {
-        private FollowersAdapter<VotersResult> _votersAdapter;
+        private FollowersAdapter _votersAdapter;
         private string _url;
 
 #pragma warning disable 0649, 4014
@@ -64,8 +66,9 @@ namespace Steepshot.Fragment
             _viewTitle.Text = Localization.Messages.Voters;
 
             _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new FollowersAdapter<VotersResult>(Activity, _presenter, new[] { font, semibold_font });
+            _votersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
             _votersAdapter.UserAction += OnClick;
+            _votersAdapter.FollowAction += OnFollow;
             _votersList.SetAdapter(_votersAdapter);
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadNext;
@@ -104,7 +107,19 @@ namespace Steepshot.Fragment
             var voiter = _presenter[pos];
             if (voiter == null)
                 return;
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(voiter.Username));
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(voiter.Author));
+        }
+
+        private async void OnFollow(int pos)
+        {
+            var errors = await _presenter.TryFollow(_presenter[pos]);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors, ToastLength.Short);
+            
+            _votersAdapter?.NotifyDataSetChanged();
         }
 
         public override void OnDetach()

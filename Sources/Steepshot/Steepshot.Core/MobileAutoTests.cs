@@ -405,13 +405,13 @@ namespace Steepshot.Core
             if (testPost == null)
                 return;
 
-            var request = new InfoRequest(testPost.Url) { Limit = limit };
+            var request = new InfoRequest(testPost.Url) { Limit = limit, Login = _user.Login };
             var response = _api.GetPostVoters(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))
                 return;
 
-            request.Offset = response.Result.Results.Last().Username;
+            request.Offset = response.Result.Results.Last().Author;
             response = _api.GetPostVoters(request, CancellationToken.None).Result;
 
             if (IsError2(sb, limit, response, request.Offset))

@@ -59,7 +59,7 @@ namespace Steepshot.Activity
                     var imm = (InputMethodManager)GetSystemService(Context.InputMethodService);
                     imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
                     var resp = await _presenter.TryCreateComment(text, _uid);
-                    if (resp.Success)
+                    if ((bool)resp?.Success)
                     {
                         if (_textInput != null)
                         {
