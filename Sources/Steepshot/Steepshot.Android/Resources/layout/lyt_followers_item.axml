@@ -14,6 +14,7 @@
             android:id="@+id/friend_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:clickable="true"
             android:src="@drawable/ic_user_placeholder" />
     </LinearLayout>
     <RelativeLayout
@@ -43,18 +44,32 @@
             android:textSize="12sp"
             android:textColor="@color/rgb151_155_158"
             android:maxLines="1"
+            android:clickable="true"
             android:text="name" />
     </RelativeLayout>
-    <Button
-        android:id="@+id/follow_button"
-        android:layout_width="105dp"
-        android:layout_height="40dp"
-        android:background="@drawable/follow_button_corners"
-        android:textSize="14sp"
-        android:textColor="@android:color/white"
-        android:text="Follow"
-        android:textAllCaps="false"
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="15dp" />
+        android:layout_marginRight="15dp">
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@android:color/white"
+            android:layout_centerInParent="true"
+            android:elevation="10dp"
+            android:visibility="gone" />
+        <Button
+            android:id="@+id/follow_button"
+            android:layout_width="105dp"
+            android:layout_height="40dp"
+            android:background="@drawable/follow_button_corners"
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:text="Follow"
+            android:textAllCaps="false" />
+    </RelativeLayout>
 </RelativeLayout>

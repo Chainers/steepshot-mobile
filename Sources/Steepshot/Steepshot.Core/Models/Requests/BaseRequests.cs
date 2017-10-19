@@ -34,13 +34,12 @@ namespace Steepshot.Core.Models.Requests
         public string Url { get; }
     }
 
-    public class InfoRequest : OffsetLimitFields
+    public class InfoRequest : NamedRequestWithOffsetLimitFields
     {
-        public InfoRequest(string url)
+        public InfoRequest(string url) : base()
         {
             if (string.IsNullOrWhiteSpace(url))
                 throw new UserException(Localization.Errors.EmptyUrlField);
-
             Url = url;
         }
 
