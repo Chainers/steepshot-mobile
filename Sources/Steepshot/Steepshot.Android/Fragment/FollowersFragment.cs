@@ -18,7 +18,7 @@ namespace Steepshot.Fragment
 {
     public class FollowersFragment : BaseFragmentWithPresenter<FollowersPresenter>
     {
-        private FollowersAdapter<UserFriend> _followersAdapter;
+        private FollowersAdapter _followersAdapter;
         private string _username;
 
 #pragma warning disable 0649, 4014
@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
             _viewTitle.Typeface = semibold_font;
             _people_count.Typeface = font;
 
-            _followersAdapter = new FollowersAdapter<UserFriend>(Activity, _presenter, new[] { font, semibold_font });
+            _followersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
@@ -83,10 +83,8 @@ namespace Steepshot.Fragment
 
             if (errors.Any())
                 ShowAlert(errors, ToastLength.Short);
-            else
-            {
-                _followersAdapter.NotifyDataSetChanged();
-            }
+            
+             _followersAdapter.NotifyDataSetChanged();
         }
 
         private void LoadItems()

@@ -15,15 +15,15 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class FollowersAdapter<T> : RecyclerView.Adapter where T : class, new()
+    public class FollowersAdapter : RecyclerView.Adapter
     {
         private readonly Context _context;
-        private readonly ListPresenter<T> _presenter;
+        private readonly ListPresenter<UserFriend> _presenter;
         private readonly Typeface[] _fonts;
         public Action<int> FollowAction;
         public Action<int> UserAction;
 
-        public FollowersAdapter(Context context, ListPresenter<T> presenter, Typeface[] fonts)
+        public FollowersAdapter(Context context, ListPresenter<UserFriend> presenter, Typeface[] fonts)
         {
             _context = context;
             _presenter = presenter;
@@ -53,48 +53,23 @@ namespace Steepshot.Adapter
             if (vh == null)
                 return;
 
-            var item = _presenter[position];
+            var item = _presenter[position] as UserFriend; ;
             if (item == null)
                 return;
 
-            string name;
-            var votersResult = item as VotersResult;
-            var userFriend = item as UserFriend;
-
-            if(votersResult != null)
-                name = votersResult.Name;
-            else
-                name = userFriend.Name;
-
-            string author;
-            if (votersResult != null)
-                author = votersResult.Username;
-            else
-                author = userFriend.Author;
-
-            string avatar;
-            if (votersResult != null)
-                avatar = votersResult.ProfileImage;
-            else
-                avatar = userFriend.Avatar;
-
-
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(item.Name))
                 vh.FriendName.Visibility = ViewStates.Gone;
             else
             {
                 vh.FriendName.Visibility = ViewStates.Visible;
-                vh.FriendName.Text = name;
+                vh.FriendName.Text = item.Name;
             }
-            vh.FriendLogin.Text = author;
-            if (!string.IsNullOrEmpty(avatar))
-                Picasso.With(_context).Load(avatar).NoFade().Resize(300, 0).Into(vh.FriendAvatar);
+            vh.FriendLogin.Text = item.Author;
+            if (!string.IsNullOrEmpty(item.Avatar))
+                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(300, 0).Into(vh.FriendAvatar);
 
-            if (votersResult != null)
-                vh.UpdateData(votersResult, _context);
-            else
-                vh.UpdateData(userFriend, _context);
+            vh.UpdateData(item, _context);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -125,9 +100,9 @@ namespace Steepshot.Adapter
             public TextView FriendName { get; }
             public TextView FriendLogin { get; }
             private Button FollowButton { get; }
+            private ProgressBar Loader { get; }
 
-            private UserFriend _userFriendst;
-            private VotersResult _voter;
+            private UserFriend _userFriends;
             private readonly Action<int> _followAction;
             private readonly Action<int> _userAction;
             private Context _context;
@@ -140,6 +115,7 @@ namespace Steepshot.Adapter
                 FriendLogin = itemView.FindViewById<TextView>(Resource.Id.username);
                 FriendName = itemView.FindViewById<TextView>(Resource.Id.name);
                 FollowButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
+                Loader = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
                 FriendLogin.Typeface = fonts[1];
                 FriendName.Typeface = fonts[0];
@@ -147,9 +123,7 @@ namespace Steepshot.Adapter
                 _followAction = followAction;
                 _userAction = userAction;
                 FollowButton.Click += Follow_Click;
-                FriendName.Clickable = true;
                 FriendName.Click += User_Click;
-                FriendAvatar.Clickable = true;
                 FriendAvatar.Click += User_Click;
             }
 
@@ -161,41 +135,49 @@ namespace Steepshot.Adapter
             void Follow_Click(object sender, EventArgs e)
             {
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriendst?.HasFollowed, _context);
+                CheckFollow(this, !_userFriends?.HasFollowed, _context);
             }
 
             private void CheckFollow(FollowersViewHolder vh, bool? follow, Context context)
             {
                 if (BasePresenter.User.Login == vh.FriendLogin.Text)
                     vh.FollowButton.Visibility = ViewStates.Gone;
-                else if (follow == true)
+
+                var background = (GradientDrawable)vh.FollowButton.Background;
+
+                switch (follow)
                 {
-                    var background = (GradientDrawable)vh.FollowButton.Background;
-                    background.SetColor(Color.White);
-                    background.SetStroke(1, BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb244_244_246)));
-                    vh.FollowButton.Text = Localization.Messages.Unfollow;
-                    vh.FollowButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb15_24_30)));
-                }
-                else
-                {
-                    var background = (GradientDrawable)vh.FollowButton.Background;
-                    background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
-                    background.SetStroke(0, Color.White);
-                    vh.FollowButton.Text = Localization.Messages.Follow;
-                    vh.FollowButton.SetTextColor(Color.White);
+                    case true:
+                        background.SetColor(Color.White);
+                        background.SetStroke(1, BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb244_244_246)));
+                        vh.FollowButton.Text = Localization.Messages.Unfollow;
+                        vh.FollowButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb15_24_30)));
+                        vh.FollowButton.Enabled = true;
+                        vh.Loader.Visibility = ViewStates.Gone;
+                        break;
+                    case false:
+                        background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
+                        background.SetStroke(0, Color.White);
+                        vh.FollowButton.Text = Localization.Messages.Follow;
+                        vh.FollowButton.SetTextColor(Color.White);
+                        vh.FollowButton.Enabled = true;
+                        vh.Loader.Visibility = ViewStates.Gone;
+                        break;
+                    case null:
+                        background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
+                        background.SetStroke(0, Color.White);
+                        vh.FollowButton.Text = string.Empty;
+                        vh.FollowButton.SetTextColor(Color.White);
+                        vh.FollowButton.Enabled = false;
+                        vh.Loader.Visibility = ViewStates.Visible;
+                        break;
                 }
             }
 
-            public void UpdateData(UserFriend userFriendst, Context context)
+            public void UpdateData(UserFriend userFriends, Context context)
             {
-                _userFriendst = userFriendst;
-                CheckFollow(this, _userFriendst.HasFollowed, context);
-            }
-
-            public void UpdateData(VotersResult voter, Context context)
-            {
-                _voter = voter;
-                //CheckFollow(this, _voter.HasFollowed, context);
+                _userFriends = userFriends;
+                CheckFollow(this, _userFriends.HasFollowed, context);
             }
         }
     }

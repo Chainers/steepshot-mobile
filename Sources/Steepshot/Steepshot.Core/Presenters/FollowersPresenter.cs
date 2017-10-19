@@ -68,13 +68,10 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
-
-
         public async Task<List<string>> TryLoadNextSearchUser(CancellationToken ct, string query)
         {
             return await LoadNextSearchUser(ct, query);
         }
-
 
         private async Task<List<string>> LoadNextSearchUser(CancellationToken ct, string query)
         {
@@ -103,7 +100,6 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
-
         public async Task<List<string>> TryFollow(UserFriend item)
         {
             return await TryRunTask(Follow, CancellationToken.None, item);
@@ -111,12 +107,13 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
         {
-            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
+            var request = new FollowRequest(User.UserInfo, (bool)item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
+            item.HasFollowed = null;
             var response = await Api.Follow(request, ct);
             if (response.Success)
-            {
-                item.HasFollowed = !item.HasFollowed;
-            }
+                item.HasFollowed = request.Type == Models.Requests.FollowType.Follow;
+            else
+                item.HasFollowed = request.Type != Models.Requests.FollowType.Follow;
             return response.Errors;
         }
     }

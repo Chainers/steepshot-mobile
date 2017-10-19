@@ -132,7 +132,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<SearchResponse<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
         {
             if (Locked == 1)
                 return null;
@@ -143,13 +143,15 @@ namespace Steepshot.Core.HttpClient
             {
                 var parameters = new Dictionary<string, object>();
                 AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+                if(!string.IsNullOrEmpty(request.Login))
+                    AddLoginParameter(parameters, request.Login);
 
                 var endpoint = $"post/{request.Url}/voters";
 
-                response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
+                response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
                 errorResult = CheckErrors(response);
             }
-            return CreateResult<SearchResponse<VotersResult>>(response?.Content, errorResult);
+            return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
