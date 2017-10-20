@@ -1,12 +1,12 @@
 ﻿using System;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
+using Steepshot.Utils;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 
@@ -15,6 +15,9 @@ namespace Steepshot.Activity
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
+        public const string ChainExtraPath = "newChain";
+        private KnownChains _newChain;
+
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
         [InjectView(Resource.Id.input_username)] private EditText _username;
@@ -25,7 +28,6 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
-        private KnownChains _newChain;
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();
@@ -40,17 +42,14 @@ namespace Steepshot.Activity
             _username.Text = "joseph.kalu";
 #endif
 
-            var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = "Your account name";
 
-            _viewTitle.Typeface = semibold_font;
-            _username.Typeface = font;
-            _preSignInBtn.Typeface = semibold_font;
+            _viewTitle.Typeface = Style.Semibold;
+            _username.Typeface = Style.Regular;
+            _preSignInBtn.Typeface = Style.Semibold;
 
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
             if (_newChain != KnownChains.None)
@@ -83,9 +82,9 @@ namespace Steepshot.Activity
             if (response != null && response.Success)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
-                intent.PutExtra("login", login);
-                intent.PutExtra("avatar_url", response.Result.ProfileImage);
-                intent.PutExtra("newChain", (int)_newChain);
+                intent.PutExtra(SignInActivity.LoginExtraPath, login);
+                intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
+                intent.PutExtra(SignInActivity.ChainExtraPath, (int)_newChain);
                 _newChain = KnownChains.None;
                 StartActivity(intent);
             }

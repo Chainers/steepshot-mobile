@@ -19,24 +19,8 @@ namespace Steepshot.Adapter
     {
         private readonly Context _context;
         private readonly ListPresenter<UserFriend> _presenter;
-        private readonly Typeface[] _fonts;
         public Action<int> FollowAction;
         public Action<int> UserAction;
-
-        public FollowersAdapter(Context context, ListPresenter<UserFriend> presenter, Typeface[] fonts)
-        {
-            _context = context;
-            _presenter = presenter;
-            _fonts = fonts;
-        }
-        
-        public override int GetItemViewType(int position)
-        {
-            if (_presenter.Count == position)
-                return (int)ViewType.Loader;
-
-            return (int)ViewType.Cell;
-        }
 
         public override int ItemCount
         {
@@ -45,6 +29,20 @@ namespace Steepshot.Adapter
                 var count = _presenter.Count;
                 return count == 0 || _presenter.IsLastReaded ? count : count + 1;
             }
+        }
+
+        public FollowersAdapter(Context context, ListPresenter<UserFriend> presenter)
+        {
+            _context = context;
+            _presenter = presenter;
+        }
+        
+        public override int GetItemViewType(int position)
+        {
+            if (_presenter.Count == position)
+                return (int)ViewType.Loader;
+
+            return (int)ViewType.Cell;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -82,7 +80,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var cellView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
-                    var cellVh = new FollowersViewHolder(cellView, FollowAction, UserAction, _context, _fonts);
+                    var cellVh = new FollowersViewHolder(cellView, FollowAction, UserAction, _context);
                     return cellVh;
             }
         }
@@ -107,7 +105,7 @@ namespace Steepshot.Adapter
             private readonly Action<int> _userAction;
             private Context _context;
 
-            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction, Context context, Typeface[] fonts)
+            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction, Context context)
                 : base(itemView)
             {
                 _context = context;
@@ -117,8 +115,8 @@ namespace Steepshot.Adapter
                 FollowButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
                 Loader = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
-                FriendLogin.Typeface = fonts[1];
-                FriendName.Typeface = fonts[0];
+                FriendLogin.Typeface = Style.Semibold;
+                FriendName.Typeface = Style.Regular;
 
                 _followAction = followAction;
                 _userAction = userAction;

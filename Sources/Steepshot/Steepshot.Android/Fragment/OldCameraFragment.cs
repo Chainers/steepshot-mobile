@@ -331,7 +331,7 @@ namespace Steepshot.Fragment
 
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra(PostDescriptionActivity.PhotoExtraPath, _photoUri);
-                i.PutExtra("SHOULD_COMPRESS", false);
+                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
 
                 Activity.RunOnUiThread(() =>
                 {

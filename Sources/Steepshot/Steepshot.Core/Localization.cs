@@ -20,6 +20,7 @@
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string PhotoCompressingError = "Photo compressing error";
+            public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
             public const string ErrorCameraPreview = "Error setting camera preview: ";
             public const string ErrorCameraScale = "ScalemageView does not support FitStart or FitEnd";
@@ -46,6 +47,7 @@
         public class Messages
         {
             public const string PostFirstComment = "Post first comment";
+            public const string PostComments = "Post comments";
             public const string RapidPosting = "You post so fast. Try it later";
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";
