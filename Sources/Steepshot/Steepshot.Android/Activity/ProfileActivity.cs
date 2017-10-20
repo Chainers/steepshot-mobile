@@ -6,7 +6,7 @@ using Steepshot.Fragment;
 namespace Steepshot.Activity
 {
     [Activity(Label = "ProfileActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class ProfileActivity : BaseActivity
+    public sealed class ProfileActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {

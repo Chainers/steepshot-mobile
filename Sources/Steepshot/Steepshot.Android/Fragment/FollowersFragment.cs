@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -9,7 +8,6 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -46,11 +44,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-
-            var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
-
+            
             var count = Activity.Intent.GetIntExtra("count", 0);
             _people_count.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
@@ -62,10 +56,10 @@ namespace Steepshot.Fragment
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = _presenter.FollowType.GetDescription();
 
-            _viewTitle.Typeface = semibold_font;
-            _people_count.Typeface = font;
+            _viewTitle.Typeface = Style.Semibold;
+            _people_count.Typeface = Style.Regular;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
+            _followersAdapter = new FollowersAdapter(Activity, _presenter);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();

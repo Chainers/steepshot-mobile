@@ -1,21 +1,17 @@
-using System;
 using Android.App;
 using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostPreviewActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PostPreviewActivity : BaseActivity
+    public sealed class PostPreviewActivity : BaseActivity
     {
-        private string _path;
-
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.photo)] ScaleImageView _photo;
+        [InjectView(Resource.Id.photo)] private ScaleImageView _photo;
 #pragma warning restore 0649
 
 
@@ -25,15 +21,9 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_preview);
             Cheeseknife.Inject(this);
 
-            _path = Intent.GetStringExtra("PhotoURL");
-            try
-            {
-                Picasso.With(this).Load(_path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(_photo);
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
+            var path = Intent.GetStringExtra("PhotoURL");
+            if (!string.IsNullOrWhiteSpace(path))
+                Picasso.With(this).Load(path).NoFade().Resize(Resources.DisplayMetrics.WidthPixels, 0).Into(_photo);
         }
 
         protected override void OnDestroy()

@@ -14,14 +14,14 @@ using Steepshot.Fragment;
 namespace Steepshot.Activity
 {
     [Activity(Label = Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
-    public class RootActivity : BaseActivity
+    public sealed class RootActivity : BaseActivity
     {
         private Adapter.PagerAdapter _adapter;
-        private TabLayout.Tab prevTab;
+        private TabLayout.Tab _prevTab;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.view_pager)] ViewPager _viewPager;
-        [InjectView(Resource.Id.tab_layout)] TabLayout _tabLayout;
+        [InjectView(Resource.Id.view_pager)] private ViewPager _viewPager;
+        [InjectView(Resource.Id.tab_layout)] private TabLayout _tabLayout;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -36,20 +36,19 @@ namespace Steepshot.Activity
             _viewPager.Adapter = _adapter;
             InitTabs();
 
-            _tabLayout.TabSelected += (sender, e) => 
+            _tabLayout.TabSelected += (sender, e) =>
             {
                 if (e.Tab.Position == 2)
                 {
-                    prevTab.Select();
+                    _prevTab.Select();
                     var intent = new Intent(this, typeof(CameraActivity));
                     StartActivity(intent);
                 }
                 else
                 {
                     OnTabSelected(e.Tab.Position);
-                    prevTab = e.Tab;
+                    _prevTab = e.Tab;
                 }
-                
             };
         }
 
@@ -59,7 +58,7 @@ namespace Steepshot.Activity
             {
                 var tab = _tabLayout.NewTab();
                 if (i == 0)
-                    prevTab = tab;
+                    _prevTab = tab;
                 _tabLayout.AddTab(tab);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
@@ -67,7 +66,7 @@ namespace Steepshot.Activity
             _viewPager.OffscreenPageLimit = 3;
         }
 
-        public void OnTabSelected(int position)
+        private void OnTabSelected(int position)
         {
             _viewPager.SetCurrentItem(position, false);
             for (var i = 0; i < _tabLayout.TabCount; i++)

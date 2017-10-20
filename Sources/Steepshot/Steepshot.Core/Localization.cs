@@ -20,6 +20,7 @@
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string PhotoCompressingError = "Photo compressing error";
+            public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
             public const string ErrorCameraPreview = "Error setting camera preview: ";
             public const string ErrorCameraScale = "ScalemageView does not support FitStart or FitEnd";

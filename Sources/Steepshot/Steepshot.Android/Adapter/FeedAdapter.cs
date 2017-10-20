@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Android.Content;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -18,16 +17,14 @@ namespace Steepshot.Adapter
     {
         protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
-        protected readonly Typeface[] Fonts;
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
         public override int ItemCount => Presenter.Count;
 
-        public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
+        public FeedAdapter(Context context, BasePostPresenter presenter)
         {
             Context = context;
             Presenter = presenter;
-            Fonts = fonts;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -76,7 +73,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, Fonts);
+            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
             return vh;
         }
     }
@@ -102,7 +99,7 @@ namespace Steepshot.Adapter
 
         protected int Correction = 0;
 
-        public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
+        public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
         {
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -119,13 +116,13 @@ namespace Steepshot.Adapter
             Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             CommentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
-
-            Author.Typeface = font[1];
-            Time.Typeface = font[0];
-            Likes.Typeface = font[1];
-            Cost.Typeface = font[1];
-            FirstComment.Typeface = font[0];
-            CommentSubtitle.Typeface = font[0];
+            
+            Author.Typeface = Style.Semibold;
+            Time.Typeface = Style.Regular;
+            Likes.Typeface = Style.Semibold;
+            Cost.Typeface = Style.Semibold;
+            FirstComment.Typeface = Style.Regular;
+            CommentSubtitle.Typeface = Style.Regular;
 
             LikeAction = likeAction;
             UserAction = userAction;

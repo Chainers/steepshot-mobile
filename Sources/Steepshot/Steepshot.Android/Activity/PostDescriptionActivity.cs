@@ -27,7 +27,7 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
+    public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
 
@@ -53,32 +53,17 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
 #pragma warning restore 0649
 
-        [InjectOnClick(Resource.Id.btn_post)]
-        public void OnPost(object sender, EventArgs e)
-        {
-            _postButton.Enabled = false;
-            OnPostAsync();
-        }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void OnBack(object sender, EventArgs e)
-        {
-            OnBackPressed();
-        }
-
-        protected async override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
-
-            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semiboldFont = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
-
-            _pageTitle.Typeface = semiboldFont;
-            _title.Typeface = font;
-            _description.Typeface = font;
-            _postButton.Typeface = semiboldFont;
+            
+            _pageTitle.Typeface = Style.Semibold;
+            _title.Typeface = Style.Regular;
+            _description.Typeface = Style.Regular;
+            _postButton.Typeface = Style.Semibold;
 
             _path = Intent.GetStringExtra(PhotoExtraPath);
             _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
@@ -98,12 +83,12 @@ namespace Steepshot.Activity
             }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
-            _localTagsAdapter = new TagsAdapter(new[] { font, semiboldFont });
+            _localTagsAdapter = new TagsAdapter();
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
-            _tagsAdapter = new TagsAdapter(_presenter, new[] { font, semiboldFont });
+            _tagsAdapter = new TagsAdapter(_presenter);
             _tagsList.SetAdapter(_tagsAdapter);
 
             _tagsAdapter.Click += (int obj) =>
@@ -145,6 +130,38 @@ namespace Steepshot.Activity
             await SearchTextChanged();
             _postButton.Enabled = true;
         }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+            if (_btmp != null)
+            {
+                _btmp.Recycle();
+                _btmp = null;
+            }
+            GC.Collect();
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new PostDescriptionPresenter();
+        }
+
+
+        [InjectOnClick(Resource.Id.btn_post)]
+        public void OnPost(object sender, EventArgs e)
+        {
+            _postButton.Enabled = false;
+            OnPostAsync();
+        }
+
+        [InjectOnClick(Resource.Id.btn_back)]
+        public void OnBack(object sender, EventArgs e)
+        {
+            OnBackPressed();
+        }
+
 
         private void AnimateTagsLayout(int subject)
         {
@@ -195,19 +212,7 @@ namespace Steepshot.Activity
             else
                 _tagsAdapter?.NotifyDataSetChanged();
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-            if (_btmp != null)
-            {
-                _btmp.Recycle();
-                _btmp = null;
-            }
-            GC.Collect();
-        }
-
+        
         private async Task OnPostAsync()
         {
             try
@@ -297,11 +302,6 @@ namespace Steepshot.Activity
                   }
                   return null;
               });
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
         }
     }
 }

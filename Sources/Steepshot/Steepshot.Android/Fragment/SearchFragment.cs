@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
@@ -14,7 +13,6 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -24,7 +22,6 @@ namespace Steepshot.Fragment
     {
         private Timer _timer;
         private SearchType _searchType = SearchType.People;
-        private Typeface _font, _semiboldFont;
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
         ScrollListener scrollListner;
 
@@ -64,11 +61,8 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
             _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.FollowersPresenter, new[] { _font, _semiboldFont });
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.FollowersPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -81,8 +75,8 @@ namespace Steepshot.Fragment
             _usersSearchAdapter.FollowAction += Follow;
             _timer = new Timer(OnTimer);
 
-            _searchView.Typeface = _font;
-            _clearButton.Typeface = _font;
+            _searchView.Typeface = Style.Regular;
+            _clearButton.Typeface = Style.Regular;
             SwitchSearchType();
             _searchView.RequestFocus();
 
@@ -203,11 +197,11 @@ namespace Steepshot.Fragment
             {
                 _users.Visibility = ViewStates.Gone;
                 _categories.Visibility = ViewStates.Visible;
-                _tagsButton.Typeface = _semiboldFont;
+                _tagsButton.Typeface = Style.Semibold;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
                 _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
 
-                _peopleButton.Typeface = _font;
+                _peopleButton.Typeface = Style.Regular;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
                 _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
             }
@@ -215,11 +209,11 @@ namespace Steepshot.Fragment
             {
                 _users.Visibility = ViewStates.Visible;
                 _categories.Visibility = ViewStates.Gone;
-                _peopleButton.Typeface = _semiboldFont;
+                _peopleButton.Typeface = Style.Semibold;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
                 _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
 
-                _tagsButton.Typeface = _font;
+                _tagsButton.Typeface = Style.Regular;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
                 _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
             }

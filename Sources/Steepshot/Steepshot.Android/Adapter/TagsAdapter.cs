@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -15,12 +15,10 @@ namespace Steepshot.Adapter
         private PostDescriptionPresenter _presenter;
         public Action<int> Click;
         public List<SearchResult> LocalTags = new List<SearchResult>();
-        private readonly Typeface[] _fonts;
         public override int ItemCount => _presenter != null ? _presenter.Count : LocalTags.Count;
 
-        public TagsAdapter(Typeface[] fonts)
+        public TagsAdapter()
         {
-            _fonts = fonts;
             Click += (obj) =>
             {
                 LocalTags.RemoveAt(obj);
@@ -28,9 +26,8 @@ namespace Steepshot.Adapter
             };
         }
 
-        public TagsAdapter(PostDescriptionPresenter presenter, Typeface[] fonts)
+        public TagsAdapter(PostDescriptionPresenter presenter)
         {
-            _fonts = fonts;
             _presenter = presenter;
         }
 
@@ -54,7 +51,7 @@ namespace Steepshot.Adapter
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(_presenter != null ? Resource.Layout.lyr_search_tag : Resource.Layout.lyt_local_tags_item, parent, false);
             var vh = new TagViewHolder(itemView, Click);
-            vh.Tag.Typeface = _fonts[1];
+            vh.Tag.Typeface = Style.Semibold;
             return vh;
         }
 
