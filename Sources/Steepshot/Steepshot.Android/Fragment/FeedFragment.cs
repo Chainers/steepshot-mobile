@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
@@ -130,11 +131,15 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
+                _feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
-
-                _feedAdapter?.NotifyDataSetChanged();
+                else
+                {
+                    await Task.Delay(3000);
+                }
+                _feedAdapter.ActionsEnabled = true;
             }
         }
 
