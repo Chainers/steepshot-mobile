@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -20,8 +19,6 @@ namespace Steepshot.Fragment
     public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private readonly string _profileId;
-        private Typeface _font;
-        private Typeface _semiboldFont;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -39,13 +36,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.list_layout)] RelativeLayout _listLayout;
 #pragma warning restore 0649
 
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
-        {
-            var intent = new Intent(Context, typeof(SettingsActivity));
-            StartActivity(intent);
-        }
-
         ProfileFeedAdapter _profileFeedAdapter;
         ProfileFeedAdapter ProfileFeedAdapter
         {
@@ -53,7 +43,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -74,7 +64,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
@@ -84,15 +74,31 @@ namespace Steepshot.Fragment
             }
         }
 
-        protected override void CreatePresenter()
+        public override bool CustomUserVisibleHint
         {
-            _presenter = new UserProfilePresenter(_profileId);
+            get => base.CustomUserVisibleHint;
+            set
+            {
+                if (value && BasePresenter.ShouldUpdateProfile)
+                {
+                    UpdatePage();
+                    BasePresenter.ShouldUpdateProfile = false;
+                }
+                UserVisibleHint = value;
+            }
         }
 
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
         }
+
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new UserProfilePresenter(_profileId);
+        }
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -108,10 +114,10 @@ namespace Steepshot.Fragment
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-            _login.Typeface = _semiboldFont;
+
+            _login.Typeface = Style.Semibold;
 
             if (_profileId != BasePresenter.User.Login)
             {
@@ -142,20 +148,6 @@ namespace Steepshot.Fragment
             GetUserPosts();
         }
 
-        public override bool CustomUserVisibleHint
-        {
-            get => base.CustomUserVisibleHint;
-            set
-            {
-                if (value && BasePresenter.ShouldUpdateProfile)
-                {
-                    UpdatePage();
-                    BasePresenter.ShouldUpdateProfile = false;
-                }
-                UserVisibleHint = value;
-            }
-        }
-
         private async Task GetUserPosts(bool isRefresh = false)
         {
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
@@ -165,6 +157,13 @@ namespace Steepshot.Fragment
             if (_listSpinner != null)
                 _listSpinner.Visibility = ViewStates.Gone;
             _postsList?.GetAdapter()?.NotifyDataSetChanged();
+        }
+
+        [InjectOnClick(Resource.Id.btn_settings)]
+        public void OnSettingsClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(SettingsActivity));
+            StartActivity(intent);
         }
 
         private async Task UpdatePage()
@@ -245,7 +244,7 @@ namespace Steepshot.Fragment
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
+                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
                 StartActivity(intent);
             }
         }
@@ -272,7 +271,7 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
 

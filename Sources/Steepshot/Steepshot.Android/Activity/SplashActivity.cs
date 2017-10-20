@@ -18,8 +18,10 @@ namespace Steepshot.Activity
 {
     [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
-    public class SplashActivity : BaseActivity
+    public sealed class SplashActivity : BaseActivity
     {
+        private static LruCache Cache;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);

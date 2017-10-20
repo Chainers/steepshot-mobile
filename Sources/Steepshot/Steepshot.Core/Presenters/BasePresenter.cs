@@ -45,7 +45,10 @@ namespace Steepshot.Core.Presenters
             Api = new DitchApi();
             Api.Connect(Chain, AppSettings.IsDev);
             // static constructor initialization.
-            var init = new Secp256k1Manager();
+            Task.Run(() =>
+            {
+                var init = new Secp256k1Manager();
+            });
         }
 
         public static void SwitchChain(bool isDev)

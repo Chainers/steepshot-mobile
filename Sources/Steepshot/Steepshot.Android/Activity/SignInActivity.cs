@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -14,16 +13,21 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 using ZXing.Mobile;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
+    public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
-        private string _username;
+        public const string ChainExtraPath = "newChain";
+        public const string LoginExtraPath = "login";
+        public const string AvatarUrlExtraPath = "avatar_url";
+
         private MobileBarcodeScanner _scanner;
         private KnownChains _newChain;
+        private string _username;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
@@ -45,12 +49,9 @@ namespace Steepshot.Activity
 
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
-            _username = Intent.GetStringExtra("login");
-            var profileImage = Intent.GetStringExtra("avatar_url");
-            _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
-
-            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
+            _username = Intent.GetStringExtra(LoginExtraPath);
+            var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
+            _newChain = (KnownChains)Intent.GetIntExtra(ChainExtraPath, (int)KnownChains.None);
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
@@ -58,10 +59,10 @@ namespace Steepshot.Activity
             _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
             _signInBtn.Text = Localization.Texts.EnterAccountText;
 
-            _viewTitle.Typeface = semibold_font;
-            _password.Typeface = semibold_font;
-            _signInBtn.Typeface = semibold_font;
-            _buttonScanDefaultView.Typeface = semibold_font;
+            _viewTitle.Typeface = Style.Semibold;
+            _password.Typeface = Style.Semibold;
+            _signInBtn.Typeface = Style.Semibold;
+            _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
             try
             {
@@ -137,8 +138,7 @@ namespace Steepshot.Activity
                 if (response.Success)
                 {
                     _newChain = KnownChains.None;
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain,
-                        true);
+                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
                     var intent = new Intent(this, typeof(RootActivity));
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(intent);
