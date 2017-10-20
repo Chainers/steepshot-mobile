@@ -23,6 +23,15 @@ namespace Steepshot.Adapter
         public Action<int> FollowAction;
         public Action<int> UserAction;
 
+        public override int ItemCount
+        {
+            get
+            {
+                var count = _presenter.Count;
+                return count == 0 || _presenter.IsLastReaded ? count : count + 1;
+            }
+        }
+
         public FollowersAdapter(Context context, ListPresenter<UserFriend> presenter, Typeface[] fonts)
         {
             _context = context;
@@ -36,15 +45,6 @@ namespace Steepshot.Adapter
                 return (int)ViewType.Loader;
 
             return (int)ViewType.Cell;
-        }
-
-        public override int ItemCount
-        {
-            get
-            {
-                var count = _presenter.Count;
-                return count == 0 || _presenter.IsLastReaded ? count : count + 1;
-            }
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
