@@ -237,17 +237,21 @@ namespace Steepshot.Fragment
 
         private async void LikeAction(int position)
         {
+            var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
             if (BasePresenter.User.IsAuthenticated)
             {
+                feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
-
-                _searchList?.GetAdapter()?.NotifyDataSetChanged();
+                else
+                {
+                    await Task.Delay(3000);
+                }
+                feedAdapter.ActionsEnabled = true;
             }
             else
                 OpenLogin();
-
         }
 
         private void UserAction(int position)
