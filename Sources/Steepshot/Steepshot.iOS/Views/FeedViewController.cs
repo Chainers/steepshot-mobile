@@ -281,7 +281,12 @@ namespace Steepshot.iOS.Views
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(vote, postUrl, action)));
             actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj =>
+            {
+                feedCollection.ReloadData();
+                flowLayout.InvalidateLayout();
+                actionSheetAlert.DismissViewController(true, null);
+            }));
             PresentViewController(actionSheetAlert, true, null);
         }
 
