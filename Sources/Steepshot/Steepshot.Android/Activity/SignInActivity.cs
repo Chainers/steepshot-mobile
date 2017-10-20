@@ -21,6 +21,10 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
+        public const string ChainExtraPath = "newChain";
+        public const string LoginExtraPath = "login";
+        public const string AvatarUrlExtraPath = "avatar_url";
+
         private MobileBarcodeScanner _scanner;
         private KnownChains _newChain;
         private string _username;
@@ -41,10 +45,10 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
-            _username = Intent.GetStringExtra("login");
-            _title.Text = $"Hello, {_username}";
-            var profileImage = Intent.GetStringExtra("avatar_url");
-            _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
+            _username = Intent.GetStringExtra(LoginExtraPath);
+            _title.Text = $"{Localization.Messages.Hello} {_username}";
+            var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
+            _newChain = (KnownChains)Intent.GetIntExtra(ChainExtraPath, (int)KnownChains.None);
 
 #if DEBUG
             try

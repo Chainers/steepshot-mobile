@@ -9,6 +9,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -49,7 +50,7 @@ namespace Steepshot.Activity
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = "Post comments";
+            _viewTitle.Text = Localization.Messages.PostComments;
 
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
@@ -152,7 +153,7 @@ namespace Steepshot.Activity
                 return;
 
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra("ID", user.Author);
+            intent.PutExtra(ProfileActivity.UserExtraName, user.Author);
             StartActivity(intent);
         }
 
