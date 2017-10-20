@@ -30,6 +30,7 @@ namespace Steepshot.Activity
     public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
+        public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
 
         private string _path;
         private bool _shouldCompress;
@@ -66,7 +67,7 @@ namespace Steepshot.Activity
             _postButton.Typeface = Style.Semibold;
 
             _path = Intent.GetStringExtra(PhotoExtraPath);
-            _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
+            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             var photoUri = Android.Net.Uri.Parse(_path);
 
             if (!_shouldCompress)

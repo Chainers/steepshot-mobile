@@ -4,6 +4,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -100,7 +101,7 @@ namespace Steepshot.Adapter
 
                 Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
 
-                Likes.Text = $"{post.NetVotes} Like's";
+                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
                 Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
                 Time.Text = post.Created.ToPostTime();
                 //CheckLikeVisibility(post.NetVotes);

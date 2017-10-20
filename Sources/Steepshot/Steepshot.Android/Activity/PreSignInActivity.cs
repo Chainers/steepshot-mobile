@@ -16,6 +16,7 @@ namespace Steepshot.Activity
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
+        public const string ChainExtraPath = "newChain";
         private KnownChains _newChain;
         private int _clickCount;
 
@@ -43,7 +44,7 @@ namespace Steepshot.Activity
 #if DEBUG
             _username.Text = "joseph.kalu";
 #endif
-            _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
+            _newChain = (KnownChains)Intent.GetIntExtra(ChainExtraPath, (int)KnownChains.None);
             if (_newChain != KnownChains.None)
             {
                 _switcher.Visibility = ViewStates.Gone;
@@ -121,9 +122,9 @@ namespace Steepshot.Activity
             if (response != null && response.Success)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
-                intent.PutExtra("login", login);
-                intent.PutExtra("avatar_url", response.Result.ProfileImage);
-                intent.PutExtra("newChain", (int)_newChain);
+                intent.PutExtra(SignInActivity.LoginExtraPath, login);
+                intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
+                intent.PutExtra(SignInActivity.ChainExtraPath, (int)_newChain);
                 _newChain = KnownChains.None;
                 StartActivity(intent);
             }

@@ -116,7 +116,7 @@ namespace Steepshot.Activity
         public void AddAccountClick(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(PreSignInActivity));
-            intent.PutExtra("newChain", (int)(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem));
+            intent.PutExtra(PreSignInActivity.ChainExtraPath, (int)(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem));
             StartActivity(intent);
         }
 
