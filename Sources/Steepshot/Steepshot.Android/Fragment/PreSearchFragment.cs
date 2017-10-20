@@ -245,7 +245,7 @@ namespace Steepshot.Fragment
             var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
             if (BasePresenter.User.IsAuthenticated)
             {
-                feedAdapter.SwitchActionsEnabled(position);
+                feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
@@ -253,7 +253,7 @@ namespace Steepshot.Fragment
                 {
                     await Task.Delay(3000);
                 }
-                feedAdapter.SwitchActionsEnabled(-1);
+                feedAdapter.ActionsEnabled = true;
             }
             else
                 OpenLogin();
