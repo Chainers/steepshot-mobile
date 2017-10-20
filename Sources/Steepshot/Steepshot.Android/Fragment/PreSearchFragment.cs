@@ -230,7 +230,7 @@ namespace Steepshot.Fragment
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
+                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
                 StartActivity(intent);
             }
         }
