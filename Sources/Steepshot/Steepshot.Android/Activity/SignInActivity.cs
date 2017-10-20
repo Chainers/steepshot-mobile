@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -22,31 +22,46 @@ namespace Steepshot.Activity
     public class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
         private string _username;
+        private MobileBarcodeScanner _scanner;
+        private KnownChains _newChain;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.profile_image)] CircleImageView _profileImage;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
-        [InjectView(Resource.Id.title)] TextView _title;
-        [InjectView(Resource.Id.input_password)] EditText _password;
-        [InjectView(Resource.Id.qr_button)] Button _buttonScanDefaultView;
-        [InjectView(Resource.Id.sign_in_btn)] AppCompatButton _signInBtn;
+        [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.input_password)] private EditText _password;
+        [InjectView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
+        [InjectView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
-
-        MobileBarcodeScanner _scanner;
-        private KnownChains _newChain;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
+
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra("login");
-            _title.Text = $"Hello, {_username}";
             var profileImage = Intent.GetStringExtra("avatar_url");
             _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
 
+            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
+            var semibold_font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
+
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
+            _signInBtn.Text = Localization.Texts.EnterAccountText;
+
+            _viewTitle.Typeface = semibold_font;
+            _password.Typeface = semibold_font;
+            _signInBtn.Typeface = semibold_font;
+            _buttonScanDefaultView.Typeface = semibold_font;
 #if DEBUG
             try
             {
@@ -63,13 +78,8 @@ namespace Steepshot.Activity
                 //todo nothing
             }
 #endif
-
-            _password.TextChanged += TextChanged;
-
             if (!string.IsNullOrEmpty(profileImage))
                 Picasso.With(this).Load(profileImage).Into(_profileImage);
-            else
-                Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
             _signInBtn.Click += SignInBtn_Click;
@@ -100,18 +110,6 @@ namespace Steepshot.Activity
             }
         }
 
-        private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            var typedsender = (EditText)sender;
-            if (string.IsNullOrWhiteSpace(e?.Text.ToString()))
-            {
-                var message = GetString(Resource.String.error_empty_field);
-                var d = ContextCompat.GetDrawable(this, Resource.Drawable.ic_error);
-                d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
-                typedsender.SetError(message, d);
-            }
-        }
-
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var appCompatButton = sender as AppCompatButton;
@@ -129,7 +127,7 @@ namespace Steepshot.Activity
                 }
 
                 _spinner.Visibility = ViewStates.Visible;
-                appCompatButton.Visibility = ViewStates.Invisible;
+                appCompatButton.Text = string.Empty;
                 appCompatButton.Enabled = false;
 
                 var response = await _presenter.TrySignIn(login, pass);
@@ -157,7 +155,7 @@ namespace Steepshot.Activity
             finally
             {
                 appCompatButton.Enabled = true;
-                appCompatButton.Visibility = ViewStates.Visible;
+                appCompatButton.Text = Localization.Texts.EnterAccountText;
                 _spinner.Visibility = ViewStates.Invisible;
             }
         }

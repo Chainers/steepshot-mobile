@@ -93,7 +93,6 @@
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
-    <Compile Include="Fragment\DropdownFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
     <Compile Include="Fragment\HostFragment.cs" />
@@ -116,6 +115,7 @@
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
+    <Compile Include="Activity\WelcomeActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -161,6 +161,11 @@
     <AndroidResource Include="Resources\drawable-mdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\send.png" />
+    <AndroidResource Include="Resources\layout\lyt_welcome.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\more.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\more.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\more.png" />
+    <AndroidResource Include="Resources\drawable\blue_circle_border.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -194,7 +199,6 @@
     <AndroidResource Include="Resources\layout\lyt_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
-    <AndroidResource Include="Resources\layout\lyt_following.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
     <AndroidResource Include="Resources\layout\lyt_post_description.axml" />

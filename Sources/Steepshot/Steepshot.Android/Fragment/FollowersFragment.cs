@@ -22,13 +22,13 @@ namespace Steepshot.Fragment
         private string _username;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.followers_list)] private RecyclerView _followersList;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.people_count)] private TextView _people_count;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

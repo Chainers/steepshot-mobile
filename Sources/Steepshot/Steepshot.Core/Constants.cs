@@ -8,8 +8,6 @@
 
     public class Constants
     {
-        public const string ReportLogin = "crash.steepshot.org@gmail.com";
-        public const string ReportPassword = "steep7788";
         public const string UserContextKey = "UserCredentials";
         public const string IsDevKey = "IsDev";
         public const string Steepshot = "Steepshot";
@@ -21,5 +19,8 @@
 
         public const string SteemitRegUrl = "https://steemit.com/pick_account";
         public const string GolosRegUrl = "https://golos.io/enter_email";
+
+        public const string Tos = "https://steepshot.org/terms-of-service";
+        public const string Pp = "https://steepshot.org/privacy-policy";
     }
 }
