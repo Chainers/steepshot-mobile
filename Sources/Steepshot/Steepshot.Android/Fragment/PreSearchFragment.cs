@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.Transitions;
 using Android.Support.V4.Content;
@@ -26,7 +25,6 @@ namespace Steepshot.Fragment
 {
     public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
-        private Typeface _font, _semiboldFont;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -57,7 +55,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new FeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileFeedAdapter = new FeedAdapter(Context, _presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -193,20 +191,17 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
                 _loginButton.Visibility = ViewStates.Gone;
 
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
             SetAnimation();
             _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
             _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
             _currentButton = _trendingButton;
-            _trendingButton.Typeface = _semiboldFont;
-            _hotButton.Typeface = _font;
-            _newButton.Typeface = _font;
+            _trendingButton.Typeface = Style.Semibold;
+            _hotButton.Typeface = Style.Regular;
+            _newButton.Typeface = Style.Regular;
 
-            _searchView.Typeface = _font;
-            _clearButton.Typeface = _font;
-            _loginButton.Typeface = _semiboldFont;
+            _searchView.Typeface = Style.Regular;
+            _clearButton.Typeface = Style.Regular;
+            _loginButton.Typeface = Style.Semibold;
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += async () => await LoadPosts();
 
@@ -395,8 +390,8 @@ namespace Steepshot.Fragment
         {
             TransitionManager.BeginDelayedTransition(_searchTypeLayout);
 
-            _activeButton.Typeface = _semiboldFont;
-            _currentButton.Typeface = _font;
+            _activeButton.Typeface = Style.Semibold;
+            _currentButton.Typeface = Style.Regular;
 
             _activeButton.SetPadding(0, 0, 0, 0);
             _currentButton.SetPadding(0, 0, 0, _bottomPadding);

@@ -14,8 +14,10 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Activity
 {
     [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
+    public sealed class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
+        private KnownChains _newChain;
+        private int _clickCount;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
@@ -28,8 +30,6 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.ic_logo)] private ImageView _logo;
 #pragma warning restore 0649
 
-        private KnownChains _newChain;
-        private int _clickCount;
         protected override void CreatePresenter()
         {
             _presenter = new PreSignInPresenter();

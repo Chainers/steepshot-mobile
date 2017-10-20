@@ -16,15 +16,13 @@ namespace Steepshot.Adapter
 {
     public class ProfileGridAdapter : GridAdapter
     {
-        private Typeface[] _fonts;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
         public UserProfileResponse ProfileData;
         private bool _isHeaderNeeded;
 
-        public ProfileGridAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts, bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileGridAdapter(Context context, BasePostPresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
-            _fonts = fonts;
             _isHeaderNeeded = isHeaderNeeded;
         }
 
@@ -43,7 +41,7 @@ namespace Steepshot.Adapter
             if (viewType == 0)
             {
                 var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                return new HeaderViewHolder(itemView, Context, _fonts, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                return new HeaderViewHolder(itemView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
             }
             else
             {
@@ -88,8 +86,7 @@ namespace Steepshot.Adapter
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
-        public HeaderViewHolder(View itemView, Context context, Typeface[] font,
-                                Action followersAction, Action followingAction, Action balanceAction, Action followAction) : base(itemView)
+        public HeaderViewHolder(View itemView, Context context, Action followersAction, Action followingAction, Action balanceAction, Action followAction) : base(itemView)
         {
             _context = context;
 
@@ -114,18 +111,18 @@ namespace Steepshot.Adapter
 
             //_isamage = itemView.FindViewById<View>(Resource.Id.follow_button_solid);
 
-            _name.Typeface = font[1];
-            _place.Typeface = font[0];
-            _description.Typeface = font[0];
-            _site.Typeface = font[0];
-            _photos_count.Typeface = font[1];
-            _photos_title.Typeface = font[0];
-            _following_count.Typeface = font[1];
-            _following_title.Typeface = font[0];
-            _followers_count.Typeface = font[1];
-            _followers_title.Typeface = font[0];
-            _balance_text.Typeface = font[0];
-            _balance.Typeface = font[0];
+            _name.Typeface = Style.Semibold;
+            _place.Typeface = Style.Regular;
+            _description.Typeface = Style.Regular;
+            _site.Typeface = Style.Regular;
+            _photos_count.Typeface = Style.Semibold;
+            _photos_title.Typeface = Style.Regular;
+            _following_count.Typeface = Style.Semibold;
+            _following_title.Typeface = Style.Regular;
+            _followers_count.Typeface = Style.Semibold;
+            _followers_title.Typeface = Style.Regular;
+            _balance_text.Typeface = Style.Regular;
+            _balance.Typeface = Style.Regular;
 
             _followersAction = followersAction;
             _followingAction = followingAction;

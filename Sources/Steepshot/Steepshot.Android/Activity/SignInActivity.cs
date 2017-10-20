@@ -19,21 +19,20 @@ using ZXing.Mobile;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
+    public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
+        private MobileBarcodeScanner _scanner;
+        private KnownChains _newChain;
         private string _username;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.profile_image)] CircleImageView _profileImage;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _spinner;
-        [InjectView(Resource.Id.title)] TextView _title;
-        [InjectView(Resource.Id.input_password)] EditText _password;
-        [InjectView(Resource.Id.qr_button)] Button _buttonScanDefaultView;
-        [InjectView(Resource.Id.sign_in_btn)] AppCompatButton _signInBtn;
+        [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.title)] private TextView _title;
+        [InjectView(Resource.Id.input_password)] private EditText _password;
+        [InjectView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
+        [InjectView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
 #pragma warning restore 0649
-
-        MobileBarcodeScanner _scanner;
-        private KnownChains _newChain;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -66,10 +65,10 @@ namespace Steepshot.Activity
 
             _password.TextChanged += TextChanged;
 
-            if (!string.IsNullOrEmpty(profileImage))
-                Picasso.With(this).Load(profileImage).Into(_profileImage);
-            else
+            if (string.IsNullOrEmpty(profileImage))
                 Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
+            else
+                Picasso.With(this).Load(profileImage).Into(_profileImage);
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
             _signInBtn.Click += SignInBtn_Click;

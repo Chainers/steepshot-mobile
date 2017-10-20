@@ -21,8 +21,11 @@ using Steepshot.Core.Utils;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
+    public sealed class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
     {
+        private UserInfo _steemAcc;
+        private UserInfo _golosAcc;
+
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.civ_avatar)] private CircleImageView _avatar;
         [InjectView(Resource.Id.steem_text)] private TextView _steemText;
@@ -35,15 +38,13 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.version_textview)] private TextView _versionText;
         [InjectView(Resource.Id.tests)] private AppCompatButton _testsButton;
 #pragma warning restore 0649
-        UserInfo _steemAcc;
-        UserInfo _golosAcc;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Inject(this);
-            LoadAvatar();
+
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
             _versionText.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             var accounts = BasePresenter.User.GetAllAccounts();
@@ -88,23 +89,13 @@ namespace Steepshot.Activity
                 _testsButton.Visibility = ViewStates.Visible;
                 _testsButton.Click += StartTestActivity;
             }
+            
+            LoadAvatar();
         }
 
-        private void StartTestActivity(object sender, EventArgs e)
+        protected override void CreatePresenter()
         {
-            var intent = new Intent(this, typeof(TestActivity));
-            StartActivity(intent);
-        }
-
-        private async void LoadAvatar()
-        {
-            //TODO: avatar was already loaded for profile activity! Remove SettingsPresenter.
-            var info = await _presenter.TryGetUserInfo();
-
-            if (info != null && info.Success && !string.IsNullOrEmpty(info.Result.ProfileImage))
-            {
-                Picasso.With(ApplicationContext).Load(info.Result.ProfileImage).Into(_avatar);
-            }
+            _presenter = new SettingsPresenter();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -155,6 +146,28 @@ namespace Steepshot.Activity
             BasePresenter.User.Delete(_golosAcc);
             _golosView.Visibility = ViewStates.Gone;
             RemoveChain(KnownChains.Golos);
+        }
+
+
+        private void StartTestActivity(object sender, EventArgs e)
+        {
+            var intent = new Intent(this, typeof(TestActivity));
+            StartActivity(intent);
+        }
+
+        private async void LoadAvatar()
+        {
+            var info = await _presenter.TryGetUserInfo();
+
+            if (info != null && info.Success)
+            {
+                if (!string.IsNullOrEmpty(info.Result.ProfileImage))
+                    Picasso.With(ApplicationContext).Load(info.Result.ProfileImage).Into(_avatar);
+            }
+            else
+            {
+                ShowAlert(info);
+            }
         }
 
         private void SwitchChain(UserInfo user)
@@ -210,9 +223,5 @@ namespace Steepshot.Activity
                 _addButton.Visibility = ViewStates.Gone;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new SettingsPresenter();
-        }
     }
 }

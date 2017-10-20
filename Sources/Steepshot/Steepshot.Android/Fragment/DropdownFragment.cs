@@ -8,12 +8,28 @@ namespace Steepshot.Fragment
 {
     public class DropdownFragment : BaseFragment
     {
-        public DropdownFragment() { }
-
         private readonly FeedFragment _parent;
+
+
+        public DropdownFragment() { }
+        
         public DropdownFragment(FeedFragment parent)
         {
             _parent = parent;
+        }
+
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            var v = inflater.Inflate(Resource.Layout.lyt_following, null);
+            Cheeseknife.Inject(this, v);
+            return v;
+        }
+
+        public override void OnDestroyView()
+        {
+            base.OnDestroyView();
+            Cheeseknife.Reset(this);
         }
 
         [InjectOnClick(Resource.Id.btn_new)]
@@ -40,17 +56,5 @@ namespace Steepshot.Fragment
             //_parent.HideDropdown();
         }
 
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            var v = inflater.Inflate(Resource.Layout.lyt_following, null);
-            Cheeseknife.Inject(this, v);
-            return v;
-        }
-
-        public override void OnDestroyView()
-        {
-            base.OnDestroyView();
-            Cheeseknife.Reset(this);
-        }
     }
 }
