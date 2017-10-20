@@ -17,6 +17,8 @@ namespace Steepshot.Activity
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
     {
+        public const string PostExtraPath = "uid";
+
         private CommentAdapter _adapter;
         private string _uid;
         private LinearLayoutManager _manager;
@@ -49,7 +51,7 @@ namespace Steepshot.Activity
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = "Post comments";
 
-            _uid = Intent.GetStringExtra("uid");
+            _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
             _comments.SetLayoutManager(_manager);
             _adapter = new CommentAdapter(this, _presenter);

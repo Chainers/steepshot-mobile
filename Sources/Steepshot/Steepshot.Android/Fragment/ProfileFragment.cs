@@ -116,7 +116,7 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
-            
+
             _login.Typeface = Style.Semibold;
 
             if (_profileId != BasePresenter.User.Login)
@@ -271,7 +271,7 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
 
