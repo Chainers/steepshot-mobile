@@ -34,6 +34,7 @@ namespace Steepshot.Adapter
             var photo = post.Photos?.FirstOrDefault();//.Photos?.FirstOrDefault();
             if (photo == null)
                 return;
+
             Picasso.With(Context).Load(photo)
                 .NoFade()
                 .Resize(_cellSize, _cellSize)
