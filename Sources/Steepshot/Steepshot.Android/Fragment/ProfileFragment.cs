@@ -39,13 +39,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.list_layout)] RelativeLayout _listLayout;
 #pragma warning restore 0649
 
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
-        {
-            var intent = new Intent(Context, typeof(SettingsActivity));
-            StartActivity(intent);
-        }
-
         ProfileFeedAdapter _profileFeedAdapter;
         ProfileFeedAdapter ProfileFeedAdapter
         {
@@ -84,15 +77,31 @@ namespace Steepshot.Fragment
             }
         }
 
-        protected override void CreatePresenter()
+        public override bool CustomUserVisibleHint
         {
-            _presenter = new UserProfilePresenter(_profileId);
+            get => base.CustomUserVisibleHint;
+            set
+            {
+                if (value && BasePresenter.ShouldUpdateProfile)
+                {
+                    UpdatePage();
+                    BasePresenter.ShouldUpdateProfile = false;
+                }
+                UserVisibleHint = value;
+            }
         }
 
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
         }
+
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new UserProfilePresenter(_profileId);
+        }
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -108,7 +117,9 @@ namespace Steepshot.Fragment
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
+
             _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
             _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
             _login.Typeface = _semiboldFont;
@@ -142,20 +153,6 @@ namespace Steepshot.Fragment
             GetUserPosts();
         }
 
-        public override bool CustomUserVisibleHint
-        {
-            get => base.CustomUserVisibleHint;
-            set
-            {
-                if (value && BasePresenter.ShouldUpdateProfile)
-                {
-                    UpdatePage();
-                    BasePresenter.ShouldUpdateProfile = false;
-                }
-                UserVisibleHint = value;
-            }
-        }
-
         private async Task GetUserPosts(bool isRefresh = false)
         {
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
@@ -165,6 +162,13 @@ namespace Steepshot.Fragment
             if (_listSpinner != null)
                 _listSpinner.Visibility = ViewStates.Gone;
             _postsList?.GetAdapter()?.NotifyDataSetChanged();
+        }
+
+        [InjectOnClick(Resource.Id.btn_settings)]
+        public void OnSettingsClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(SettingsActivity));
+            StartActivity(intent);
         }
 
         private async Task UpdatePage()
