@@ -269,7 +269,7 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
 
