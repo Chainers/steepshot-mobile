@@ -3,7 +3,6 @@ using System.IO;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -14,6 +13,7 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 using ZXing.Mobile;
 
 namespace Steepshot.Activity
@@ -32,10 +32,13 @@ namespace Steepshot.Activity
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [InjectView(Resource.Id.title)] private TextView _title;
         [InjectView(Resource.Id.input_password)] private EditText _password;
         [InjectView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
         [InjectView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -43,13 +46,23 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
             Cheeseknife.Inject(this);
+
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra(LoginExtraPath);
-            _title.Text = $"{Localization.Messages.Hello} {_username}";
             var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
             _newChain = (KnownChains)Intent.GetIntExtra(ChainExtraPath, (int)KnownChains.None);
 
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
+            _signInBtn.Text = Localization.Texts.EnterAccountText;
+
+            _viewTitle.Typeface = Style.Semibold;
+            _password.Typeface = Style.Semibold;
+            _signInBtn.Typeface = Style.Semibold;
+            _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
             try
             {
@@ -66,12 +79,7 @@ namespace Steepshot.Activity
                 //todo nothing
             }
 #endif
-
-            _password.TextChanged += TextChanged;
-
-            if (string.IsNullOrEmpty(profileImage))
-                Picasso.With(this).Load(Resource.Drawable.ic_user_placeholder).Into(_profileImage);
-            else
+            if (!string.IsNullOrEmpty(profileImage))
                 Picasso.With(this).Load(profileImage).Into(_profileImage);
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
@@ -103,18 +111,6 @@ namespace Steepshot.Activity
             }
         }
 
-        private void TextChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            var typedsender = (EditText)sender;
-            if (string.IsNullOrWhiteSpace(e?.Text.ToString()))
-            {
-                var message = GetString(Resource.String.error_empty_field);
-                var d = ContextCompat.GetDrawable(this, Resource.Drawable.ic_error);
-                d.SetBounds(0, 0, d.IntrinsicWidth, d.IntrinsicHeight);
-                typedsender.SetError(message, d);
-            }
-        }
-
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var appCompatButton = sender as AppCompatButton;
@@ -132,7 +128,7 @@ namespace Steepshot.Activity
                 }
 
                 _spinner.Visibility = ViewStates.Visible;
-                appCompatButton.Visibility = ViewStates.Invisible;
+                appCompatButton.Text = string.Empty;
                 appCompatButton.Enabled = false;
 
                 var response = await _presenter.TrySignIn(login, pass);
@@ -159,7 +155,7 @@ namespace Steepshot.Activity
             finally
             {
                 appCompatButton.Enabled = true;
-                appCompatButton.Visibility = ViewStates.Visible;
+                appCompatButton.Text = Localization.Texts.EnterAccountText;
                 _spinner.Visibility = ViewStates.Invisible;
             }
         }

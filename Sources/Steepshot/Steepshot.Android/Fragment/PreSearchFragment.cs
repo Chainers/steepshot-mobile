@@ -323,7 +323,7 @@ namespace Steepshot.Fragment
 
         private void OpenLogin()
         {
-            var intent = new Intent(Activity, typeof(PreSignInActivity));
+            var intent = new Intent(Activity, typeof(WelcomeActivity));
             StartActivity(intent);
         }
 
