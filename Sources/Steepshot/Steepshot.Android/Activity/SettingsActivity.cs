@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -89,7 +90,7 @@ namespace Steepshot.Activity
                 _testsButton.Visibility = ViewStates.Visible;
                 _testsButton.Click += StartTestActivity;
             }
-            
+
             LoadAvatar();
         }
 
@@ -121,31 +122,31 @@ namespace Steepshot.Activity
         }
 
         [InjectOnClick(Resource.Id.golosView)]
-        public void GolosViewClick(object sender, EventArgs e)
+        public async void GolosViewClick(object sender, EventArgs e)
         {
-            SwitchChain(_golosAcc);
+            await SwitchChain(_golosAcc);
         }
 
         [InjectOnClick(Resource.Id.steemView)]
-        public void SteemViewClick(object sender, EventArgs e)
+        public async void SteemViewClick(object sender, EventArgs e)
         {
-            SwitchChain(_steemAcc);
+            await SwitchChain(_steemAcc);
         }
 
         [InjectOnClick(Resource.Id.remove_steem)]
-        public void RemoveSteem(object sender, EventArgs e)
+        public async void RemoveSteem(object sender, EventArgs e)
         {
             BasePresenter.User.Delete(_steemAcc);
             _steemView.Visibility = ViewStates.Gone;
-            RemoveChain(KnownChains.Steem);
+            await RemoveChain(KnownChains.Steem);
         }
 
         [InjectOnClick(Resource.Id.remove_golos)]
-        public void RemoveGolos(object sender, EventArgs e)
+        public async void RemoveGolos(object sender, EventArgs e)
         {
             BasePresenter.User.Delete(_golosAcc);
             _golosView.Visibility = ViewStates.Gone;
-            RemoveChain(KnownChains.Golos);
+            await RemoveChain(KnownChains.Golos);
         }
 
 
@@ -170,18 +171,18 @@ namespace Steepshot.Activity
             }
         }
 
-        private void SwitchChain(UserInfo user)
+        private async Task SwitchChain(UserInfo user)
         {
             if (BasePresenter.Chain != user.Chain)
             {
-                BasePresenter.SwitchChain(user);
+                await BasePresenter.SwitchChain(user);
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
             }
         }
 
-        private void RemoveChain(KnownChains chain)
+        private async Task RemoveChain(KnownChains chain)
         {
             var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
@@ -195,7 +196,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
+                    await BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);

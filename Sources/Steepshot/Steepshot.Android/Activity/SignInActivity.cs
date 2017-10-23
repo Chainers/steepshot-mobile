@@ -160,11 +160,11 @@ namespace Steepshot.Activity
             }
         }
 
-        protected override void OnDestroy()
+        protected override async void OnDestroy()
         {
             if (_newChain != KnownChains.None)
             {
-                BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                await BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             }
             base.OnDestroy();
             Cheeseknife.Reset(this);
