@@ -278,8 +278,8 @@ namespace Steepshot.Fragment
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
-            Activity.Intent.PutExtra("count", post.NetVotes);
+            Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
