@@ -1,42 +1,42 @@
 using System;
-using System.Linq;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Autofac;
 using Com.Lilarcor.Cheeseknife;
-using Refractored.Controls;
-using Square.Picasso;
+using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
     {
-        private UserInfo _steemAcc;
-        private UserInfo _golosAcc;
+        private AccountsAdapter _accountsAdapter;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.civ_avatar)] private CircleImageView _avatar;
-        [InjectView(Resource.Id.steem_text)] private TextView _steemText;
-        [InjectView(Resource.Id.golos_text)] private TextView _golosText;
-        [InjectView(Resource.Id.golosView)] private RelativeLayout _golosView;
-        [InjectView(Resource.Id.steemView)] private RelativeLayout _steemView;
-        [InjectView(Resource.Id.add_account)] private AppCompatButton _addButton;
-        [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
-        [InjectView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
-        [InjectView(Resource.Id.version_textview)] private TextView _versionText;
+        [InjectView(Resource.Id.add_account)] private Button _addButton;
+        [InjectView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
         [InjectView(Resource.Id.tests)] private AppCompatButton _testsButton;
+        [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
+        [InjectView(Resource.Id.low_switch)] private Switch _lowRatedSwitcher;
+        [InjectView(Resource.Id.version_textview)] private TextView _versionText;
+        [InjectView(Resource.Id.nsfw_switch_text)] private TextView _nsfwSwitchText;
+        [InjectView(Resource.Id.low_switch_text)] private TextView _lowSwitchText;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -51,24 +51,33 @@ namespace Steepshot.Activity
 
             SetAddButton(accounts.Count);
 
-            _steemAcc = accounts.FirstOrDefault(a => a.Chain == KnownChains.Steem);
-            _golosAcc = accounts.FirstOrDefault(a => a.Chain == KnownChains.Golos);
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = Localization.Texts.AppSettingsTitle;
 
-            if (_steemAcc != null)
-            {
-                _steemText.Text = _steemAcc.Login;
-                //Picasso.With(ApplicationContext).Load(steemAcc.).Into(stee);
-            }
-            else
-                _steemView.Visibility = ViewStates.Gone;
+            _viewTitle.Typeface = Style.Semibold;
+            _addButton.Typeface = Style.Semibold;
+            _versionText.Typeface = Style.Regular;
+            _nsfwSwitchText.Typeface = Style.Semibold;
+            _lowSwitchText.Typeface = Style.Semibold;
+            _termsButton.Typeface = Style.Semibold;
 
-            if (_golosAcc != null)
+            _accountsList.NestedScrollingEnabled = false;
+            _accountsList.SetLayoutManager(new LinearLayoutManager(this));
+            _accountsAdapter = new AccountsAdapter();
+            _accountsAdapter.AccountsList = accounts;
+            _accountsAdapter.DeleteAccount += (int obj) =>
             {
-                _golosText.Text = _golosAcc.Login;
-                //Picasso.With(ApplicationContext).Load(steemAcc.).Into(stee);
-            }
-            else
-                _golosView.Visibility = ViewStates.Gone;
+                RemoveChain(_accountsAdapter.AccountsList[obj].Chain);
+                BasePresenter.User.Delete(_accountsAdapter.AccountsList[obj]);
+                _accountsAdapter.NotifyDataSetChanged();
+            };
+            _accountsAdapter.PickAccount += (int obj) =>
+            {
+                SwitchChain(_accountsAdapter.AccountsList[obj]);
+            };
+            _accountsList.SetAdapter(_accountsAdapter);
 
             _nsfwSwitcher.CheckedChange += (sender, e) =>
             {
@@ -80,7 +89,6 @@ namespace Steepshot.Activity
                 BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;
             };
 
-            HighlightView();
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
 
@@ -89,8 +97,6 @@ namespace Steepshot.Activity
                 _testsButton.Visibility = ViewStates.Visible;
                 _testsButton.Click += StartTestActivity;
             }
-            
-            LoadAvatar();
         }
 
         protected override void CreatePresenter()
@@ -120,54 +126,10 @@ namespace Steepshot.Activity
             StartActivity(intent);
         }
 
-        [InjectOnClick(Resource.Id.golosView)]
-        public void GolosViewClick(object sender, EventArgs e)
-        {
-            SwitchChain(_golosAcc);
-        }
-
-        [InjectOnClick(Resource.Id.steemView)]
-        public void SteemViewClick(object sender, EventArgs e)
-        {
-            SwitchChain(_steemAcc);
-        }
-
-        [InjectOnClick(Resource.Id.remove_steem)]
-        public void RemoveSteem(object sender, EventArgs e)
-        {
-            BasePresenter.User.Delete(_steemAcc);
-            _steemView.Visibility = ViewStates.Gone;
-            RemoveChain(KnownChains.Steem);
-        }
-
-        [InjectOnClick(Resource.Id.remove_golos)]
-        public void RemoveGolos(object sender, EventArgs e)
-        {
-            BasePresenter.User.Delete(_golosAcc);
-            _golosView.Visibility = ViewStates.Gone;
-            RemoveChain(KnownChains.Golos);
-        }
-
-
         private void StartTestActivity(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(TestActivity));
             StartActivity(intent);
-        }
-
-        private async void LoadAvatar()
-        {
-            var info = await _presenter.TryGetUserInfo();
-
-            if (info != null && info.Success)
-            {
-                if (!string.IsNullOrEmpty(info.Result.ProfileImage))
-                    Picasso.With(ApplicationContext).Load(info.Result.ProfileImage).Into(_avatar);
-            }
-            else
-            {
-                ShowAlert(info);
-            }
         }
 
         private void SwitchChain(UserInfo user)
@@ -203,18 +165,9 @@ namespace Steepshot.Activity
                 }
                 else
                 {
-                    HighlightView();
                     SetAddButton(accounts.Count);
                 }
             }
-        }
-
-        private void HighlightView()
-        {
-            if (BasePresenter.Chain == KnownChains.Steem)
-                _steemView.SetBackgroundColor(Color.Cyan);
-            else
-                _golosView.SetBackgroundColor(Color.Cyan);
         }
 
         private void SetAddButton(int accountsCount)
@@ -222,6 +175,5 @@ namespace Steepshot.Activity
             if (accountsCount == 2)
                 _addButton.Visibility = ViewStates.Gone;
         }
-
     }
 }
