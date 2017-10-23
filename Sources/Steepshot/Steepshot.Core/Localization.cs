@@ -9,6 +9,7 @@
             public const string ResponseContentContainsHtml = "Response content contains HTML: ";
             public const string UnexpectedUrlFormat = "Unexpected url format: ";
             public const string EnableConnectToServer = "Can not connect to the server, check for an Internet connection and try again.";
+            public const string EnableConnectToBlockchain = "Failed to connect to blockchain!";
             public const string ServeNotRespond = "The server does not respond to the request. Check your internet connection and try again.";
             public const string ServeUnexpectedError = "An unexpected error occurred. Check the Internet or try restarting the application.";
             public const string MissingSessionId = "SessionId field is missing.";

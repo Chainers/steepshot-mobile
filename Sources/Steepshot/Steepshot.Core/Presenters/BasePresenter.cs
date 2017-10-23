@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Cryptography.ECDSA;
 using Ditch;
 using Steepshot.Core.Authority;
@@ -10,6 +11,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
 {
@@ -18,9 +20,11 @@ namespace Steepshot.Core.Presenters
         protected static readonly ISteepshotApiClient Api;
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
+        private static IConnectionService _connectionService;
+        protected static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
         public static bool ShouldUpdateProfile;
+        public static event Action<string> OnAllert;
 
-        public static string AppVersion { get; set; }
         public static string Currency
         {
             get
@@ -32,6 +36,7 @@ namespace Steepshot.Core.Presenters
         }
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
+        private static Timer ReconectTimer;
 
         static BasePresenter()
         {
@@ -43,12 +48,47 @@ namespace Steepshot.Core.Presenters
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new DitchApi();
-            Api.Connect(Chain, AppSettings.IsDev);
+            TryConnect();
             // static constructor initialization.
             Task.Run(() =>
             {
                 var init = new Secp256k1Manager();
             });
+        }
+
+        private static async Task TryConnect()
+        {
+            var isConnected = ConnectionService.IsConnectionAvailable();
+            if (isConnected)
+                isConnected = await Api.Connect(Chain, AppSettings.IsDev);
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                ReconectTimer = new Timer(TryReconect, null, 0, 5000);
+            }
+        }
+
+        private static void TryReconect(object state)
+        {
+            var isConnected = ConnectionService.IsConnectionAvailable();
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                return;
+            }
+
+            ReconectTimer.Change(int.MaxValue, 5000);
+            isConnected = Api.Reconnect(Chain);
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                ReconectTimer.Change(5000, 5000);
+            }
+            else
+            {
+                OnAllert?.Invoke(string.Empty);
+                ReconectTimer.Dispose();
+            }
         }
 
         public static void SwitchChain(bool isDev)
@@ -88,13 +128,16 @@ namespace Steepshot.Core.Presenters
             return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
 
-
         #region TryRunTask
 
         protected async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct);
             }
             catch (OperationCanceledException)
@@ -118,6 +161,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct, param1);
             }
             catch (OperationCanceledException)
@@ -141,6 +188,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct, param1, param2);
             }
             catch (OperationCanceledException)
@@ -160,11 +211,14 @@ namespace Steepshot.Core.Presenters
             return null;
         }
 
-
         protected async Task<List<string>> TryRunTask(Func<CancellationToken, Task<List<string>>> func, CancellationToken ct)
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct);
             }
             catch (OperationCanceledException)
@@ -186,6 +240,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct, param1);
             }
             catch (OperationCanceledException)
@@ -207,6 +265,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct, param1, param2);
             }
             catch (OperationCanceledException)
