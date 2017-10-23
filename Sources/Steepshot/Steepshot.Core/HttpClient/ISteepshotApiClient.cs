@@ -8,7 +8,8 @@ namespace Steepshot.Core.HttpClient
 {
     public interface ISteepshotApiClient
     {
-        bool Connect(KnownChains chain, bool isDev);
+        Task<bool> Connect(KnownChains chain, bool isDev);
+        bool Reconnect(KnownChains chain);
 
         /// <summary>
         ///     Examples:

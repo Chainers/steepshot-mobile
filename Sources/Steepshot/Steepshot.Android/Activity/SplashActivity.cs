@@ -13,6 +13,7 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Android.Content;
+using Android.Widget;
 
 namespace Steepshot.Activity
 {
@@ -27,6 +28,9 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
             if (AppSettings.Container == null)
                 Construct();
+
+            BasePresenter.OnAllert -= ShowPresenterAllert;
+            BasePresenter.OnAllert += ShowPresenterAllert;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
@@ -91,6 +95,12 @@ namespace Steepshot.Activity
             Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
+        }
+
+        private void ShowPresenterAllert(string msg)
+        {
+            //TODO:KOA: Replace messages by "UI state field"
+            RunOnUiThread(() => { ShowAlert(!string.IsNullOrEmpty(msg) ? msg : "connected", ToastLength.Short); });
         }
     }
 }
