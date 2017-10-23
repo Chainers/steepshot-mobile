@@ -117,6 +117,7 @@
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
     <Compile Include="Activity\WelcomeActivity.cs" />
+    <Compile Include="Adapter\AccountsAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -172,6 +173,13 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\Anim\like_set.xml" />
     <AndroidResource Include="Resources\Anim\like_unset.xml" />
+    <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

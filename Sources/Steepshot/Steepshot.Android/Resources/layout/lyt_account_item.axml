@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/account_cell_layout"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:clickable="true">
+    <TextView
+        android:id="@+id/cell_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/rgb15_24_30"
+        android:textSize="14sp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp" />
+    <ImageButton
+        android:id="@+id/delete_btn"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="10dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/close_black"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+    <ImageView
+        android:id="@+id/pick_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/unchecked"
+        android:layout_toLeftOf="@id/delete_btn"
+        android:layout_centerVertical="true" />
+</RelativeLayout>
