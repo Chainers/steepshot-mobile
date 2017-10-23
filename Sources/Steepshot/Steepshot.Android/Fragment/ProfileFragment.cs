@@ -274,13 +274,13 @@ namespace Steepshot.Fragment
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-
+        
         private void VotersAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
