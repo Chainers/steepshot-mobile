@@ -17,6 +17,9 @@ namespace Steepshot.Fragment
 {
     public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
+        public const string PostUrlExtraPath = "url";
+        public const string PostNetVotesExtraPath = "count";
+
         private FeedAdapter _feedAdapter;
         private ScrollListener _scrollListner;
 
@@ -102,14 +105,14 @@ namespace Steepshot.Fragment
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-
+        
         private void VotersAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
-            Activity.Intent.PutExtra("count", post.NetVotes);
+            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
