@@ -49,7 +49,7 @@ namespace Steepshot.Fragment
                 return;
             base.OnViewCreated(view, savedInstanceState);
             
-            var count = Activity.Intent.GetIntExtra("count", 0);
+            var count = Activity.Intent.GetIntExtra(FeedFragment.PostNetVotesExtraPath, 0);
             _people_count.Text = $"{count.ToString("N0")} people";
 
             _backButton.Visibility = ViewStates.Visible;
@@ -59,7 +59,7 @@ namespace Steepshot.Fragment
             _people_count.Typeface = Style.Regular;
             _viewTitle.Text = Localization.Messages.Voters;
 
-            _url = Activity.Intent.GetStringExtra("url");
+            _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
             _votersAdapter = new FollowersAdapter(Activity, _presenter);
             _votersAdapter.UserAction += OnClick;
             _votersAdapter.FollowAction += OnFollow;
