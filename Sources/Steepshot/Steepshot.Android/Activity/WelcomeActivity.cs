@@ -62,9 +62,9 @@ namespace Steepshot.Activity
             _steemLogin.Text = Localization.Texts.SignInButtonText;
             _regButton.Text = Localization.Texts.CreateButtonText;
             _devSwitcher.Checked = AppSettings.IsDev;
-            _devSwitcher.CheckedChange += (sender, e) =>
+            _devSwitcher.CheckedChange += async (sender, e) =>
             {
-                BasePresenter.SwitchChain(e.IsChecked);
+                await BasePresenter.SwitchChain(e.IsChecked);
             };
         }
 
@@ -101,10 +101,9 @@ namespace Steepshot.Activity
 
         private async Task PickChain(KnownChains chain)
         {
-            await Task.Run(() => {
-                if (BasePresenter.Chain != chain)
-                    BasePresenter.SwitchChain(chain);
-            });
+            if (BasePresenter.Chain != chain)
+                await BasePresenter.SwitchChain(chain);
+
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
         }

@@ -48,7 +48,7 @@ namespace Steepshot.Core.Presenters
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new DitchApi();
-            TryConnect();
+            TryConnect(Chain, AppSettings.IsDev);
             // static constructor initialization.
             Task.Run(() =>
             {
@@ -56,11 +56,17 @@ namespace Steepshot.Core.Presenters
             });
         }
 
-        private static async Task TryConnect()
+        private static async Task TryConnect(KnownChains chain, bool isDev)
         {
+            if (ReconectTimer != null)
+            {
+                ReconectTimer.Dispose();
+                ReconectTimer = null;
+            }
+
             var isConnected = ConnectionService.IsConnectionAvailable();
             if (isConnected)
-                isConnected = await Api.Connect(Chain, AppSettings.IsDev);
+                isConnected = await Api.Connect(chain, isDev);
             if (!isConnected)
             {
                 OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
@@ -78,7 +84,7 @@ namespace Steepshot.Core.Presenters
             }
 
             ReconectTimer.Change(int.MaxValue, 5000);
-            isConnected = Api.Reconnect(Chain);
+            isConnected = Api.TryReconnectChain(Chain);
             if (!isConnected)
             {
                 OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
@@ -91,16 +97,16 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        public static void SwitchChain(bool isDev)
+        public static async Task SwitchChain(bool isDev)
         {
             if (AppSettings.IsDev == isDev)
                 return;
 
             AppSettings.IsDev = isDev;
-            Api.Connect(Chain, isDev);
+            await TryConnect(Chain, isDev);
         }
 
-        public static void SwitchChain(UserInfo userInfo)
+        public static async Task SwitchChain(UserInfo userInfo)
         {
             if (Chain == userInfo.Chain)
                 return;
@@ -108,16 +114,16 @@ namespace Steepshot.Core.Presenters
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            Api.Connect(userInfo.Chain, AppSettings.IsDev);
+            await TryConnect(userInfo.Chain, AppSettings.IsDev);
         }
 
-        public static void SwitchChain(KnownChains chain)
+        public static async Task SwitchChain(KnownChains chain)
         {
             if (Chain == chain)
                 return;
 
             Chain = chain;
-            Api.Connect(chain, AppSettings.IsDev);
+            await TryConnect(chain, AppSettings.IsDev);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
