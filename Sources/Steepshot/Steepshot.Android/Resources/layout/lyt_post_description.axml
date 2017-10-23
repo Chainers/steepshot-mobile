@@ -26,19 +26,33 @@
             android:textColor="@color/rgb15_24_30"
             android:layout_centerInParent="true" />
     </RelativeLayout>
-    <Button
-        android:id="@+id/btn_post"
+    <RelativeLayout
+        android:id="@+id/btn_post_layout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:background="@drawable/follow_button_corners"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="17dp"
-        android:layout_alignParentBottom="true"
-        android:textSize="14sp"
-        android:text="Publish Photo" />
+        android:layout_alignParentBottom="true">
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:visibility="gone"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerInParent="true"
+            android:elevation="10dp" />
+        <Button
+            android:id="@+id/btn_post"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:background="@drawable/follow_button_corners"
+            android:layout_centerInParent="true"
+            android:textSize="14sp" />
+    </RelativeLayout>
     <ImageView
         android:id="@+id/photo"
         android:layout_width="80dp"
@@ -130,9 +144,10 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:paddingTop="45dp"
             android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="45dp">
+            android:layout_marginRight="15dp">
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
