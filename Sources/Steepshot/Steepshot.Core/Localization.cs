@@ -110,6 +110,7 @@
             public const string CreateButtonText = "Create a new account";
             public const string EnterAccountText = "Enter to your account";
             public const string PasswordViewTitleText = "Account password";
+            public const string PublishButtonText = "Publish Photo";
         }
     }
 }
