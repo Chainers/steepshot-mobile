@@ -9,7 +9,6 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-
     public class TagsAdapter : RecyclerView.Adapter
     {
         private PostDescriptionPresenter _presenter;

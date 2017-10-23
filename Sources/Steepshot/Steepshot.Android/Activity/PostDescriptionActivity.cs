@@ -11,6 +11,7 @@ using Android.Support.V7.Widget;
 using Android.Transitions;
 using Android.Util;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using Autofac;
 using Com.Lilarcor.Cheeseknife;
@@ -52,20 +53,21 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
         [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
         [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
 #pragma warning restore 0649
-
 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
-            
+
             _pageTitle.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _description.Typeface = Style.Regular;
             _postButton.Typeface = Style.Semibold;
 
+            _postButton.Text = Localization.Texts.PublishButtonText;
             _path = Intent.GetStringExtra(PhotoExtraPath);
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             var photoUri = Android.Net.Uri.Parse(_path);
@@ -111,11 +113,13 @@ namespace Steepshot.Activity
                 _timer.Change(500, Timeout.Infinite);
             };
 
-            _tag.KeyboardDownEvent += () =>
+            _tag.KeyboardDownEvent += HideTagsList;
+
+            _tag.OkKeyEvent += () =>
             {
-                Window.SetSoftInputMode(SoftInput.AdjustPan);
-                _tag.ClearFocus();
-                AnimateTagsLayout(Resource.Id.description_layout);
+                HideTagsList();
+                var imm = (InputMethodManager)GetSystemService(InputMethodService);
+                imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
             };
 
             _tag.FocusChange += (sender, e) =>
@@ -154,6 +158,8 @@ namespace Steepshot.Activity
         public void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
+            _postButton.Text = string.Empty;
+            _loadingSpinner.Visibility = ViewStates.Visible;
             OnPostAsync();
         }
 
@@ -163,15 +169,21 @@ namespace Steepshot.Activity
             OnBackPressed();
         }
 
+        [InjectOnClick(Resource.Id.top_margin_tags_layout)]
+        public void OnTagsLayoutClick(object sender, EventArgs e)
+        {
+            _tag.RequestFocus();
+            var imm = (InputMethodManager)GetSystemService(InputMethodService);
+            imm.ShowSoftInput(_tag, ShowFlags.Implicit);
+        }
 
         private void AnimateTagsLayout(int subject)
         {
             TransitionManager.BeginDelayedTransition(_rootLayout);
             _tagsListLayout.Visibility = Resource.Id.toolbar == subject ? ViewStates.Visible : ViewStates.Gone;
 
-            var layoutParameters = (LinearLayout.LayoutParams)_topMarginTagsLayout.LayoutParameters;
-            layoutParameters.TopMargin = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
-            _topMarginTagsLayout.LayoutParameters = layoutParameters;
+            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
+            _topMarginTagsLayout.SetPadding(0, topPadding, 0, 0);
 
             RelativeLayout.LayoutParams currentButtonLayoutParameters = (RelativeLayout.LayoutParams)_tagsLayout.LayoutParameters;
             currentButtonLayoutParameters.AddRule(LayoutRules.Below, subject);
@@ -199,11 +211,17 @@ namespace Steepshot.Activity
             });
         }
 
+        private string _previousQuery = null;
+
         private async Task SearchTextChanged()
         {
+            if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
+                return;
+            _previousQuery = _tag.Text;
             List<string> errors = null;
             _tagsList.ScrollToPosition(0);
             _presenter.Clear();
+            _tagsAdapter?.NotifyDataSetChanged();
             if (_tag.Text.Length == 0)
                 errors = await _presenter.TryGetTopTags();
             else if (_tag.Text.Length > 1)
@@ -213,7 +231,7 @@ namespace Steepshot.Activity
             else
                 _tagsAdapter?.NotifyDataSetChanged();
         }
-        
+
         private async Task OnPostAsync()
         {
             try
@@ -229,7 +247,6 @@ namespace Steepshot.Activity
                 var arrayToUpload = await CompressPhoto(_path);
                 if (arrayToUpload != null)
                 {
-
                     var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, arrayToUpload, _localTagsAdapter.GetLocalTags().ToArray())
                     {
                         Description = _description.Text
@@ -265,7 +282,12 @@ namespace Steepshot.Activity
             finally
             {
                 if (_postButton != null)
+                {
                     _postButton.Enabled = true;
+                    _postButton.Text = Localization.Texts.PublishButtonText;
+                }
+                if (_loadingSpinner != null)
+                    _loadingSpinner.Visibility = ViewStates.Gone;
             }
         }
 
@@ -303,6 +325,13 @@ namespace Steepshot.Activity
                   }
                   return null;
               });
+        }
+
+        private void HideTagsList()
+        {
+            Window.SetSoftInputMode(SoftInput.AdjustPan);
+            _tag.ClearFocus();
+            AnimateTagsLayout(Resource.Id.description_layout);
         }
     }
 }
