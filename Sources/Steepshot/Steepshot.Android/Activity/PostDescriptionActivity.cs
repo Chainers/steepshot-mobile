@@ -145,7 +145,7 @@ namespace Steepshot.Activity
                 _btmp.Recycle();
                 _btmp = null;
             }
-            GC.Collect();
+            GC.Collect(0);
         }
 
         protected override void CreatePresenter()

@@ -6,6 +6,7 @@ using Android.Widget;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -47,6 +48,8 @@ namespace Steepshot.Adapter
             CheckImage = itemView.FindViewById<ImageView>(Resource.Id.pick_image);
             _deleteAccountButton = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
             _cellLayout = itemView.FindViewById<RelativeLayout>(Resource.Id.account_cell_layout);
+
+            CellText.Typeface = Style.Semibold;
 
             _deleteAccountButton.Click += (sender, e) => deleteAccount?.Invoke(AdapterPosition);
             _cellLayout.Click += (sender, e) => pickAccount?.Invoke(AdapterPosition);
