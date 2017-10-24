@@ -9,7 +9,7 @@ namespace Steepshot.Core.HttpClient
     public interface ISteepshotApiClient
     {
         Task<bool> Connect(KnownChains chain, bool isDev);
-        bool Reconnect(KnownChains chain);
+        bool TryReconnectChain(KnownChains chain);
 
         /// <summary>
         ///     Examples:

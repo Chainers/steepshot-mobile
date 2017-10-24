@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -68,16 +69,16 @@ namespace Steepshot.Activity
             _accountsList.SetLayoutManager(new LinearLayoutManager(this));
             _accountsAdapter = new AccountsAdapter();
             _accountsAdapter.AccountsList = accounts;
-            _accountsAdapter.DeleteAccount += (int obj) =>
+            _accountsAdapter.DeleteAccount += async (int obj) =>
             {
                 var chainToDelete = _accountsAdapter.AccountsList[obj].Chain;
                 BasePresenter.User.Delete(_accountsAdapter.AccountsList[obj]);
-                RemoveChain(chainToDelete);
+                await RemoveChain(chainToDelete);
                 _accountsAdapter.NotifyDataSetChanged();
             };
-            _accountsAdapter.PickAccount += (int obj) =>
+            _accountsAdapter.PickAccount += async (int obj) =>
             {
-                SwitchChain(_accountsAdapter.AccountsList[obj]);
+                await SwitchChain(_accountsAdapter.AccountsList[obj]);
             };
             _accountsList.SetAdapter(_accountsAdapter);
 
@@ -134,18 +135,18 @@ namespace Steepshot.Activity
             StartActivity(intent);
         }
 
-        private void SwitchChain(UserInfo user)
+        private async Task SwitchChain(UserInfo user)
         {
             if (BasePresenter.Chain != user.Chain)
             {
-                BasePresenter.SwitchChain(user);
+                await BasePresenter.SwitchChain(user);
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
             }
         }
 
-        private void RemoveChain(KnownChains chain)
+        private async Task RemoveChain(KnownChains chain)
         {
             var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
@@ -159,7 +160,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
+                    await BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
@@ -176,6 +177,8 @@ namespace Steepshot.Activity
         {
             if (accountsCount == 2)
                 _addButton.Visibility = ViewStates.Gone;
+            else
+                _addButton.Visibility = ViewStates.Visible;
         }
     }
 }

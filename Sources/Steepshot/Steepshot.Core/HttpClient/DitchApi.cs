@@ -48,25 +48,30 @@ namespace Steepshot.Core.HttpClient
 
             return await Task.Run(() =>
             {
-                return Reconnect(chain);
+                return TryReconnectChain(chain);
             });
         }
 
-        public bool Reconnect(KnownChains chain)
+        public bool TryReconnectChain(KnownChains chain)
         {
-            var cUrls = (chain == KnownChains.Steem)
-                ? new List<string> { "wss://steemd.steemit.com" }
-                : new List<string> { "wss://ws.golos.io" };
-
-            if (!EnableWrite)
+            try
             {
-                var conectedTo = _operationManager.TryConnectTo(cUrls);
-                if (string.IsNullOrEmpty(conectedTo))
-                    return false;
-                EnableWrite = true;
-                return true;
+                if (!EnableWrite)
+                {
+                    var cUrls = (chain == KnownChains.Steem)
+                        ? new List<string> { "wss://steemd.steemit.com" }
+                        : new List<string> { "wss://ws.golos.io" };
+
+                    var conectedTo = _operationManager.TryConnectTo(cUrls, CtsMain.Token);
+                    if (!string.IsNullOrEmpty(conectedTo))
+                        EnableWrite = true;
+                }
             }
-            return true;
+            catch (Exception)
+            {
+                //todo nothing
+            }
+            return EnableWrite;
         }
 
         #region Post requests
