@@ -35,10 +35,11 @@ namespace Steepshot.Fragment
         private const int MinFontSize = 14;
         private const int MaxFontSize = 20;
         private int _bottomPadding;
-        private ValueAnimator _fontGrowingAnimation;
-        private ValueAnimator _fontReductionAnimation;
-        private ValueAnimator _grayToBlackAnimation;
-        private ValueAnimator _blackToGrayAnimation;
+        //ValueAnimator disposing issue probably fixed with static modificator
+        private static ValueAnimator _fontGrowingAnimation;
+        private static ValueAnimator _fontReductionAnimation;
+        private static ValueAnimator _grayToBlackAnimation;
+        private static ValueAnimator _blackToGrayAnimation;
         private Button _activeButton;
         private Button _currentButton;
 
