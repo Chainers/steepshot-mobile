@@ -142,7 +142,7 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            _presenter = new FeedPresenter(true);
+            _presenter = new FeedPresenter();
         }
 
         public override void OnDetach()
