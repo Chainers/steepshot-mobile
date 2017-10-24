@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Support.V7.App;
 using Android.Widget;
@@ -74,6 +75,12 @@ namespace Steepshot.Base
             alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
+        }
+
+        public override void OnTrimMemory(Android.Content.TrimMemory level)
+        {
+            GC.Collect();
+            base.OnTrimMemory(level);
         }
     }
 }
