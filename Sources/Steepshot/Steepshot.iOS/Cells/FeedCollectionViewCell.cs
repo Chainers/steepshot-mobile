@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Cells
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
-            rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            //rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
             
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;

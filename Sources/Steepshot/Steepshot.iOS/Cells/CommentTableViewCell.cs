@@ -52,7 +52,7 @@ namespace Steepshot.iOS.Cells
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
             costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            costLabel.Hidden = !BasePresenter.User.IsNeedRewards;
+            costLabel.Hidden = true; //!BasePresenter.User.IsNeedRewards;
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
             flagButton.Selected = _currentPost.Flag;

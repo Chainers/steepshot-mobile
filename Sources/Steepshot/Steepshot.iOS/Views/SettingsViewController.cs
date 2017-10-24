@@ -26,7 +26,6 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             nsfwSwitch.On = BasePresenter.User.IsNsfw;
             lowRatedSwitch.On = BasePresenter.User.IsLowRated;
-            rewardSwitcher.On = BasePresenter.User.IsNeedRewards;
             NavigationController.SetNavigationBarHidden(false, false);
             _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
             _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
@@ -111,10 +110,6 @@ namespace Steepshot.iOS.Views
             nsfwSwitch.ValueChanged += (sender, e) =>
             {
                 BasePresenter.User.IsNsfw = nsfwSwitch.On;
-            };
-            rewardSwitcher.ValueChanged += (sender, e) =>
-            {
-                BasePresenter.User.IsNeedRewards = rewardSwitcher.On;
             };
         }
 
