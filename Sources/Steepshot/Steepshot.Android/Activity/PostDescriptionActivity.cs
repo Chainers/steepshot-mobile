@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
+using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
@@ -13,15 +14,16 @@ using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
-using Autofac;
 using Com.Lilarcor.Cheeseknife;
+using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
@@ -39,6 +41,9 @@ namespace Steepshot.Activity
         private Bitmap _btmp;
         private TagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
+        private UploadImageRequest _request;
+        private UploadResponse _response;
+        private string _previousQuery;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.title)] private EditText _title;
@@ -68,23 +73,33 @@ namespace Steepshot.Activity
             _postButton.Typeface = Style.Semibold;
 
             _postButton.Text = Localization.Texts.PublishButtonText;
-            _path = Intent.GetStringExtra(PhotoExtraPath);
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+            _path = Intent.GetStringExtra(PhotoExtraPath);
             var photoUri = Android.Net.Uri.Parse(_path);
 
+            _postButton.Enabled = true;
             if (!_shouldCompress)
                 _photoFrame.SetImageURI(photoUri);
             else
             {
-                Task.Run(() =>
+                FileDescriptor fileDescriptor = null;
+                try
                 {
-                    using (var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor)
-                    {
-                        _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                        _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
-                        _photoFrame.SetImageBitmap(_btmp);
-                    }
-                });
+                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
+                    _photoFrame.SetImageBitmap(_btmp);
+                }
+                catch (Exception ex)
+                {
+                    _postButton.Enabled = false;
+                    ShowAlert(Localization.Errors.UnknownCriticalError);
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                finally
+                {
+                    fileDescriptor?.Dispose();
+                }
             }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
@@ -96,9 +111,9 @@ namespace Steepshot.Activity
             _tagsAdapter = new TagsAdapter(_presenter);
             _tagsList.SetAdapter(_tagsAdapter);
 
-            _tagsAdapter.Click += (int obj) =>
+            _tagsAdapter.Click += position =>
             {
-                AddTag(_presenter[obj].Name);
+                AddTag(_presenter[position].Name);
                 _tag.Text = string.Empty;
             };
 
@@ -157,12 +172,12 @@ namespace Steepshot.Activity
 
 
         [InjectOnClick(Resource.Id.btn_post)]
-        public void OnPost(object sender, EventArgs e)
+        public async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
             _postButton.Text = string.Empty;
             _loadingSpinner.Visibility = ViewStates.Visible;
-            OnPostAsync();
+            await OnPostAsync();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -213,8 +228,6 @@ namespace Steepshot.Activity
             });
         }
 
-        private string _previousQuery = null;
-
         private async Task SearchTextChanged()
         {
             if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
@@ -236,97 +249,129 @@ namespace Steepshot.Activity
 
         private async Task OnPostAsync()
         {
-            try
-            {
-                if (!AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable())
-                    return;
+            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
 
-                if (string.IsNullOrEmpty(_title.Text))
-                {
-                    ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
-                    return;
-                }
-                var arrayToUpload = await CompressPhoto(_path);
-                if (arrayToUpload != null)
-                {
-                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, arrayToUpload, _localTagsAdapter.GetLocalTags().ToArray())
-                    {
-                        Description = _description.Text
-                    };
-                    var resp = await _presenter.TryUpload(request);
-                    if (resp == null)
-                        return;
+            if (!isConnected)
+            {
+                ShowAlert(Localization.Errors.InternetUnavailable);
+                return;
+            }
 
-                    if (resp.Success)
-                    {
-                        BasePresenter.ShouldUpdateProfile = true;
-                        Finish();
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(resp.Errors[0]))
-                            ShowAlert(resp, ToastLength.Long);
-                    }
-                }
-                else
-                {
-                    ShowAlert(Localization.Errors.PhotoCompressingError, ToastLength.Long);
-                }
-            }
-            catch (ApplicationExceptionBase ex)
+            if (string.IsNullOrEmpty(_title.Text))
             {
-                ShowAlert(ex.Message);
+                ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                return;
             }
-            catch (Exception ex)
+
+            var photo = await CompressPhoto(_path);
+            if (photo == null)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                SplashActivity.Cache.EvictAll();
+                photo = await CompressPhoto(_path);
             }
-            finally
+
+            if (photo == null)
             {
-                if (_postButton != null)
-                {
-                    _postButton.Enabled = true;
-                    _postButton.Text = Localization.Texts.PublishButtonText;
-                }
-                if (_loadingSpinner != null)
-                    _loadingSpinner.Visibility = ViewStates.Gone;
+                ShowAlert(Localization.Errors.PhotoProcessingError);
+                return;
             }
+
+            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.GetLocalTags().ToArray())
+            {
+                Description = _description.Text
+            };
+            var serverResp = await _presenter.TryUploadWithPrepare(_request);
+            if (serverResp != null && serverResp.Success)
+            {
+                _response = serverResp.Result;
+            }
+            else
+            {
+                ShowAlert(serverResp);
+                return;
+            }
+
+            TryUpload();
         }
 
         private Task<byte[]> CompressPhoto(string path)
         {
             return Task.Run(() =>
-              {
-                  try
-                  {
-                      if (_shouldCompress)
-                      {
-                          using (var stream = new MemoryStream())
-                          {
-                              if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
-                              {
-                                  var outbytes = stream.ToArray();
-                                  _btmp.Recycle();
-                                  return outbytes;
-                              }
-                          }
-                      }
-                      else
-                      {
-                          var photo = new Java.IO.File(path);
-                          var stream = new Java.IO.FileInputStream(photo);
-                          var outbytes = new byte[photo.Length()];
-                          stream.Read(outbytes);
-                          stream.Close();
-                          return outbytes;
-                      }
-                  }
-                  catch (Exception ex)
-                  {
-                      AppSettings.Reporter.SendCrash(ex);
-                  }
-                  return null;
-              });
+            {
+                try
+                {
+                    if (_shouldCompress)
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
+                            {
+                                return stream.ToArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var photo = new Java.IO.File(path);
+                        var stream = new Java.IO.FileInputStream(photo);
+                        var outbytes = new byte[photo.Length()];
+                        stream.Read(outbytes);
+                        stream.Close();
+                        return outbytes;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                return null;
+            });
+        }
+
+
+        private async void TryUpload()
+        {
+            if (_request == null || _response == null)
+                return;
+
+            var resp = await _presenter.TryUpload(_request, _response);
+            if (resp != null && resp.Success)
+            {
+                OnUploadEnded();
+                BasePresenter.ShouldUpdateProfile = true;
+                Finish();
+            }
+            else
+            {
+                var msg = Localization.Errors.Unknownerror;
+                if (resp != null && resp.Errors.Any())
+                    msg = resp.Errors[0];
+                ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
+            }
+        }
+
+        private void OnUploadEnded()
+        {
+            if (_postButton != null)
+            {
+                _postButton.Enabled = true;
+                _postButton.Text = Localization.Texts.PublishButtonText;
+            }
+
+            if (_loadingSpinner != null)
+                _loadingSpinner.Visibility = ViewStates.Gone;
+        }
+
+        private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
+        {
+            _request = null;
+            _response = null;
+            OnUploadEnded();
+        }
+
+        private void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
+        {
+            TryUpload();
         }
 
         private void HideTagsList()

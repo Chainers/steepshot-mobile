@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Android.App;
+using Android.Content;
 using Android.Support.V7.App;
 using Android.Widget;
 using Steepshot.Core;
@@ -73,6 +74,18 @@ namespace Steepshot.Base
             var alert = new Android.Support.V7.App.AlertDialog.Builder(this);
             alert.SetMessage(text);
             alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        public void ShowInteractiveMessage(string text, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+            var alert = new Android.Support.V7.App.AlertDialog.Builder(this);
+            alert.SetMessage(text);
+            alert.SetNegativeButton(Localization.Messages.Forget, forgetAction);
+            alert.SetPositiveButton(Localization.Messages.TryAgain, tryAgainAction);
             Dialog dialog = alert.Create();
             dialog.Show();
         }
