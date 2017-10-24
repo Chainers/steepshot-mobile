@@ -82,6 +82,8 @@ namespace Steepshot.Core.Presenters
                 return;
             }
 
+            //TODO:ReconectTimer == null exception, need multithread handling (lock)
+            
             ReconectTimer.Change(int.MaxValue, 5000);
             isConnected = Api.TryReconnectChain(Chain);
             if (!isConnected)
