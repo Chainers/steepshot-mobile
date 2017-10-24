@@ -69,6 +69,7 @@ namespace Steepshot.Fragment
             if (clearOld)
                 _presenter.Clear();
 
+            _feedAdapter?.NotifyDataSetChanged();
             var errors = await _presenter.TryLoadNextTopPosts();
             if (_bar != null)
             {
