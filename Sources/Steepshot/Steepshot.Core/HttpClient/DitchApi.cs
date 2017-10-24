@@ -223,7 +223,33 @@ namespace Steepshot.Core.HttpClient
             }, token.Token);
         }
 
-        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationToken ct)
+        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
+        {
+            if (!EnableRead)
+                return null;
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<UploadResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+
+            return await Task.Run(async () =>
+            {
+                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
+                var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, token.Token, op);
+                var trx = _jsonConverter.Serialize(tr);
+
+                PostOperation.PrepareTags(request.Tags);
+
+                var response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, trx, token.Token);
+                var errorResult = CheckErrors(response);
+                return CreateResult<UploadResponse>(response?.Content, errorResult);
+
+            }, token.Token);
+        }
+
+        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
         {
             if (!EnableWrite)
                 return null;
@@ -233,46 +259,33 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<ImageUploadResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
             var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
-            return await Task.Run(async () =>
+            return await Task.Run(() =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
-                var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, token.Token, op);
-                var trx = _jsonConverter.Serialize(tr);
-
                 PostOperation.PrepareTags(request.Tags);
-                var uploadResponse = await UploadWithPrepare(request, trx, token.Token);
+
+                var meta = uploadResponse.Meta.ToString();
+                if (!string.IsNullOrWhiteSpace(meta))
+                    meta = meta.Replace(Environment.NewLine, string.Empty);
+
+                var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
+                var post = new PostOperation(category, request.Login, request.Title, uploadResponse.Payload.Body, meta);
+                var ops = uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any()
+                    ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _operationManager.SbdSymbol, uploadResponse.Beneficiaries) }
+                    : new BaseOperation[] { post };
+
+                var resp = _operationManager.BroadcastOperations(keys, token.Token, ops);
 
                 var result = new OperationResult<ImageUploadResponse>();
-                if (uploadResponse.Success)
+                if (!resp.IsError)
                 {
-                    var upResp = uploadResponse.Result;
-                    var meta = upResp.Meta.ToString();
-                    if (!string.IsNullOrWhiteSpace(meta))
-                        meta = meta.Replace(Environment.NewLine, string.Empty);
-
-                    var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
-                    var post = new PostOperation(category, request.Login, request.Title, upResp.Payload.Body, meta);
-                    var ops = upResp.Beneficiaries != null && upResp.Beneficiaries.Any()
-                        ? new BaseOperation[] { post, new BeneficiariesOperation(request.Login, post.Permlink, _operationManager.SbdSymbol, upResp.Beneficiaries) }
-                        : new BaseOperation[] { post };
-
-                    var resp = _operationManager.BroadcastOperations(keys, token.Token, ops);
-
-
-                    if (!resp.IsError)
-                    {
-                        upResp.Payload.Permlink = post.Permlink;
-                        result.Result = upResp.Payload;
-                    }
-                    else
-                        OnError(resp, result);
-
-                    Trace("post", request.Login, result.Errors, post.Permlink, token.Token);
+                    uploadResponse.Payload.Permlink = post.Permlink;
+                    result.Result = uploadResponse.Payload;
                 }
                 else
-                {
-                    result.Errors.AddRange(uploadResponse.Errors);
-                }
+                    OnError(resp, result);
+
+                Trace("post", request.Login, result.Errors, post.Permlink, token.Token);
+
                 return result;
             }, token.Token);
         }

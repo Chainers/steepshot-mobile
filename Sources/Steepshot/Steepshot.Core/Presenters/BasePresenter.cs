@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
         private static IConnectionService _connectionService;
-        protected static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
+        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
 
@@ -215,6 +215,7 @@ namespace Steepshot.Core.Presenters
             }
             return null;
         }
+
 
         protected async Task<List<string>> TryRunTask(Func<CancellationToken, Task<List<string>>> func, CancellationToken ct)
         {
