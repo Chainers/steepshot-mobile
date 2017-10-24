@@ -75,7 +75,7 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(Context).Load(photo).NoFade().Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
                 var parameters = vh.Photo.LayoutParameters;
-                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1500);
+                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
                 vh.Photo.LayoutParameters = parameters;
             }
 
