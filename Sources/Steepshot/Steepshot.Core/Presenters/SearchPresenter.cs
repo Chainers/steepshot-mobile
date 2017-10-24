@@ -7,14 +7,14 @@ namespace Steepshot.Core.Presenters
 {
     public sealed class SearchPresenter : ListPresenter<object>
     {
-        public FollowersPresenter FollowersPresenter { get; }
+        public UserFriendPresenter UserFriendPresenter { get; }
         public TagsPresenter TagsPresenter { get; }
 
         public override int Count => throw new NotSupportedException();
 
         public SearchPresenter()
         {
-            FollowersPresenter = new FollowersPresenter();
+            UserFriendPresenter = new UserFriendPresenter();
             TagsPresenter = new TagsPresenter();
         }
 
@@ -25,7 +25,7 @@ namespace Steepshot.Core.Presenters
 
             if (clear)
             {
-                FollowersPresenter.Clear();
+                UserFriendPresenter.Clear();
                 TagsPresenter.Clear();
             }
             return await RunAsSingleTask(SearchCategories, query, searchType);
@@ -39,7 +39,7 @@ namespace Steepshot.Core.Presenters
             if (searchType == SearchType.Tags)
                 return await TagsPresenter.TryLoadNext(query);
 
-            return await FollowersPresenter.TryLoadNextSearchUser(ct, query);
+            return await UserFriendPresenter.TryLoadNextSearchUser(ct, query);
         }
     }
 }

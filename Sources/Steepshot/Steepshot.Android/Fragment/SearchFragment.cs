@@ -62,7 +62,7 @@ namespace Steepshot.Fragment
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
             _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.FollowersPresenter);
+            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -117,9 +117,9 @@ namespace Steepshot.Fragment
             else if (_searchType == SearchType.People)
             {
 
-                if (_presenter.FollowersPresenter.Count > pos)
+                if (_presenter.UserFriendPresenter.Count > pos)
                 {
-                    var user = _presenter.FollowersPresenter[pos];
+                    var user = _presenter.UserFriendPresenter[pos];
                     if (user == null)
                         return;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
@@ -129,11 +129,11 @@ namespace Steepshot.Fragment
 
         private async void Follow(int position)
         {
-            var user = _presenter.FollowersPresenter[position];
+            var user = _presenter.UserFriendPresenter[position];
             if (user == null)
                 return;
 
-            var errors = await _presenter.FollowersPresenter.TryFollow(user);
+            var errors = await _presenter.UserFriendPresenter.TryFollow(user);
             if (errors == null)
                 return;
             if (errors.Any())
@@ -159,7 +159,7 @@ namespace Steepshot.Fragment
                     if (_prevQuery[_searchType] == _searchView.Text)
                         return;
                     if (_searchType == SearchType.People)
-                        _presenter.FollowersPresenter.Clear();
+                        _presenter.UserFriendPresenter.Clear();
                     else
                         _presenter.TagsPresenter.Clear();
                     scrollListner.ClearPosition();
