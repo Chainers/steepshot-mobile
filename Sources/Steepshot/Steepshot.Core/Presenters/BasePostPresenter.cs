@@ -53,6 +53,8 @@ namespace Steepshot.Core.Presenters
         {
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {
@@ -89,6 +91,8 @@ namespace Steepshot.Core.Presenters
         {
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {

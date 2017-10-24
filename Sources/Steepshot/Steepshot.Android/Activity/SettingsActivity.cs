@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -69,16 +68,16 @@ namespace Steepshot.Activity
             _accountsList.SetLayoutManager(new LinearLayoutManager(this));
             _accountsAdapter = new AccountsAdapter();
             _accountsAdapter.AccountsList = accounts;
-            _accountsAdapter.DeleteAccount += async (int obj) =>
+            _accountsAdapter.DeleteAccount += index =>
             {
-                var chainToDelete = _accountsAdapter.AccountsList[obj].Chain;
-                BasePresenter.User.Delete(_accountsAdapter.AccountsList[obj]);
-                await RemoveChain(chainToDelete);
+                var chainToDelete = _accountsAdapter.AccountsList[index].Chain;
+                BasePresenter.User.Delete(_accountsAdapter.AccountsList[index]);
+                RemoveChain(chainToDelete);
                 _accountsAdapter.NotifyDataSetChanged();
             };
-            _accountsAdapter.PickAccount += async (int obj) =>
+            _accountsAdapter.PickAccount += index =>
             {
-                await SwitchChain(_accountsAdapter.AccountsList[obj]);
+                SwitchChain(_accountsAdapter.AccountsList[index]);
             };
             _accountsList.SetAdapter(_accountsAdapter);
 
@@ -134,19 +133,19 @@ namespace Steepshot.Activity
             var intent = new Intent(this, typeof(TestActivity));
             StartActivity(intent);
         }
-
-        private async Task SwitchChain(UserInfo user)
+        
+        private void SwitchChain(UserInfo user)
         {
             if (BasePresenter.Chain != user.Chain)
             {
-                await BasePresenter.SwitchChain(user);
+                BasePresenter.SwitchChain(user);
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
             }
         }
 
-        private async Task RemoveChain(KnownChains chain)
+        private void RemoveChain(KnownChains chain)
         {
             var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
@@ -160,7 +159,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    await BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
+                    BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
