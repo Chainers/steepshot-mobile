@@ -110,7 +110,7 @@
             public const string SignInButtonText = "Sign in to your Steem account";
             public const string CreateButtonText = "Create a new account";
             public const string EnterAccountText = "Enter to your account";
-            public const string PasswordViewTitleText = "Account password";
+            public const string PasswordViewTitleText = "Account posting key";
             public const string PublishButtonText = "Publish Photo";
             public const string AppSettingsTitle = "App settings";
         }

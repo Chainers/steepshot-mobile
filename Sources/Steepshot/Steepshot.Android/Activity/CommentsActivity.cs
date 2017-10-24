@@ -37,7 +37,6 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_post_image)] private ImageView _postImage;
 #pragma warning restore 0649
 
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -128,7 +127,6 @@ namespace Steepshot.Activity
                 ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
             }
         }
-
 
         private async void LoadComments(string postUrl)
         {
