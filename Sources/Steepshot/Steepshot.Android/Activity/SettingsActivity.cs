@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -69,8 +70,9 @@ namespace Steepshot.Activity
             _accountsAdapter.AccountsList = accounts;
             _accountsAdapter.DeleteAccount += (int obj) =>
             {
-                RemoveChain(_accountsAdapter.AccountsList[obj].Chain);
+                var chainToDelete = _accountsAdapter.AccountsList[obj].Chain;
                 BasePresenter.User.Delete(_accountsAdapter.AccountsList[obj]);
+                RemoveChain(chainToDelete);
                 _accountsAdapter.NotifyDataSetChanged();
             };
             _accountsAdapter.PickAccount += (int obj) =>
@@ -157,7 +159,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
+                    BasePresenter.SwitchChain(_accountsAdapter.AccountsList.First());
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);
