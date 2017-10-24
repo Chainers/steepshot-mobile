@@ -15,30 +15,39 @@
         android:layout_below="@id/top_panel"
         android:layout_centerHorizontal="true"
         android:src="@drawable/holder" />
-    <EditText
-        android:id="@+id/input_password"
+    <android.support.design.widget.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/input_password_layout"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:textSize="14sp"
-        android:maxLength="52"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/profile_image"
         android:layout_marginTop="45dp"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
-        android:imeOptions="actionDone"
+        android:hint="Private posting key"
+        app:hintEnabled="false"
         android:textColorHint="@color/rgb151_155_158"
-        android:textColor="@color/rgb15_24_30"
-        android:background="@android:color/transparent"
-        android:layout_below="@id/profile_image"
-        android:hint="Private posting key" />
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/rgb231_72_0">
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/input_password"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:inputType="textPassword"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:maxLength="52"
+            android:textCursorDrawable="@drawable/input"
+            android:imeOptions="actionDone"
+            android:background="@android:color/transparent"
+            android:textColor="@color/rgb15_24_30" />
+    </android.support.design.widget.TextInputLayout>
     <View
         android:id="@+id/input_password_separator"
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
-        android:layout_below="@+id/input_password"
+        android:layout_below="@+id/input_password_layout"
         android:background="@color/rgb151_155_158" />
     <Button
         android:id="@+id/sign_in_btn"
