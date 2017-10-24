@@ -32,6 +32,8 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
             var response = await Api.GetPosts(postrequest, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {
@@ -70,6 +72,9 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetPostsByCategory(postrequest, ct);
+            if (response == null)
+                return null;
+
             if (response.Success)
             {
                 var posts = response.Result.Results;

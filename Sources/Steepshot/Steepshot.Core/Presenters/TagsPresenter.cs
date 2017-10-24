@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class TagsPresenter : ListPresenter<SearchResult>
+    public class TagsPresenter : ListPresenter<SearchResult>
     {
         private const int ItemsLimit = 40;
 
