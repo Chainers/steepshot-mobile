@@ -78,10 +78,12 @@ namespace Steepshot.Activity
             {
                 Task.Run(() =>
                 {
-                    var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
-                    _photoFrame.SetImageBitmap(_btmp);
+                    using (var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor)
+                    {
+                        _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                        _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
+                        _photoFrame.SetImageBitmap(_btmp);
+                    }
                 });
             }
 
