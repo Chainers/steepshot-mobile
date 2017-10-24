@@ -26,7 +26,6 @@ namespace Steepshot.Activity
         public const string AvatarUrlExtraPath = "avatar_url";
 
         private MobileBarcodeScanner _scanner;
-        private KnownChains _newChain;
         private string _username;
 
 #pragma warning disable 0649, 4014
@@ -51,7 +50,6 @@ namespace Steepshot.Activity
             _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra(LoginExtraPath);
             var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
-            _newChain = (KnownChains)Intent.GetIntExtra(ChainExtraPath, (int)KnownChains.None);
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
@@ -137,7 +135,6 @@ namespace Steepshot.Activity
 
                 if (response.Success)
                 {
-                    _newChain = KnownChains.None;
                     BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
                     var intent = new Intent(this, typeof(RootActivity));
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
@@ -158,16 +155,6 @@ namespace Steepshot.Activity
                 appCompatButton.Text = Localization.Texts.EnterAccountText;
                 _spinner.Visibility = ViewStates.Invisible;
             }
-        }
-
-        protected override async void OnDestroy()
-        {
-            if (_newChain != KnownChains.None)
-            {
-                await BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
-            }
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
         }
 
         protected override void CreatePresenter()

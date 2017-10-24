@@ -80,7 +80,7 @@
                         android:id="@+id/trending_button"
                         android:layout_width="90dp"
                         android:layout_height="27dp"
-                        android:text="Trend"
+                        android:text="Top"
                         android:textSize="20sp"
                         android:textColor="@color/rgb15_24_30"
                         android:textAllCaps="false"

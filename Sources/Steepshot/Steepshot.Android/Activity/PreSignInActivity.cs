@@ -9,14 +9,14 @@ using Steepshot.Base;
 using Steepshot.Utils;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
+using System.Linq;
 
 namespace Steepshot.Activity
 {
-    [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
         public const string ChainExtraPath = "newChain";
-        private KnownChains _newChain;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
@@ -50,12 +50,6 @@ namespace Steepshot.Activity
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
-
-            _newChain = (KnownChains)Intent.GetIntExtra("newChain", (int)KnownChains.None);
-            if (_newChain != KnownChains.None)
-            {
-                BasePresenter.SwitchChain(_newChain);
-            }
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -84,8 +78,6 @@ namespace Steepshot.Activity
                 var intent = new Intent(this, typeof(SignInActivity));
                 intent.PutExtra(SignInActivity.LoginExtraPath, login);
                 intent.PutExtra(SignInActivity.AvatarUrlExtraPath, response.Result.ProfileImage);
-                intent.PutExtra(SignInActivity.ChainExtraPath, (int)_newChain);
-                _newChain = KnownChains.None;
                 StartActivity(intent);
             }
             else
@@ -96,15 +88,14 @@ namespace Steepshot.Activity
             _preSignInBtn.Text = "Next step";
         }
 
-        protected override async void OnDestroy()
+        public override async void OnBackPressed()
         {
-
-            if (_newChain != KnownChains.None)
+            base.OnBackPressed();
+            var currentUser = BasePresenter.User.GetAllAccounts().FirstOrDefault();
+            if (currentUser != null)
             {
-                await BasePresenter.SwitchChain(_newChain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
+                await BasePresenter.SwitchChain(currentUser.Chain);
             }
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
         }
     }
 }
