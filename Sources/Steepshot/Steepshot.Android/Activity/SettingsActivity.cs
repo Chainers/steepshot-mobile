@@ -122,31 +122,31 @@ namespace Steepshot.Activity
         }
 
         [InjectOnClick(Resource.Id.golosView)]
-        public async void GolosViewClick(object sender, EventArgs e)
+        public void GolosViewClick(object sender, EventArgs e)
         {
-            await SwitchChain(_golosAcc);
+            SwitchChain(_golosAcc);
         }
 
         [InjectOnClick(Resource.Id.steemView)]
-        public async void SteemViewClick(object sender, EventArgs e)
+        public void SteemViewClick(object sender, EventArgs e)
         {
-            await SwitchChain(_steemAcc);
+            SwitchChain(_steemAcc);
         }
 
         [InjectOnClick(Resource.Id.remove_steem)]
-        public async void RemoveSteem(object sender, EventArgs e)
+        public void RemoveSteem(object sender, EventArgs e)
         {
             BasePresenter.User.Delete(_steemAcc);
             _steemView.Visibility = ViewStates.Gone;
-            await RemoveChain(KnownChains.Steem);
+            RemoveChain(KnownChains.Steem);
         }
 
         [InjectOnClick(Resource.Id.remove_golos)]
-        public async void RemoveGolos(object sender, EventArgs e)
+        public void RemoveGolos(object sender, EventArgs e)
         {
             BasePresenter.User.Delete(_golosAcc);
             _golosView.Visibility = ViewStates.Gone;
-            await RemoveChain(KnownChains.Golos);
+            RemoveChain(KnownChains.Golos);
         }
 
 
@@ -171,18 +171,18 @@ namespace Steepshot.Activity
             }
         }
 
-        private async Task SwitchChain(UserInfo user)
+        private void SwitchChain(UserInfo user)
         {
             if (BasePresenter.Chain != user.Chain)
             {
-                await BasePresenter.SwitchChain(user);
+                BasePresenter.SwitchChain(user);
                 var i = new Intent(ApplicationContext, typeof(RootActivity));
                 i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(i);
             }
         }
 
-        private async Task RemoveChain(KnownChains chain)
+        private void RemoveChain(KnownChains chain)
         {
             var accounts = BasePresenter.User.GetAllAccounts();
             if (accounts.Count == 0)
@@ -196,7 +196,7 @@ namespace Steepshot.Activity
             {
                 if (BasePresenter.Chain == chain)
                 {
-                    await BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
+                    BasePresenter.SwitchChain(chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                     var i = new Intent(ApplicationContext, typeof(RootActivity));
                     i.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                     StartActivity(i);

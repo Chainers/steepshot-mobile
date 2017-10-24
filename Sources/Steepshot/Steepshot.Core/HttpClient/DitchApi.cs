@@ -30,7 +30,7 @@ namespace Steepshot.Core.HttpClient
             _operationManager = new OperationManager();
         }
 
-        public async Task<bool> Connect(KnownChains chain, bool isDev)
+        public async Task<bool> Connect(KnownChains chain, bool isDev, bool connectToBlockcain)
         {
             var sUrl = chain == KnownChains.Steem
                 ? (isDev ? Constants.SteemUrlQa : Constants.SteemUrl)
@@ -45,11 +45,9 @@ namespace Steepshot.Core.HttpClient
             }
             Gateway = new ApiGateway(sUrl);
             EnableRead = true;
-
-            return await Task.Run(() =>
-            {
-                return TryReconnectChain(chain);
-            });
+            if (connectToBlockcain)
+                return await Task.Run(() => TryReconnectChain(chain));
+            return false;
         }
 
         public bool TryReconnectChain(KnownChains chain)

@@ -13,7 +13,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class VotersFragment : BaseFragmentWithPresenter<VotersPresenter>
+    public class VotersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
         private FollowersAdapter _votersAdapter;
         private string _url;
@@ -30,7 +30,7 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            _presenter = new VotersPresenter();
+            _presenter = new UserFriendPresenter();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -85,7 +85,7 @@ namespace Steepshot.Fragment
 
         private async void LoadNext()
         {
-            var errors = await _presenter.TryLoadNext(_url);
+            var errors = await _presenter.TryLoadNextPostVoters(_url);
 
             if (errors != null && errors.Count > 0)
                 ShowAlert(errors);

@@ -14,7 +14,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FollowersFragment : BaseFragmentWithPresenter<FollowersPresenter>
+    public class FollowersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
         private FollowersAdapter _followersAdapter;
         private string _username;
@@ -116,7 +116,7 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-            _presenter = new FollowersPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
+            _presenter = new UserFriendPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
         }
 
         public override void OnDetach()

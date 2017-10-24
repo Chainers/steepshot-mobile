@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -46,6 +47,7 @@ namespace Steepshot.Core.Presenters
             IsLastReaded = false;
             OffsetUrl = string.Empty;
         }
+        
 
         protected async Task<List<string>> RunAsSingleTask(Func<CancellationToken, Task<List<string>>> func, bool cancelPrevTask = true)
         {

@@ -65,8 +65,7 @@ namespace Steepshot.Core.Presenters
             }
 
             var isConnected = ConnectionService.IsConnectionAvailable();
-            if (isConnected)
-                isConnected = await Api.Connect(chain, isDev);
+            isConnected = await Api.Connect(chain, isDev, isConnected);
             if (!isConnected)
             {
                 OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);

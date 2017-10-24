@@ -56,6 +56,9 @@ namespace Steepshot.Core.Presenters
                 };
                 response = await Api.GetPosts(postrequest, ct);
             }
+            if (response == null)
+                return null;
+
             if (response.Success)
             {
                 var results = response.Result.Results;
@@ -92,6 +95,9 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetPostsByCategory(postrequest, ct);
+            if (response == null)
+                return null;
+
             if (response.Success)
             {
                 var results = response.Result.Results;
