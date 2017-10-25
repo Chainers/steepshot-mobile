@@ -36,7 +36,18 @@ namespace Steepshot.Core.Presenters
                 if (results.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                    {
+                        //Comments work wrong so...
+                        //Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                        if (Items.Any())
+                        {
+                            var range = Items.Union(results);
+                            Items.Clear();
+                            Items.AddRange(range);
+                        }
+                        else
+                            Items.AddRange(results);
+                    }
 
                     OffsetUrl = results.Last().Url;
                 }

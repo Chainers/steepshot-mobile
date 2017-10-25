@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -53,7 +54,7 @@ namespace Steepshot.Activity
 
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
-            
+
             _adapter = new CommentAdapter(this, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
@@ -105,7 +106,6 @@ namespace Steepshot.Activity
                 _textInput.Text = string.Empty;
                 _textInput.ClearFocus();
 
-                Presenter.Clear();
                 var errors = await Presenter.TryLoadNextComments(_uid);
 
                 if (IsFinishing || IsDestroyed)
@@ -113,11 +113,7 @@ namespace Steepshot.Activity
 
                 ShowAlert(errors, ToastLength.Short);
                 _adapter.NotifyDataSetChanged();
-
-                var pos = Presenter.Count - 1;
-                if (pos < 0)
-                    pos = 0;
-                _comments.SmoothScrollToPosition(pos);
+                _comments.MoveToPosition(Presenter.Count - 1);
             }
             else
             {
@@ -133,14 +129,16 @@ namespace Steepshot.Activity
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            Presenter.Clear();
             var errors = await Presenter.TryLoadNextComments(postUrl);
 
             if (IsFinishing || IsDestroyed)
                 return;
 
-            ShowAlert(errors, ToastLength.Short);
-            _adapter.NotifyDataSetChanged();
+            if (errors != null && !errors.Any())
+                _adapter.NotifyDataSetChanged();
+            else
+                ShowAlert(errors, ToastLength.Short);
+
             _spinner.Visibility = ViewStates.Gone;
         }
 
@@ -164,8 +162,10 @@ namespace Steepshot.Activity
                 if (IsFinishing || IsDestroyed)
                     return;
 
-                ShowAlert(errors, ToastLength.Short);
-                _adapter.NotifyDataSetChanged();
+                if (errors != null && !errors.Any())
+                    _adapter.NotifyDataSetChanged();
+                else
+                    ShowAlert(errors, ToastLength.Short);
             }
             else
             {
