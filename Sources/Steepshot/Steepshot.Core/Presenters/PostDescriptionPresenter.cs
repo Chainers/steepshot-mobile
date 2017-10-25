@@ -8,14 +8,25 @@ namespace Steepshot.Core.Presenters
 {
     public class PostDescriptionPresenter : TagsPresenter
     {
-        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request)
+        public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageRequest request)
         {
-            return await TryRunTask<UploadImageRequest, ImageUploadResponse>(Upload, CancellationToken.None, request);
+            return await TryRunTask<UploadImageRequest, UploadResponse>(UploadWithPrepare, CancellationToken.None, request);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request)
+        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageRequest request)
         {
-            return await Api.Upload(request, ct);
+            return await Api.UploadWithPrepare(request, ct);
+        }
+
+
+        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request, UploadResponse uploadResponse)
+        {
+            return await TryRunTask<UploadImageRequest, UploadResponse, ImageUploadResponse>(Upload, CancellationToken.None, request, uploadResponse);
+        }
+
+        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request, UploadResponse uploadResponse)
+        {
+            return await Api.Upload(request, uploadResponse, ct);
         }
     }
 }

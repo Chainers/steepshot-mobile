@@ -26,14 +26,7 @@ namespace Steepshot.Core.HttpClient
             CtsMain = new CancellationTokenSource();
             //Gateway = new ApiGateway();
         }
-
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationToken ct)
-        {
-            var response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, trx, ct);
-            var errorResult = CheckErrors(response);
-            return CreateResult<UploadResponse>(response?.Content, errorResult);
-        }
-
+        
         #region Get requests
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
@@ -287,6 +280,9 @@ namespace Steepshot.Core.HttpClient
 
         protected async void Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
         {
+            if (!EnableRead)
+                return;
+
             var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, login);
             parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));

@@ -15,12 +15,13 @@
             public const string MissingSessionId = "SessionId field is missing.";
             public const string EmptyCommentField = "Comment may not be blank!";
             public const string Unknownerror = "Unknown error. Try again";
+            public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title cannot be empty";
             public const string EmptyPhotoField = "Photo cannot be empty";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
-            public const string PhotoCompressingError = "Photo compressing error";
+            public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
             public const string ErrorCameraPreview = "Error setting camera preview: ";
@@ -57,6 +58,8 @@
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
             public const string Ok = "Ok";
+            public const string TryAgain = "Try again";
+            public const string Forget = "Forget";
             public const string Voters = "Likes";
             public const string ViewComments = "View {0} comments";
             public const string FlagPhoto = "Flag photo";
