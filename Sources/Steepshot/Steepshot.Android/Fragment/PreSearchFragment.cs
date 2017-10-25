@@ -295,7 +295,7 @@ namespace Steepshot.Fragment
                 _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
-                _feedSpanSizeLookup.LastItemNuber = -1;
+                _feedSpanSizeLookup.LastItemNumber = -1;
                 _searchList?.GetAdapter()?.NotifyDataSetChanged();
             }
 
@@ -308,7 +308,7 @@ namespace Steepshot.Fragment
             if (errors == null)
                 return;
 
-            _feedSpanSizeLookup.LastItemNuber = _presenter.Count;
+            _feedSpanSizeLookup.LastItemNumber = _presenter.Count;
             if (errors.Any())
                 ShowAlert(errors);
             else

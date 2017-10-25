@@ -23,6 +23,7 @@ namespace Steepshot.Fragment
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
+        private ProfileSpanSizeLookup _profileSpanSizeLookup;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
@@ -129,7 +130,8 @@ namespace Steepshot.Fragment
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
-            _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
+            _profileSpanSizeLookup = new ProfileSpanSizeLookup();
+            _gridLayoutManager.SetSpanSizeLookup(_profileSpanSizeLookup);
 
             _gridItemDecoration = new GridItemDecoration(true);
             _postsList.SetLayoutManager(_gridLayoutManager);
@@ -148,9 +150,13 @@ namespace Steepshot.Fragment
 
         private async Task GetUserPosts(bool isRefresh = false)
         {
+            if(isRefresh)
+                _profileSpanSizeLookup.LastItemNumber = -1;
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
+            
+            _profileSpanSizeLookup.LastItemNumber = _presenter.Count;
 
             if (_listSpinner != null)
                 _listSpinner.Visibility = ViewStates.Gone;
