@@ -140,6 +140,8 @@ namespace Steepshot.Adapter
             {
                 if (BasePresenter.User.Login == vh.FriendLogin.Text)
                     vh.FollowButton.Visibility = ViewStates.Gone;
+                else
+                    vh.FollowButton.Visibility = ViewStates.Visible;
 
                 var background = (GradientDrawable)vh.FollowButton.Background;
 
