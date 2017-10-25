@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
     public sealed class UserProfilePresenter : BasePostPresenter
     {
         private readonly string _username;
-        private const int ItemsLimit = 20;
+        private const int ItemsLimit = 18;
 
         public UserProfilePresenter(string username)
         {
@@ -36,7 +36,7 @@ namespace Steepshot.Core.Presenters
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
-                Limit = ItemsLimit,
+                Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };

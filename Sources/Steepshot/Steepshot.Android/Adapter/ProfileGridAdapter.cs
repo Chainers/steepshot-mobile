@@ -26,7 +26,14 @@ namespace Steepshot.Adapter
             _isHeaderNeeded = isHeaderNeeded;
         }
 
-        public override int ItemCount => _isHeaderNeeded ? Presenter.Count + 1 : Presenter.Count;
+        public override int ItemCount
+        {
+            get
+            {
+                var count = Presenter.Count;
+                return count == 0 || Presenter.IsLastReaded ? count + 1 : count + 2;
+            }
+        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
@@ -38,25 +45,31 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            if (viewType == 0)
+            switch ((ViewType)viewType)
             {
-                var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                return new HeaderViewHolder(itemView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
-            }
-            else
-            {
-                var view = new ImageView(Context);
-                view.SetScaleType(ImageView.ScaleType.CenterInside);
-                view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
-                return new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
+                case ViewType.Header:
+                    var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
+                    var headerVh = new HeaderViewHolder(headerView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                    return headerVh;
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var view = new ImageView(Context);
+                    view.SetScaleType(ImageView.ScaleType.CenterInside);
+                    view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
+                    return new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
             }
         }
 
         public override int GetItemViewType(int position)
         {
             if (position == 0 && _isHeaderNeeded)
-                return 0;
-            return 1;
+                return (int)ViewType.Header;
+            if (Presenter.Count < position)
+                return (int)ViewType.Loader;
+            return (int)ViewType.Cell;
         }
     }
 
