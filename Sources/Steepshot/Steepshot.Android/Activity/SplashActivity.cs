@@ -29,8 +29,9 @@ namespace Steepshot.Activity
             if (AppSettings.Container == null)
                 Construct();
 
-            BasePresenter.OnAllert -= ShowPresenterAllert;
-            BasePresenter.OnAllert += ShowPresenterAllert;
+            //TODO: Global events for presenter aka no wifi / no blockchain connection
+            //BasePresenter.OnAllert -= ShowPresenterAllert;
+            //BasePresenter.OnAllert += ShowPresenterAllert;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
