@@ -43,7 +43,7 @@
             {
                 return $"The server did not accept the request! Reason ({code}) {msg}";
             }
-            
+
         }
 
         public class Messages
@@ -76,6 +76,8 @@
             public const string ChoosePhoto = "CHOOSE PHOTO";
             public const string TypeTag = "Please type a tag";
             public const string TypeUsername = "Please type an username";
+            public const string YourAccountName = "Your account name";
+            public const string NextStep = "Next step";
 
             /// <summary>
             /// $"Log in with your {chain} Account";

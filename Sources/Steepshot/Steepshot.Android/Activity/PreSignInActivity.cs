@@ -16,8 +16,6 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
-        public const string ChainExtraPath = "newChain";
-
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
         [InjectView(Resource.Id.input_username)] private EditText _username;
@@ -28,10 +26,6 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
-        protected override void CreatePresenter()
-        {
-            Presenter = new PreSignInPresenter();
-        }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -45,7 +39,7 @@ namespace Steepshot.Activity
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = "Your account name";
+            _viewTitle.Text = Localization.Messages.YourAccountName;
 
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
@@ -61,7 +55,7 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.pre_sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
-            var login = _username.Text?.ToLower().Trim();
+            var login = _username.Text?.Trim().ToLower();
 
             if (string.IsNullOrEmpty(login))
             {
@@ -73,6 +67,9 @@ namespace Steepshot.Activity
             _spinner.Visibility = ViewStates.Visible;
 
             var response = await Presenter.TryGetAccountInfo(login);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             if (response != null && response.Success)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
@@ -84,8 +81,9 @@ namespace Steepshot.Activity
             {
                 ShowAlert(response);
             }
+
             _spinner.Visibility = ViewStates.Invisible;
-            _preSignInBtn.Text = "Next step";
+            _preSignInBtn.Text = Localization.Messages.NextStep;
         }
 
         public override async void OnBackPressed()
@@ -93,9 +91,7 @@ namespace Steepshot.Activity
             base.OnBackPressed();
             var currentUser = BasePresenter.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
-            {
                 await BasePresenter.SwitchChain(currentUser.Chain);
-            }
         }
     }
 }

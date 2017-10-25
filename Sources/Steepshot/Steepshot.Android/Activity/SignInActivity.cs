@@ -21,7 +21,6 @@ namespace Steepshot.Activity
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
     {
-        public const string ChainExtraPath = "newChain";
         public const string LoginExtraPath = "login";
         public const string AvatarUrlExtraPath = "avatar_url";
 
