@@ -149,7 +149,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryFollow(UserFriend item)
         {
-            return await TryRunTask(Follow, CancellationToken.None, item);
+            return await TryRunTask(Follow, OnDisposeCts.Token, item);
         }
 
         private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)

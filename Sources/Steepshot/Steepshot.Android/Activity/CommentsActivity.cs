@@ -53,14 +53,14 @@ namespace Steepshot.Activity
 
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
+            
+            _adapter = new CommentAdapter(this, Presenter);
+            _adapter.LikeAction += LikeAction;
+            _adapter.UserAction += UserAction;
+
             _comments.SetLayoutManager(_manager);
-            _adapter = new CommentAdapter(this, _presenter);
-            if (_comments != null)
-            {
-                _comments.SetAdapter(_adapter);
-                _adapter.LikeAction += LikeAction;
-                _adapter.UserAction += UserAction;
-            }
+            _comments.SetAdapter(_adapter);
+
             LoadComments(_uid);
         }
 
@@ -69,12 +69,6 @@ namespace Steepshot.Activity
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new CommentsPresenter();
-        }
-
 
         [InjectOnClick(Resource.Id.btn_back)]
         public void OnBack(object sender, EventArgs e)
@@ -85,68 +79,74 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
-            if (BasePresenter.User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
             {
-                if (_textInput.Text != string.Empty)
-                {
-                    _sendSpinner.Visibility = ViewStates.Visible;
-                    _post.Enabled = false;
-                    _postImage.Visibility = ViewStates.Invisible;
+                ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
+                return;
+            }
 
-                    var imm = (InputMethodManager)GetSystemService(InputMethodService);
-                    imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
-                    var resp = await _presenter.TryCreateComment(_textInput.Text, _uid);
-                    if (resp != null && resp.Success)
-                    {
-                        _textInput.Text = string.Empty;
-                        _textInput.ClearFocus();
+            if (string.IsNullOrWhiteSpace(_textInput.Text))
+                return;
 
-                        _presenter.Clear();
-                        var errors = await _presenter.TryLoadNextComments(_uid);
+            _sendSpinner.Visibility = ViewStates.Visible;
+            _post.Enabled = false;
+            _postImage.Visibility = ViewStates.Invisible;
 
-                        ShowAlert(errors, ToastLength.Short);
-                        _adapter.NotifyDataSetChanged();
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
 
-                        var pos = _presenter.Count - 1;
-                        if (pos < 0)
-                            pos = 0;
-                        _comments.SmoothScrollToPosition(pos);
-                    }
-                    else
-                    {
-                        ShowAlert(resp, ToastLength.Short);
-                    }
+            var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
 
-                    _sendSpinner.Visibility = ViewStates.Invisible;
-                    _post.Enabled = true;
-                    _postImage.Visibility = ViewStates.Visible;
-                }
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (resp != null && resp.Success)
+            {
+                _textInput.Text = string.Empty;
+                _textInput.ClearFocus();
+
+                Presenter.Clear();
+                var errors = await Presenter.TryLoadNextComments(_uid);
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+
+                ShowAlert(errors, ToastLength.Short);
+                _adapter.NotifyDataSetChanged();
+
+                var pos = Presenter.Count - 1;
+                if (pos < 0)
+                    pos = 0;
+                _comments.SmoothScrollToPosition(pos);
             }
             else
             {
-                ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
+                ShowAlert(resp, ToastLength.Short);
             }
+
+            _sendSpinner.Visibility = ViewStates.Invisible;
+            _post.Enabled = true;
+            _postImage.Visibility = ViewStates.Visible;
         }
 
         private async void LoadComments(string postUrl)
         {
-            if (_spinner != null)
-                _spinner.Visibility = ViewStates.Visible;
+            _spinner.Visibility = ViewStates.Visible;
 
-            _presenter.Clear();
-            var errors = await _presenter
-                .TryLoadNextComments(postUrl);
+            Presenter.Clear();
+            var errors = await Presenter.TryLoadNextComments(postUrl);
+
+            if (IsFinishing || IsDestroyed)
+                return;
 
             ShowAlert(errors, ToastLength.Short);
             _adapter.NotifyDataSetChanged();
-
-            if (_spinner != null)
-                _spinner.Visibility = ViewStates.Gone;
+            _spinner.Visibility = ViewStates.Gone;
         }
 
         private void UserAction(int position)
         {
-            var user = _presenter[position];
+            var user = Presenter[position];
             if (user == null)
                 return;
 
@@ -159,7 +159,11 @@ namespace Steepshot.Activity
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await _presenter.TryVote(position);
+                var errors = await Presenter.TryVote(position);
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+
                 ShowAlert(errors, ToastLength.Short);
                 _adapter.NotifyDataSetChanged();
             }

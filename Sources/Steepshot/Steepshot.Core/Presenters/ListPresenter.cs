@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Exceptions;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -64,7 +63,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {
@@ -111,7 +110,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {
@@ -158,7 +157,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {
