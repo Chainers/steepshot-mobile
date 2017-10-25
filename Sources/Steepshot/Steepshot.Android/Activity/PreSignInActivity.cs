@@ -30,7 +30,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new PreSignInPresenter();
+            Presenter = new PreSignInPresenter();
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -72,7 +72,7 @@ namespace Steepshot.Activity
             _preSignInBtn.Text = string.Empty;
             _spinner.Visibility = ViewStates.Visible;
 
-            var response = await _presenter.TryGetAccountInfo(login);
+            var response = await Presenter.TryGetAccountInfo(login);
             if (response != null && response.Success)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
