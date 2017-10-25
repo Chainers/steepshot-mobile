@@ -85,13 +85,6 @@ namespace Steepshot.Adapter
             }
         }
 
-        public class LoaderViewHolder : RecyclerView.ViewHolder
-        {
-            public LoaderViewHolder(View itemView) : base(itemView)
-            {
-            }
-        }
-
         private class FollowersViewHolder : RecyclerView.ViewHolder
         {
             public CircleImageView FriendAvatar { get; }

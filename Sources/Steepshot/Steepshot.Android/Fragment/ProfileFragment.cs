@@ -93,12 +93,10 @@ namespace Steepshot.Fragment
             _profileId = profileId;
         }
 
-
         protected override void CreatePresenter()
         {
             _presenter = new UserProfilePresenter(_profileId);
         }
-
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -314,17 +312,6 @@ namespace Steepshot.Fragment
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
-        }
-
-        public class ProfileSpanSizeLookup : GridLayoutManager.SpanSizeLookup
-        {
-            public override int GetSpanSize(int position)
-            {
-                if (position == 0)
-                    return 3;
-                else
-                    return 1;
-            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
@@ -28,6 +29,12 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
 #pragma warning restore 0649
+
+        [InjectOnClick(Resource.Id.logo)]
+        public void OnPost(object sender, EventArgs e)
+        {
+            _feedList.ScrollToPosition(0);
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {

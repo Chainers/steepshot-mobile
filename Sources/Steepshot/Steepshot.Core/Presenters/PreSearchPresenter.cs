@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
     public sealed class PreSearchPresenter : BasePostPresenter
     {
         public PostType PostType = PostType.Top;
-        private const int ItemsLimit = 20;
+        private const int ItemsLimit = 18;
         public string Tag;
 
         public async Task<List<string>> TryLoadNextTopPosts()
@@ -26,7 +26,7 @@ namespace Steepshot.Core.Presenters
             var postrequest = new PostsRequest(PostType)
             {
                 Login = User.Login,
-                Limit = ItemsLimit,
+                Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
@@ -65,7 +65,7 @@ namespace Steepshot.Core.Presenters
             var postrequest = new PostsByCategoryRequest(PostType, Tag)
             {
                 Login = User.Login,
-                Limit = ItemsLimit,
+                Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 Offset = OffsetUrl,
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
