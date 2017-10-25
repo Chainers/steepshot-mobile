@@ -294,7 +294,7 @@ namespace Steepshot.Fragment
                 _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
-                _searchList.ScrollToPosition(0);
+                _searchList?.GetAdapter()?.NotifyDataSetChanged();
             }
 
             List<string> errors;
