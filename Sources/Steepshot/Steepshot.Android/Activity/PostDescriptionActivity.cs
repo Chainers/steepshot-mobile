@@ -9,6 +9,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
+using Android.Text;
 using Android.Transitions;
 using Android.Util;
 using Android.Views;
@@ -19,7 +20,6 @@ using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -60,7 +60,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
 #pragma warning restore 0649
 
-        protected override async void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_post_description);
@@ -77,9 +77,7 @@ namespace Steepshot.Activity
             var photoUri = Android.Net.Uri.Parse(_path);
 
             _postButton.Enabled = true;
-            if (!_shouldCompress)
-                _photoFrame.SetImageURI(photoUri);
-            else
+            if (_shouldCompress)
             {
                 FileDescriptor fileDescriptor = null;
                 try
@@ -100,6 +98,10 @@ namespace Steepshot.Activity
                     fileDescriptor?.Dispose();
                 }
             }
+            else
+            {
+                _photoFrame.SetImageURI(photoUri);
+            }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
             _localTagsAdapter = new TagsAdapter();
@@ -108,48 +110,57 @@ namespace Steepshot.Activity
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
             _tagsAdapter = new TagsAdapter(Presenter);
+            _tagsAdapter.Click += OnTagsAdapterClick;
             _tagsList.SetAdapter(_tagsAdapter);
 
-            _tagsAdapter.Click += position =>
-            {
-                AddTag(Presenter[position].Name);
-                _tag.Text = string.Empty;
-            };
-
-            _tag.TextChanged += (sender, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(e.Text.ToString()))
-                {
-                    if (e.Text.Last() == ' ')
-                    {
-                        _tag.Text = string.Empty;
-                        AddTag(e.Text.ToString());
-                    }
-                }
-                _timer.Change(500, Timeout.Infinite);
-            };
-
+            _tag.TextChanged += OnTagOnTextChanged;
             _tag.KeyboardDownEvent += HideTagsList;
-
-            _tag.OkKeyEvent += () =>
-            {
-                HideTagsList();
-                var imm = (InputMethodManager)GetSystemService(InputMethodService);
-                imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
-            };
-
-            _tag.FocusChange += (sender, e) =>
-            {
-                if (e.HasFocus)
-                {
-                    Window.SetSoftInputMode(SoftInput.AdjustResize);
-                    AnimateTagsLayout(Resource.Id.toolbar);
-                }
-            };
+            _tag.OkKeyEvent += OnTagOnOkKeyEvent;
+            _tag.FocusChange += OnTagOnFocusChange;
 
             _timer = new Timer(OnTimer);
-            await SearchTextChanged();
-            _postButton.Enabled = true;
+
+            SearchTextChanged();
+        }
+
+        private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
+        {
+            if (e.HasFocus)
+            {
+                Window.SetSoftInputMode(SoftInput.AdjustResize);
+                AnimateTagsLayout(Resource.Id.toolbar);
+            }
+        }
+
+        private void OnTagOnOkKeyEvent()
+        {
+            HideTagsList();
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+        }
+
+        private void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var txt = e.Text.ToString();
+            if (!string.IsNullOrWhiteSpace(txt))
+            {
+                if (txt.EndsWith(" "))
+                {
+                    _tag.Text = string.Empty;
+                    AddTag(txt);
+                }
+            }
+            _timer.Change(500, Timeout.Infinite);
+        }
+
+        private void OnTagsAdapterClick(int position)
+        {
+            var result = Presenter[position];
+            if (result == null)
+                return;
+
+            AddTag(result.Name);
+            _tag.Text = string.Empty;
         }
 
         protected override void OnDestroy()
@@ -183,8 +194,8 @@ namespace Steepshot.Activity
         public void OnTagsLayoutClick(object sender, EventArgs e)
         {
             _tag.RequestFocus();
-            var imm = (InputMethodManager)GetSystemService(InputMethodService);
-            imm.ShowSoftInput(_tag, ShowFlags.Implicit);
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.ShowSoftInput(_tag, ShowFlags.Implicit);
         }
 
         private void AnimateTagsLayout(int subject)
@@ -195,21 +206,24 @@ namespace Steepshot.Activity
             var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
             _topMarginTagsLayout.SetPadding(0, topPadding, 0, 0);
 
-            RelativeLayout.LayoutParams currentButtonLayoutParameters = (RelativeLayout.LayoutParams)_tagsLayout.LayoutParameters;
-            currentButtonLayoutParameters.AddRule(LayoutRules.Below, subject);
-            _tagsLayout.LayoutParameters = currentButtonLayoutParameters;
+            var currentButtonLayoutParameters = _tagsLayout.LayoutParameters as RelativeLayout.LayoutParams;
+            if (currentButtonLayoutParameters != null)
+            {
+                currentButtonLayoutParameters.AddRule(LayoutRules.Below, subject);
+                _tagsLayout.LayoutParameters = currentButtonLayoutParameters;
+            }
         }
 
         private void AddTag(string tag)
         {
-            tag = tag.TrimStart().TrimEnd();
-            if (_localTagsAdapter.LocalTags.Count() >= 4 || _localTagsAdapter.LocalTags.Any(t => t.Name == tag))
+            tag = tag.Trim();
+            if (_localTagsAdapter.LocalTags.Count >= 4 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
-            _localTagsAdapter.LocalTags.Add(new SearchResult() { Name = tag });
+            _localTagsAdapter.LocalTags.Add(tag);
             RunOnUiThread(() =>
             {
                 _localTagsAdapter.NotifyDataSetChanged();
-                _localTagsList.SmoothScrollToPosition(_localTagsAdapter.LocalTags.Count() - 1);
+                _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
             });
         }
 
@@ -225,19 +239,25 @@ namespace Steepshot.Activity
         {
             if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
                 return;
+
             _previousQuery = _tag.Text;
-            List<string> errors = null;
             _tagsList.ScrollToPosition(0);
             Presenter.Clear();
-            _tagsAdapter?.NotifyDataSetChanged();
+            _tagsAdapter.NotifyDataSetChanged();
+
+            List<string> errors = null;
             if (_tag.Text.Length == 0)
                 errors = await Presenter.TryGetTopTags();
             else if (_tag.Text.Length > 1)
                 errors = await Presenter.TryLoadNext(_tag.Text);
+
+            if (IsFinishing || IsDestroyed)
+                return;
+
             if (errors != null && errors.Count > 0)
                 ShowAlert(errors);
             else
-                _tagsAdapter?.NotifyDataSetChanged();
+                _tagsAdapter.NotifyDataSetChanged();
         }
 
         private async Task OnPostAsync()
@@ -257,10 +277,15 @@ namespace Steepshot.Activity
             }
 
             var photo = await CompressPhoto(_path);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             if (photo == null)
             {
                 SplashActivity.Cache.EvictAll();
                 photo = await CompressPhoto(_path);
+                if (IsFinishing || IsDestroyed)
+                    return;
             }
 
             if (photo == null)
@@ -269,11 +294,14 @@ namespace Steepshot.Activity
                 return;
             }
 
-            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.GetLocalTags().ToArray())
+            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags.ToArray())
             {
                 Description = _description.Text
             };
             var serverResp = await Presenter.TryUploadWithPrepare(_request);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             if (serverResp != null && serverResp.Success)
             {
                 _response = serverResp.Result;
@@ -328,6 +356,9 @@ namespace Steepshot.Activity
                 return;
 
             var resp = await Presenter.TryUpload(_request, _response);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             if (resp != null && resp.Success)
             {
                 OnUploadEnded();
