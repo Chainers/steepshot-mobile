@@ -4,12 +4,20 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
     public class ProfileFeedAdapter : FeedAdapter
     {
-        public override int ItemCount => Presenter.Count + 1;
+        public override int ItemCount
+        {
+            get
+            {
+                var count = Presenter.Count;
+                return count == 0 || Presenter.IsLastReaded ? count + 1 : count + 2;
+            }
+        }
         public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
@@ -30,25 +38,30 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            if (viewType == 0)
+            switch ((ViewType)viewType)
             {
-                var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                var vh = new HeaderViewHolder(itemView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
-                return vh;
-            }
-            else
-            {
-                var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                var vh = new ProfileFeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _isHeaderNeeded);
-                return vh;
+                case ViewType.Header:
+                    var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
+                    var headerVh = new HeaderViewHolder(headerView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                    return headerVh;
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
+                    var vh = new ProfileFeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _isHeaderNeeded);
+                    return vh;
             }
         }
 
         public override int GetItemViewType(int position)
         {
             if (position == 0 && _isHeaderNeeded)
-                return 0;
-            return 1;
+                return (int)ViewType.Header;
+            if (Presenter.Count < position)
+                return (int)ViewType.Loader;
+            return (int)ViewType.Cell;
         }
     }
 
