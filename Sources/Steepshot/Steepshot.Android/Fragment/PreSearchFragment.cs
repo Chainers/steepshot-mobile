@@ -29,6 +29,7 @@ namespace Steepshot.Fragment
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
+        private FeedSpanSizeLookup _feedSpanSizeLookup;
 
         private List<Button> _buttonsList;
         private const int AnimationDuration = 300;
@@ -208,6 +209,8 @@ namespace Steepshot.Fragment
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
+            _feedSpanSizeLookup = new FeedSpanSizeLookup();
+            _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
 
             _gridItemDecoration = new GridItemDecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
@@ -217,7 +220,7 @@ namespace Steepshot.Fragment
 
             _refresher.Refresh += async delegate
             {
-                _spinner.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Gone;
                 await LoadPosts(true);
             };
             await LoadPosts();
@@ -292,6 +295,7 @@ namespace Steepshot.Fragment
                 _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
+                _feedSpanSizeLookup.LastItemNuber = -1;
                 _searchList?.GetAdapter()?.NotifyDataSetChanged();
             }
 
@@ -304,6 +308,7 @@ namespace Steepshot.Fragment
             if (errors == null)
                 return;
 
+            _feedSpanSizeLookup.LastItemNuber = _presenter.Count;
             if (errors.Any())
                 ShowAlert(errors);
             else
@@ -311,7 +316,7 @@ namespace Steepshot.Fragment
 
             if (_refresher.Refreshing)
                 _refresher.Refreshing = false;
-            else if (_spinner != null)
+            if (_spinner != null)
                 _spinner.Visibility = ViewStates.Gone;
         }
 
@@ -332,9 +337,9 @@ namespace Steepshot.Fragment
                 return;
             if (_spinner != null)
                 _spinner.Visibility = ViewStates.Visible;
-            else if (_spinner != null)
+            if (_spinner != null)
                 _refresher.Refreshing = false;
-            
+
             switch (postType)
             {
                 case PostType.Top:
