@@ -217,6 +217,7 @@ namespace Steepshot.Fragment
 
             _refresher.Refresh += async delegate
             {
+                _spinner.Visibility = ViewStates.Visible;
                 await LoadPosts(true);
             };
             await LoadPosts();
@@ -286,9 +287,6 @@ namespace Steepshot.Fragment
 
         private async Task LoadPosts(bool clearOld = false)
         {
-            if (_spinner != null && !_refresher.Refreshing)
-                _spinner.Visibility = ViewStates.Visible;
-
             if (clearOld)
             {
                 _presenter.LoadCancel();
@@ -332,6 +330,11 @@ namespace Steepshot.Fragment
         {
             if (postType == _presenter.PostType)
                 return;
+            if (_spinner != null)
+                _spinner.Visibility = ViewStates.Visible;
+            else if (_spinner != null)
+                _refresher.Refreshing = false;
+            
             switch (postType)
             {
                 case PostType.Top:

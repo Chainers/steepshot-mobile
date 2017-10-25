@@ -20,7 +20,14 @@ namespace Steepshot.Adapter
         protected readonly Context Context;
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-        public override int ItemCount => Presenter.Count;
+        public override int ItemCount
+        {
+            get
+            {
+                var count = Presenter.Count;
+                return count == 0 || Presenter.IsLastReaded ? count : count + 1;
+            }
+        }
         private bool _actionsEnabled;
         public bool ActionsEnabled
         {
@@ -40,6 +47,14 @@ namespace Steepshot.Adapter
             Context = context;
             Presenter = presenter;
             _actionsEnabled = true;
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            if (Presenter.Count == position)
+                return (int)ViewType.Loader;
+
+            return (int)ViewType.Cell;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -95,11 +110,18 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
-            return vh;
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    return vh;
+            }
         }
-
     }
 
     public class FeedViewHolder : RecyclerView.ViewHolder
