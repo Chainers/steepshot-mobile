@@ -129,7 +129,7 @@ namespace Steepshot.Activity
                 appCompatButton.Text = string.Empty;
                 appCompatButton.Enabled = false;
 
-                var response = await _presenter.TrySignIn(login, pass);
+                var response = await Presenter.TrySignIn(login, pass);
                 if (response == null) // cancelled
                     return;
 
@@ -159,7 +159,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new SignInPresenter();
+            Presenter = new SignInPresenter();
         }
     }
 }

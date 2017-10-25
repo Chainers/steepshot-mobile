@@ -103,7 +103,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new SettingsPresenter();
+            Presenter = new SettingsPresenter();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]

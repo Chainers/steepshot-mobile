@@ -19,7 +19,6 @@ using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -108,12 +107,12 @@ namespace Steepshot.Activity
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
-            _tagsAdapter = new TagsAdapter(_presenter);
+            _tagsAdapter = new TagsAdapter(Presenter);
             _tagsList.SetAdapter(_tagsAdapter);
 
             _tagsAdapter.Click += position =>
             {
-                AddTag(_presenter[position].Name);
+                AddTag(Presenter[position].Name);
                 _tag.Text = string.Empty;
             };
 
@@ -164,12 +163,6 @@ namespace Steepshot.Activity
             }
             GC.Collect(0);
         }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
-        }
-
 
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
@@ -235,12 +228,12 @@ namespace Steepshot.Activity
             _previousQuery = _tag.Text;
             List<string> errors = null;
             _tagsList.ScrollToPosition(0);
-            _presenter.Clear();
+            Presenter.Clear();
             _tagsAdapter?.NotifyDataSetChanged();
             if (_tag.Text.Length == 0)
-                errors = await _presenter.TryGetTopTags();
+                errors = await Presenter.TryGetTopTags();
             else if (_tag.Text.Length > 1)
-                errors = await _presenter.TryLoadNext(_tag.Text);
+                errors = await Presenter.TryLoadNext(_tag.Text);
             if (errors != null && errors.Count > 0)
                 ShowAlert(errors);
             else
@@ -280,7 +273,7 @@ namespace Steepshot.Activity
             {
                 Description = _description.Text
             };
-            var serverResp = await _presenter.TryUploadWithPrepare(_request);
+            var serverResp = await Presenter.TryUploadWithPrepare(_request);
             if (serverResp != null && serverResp.Success)
             {
                 _response = serverResp.Result;
@@ -334,7 +327,7 @@ namespace Steepshot.Activity
             if (_request == null || _response == null)
                 return;
 
-            var resp = await _presenter.TryUpload(_request, _response);
+            var resp = await Presenter.TryUpload(_request, _response);
             if (resp != null && resp.Success)
             {
                 OnUploadEnded();

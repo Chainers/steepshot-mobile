@@ -25,13 +25,13 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_auto_test);
             Cheeseknife.Inject(this);
-            _testContainer = new MobileAutoTests(_presenter.OpenApi, BasePresenter.User.UserInfo, AppSettings.AppInfo);
+            _testContainer = new MobileAutoTests(Presenter.OpenApi, BasePresenter.User.UserInfo, AppSettings.AppInfo);
             _testContainer.StepFinished += UpdateResult;
         }
 
         protected override void CreatePresenter()
         {
-            _presenter = new TestPresenter();
+            Presenter = new TestPresenter();
         }
 
         [InjectOnClick(Resource.Id.run_api_tests)]
