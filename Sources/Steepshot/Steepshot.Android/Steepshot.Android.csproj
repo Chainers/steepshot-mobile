@@ -119,6 +119,7 @@
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Adapter\AccountsAdapter.cs" />
     <Compile Include="Utils\LoaderViewHolder.cs" />
+    <Compile Include="Utils\SpanSizeLookups.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
