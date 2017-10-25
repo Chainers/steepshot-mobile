@@ -21,7 +21,7 @@ namespace Steepshot.Activity
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {
-        private static LruCache Cache;
+        public static LruCache Cache;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
