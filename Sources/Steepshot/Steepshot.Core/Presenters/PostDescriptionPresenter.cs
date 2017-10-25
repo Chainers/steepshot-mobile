@@ -10,7 +10,7 @@ namespace Steepshot.Core.Presenters
     {
         public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageRequest request)
         {
-            return await TryRunTask<UploadImageRequest, UploadResponse>(UploadWithPrepare, CancellationToken.None, request);
+            return await TryRunTask<UploadImageRequest, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, request);
         }
 
         private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageRequest request)
@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request, UploadResponse uploadResponse)
         {
-            return await TryRunTask<UploadImageRequest, UploadResponse, ImageUploadResponse>(Upload, CancellationToken.None, request, uploadResponse);
+            return await TryRunTask<UploadImageRequest, UploadResponse, ImageUploadResponse>(Upload, OnDisposeCts.Token, request, uploadResponse);
         }
 
         private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request, UploadResponse uploadResponse)

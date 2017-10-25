@@ -24,6 +24,9 @@ namespace Steepshot.Core.Presenters
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
+        protected CancellationTokenSource OnDisposeCts;
+
+
 
         public static string Currency
         {
@@ -56,6 +59,11 @@ namespace Steepshot.Core.Presenters
             });
         }
 
+        protected BasePresenter()
+        {
+            OnDisposeCts = new CancellationTokenSource();
+        }
+
         private static async Task TryConnect(KnownChains chain, bool isDev)
         {
             if (ReconectTimer != null)
@@ -83,7 +91,7 @@ namespace Steepshot.Core.Presenters
             }
 
             //TODO:ReconectTimer == null exception, need multithread handling (lock)
-            
+
             ReconectTimer.Change(int.MaxValue, 5000);
             isConnected = Api.TryReconnectChain(Chain);
             if (!isConnected)
@@ -295,5 +303,10 @@ namespace Steepshot.Core.Presenters
         }
 
         #endregion
+
+        public void TasksCancel()
+        {
+            OnDisposeCts?.Cancel();
+        }
     }
 }

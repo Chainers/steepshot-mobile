@@ -25,7 +25,7 @@ namespace Steepshot.Activity
 
         protected override void CreatePresenter()
         {
-            _presenter = new TermOfServicePresenter();
+            Presenter = new TermOfServicePresenter();
         }
 
         [InjectOnClick(Resource.Id.go_back)]
@@ -36,7 +36,7 @@ namespace Steepshot.Activity
 
         private async void LoadText()
         {
-            var response = await _presenter.TryGetTermsOfService();
+            var response = await Presenter.TryGetTermsOfService();
             if (response != null && response.Success)
                 _termsOfService.Text = response.Result.Text;
             else
