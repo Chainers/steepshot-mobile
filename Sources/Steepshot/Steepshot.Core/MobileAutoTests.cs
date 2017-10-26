@@ -65,7 +65,6 @@ namespace Steepshot.Core
                     GetCommentsTest(_log, num++);
                     GetUserProfileTest(_log, num++);
                     GetUserFriendsTest(_log, num++);
-                    TermsOfServiceTest(_log, num++);
                     GetPostInfoTest(_log, num++);
                     SearchUserTest(_log, num++);
                     UserExistsCheckTest(_log, num++);
@@ -503,29 +502,7 @@ namespace Steepshot.Core
 
             sb.AppendLine("pass.");
         }
-
-        private void TermsOfServiceTest(StringBuilder sb, int num)
-        {
-            sb.Append($"{num}) TermsOfServiceTest : ");
-            StepFinished?.Invoke(sb.ToString());
-
-            var postsResp = _api.TermsOfService(CancellationToken.None)
-                .Result;
-
-            if (!postsResp.Success)
-            {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
-                return;
-            }
-            if (string.IsNullOrEmpty(postsResp.Result.Text))
-            {
-                sb.Append("warn. Reason:{Environment.NewLine} Empty text!");
-                return;
-            }
-
-            sb.AppendLine("pass.");
-        }
-
+        
         private void GetPostInfoTest(StringBuilder sb, int num)
         {
             sb.Append($"{num}) GetPostInfoTest : ");
