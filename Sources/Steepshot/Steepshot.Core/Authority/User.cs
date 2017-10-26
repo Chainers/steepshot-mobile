@@ -77,7 +77,7 @@ namespace Steepshot.Core.Authority
 
         public User()
         {
-            _data = AppSettings.Container.Resolve<IDataProvider>();
+            _data = AppSettings.DataProvider;
         }
 
         public void Load()
