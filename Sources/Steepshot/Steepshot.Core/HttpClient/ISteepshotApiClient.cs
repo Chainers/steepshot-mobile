@@ -139,13 +139,7 @@ namespace Steepshot.Core.HttpClient
         ///     3) GET https://steepshot.org/api/v1/user/joseph.kalu/followers?offset=vivianupman&amp;limit=5 HTTP/1.1
         /// </summary>
         Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationToken ct);
-
-        /// <summary>
-        ///     Examples:
-        ///     1) GET https://steepshot.org/api/v1/tos HTTP/1.1
-        /// </summary>
-        Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationToken ct);
-
+        
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1

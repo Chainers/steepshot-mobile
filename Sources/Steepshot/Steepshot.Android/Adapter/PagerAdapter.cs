@@ -7,14 +7,14 @@ namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
-        public int[] TabIconsInactive = new[] {
+        public readonly int[] TabIconsInactive = {
             Resource.Drawable.home,
             Resource.Drawable.search,
             Resource.Drawable.create,
             Resource.Drawable.profile
         };
 
-        public int[] TabIconsActive = new[] {
+        public readonly int[] TabIconsActive = {
             Resource.Drawable.home_active,
             Resource.Drawable.search_active,
             Resource.Drawable.create_active,

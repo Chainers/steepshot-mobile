@@ -13,7 +13,6 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Android.Content;
-using Android.Widget;
 
 namespace Steepshot.Activity
 {
@@ -29,36 +28,13 @@ namespace Steepshot.Activity
             if (AppSettings.Container == null)
                 Construct();
 
-            //TODO: Global events for presenter aka no wifi / no blockchain connection
-            //BasePresenter.OnAllert -= ShowPresenterAllert;
-            //BasePresenter.OnAllert += ShowPresenterAllert;
+            AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
+            TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-            {
-                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
-            };
-
-            TaskScheduler.UnobservedTaskException += (sender, e) =>
-            {
-                AppSettings.Reporter.SendCrash(e.Exception);
-            };
-
-            bool isKeyValid = true;
-            //TODO:KOA: There had to be WIF check
-            /*
-            if (!_presenter.IsGuest)
-            {
-                isKeyValid = (await _presenter.TrySignIn(BasePresenter.User.Login, BasePresenter.User.UserInfo.PostingKey)).Success;
-                if (!isKeyValid)
-                {
-                    BasePresenter.User.UserInfo.PostingKey = null;
-                    Toast.MakeText(this, Localization.Errors.WrongPrivateKey, ToastLength.Long);
-                }
-            }*/
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
-                Intent intent = null;
-                if (BasePresenter.User.IsAuthenticated && isKeyValid)
+                Intent intent;
+                if (BasePresenter.User.IsAuthenticated)
                 {
                     intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
@@ -72,8 +48,21 @@ namespace Steepshot.Activity
             }
             else
             {
-                StartActivity(BasePresenter.User.IsAuthenticated && isKeyValid ? typeof(RootActivity) : typeof(GuestActivity));
+                StartActivity(BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
             }
+        }
+
+        private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            AppSettings.Reporter.SendCrash(e.Exception);
+        }
+
+        private void OnCurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var ex = e.ExceptionObject as Exception;
+            if (ex != null)
+                ex = new Exception(e.ExceptionObject.ToString());
+            AppSettings.Reporter.SendCrash(ex);
         }
 
         private void Construct()
@@ -90,18 +79,12 @@ namespace Steepshot.Activity
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 #endif
 
-            Picasso.Builder d = new Picasso.Builder(this);
+            var d = new Picasso.Builder(this);
             Cache = new LruCache(this);
             d.MemoryCache(Cache);
             Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
-        }
-
-        private void ShowPresenterAllert(string msg)
-        {
-            //TODO:KOA: Replace messages by "UI state field"
-            RunOnUiThread(() => { ShowAlert(!string.IsNullOrEmpty(msg) ? msg : "connected", ToastLength.Short); });
         }
     }
 }
