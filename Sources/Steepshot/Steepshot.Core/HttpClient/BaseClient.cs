@@ -170,17 +170,6 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserFriendsResponse>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<TermOfServiceResponse>> TermsOfService(CancellationToken ct)
-        {
-            if (!EnableRead)
-                return null;
-
-            var response = await Gateway.Get(GatewayVersion.V1, "tos", new Dictionary<string, object>(), ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<TermOfServiceResponse>(response?.Content, errorResult);
-        }
-
         public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationToken ct)
         {
             if (!EnableRead)
