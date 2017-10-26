@@ -100,7 +100,7 @@ namespace Steepshot.Fragment
         public void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
-            _clearButton.Visibility = ViewStates.Visible;
+            _clearButton.Visibility = ViewStates.Gone;
             _searchView.Text = "Tap to search";
             _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
         }
@@ -177,6 +177,7 @@ namespace Steepshot.Fragment
                     _searchView.Text = _presenter.Tag = CustomTag = s;
                     _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
                     _clearButton.Visibility = ViewStates.Visible;
+                    _spinner.Visibility = ViewStates.Visible;
                     await LoadPosts(true);
                 }
             }

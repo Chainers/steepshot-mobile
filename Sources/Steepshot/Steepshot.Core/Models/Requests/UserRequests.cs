@@ -27,6 +27,8 @@ namespace Steepshot.Core.Models.Requests
         }
 
         public string Username { get; }
+        public bool ShowNsfw { get; set; }
+        public bool ShowLowRated { get; set; }
     }
 
     public enum FriendsType
