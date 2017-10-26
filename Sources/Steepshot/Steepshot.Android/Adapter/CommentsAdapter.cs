@@ -37,7 +37,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
-            var vh = new CommentViewHolder(itemView, LikeAction, UserAction);
+            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction);
             vh.Author.Typeface = Style.Semibold;
             vh.Comment.Typeface = vh.Likes.Typeface = vh.Cost.Typeface = vh.Reply.Typeface = Style.Regular;
             return vh;
@@ -118,20 +118,12 @@ namespace Steepshot.Adapter
             else
                 Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
-<<<<<<< HEAD
             Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
 
-            Likes.Text = $"{post.NetVotes} Like's";
+            Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             Time.Text = post.Created.ToPostTime();
             //CheckLikeVisibility(post.NetVotes);
-=======
-                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
-                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
-                Time.Text = post.Created.ToPostTime();
-                //CheckLikeVisibility(post.NetVotes);
-            }
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
         }
     }
 }

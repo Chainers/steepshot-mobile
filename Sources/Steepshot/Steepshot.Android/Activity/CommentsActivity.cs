@@ -12,10 +12,6 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
-<<<<<<< HEAD
-using Steepshot.Core.Utils;
-=======
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
@@ -62,9 +58,11 @@ namespace Steepshot.Activity
             _adapter = new CommentAdapter(this, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
+            _adapter.FlagAction += FlagAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
+            var swipeRecognizer = new ItemSwipeRecognizer(_comments);
 
             LoadComments(_uid);
         }
@@ -107,14 +105,6 @@ namespace Steepshot.Activity
 
             if (resp != null && resp.Success)
             {
-<<<<<<< HEAD
-                _comments.SetAdapter(_adapter);
-                var leftSwipeRecognizer = new ItemSwipeRecognizer(_comments);
-                _adapter.LikeAction += FeedAdapter_LikeAction;
-                _adapter.UserAction += FeedAdapter_UserAction;
-                _adapter.FlagAction += FeedAdapter_FlagAction;
-            }
-=======
                 _textInput.Text = string.Empty;
                 _textInput.ClearFocus();
 
@@ -122,7 +112,6 @@ namespace Steepshot.Activity
 
                 if (IsFinishing || IsDestroyed)
                     return;
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
 
                 ShowAlert(errors, ToastLength.Short);
                 _adapter.NotifyDataSetChanged();
@@ -155,38 +144,7 @@ namespace Steepshot.Activity
             _spinner.Visibility = ViewStates.Gone;
         }
 
-<<<<<<< HEAD
-        private async void FeedAdapter_FlagAction(int position)
-        {
-            try
-            {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    var errors = await _presenter.TryFlag(position);
-                    if (errors == null)
-                        return;
-
-                    if (errors.Any())
-                        ShowAlert(errors, ToastLength.Short);
-                    else
-                        _adapter?.NotifyDataSetChanged();
-                }
-                else
-                {
-                    var intent = new Intent(this, typeof(PreSignInActivity));
-                    StartActivity(intent);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-        }
-
-        private void FeedAdapter_UserAction(int position)
-=======
         private void UserAction(int position)
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
         {
             var user = Presenter[position];
             if (user == null)
@@ -202,6 +160,27 @@ namespace Steepshot.Activity
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(position);
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+
+                if (errors != null && !errors.Any())
+                    _adapter.NotifyDataSetChanged();
+                else
+                    ShowAlert(errors, ToastLength.Short);
+            }
+            else
+            {
+                var intent = new Intent(this, typeof(PreSignInActivity));
+                StartActivity(intent);
+            }
+        }
+
+        private async void FlagAction(int position)
+        {
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFlag(position);
 
                 if (IsFinishing || IsDestroyed)
                     return;

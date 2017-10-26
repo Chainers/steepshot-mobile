@@ -35,11 +35,10 @@
     <WarningLevel>4</WarningLevel>
     <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
     <Debugger>Xamarin</Debugger>
-    <AndroidSupportedAbis>arm64-v8a;armeabi;armeabi-v7a;x86;x86_64</AndroidSupportedAbis>
+    <AndroidSupportedAbis>armeabi-v7a</AndroidSupportedAbis>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <AndroidTlsProvider>btls</AndroidTlsProvider>
     <AndroidLinkMode>None</AndroidLinkMode>
-    <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -117,14 +116,11 @@
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
-<<<<<<< HEAD
-    <Compile Include="Utils\ItemSwipeRecognizer.cs" />
-=======
     <Compile Include="Activity\WelcomeActivity.cs" />
     <Compile Include="Adapter\AccountsAdapter.cs" />
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
+    <Compile Include="Utils\ItemSwipeRecognizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -170,9 +166,6 @@
     <AndroidResource Include="Resources\drawable-mdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\send.png" />
-<<<<<<< HEAD
-    <AndroidResource Include="Resources\layout\lyt_comment_item_suboption.xml" />
-=======
     <AndroidResource Include="Resources\layout\lyt_welcome.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\more.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\more.png" />
@@ -190,7 +183,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\unchecked.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\unchecked.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
->>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
+    <AndroidResource Include="Resources\layout\lyt_comment_item_suboption.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
