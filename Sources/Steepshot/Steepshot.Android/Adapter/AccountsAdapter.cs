@@ -23,8 +23,9 @@ namespace Steepshot.Adapter
             var account = AccountsList[position];
             if (account == null)
                 return;
-            ((AccountViewHolder)holder).CellText.Text = $"{account.Chain.ToString()} account";
-            ((AccountViewHolder)holder).CheckImage.SetImageResource( BasePresenter.Chain == account.Chain ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
+            var tHolder = (AccountViewHolder)holder;
+            tHolder.CellText.Text = $"{account.Chain} {Localization.Messages.Account}";
+            tHolder.CheckImage.SetImageResource(BasePresenter.Chain == account.Chain ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -39,20 +40,20 @@ namespace Steepshot.Adapter
     {
         public TextView CellText { get; }
         public ImageView CheckImage { get; }
-        private ImageButton _deleteAccountButton { get; }
-        private RelativeLayout _cellLayout { get; }
+        private ImageButton DeleteAccountButton { get; }
+        private RelativeLayout CellLayout { get; }
 
         public AccountViewHolder(View itemView, Action<int> pickAccount, Action<int> deleteAccount) : base(itemView)
         {
             CellText = itemView.FindViewById<TextView>(Resource.Id.cell_text);
             CheckImage = itemView.FindViewById<ImageView>(Resource.Id.pick_image);
-            _deleteAccountButton = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
-            _cellLayout = itemView.FindViewById<RelativeLayout>(Resource.Id.account_cell_layout);
+            DeleteAccountButton = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
+            CellLayout = itemView.FindViewById<RelativeLayout>(Resource.Id.account_cell_layout);
 
             CellText.Typeface = Style.Semibold;
 
-            _deleteAccountButton.Click += (sender, e) => deleteAccount?.Invoke(AdapterPosition);
-            _cellLayout.Click += (sender, e) => pickAccount?.Invoke(AdapterPosition);
+            DeleteAccountButton.Click += (sender, e) => deleteAccount?.Invoke(AdapterPosition);
+            CellLayout.Click += (sender, e) => pickAccount?.Invoke(AdapterPosition);
         }
     }
 }
