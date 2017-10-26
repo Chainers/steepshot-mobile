@@ -11,6 +11,8 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -210,7 +212,14 @@ namespace Steepshot.Fragment
 
         private async Task LoadProfile()
         {
-            var response = await _presenter.TryGetUserInfo(_profileId);
+            OperationResult<UserProfileResponse> response = null;
+            do
+            {
+                if(response != null)
+                    await Task.Delay(5000);
+                response = await _presenter.TryGetUserInfo(_profileId);
+            } while (!response.Success);
+
             if (response != null && response.Success)
             {
                 if (_listLayout != null)
