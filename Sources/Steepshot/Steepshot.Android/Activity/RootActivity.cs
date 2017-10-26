@@ -24,6 +24,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.tab_layout)] private TabLayout _tabLayout;
 #pragma warning restore 0649
 
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             if (BasePresenter.User.IsAuthenticated && !BasePresenter.User.IsNeedRewards)
@@ -36,20 +37,35 @@ namespace Steepshot.Activity
             _viewPager.Adapter = _adapter;
             InitTabs();
 
-            _tabLayout.TabSelected += (sender, e) =>
+            _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
+        }
+
+        public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        {
+            CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
+            base.OpenNewContentFragment(frag);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
+
+        private void OnTabLayoutOnTabSelected(object sender, TabLayout.TabSelectedEventArgs e)
+        {
+            if (e.Tab.Position == 2)
             {
-                if (e.Tab.Position == 2)
-                {
-                    _prevTab.Select();
-                    var intent = new Intent(this, typeof(CameraActivity));
-                    StartActivity(intent);
-                }
-                else
-                {
-                    OnTabSelected(e.Tab.Position);
-                    _prevTab = e.Tab;
-                }
-            };
+                _prevTab.Select();
+                var intent = new Intent(this, typeof(CameraActivity));
+                StartActivity(intent);
+            }
+            else
+            {
+                OnTabSelected(e.Tab.Position);
+                _prevTab = e.Tab;
+            }
         }
 
         private void InitTabs()
@@ -63,7 +79,7 @@ namespace Steepshot.Activity
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
             OnTabSelected(0);
-            _viewPager.OffscreenPageLimit = 3;
+            _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
         private void OnTabSelected(int position)
@@ -76,18 +92,6 @@ namespace Steepshot.Activity
                              ? ContextCompat.GetDrawable(this, _adapter.TabIconsActive[i])
                              : ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-        }
-
-        public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
-        {
-            CurrentHostFragment = (HostFragment)_adapter.GetItem(_viewPager.CurrentItem);
-            base.OpenNewContentFragment(frag);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
         }
     }
 }
