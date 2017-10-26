@@ -170,6 +170,12 @@ namespace Steepshot.Fragment
             StartActivity(intent);
         }
 
+        [InjectOnClick(Resource.Id.profile_login)]
+        public void OnLoginClick(object sender, EventArgs e)
+        {
+            _postsList.ScrollToPosition(0);
+        }
+
         private async Task UpdatePage()
         {
             _scrollListner.ClearPosition();

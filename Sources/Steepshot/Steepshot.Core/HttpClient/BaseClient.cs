@@ -142,6 +142,8 @@ namespace Steepshot.Core.HttpClient
 
             var parameters = new Dictionary<string, object>();
             AddLoginParameter(parameters, request.Login);
+            parameters.Add("show_nsfw", Convert.ToInt32(request.ShowNsfw));
+            parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
 
             var endpoint = $"user/{request.Username}/info";
 
