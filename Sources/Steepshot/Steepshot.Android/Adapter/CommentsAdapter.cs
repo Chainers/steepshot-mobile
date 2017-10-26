@@ -16,6 +16,7 @@ namespace Steepshot.Adapter
         private readonly CommentsPresenter _commentsPresenter;
         private readonly Context _context;
         public Action<int> LikeAction, UserAction;
+
         public override int ItemCount => _commentsPresenter.Count;
 
         public CommentAdapter(Context context, CommentsPresenter commentsPresenter)
@@ -26,10 +27,11 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var vh = holder as CommentViewHolder;
             var post = _commentsPresenter[position];
             if (post == null)
                 return;
+
+            var vh = holder as CommentViewHolder;
             vh?.UpdateData(post, _context);
         }
 
@@ -53,7 +55,8 @@ namespace Steepshot.Adapter
             public TextView Time { get; }
             public ImageButton Like { get; }
             private Post _post;
-            readonly Action<int> _likeAction;
+            private readonly Action<int> _likeAction;
+            private readonly Action<int> _userAction;
 
             public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction) : base(itemView)
             {
@@ -67,11 +70,17 @@ namespace Steepshot.Adapter
                 Time = itemView.FindViewById<TextView>(Resource.Id.time);
 
                 _likeAction = likeAction;
+                _userAction = userAction;
 
                 Like.Click += Like_Click;
-                Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+                Avatar.Click += InvokeUserAction;
+                Author.Click += InvokeUserAction;
+                Cost.Click += InvokeUserAction;
+            }
+
+            private void InvokeUserAction(object sender, EventArgs e)
+            {
+                _userAction?.Invoke(AdapterPosition);
             }
 
             private void Like_Click(object sender, EventArgs e)
@@ -85,7 +94,9 @@ namespace Steepshot.Adapter
 
             private void CheckLikeVisibility(int likes)
             {
-                Likes.Visibility = (likes > 0) ? ViewStates.Visible : ViewStates.Gone;
+                Likes.Visibility = likes > 0
+                    ? ViewStates.Visible
+                    : ViewStates.Gone;
             }
 
             public void UpdateData(Post post, Context context)
