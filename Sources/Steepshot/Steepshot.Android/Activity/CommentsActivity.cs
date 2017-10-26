@@ -14,6 +14,7 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
@@ -114,8 +115,10 @@ namespace Steepshot.Activity
             if (_comments != null)
             {
                 _comments.SetAdapter(_adapter);
+                var leftSwipeRecognizer = new ItemSwipeRecognizer(_comments);
                 _adapter.LikeAction += FeedAdapter_LikeAction;
                 _adapter.UserAction += FeedAdapter_UserAction;
+                _adapter.FlagAction += FeedAdapter_FlagAction;
             }
 
             _presenter.Clear();
@@ -128,6 +131,33 @@ namespace Steepshot.Activity
             {
                 _adapter?.NotifyDataSetChanged();
                 _spinner.Visibility = ViewStates.Gone;
+            }
+        }
+
+        private async void FeedAdapter_FlagAction(int position)
+        {
+            try
+            {
+                if (BasePresenter.User.IsAuthenticated)
+                {
+                    var errors = await _presenter.TryFlag(position);
+                    if (errors == null)
+                        return;
+
+                    if (errors.Any())
+                        ShowAlert(errors, ToastLength.Short);
+                    else
+                        _adapter?.NotifyDataSetChanged();
+                }
+                else
+                {
+                    var intent = new Intent(this, typeof(PreSignInActivity));
+                    StartActivity(intent);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
 
