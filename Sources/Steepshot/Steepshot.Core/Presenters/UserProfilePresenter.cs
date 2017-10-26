@@ -70,7 +70,9 @@ namespace Steepshot.Core.Presenters
         {
             var req = new UserProfileRequest(user)
             {
-                Login = User.Login
+                Login = User.Login,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
             return Api.GetUserProfile(req, ct);
         }
