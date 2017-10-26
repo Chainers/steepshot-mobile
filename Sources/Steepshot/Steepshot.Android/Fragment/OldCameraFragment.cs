@@ -321,7 +321,7 @@ namespace Steepshot.Fragment
                 ExifInterface exifInterface = new ExifInterface(_photoUri);
                 var orientation = exifInterface.GetAttributeInt(ExifInterface.TagOrientation, 0);
 
-                if (orientation != 1 || orientation == 0)
+                if (orientation != 1 && orientation != 0)
                 {
                     var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
                     bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);
@@ -409,10 +409,12 @@ namespace Steepshot.Fragment
                 var imageFile = new Java.IO.File(imageLocation);
                 if (imageFile.Exists())
                 {
-                    var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor;
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
-                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
-                    _galleryIcon.SetImageBitmap(bitmap);
+                    using (var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor)
+                    {
+                        var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
+                        bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
+                        _galleryIcon.SetImageBitmap(bitmap);
+                    }
                 }
             }
         }
