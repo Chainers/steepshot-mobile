@@ -9,6 +9,7 @@ namespace Steepshot.Utils
     public class NewTextEdit : AppCompatEditText
     {
         public event Action KeyboardDownEvent;
+        public event Action OkKeyEvent;
 
         public NewTextEdit(Context context) : base(context)
         {
@@ -25,7 +26,16 @@ namespace Steepshot.Utils
             
         }
 
-        public override bool OnKeyPreIme(Keycode keyCode, Android.Views.KeyEvent e)
+        public override void OnEditorAction(Android.Views.InputMethods.ImeAction actionCode)
+        {
+            if (actionCode == Android.Views.InputMethods.ImeAction.Done)
+            {
+                OkKeyEvent?.Invoke();
+            }
+            base.OnEditorAction(actionCode);
+        }
+
+        public override bool OnKeyPreIme(Keycode keyCode, KeyEvent e)
         {
             if (keyCode == Keycode.Back)
             {

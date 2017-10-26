@@ -36,7 +36,7 @@ namespace Steepshot.Core.Presenters
             if (post == null)
                 return null;
 
-            return await TryRunTask(Vote, CancellationToken.None, post);
+            return await TryRunTask(Vote, OnDisposeCts.Token, post);
         }
 
         public async Task<List<string>> TryVote(int position)
@@ -46,13 +46,15 @@ namespace Steepshot.Core.Presenters
                 post = Items[position];
             if (post == null)
                 return null;
-            return await TryRunTask(Vote, CancellationToken.None, post);
+            return await TryRunTask(Vote, OnDisposeCts.Token, post);
         }
 
         private async Task<List<string>> Vote(CancellationToken ct, Post post)
         {
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {
@@ -72,7 +74,7 @@ namespace Steepshot.Core.Presenters
                 post = Items.FirstOrDefault(func);
             if (post == null)
                 return null;
-            return await TryRunTask(Flag, CancellationToken.None, post);
+            return await TryRunTask(Flag, OnDisposeCts.Token, post);
         }
 
         public async Task<List<string>> TryFlag(int position)
@@ -82,13 +84,15 @@ namespace Steepshot.Core.Presenters
                 post = Items[position];
             if (post == null)
                 return null;
-            return await TryRunTask(Flag, CancellationToken.None, post);
+            return await TryRunTask(Flag, OnDisposeCts.Token, post);
         }
 
         private async Task<List<string>> Flag(CancellationToken ct, Post post)
         {
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {

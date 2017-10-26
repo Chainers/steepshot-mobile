@@ -27,13 +27,27 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetComments(request, ct);
+            if (response == null)
+                return null;
+
             if (response.Success)
             {
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                    {
+                        //Comments work wrong so...
+                        //Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                        if (Items.Any())
+                        {
+                            var range = Items.Union(results);
+                            Items.Clear();
+                            Items.AddRange(range);
+                        }
+                        else
+                            Items.AddRange(results);
+                    }
 
                     OffsetUrl = results.Last().Url;
                 }
@@ -45,7 +59,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)
         {
-            return await TryRunTask<string, string, CreateCommentResponse>(CreateComment, CancellationToken.None, comment, url);
+            return await TryRunTask<string, string, CreateCommentResponse>(CreateComment, OnDisposeCts.Token, comment, url);
         }
 
         private async Task<OperationResult<CreateCommentResponse>> CreateComment(CancellationToken ct, string comment, string url)

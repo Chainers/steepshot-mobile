@@ -1,98 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello, dear user"
-        android:layout_marginTop="34dp"
-        android:layout_centerHorizontal="true"
-        android:textSize="22sp"
-        android:textColor="@color/black" />
-    <TextView
-        android:id="@+id/posting_key_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter your private posting key"
-        android:layout_marginTop="36dp"
-        android:layout_below="@+id/title"
-        android:layout_centerHorizontal="true"
-        android:textSize="17sp"
-        android:textColor="@color/black" />
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingTop="30dp">
+    <include
+        android:id="@+id/top_panel"
+        layout="@layout/top_panel" />
     <refractored.controls.CircleImageView
         android:id="@+id/profile_image"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="60dp"
-        android:layout_below="@+id/posting_key_title"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="44dp"
+        android:layout_below="@id/top_panel"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/logo_login" />
-<!--Password-->
-    <EditText
-        android:id="@+id/input_password"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:lines="1"
-        android:singleLine="true"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:imeOptions="actionDone"
-        android:textColorHint="@color/color_hint"
-        android:layout_below="@+id/profile_image"
-        android:layout_marginTop="25dp"
-        android:background="@color/login_gray"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"
-        android:hint="@string/hint_password"
-        android:textColor="@color/black" />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp"
-        android:layout_below="@+id/input_password"
-        android:background="@android:color/white" />
-    <Button
-        android:drawableLeft="@drawable/ic_qr"
-        android:text="  Scan private posting key"
-        android:textColor="@color/light_blue"
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/dp_button_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/qr_button"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/input_password" />
-<!--Login-->
-    <RelativeLayout
-        android:id="@+id/sign_in_cont"
+        android:src="@drawable/holder" />
+    <android.support.design.widget.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/input_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/qr_button"
-        android:background="@color/light_blue"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp">
-        <Button
-            android:text="@string/text_login"
-            android:textColor="@color/white"
-            android:textSize="@dimen/dp_button_text"
+        android:layout_below="@id/profile_image"
+        android:layout_marginTop="45dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:hint="Private posting key"
+        app:hintEnabled="false"
+        android:textColorHint="@color/rgb151_155_158"
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="@color/rgb231_72_0">
+        <android.support.v7.widget.AppCompatEditText
+            android:id="@+id/input_password"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:textAllCaps="true"
+            android:inputType="textPassword"
             android:gravity="center"
+            android:textSize="14sp"
+            android:maxLength="52"
+            android:textCursorDrawable="@drawable/input"
+            android:imeOptions="actionDone"
             android:background="@android:color/transparent"
-            android:id="@+id/sign_in_btn" />
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:visibility="gone"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/color_primary"
-            android:layout_centerInParent="true" />
-    </RelativeLayout>
+            android:textColor="@color/rgb15_24_30" />
+    </android.support.design.widget.TextInputLayout>
+    <View
+        android:id="@+id/input_password_separator"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_below="@+id/input_password_layout"
+        android:background="@color/rgb151_155_158" />
+    <Button
+        android:id="@+id/sign_in_btn"
+        android:text="Enter to your account"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:textAllCaps="false"
+        android:gravity="center"
+        android:layout_below="@id/input_password_separator"
+        android:background="@drawable/follow_button_corners"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="29dp" />
+    <ProgressBar
+        android:id="@+id/loading_spinner"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="29dp"
+        android:visibility="visible"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/input_password_separator" />
+    <Button
+        android:id="@+id/qr_button"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Scan the QR code"
+        android:textColor="@color/rgb15_24_30"
+        android:background="@drawable/circle_border"
+        android:textSize="@dimen/dp_button_text"
+        android:textAllCaps="false"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/sign_in_btn" />
 </RelativeLayout>

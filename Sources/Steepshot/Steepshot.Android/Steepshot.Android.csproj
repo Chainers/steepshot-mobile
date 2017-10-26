@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.props')" />
@@ -90,11 +90,11 @@
     <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
+    <Compile Include="Utils\Style.cs" />
     <Compile Include="Utils\TagLayout.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
-    <Compile Include="Fragment\DropdownFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
     <Compile Include="Fragment\BackStackFragment.cs" />
     <Compile Include="Fragment\HostFragment.cs" />
@@ -117,7 +117,14 @@
     <Compile Include="Utils\CameraOrientationEventListener.cs" />
     <Compile Include="Utils\NewTextEdit.cs" />
     <Compile Include="Utils\ListItemDecoration.cs" />
+<<<<<<< HEAD
     <Compile Include="Utils\ItemSwipeRecognizer.cs" />
+=======
+    <Compile Include="Activity\WelcomeActivity.cs" />
+    <Compile Include="Adapter\AccountsAdapter.cs" />
+    <Compile Include="Utils\LoaderViewHolder.cs" />
+    <Compile Include="Utils\SpanSizeLookups.cs" />
+>>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -163,7 +170,27 @@
     <AndroidResource Include="Resources\drawable-mdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\send.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\send.png" />
+<<<<<<< HEAD
     <AndroidResource Include="Resources\layout\lyt_comment_item_suboption.xml" />
+=======
+    <AndroidResource Include="Resources\layout\lyt_welcome.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\more.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\more.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\more.png" />
+    <AndroidResource Include="Resources\drawable\blue_circle_border.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
+    <AndroidResource Include="Resources\Anim\like_set.xml" />
+    <AndroidResource Include="Resources\Anim\like_unset.xml" />
+    <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\checked.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\unchecked.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
+>>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -197,7 +224,6 @@
     <AndroidResource Include="Resources\layout\lyt_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
-    <AndroidResource Include="Resources\layout\lyt_following.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
     <AndroidResource Include="Resources\layout\lyt_post_description.axml" />

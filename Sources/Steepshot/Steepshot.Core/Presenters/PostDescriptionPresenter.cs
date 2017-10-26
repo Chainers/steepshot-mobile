@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -9,82 +6,27 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public class PostDescriptionPresenter : ListPresenter<SearchResult>
+    public class PostDescriptionPresenter : TagsPresenter
     {
-        private const int ItemsLimit = 40;
-
-        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request)
+        public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageRequest request)
         {
-            return await TryRunTask<UploadImageRequest, ImageUploadResponse>(Upload, CancellationToken.None, request);
+            return await TryRunTask<UploadImageRequest, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, request);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request)
+        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageRequest request)
         {
-            return await Api.Upload(request, ct);
+            return await Api.UploadWithPrepare(request, ct);
         }
 
-        public async Task<List<string>> TryLoadNext(string s)
+
+        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request, UploadResponse uploadResponse)
         {
-            return await RunAsSingleTask(LoadNext, s);
+            return await TryRunTask<UploadImageRequest, UploadResponse, ImageUploadResponse>(Upload, OnDisposeCts.Token, request, uploadResponse);
         }
 
-        private async Task<List<string>> LoadNext(CancellationToken ct, string s)
+        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request, UploadResponse uploadResponse)
         {
-            var request = new SearchWithQueryRequest(s)
-            {
-                Offset = OffsetUrl,
-                Limit = ItemsLimit
-            };
-
-            var response = await Api.SearchCategories(request, ct);
-
-            if (response.Success)
-            {
-                var tags = response.Result.Results;
-                if (tags.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
-
-                    OffsetUrl = tags.Last().Name;
-                }
-
-                if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-            }
-            return response.Errors;
-        }
-
-        public async Task<List<string>> TryGetTopTags()
-        {
-            return await RunAsSingleTask(GetTopTags);
-        }
-
-        private async Task<List<string>> GetTopTags(CancellationToken ct)
-        {
-            var request = new OffsetLimitFields()
-            {
-                Offset = OffsetUrl,
-                Limit = ItemsLimit
-            };
-
-            var response = await Api.GetCategories(request, ct);
-
-            if (response.Success)
-            {
-                var tags = response.Result.Results;
-                if (tags.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
-
-                    OffsetUrl = tags.Last().Name;
-                }
-
-                if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-            }
-            return response.Errors;
+            return await Api.Upload(request, uploadResponse, ct);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.Support.V7.Widget;
 
 namespace Steepshot.Utils
 {
@@ -66,6 +67,13 @@ namespace Steepshot.Utils
         {
             var fPath = ToFilePath(val);
             return Android.Net.Uri.Parse(fPath);
+        }
+
+        public static void MoveToPosition(this RecyclerView recyclerView, int position)
+        {
+            if (position < 0)
+                position = 0;
+            recyclerView.SmoothScrollToPosition(position);
         }
     }
 }

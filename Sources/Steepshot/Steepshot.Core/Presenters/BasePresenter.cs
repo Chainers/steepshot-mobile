@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Cryptography.ECDSA;
 using Ditch;
 using Steepshot.Core.Authority;
@@ -10,6 +11,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
 {
@@ -18,9 +20,14 @@ namespace Steepshot.Core.Presenters
         protected static readonly ISteepshotApiClient Api;
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
+        private static IConnectionService _connectionService;
+        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
         public static bool ShouldUpdateProfile;
+        public static event Action<string> OnAllert;
+        protected CancellationTokenSource OnDisposeCts;
 
-        public static string AppVersion { get; set; }
+
+
         public static string Currency
         {
             get
@@ -32,6 +39,7 @@ namespace Steepshot.Core.Presenters
         }
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
+        private static Timer ReconectTimer;
 
         static BasePresenter()
         {
@@ -43,21 +51,71 @@ namespace Steepshot.Core.Presenters
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new DitchApi();
-            Api.Connect(Chain, AppSettings.IsDev);
+            TryConnect(Chain, AppSettings.IsDev);
             // static constructor initialization.
-            var init = new Secp256k1Manager();
+            Task.Run(() =>
+            {
+                var init = new Secp256k1Manager();
+            });
         }
 
-        public static void SwitchChain(bool isDev)
+        protected BasePresenter()
+        {
+            OnDisposeCts = new CancellationTokenSource();
+        }
+
+        private static async Task TryConnect(KnownChains chain, bool isDev)
+        {
+            if (ReconectTimer != null)
+            {
+                ReconectTimer.Dispose();
+                ReconectTimer = null;
+            }
+
+            var isConnected = ConnectionService.IsConnectionAvailable();
+            isConnected = await Api.Connect(chain, isDev, isConnected);
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                ReconectTimer = new Timer(TryReconect, null, 0, 5000);
+            }
+        }
+
+        private static void TryReconect(object state)
+        {
+            var isConnected = ConnectionService.IsConnectionAvailable();
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                return;
+            }
+
+            //TODO:ReconectTimer == null exception, need multithread handling (lock)
+
+            ReconectTimer.Change(int.MaxValue, 5000);
+            isConnected = Api.TryReconnectChain(Chain);
+            if (!isConnected)
+            {
+                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                ReconectTimer.Change(5000, 5000);
+            }
+            else
+            {
+                OnAllert?.Invoke(string.Empty);
+                ReconectTimer.Dispose();
+            }
+        }
+
+        public static async Task SwitchChain(bool isDev)
         {
             if (AppSettings.IsDev == isDev)
                 return;
 
             AppSettings.IsDev = isDev;
-            Api.Connect(Chain, isDev);
+            await TryConnect(Chain, isDev);
         }
 
-        public static void SwitchChain(UserInfo userInfo)
+        public static async Task SwitchChain(UserInfo userInfo)
         {
             if (Chain == userInfo.Chain)
                 return;
@@ -65,16 +123,16 @@ namespace Steepshot.Core.Presenters
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            Api.Connect(userInfo.Chain, AppSettings.IsDev);
+            await TryConnect(userInfo.Chain, AppSettings.IsDev);
         }
 
-        public static void SwitchChain(KnownChains chain)
+        public static async Task SwitchChain(KnownChains chain)
         {
             if (Chain == chain)
                 return;
 
             Chain = chain;
-            Api.Connect(chain, AppSettings.IsDev);
+            await TryConnect(chain, AppSettings.IsDev);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
@@ -85,13 +143,16 @@ namespace Steepshot.Core.Presenters
             return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
 
-
         #region TryRunTask
 
         protected async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct);
             }
             catch (OperationCanceledException)
@@ -115,6 +176,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct, param1);
             }
             catch (OperationCanceledException)
@@ -138,6 +203,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult> { Errors = new List<string> { Localization.Errors.InternetUnavailable } };
+
                 return await func(ct, param1, param2);
             }
             catch (OperationCanceledException)
@@ -162,6 +231,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct);
             }
             catch (OperationCanceledException)
@@ -183,6 +256,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct, param1);
             }
             catch (OperationCanceledException)
@@ -204,6 +281,10 @@ namespace Steepshot.Core.Presenters
         {
             try
             {
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new List<string> { Localization.Errors.InternetUnavailable };
+
                 return await func(ct, param1, param2);
             }
             catch (OperationCanceledException)
@@ -222,5 +303,10 @@ namespace Steepshot.Core.Presenters
         }
 
         #endregion
+
+        public void TasksCancel()
+        {
+            OnDisposeCts?.Cancel();
+        }
     }
 }

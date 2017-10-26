@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.Support.V7.App;
 using Android.Widget;
-using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Fragment;
-using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace Steepshot.Base
 {
     public abstract class BaseActivity : AppCompatActivity
     {
-        protected static LruCache Cache { get; set; }
         protected HostFragment CurrentHostFragment;
-        
+
         public override void OnBackPressed()
         {
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
@@ -24,8 +22,9 @@ namespace Steepshot.Base
 
         public virtual void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
         {
-            CurrentHostFragment.ReplaceFragment(frag, true);
+            CurrentHostFragment?.ReplaceFragment(frag, true);
         }
+
 
         protected void ShowAlert(string message)
         {
@@ -38,7 +37,6 @@ namespace Steepshot.Base
                 return;
 
             Show(messages[0]);
-            //Show(string.Join(System.Environment.NewLine, messages));
         }
 
         protected void ShowAlert(OperationResult response)
@@ -60,7 +58,6 @@ namespace Steepshot.Base
                 return;
 
             Toast.MakeText(this, messages[0], length).Show();
-            //Toast.MakeText(this, string.Join(System.Environment.NewLine, messages), length).Show();
         }
 
         protected void ShowAlert(OperationResult response, ToastLength length)
@@ -70,16 +67,33 @@ namespace Steepshot.Base
             ShowAlert(response.Errors, length);
         }
 
-
         private void Show(string text)
         {
-            if (string.IsNullOrEmpty(text))
+            if (string.IsNullOrWhiteSpace(text))
                 return;
-            var alert = new AlertDialog.Builder(this);
+            var alert = new Android.Support.V7.App.AlertDialog.Builder(this);
             alert.SetMessage(text);
             alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
+        }
+
+        public void ShowInteractiveMessage(string text, EventHandler<DialogClickEventArgs> tryAgainAction, EventHandler<DialogClickEventArgs> forgetAction)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+            var alert = new Android.Support.V7.App.AlertDialog.Builder(this);
+            alert.SetMessage(text);
+            alert.SetNegativeButton(Localization.Messages.Forget, forgetAction);
+            alert.SetPositiveButton(Localization.Messages.TryAgain, tryAgainAction);
+            Dialog dialog = alert.Create();
+            dialog.Show();
+        }
+
+        public override void OnTrimMemory(Android.Content.TrimMemory level)
+        {
+            GC.Collect();
+            base.OnTrimMemory(level);
         }
     }
 }

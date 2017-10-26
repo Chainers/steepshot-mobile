@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -9,26 +8,25 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FollowersFragment : BaseFragmentWithPresenter<FollowersPresenter>
+    public class FollowersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
         private FollowersAdapter _followersAdapter;
         private string _username;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.followers_list)] private RecyclerView _followersList;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.people_count)] private TextView _people_count;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -46,11 +44,7 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-
-            var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
-
+            
             var count = Activity.Intent.GetIntExtra("count", 0);
             _people_count.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
@@ -62,10 +56,10 @@ namespace Steepshot.Fragment
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = _presenter.FollowType.GetDescription();
 
-            _viewTitle.Typeface = semibold_font;
-            _people_count.Typeface = font;
+            _viewTitle.Typeface = Style.Semibold;
+            _people_count.Typeface = Style.Regular;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
+            _followersAdapter = new FollowersAdapter(Activity, _presenter);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
@@ -122,7 +116,7 @@ namespace Steepshot.Fragment
         protected override void CreatePresenter()
         {
             var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-            _presenter = new FollowersPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
+            _presenter = new UserFriendPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
         }
 
         public override void OnDetach()

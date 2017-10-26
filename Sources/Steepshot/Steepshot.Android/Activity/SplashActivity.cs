@@ -13,18 +13,25 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Android.Content;
+using Android.Widget;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
-    public class SplashActivity : BaseActivity
+    public sealed class SplashActivity : BaseActivity
     {
+        public static LruCache Cache;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             if (AppSettings.Container == null)
                 Construct();
+
+            //TODO: Global events for presenter aka no wifi / no blockchain connection
+            //BasePresenter.OnAllert -= ShowPresenterAllert;
+            //BasePresenter.OnAllert += ShowPresenterAllert;
 
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
@@ -89,6 +96,12 @@ namespace Steepshot.Activity
             Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
+        }
+
+        private void ShowPresenterAllert(string msg)
+        {
+            //TODO:KOA: Replace messages by "UI state field"
+            RunOnUiThread(() => { ShowAlert(!string.IsNullOrEmpty(msg) ? msg : "connected", ToastLength.Short); });
         }
     }
 }

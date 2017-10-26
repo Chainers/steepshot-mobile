@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -20,12 +19,11 @@ namespace Steepshot.Fragment
     public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private readonly string _profileId;
-        private Typeface _font;
-        private Typeface _semiboldFont;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
+        private ProfileSpanSizeLookup _profileSpanSizeLookup;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
@@ -39,13 +37,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.list_layout)] RelativeLayout _listLayout;
 #pragma warning restore 0649
 
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
-        {
-            var intent = new Intent(Context, typeof(SettingsActivity));
-            StartActivity(intent);
-        }
-
         ProfileFeedAdapter _profileFeedAdapter;
         ProfileFeedAdapter ProfileFeedAdapter
         {
@@ -53,7 +44,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -74,7 +65,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
@@ -82,64 +73,6 @@ namespace Steepshot.Fragment
                 }
                 return _profileGridAdapter;
             }
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter(_profileId);
-        }
-
-        public ProfileFragment(string profileId)
-        {
-            _profileId = profileId;
-        }
-
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-        {
-            if (!IsInitialized)
-            {
-                InflatedView = inflater.Inflate(Resource.Layout.lyt_fragment_profile, null);
-                Cheeseknife.Inject(this, InflatedView);
-            }
-            return InflatedView;
-        }
-
-        public override void OnViewCreated(View view, Bundle savedInstanceState)
-        {
-            if (IsInitialized)
-                return;
-            base.OnViewCreated(view, savedInstanceState);
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-            _login.Typeface = _semiboldFont;
-
-            if (_profileId != BasePresenter.User.Login)
-            {
-                _settings.Visibility = ViewStates.Invisible;
-                _backButton.Visibility = ViewStates.Visible;
-                _login.Text = _profileId;
-            }
-
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += () => GetUserPosts();
-
-            _linearLayoutManager = new LinearLayoutManager(Context);
-            _gridLayoutManager = new GridLayoutManager(Context, 3);
-            _gridLayoutManager.SetSpanSizeLookup(new ProfileSpanSizeLookup());
-
-            _gridItemDecoration = new GridItemDecoration(true);
-            _postsList.SetLayoutManager(_gridLayoutManager);
-            _postsList.AddItemDecoration(_gridItemDecoration);
-            _postsList.AddOnScrollListener(_scrollListner);
-            _postsList.SetAdapter(ProfileGridAdapter);
-
-            _refresher.Refresh += async delegate
-            {
-                await UpdatePage();
-                _refresher.Refreshing = false;
-            };
-            LoadProfile();
-            GetUserPosts();
         }
 
         public override bool CustomUserVisibleHint
@@ -156,15 +89,91 @@ namespace Steepshot.Fragment
             }
         }
 
+        public ProfileFragment(string profileId)
+        {
+            _profileId = profileId;
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new UserProfilePresenter(_profileId);
+        }
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            if (!IsInitialized)
+            {
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_fragment_profile, null);
+                Cheeseknife.Inject(this, InflatedView);
+            }
+            return InflatedView;
+        }
+
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            if (IsInitialized)
+                return;
+
+            base.OnViewCreated(view, savedInstanceState);
+
+            _login.Typeface = Style.Semibold;
+
+            if (_profileId != BasePresenter.User.Login)
+            {
+                _settings.Visibility = ViewStates.Invisible;
+                _backButton.Visibility = ViewStates.Visible;
+                _login.Text = _profileId;
+            }
+
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += () => GetUserPosts();
+
+            _linearLayoutManager = new LinearLayoutManager(Context);
+            _gridLayoutManager = new GridLayoutManager(Context, 3);
+            _profileSpanSizeLookup = new ProfileSpanSizeLookup();
+            _gridLayoutManager.SetSpanSizeLookup(_profileSpanSizeLookup);
+
+            _gridItemDecoration = new GridItemDecoration(true);
+            _postsList.SetLayoutManager(_gridLayoutManager);
+            _postsList.AddItemDecoration(_gridItemDecoration);
+            _postsList.AddOnScrollListener(_scrollListner);
+            _postsList.SetAdapter(ProfileGridAdapter);
+
+            _refresher.Refresh += async delegate
+            {
+                await UpdatePage();
+                _refresher.Refreshing = false;
+            };
+            LoadProfile();
+            GetUserPosts();
+        }
+
         private async Task GetUserPosts(bool isRefresh = false)
         {
+            if(isRefresh)
+                _profileSpanSizeLookup.LastItemNumber = -1;
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
+            
+            _profileSpanSizeLookup.LastItemNumber = _presenter.Count;
 
             if (_listSpinner != null)
                 _listSpinner.Visibility = ViewStates.Gone;
             _postsList?.GetAdapter()?.NotifyDataSetChanged();
+        }
+
+        [InjectOnClick(Resource.Id.btn_settings)]
+        public void OnSettingsClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Context, typeof(SettingsActivity));
+            StartActivity(intent);
+        }
+
+        [InjectOnClick(Resource.Id.profile_login)]
+        public void OnLoginClick(object sender, EventArgs e)
+        {
+            _postsList.ScrollToPosition(0);
         }
 
         private async Task UpdatePage()
@@ -245,7 +254,7 @@ namespace Steepshot.Fragment
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
+                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
                 StartActivity(intent);
             }
         }
@@ -272,16 +281,16 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-
+        
         private void VotersAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
@@ -315,17 +324,6 @@ namespace Steepshot.Fragment
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
-        }
-
-        public class ProfileSpanSizeLookup : GridLayoutManager.SpanSizeLookup
-        {
-            public override int GetSpanSize(int position)
-            {
-                if (position == 0)
-                    return 3;
-                else
-                    return 1;
-            }
         }
     }
 }

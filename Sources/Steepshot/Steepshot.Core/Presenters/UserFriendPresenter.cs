@@ -8,18 +8,18 @@ using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class FollowersPresenter : ListPresenter<UserFriend>
+    public sealed class UserFriendPresenter : ListPresenter<UserFriend>
     {
         private const int ItemsLimit = 40;
         private readonly FriendsType? _followType;
 
         public FriendsType? FollowType => _followType;
 
-        public FollowersPresenter()
+        public UserFriendPresenter()
         {
         }
 
-        public FollowersPresenter(FriendsType followType)
+        public UserFriendPresenter(FriendsType followType)
         {
             _followType = followType;
         }
@@ -29,6 +29,45 @@ namespace Steepshot.Core.Presenters
             lock (Items)
                 return Items.FirstOrDefault(func);
         }
+
+
+        public async Task<List<string>> TryLoadNextPostVoters(string url)
+        {
+            if (IsLastReaded)
+                return null;
+            return await RunAsSingleTask(LoadNextPostVoters, url);
+        }
+
+        private async Task<List<string>> LoadNextPostVoters(CancellationToken ct, string url)
+        {
+            var request = new InfoRequest(url)
+            {
+                Offset = OffsetUrl,
+                Limit = ItemsLimit,
+                Login = User.Login
+            };
+
+            var response = await Api.GetPostVoters(request, ct);
+            if (response == null)
+                return null;
+
+            if (response.Success)
+            {
+                var voters = response.Result.Results;
+                if (voters.Count > 0)
+                {
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+
+                    OffsetUrl = voters.Last().Author;
+                }
+
+                if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                    IsLastReaded = true;
+            }
+            return response.Errors;
+        }
+
 
         public async Task<List<string>> TryLoadNextUserFriends(string username)
         {
@@ -50,6 +89,9 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetUserFriends(request, ct);
+            if (response == null)
+                return null;
+
             if (response.Success)
             {
                 var result = response.Result.Results;
@@ -68,6 +110,7 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
+
         public async Task<List<string>> TryLoadNextSearchUser(CancellationToken ct, string query)
         {
             return await LoadNextSearchUser(ct, query);
@@ -83,7 +126,10 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.SearchUser(request, ct);
-            if (response.Success && response.Result?.Results != null)
+            if (response == null)
+                return null;
+
+            if (response.Success)
             {
                 var result = response.Result.Results;
                 if (result.Count > 0)
@@ -100,9 +146,10 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
+
         public async Task<List<string>> TryFollow(UserFriend item)
         {
-            return await TryRunTask(Follow, CancellationToken.None, item);
+            return await TryRunTask(Follow, OnDisposeCts.Token, item);
         }
 
         private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
@@ -110,6 +157,9 @@ namespace Steepshot.Core.Presenters
             var request = new FollowRequest(User.UserInfo, (bool)item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
             item.HasFollowed = null;
             var response = await Api.Follow(request, ct);
+            if (response == null)
+                return null;
+
             if (response.Success)
                 item.HasFollowed = request.Type == Models.Requests.FollowType.Follow;
             else

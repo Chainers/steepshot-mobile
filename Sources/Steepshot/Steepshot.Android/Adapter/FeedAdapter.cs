@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Android.Content;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
@@ -18,16 +18,43 @@ namespace Steepshot.Adapter
     {
         protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
-        protected readonly Typeface[] Fonts;
         public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
-        public override int ItemCount => Presenter.Count;
+        public override int ItemCount
+        {
+            get
+            {
+                var count = Presenter.Count;
+                return count == 0 || Presenter.IsLastReaded ? count : count + 1;
+            }
+        }
+        private bool _actionsEnabled;
+        public bool ActionsEnabled
+        {
+            get
+            {
+                return _actionsEnabled;
+            }
+            set
+            {
+                _actionsEnabled = value;
+                NotifyDataSetChanged();
+            }
+        }
 
-        public FeedAdapter(Context context, BasePostPresenter presenter, Typeface[] fonts)
+        public FeedAdapter(Context context, BasePostPresenter presenter)
         {
             Context = context;
             Presenter = presenter;
-            Fonts = fonts;
+            _actionsEnabled = true;
+        }
+
+        public override int GetItemViewType(int position)
+        {
+            if (Presenter.Count == position)
+                return (int)ViewType.Loader;
+
+            return (int)ViewType.Cell;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -63,21 +90,37 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(Context).Load(photo).NoFade().Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
                 var parameters = vh.Photo.LayoutParameters;
-                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1500);
+                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
                 vh.Photo.LayoutParameters = parameters;
             }
 
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
 
-            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
+            if (_actionsEnabled && vh.Liked == null)
+                vh.Liked = post.Vote;
+
+            if (vh.Liked != null)
+                vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            else
+                vh.Like.StartAnimation(post.Vote ? vh.LikeUnsetAnimation : vh.LikeSetAnimation);
+
+            vh.LikeActionEnabled = _actionsEnabled;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, Fonts);
-            return vh;
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    return vh;
+            }
         }
     }
 
@@ -101,9 +144,15 @@ namespace Steepshot.Adapter
         protected readonly Action<int> VotersAction;
 
         protected int Correction = 0;
+        public Animation LikeSetAnimation { get; set; }
+        public Animation LikeUnsetAnimation { get; set; }
+        public bool LikeActionEnabled { get; set; }
+        public bool? Liked { get; set; }
+        private Context _context;
 
-        public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, Typeface[] font) : base(itemView)
+        public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
         {
+            _context = itemView.RootView.Context;
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
             Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
@@ -120,12 +169,19 @@ namespace Steepshot.Adapter
             Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             CommentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
 
-            Author.Typeface = font[1];
-            Time.Typeface = font[0];
-            Likes.Typeface = font[1];
-            Cost.Typeface = font[1];
-            FirstComment.Typeface = font[0];
-            CommentSubtitle.Typeface = font[0];
+            Author.Typeface = Style.Semibold;
+            Time.Typeface = Style.Regular;
+            Likes.Typeface = Style.Semibold;
+            Cost.Typeface = Style.Semibold;
+            FirstComment.Typeface = Style.Regular;
+            CommentSubtitle.Typeface = Style.Regular;
+
+            LikeActionEnabled = true;
+            LikeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            LikeSetAnimation.RepeatCount = int.MaxValue;
+            LikeSetAnimation.AnimationStart += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+            LikeUnsetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_unset);
+            LikeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
 
             LikeAction = likeAction;
             UserAction = userAction;
@@ -164,11 +220,9 @@ namespace Steepshot.Adapter
 
         protected virtual void DoLikeAction(object sender, EventArgs e)
         {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                Like.SetImageResource(!Post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-            }
-            LikeAction?.Invoke(AdapterPosition);
+            if (!LikeActionEnabled) return;
+            Liked = null;
+            LikeAction.Invoke(AdapterPosition);
         }
 
         public void UpdateData(Post post, Context context)

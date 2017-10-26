@@ -8,7 +8,8 @@ namespace Steepshot.Core.HttpClient
 {
     public interface ISteepshotApiClient
     {
-        bool Connect(KnownChains chain, bool isDev);
+        Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain);
+        bool TryReconnectChain(KnownChains chain);
 
         /// <summary>
         ///     Examples:
@@ -107,9 +108,9 @@ namespace Steepshot.Core.HttpClient
         ///             Content-Disposition: form-data; name="photo"; filename="cat636206837437954906"
         ///             Content-Type: application/octet-stream
         /// </summary>
-        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationToken ct);
+        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
 
-        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationToken ct);
+        Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct);
 
         /// <summary>
         ///     Examples:

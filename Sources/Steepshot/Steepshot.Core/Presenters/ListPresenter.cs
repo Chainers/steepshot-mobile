@@ -46,9 +46,14 @@ namespace Steepshot.Core.Presenters
             IsLastReaded = false;
             OffsetUrl = string.Empty;
         }
+        
 
         protected async Task<List<string>> RunAsSingleTask(Func<CancellationToken, Task<List<string>>> func, bool cancelPrevTask = true)
         {
+            var available = ConnectionService.IsConnectionAvailable();
+            if (!available)
+                return new List<string> { Localization.Errors.InternetUnavailable };
+
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
@@ -58,7 +63,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {
@@ -92,6 +97,10 @@ namespace Steepshot.Core.Presenters
 
         protected async Task<List<string>> RunAsSingleTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, T1 param1, bool cancelPrevTask = true)
         {
+            var available = ConnectionService.IsConnectionAvailable();
+            if (!available)
+                return new List<string> { Localization.Errors.InternetUnavailable };
+
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
@@ -101,7 +110,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {
@@ -135,6 +144,10 @@ namespace Steepshot.Core.Presenters
 
         protected async Task<List<string>> RunAsSingleTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
         {
+            var available = ConnectionService.IsConnectionAvailable();
+            if (!available)
+                return new List<string> { Localization.Errors.InternetUnavailable };
+
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
@@ -144,7 +157,7 @@ namespace Steepshot.Core.Presenters
                     else
                         return null;
                 }
-                _singleTaskCancellationTokenSource = new CancellationTokenSource();
+                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
             }
             try
             {

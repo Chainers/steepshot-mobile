@@ -12,7 +12,7 @@ namespace Steepshot.Core.Presenters
     public sealed class UserProfilePresenter : BasePostPresenter
     {
         private readonly string _username;
-        private const int ItemsLimit = 20;
+        private const int ItemsLimit = 18;
 
         public UserProfilePresenter(string username)
         {
@@ -36,11 +36,13 @@ namespace Steepshot.Core.Presenters
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
-                Limit = ItemsLimit,
+                Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
             var response = await Api.GetUserPosts(req, ct);
+            if (response == null)
+                return null;
 
             if (response.Success)
             {
@@ -61,21 +63,23 @@ namespace Steepshot.Core.Presenters
 
         public Task<OperationResult<UserProfileResponse>> TryGetUserInfo(string user)
         {
-            return TryRunTask<string, UserProfileResponse>(GetUserInfo, CancellationToken.None, user);
+            return TryRunTask<string, UserProfileResponse>(GetUserInfo, OnDisposeCts.Token, user);
         }
 
         private Task<OperationResult<UserProfileResponse>> GetUserInfo(CancellationToken ct, string user)
         {
             var req = new UserProfileRequest(user)
             {
-                Login = User.Login
+                Login = User.Login,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
             return Api.GetUserProfile(req, ct);
         }
 
         public async Task<OperationResult<FollowResponse>> TryFollow(bool hasFollowed)
         {
-            return await TryRunTask<FollowType, FollowResponse>(Follow, CancellationToken.None, hasFollowed ? FollowType.UnFollow : FollowType.Follow);
+            return await TryRunTask<FollowType, FollowResponse>(Follow, OnDisposeCts.Token, hasFollowed ? FollowType.UnFollow : FollowType.Follow);
         }
 
         private async Task<OperationResult<FollowResponse>> Follow(CancellationToken ct, FollowType followType)

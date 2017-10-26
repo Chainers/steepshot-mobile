@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.Transitions;
 using Android.Support.V4.Content;
@@ -26,21 +25,22 @@ namespace Steepshot.Fragment
 {
     public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
-        private Typeface _font, _semiboldFont;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
+        private FeedSpanSizeLookup _feedSpanSizeLookup;
 
         private List<Button> _buttonsList;
         private const int AnimationDuration = 300;
         private const int MinFontSize = 14;
         private const int MaxFontSize = 20;
         private int _bottomPadding;
-        private ValueAnimator _fontGrowingAnimation;
-        private ValueAnimator _fontReductionAnimation;
-        private ValueAnimator _grayToBlackAnimation;
-        private ValueAnimator _blackToGrayAnimation;
+        //ValueAnimator disposing issue probably fixed with static modificator
+        private static ValueAnimator _fontGrowingAnimation;
+        private static ValueAnimator _fontReductionAnimation;
+        private static ValueAnimator _grayToBlackAnimation;
+        private static ValueAnimator _blackToGrayAnimation;
         private Button _activeButton;
         private Button _currentButton;
 
@@ -57,7 +57,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new FeedAdapter(Context, _presenter, new[] { _font, _semiboldFont });
+                    _profileFeedAdapter = new FeedAdapter(Context, _presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -100,7 +100,7 @@ namespace Steepshot.Fragment
         public void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
-            _clearButton.Visibility = ViewStates.Visible;
+            _clearButton.Visibility = ViewStates.Gone;
             _searchView.Text = "Tap to search";
             _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
         }
@@ -177,6 +177,7 @@ namespace Steepshot.Fragment
                     _searchView.Text = _presenter.Tag = CustomTag = s;
                     _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
                     _clearButton.Visibility = ViewStates.Visible;
+                    _spinner.Visibility = ViewStates.Visible;
                     await LoadPosts(true);
                 }
             }
@@ -193,25 +194,24 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
                 _loginButton.Visibility = ViewStates.Gone;
 
-            _font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            _semiboldFont = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
             SetAnimation();
             _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
             _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
             _currentButton = _trendingButton;
-            _trendingButton.Typeface = _semiboldFont;
-            _hotButton.Typeface = _font;
-            _newButton.Typeface = _font;
+            _trendingButton.Typeface = Style.Semibold;
+            _hotButton.Typeface = Style.Regular;
+            _newButton.Typeface = Style.Regular;
 
-            _searchView.Typeface = _font;
-            _clearButton.Typeface = _font;
-            _loginButton.Typeface = _semiboldFont;
+            _searchView.Typeface = Style.Regular;
+            _clearButton.Typeface = Style.Regular;
+            _loginButton.Typeface = Style.Semibold;
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += async () => await LoadPosts();
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
+            _feedSpanSizeLookup = new FeedSpanSizeLookup();
+            _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
 
             _gridItemDecoration = new GridItemDecoration();
             _searchList.SetLayoutManager(_gridLayoutManager);
@@ -221,6 +221,7 @@ namespace Steepshot.Fragment
 
             _refresher.Refresh += async delegate
             {
+                _spinner.Visibility = ViewStates.Gone;
                 await LoadPosts(true);
             };
             await LoadPosts();
@@ -235,24 +236,28 @@ namespace Steepshot.Fragment
             if (photo != null)
             {
                 var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
+                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
                 StartActivity(intent);
             }
         }
 
         private async void LikeAction(int position)
         {
+            var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
             if (BasePresenter.User.IsAuthenticated)
             {
+                feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
-
-                _searchList?.GetAdapter()?.NotifyDataSetChanged();
+                else
+                {
+                    await Task.Delay(3000);
+                }
+                feedAdapter.ActionsEnabled = true;
             }
             else
                 OpenLogin();
-
         }
 
         private void UserAction(int position)
@@ -270,7 +275,7 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
 
@@ -279,22 +284,20 @@ namespace Steepshot.Fragment
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
-            Activity.Intent.PutExtra("count", post.NetVotes);
+            Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
         private async Task LoadPosts(bool clearOld = false)
         {
-            if (_spinner != null && !_refresher.Refreshing)
-                _spinner.Visibility = ViewStates.Visible;
-
             if (clearOld)
             {
                 _presenter.LoadCancel();
                 _presenter.Clear();
                 _scrollListner.ClearPosition();
-                _searchList.ScrollToPosition(0);
+                _feedSpanSizeLookup.LastItemNumber = -1;
+                _searchList?.GetAdapter()?.NotifyDataSetChanged();
             }
 
             List<string> errors;
@@ -306,6 +309,7 @@ namespace Steepshot.Fragment
             if (errors == null)
                 return;
 
+            _feedSpanSizeLookup.LastItemNumber = _presenter.Count;
             if (errors.Any())
                 ShowAlert(errors);
             else
@@ -313,7 +317,7 @@ namespace Steepshot.Fragment
 
             if (_refresher.Refreshing)
                 _refresher.Refreshing = false;
-            else if (_spinner != null)
+            if (_spinner != null)
                 _spinner.Visibility = ViewStates.Gone;
         }
 
@@ -324,7 +328,7 @@ namespace Steepshot.Fragment
 
         private void OpenLogin()
         {
-            var intent = new Intent(Activity, typeof(PreSignInActivity));
+            var intent = new Intent(Activity, typeof(WelcomeActivity));
             StartActivity(intent);
         }
 
@@ -332,6 +336,11 @@ namespace Steepshot.Fragment
         {
             if (postType == _presenter.PostType)
                 return;
+            if (_spinner != null)
+                _spinner.Visibility = ViewStates.Visible;
+            if (_spinner != null)
+                _refresher.Refreshing = false;
+
             switch (postType)
             {
                 case PostType.Top:
@@ -395,8 +404,8 @@ namespace Steepshot.Fragment
         {
             TransitionManager.BeginDelayedTransition(_searchTypeLayout);
 
-            _activeButton.Typeface = _semiboldFont;
-            _currentButton.Typeface = _font;
+            _activeButton.Typeface = Style.Semibold;
+            _currentButton.Typeface = Style.Regular;
 
             _activeButton.SetPadding(0, 0, 0, 0);
             _currentButton.SetPadding(0, 0, 0, _bottomPadding);

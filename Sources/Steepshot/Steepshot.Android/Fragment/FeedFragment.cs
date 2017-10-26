@@ -1,6 +1,7 @@
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -17,16 +18,23 @@ namespace Steepshot.Fragment
 {
     public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
+        public const string PostUrlExtraPath = "url";
+        public const string PostNetVotesExtraPath = "count";
+
         private FeedAdapter _feedAdapter;
         private ScrollListener _scrollListner;
-        private Typeface font;
-        private Typeface semibold_font;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
 #pragma warning restore 0649
+
+        [InjectOnClick(Resource.Id.logo)]
+        public void OnPost(object sender, EventArgs e)
+        {
+            _feedList.ScrollToPosition(0);
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -44,19 +52,16 @@ namespace Steepshot.Fragment
                 return;
             base.OnViewCreated(view, savedInstanceState);
 
-            font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
-            _feedAdapter = new FeedAdapter(Context, _presenter, new[] { font, semibold_font });
+            _feedAdapter = new FeedAdapter(Context, _presenter);
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += () => LoadPosts();
             _feedList.AddOnScrollListener(_scrollListner);
-            _feedAdapter.LikeAction += FeedAdapter_LikeAction;
-            _feedAdapter.UserAction += FeedAdapter_UserAction;
-            _feedAdapter.CommentAction += FeedAdapter_CommentAction;
-            _feedAdapter.VotersClick += FeedAdapter_VotersAction;
+            _feedAdapter.LikeAction += LikeAction;
+            _feedAdapter.UserAction += UserAction;
+            _feedAdapter.CommentAction += CommentAction;
+            _feedAdapter.VotersClick += VotersAction;
             _feedAdapter.PhotoClick += PhotoClick;
             LoadPosts();
             _refresher.Refresh += delegate
@@ -71,6 +76,7 @@ namespace Steepshot.Fragment
             if (clearOld)
                 _presenter.Clear();
 
+            _feedAdapter?.NotifyDataSetChanged();
             var errors = await _presenter.TryLoadNextTopPosts();
             if (_bar != null)
             {
@@ -94,31 +100,31 @@ namespace Steepshot.Fragment
             if (photo == null)
                 return;
             var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra("PhotoURL", photo);
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
             StartActivity(intent);
         }
 
-        void FeedAdapter_CommentAction(int position)
+        private void CommentAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", post.Url);
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-
-        void FeedAdapter_VotersAction(int position)
+        
+        private void VotersAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
                 return;
-            Activity.Intent.PutExtra("url", post.Url);
-            Activity.Intent.PutExtra("count", post.NetVotes);
+            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
-        void FeedAdapter_UserAction(int position)
+        private void UserAction(int position)
         {
             var post = _presenter[position];
             if (post == null)
@@ -126,21 +132,25 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
-        private async void FeedAdapter_LikeAction(int position)
+        private async void LikeAction(int position)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
+                _feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(position);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
-
-                _feedAdapter?.NotifyDataSetChanged();
+                else
+                {
+                    await Task.Delay(3000);
+                }
+                _feedAdapter.ActionsEnabled = true;
             }
         }
 
         protected override void CreatePresenter()
         {
-            _presenter = new FeedPresenter(true);
+            _presenter = new FeedPresenter();
         }
 
         public override void OnDetach()

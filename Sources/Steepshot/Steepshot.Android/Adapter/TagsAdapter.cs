@@ -1,26 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-
     public class TagsAdapter : RecyclerView.Adapter
     {
-        private PostDescriptionPresenter _presenter;
+        private readonly PostDescriptionPresenter _presenter;
         public Action<int> Click;
-        public List<SearchResult> LocalTags = new List<SearchResult>();
-        private readonly Typeface[] _fonts;
-        public override int ItemCount => _presenter != null ? _presenter.Count : LocalTags.Count;
+        public readonly List<string> LocalTags = new List<string>();
+        public override int ItemCount => _presenter?.Count ?? LocalTags.Count;
 
-        public TagsAdapter(Typeface[] fonts)
+        public TagsAdapter()
         {
-            _fonts = fonts;
             Click += (obj) =>
             {
                 LocalTags.RemoveAt(obj);
@@ -28,33 +24,36 @@ namespace Steepshot.Adapter
             };
         }
 
-        public TagsAdapter(PostDescriptionPresenter presenter, Typeface[] fonts)
+        public TagsAdapter(PostDescriptionPresenter presenter)
         {
-            _fonts = fonts;
             _presenter = presenter;
-        }
-
-        public IEnumerable<string> GetLocalTags()
-        {
-            foreach (var item in LocalTags)
-            {
-                yield return item.Name;
-            }
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var tag = _presenter != null ?_presenter[position] : LocalTags[position];
-            if (tag == null)
-                return;
-            ((TagViewHolder)holder).Tag.Text = tag.Name;
+            var tag = string.Empty;
+            if (_presenter != null)
+            {
+                var result = _presenter[position];
+                if (result == null)
+                    return;
+                tag = result.Name;
+            }
+            else
+            {
+                if (LocalTags.Count <= position)
+                    return;
+                tag = LocalTags[position];
+            }
+
+            ((TagViewHolder)holder).Tag.Text = tag;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(_presenter != null ? Resource.Layout.lyr_search_tag : Resource.Layout.lyt_local_tags_item, parent, false);
             var vh = new TagViewHolder(itemView, Click);
-            vh.Tag.Typeface = _fonts[1];
+            vh.Tag.Typeface = Style.Semibold;
             return vh;
         }
 

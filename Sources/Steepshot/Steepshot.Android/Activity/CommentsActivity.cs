@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -13,14 +12,19 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
+<<<<<<< HEAD
 using Steepshot.Core.Utils;
+=======
+>>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
+    public sealed class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
     {
+        public const string PostExtraPath = "uid";
+
         private CommentAdapter _adapter;
         private string _uid;
         private LinearLayoutManager _manager;
@@ -38,6 +42,39 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_post_image)] private ImageView _postImage;
 #pragma warning restore 0649
 
+        protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            SetContentView(Resource.Layout.lyt_comments);
+            Cheeseknife.Inject(this);
+
+            _textInput.Typeface = Style.Regular;
+            _viewTitle.Typeface = Style.Semibold;
+            _backButton.Visibility = ViewStates.Visible;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = Localization.Messages.PostComments;
+
+            _uid = Intent.GetStringExtra(PostExtraPath);
+            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
+
+            _adapter = new CommentAdapter(this, Presenter);
+            _adapter.LikeAction += LikeAction;
+            _adapter.UserAction += UserAction;
+
+            _comments.SetLayoutManager(_manager);
+            _comments.SetAdapter(_adapter);
+
+            LoadComments(_uid);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
         [InjectOnClick(Resource.Id.btn_back)]
         public void OnBack(object sender, EventArgs e)
         {
@@ -47,93 +84,78 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                if (_textInput.Text != string.Empty)
-                {
-                    _sendSpinner.Visibility = ViewStates.Visible;
-                    _post.Enabled = false;
-                    _postImage.Visibility = ViewStates.Invisible;
-                    var text = _textInput.Text;
-                    _textInput.Text = string.Empty;
-                    _textInput.ClearFocus();
-                    var imm = (InputMethodManager)GetSystemService(Context.InputMethodService);
-                    imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
-                    var resp = await _presenter.TryCreateComment(text, _uid);
-                    if ((bool)resp?.Success)
-                    {
-                        if (_textInput != null)
-                        {
-                            _presenter.Clear();
-                            var errors = await _presenter.TryLoadNextComments(_uid);
-                            if (errors != null)
-                            {
-                                _adapter?.NotifyDataSetChanged();
-                                _comments.SmoothScrollToPosition(_presenter.Count - 1);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ShowAlert(resp, ToastLength.Short);
-                    }
-                    if (_sendSpinner != null)
-                        _sendSpinner.Visibility = ViewStates.Invisible;
-                    if (_post != null)
-                        _post.Enabled = true;
-                    if (_postImage != null)
-                        _postImage.Visibility = ViewStates.Visible;
-                }
-            }
-            else
+            if (!BasePresenter.User.IsAuthenticated)
             {
                 ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
+                return;
             }
-        }
 
-        protected override async void OnCreate(Bundle savedInstanceState)
-        {
-            base.OnCreate(savedInstanceState);
+            if (string.IsNullOrWhiteSpace(_textInput.Text))
+                return;
 
-            SetContentView(Resource.Layout.lyt_comments);
-            Cheeseknife.Inject(this);
+            _sendSpinner.Visibility = ViewStates.Visible;
+            _post.Enabled = false;
+            _postImage.Visibility = ViewStates.Invisible;
 
-            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semiboldFont = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
 
-            _textInput.Typeface = font;
-            _viewTitle.Typeface = semiboldFont;
-            _backButton.Visibility = ViewStates.Visible;
-            _switcher.Visibility = ViewStates.Gone;
-            _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = "Post comments";
+            var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
 
-            _uid = Intent.GetStringExtra("uid");
-            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
-            _comments.SetLayoutManager(_manager);
-            _adapter = new CommentAdapter(this, _presenter, new[] { font, semiboldFont });
-            if (_comments != null)
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (resp != null && resp.Success)
             {
+<<<<<<< HEAD
                 _comments.SetAdapter(_adapter);
                 var leftSwipeRecognizer = new ItemSwipeRecognizer(_comments);
                 _adapter.LikeAction += FeedAdapter_LikeAction;
                 _adapter.UserAction += FeedAdapter_UserAction;
                 _adapter.FlagAction += FeedAdapter_FlagAction;
             }
+=======
+                _textInput.Text = string.Empty;
+                _textInput.ClearFocus();
 
-            _presenter.Clear();
-            var errors = await _presenter.TryLoadNextComments(_uid);
-            if (errors == null)
-                return;
-            if (errors.Any())
+                var errors = await Presenter.TryLoadNextComments(_uid);
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+>>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
+
                 ShowAlert(errors, ToastLength.Short);
+                _adapter.NotifyDataSetChanged();
+                _comments.MoveToPosition(Presenter.Count - 1);
+            }
             else
             {
-                _adapter?.NotifyDataSetChanged();
-                _spinner.Visibility = ViewStates.Gone;
+                ShowAlert(resp, ToastLength.Short);
             }
+
+            _sendSpinner.Visibility = ViewStates.Invisible;
+            _post.Enabled = true;
+            _postImage.Visibility = ViewStates.Visible;
         }
 
+        private async void LoadComments(string postUrl)
+        {
+            _spinner.Visibility = ViewStates.Visible;
+
+            var errors = await Presenter.TryLoadNextComments(postUrl);
+
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (errors != null && !errors.Any())
+                _adapter.NotifyDataSetChanged();
+            else
+                ShowAlert(errors, ToastLength.Short);
+
+            _spinner.Visibility = ViewStates.Gone;
+        }
+
+<<<<<<< HEAD
         private async void FeedAdapter_FlagAction(int position)
         {
             try
@@ -162,51 +184,38 @@ namespace Steepshot.Activity
         }
 
         private void FeedAdapter_UserAction(int position)
+=======
+        private void UserAction(int position)
+>>>>>>> 4336ee8adf248d499ec5b47a81d25157a25f14cf
         {
-            var user = _presenter[position];
+            var user = Presenter[position];
             if (user == null)
                 return;
+
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra("ID", user.Author);
+            intent.PutExtra(ProfileActivity.UserExtraName, user.Author);
             StartActivity(intent);
         }
 
-        private async void FeedAdapter_LikeAction(int position)
+        private async void LikeAction(int position)
         {
-            try
+            if (BasePresenter.User.IsAuthenticated)
             {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    var errors = await _presenter.TryVote(position);
-                    if (errors == null)
-                        return;
+                var errors = await Presenter.TryVote(position);
 
-                    if (errors.Any())
-                        ShowAlert(errors, ToastLength.Short);
-                    else
-                        _adapter?.NotifyDataSetChanged();
-                }
+                if (IsFinishing || IsDestroyed)
+                    return;
+
+                if (errors != null && !errors.Any())
+                    _adapter.NotifyDataSetChanged();
                 else
-                {
-                    var intent = new Intent(this, typeof(PreSignInActivity));
-                    StartActivity(intent);
-                }
+                    ShowAlert(errors, ToastLength.Short);
             }
-            catch (Exception ex)
+            else
             {
-                AppSettings.Reporter.SendCrash(ex);
+                var intent = new Intent(this, typeof(PreSignInActivity));
+                StartActivity(intent);
             }
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new CommentsPresenter();
         }
     }
 }

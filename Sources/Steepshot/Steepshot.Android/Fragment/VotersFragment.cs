@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -10,13 +8,12 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class VotersFragment : BaseFragmentWithPresenter<VotersPresenter>
+    public class VotersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
         private FollowersAdapter _votersAdapter;
         private string _url;
@@ -33,7 +30,7 @@ namespace Steepshot.Fragment
 
         protected override void CreatePresenter()
         {
-            _presenter = new VotersPresenter();
+            _presenter = new UserFriendPresenter();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -51,22 +48,19 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-
-            var font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Android.App.Application.Context.Assets, "OpenSans-Semibold.ttf");
-
-            var count = Activity.Intent.GetIntExtra("count", 0);
+            
+            var count = Activity.Intent.GetIntExtra(FeedFragment.PostNetVotesExtraPath, 0);
             _people_count.Text = $"{count.ToString("N0")} people";
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Typeface = semibold_font;
-            _people_count.Typeface = font;
+            _viewTitle.Typeface = Style.Semibold;
+            _people_count.Typeface = Style.Regular;
             _viewTitle.Text = Localization.Messages.Voters;
 
-            _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new FollowersAdapter(Activity, _presenter, new[] { font, semibold_font });
+            _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
+            _votersAdapter = new FollowersAdapter(Activity, _presenter);
             _votersAdapter.UserAction += OnClick;
             _votersAdapter.FollowAction += OnFollow;
             _votersList.SetAdapter(_votersAdapter);
@@ -91,7 +85,7 @@ namespace Steepshot.Fragment
 
         private async void LoadNext()
         {
-            var errors = await _presenter.TryLoadNext(_url);
+            var errors = await _presenter.TryLoadNextPostVoters(_url);
 
             if (errors != null && errors.Count > 0)
                 ShowAlert(errors);
