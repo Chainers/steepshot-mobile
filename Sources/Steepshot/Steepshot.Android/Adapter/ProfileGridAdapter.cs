@@ -58,7 +58,7 @@ namespace Steepshot.Adapter
                 default:
                     var view = new ImageView(Context);
                     view.SetScaleType(ImageView.ScaleType.CenterInside);
-                    view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
+                    view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
             }
         }
