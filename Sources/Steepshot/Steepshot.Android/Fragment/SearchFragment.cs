@@ -55,6 +55,8 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _searchView.TextChanged += (sender, e) =>
             {
+                if (string.IsNullOrEmpty(e.Text.ToString()))
+                    _clearButton.Visibility = ViewStates.Gone;
                 _timer.Change(500, Timeout.Infinite);
             };
 
@@ -82,6 +84,12 @@ namespace Steepshot.Fragment
 
             var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
             imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
+        }
+
+        [InjectOnClick(Resource.Id.clear_button)]
+        public void OnClearClick(object sender, EventArgs e)
+        {
+            _searchView.Text = string.Empty;
         }
 
         [InjectOnClick(Resource.Id.tags_button)]
