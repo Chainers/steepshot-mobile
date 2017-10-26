@@ -79,6 +79,8 @@
             public const string YourAccountName = "Your account name";
             public const string NextStep = "Next step";
 
+            public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>";
+
             /// <summary>
             /// $"Log in with your {chain} Account";
             /// </summary>

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
@@ -14,6 +13,7 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
@@ -38,34 +38,26 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_welcome);
             Cheeseknife.Inject(this);
 
-            var font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
-            var semibold_font = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
+            _termsTextView.TextFormatted = Build.VERSION.SdkInt >= Build.VERSION_CODES.N
+                ? Html.FromHtml(Localization.Messages.TitleForAcceptToS, FromHtmlOptions.ModeLegacy)
+                : Html.FromHtml(Localization.Messages.TitleForAcceptToS);
 
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.N)
-            {
-                _termsTextView.TextFormatted = Html.FromHtml(
-                    $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>", FromHtmlOptions.ModeLegacy
-                );
-            }
-            else
-            {
-                _termsTextView.TextFormatted = Html.FromHtml(
-                    $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>"
-                );
-            }
             _termsTextView.MovementMethod = new LinkMovementMethod();
 
-            _termsTextView.Typeface = font;
-            _steemLogin.Typeface = semibold_font;
-            _regButton.Typeface = semibold_font;
+            _termsTextView.Typeface = Style.Regular;
+            _steemLogin.Typeface = Style.Semibold;
+            _regButton.Typeface = Style.Semibold;
 
             _steemLogin.Text = Localization.Texts.SignInButtonText;
             _regButton.Text = Localization.Texts.CreateButtonText;
             _devSwitcher.Checked = AppSettings.IsDev;
-            _devSwitcher.CheckedChange += async (sender, e) =>
-            {
-                await BasePresenter.SwitchChain(e.IsChecked);
-            };
+            _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
         }
 
         [InjectOnClick(Resource.Id.steem_login)]
@@ -74,7 +66,11 @@ namespace Steepshot.Activity
             _steemLoader.Visibility = ViewStates.Visible;
             _steemLogin.Enabled = false;
             _steemLogin.Text = string.Empty;
+
             await PickChain(KnownChains.Steem);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             _steemLoader.Visibility = ViewStates.Gone;
             _steemLogin.Enabled = true;
             _steemLogin.Text = Localization.Texts.SignInButtonText;
@@ -85,7 +81,11 @@ namespace Steepshot.Activity
         {
             _golosLoder.Visibility = ViewStates.Visible;
             _golosLogin.Enabled = false;
+
             await PickChain(KnownChains.Golos);
+            if (IsFinishing || IsDestroyed)
+                return;
+
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
         }
@@ -93,19 +93,13 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.reg_button)]
         private void RegistrationClick(object sender, EventArgs e)
         {
-            var url = /* BasePresenter.Chain == KnownChains.Steem ?*/Constants.SteemitRegUrl;/* : Constants.GolosRegUrl;*/
+            var url = BasePresenter.Chain == KnownChains.Golos
+                ? Core.Constants.GolosRegUrl
+                : Core.Constants.SteemitRegUrl;
+
             var uri = Android.Net.Uri.Parse(url);
-            Intent browserIntent = new Intent(Intent.ActionView, uri);
+            var browserIntent = new Intent(Intent.ActionView, uri);
             StartActivity(browserIntent);
-        }
-
-        private async Task PickChain(KnownChains chain)
-        {
-            if (BasePresenter.Chain != chain)
-                await BasePresenter.SwitchChain(chain);
-
-            var intent = new Intent(this, typeof(PreSignInActivity));
-            StartActivity(intent);
         }
 
         [InjectOnClick(Resource.Id.steepshot_logo)]
@@ -121,10 +115,22 @@ namespace Steepshot.Activity
                 _devSwitcher.Visibility = ViewStates.Gone;
         }
 
-        protected override void OnDestroy()
+        private async void OnDevSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
+            await BasePresenter.SwitchChain(e.IsChecked);
+        }
+
+        private async Task PickChain(KnownChains chain)
+        {
+            if (BasePresenter.Chain != chain)
+            {
+                await BasePresenter.SwitchChain(chain);
+                if (IsFinishing || IsDestroyed)
+                    return;
+            }
+
+            var intent = new Intent(this, typeof(PreSignInActivity));
+            StartActivity(intent);
         }
     }
 }
