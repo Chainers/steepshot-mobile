@@ -9,13 +9,13 @@ namespace Steepshot.Adapter
 {
     public class TagsAdapter : RecyclerView.Adapter
     {
-        private readonly PostDescriptionPresenter _presenter;
+        private readonly TagsPresenter _presenter;
         public Action<int> Click;
 
         public override int ItemCount => _presenter.Count;
 
 
-        public TagsAdapter(PostDescriptionPresenter presenter)
+        public TagsAdapter(TagsPresenter presenter)
         {
             _presenter = presenter;
         }
@@ -26,14 +26,13 @@ namespace Steepshot.Adapter
             var result = _presenter[position];
             if (result == null)
                 return;
-            var tag = result.Name;
 
-            ((TagViewHolder)holder).Tag.Text = tag;
+            ((TagViewHolder)holder).Tag.Text = result.Name;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyr_search_tag, parent, false);
+            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_search_tag, parent, false);
             var vh = new TagViewHolder(itemView, Click);
             vh.Tag.Typeface = Style.Semibold;
             return vh;

@@ -34,7 +34,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.clear_button)] Button _clearButton;
 #pragma warning restore 0649
 
-        CategoriesAdapter _categoriesAdapter;
+        TagsAdapter _categoriesAdapter;
         FollowersAdapter _usersSearchAdapter;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -62,7 +62,7 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
+            _categoriesAdapter = new TagsAdapter(_presenter.TagsPresenter);
             _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
