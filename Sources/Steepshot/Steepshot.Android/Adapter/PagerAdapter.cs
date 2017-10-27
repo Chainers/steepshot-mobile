@@ -23,16 +23,21 @@ namespace Steepshot.Adapter
 
         private readonly List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
 
+        public override int Count => TabIconsInactive.Length;
+
+
         public PagerAdapter(FragmentManager fm) : base(fm)
         {
             InitializeTabs();
         }
 
-        public override int Count => TabIconsInactive.Length;
 
         public override Android.Support.V4.App.Fragment GetItem(int position)
         {
-            return _tabs[position];
+            if (_tabs.Count > position && position > -1)
+                return _tabs[position];
+
+            return null;
         }
 
         private void InitializeTabs()

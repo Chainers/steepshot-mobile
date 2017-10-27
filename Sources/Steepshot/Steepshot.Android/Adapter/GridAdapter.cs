@@ -15,7 +15,7 @@ namespace Steepshot.Adapter
         protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
         public Action<int> Click;
-        protected readonly int _cellSize;
+        protected readonly int CellSize;
         public override int ItemCount
         {
             get
@@ -29,7 +29,7 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
-            _cellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
+            CellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
         }
 
         public override int GetItemViewType(int position)
@@ -52,7 +52,7 @@ namespace Steepshot.Adapter
 
             Picasso.With(Context).Load(photo)
                 .NoFade()
-                .Resize(_cellSize, _cellSize)
+                .Resize(CellSize, CellSize)
                 .CenterCrop()
                 .Priority(Picasso.Priority.Low)
                 .Into(((ImageViewHolder)holder).Photo);
@@ -69,7 +69,7 @@ namespace Steepshot.Adapter
                 default:
                     var view = new ImageView(Context);
                     view.SetScaleType(ImageView.ScaleType.CenterInside);
-                    view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
+                    view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }
         }
