@@ -85,7 +85,7 @@ namespace Steepshot.Fragment
             {
                 if (value)
                 {
-                    if(!_isActivated)
+                    if (!_isActivated)
                     {
                         LoadProfile();
                         GetUserPosts();
@@ -136,6 +136,8 @@ namespace Steepshot.Fragment
                 _settings.Visibility = ViewStates.Invisible;
                 _backButton.Visibility = ViewStates.Visible;
                 _login.Text = _profileId;
+                LoadProfile();
+                GetUserPosts();
             }
 
             _scrollListner = new ScrollListener();
@@ -161,12 +163,12 @@ namespace Steepshot.Fragment
 
         private async Task GetUserPosts(bool isRefresh = false)
         {
-            if(isRefresh)
+            if (isRefresh)
                 _profileSpanSizeLookup.LastItemNumber = -1;
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
-            
+
             _profileSpanSizeLookup.LastItemNumber = _presenter.Count;
 
             if (_listSpinner != null)
@@ -224,7 +226,7 @@ namespace Steepshot.Fragment
             OperationResult<UserProfileResponse> response = null;
             do
             {
-                if(response != null)
+                if (response != null)
                     await Task.Delay(5000);
                 response = await _presenter.TryGetUserInfo(_profileId);
             } while (!response.Success);
@@ -248,19 +250,26 @@ namespace Steepshot.Fragment
 
         private async Task OnFollowClick()
         {
-            var response = await _presenter.TryFollow(ProfileGridAdapter.ProfileData.HasFollowed);
-            if (response == null) // cancelled
+            if (!ProfileGridAdapter.ProfileData.HasFollowed.HasValue)
                 return;
 
-            if (response.Success)
+            var prevFollowState = ProfileGridAdapter.ProfileData.HasFollowed.Value;
+
+            ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = null;
+            _postsList?.GetAdapter()?.NotifyDataSetChanged();
+
+            var response = await _presenter.TryFollow(prevFollowState);
+
+            if (response != null && response.Success)
             {
-                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !ProfileGridAdapter.ProfileData.HasFollowed;
-                _postsList?.GetAdapter()?.NotifyDataSetChanged();
+                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !prevFollowState;
             }
             else
             {
-                ShowAlert(response);
+                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = prevFollowState;
+                ShowAlert(response, ToastLength.Long);
             }
+            _postsList?.GetAdapter()?.NotifyDataSetChanged();
         }
 
         public void OnPhotoClick(int position)
@@ -302,7 +311,7 @@ namespace Steepshot.Fragment
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-        
+
         private void VotersAction(int position)
         {
             var post = _presenter[position];

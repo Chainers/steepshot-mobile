@@ -97,7 +97,7 @@ namespace Steepshot.Adapter
         private readonly LinearLayout _followersBtn;
         private readonly RelativeLayout _balanceContainer;
         private readonly Button _followButton;
-        private View _isamage;
+        private readonly ProgressBar _loadingSpinner;
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
@@ -123,8 +123,7 @@ namespace Steepshot.Adapter
             _followersBtn = itemView.FindViewById<LinearLayout>(Resource.Id.followers_btn);
             _balanceContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.balance_container);
             _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
-
-            //_isamage = itemView.FindViewById<View>(Resource.Id.follow_button_solid);
+            _loadingSpinner = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;
@@ -190,21 +189,33 @@ namespace Steepshot.Adapter
             {
                 _followButton.Visibility = ViewStates.Gone;
             }
-            else if (profile.HasFollowed)
-            {
-                var background = (GradientDrawable)_followButton.Background;
-                background.SetColor(Color.White);
-                background.SetStroke(1, Style.R244G244B246);
-                _followButton.Text = Localization.Messages.Unfollow;
-                _followButton.SetTextColor(Style.R15G24B30);
-            }
             else
             {
                 var background = (GradientDrawable)_followButton.Background;
-                background.SetColor(Style.R231G72B00);
-                background.SetStroke(0, Color.White);
-                _followButton.Text = Localization.Messages.Follow;
-                _followButton.SetTextColor(Color.White);
+                switch (profile.HasFollowed)
+                {
+                    case true:
+                        background.SetColor(Color.White);
+                        background.SetStroke(1, Style.R244G244B246);
+                        _followButton.Text = Localization.Messages.Unfollow;
+                        _followButton.SetTextColor(Style.R15G24B30);
+                        _loadingSpinner.Visibility = ViewStates.Gone;
+                        break;
+                    case false:
+                        background.SetColor(Style.R231G72B00);
+                        background.SetStroke(0, Color.White);
+                        _followButton.Text = Localization.Messages.Follow;
+                        _followButton.SetTextColor(Color.White);
+                        _loadingSpinner.Visibility = ViewStates.Gone;
+                        break;
+                    case null:
+                        background.SetColor(Style.R231G72B00);
+                        background.SetStroke(0, Color.White);
+                        _followButton.Text = string.Empty;
+                        _followButton.SetTextColor(Color.White);
+                        _loadingSpinner.Visibility = ViewStates.Visible;
+                        break;
+                }
             }
 
             if (!string.IsNullOrEmpty(profile.Name))
