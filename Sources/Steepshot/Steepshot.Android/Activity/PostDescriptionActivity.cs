@@ -38,7 +38,7 @@ namespace Steepshot.Activity
         private bool _shouldCompress;
         private Timer _timer;
         private Bitmap _btmp;
-        private TagsAdapter _localTagsAdapter;
+        private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
         private UploadImageRequest _request;
         private UploadResponse _response;
@@ -104,7 +104,8 @@ namespace Steepshot.Activity
             }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
-            _localTagsAdapter = new TagsAdapter();
+            _localTagsAdapter = new SelectedTagsAdapter();
+            _localTagsAdapter.Click += LocalTagsAdapterClick;
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
@@ -121,6 +122,27 @@ namespace Steepshot.Activity
             _timer = new Timer(OnTimer);
 
             SearchTextChanged();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+            if (_btmp != null)
+            {
+                _btmp.Recycle();
+                _btmp = null;
+            }
+            GC.Collect(0);
+        }
+
+
+        private void LocalTagsAdapterClick(int i)
+        {
+            if (!_localTagsAdapter.Enabled)
+                return;
+            _localTagsAdapter.LocalTags.RemoveAt(i);
+            _localTagsAdapter.NotifyDataSetChanged();
         }
 
         private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
@@ -162,19 +184,7 @@ namespace Steepshot.Activity
             AddTag(result.Name);
             _tag.Text = string.Empty;
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-            if (_btmp != null)
-            {
-                _btmp.Recycle();
-                _btmp = null;
-            }
-            GC.Collect(0);
-        }
-
+        
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
@@ -391,7 +401,7 @@ namespace Steepshot.Activity
         {
             _postButton.Enabled = true;
             _postButton.Text = Localization.Texts.PublishButtonText;
-            
+
             _loadingSpinner.Visibility = ViewStates.Gone;
 
             _title.Enabled = true;
