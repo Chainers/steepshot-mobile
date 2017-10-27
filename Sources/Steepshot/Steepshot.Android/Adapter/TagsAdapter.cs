@@ -14,11 +14,14 @@ namespace Steepshot.Adapter
         public Action<int> Click;
         public readonly List<string> LocalTags = new List<string>();
         public override int ItemCount => _presenter?.Count ?? LocalTags.Count;
+        public bool Enabled = true;
 
         public TagsAdapter()
         {
             Click += (obj) =>
             {
+                if (!Enabled)
+                    return;
                 LocalTags.RemoveAt(obj);
                 NotifyDataSetChanged();
             };
