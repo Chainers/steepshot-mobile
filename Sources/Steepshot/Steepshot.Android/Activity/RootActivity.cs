@@ -10,17 +10,18 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
     public sealed class RootActivity : BaseActivity
     {
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.view_pager)] private ViewPager _viewPager;
+        [InjectView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
         [InjectView(Resource.Id.tab_layout)] private TabLayout _tabLayout;
 #pragma warning restore 0649
 
