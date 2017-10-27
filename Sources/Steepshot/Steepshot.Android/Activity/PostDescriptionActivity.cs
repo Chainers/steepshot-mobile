@@ -207,6 +207,8 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.top_margin_tags_layout)]
         public void OnTagsLayoutClick(object sender, EventArgs e)
         {
+            if (!_tag.Enabled)
+                return;
             _tag.RequestFocus();
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.ShowSoftInput(_tag, ShowFlags.Implicit);
