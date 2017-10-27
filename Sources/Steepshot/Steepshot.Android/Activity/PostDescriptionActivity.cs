@@ -179,6 +179,10 @@ namespace Steepshot.Activity
         public async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
+            _title.Enabled = false;
+            _description.Enabled = false;
+            _tag.Enabled = false;
+            _localTagsAdapter.Enabled = false;
             _postButton.Text = string.Empty;
             _loadingSpinner.Visibility = ViewStates.Visible;
             await OnPostAsync();
@@ -267,12 +271,14 @@ namespace Steepshot.Activity
             if (!isConnected)
             {
                 ShowAlert(Localization.Errors.InternetUnavailable);
+                OnUploadEnded();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
                 ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                OnUploadEnded();
                 return;
             }
 
@@ -291,6 +297,7 @@ namespace Steepshot.Activity
             if (photo == null)
             {
                 ShowAlert(Localization.Errors.PhotoProcessingError);
+                OnUploadEnded();
                 return;
             }
 
@@ -309,6 +316,7 @@ namespace Steepshot.Activity
             else
             {
                 ShowAlert(serverResp);
+                OnUploadEnded();
                 return;
             }
 
@@ -353,7 +361,10 @@ namespace Steepshot.Activity
         private async void TryUpload()
         {
             if (_request == null || _response == null)
+            {
+                OnUploadEnded();
                 return;
+            }
 
             var resp = await Presenter.TryUpload(_request, _response);
             if (IsFinishing || IsDestroyed)
@@ -376,14 +387,15 @@ namespace Steepshot.Activity
 
         private void OnUploadEnded()
         {
-            if (_postButton != null)
-            {
-                _postButton.Enabled = true;
-                _postButton.Text = Localization.Texts.PublishButtonText;
-            }
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
+            
+            _loadingSpinner.Visibility = ViewStates.Gone;
 
-            if (_loadingSpinner != null)
-                _loadingSpinner.Visibility = ViewStates.Gone;
+            _title.Enabled = true;
+            _description.Enabled = true;
+            _tag.Enabled = true;
+            _localTagsAdapter.Enabled = true;
         }
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
