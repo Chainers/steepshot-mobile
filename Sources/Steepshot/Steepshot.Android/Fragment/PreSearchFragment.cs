@@ -102,7 +102,7 @@ namespace Steepshot.Fragment
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
             _searchView.Text = "Tap to search";
-            _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+            _searchView.SetTextColor(Style.R151G155B158);
         }
 
         [InjectOnClick(Resource.Id.trending_button)]
@@ -175,7 +175,7 @@ namespace Steepshot.Fragment
                 {
                     Activity.Intent.RemoveExtra("SEARCH");
                     _searchView.Text = _presenter.Tag = CustomTag = s;
-                    _searchView.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
+                    _searchView.SetTextColor(Style.R15G24B30);
                     _clearButton.Visibility = ViewStates.Visible;
                     _spinner.Visibility = ViewStates.Visible;
                     await LoadPosts(true);

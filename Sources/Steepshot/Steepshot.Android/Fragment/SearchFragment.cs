@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.InputMethods;
@@ -207,11 +206,11 @@ namespace Steepshot.Fragment
                 _categories.Visibility = ViewStates.Visible;
                 _tagsButton.Typeface = Style.Semibold;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
+                _tagsButton.SetTextColor(Style.R15G24B30);
 
                 _peopleButton.Typeface = Style.Regular;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                _peopleButton.SetTextColor(Style.R151G155B158);
             }
             else
             {
@@ -219,11 +218,11 @@ namespace Steepshot.Fragment
                 _categories.Visibility = ViewStates.Gone;
                 _peopleButton.Typeface = Style.Semibold;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
+                _peopleButton.SetTextColor(Style.R15G24B30);
 
                 _tagsButton.Typeface = Style.Regular;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                _tagsButton.SetTextColor(Style.R151G155B158);
             }
             GetTags(true);
         }
