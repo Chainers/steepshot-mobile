@@ -28,13 +28,11 @@ namespace Steepshot.Adapter
                 return count == 0 || Presenter.IsLastReaded ? count : count + 1;
             }
         }
+
         private bool _actionsEnabled;
         public bool ActionsEnabled
         {
-            get
-            {
-                return _actionsEnabled;
-            }
+            get => _actionsEnabled;
             set
             {
                 _actionsEnabled = value;
@@ -67,45 +65,7 @@ namespace Steepshot.Adapter
             if (post == null)
                 return;
 
-            vh.Avatar.SetImageResource(Resource.Drawable.holder);
-            vh.Photo.SetImageResource(0);
-
-            vh.Author.Text = post.Author;
-            if (!string.IsNullOrEmpty(post.Title))
-            {
-                vh.FirstComment.Visibility = ViewStates.Visible;
-                vh.FirstComment.Text = post.Title;
-            }
-            else
-                vh.FirstComment.Visibility = ViewStates.Gone;
-
-            vh.CommentSubtitle.Text = post.Children > 0
-                ? string.Format(Context.GetString(Resource.String.view_n_comments), post.Children)
-                : Context.GetString(Resource.String.first_title_comment);
-
-            vh.UpdateData(post, Context);
-
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo != null)
-            {
-                Picasso.With(Context).Load(photo).NoFade().Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
-                var parameters = vh.Photo.LayoutParameters;
-                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, Context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
-                vh.Photo.LayoutParameters = parameters;
-            }
-
-            if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(Context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(vh.Avatar);
-
-            if (_actionsEnabled && vh.Liked == null)
-                vh.Liked = post.Vote;
-
-            if (vh.Liked != null)
-                vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
-            else
-                vh.Like.StartAnimation(post.Vote ? vh.LikeUnsetAnimation : vh.LikeSetAnimation);
-
-            vh.LikeActionEnabled = _actionsEnabled;
+            vh.UpdateData(post, Context, _actionsEnabled);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -126,32 +86,29 @@ namespace Steepshot.Adapter
 
     public class FeedViewHolder : RecyclerView.ViewHolder
     {
-        public ImageView Photo { get; }
-        public ImageView Avatar { get; }
-        public TextView Author { get; }
-        public TextView FirstComment { get; }
-        public TextView CommentSubtitle { get; }
-        public TextView Time { get; }
-        public TextView Likes { get; }
-        public TextView Cost { get; }
-        public ImageButton Like { get; }
-        public LinearLayout CommentFooter { get; }
-        protected Post Post;
         protected readonly Action<int> LikeAction;
         protected readonly Action<int> UserAction;
         protected readonly Action<int> CommentAction;
         protected readonly Action<int> PhotoAction;
         protected readonly Action<int> VotersAction;
 
-        public Animation LikeSetAnimation { get; set; }
-        public Animation LikeUnsetAnimation { get; set; }
-        public bool LikeActionEnabled { get; set; }
-        public bool? Liked { get; set; }
-        private readonly Context _context;
+        private ImageView Photo { get; }
+        private ImageView Avatar { get; }
+        private TextView Author { get; }
+        private TextView FirstComment { get; }
+        private TextView CommentSubtitle { get; }
+        private TextView Time { get; }
+        private TextView Likes { get; }
+        private TextView Cost { get; }
+        private ImageButton Like { get; }
+        private LinearLayout CommentFooter { get; }
+        private Animation LikeSetAnimation { get; set; }
+        private Animation LikeUnsetAnimation { get; set; }
+        private bool LikeActionEnabled { get; set; }
+        private bool? Liked { get; set; }
 
         public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
         {
-            _context = itemView.RootView.Context;
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
             Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
@@ -176,10 +133,11 @@ namespace Steepshot.Adapter
             CommentSubtitle.Typeface = Style.Regular;
 
             LikeActionEnabled = true;
-            LikeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            var context = itemView.RootView.Context;
+            LikeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
             LikeSetAnimation.RepeatCount = int.MaxValue;
             LikeSetAnimation.AnimationStart += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
-            LikeUnsetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_unset);
+            LikeUnsetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_unset);
             LikeUnsetAnimation.AnimationEnd += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
 
             LikeAction = likeAction;
@@ -219,17 +177,59 @@ namespace Steepshot.Adapter
 
         protected virtual void DoLikeAction(object sender, EventArgs e)
         {
-            if (!LikeActionEnabled) return;
+            if (!LikeActionEnabled)
+                return;
+
             Liked = null;
             LikeAction.Invoke(AdapterPosition);
         }
 
-        public void UpdateData(Post post, Context context)
+        public void UpdateData(Post post, Context context, bool actionsEnabled)
         {
-            Post = post;
             Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             Time.Text = post.Created.ToPostTime();
+
+
+            Avatar.SetImageResource(Resource.Drawable.holder);
+            if (!string.IsNullOrEmpty(post.Avatar))
+                Picasso.With(context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(Avatar);
+
+            Photo.SetImageResource(0);
+            var photo = post.Photos?.FirstOrDefault();
+            if (photo != null)
+            {
+                Picasso.With(context).Load(photo).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(Photo);
+                var parameters = Photo.LayoutParameters;
+                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
+                Photo.LayoutParameters = parameters;
+            }
+
+            Author.Text = post.Author;
+
+            if (string.IsNullOrEmpty(post.Title))
+            {
+                FirstComment.Visibility = ViewStates.Gone;
+            }
+            else
+            {
+                FirstComment.Visibility = ViewStates.Visible;
+                FirstComment.Text = post.Title;
+            }
+
+            CommentSubtitle.Text = post.Children > 0
+                ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
+                : context.GetString(Resource.String.first_title_comment);
+
+            if (actionsEnabled && Liked == null)
+                Liked = post.Vote;
+
+            if (Liked != null)
+                Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            else
+                Like.StartAnimation(post.Vote ? LikeUnsetAnimation : LikeSetAnimation);
+
+            LikeActionEnabled = actionsEnabled;
         }
     }
 }
