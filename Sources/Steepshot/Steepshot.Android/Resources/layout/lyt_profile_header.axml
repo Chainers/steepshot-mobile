@@ -14,18 +14,33 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:src="@drawable/holder" />
-        <Button
-            android:id="@+id/follow_button"
-            android:layout_width="105dp"
-            android:layout_height="40dp"
-            android:background="@drawable/follow_button_corners"
-            android:textSize="14sp"
-            android:textColor="@android:color/white"
-            android:text="Follow"
-            android:textAllCaps="false"
+        <RelativeLayout
+            android:id="@+id/follow_container"
+            android:layout_width="108dp"
+            android:layout_height="43dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp" />
+            android:layout_marginRight="29dp">
+            <ProgressBar
+                android:id="@+id/loading_spinner"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="@android:color/white"
+                android:layout_centerInParent="true"
+                android:elevation="10dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/follow_button"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/follow_button_corners"
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:layout_margin="3dp"
+                android:text="Follow"
+                android:textAllCaps="false" />
+        </RelativeLayout>
     </RelativeLayout>
     <TextView
         android:id="@+id/profile_name"
