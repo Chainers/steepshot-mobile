@@ -136,6 +136,8 @@ namespace Steepshot.Fragment
                 _settings.Visibility = ViewStates.Invisible;
                 _backButton.Visibility = ViewStates.Visible;
                 _login.Text = _profileId;
+                LoadProfile();
+                GetUserPosts();
             }
 
             _scrollListner = new ScrollListener();
@@ -248,13 +250,17 @@ namespace Steepshot.Fragment
 
         private async Task OnFollowClick()
         {
-            var response = await _presenter.TryFollow(ProfileGridAdapter.ProfileData.HasFollowed);
+            var prevFollowState = ProfileGridAdapter.ProfileData.HasFollowed;
+            ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = null;
+            _postsList?.GetAdapter()?.NotifyDataSetChanged();
+            var response = await _presenter.TryFollow((bool)prevFollowState);
+
             if (response == null) // cancelled
                 return;
 
             if (response.Success)
             {
-                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !ProfileGridAdapter.ProfileData.HasFollowed;
+                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !prevFollowState;
                 _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
             else
