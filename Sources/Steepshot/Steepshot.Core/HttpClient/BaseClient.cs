@@ -26,7 +26,7 @@ namespace Steepshot.Core.HttpClient
             CtsMain = new CancellationTokenSource();
             //Gateway = new ApiGateway();
         }
-        
+
         #region Get requests
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
@@ -269,7 +269,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        protected async void Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
+        protected async Task Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
         {
             if (!EnableRead)
                 return;
