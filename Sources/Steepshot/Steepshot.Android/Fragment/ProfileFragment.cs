@@ -20,6 +20,7 @@ namespace Steepshot.Fragment
 {
     public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
+        private bool _isActivated;
         private readonly string _profileId;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
@@ -82,10 +83,20 @@ namespace Steepshot.Fragment
             get => base.CustomUserVisibleHint;
             set
             {
-                if (value && BasePresenter.ShouldUpdateProfile)
+                if (value)
                 {
-                    UpdatePage();
-                    BasePresenter.ShouldUpdateProfile = false;
+                    if(!_isActivated)
+                    {
+                        LoadProfile();
+                        GetUserPosts();
+                        _isActivated = true;
+                        BasePresenter.ShouldUpdateProfile = false;
+                    }
+                    if (BasePresenter.ShouldUpdateProfile)
+                    {
+                        UpdatePage();
+                        BasePresenter.ShouldUpdateProfile = false;
+                    }
                 }
                 UserVisibleHint = value;
             }
@@ -146,8 +157,6 @@ namespace Steepshot.Fragment
                 await UpdatePage();
                 _refresher.Refreshing = false;
             };
-            LoadProfile();
-            GetUserPosts();
         }
 
         private async Task GetUserPosts(bool isRefresh = false)

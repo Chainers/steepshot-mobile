@@ -36,6 +36,7 @@ namespace Steepshot.Fragment
         private const int MinFontSize = 14;
         private const int MaxFontSize = 20;
         private int _bottomPadding;
+        private bool _isActivated;
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
         private static ValueAnimator _fontReductionAnimation;
@@ -79,6 +80,20 @@ namespace Steepshot.Fragment
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
+            }
+        }
+
+        public override bool CustomUserVisibleHint
+        {
+            get => base.CustomUserVisibleHint;
+            set
+            {
+                if (value && !_isActivated)
+                {
+                    LoadPosts();
+                    _isActivated = true;
+                }
+                UserVisibleHint = value;
             }
         }
 
@@ -224,7 +239,6 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Gone;
                 await LoadPosts(true);
             };
-            await LoadPosts();
         }
 
         public void OnPhotoClick(int position)
