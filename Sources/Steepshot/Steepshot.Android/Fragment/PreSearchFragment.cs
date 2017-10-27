@@ -16,6 +16,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -241,27 +242,27 @@ namespace Steepshot.Fragment
             };
         }
 
-        public void OnPhotoClick(int position)
+        private void OnPhotoClick(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
+
             var photo = post.Photos?.FirstOrDefault();
-            if (photo != null)
-            {
-                var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
-                StartActivity(intent);
-            }
+            if (photo == null)
+                return;
+
+            var intent = new Intent(Context, typeof(PostPreviewActivity));
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
+            StartActivity(intent);
         }
 
-        private async void LikeAction(int position)
+        private async void LikeAction(Post post)
         {
-            var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
             if (BasePresenter.User.IsAuthenticated)
             {
+                var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
                 feedAdapter.ActionsEnabled = false;
-                var errors = await _presenter.TryVote(position);
+                var errors = await _presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
                 else
@@ -274,30 +275,30 @@ namespace Steepshot.Fragment
                 OpenLogin();
         }
 
-        private void UserAction(int position)
+        private void UserAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
+
             if (BasePresenter.User.Login != post.Author)
                 ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
-        private void CommentAction(int position)
+        private void CommentAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
+
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
 
-        private void VotersAction(int position)
+        private void VotersAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
+
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
             Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());

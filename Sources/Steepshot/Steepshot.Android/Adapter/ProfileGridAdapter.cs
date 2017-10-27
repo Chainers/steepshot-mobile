@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -61,7 +62,7 @@ namespace Steepshot.Adapter
                     var view = new ImageView(Context);
                     view.SetScaleType(ImageView.ScaleType.CenterInside);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
-                    return new ProfileImageViewHolder(view, Click, _isHeaderNeeded);
+                    return new ImageViewHolder(view, Click);
             }
         }
 
@@ -258,21 +259,6 @@ namespace Steepshot.Adapter
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
-        }
-    }
-
-    public class ProfileImageViewHolder : ImageViewHolder
-    {
-        private readonly bool _isHeaderNeeded;
-
-        public ProfileImageViewHolder(View itemView, Action<int> click, bool isHeaderNeeded) : base(itemView, click)
-        {
-            _isHeaderNeeded = isHeaderNeeded;
-        }
-
-        protected override void OnClick(object sender, EventArgs e)
-        {
-            Click?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
     }
 }
