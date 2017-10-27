@@ -101,6 +101,8 @@ namespace Steepshot.Fragment
             var voiter = _presenter[pos];
             if (voiter == null)
                 return;
+            if (voiter.Author == BasePresenter.User.Login)
+                return;
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(voiter.Author));
         }
 
