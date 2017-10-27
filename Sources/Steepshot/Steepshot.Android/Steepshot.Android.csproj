@@ -78,6 +78,7 @@
     <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Adapter\FollowersAdapter.cs" />
     <Compile Include="Adapter\PagerAdapter.cs" />
+    <Compile Include="Adapter\SelectedTagsAdapter.cs" />
     <Compile Include="Adapter\TagsAdapter.cs" />
     <Compile Include="Adapter\UsersSearchAdapter.cs" />
     <Compile Include="Fragment\CameraFragment.cs" />
