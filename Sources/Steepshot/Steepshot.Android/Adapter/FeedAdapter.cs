@@ -143,12 +143,11 @@ namespace Steepshot.Adapter
         protected readonly Action<int> PhotoAction;
         protected readonly Action<int> VotersAction;
 
-        protected int Correction = 0;
         public Animation LikeSetAnimation { get; set; }
         public Animation LikeUnsetAnimation { get; set; }
         public bool LikeActionEnabled { get; set; }
         public bool? Liked { get; set; }
-        private Context _context;
+        private readonly Context _context;
 
         public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
         {
