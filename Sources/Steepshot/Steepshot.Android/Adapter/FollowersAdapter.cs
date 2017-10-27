@@ -2,7 +2,6 @@ using System;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -36,7 +35,7 @@ namespace Steepshot.Adapter
             _context = context;
             _presenter = presenter;
         }
-        
+
         public override int GetItemViewType(int position)
         {
             if (_presenter.Count == position)
@@ -51,7 +50,7 @@ namespace Steepshot.Adapter
             if (vh == null)
                 return;
 
-            var item = _presenter[position] as UserFriend; ;
+            var item = _presenter[position];
             if (item == null)
                 return;
 
@@ -96,7 +95,7 @@ namespace Steepshot.Adapter
             private UserFriend _userFriends;
             private readonly Action<int> _followAction;
             private readonly Action<int> _userAction;
-            private Context _context;
+            private readonly Context _context;
 
             public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction, Context context)
                 : base(itemView)
@@ -142,14 +141,14 @@ namespace Steepshot.Adapter
                 {
                     case true:
                         background.SetColor(Color.White);
-                        background.SetStroke(1, BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb244_244_246)));
+                        background.SetStroke(1, Style.R244G244B246);
                         vh.FollowButton.Text = Localization.Messages.Unfollow;
-                        vh.FollowButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb15_24_30)));
+                        vh.FollowButton.SetTextColor(Style.R15G24B30);
                         vh.FollowButton.Enabled = true;
                         vh.Loader.Visibility = ViewStates.Gone;
                         break;
                     case false:
-                        background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
+                        background.SetColor(Style.R231G72B00);
                         background.SetStroke(0, Color.White);
                         vh.FollowButton.Text = Localization.Messages.Follow;
                         vh.FollowButton.SetTextColor(Color.White);
@@ -157,7 +156,7 @@ namespace Steepshot.Adapter
                         vh.Loader.Visibility = ViewStates.Gone;
                         break;
                     case null:
-                        background.SetColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(context, Resource.Color.rgb231_72_0)));
+                        background.SetColor(Style.R231G72B00);
                         background.SetStroke(0, Color.White);
                         vh.FollowButton.Text = string.Empty;
                         vh.FollowButton.SetTextColor(Color.White);
