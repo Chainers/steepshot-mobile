@@ -54,6 +54,8 @@ namespace Steepshot.Adapter
             if (item == null)
                 return;
 
+            vh.UpdateData(item, _context);
+
             vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             if (string.IsNullOrEmpty(item.Name))
                 vh.FriendName.Visibility = ViewStates.Gone;
@@ -65,8 +67,6 @@ namespace Steepshot.Adapter
             vh.FriendLogin.Text = item.Author;
             if (!string.IsNullOrEmpty(item.Avatar))
                 Picasso.With(_context).Load(item.Avatar).NoFade().Resize(300, 0).Into(vh.FriendAvatar);
-
-            vh.UpdateData(item, _context);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -124,8 +124,16 @@ namespace Steepshot.Adapter
 
             void Follow_Click(object sender, EventArgs e)
             {
+                if (_userFriends == null)
+                    return;
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriends?.HasFollowed, _context);
+                CheckFollow(this, !_userFriends.HasFollowed, _context);
+            }
+
+            public void UpdateData(UserFriend userFriends, Context context)
+            {
+                _userFriends = userFriends;
+                CheckFollow(this, _userFriends.HasFollowed, context);
             }
 
             private void CheckFollow(FollowersViewHolder vh, bool? follow, Context context)
@@ -164,12 +172,6 @@ namespace Steepshot.Adapter
                         vh.Loader.Visibility = ViewStates.Visible;
                         break;
                 }
-            }
-
-            public void UpdateData(UserFriend userFriends, Context context)
-            {
-                _userFriends = userFriends;
-                CheckFollow(this, _userFriends.HasFollowed, context);
             }
         }
     }
