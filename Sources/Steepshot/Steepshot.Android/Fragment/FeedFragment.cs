@@ -11,6 +11,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -91,32 +92,31 @@ namespace Steepshot.Fragment
             _feedAdapter?.NotifyDataSetChanged();
         }
 
-        public void PhotoClick(int position)
+        private void PhotoClick(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
+
             var photo = post.Photos?.FirstOrDefault();
             if (photo == null)
                 return;
+
             var intent = new Intent(Context, typeof(PostPreviewActivity));
             intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
             StartActivity(intent);
         }
 
-        private void CommentAction(int position)
+        private void CommentAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-        
-        private void VotersAction(int position)
+
+        private void VotersAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
             Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
@@ -124,20 +124,19 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
-        private void UserAction(int position)
+        private void UserAction(Post post)
         {
-            var post = _presenter[position];
             if (post == null)
                 return;
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
-        private async void LikeAction(int position)
+        private async void LikeAction(Post post)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
                 _feedAdapter.ActionsEnabled = false;
-                var errors = await _presenter.TryVote(position);
+                var errors = await _presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
                     ShowAlert(errors);
                 else
