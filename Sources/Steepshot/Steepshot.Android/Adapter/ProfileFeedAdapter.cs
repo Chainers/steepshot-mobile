@@ -10,6 +10,11 @@ namespace Steepshot.Adapter
 {
     public class ProfileFeedAdapter : FeedAdapter
     {
+        public UserProfileResponse ProfileData;
+        public Action FollowersAction, FollowingAction, BalanceAction;
+        public Action FollowAction;
+        private readonly bool _isHeaderNeeded;
+
         public override int ItemCount
         {
             get
@@ -18,10 +23,7 @@ namespace Steepshot.Adapter
                 return count == 0 || Presenter.IsLastReaded ? count + 1 : count + 2;
             }
         }
-        public UserProfileResponse ProfileData;
-        public Action FollowersAction, FollowingAction, BalanceAction;
-        public Action FollowAction;
-        private bool _isHeaderNeeded;
+
 
         public ProfileFeedAdapter(Context context, BasePostPresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {

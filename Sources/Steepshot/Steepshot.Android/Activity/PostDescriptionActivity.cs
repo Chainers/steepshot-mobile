@@ -387,23 +387,15 @@ namespace Steepshot.Activity
 
         private void OnUploadEnded()
         {
-            if (_postButton != null)
-            {
-                _postButton.Enabled = true;
-                _postButton.Text = Localization.Texts.PublishButtonText;
-            }
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
+            
+            _loadingSpinner.Visibility = ViewStates.Gone;
 
-            if (_loadingSpinner != null)
-                _loadingSpinner.Visibility = ViewStates.Gone;
-
-            if(_title != null)
-                _title.Enabled = true;
-            if (_description != null)
-                _description.Enabled = true;
-            if(_tag != null)
-                _tag.Enabled = true;
-            if (_localTagsAdapter != null)
-                _localTagsAdapter.Enabled = true;
+            _title.Enabled = true;
+            _description.Enabled = true;
+            _tag.Enabled = true;
+            _localTagsAdapter.Enabled = true;
         }
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
