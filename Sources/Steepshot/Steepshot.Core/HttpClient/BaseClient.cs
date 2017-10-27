@@ -26,7 +26,7 @@ namespace Steepshot.Core.HttpClient
             CtsMain = new CancellationTokenSource();
             //Gateway = new ApiGateway();
         }
-        
+
         #region Get requests
 
         public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
@@ -269,17 +269,24 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        protected async void Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
+        protected async Task Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
         {
             if (!EnableRead)
                 return;
 
-            var parameters = new Dictionary<string, object>();
-            AddLoginParameter(parameters, login);
-            parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
-            if (!string.IsNullOrEmpty(target))
-                parameters.Add("target", target);
-            await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, ct);
+            try
+            {
+                var parameters = new Dictionary<string, object>();
+                AddLoginParameter(parameters, login);
+                parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
+                if (!string.IsNullOrEmpty(target))
+                    parameters.Add("target", target);
+                await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, ct);
+            }
+            catch
+            {
+                //todo nothing
+            }
         }
 
         #endregion Get requests

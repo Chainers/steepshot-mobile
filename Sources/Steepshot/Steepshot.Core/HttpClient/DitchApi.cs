@@ -123,7 +123,7 @@ namespace Steepshot.Core.HttpClient
                     OnError(resp, result);
                 }
 
-                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors, request.Identifier, token.Token);
+                Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors, request.Identifier, token.Token).Wait(5000);
                 return result;
             }, token.Token);
         }
@@ -152,7 +152,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username, token.Token);
+                Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username, token.Token).Wait(5000);
                 return result;
             }, token.Token);
         }
@@ -179,7 +179,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace("login-with-posting", request.Login, result.Errors, string.Empty, token.Token);
+                Trace("login-with-posting", request.Login, result.Errors, string.Empty, token.Token).Wait(5000);
                 return result;
             }, token.Token);
         }
@@ -218,7 +218,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                     OnError(resp, result);
-                Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, token.Token);
+                Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, token.Token).Wait(5000);
                 return result;
             }, token.Token);
         }
@@ -284,7 +284,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     OnError(resp, result);
 
-                Trace("post", request.Login, result.Errors, post.Permlink, token.Token);
+                Trace("post", request.Login, result.Errors, post.Permlink, token.Token).Wait(5000);
 
                 return result;
             }, token.Token);
