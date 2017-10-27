@@ -274,12 +274,19 @@ namespace Steepshot.Core.HttpClient
             if (!EnableRead)
                 return;
 
-            var parameters = new Dictionary<string, object>();
-            AddLoginParameter(parameters, login);
-            parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
-            if (!string.IsNullOrEmpty(target))
-                parameters.Add("target", target);
-            await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, ct);
+            try
+            {
+                var parameters = new Dictionary<string, object>();
+                AddLoginParameter(parameters, login);
+                parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
+                if (!string.IsNullOrEmpty(target))
+                    parameters.Add("target", target);
+                await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, ct);
+            }
+            catch
+            {
+                //todo nothing
+            }
         }
 
         #endregion Get requests
