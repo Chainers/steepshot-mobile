@@ -2,7 +2,6 @@
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -28,14 +27,13 @@ namespace Steepshot.Adapter
             if (result == null)
                 return;
 
-            ((TagViewHolder)holder).UpdateData(result);
+            ((TagViewHolder)holder).UpdateData(result.Name);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_search_tag, parent, false);
             var vh = new TagViewHolder(itemView, Click);
-
             return vh;
         }
     }
@@ -55,11 +53,11 @@ namespace Steepshot.Adapter
             _tagLayout.Click += OnTagLayoutOnClick;
             _tag.Typeface = Style.Semibold;
         }
-        
 
-        public void UpdateData(SearchResult result)
+
+        public void UpdateData(string text)
         {
-            _tag.Text = result.Name;
+            _tag.Text = text;
         }
 
         private void OnTagLayoutOnClick(object sender, EventArgs e)

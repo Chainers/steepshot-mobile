@@ -59,7 +59,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(login))
             {
-                ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                this.ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
                 return;
             }
 
@@ -79,7 +79,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                ShowAlert(response);
+                this.ShowAlert(response);
             }
 
             _spinner.Visibility = ViewStates.Invisible;

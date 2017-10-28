@@ -88,7 +88,7 @@ namespace Steepshot.Fragment
             if (errors == null)
                 return;
 
-            ShowAlert(errors);
+            Context.ShowAlert(errors);
             _feedAdapter?.NotifyDataSetChanged();
         }
 
@@ -138,7 +138,7 @@ namespace Steepshot.Fragment
                 _feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
+                    Context.ShowAlert(errors);
                 else
                 {
                     await Task.Delay(3000);

@@ -76,7 +76,7 @@ namespace Steepshot.Fragment
                 return;
 
             if (errors.Any())
-                ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(errors, ToastLength.Short);
             
              _followersAdapter.NotifyDataSetChanged();
         }
@@ -91,7 +91,7 @@ namespace Steepshot.Fragment
                     if (_bar != null)
                         _bar.Visibility = ViewStates.Gone;
                     if (errors != null && errors.Count > 0)
-                        ShowAlert(errors, ToastLength.Long);
+                        Context.ShowAlert(errors, ToastLength.Long);
                     else
                         _followersAdapter?.NotifyDataSetChanged();
                 });

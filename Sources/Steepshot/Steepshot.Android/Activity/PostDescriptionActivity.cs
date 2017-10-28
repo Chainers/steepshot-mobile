@@ -90,7 +90,7 @@ namespace Steepshot.Activity
                 catch (Exception ex)
                 {
                     _postButton.Enabled = false;
-                    ShowAlert(Localization.Errors.UnknownCriticalError);
+                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
                     AppSettings.Reporter.SendCrash(ex);
                 }
                 finally
@@ -271,7 +271,7 @@ namespace Steepshot.Activity
                 return;
 
             if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
+                this.ShowAlert(errors);
             else
                 _tagsAdapter.NotifyDataSetChanged();
         }
@@ -282,14 +282,14 @@ namespace Steepshot.Activity
 
             if (!isConnected)
             {
-                ShowAlert(Localization.Errors.InternetUnavailable);
+                this.ShowAlert(Localization.Errors.InternetUnavailable);
                 OnUploadEnded();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
-                ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                this.ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
                 OnUploadEnded();
                 return;
             }
@@ -308,7 +308,7 @@ namespace Steepshot.Activity
 
             if (photo == null)
             {
-                ShowAlert(Localization.Errors.PhotoProcessingError);
+                this.ShowAlert(Localization.Errors.PhotoProcessingError);
                 OnUploadEnded();
                 return;
             }
@@ -327,7 +327,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                ShowAlert(serverResp);
+                this.ShowAlert(serverResp);
                 OnUploadEnded();
                 return;
             }
@@ -393,7 +393,7 @@ namespace Steepshot.Activity
                 var msg = Localization.Errors.Unknownerror;
                 if (resp != null && resp.Errors.Any())
                     msg = resp.Errors[0];
-                ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
+                this.ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
             }
         }
 
