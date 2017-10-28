@@ -264,7 +264,7 @@ namespace Steepshot.Fragment
                 feedAdapter.ActionsEnabled = false;
                 var errors = await _presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
+                    Context.ShowAlert(errors);
                 else
                 {
                     await Task.Delay(3000);
@@ -326,7 +326,7 @@ namespace Steepshot.Fragment
 
             _feedSpanSizeLookup.LastItemNumber = _presenter.Count;
             if (errors.Any())
-                ShowAlert(errors);
+                Context.ShowAlert(errors);
             else
                 _searchList?.GetAdapter()?.NotifyDataSetChanged();
 

@@ -88,7 +88,7 @@ namespace Steepshot.Fragment
             var errors = await _presenter.TryLoadNextPostVoters(_url);
 
             if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
+                Context.ShowAlert(errors);
             else
                 _votersAdapter?.NotifyDataSetChanged();
 
@@ -113,7 +113,7 @@ namespace Steepshot.Fragment
                 return;
 
             if (errors.Any())
-                ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(errors, ToastLength.Short);
             
             _votersAdapter?.NotifyDataSetChanged();
         }

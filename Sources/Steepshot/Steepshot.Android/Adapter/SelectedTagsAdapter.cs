@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Steepshot.Utils;
-
 namespace Steepshot.Adapter
 {
     public class SelectedTagsAdapter : RecyclerView.Adapter
@@ -22,14 +20,13 @@ namespace Steepshot.Adapter
                 return;
             var tag = LocalTags[position];
 
-            ((TagViewHolder)holder).Tag.Text = tag;
+            ((TagViewHolder)holder).UpdateData(tag);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_local_tags_item, parent, false);
             var vh = new TagViewHolder(itemView, Click);
-            vh.Tag.Typeface = Style.Semibold;
             return vh;
         }
     }

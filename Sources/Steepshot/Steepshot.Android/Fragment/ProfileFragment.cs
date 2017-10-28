@@ -167,7 +167,7 @@ namespace Steepshot.Fragment
                 _profileSpanSizeLookup.LastItemNumber = -1;
             var errors = await _presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
-                ShowAlert(errors);
+                Context.ShowAlert(errors);
 
             _profileSpanSizeLookup.LastItemNumber = _presenter.Count;
 
@@ -242,7 +242,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                ShowAlert(response);
+                Context.ShowAlert(response);
             }
             if (_loadingSpinner != null)
                 _loadingSpinner.Visibility = ViewStates.Gone;
@@ -267,7 +267,7 @@ namespace Steepshot.Fragment
             else
             {
                 ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = prevFollowState;
-                ShowAlert(response, ToastLength.Long);
+                Context.ShowAlert(response, ToastLength.Long);
             }
             _postsList?.GetAdapter()?.NotifyDataSetChanged();
         }
@@ -336,7 +336,7 @@ namespace Steepshot.Fragment
             {
                 var errors = await _presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
+                    Context.ShowAlert(errors);
 
                 _postsList?.GetAdapter()?.NotifyDataSetChanged();
             }
