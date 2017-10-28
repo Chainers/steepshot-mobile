@@ -87,6 +87,7 @@
     <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="Utils\CustomViewPager.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
+    <Compile Include="Utils\MessageHelper.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\Style.cs" />
     <Compile Include="Utils\TagLayout.cs" />
@@ -186,7 +187,6 @@
     <AndroidResource Include="Resources\drawable\splash.xml" />
     <AndroidResource Include="Resources\layout\lyt_post_preview.axml" />
     <AndroidResource Include="Resources\layout\lyt_pre_sign_in.axml" />
-    <AndroidResource Include="Resources\layout\lyt_users_search_item.axml" />
     <AndroidResource Include="Resources\layout\HostLayout.axml" />
     <AndroidResource Include="Resources\values\Strings.xml" />
     <AndroidResource Include="Resources\values\Colors.xml" />
@@ -206,7 +206,6 @@
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_add_tag.axml" />
     <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
     <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
@@ -221,9 +220,6 @@
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\layout\lyt_sign_in.axml" />
     <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
-    <AndroidResource Include="Resources\layout\lyt_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_tags.axml" />
-    <AndroidResource Include="Resources\layout\lyt_terms_of_service.axml" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />

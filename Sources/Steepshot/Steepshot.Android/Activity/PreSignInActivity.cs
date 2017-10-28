@@ -44,6 +44,7 @@ namespace Steepshot.Activity
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
+            _preSignInBtn.Text = Localization.Messages.NextStep;
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
