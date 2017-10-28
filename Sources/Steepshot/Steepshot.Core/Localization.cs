@@ -122,6 +122,7 @@
             public const string PasswordViewTitleText = "Account posting key";
             public const string PublishButtonText = "Publish Photo";
             public const string AppSettingsTitle = "App settings";
+            public const string AddAccountText = "Add account";
         }
     }
 }

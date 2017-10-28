@@ -62,6 +62,8 @@ namespace Steepshot.Activity
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
 
+            _addButton.Text = Localization.Texts.AddAccountText;
+
             _accountsAdapter = new AccountsAdapter();
             _accountsAdapter.AccountsList = accounts;
             _accountsAdapter.DeleteAccount += OnAdapterDeleteAccount;
