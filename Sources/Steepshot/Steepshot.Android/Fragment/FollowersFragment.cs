@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [InjectView(Resource.Id.people_count)] private TextView _people_count;
+        [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
@@ -44,9 +44,13 @@ namespace Steepshot.Fragment
             if (IsInitialized)
                 return;
             base.OnViewCreated(view, savedInstanceState);
-            
+
+            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+            Presenter.FollowType = isFollowers ? FriendsType.Followers : FriendsType.Following;
+
+
             var count = Activity.Intent.GetIntExtra("count", 0);
-            _people_count.Text = $"{count.ToString("N0")} people";
+            _peopleCount.Text = $"{count.ToString("N0")} people";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
 
             LoadItems();
@@ -54,12 +58,12 @@ namespace Steepshot.Fragment
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = _presenter.FollowType.GetDescription();
+            _viewTitle.Text = Presenter.FollowType.GetDescription();
 
             _viewTitle.Typeface = Style.Semibold;
-            _people_count.Typeface = Style.Regular;
+            _peopleCount.Typeface = Style.Regular;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter);
+            _followersAdapter = new FollowersAdapter(Activity, Presenter);
             _followersList.SetAdapter(_followersAdapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             var scrollListner = new ScrollListener();
@@ -71,19 +75,19 @@ namespace Steepshot.Fragment
 
         private async void Follow(int position)
         {
-            var errors = await _presenter.TryFollow(_presenter[position]);
+            var errors = await Presenter.TryFollow(Presenter[position]);
             if (errors == null)
                 return;
 
             if (errors.Any())
                 Context.ShowAlert(errors, ToastLength.Short);
-            
-             _followersAdapter.NotifyDataSetChanged();
+
+            _followersAdapter.NotifyDataSetChanged();
         }
 
         private void LoadItems()
         {
-            _presenter.TryLoadNextUserFriends(_username).ContinueWith((e) =>
+            Presenter.TryLoadNextUserFriends(_username).ContinueWith((e) =>
             {
                 var errors = e.Result;
                 Activity.RunOnUiThread(() =>
@@ -100,7 +104,7 @@ namespace Steepshot.Fragment
 
         private void UserAction(int position)
         {
-            var user = _presenter[position];
+            var user = Presenter[position];
             if (user == null)
                 return;
 
@@ -111,12 +115,6 @@ namespace Steepshot.Fragment
         public void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
-        }
-
-        protected override void CreatePresenter()
-        {
-            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-            _presenter = new UserFriendPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
         }
 
         public override void OnDetach()

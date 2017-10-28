@@ -28,12 +28,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.people_count)] private TextView _people_count;
 #pragma warning restore 0649
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserFriendPresenter();
-        }
-
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+       public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
@@ -60,7 +55,7 @@ namespace Steepshot.Fragment
             _viewTitle.Text = Localization.Messages.Voters;
 
             _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
-            _votersAdapter = new FollowersAdapter(Activity, _presenter);
+            _votersAdapter = new FollowersAdapter(Activity, Presenter);
             _votersAdapter.UserAction += OnClick;
             _votersAdapter.FollowAction += OnFollow;
             _votersList.SetAdapter(_votersAdapter);
@@ -79,13 +74,13 @@ namespace Steepshot.Fragment
 
         public override void OnDestroy()
         {
-            _presenter.LoadCancel();
+            Presenter.LoadCancel();
             base.OnDestroy();
         }
 
         private async void LoadNext()
         {
-            var errors = await _presenter.TryLoadNextPostVoters(_url);
+            var errors = await Presenter.TryLoadNextPostVoters(_url);
 
             if (errors != null && errors.Count > 0)
                 Context.ShowAlert(errors);
@@ -98,7 +93,7 @@ namespace Steepshot.Fragment
 
         private void OnClick(int pos)
         {
-            var voiter = _presenter[pos];
+            var voiter = Presenter[pos];
             if (voiter == null)
                 return;
             if (voiter.Author == BasePresenter.User.Login)
@@ -108,7 +103,7 @@ namespace Steepshot.Fragment
 
         private async void OnFollow(int pos)
         {
-            var errors = await _presenter.TryFollow(_presenter[pos]);
+            var errors = await Presenter.TryFollow(Presenter[pos]);
             if (errors == null)
                 return;
 

@@ -48,8 +48,8 @@ namespace Steepshot.Fragment
 
         public string CustomTag
         {
-            get => _presenter.Tag;
-            set => _presenter.Tag = value;
+            get => Presenter.Tag;
+            set => Presenter.Tag = value;
         }
 
         FeedAdapter _profileFeedAdapter;
@@ -59,7 +59,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new FeedAdapter(Context, _presenter);
+                    _profileFeedAdapter = new FeedAdapter(Context, Presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -77,7 +77,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new GridAdapter(Context, _presenter);
+                    _profileGridAdapter = new GridAdapter(Context, Presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -190,7 +190,7 @@ namespace Steepshot.Fragment
                 if (s != null && s != CustomTag)
                 {
                     Activity.Intent.RemoveExtra("SEARCH");
-                    _searchView.Text = _presenter.Tag = CustomTag = s;
+                    _searchView.Text = Presenter.Tag = CustomTag = s;
                     _searchView.SetTextColor(Style.R15G24B30);
                     _clearButton.Visibility = ViewStates.Visible;
                     _spinner.Visibility = ViewStates.Visible;
@@ -262,7 +262,7 @@ namespace Steepshot.Fragment
             {
                 var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
                 feedAdapter.ActionsEnabled = false;
-                var errors = await _presenter.TryVote(post);
+                var errors = await Presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
                     Context.ShowAlert(errors);
                 else
@@ -308,8 +308,8 @@ namespace Steepshot.Fragment
         {
             if (clearOld)
             {
-                _presenter.LoadCancel();
-                _presenter.Clear();
+                Presenter.LoadCancel();
+                Presenter.Clear();
                 _scrollListner.ClearPosition();
                 _feedSpanSizeLookup.LastItemNumber = -1;
                 _searchList?.GetAdapter()?.NotifyDataSetChanged();
@@ -317,14 +317,14 @@ namespace Steepshot.Fragment
 
             List<string> errors;
             if (string.IsNullOrEmpty(CustomTag))
-                errors = await _presenter.TryLoadNextTopPosts();
+                errors = await Presenter.TryLoadNextTopPosts();
             else
-                errors = await _presenter.TryGetSearchedPosts();
+                errors = await Presenter.TryGetSearchedPosts();
 
             if (errors == null)
                 return;
 
-            _feedSpanSizeLookup.LastItemNumber = _presenter.Count;
+            _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
             if (errors.Any())
                 Context.ShowAlert(errors);
             else
@@ -336,11 +336,6 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Gone;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new PreSearchPresenter();
-        }
-
         private void OpenLogin()
         {
             var intent = new Intent(Activity, typeof(WelcomeActivity));
@@ -349,7 +344,7 @@ namespace Steepshot.Fragment
 
         private async Task SwitchSearchType(PostType postType)
         {
-            if (postType == _presenter.PostType)
+            if (postType == Presenter.PostType)
                 return;
             if (_spinner != null)
                 _spinner.Visibility = ViewStates.Visible;
@@ -371,7 +366,7 @@ namespace Steepshot.Fragment
                     AnimatedButtonSwitch();
                     break;
             }
-            _presenter.PostType = postType;
+            Presenter.PostType = postType;
             await LoadPosts(true);
         }
 
