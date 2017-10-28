@@ -2,6 +2,7 @@
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -27,28 +28,43 @@ namespace Steepshot.Adapter
             if (result == null)
                 return;
 
-            ((TagViewHolder)holder).Tag.Text = result.Name;
+            ((TagViewHolder)holder).UpdateData(result);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_search_tag, parent, false);
             var vh = new TagViewHolder(itemView, Click);
-            vh.Tag.Typeface = Style.Semibold;
+
             return vh;
         }
     }
 
     public class TagViewHolder : RecyclerView.ViewHolder
     {
-        public TextView Tag { get; }
-        private ViewGroup TagLayout { get; }
+        private readonly TextView _tag;
+        private readonly ViewGroup _tagLayout;
+        private readonly Action<int> _click;
 
         public TagViewHolder(View itemView, Action<int> click) : base(itemView)
         {
-            Tag = itemView.FindViewById<TextView>(Resource.Id.tag);
-            TagLayout = itemView.FindViewById<ViewGroup>(Resource.Id.tag_layout);
-            TagLayout.Click += (sender, e) => click?.Invoke(AdapterPosition);
+            _click = click;
+            _tag = itemView.FindViewById<TextView>(Resource.Id.tag);
+            _tagLayout = itemView.FindViewById<ViewGroup>(Resource.Id.tag_layout);
+
+            _tagLayout.Click += OnTagLayoutOnClick;
+            _tag.Typeface = Style.Semibold;
+        }
+        
+
+        public void UpdateData(SearchResult result)
+        {
+            _tag.Text = result.Name;
+        }
+
+        private void OnTagLayoutOnClick(object sender, EventArgs e)
+        {
+            _click?.Invoke(AdapterPosition);
         }
     }
 }
