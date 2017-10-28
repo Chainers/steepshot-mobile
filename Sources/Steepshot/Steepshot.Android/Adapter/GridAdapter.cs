@@ -49,11 +49,6 @@ namespace Steepshot.Adapter
 
             var vh = (ImageViewHolder)holder;
             vh.UpdateData(post, Context, CellSize);
-
-
-
-
-
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)

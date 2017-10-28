@@ -21,13 +21,14 @@ namespace Steepshot.Adapter
             Resource.Drawable.profile_active
         };
 
-        private readonly List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
+        private readonly List<Android.Support.V4.App.Fragment> _tabs;
 
         public override int Count => TabIconsInactive.Length;
 
 
         public PagerAdapter(FragmentManager fm) : base(fm)
         {
+            _tabs = new List<Android.Support.V4.App.Fragment>();
             InitializeTabs();
         }
 

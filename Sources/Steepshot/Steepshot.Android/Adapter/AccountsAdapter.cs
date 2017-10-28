@@ -24,8 +24,8 @@ namespace Steepshot.Adapter
             if (account == null)
                 return;
             var tHolder = (AccountViewHolder)holder;
-            tHolder.CellText.Text = $"{account.Chain} {Localization.Messages.Account}";
-            tHolder.CheckImage.SetImageResource(BasePresenter.Chain == account.Chain ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
+            tHolder.UpdateData(account.Chain);
+
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -38,22 +38,42 @@ namespace Steepshot.Adapter
 
     public class AccountViewHolder : RecyclerView.ViewHolder
     {
-        public TextView CellText { get; }
-        public ImageView CheckImage { get; }
-        private ImageButton DeleteAccountButton { get; }
-        private RelativeLayout CellLayout { get; }
+        private readonly TextView _cellText;
+        private readonly ImageView _checkImage;
+        private readonly ImageButton _deleteAccountButton;
+        private readonly RelativeLayout _cellLayout;
+        private readonly Action<int> _pickAccount;
+        private readonly Action<int> _deleteAccount;
 
         public AccountViewHolder(View itemView, Action<int> pickAccount, Action<int> deleteAccount) : base(itemView)
         {
-            CellText = itemView.FindViewById<TextView>(Resource.Id.cell_text);
-            CheckImage = itemView.FindViewById<ImageView>(Resource.Id.pick_image);
-            DeleteAccountButton = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
-            CellLayout = itemView.FindViewById<RelativeLayout>(Resource.Id.account_cell_layout);
+            _pickAccount = pickAccount;
+            _deleteAccount = deleteAccount;
+            _cellText = itemView.FindViewById<TextView>(Resource.Id.cell_text);
+            _checkImage = itemView.FindViewById<ImageView>(Resource.Id.pick_image);
+            _deleteAccountButton = itemView.FindViewById<ImageButton>(Resource.Id.delete_btn);
+            _cellLayout = itemView.FindViewById<RelativeLayout>(Resource.Id.account_cell_layout);
 
-            CellText.Typeface = Style.Semibold;
+            _cellText.Typeface = Style.Semibold;
 
-            DeleteAccountButton.Click += (sender, e) => deleteAccount?.Invoke(AdapterPosition);
-            CellLayout.Click += (sender, e) => pickAccount?.Invoke(AdapterPosition);
+            _deleteAccountButton.Click += OnDeleteAccountButtonOnClick;
+            _cellLayout.Click += OnCellLayoutOnClick;
+        }
+
+        public void UpdateData(KnownChains chains)
+        {
+            _cellText.Text = $"{chains} {Localization.Messages.Account}";
+            _checkImage.SetImageResource(BasePresenter.Chain == chains ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
+        }
+
+        private void OnCellLayoutOnClick(object sender, EventArgs e)
+        {
+            _pickAccount?.Invoke(AdapterPosition);
+        }
+
+        private void OnDeleteAccountButtonOnClick(object sender, EventArgs e)
+        {
+            _deleteAccount?.Invoke(AdapterPosition);
         }
     }
 }

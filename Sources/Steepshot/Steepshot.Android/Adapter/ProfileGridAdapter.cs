@@ -7,7 +7,6 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -16,9 +15,9 @@ namespace Steepshot.Adapter
 {
     public class ProfileGridAdapter : GridAdapter
     {
+        public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
-        public UserProfileResponse ProfileData;
         private readonly bool _isHeaderNeeded;
 
 
@@ -79,7 +78,6 @@ namespace Steepshot.Adapter
     public class HeaderViewHolder : RecyclerView.ViewHolder
     {
         private readonly Context _context;
-
         private readonly TextView _name;
         private readonly TextView _place;
         private readonly TextView _description;
@@ -92,7 +90,6 @@ namespace Steepshot.Adapter
         private readonly TextView _followersTitle;
         private readonly TextView _balanceText;
         private readonly TextView _balance;
-
         private readonly Refractored.Controls.CircleImageView _profileImage;
         private readonly LinearLayout _followingBtn;
         private readonly LinearLayout _followersBtn;
@@ -175,7 +172,7 @@ namespace Steepshot.Adapter
             if (profile == null)
                 return;
 
-            var siteTextColor = Style.R231G72B00;
+            _profileImage.SetImageResource(Resource.Drawable.holder);
             if (!string.IsNullOrEmpty(profile.ProfileImage))
             {
                 Picasso.With(_context).Load(profile.ProfileImage)
@@ -183,9 +180,7 @@ namespace Steepshot.Adapter
                     .CenterCrop()
                     .Into(_profileImage);
             }
-            else
-                _profileImage.SetImageResource(Resource.Drawable.holder);
-
+            
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _followButton.Visibility = ViewStates.Gone;
@@ -247,7 +242,7 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(profile.Website))
             {
                 _site.Text = profile.Website;
-                _site.SetTextColor(siteTextColor);
+                _site.SetTextColor(Style.R231G72B00);
             }
             else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
