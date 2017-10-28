@@ -2,15 +2,18 @@
 
 namespace Steepshot.Base
 {
-    public abstract class BaseFragmentWithPresenter<T> : BaseFragment where T : BasePresenter
+    public abstract class BaseFragmentWithPresenter<T> : BaseFragment where T : BasePresenter, new()
     {
-        protected T _presenter;
+        protected T Presenter;
         public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             CreatePresenter();
         }
 
-        protected abstract void CreatePresenter();
+        protected virtual void CreatePresenter()
+        {
+            Presenter = new T();
+        }
     }
 }

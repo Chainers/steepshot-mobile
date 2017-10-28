@@ -62,8 +62,8 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _categoriesAdapter = new TagsAdapter(_presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.UserFriendPresenter);
+            _categoriesAdapter = new TagsAdapter(Presenter.TagsPresenter);
+            _usersSearchAdapter = new FollowersAdapter(Activity, Presenter.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -114,7 +114,7 @@ namespace Steepshot.Fragment
             }
             if (_searchType == SearchType.Tags)
             {
-                var user = _presenter.TagsPresenter[pos];
+                var user = Presenter.TagsPresenter[pos];
                 if (user == null)
                     return;
 
@@ -124,9 +124,9 @@ namespace Steepshot.Fragment
             else if (_searchType == SearchType.People)
             {
 
-                if (_presenter.UserFriendPresenter.Count > pos)
+                if (Presenter.UserFriendPresenter.Count > pos)
                 {
-                    var user = _presenter.UserFriendPresenter[pos];
+                    var user = Presenter.UserFriendPresenter[pos];
                     if (user == null)
                         return;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
@@ -136,11 +136,11 @@ namespace Steepshot.Fragment
 
         private async void Follow(int position)
         {
-            var user = _presenter.UserFriendPresenter[position];
+            var user = Presenter.UserFriendPresenter[position];
             if (user == null)
                 return;
 
-            var errors = await _presenter.UserFriendPresenter.TryFollow(user);
+            var errors = await Presenter.UserFriendPresenter.TryFollow(user);
             if (errors == null)
                 return;
             if (errors.Any())
@@ -166,14 +166,14 @@ namespace Steepshot.Fragment
                     if (_prevQuery[_searchType] == _searchView.Text)
                         return;
                     if (_searchType == SearchType.People)
-                        _presenter.UserFriendPresenter.Clear();
+                        Presenter.UserFriendPresenter.Clear();
                     else
-                        _presenter.TagsPresenter.Clear();
+                        Presenter.TagsPresenter.Clear();
                     scrollListner.ClearPosition();
                     _prevQuery[_searchType] = _searchView.Text;
                     _spinner.Visibility = ViewStates.Visible;
                 }
-                var errors = await _presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
+                var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
                 if (errors != null && errors.Count > 0)
                     Context.ShowAlert(errors, ToastLength.Short);
                 else
@@ -191,11 +191,6 @@ namespace Steepshot.Fragment
             {
 
             }
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new SearchPresenter();
         }
 
         private void SwitchSearchType()

@@ -11,18 +11,7 @@ namespace Steepshot.Core.Presenters
     public sealed class UserFriendPresenter : ListPresenter<UserFriend>
     {
         private const int ItemsLimit = 40;
-        private readonly FriendsType? _followType;
-
-        public FriendsType? FollowType => _followType;
-
-        public UserFriendPresenter()
-        {
-        }
-
-        public UserFriendPresenter(FriendsType followType)
-        {
-            _followType = followType;
-        }
+        public FriendsType? FollowType { get; set; }
 
         public UserFriend FirstOrDefault(Func<UserFriend, bool> func)
         {
@@ -78,10 +67,10 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextUserFriends(CancellationToken ct, string username)
         {
-            if (_followType == null)
+            if (!FollowType.HasValue)
                 return null;
 
-            var request = new UserFriendsRequest(username, _followType.Value)
+            var request = new UserFriendsRequest(username, FollowType.Value)
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
@@ -154,7 +143,10 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
         {
-            var request = new FollowRequest(User.UserInfo, (bool)item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
+            if (!item.HasFollowed.HasValue)
+                return null;
+
+            var request = new FollowRequest(User.UserInfo, item.HasFollowed.Value ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
             item.HasFollowed = null;
             var response = await Api.Follow(request, ct);
             if (response == null)

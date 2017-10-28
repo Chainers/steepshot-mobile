@@ -53,7 +53,7 @@ namespace Steepshot.Fragment
                 return;
             base.OnViewCreated(view, savedInstanceState);
 
-            _feedAdapter = new FeedAdapter(Context, _presenter);
+            _feedAdapter = new FeedAdapter(Context, Presenter);
             _feedList.SetAdapter(_feedAdapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _scrollListner = new ScrollListener();
@@ -75,10 +75,10 @@ namespace Steepshot.Fragment
         private async void LoadPosts(bool clearOld = false)
         {
             if (clearOld)
-                _presenter.Clear();
+                Presenter.Clear();
 
             _feedAdapter?.NotifyDataSetChanged();
-            var errors = await _presenter.TryLoadNextTopPosts();
+            var errors = await Presenter.TryLoadNextTopPosts();
             if (_bar != null)
             {
                 _bar.Visibility = ViewStates.Gone;
@@ -136,7 +136,7 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 _feedAdapter.ActionsEnabled = false;
-                var errors = await _presenter.TryVote(post);
+                var errors = await Presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
                     Context.ShowAlert(errors);
                 else
@@ -145,11 +145,6 @@ namespace Steepshot.Fragment
                 }
                 _feedAdapter.ActionsEnabled = true;
             }
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new FeedPresenter();
         }
 
         public override void OnDetach()

@@ -47,7 +47,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new ProfileFeedAdapter(Context, _presenter);
+                    _profileFeedAdapter = new ProfileFeedAdapter(Context, Presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -68,7 +68,7 @@ namespace Steepshot.Fragment
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new ProfileGridAdapter(Context, _presenter);
+                    _profileGridAdapter = new ProfileGridAdapter(Context, Presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
@@ -107,11 +107,6 @@ namespace Steepshot.Fragment
             _profileId = profileId;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new UserProfilePresenter(_profileId);
-        }
-
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -128,6 +123,8 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+
+            Presenter.UserName = _profileId;
 
             _login.Typeface = Style.Semibold;
 
@@ -165,11 +162,11 @@ namespace Steepshot.Fragment
         {
             if (isRefresh)
                 _profileSpanSizeLookup.LastItemNumber = -1;
-            var errors = await _presenter.TryLoadNextPosts(isRefresh);
+            var errors = await Presenter.TryLoadNextPosts(isRefresh);
             if (errors != null && errors.Count != 0)
                 Context.ShowAlert(errors);
 
-            _profileSpanSizeLookup.LastItemNumber = _presenter.Count;
+            _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
 
             if (_listSpinner != null)
                 _listSpinner.Visibility = ViewStates.Gone;
@@ -228,7 +225,7 @@ namespace Steepshot.Fragment
             {
                 if (response != null)
                     await Task.Delay(5000);
-                response = await _presenter.TryGetUserInfo(_profileId);
+                response = await Presenter.TryGetUserInfo(_profileId);
             } while (!response.Success);
 
             if (response != null && response.Success)
@@ -258,7 +255,7 @@ namespace Steepshot.Fragment
             ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = null;
             _postsList?.GetAdapter()?.NotifyDataSetChanged();
 
-            var response = await _presenter.TryFollow(prevFollowState);
+            var response = await Presenter.TryFollow(prevFollowState);
 
             if (response != null && response.Success)
             {
@@ -334,7 +331,7 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await _presenter.TryVote(post);
+                var errors = await Presenter.TryVote(post);
                 if (errors != null && errors.Count != 0)
                     Context.ShowAlert(errors);
 
