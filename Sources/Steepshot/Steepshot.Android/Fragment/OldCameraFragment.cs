@@ -322,7 +322,7 @@ namespace Steepshot.Fragment
                 ExifInterface exifInterface = new ExifInterface(_photoUri);
                 var orientation = exifInterface.GetAttributeInt(ExifInterface.TagOrientation, 0);
 
-                if (orientation != 1 || orientation == 0)
+                if (orientation != 1 && orientation != 0)
                 {
                     var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
                     bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);

@@ -18,7 +18,7 @@ namespace Steepshot.Core.Utils
             {
                 if (_ravenClient == null)
                 {
-                    _ravenClient = new RavenClient("***REMOVED***");
+                    _ravenClient = new RavenClient("https://0dd6dd160ea74f30b47b58d4bf1d2e90:9786b36530c140b09612ddd96775f9b3@sentry.steepshot.org/6");
                     SharpRaven.Utilities.SystemUtil.Idiom = "Phone";
                     SharpRaven.Utilities.SystemUtil.OS = "";
                 }
