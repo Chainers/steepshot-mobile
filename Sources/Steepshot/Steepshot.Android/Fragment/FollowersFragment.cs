@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -7,6 +6,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -43,17 +43,15 @@ namespace Steepshot.Fragment
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
 
             var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
             Presenter.FollowType = isFollowers ? FriendsType.Followers : FriendsType.Following;
 
-
             var count = Activity.Intent.GetIntExtra("count", 0);
-            _peopleCount.Text = $"{count.ToString("N0")} people";
+            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
             _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
-
-            LoadItems();
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
@@ -64,42 +62,57 @@ namespace Steepshot.Fragment
             _peopleCount.Typeface = Style.Regular;
 
             _followersAdapter = new FollowersAdapter(Activity, Presenter);
-            _followersList.SetAdapter(_followersAdapter);
-            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
-            var scrollListner = new ScrollListener();
-            scrollListner.ScrolledToBottom += LoadItems;
-            _followersList.AddOnScrollListener(scrollListner);
             _followersAdapter.FollowAction += Follow;
             _followersAdapter.UserAction += UserAction;
+
+            var scrollListner = new ScrollListener();
+            scrollListner.ScrolledToBottom += LoadItems;
+
+            _followersList.SetAdapter(_followersAdapter);
+            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
+            _followersList.AddOnScrollListener(scrollListner);
+
+            LoadItems();
         }
+
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+
+
+        [InjectOnClick(Resource.Id.btn_back)]
+        public void GoBackClick(object sender, EventArgs e)
+        {
+            Activity.OnBackPressed();
+        }
+
 
         private async void Follow(int position)
         {
             var errors = await Presenter.TryFollow(Presenter[position]);
-            if (errors == null)
+            if (IsDetached || IsRemoving)
                 return;
 
-            if (errors.Any())
-                Context.ShowAlert(errors, ToastLength.Short);
-
-            _followersAdapter.NotifyDataSetChanged();
+            if (errors != null && errors.Count > 0)
+                Context.ShowAlert(errors, ToastLength.Long);
+            else
+                _followersAdapter.NotifyDataSetChanged();
         }
 
-        private void LoadItems()
+        private async void LoadItems()
         {
-            Presenter.TryLoadNextUserFriends(_username).ContinueWith((e) =>
-            {
-                var errors = e.Result;
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
-                    if (errors != null && errors.Count > 0)
-                        Context.ShowAlert(errors, ToastLength.Long);
-                    else
-                        _followersAdapter?.NotifyDataSetChanged();
-                });
-            });
+            var errors = await Presenter.TryLoadNextUserFriends(_username);
+            if (IsDetached || IsRemoving)
+                return;
+
+            if (errors != null && errors.Count > 0)
+                Context.ShowAlert(errors, ToastLength.Long);
+            else
+                _followersAdapter.NotifyDataSetChanged();
+
+            _bar.Visibility = ViewStates.Gone;
         }
 
         private void UserAction(int position)
@@ -109,18 +122,6 @@ namespace Steepshot.Fragment
                 return;
 
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
-        }
-
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
-        {
-            Activity.OnBackPressed();
-        }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
         }
     }
 }
