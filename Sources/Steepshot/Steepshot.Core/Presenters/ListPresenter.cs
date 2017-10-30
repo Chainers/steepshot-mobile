@@ -46,7 +46,7 @@ namespace Steepshot.Core.Presenters
             IsLastReaded = false;
             OffsetUrl = string.Empty;
         }
-        
+
 
         protected async Task<List<string>> RunAsSingleTask(Func<CancellationToken, Task<List<string>>> func, bool cancelPrevTask = true)
         {
@@ -192,7 +192,10 @@ namespace Steepshot.Core.Presenters
         public void LoadCancel()
         {
             lock (_sync)
+            {
                 _singleTaskCancellationTokenSource?.Cancel();
+                _singleTaskCancellationTokenSource = null;
+            }
         }
     }
 }
