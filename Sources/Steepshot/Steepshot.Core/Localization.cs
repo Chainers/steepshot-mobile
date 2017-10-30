@@ -78,6 +78,10 @@
             public const string TypeUsername = "Please type an username";
             public const string YourAccountName = "Your account name";
             public const string NextStep = "Next step";
+            public const string Account = "account";
+
+            public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>";
+            
 
             /// <summary>
             /// $"Log in with your {chain} Account";
@@ -118,6 +122,8 @@
             public const string PasswordViewTitleText = "Account posting key";
             public const string PublishButtonText = "Publish Photo";
             public const string AppSettingsTitle = "App settings";
+            public const string AddAccountText = "Add account";
+            public const string PeopleText = "people";
         }
     }
 }

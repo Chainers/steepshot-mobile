@@ -5,6 +5,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -14,8 +15,8 @@ namespace Steepshot.Adapter
     {
         protected readonly BasePostPresenter Presenter;
         protected readonly Context Context;
-        public Action<int> Click;
-        protected readonly int _cellSize;
+        public Action<Post> Click;
+        protected readonly int CellSize;
         public override int ItemCount
         {
             get
@@ -29,7 +30,7 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
-            _cellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
+            CellSize = Context.Resources.DisplayMetrics.WidthPixels / 3 - 2; // [x+2][1+x+1][2+x]
         }
 
         public override int GetItemViewType(int position)
@@ -46,16 +47,8 @@ namespace Steepshot.Adapter
             if (post == null)
                 return;
 
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo == null)
-                return;
-
-            Picasso.With(Context).Load(photo)
-                .NoFade()
-                .Resize(_cellSize, _cellSize)
-                .CenterCrop()
-                .Priority(Picasso.Priority.Low)
-                .Into(((ImageViewHolder)holder).Photo);
+            var vh = (ImageViewHolder)holder;
+            vh.UpdateData(post, Context, CellSize);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -69,7 +62,7 @@ namespace Steepshot.Adapter
                 default:
                     var view = new ImageView(Context);
                     view.SetScaleType(ImageView.ScaleType.CenterInside);
-                    view.LayoutParameters = new ViewGroup.LayoutParams(_cellSize, _cellSize);
+                    view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }
         }
@@ -77,20 +70,32 @@ namespace Steepshot.Adapter
 
     public class ImageViewHolder : RecyclerView.ViewHolder
     {
-        public ImageView Photo { get; }
-        protected readonly Action<int> Click;
+        private readonly Action<Post> _click;
+        private readonly ImageView _photo;
+        private Post _post;
 
-        public ImageViewHolder(View itemView, Action<int> click) : base(itemView)
+        public ImageViewHolder(View itemView, Action<Post> click) : base(itemView)
         {
-            Click = click;
-            Photo = (ImageView)itemView;
-            Photo.Clickable = true;
-            Photo.Click += OnClick;
+            _click = click;
+            _photo = (ImageView)itemView;
+            _photo.Clickable = true;
+            _photo.Click += OnClick;
         }
 
         protected virtual void OnClick(object sender, EventArgs e)
         {
-            Click.Invoke(AdapterPosition);
+            _click.Invoke(_post);
+        }
+
+        public void UpdateData(Post post, Context context, int cellSize)
+        {
+            _post = post;
+            _photo.SetImageResource(0);
+            var photo = post.Photos?.FirstOrDefault();
+            if (photo != null)
+            {
+                Picasso.With(context).Load(photo).NoFade().Resize(cellSize, cellSize).CenterCrop().Priority(Picasso.Priority.Low).Into(_photo);
+            }
         }
     }
 }

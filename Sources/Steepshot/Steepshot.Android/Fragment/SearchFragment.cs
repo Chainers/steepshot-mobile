@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
-using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.InputMethods;
@@ -35,7 +34,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.clear_button)] Button _clearButton;
 #pragma warning restore 0649
 
-        CategoriesAdapter _categoriesAdapter;
+        TagsAdapter _categoriesAdapter;
         FollowersAdapter _usersSearchAdapter;
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -63,8 +62,8 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            _categoriesAdapter = new CategoriesAdapter(_presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter(Activity, _presenter.UserFriendPresenter);
+            _categoriesAdapter = new TagsAdapter(Presenter.TagsPresenter);
+            _usersSearchAdapter = new FollowersAdapter(Activity, Presenter.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -115,7 +114,7 @@ namespace Steepshot.Fragment
             }
             if (_searchType == SearchType.Tags)
             {
-                var user = _presenter.TagsPresenter[pos];
+                var user = Presenter.TagsPresenter[pos];
                 if (user == null)
                     return;
 
@@ -125,9 +124,9 @@ namespace Steepshot.Fragment
             else if (_searchType == SearchType.People)
             {
 
-                if (_presenter.UserFriendPresenter.Count > pos)
+                if (Presenter.UserFriendPresenter.Count > pos)
                 {
-                    var user = _presenter.UserFriendPresenter[pos];
+                    var user = Presenter.UserFriendPresenter[pos];
                     if (user == null)
                         return;
                     ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
@@ -137,15 +136,15 @@ namespace Steepshot.Fragment
 
         private async void Follow(int position)
         {
-            var user = _presenter.UserFriendPresenter[position];
+            var user = Presenter.UserFriendPresenter[position];
             if (user == null)
                 return;
 
-            var errors = await _presenter.UserFriendPresenter.TryFollow(user);
+            var errors = await Presenter.UserFriendPresenter.TryFollow(user);
             if (errors == null)
                 return;
             if (errors.Any())
-                ShowAlert(errors);
+                Context.ShowAlert(errors);
 
             _usersSearchAdapter.NotifyDataSetChanged();
         }
@@ -167,16 +166,16 @@ namespace Steepshot.Fragment
                     if (_prevQuery[_searchType] == _searchView.Text)
                         return;
                     if (_searchType == SearchType.People)
-                        _presenter.UserFriendPresenter.Clear();
+                        Presenter.UserFriendPresenter.Clear();
                     else
-                        _presenter.TagsPresenter.Clear();
+                        Presenter.TagsPresenter.Clear();
                     scrollListner.ClearPosition();
                     _prevQuery[_searchType] = _searchView.Text;
                     _spinner.Visibility = ViewStates.Visible;
                 }
-                var errors = await _presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
+                var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType, clear);
                 if (errors != null && errors.Count > 0)
-                    ShowAlert(errors, ToastLength.Short);
+                    Context.ShowAlert(errors, ToastLength.Short);
                 else
                 {
                     if (_searchType == SearchType.Tags)
@@ -194,11 +193,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new SearchPresenter();
-        }
-
         private void SwitchSearchType()
         {
             if (_searchType == SearchType.Tags)
@@ -207,11 +201,11 @@ namespace Steepshot.Fragment
                 _categories.Visibility = ViewStates.Visible;
                 _tagsButton.Typeface = Style.Semibold;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
+                _tagsButton.SetTextColor(Style.R15G24B30);
 
                 _peopleButton.Typeface = Style.Regular;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                _peopleButton.SetTextColor(Style.R151G155B158);
             }
             else
             {
@@ -219,11 +213,11 @@ namespace Steepshot.Fragment
                 _categories.Visibility = ViewStates.Gone;
                 _peopleButton.Typeface = Style.Semibold;
                 _peopleButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
-                _peopleButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb15_24_30)));
+                _peopleButton.SetTextColor(Style.R15G24B30);
 
                 _tagsButton.Typeface = Style.Regular;
                 _tagsButton.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
-                _tagsButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, Resource.Color.rgb151_155_158)));
+                _tagsButton.SetTextColor(Style.R151G155B158);
             }
             GetTags(true);
         }

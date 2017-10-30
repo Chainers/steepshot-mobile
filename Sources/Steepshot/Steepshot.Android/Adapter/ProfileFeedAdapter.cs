@@ -10,6 +10,11 @@ namespace Steepshot.Adapter
 {
     public class ProfileFeedAdapter : FeedAdapter
     {
+        public UserProfileResponse ProfileData;
+        public Action FollowersAction, FollowingAction, BalanceAction;
+        public Action FollowAction;
+        private readonly bool _isHeaderNeeded;
+
         public override int ItemCount
         {
             get
@@ -18,10 +23,7 @@ namespace Steepshot.Adapter
                 return count == 0 || Presenter.IsLastReaded ? count + 1 : count + 2;
             }
         }
-        public UserProfileResponse ProfileData;
-        public Action FollowersAction, FollowingAction, BalanceAction;
-        public Action FollowAction;
-        private bool _isHeaderNeeded;
+
 
         public ProfileFeedAdapter(Context context, BasePostPresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
@@ -50,7 +52,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new ProfileFeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels, _isHeaderNeeded);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -64,6 +66,7 @@ namespace Steepshot.Adapter
             return (int)ViewType.Cell;
         }
     }
+<<<<<<< HEAD
 
     public class ProfileFeedViewHolder : FeedViewHolder
     {
@@ -104,4 +107,6 @@ namespace Steepshot.Adapter
             LikeAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }
     }
+=======
+>>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
 }

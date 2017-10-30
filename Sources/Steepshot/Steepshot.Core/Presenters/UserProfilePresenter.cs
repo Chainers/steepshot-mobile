@@ -11,13 +11,10 @@ namespace Steepshot.Core.Presenters
 {
     public sealed class UserProfilePresenter : BasePostPresenter
     {
-        private readonly string _username;
         private const int ItemsLimit = 18;
 
-        public UserProfilePresenter(string username)
-        {
-            _username = username;
-        }
+        public string UserName { get; set; }
+        
 
         public async Task<List<string>> TryLoadNextPosts(bool needRefresh = false)
         {
@@ -32,7 +29,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextPosts(CancellationToken ct)
         {
-            var req = new UserPostsRequest(_username)
+            var req = new UserPostsRequest(UserName)
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
@@ -84,7 +81,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<OperationResult<FollowResponse>> Follow(CancellationToken ct, FollowType followType)
         {
-            var request = new FollowRequest(User.UserInfo, followType, _username);
+            var request = new FollowRequest(User.UserInfo, followType, UserName);
             return await Api.Follow(request, ct);
         }
     }

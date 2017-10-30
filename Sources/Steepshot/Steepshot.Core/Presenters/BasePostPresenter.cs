@@ -39,6 +39,14 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(Vote, OnDisposeCts.Token, post);
         }
 
+        public async Task<List<string>> TryVote(Post post)
+        {
+            if (post == null)
+                return null;
+
+            return await TryRunTask(Vote, OnDisposeCts.Token, post);
+        }
+
         public async Task<List<string>> TryVote(int position)
         {
             Post post;

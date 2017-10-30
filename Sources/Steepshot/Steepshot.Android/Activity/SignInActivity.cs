@@ -96,6 +96,10 @@ namespace Steepshot.Activity
 
                 //Start scanning
                 var result = await _scanner.Scan();
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+
                 if (result != null)
                 {
                     _password.Text = result.Text;
@@ -110,55 +114,40 @@ namespace Steepshot.Activity
 
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
-            var appCompatButton = sender as AppCompatButton;
-            if (appCompatButton == null)
-                return;
+            var appCompatButton = (AppCompatButton)sender;
+
             var login = _username;
             var pass = _password?.Text;
 
-            try
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
             {
-                if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
-                {
-                    ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
-                    return;
-                }
-
-                _spinner.Visibility = ViewStates.Visible;
-                appCompatButton.Text = string.Empty;
-                appCompatButton.Enabled = false;
-
-                var response = await Presenter.TrySignIn(login, pass);
-                if (response == null) // cancelled
-                    return;
-
-                if (response.Success)
-                {
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
-                    var intent = new Intent(this, typeof(RootActivity));
-                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                    StartActivity(intent);
-                }
-                else
-                {
-                    ShowAlert(response);
-                }
+                this.ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                return;
             }
-            catch (Exception ex)
+
+            _spinner.Visibility = ViewStates.Visible;
+            appCompatButton.Text = string.Empty;
+            appCompatButton.Enabled = false;
+
+            var response = await Presenter.TrySignIn(login, pass);
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (response != null && response.Success)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
+                var intent = new Intent(this, typeof(RootActivity));
+                intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                StartActivity(intent);
             }
-            finally
+            else
             {
-                appCompatButton.Enabled = true;
-                appCompatButton.Text = Localization.Texts.EnterAccountText;
-                _spinner.Visibility = ViewStates.Invisible;
+                this.ShowAlert(response);
             }
-        }
 
-        protected override void CreatePresenter()
-        {
-            Presenter = new SignInPresenter();
+            appCompatButton.Enabled = true;
+            appCompatButton.Text = Localization.Texts.EnterAccountText;
+            _spinner.Visibility = ViewStates.Invisible;
         }
     }
 }

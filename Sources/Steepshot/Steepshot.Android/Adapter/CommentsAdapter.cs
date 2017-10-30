@@ -17,7 +17,12 @@ namespace Steepshot.Adapter
     {
         private readonly CommentsPresenter _commentsPresenter;
         private readonly Context _context;
+<<<<<<< HEAD
         public Action<int> LikeAction, UserAction, FlagAction;
+=======
+        public Action<int> LikeAction, UserAction;
+
+>>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
         public override int ItemCount => _commentsPresenter.Count;
         private bool _actionsEnabled;
         public bool ActionsEnabled
@@ -42,6 +47,7 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
+<<<<<<< HEAD
             var vh = holder as CommentViewHolder;
             if (vh == null)
                 return;
@@ -49,6 +55,14 @@ namespace Steepshot.Adapter
             if (post == null)
                 return;
             vh.UpdateData(post, _context, _actionsEnabled);
+=======
+            var post = _commentsPresenter[position];
+            if (post == null)
+                return;
+
+            var vh = holder as CommentViewHolder;
+            vh?.UpdateData(post, _context);
+>>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -83,6 +97,7 @@ namespace Steepshot.Adapter
 
         public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> flagAction) : base(itemView)
         {
+<<<<<<< HEAD
             _context = itemView.RootView.Context;
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
             Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -92,6 +107,44 @@ namespace Steepshot.Adapter
             Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
             Reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
             Time = itemView.FindViewById<TextView>(Resource.Id.time);
+=======
+            public ImageView Avatar { get; }
+            public TextView Author { get; }
+            public TextView Comment { get; }
+            public TextView Likes { get; }
+            public TextView Cost { get; }
+            public TextView Reply { get; }
+            public TextView Time { get; }
+            public ImageButton Like { get; }
+            private Post _post;
+            private readonly Action<int> _likeAction;
+            private readonly Action<int> _userAction;
+
+            public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction) : base(itemView)
+            {
+                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
+                Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
+                Comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
+                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+                Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+                Reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
+                Time = itemView.FindViewById<TextView>(Resource.Id.time);
+
+                _likeAction = likeAction;
+                _userAction = userAction;
+
+                Like.Click += Like_Click;
+                Avatar.Click += InvokeUserAction;
+                Author.Click += InvokeUserAction;
+                Cost.Click += InvokeUserAction;
+            }
+
+            private void InvokeUserAction(object sender, EventArgs e)
+            {
+                _userAction?.Invoke(AdapterPosition);
+            }
+>>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
 
             _likeAction = likeAction;
             _flagAction = flagAction;
@@ -117,7 +170,13 @@ namespace Steepshot.Adapter
         {
             if (BasePresenter.User.IsAuthenticated)
             {
+<<<<<<< HEAD
                 Flag.SetImageResource(!_post.Flag ? Resource.Drawable.ic_flag : Resource.Drawable.ic_flag);
+=======
+                Likes.Visibility = likes > 0
+                    ? ViewStates.Visible
+                    : ViewStates.Gone;
+>>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
             }
             _flagAction?.Invoke(AdapterPosition);
         }

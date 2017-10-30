@@ -85,7 +85,7 @@ namespace Steepshot.Activity
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
-                ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
+                this.ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
                 return;
             }
 
@@ -114,13 +114,13 @@ namespace Steepshot.Activity
                 if (IsFinishing || IsDestroyed)
                     return;
 
-                ShowAlert(errors, ToastLength.Short);
+                this.ShowAlert(errors, ToastLength.Short);
                 _adapter.NotifyDataSetChanged();
                 _comments.MoveToPosition(Presenter.Count - 1);
             }
             else
             {
-                ShowAlert(resp, ToastLength.Short);
+                this.ShowAlert(resp, ToastLength.Short);
             }
 
             _sendSpinner.Visibility = ViewStates.Invisible;
@@ -140,7 +140,7 @@ namespace Steepshot.Activity
             if (errors != null && !errors.Any())
                 _adapter.NotifyDataSetChanged();
             else
-                ShowAlert(errors, ToastLength.Short);
+                this.ShowAlert(errors, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
@@ -194,7 +194,7 @@ namespace Steepshot.Activity
                 if (errors != null && !errors.Any())
                     _adapter.NotifyDataSetChanged();
                 else
-                    ShowAlert(errors, ToastLength.Short);
+                    this.ShowAlert(errors, ToastLength.Short);
             }
             else
             {

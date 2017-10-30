@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -7,6 +6,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -25,7 +25,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [InjectView(Resource.Id.people_count)] private TextView _people_count;
+        [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
@@ -43,69 +43,44 @@ namespace Steepshot.Fragment
         {
             if (IsInitialized)
                 return;
-            base.OnViewCreated(view, savedInstanceState);
-            
-            var count = Activity.Intent.GetIntExtra("count", 0);
-            _people_count.Text = $"{count.ToString("N0")} people";
-            _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
 
-            LoadItems();
+            base.OnViewCreated(view, savedInstanceState);
+
+            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+            Presenter.FollowType = isFollowers ? FriendsType.Followers : FriendsType.Following;
+
+            var count = Activity.Intent.GetIntExtra("count", 0);
+            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
+            _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = _presenter.FollowType.GetDescription();
+            _viewTitle.Text = Presenter.FollowType.GetDescription();
 
             _viewTitle.Typeface = Style.Semibold;
-            _people_count.Typeface = Style.Regular;
+            _peopleCount.Typeface = Style.Regular;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter);
-            _followersList.SetAdapter(_followersAdapter);
-            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
-            var scrollListner = new ScrollListener();
-            scrollListner.ScrolledToBottom += LoadItems;
-            _followersList.AddOnScrollListener(scrollListner);
+            _followersAdapter = new FollowersAdapter(Activity, Presenter);
             _followersAdapter.FollowAction += Follow;
             _followersAdapter.UserAction += UserAction;
+
+            var scrollListner = new ScrollListener();
+            scrollListner.ScrolledToBottom += LoadItems;
+
+            _followersList.SetAdapter(_followersAdapter);
+            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
+            _followersList.AddOnScrollListener(scrollListner);
+
+            LoadItems();
         }
 
-        private async void Follow(int position)
+        public override void OnDetach()
         {
-            var errors = await _presenter.TryFollow(_presenter[position]);
-            if (errors == null)
-                return;
-
-            if (errors.Any())
-                ShowAlert(errors, ToastLength.Short);
-            
-             _followersAdapter.NotifyDataSetChanged();
+            base.OnDetach();
+            Cheeseknife.Reset(this);
         }
 
-        private void LoadItems()
-        {
-            _presenter.TryLoadNextUserFriends(_username).ContinueWith((e) =>
-            {
-                var errors = e.Result;
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
-                    if (errors != null && errors.Count > 0)
-                        ShowAlert(errors, ToastLength.Long);
-                    else
-                        _followersAdapter?.NotifyDataSetChanged();
-                });
-            });
-        }
-
-        private void UserAction(int position)
-        {
-            var user = _presenter[position];
-            if (user == null)
-                return;
-
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
-        }
 
         [InjectOnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
@@ -113,16 +88,40 @@ namespace Steepshot.Fragment
             Activity.OnBackPressed();
         }
 
-        protected override void CreatePresenter()
+
+        private async void Follow(int position)
         {
-            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-            _presenter = new UserFriendPresenter(isFollowers ? FriendsType.Followers : FriendsType.Following);
+            var errors = await Presenter.TryFollow(Presenter[position]);
+            if (IsDetached || IsRemoving)
+                return;
+
+            if (errors != null && errors.Count > 0)
+                Context.ShowAlert(errors, ToastLength.Long);
+            else
+                _followersAdapter.NotifyDataSetChanged();
         }
 
-        public override void OnDetach()
+        private async void LoadItems()
         {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
+            var errors = await Presenter.TryLoadNextUserFriends(_username);
+            if (IsDetached || IsRemoving)
+                return;
+
+            if (errors != null && errors.Count > 0)
+                Context.ShowAlert(errors, ToastLength.Long);
+            else
+                _followersAdapter.NotifyDataSetChanged();
+
+            _bar.Visibility = ViewStates.Gone;
+        }
+
+        private void UserAction(int position)
+        {
+            var user = Presenter[position];
+            if (user == null)
+                return;
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
         }
     }
 }

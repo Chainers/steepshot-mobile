@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
         private static IConnectionService _connectionService;
-        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.Container.Resolve<IConnectionService>());
+        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
         protected CancellationTokenSource OnDisposeCts;
@@ -306,7 +306,8 @@ namespace Steepshot.Core.Presenters
 
         public void TasksCancel()
         {
-            OnDisposeCts?.Cancel();
+            OnDisposeCts.Cancel();
+            OnDisposeCts = new CancellationTokenSource();
         }
     }
 }

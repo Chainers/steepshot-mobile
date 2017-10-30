@@ -6,21 +6,19 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Autofac;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SettingsActivity : BaseActivityWithPresenter<SettingsPresenter>
+    public sealed class SettingsActivity : BaseActivity
     {
         private AccountsAdapter _accountsAdapter;
 
@@ -46,7 +44,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_settings);
             Cheeseknife.Inject(this);
 
-            var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
+            var appInfoService = AppSettings.AppInfo;
             _versionText.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             var accounts = BasePresenter.User.GetAllAccounts();
 
@@ -64,36 +62,25 @@ namespace Steepshot.Activity
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
 
-            _accountsList.NestedScrollingEnabled = false;
-            _accountsList.SetLayoutManager(new LinearLayoutManager(this));
+            _addButton.Text = Localization.Texts.AddAccountText;
+
             _accountsAdapter = new AccountsAdapter();
             _accountsAdapter.AccountsList = accounts;
-            _accountsAdapter.DeleteAccount += index =>
-            {
-                var chainToDelete = _accountsAdapter.AccountsList[index].Chain;
-                BasePresenter.User.Delete(_accountsAdapter.AccountsList[index]);
-                RemoveChain(chainToDelete);
-                _accountsAdapter.NotifyDataSetChanged();
-            };
-            _accountsAdapter.PickAccount += index =>
-            {
-                SwitchChain(_accountsAdapter.AccountsList[index]);
-            };
+            _accountsAdapter.DeleteAccount += OnAdapterDeleteAccount;
+            _accountsAdapter.PickAccount += OnAdapterPickAccount;
+
+            _accountsList.NestedScrollingEnabled = false;
+            _accountsList.SetLayoutManager(new LinearLayoutManager(this));
             _accountsList.SetAdapter(_accountsAdapter);
 
-            _nsfwSwitcher.CheckedChange += (sender, e) =>
-            {
-                BasePresenter.User.IsNsfw = _nsfwSwitcher.Checked;
-            };
+            _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
 
-            _lowRatedSwitcher.CheckedChange += (sender, e) =>
-            {
-                BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;
-            };
+            _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
 
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
 
+            //for tests
             if (BasePresenter.User.IsDev || BasePresenter.User.Login.Equals("joseph.kalu"))
             {
                 _testsButton.Visibility = ViewStates.Visible;
@@ -101,9 +88,33 @@ namespace Steepshot.Activity
             }
         }
 
-        protected override void CreatePresenter()
+        private void OnLowRatedSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            Presenter = new SettingsPresenter();
+            BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;
+        }
+
+        private void OnNsfwSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
+        {
+            BasePresenter.User.IsNsfw = _nsfwSwitcher.Checked;
+        }
+
+        private void OnAdapterPickAccount(int index)
+        {
+            if (_accountsAdapter.AccountsList.Count <= index)
+                return;
+            SwitchChain(_accountsAdapter.AccountsList[index]);
+        }
+
+        private void OnAdapterDeleteAccount(int index)
+        {
+            if (_accountsAdapter.AccountsList.Count <= index)
+                return;
+
+            var acc = _accountsAdapter.AccountsList[index];
+            var chainToDelete = acc.Chain;
+            BasePresenter.User.Delete(acc);
+            RemoveChain(chainToDelete);
+            _accountsAdapter.NotifyDataSetChanged();
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -133,7 +144,7 @@ namespace Steepshot.Activity
             var intent = new Intent(this, typeof(TestActivity));
             StartActivity(intent);
         }
-        
+
         private void SwitchChain(UserInfo user)
         {
             if (BasePresenter.Chain != user.Chain)

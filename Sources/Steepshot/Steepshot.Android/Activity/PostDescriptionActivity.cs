@@ -38,7 +38,7 @@ namespace Steepshot.Activity
         private bool _shouldCompress;
         private Timer _timer;
         private Bitmap _btmp;
-        private TagsAdapter _localTagsAdapter;
+        private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
         private UploadImageRequest _request;
         private UploadResponse _response;
@@ -90,7 +90,7 @@ namespace Steepshot.Activity
                 catch (Exception ex)
                 {
                     _postButton.Enabled = false;
-                    ShowAlert(Localization.Errors.UnknownCriticalError);
+                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
                     AppSettings.Reporter.SendCrash(ex);
                 }
                 finally
@@ -104,7 +104,8 @@ namespace Steepshot.Activity
             }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
-            _localTagsAdapter = new TagsAdapter();
+            _localTagsAdapter = new SelectedTagsAdapter();
+            _localTagsAdapter.Click += LocalTagsAdapterClick;
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
@@ -121,6 +122,27 @@ namespace Steepshot.Activity
             _timer = new Timer(OnTimer);
 
             SearchTextChanged();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+            if (_btmp != null)
+            {
+                _btmp.Recycle();
+                _btmp = null;
+            }
+            GC.Collect(0);
+        }
+
+
+        private void LocalTagsAdapterClick(int i)
+        {
+            if (!_localTagsAdapter.Enabled)
+                return;
+            _localTagsAdapter.LocalTags.RemoveAt(i);
+            _localTagsAdapter.NotifyDataSetChanged();
         }
 
         private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
@@ -162,23 +184,15 @@ namespace Steepshot.Activity
             AddTag(result.Name);
             _tag.Text = string.Empty;
         }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
-            if (_btmp != null)
-            {
-                _btmp.Recycle();
-                _btmp = null;
-            }
-            GC.Collect(0);
-        }
-
+        
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
+            _title.Enabled = false;
+            _description.Enabled = false;
+            _tag.Enabled = false;
+            _localTagsAdapter.Enabled = false;
             _postButton.Text = string.Empty;
             _loadingSpinner.Visibility = ViewStates.Visible;
             await OnPostAsync();
@@ -193,6 +207,8 @@ namespace Steepshot.Activity
         [InjectOnClick(Resource.Id.top_margin_tags_layout)]
         public void OnTagsLayoutClick(object sender, EventArgs e)
         {
+            if (!_tag.Enabled)
+                return;
             _tag.RequestFocus();
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.ShowSoftInput(_tag, ShowFlags.Implicit);
@@ -255,7 +271,7 @@ namespace Steepshot.Activity
                 return;
 
             if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
+                this.ShowAlert(errors);
             else
                 _tagsAdapter.NotifyDataSetChanged();
         }
@@ -266,13 +282,15 @@ namespace Steepshot.Activity
 
             if (!isConnected)
             {
-                ShowAlert(Localization.Errors.InternetUnavailable);
+                this.ShowAlert(Localization.Errors.InternetUnavailable);
+                OnUploadEnded();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
-                ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                this.ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                OnUploadEnded();
                 return;
             }
 
@@ -290,7 +308,8 @@ namespace Steepshot.Activity
 
             if (photo == null)
             {
-                ShowAlert(Localization.Errors.PhotoProcessingError);
+                this.ShowAlert(Localization.Errors.PhotoProcessingError);
+                OnUploadEnded();
                 return;
             }
 
@@ -308,7 +327,8 @@ namespace Steepshot.Activity
             }
             else
             {
-                ShowAlert(serverResp);
+                this.ShowAlert(serverResp);
+                OnUploadEnded();
                 return;
             }
 
@@ -353,7 +373,10 @@ namespace Steepshot.Activity
         private async void TryUpload()
         {
             if (_request == null || _response == null)
+            {
+                OnUploadEnded();
                 return;
+            }
 
             var resp = await Presenter.TryUpload(_request, _response);
             if (IsFinishing || IsDestroyed)
@@ -370,20 +393,21 @@ namespace Steepshot.Activity
                 var msg = Localization.Errors.Unknownerror;
                 if (resp != null && resp.Errors.Any())
                     msg = resp.Errors[0];
-                ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
+                this.ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
             }
         }
 
         private void OnUploadEnded()
         {
-            if (_postButton != null)
-            {
-                _postButton.Enabled = true;
-                _postButton.Text = Localization.Texts.PublishButtonText;
-            }
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
 
-            if (_loadingSpinner != null)
-                _loadingSpinner.Visibility = ViewStates.Gone;
+            _loadingSpinner.Visibility = ViewStates.Gone;
+
+            _title.Enabled = true;
+            _description.Enabled = true;
+            _tag.Enabled = true;
+            _localTagsAdapter.Enabled = true;
         }
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)

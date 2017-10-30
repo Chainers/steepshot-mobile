@@ -44,6 +44,7 @@ namespace Steepshot.Activity
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
+            _preSignInBtn.Text = Localization.Messages.NextStep;
         }
 
         [InjectOnClick(Resource.Id.btn_back)]
@@ -59,7 +60,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(login))
             {
-                ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                this.ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
                 return;
             }
 
@@ -79,7 +80,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                ShowAlert(response);
+                this.ShowAlert(response);
             }
 
             _spinner.Visibility = ViewStates.Invisible;

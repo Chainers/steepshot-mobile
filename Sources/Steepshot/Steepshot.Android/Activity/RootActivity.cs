@@ -10,19 +10,21 @@ using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
+using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
     public sealed class RootActivity : BaseActivity
     {
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.view_pager)] private ViewPager _viewPager;
+        [InjectView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
         [InjectView(Resource.Id.tab_layout)] private TabLayout _tabLayout;
 #pragma warning restore 0649
+
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -36,20 +38,35 @@ namespace Steepshot.Activity
             _viewPager.Adapter = _adapter;
             InitTabs();
 
-            _tabLayout.TabSelected += (sender, e) =>
+            _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
+        }
+
+        public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        {
+            CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
+            base.OpenNewContentFragment(frag);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
+
+        private void OnTabLayoutOnTabSelected(object sender, TabLayout.TabSelectedEventArgs e)
+        {
+            if (e.Tab.Position == 2)
             {
-                if (e.Tab.Position == 2)
-                {
-                    _prevTab.Select();
-                    var intent = new Intent(this, typeof(CameraActivity));
-                    StartActivity(intent);
-                }
-                else
-                {
-                    OnTabSelected(e.Tab.Position);
-                    _prevTab = e.Tab;
-                }
-            };
+                _prevTab.Select();
+                var intent = new Intent(this, typeof(CameraActivity));
+                StartActivity(intent);
+            }
+            else
+            {
+                OnTabSelected(e.Tab.Position);
+                _prevTab = e.Tab;
+            }
         }
 
         private void InitTabs()
@@ -63,7 +80,7 @@ namespace Steepshot.Activity
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
             OnTabSelected(0);
-            _viewPager.OffscreenPageLimit = 3;
+            _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
         private void OnTabSelected(int position)
@@ -76,18 +93,6 @@ namespace Steepshot.Activity
                              ? ContextCompat.GetDrawable(this, _adapter.TabIconsActive[i])
                              : ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-        }
-
-        public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
-        {
-            CurrentHostFragment = (HostFragment)_adapter.GetItem(_viewPager.CurrentItem);
-            base.OpenNewContentFragment(frag);
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            Cheeseknife.Reset(this);
         }
     }
 }

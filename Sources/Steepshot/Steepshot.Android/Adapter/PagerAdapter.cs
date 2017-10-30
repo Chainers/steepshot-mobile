@@ -7,32 +7,38 @@ namespace Steepshot.Adapter
 {
     public class PagerAdapter : FragmentPagerAdapter
     {
-        public int[] TabIconsInactive = new[] {
+        public readonly int[] TabIconsInactive = {
             Resource.Drawable.home,
             Resource.Drawable.search,
             Resource.Drawable.create,
             Resource.Drawable.profile
         };
 
-        public int[] TabIconsActive = new[] {
+        public readonly int[] TabIconsActive = {
             Resource.Drawable.home_active,
             Resource.Drawable.search_active,
             Resource.Drawable.create_active,
             Resource.Drawable.profile_active
         };
 
-        private readonly List<Android.Support.V4.App.Fragment> _tabs = new List<Android.Support.V4.App.Fragment>();
-
-        public PagerAdapter(FragmentManager fm) : base(fm)
-        {
-            InitializeTabs();
-        }
+        private readonly List<Android.Support.V4.App.Fragment> _tabs;
 
         public override int Count => TabIconsInactive.Length;
 
+
+        public PagerAdapter(FragmentManager fm) : base(fm)
+        {
+            _tabs = new List<Android.Support.V4.App.Fragment>();
+            InitializeTabs();
+        }
+
+
         public override Android.Support.V4.App.Fragment GetItem(int position)
         {
-            return _tabs[position];
+            if (_tabs.Count > position && position > -1)
+                return _tabs[position];
+
+            return null;
         }
 
         private void InitializeTabs()

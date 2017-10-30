@@ -19,7 +19,6 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.test_results)] private TextView _testResults;
 #pragma warning restore 0649
 
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -29,14 +28,10 @@ namespace Steepshot.Activity
             _testContainer.StepFinished += UpdateResult;
         }
 
-        protected override void CreatePresenter()
-        {
-            Presenter = new TestPresenter();
-        }
-
         [InjectOnClick(Resource.Id.run_api_tests)]
         private async void RunApiTest(object sender, EventArgs e)
         {
+            //TODO: add cancel support
             await _testContainer.RunServerTests();
             await _testContainer.RunDitchApiTests();
         }
@@ -49,6 +44,9 @@ namespace Steepshot.Activity
 
         private void UpdateResult(string text)
         {
+            if (IsFinishing || IsDestroyed)
+                return;
+
             _testResults.Text = text;
         }
     }
