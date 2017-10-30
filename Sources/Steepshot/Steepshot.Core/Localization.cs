@@ -124,6 +124,7 @@
             public const string AppSettingsTitle = "App settings";
             public const string AddAccountText = "Add account";
             public const string PeopleText = "people";
+            public const string TapToSearch = "Tap to search";
         }
     }
 }
