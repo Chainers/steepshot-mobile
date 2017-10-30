@@ -31,11 +31,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
 #pragma warning restore 0649
 
-        [InjectOnClick(Resource.Id.logo)]
-        public void OnPost(object sender, EventArgs e)
-        {
-            _feedList.ScrollToPosition(0);
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -51,45 +46,57 @@ namespace Steepshot.Fragment
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
 
             _feedAdapter = new FeedAdapter(Context, Presenter);
-            _feedList.SetAdapter(_feedAdapter);
-            _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += () => LoadPosts();
-            _feedList.AddOnScrollListener(_scrollListner);
             _feedAdapter.LikeAction += LikeAction;
             _feedAdapter.UserAction += UserAction;
             _feedAdapter.CommentAction += CommentAction;
             _feedAdapter.VotersClick += VotersAction;
             _feedAdapter.PhotoClick += PhotoClick;
+
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += LoadPosts;
+
+            _refresher.Refresh += OnRefresh;
+
+            _feedList.SetAdapter(_feedAdapter);
+            _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+            _feedList.AddOnScrollListener(_scrollListner);
+
             LoadPosts();
-            _refresher.Refresh += delegate
-                {
-                    _scrollListner.ClearPosition();
-                    LoadPosts(true);
-                };
         }
 
-        private async void LoadPosts(bool clearOld = false)
+
+        [InjectOnClick(Resource.Id.logo)]
+        public void OnPost(object sender, EventArgs e)
         {
-            if (clearOld)
-                Presenter.Clear();
+            _feedList.ScrollToPosition(0);
+        }
 
-            _feedAdapter?.NotifyDataSetChanged();
+        private void OnRefresh(object sender, EventArgs e)
+        {
+            _scrollListner.ClearPosition();
+            Presenter.Clear();
+            _feedAdapter.NotifyDataSetChanged();
+            LoadPosts();
+        }
+
+        private async void LoadPosts()
+        {
             var errors = await Presenter.TryLoadNextTopPosts();
-            if (_bar != null)
-            {
-                _bar.Visibility = ViewStates.Gone;
-                _refresher.Refreshing = false;
-            }
-
-            if (errors == null)
+            if (IsDetached || IsRemoving)
                 return;
 
-            Context.ShowAlert(errors);
-            _feedAdapter?.NotifyDataSetChanged();
+            if (errors != null)
+            {
+                Context.ShowAlert(errors);
+                _feedAdapter.NotifyDataSetChanged();
+            }
+
+            _bar.Visibility = ViewStates.Gone;
+            _refresher.Refreshing = false;
         }
 
         private void PhotoClick(Post post)
@@ -110,6 +117,7 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
+
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
@@ -119,6 +127,7 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
+
             Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
             Activity.Intent.PutExtra(PostNetVotesExtraPath, post.NetVotes);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
@@ -128,23 +137,31 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
+
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
         private async void LikeAction(Post post)
         {
-            if (BasePresenter.User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            _feedAdapter.ActionsEnabled = false;
+
+            var errors = await Presenter.TryVote(post);
+            if (IsDetached || IsRemoving)
+                return;
+
+            if (errors != null && errors.Count != 0)
+                Context.ShowAlert(errors);
+            else
             {
-                _feedAdapter.ActionsEnabled = false;
-                var errors = await Presenter.TryVote(post);
-                if (errors != null && errors.Count != 0)
-                    Context.ShowAlert(errors);
-                else
-                {
-                    await Task.Delay(3000);
-                }
-                _feedAdapter.ActionsEnabled = true;
+                await Task.Delay(3000);
+                if (IsDetached || IsRemoving)
+                    return;
             }
+
+            _feedAdapter.ActionsEnabled = true;
         }
 
         public override void OnDetach()
