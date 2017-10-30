@@ -26,6 +26,13 @@ namespace Steepshot.Fragment
 {
     public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
+        private readonly bool _isGuest;
+        //ValueAnimator disposing issue probably fixed with static modificator
+        private static ValueAnimator _fontGrowingAnimation;
+        private static ValueAnimator _fontReductionAnimation;
+        private static ValueAnimator _grayToBlackAnimation;
+        private static ValueAnimator _blackToGrayAnimation;
+
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -38,16 +45,11 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
-        private bool _isGuest;
-        //ValueAnimator disposing issue probably fixed with static modificator
-        private static ValueAnimator _fontGrowingAnimation;
-        private static ValueAnimator _fontReductionAnimation;
-        private static ValueAnimator _grayToBlackAnimation;
-        private static ValueAnimator _blackToGrayAnimation;
+
         private Button _activeButton;
         private Button _currentButton;
 
-        public string CustomTag
+        private string CustomTag
         {
             get => Presenter.Tag;
             set => Presenter.Tag = value;
@@ -246,7 +248,7 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Gone;
                 await LoadPosts(true);
             };
-            if(_isGuest)
+            if (_isGuest)
                 LoadPosts(true);
         }
 

@@ -79,6 +79,7 @@
     <Compile Include="Adapter\PagerAdapter.cs" />
     <Compile Include="Adapter\SelectedTagsAdapter.cs" />
     <Compile Include="Adapter\TagsAdapter.cs" />
+    <AndroidEnvironment Include="environment.txt" />
     <Compile Include="Fragment\CameraFragment.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
