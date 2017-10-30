@@ -252,6 +252,7 @@ namespace Steepshot.Fragment
                     ShowAlert(errors);
                 else
                 {
+                    feedAdapter.NotifyDataSetChanged();
                     await Task.Delay(3000);
                 }
                 feedAdapter.ActionsEnabled = true;

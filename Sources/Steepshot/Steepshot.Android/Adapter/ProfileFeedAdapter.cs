@@ -99,7 +99,7 @@ namespace Steepshot.Adapter
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                Like.SetImageResource(!Post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
+                Like.SetImageResource(!(bool)Post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
             }
             LikeAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
         }

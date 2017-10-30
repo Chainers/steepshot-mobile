@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -159,13 +160,18 @@ namespace Steepshot.Activity
         {
             if (BasePresenter.User.IsAuthenticated)
             {
+                _adapter.ActionsEnabled = false;
                 var errors = await Presenter.TryVote(position);
 
                 if (IsFinishing || IsDestroyed)
                     return;
 
                 if (errors != null && !errors.Any())
+                {
                     _adapter.NotifyDataSetChanged();
+                    await Task.Delay(3000);
+                    _adapter.ActionsEnabled = true;
+                }
                 else
                     ShowAlert(errors, ToastLength.Short);
             }

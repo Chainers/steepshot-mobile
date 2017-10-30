@@ -108,7 +108,7 @@ namespace Steepshot.Core
                     return;
                 }
 
-                testPost = postsResp.Result.Results.FirstOrDefault(i => !i.Vote);
+                testPost = postsResp.Result.Results.FirstOrDefault(i => !(bool)i.Vote);
                 if (testPost == null)
                     getPosts.Offset = postsResp.Result.Results.Last().Url;
 
@@ -141,7 +141,7 @@ namespace Steepshot.Core
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} Upvoted post ({testPost.Url}) not found!");
                 return;
             }
-            if (!verifyPostresp.Result.Results[0].Vote)
+            if (!(bool)verifyPostresp.Result.Results[0].Vote)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} post ({testPost.Url}) wasn`t Upvoted!");
                 return;

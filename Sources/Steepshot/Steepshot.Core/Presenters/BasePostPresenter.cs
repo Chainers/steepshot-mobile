@@ -51,18 +51,22 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Vote(CancellationToken ct, Post post)
         {
-            var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteRequest(User.UserInfo, (bool)post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            post.WasVoted = (bool)post.Vote;
+            post.Vote = null;
             var response = await Api.Vote(request, ct);
             if (response == null)
                 return null;
 
             if (response.Success)
             {
-                post.Vote = !post.Vote;
+                post.Vote = !post.WasVoted;
                 post.Flag = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
             }
+            else
+                post.Vote = post.WasVoted;
 
             return response.Errors;
         }

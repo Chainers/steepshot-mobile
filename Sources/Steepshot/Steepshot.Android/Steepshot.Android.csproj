@@ -184,6 +184,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\unchecked.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
     <AndroidResource Include="Resources\layout\lyt_comment_item_suboption.xml" />
+    <AndroidResource Include="Resources\Anim\like_wait.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

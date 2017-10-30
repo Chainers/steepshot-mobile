@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
@@ -18,20 +19,36 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         public Action<int> LikeAction, UserAction, FlagAction;
         public override int ItemCount => _commentsPresenter.Count;
+        private bool _actionsEnabled;
+        public bool ActionsEnabled
+        {
+            get
+            {
+                return _actionsEnabled;
+            }
+            set
+            {
+                _actionsEnabled = value;
+                NotifyDataSetChanged();
+            }
+        }
 
         public CommentAdapter(Context context, CommentsPresenter commentsPresenter)
         {
             _context = context;
             _commentsPresenter = commentsPresenter;
+            _actionsEnabled = true;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as CommentViewHolder;
+            if (vh == null)
+                return;
             var post = _commentsPresenter[position];
             if (post == null)
                 return;
-            vh?.UpdateData(post, _context);
+            vh.UpdateData(post, _context, _actionsEnabled);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -59,8 +76,14 @@ namespace Steepshot.Adapter
         readonly Action<int> _likeAction;
         readonly Action<int> _flagAction;
 
+        public Animation LikeSetAnimation { get; set; }
+        public Animation LikeWaitAnimation { get; set; }
+        public bool LikeActionEnabled { get; set; }
+        private Context _context;
+
         public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> flagAction) : base(itemView)
         {
+            _context = itemView.RootView.Context;
             Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
             Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
             Comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
@@ -77,6 +100,12 @@ namespace Steepshot.Adapter
             Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
             Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
             Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
+
+            LikeActionEnabled = true;
+            LikeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            LikeSetAnimation.AnimationStart += (sender, e) => Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+            LikeSetAnimation.AnimationEnd += (sender, e) => Like.StartAnimation(LikeWaitAnimation);
+            LikeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
 
             Flag = new Suboption(itemView.Context);
             Flag.SetImageResource(Resource.Drawable.ic_flag);
@@ -95,10 +124,7 @@ namespace Steepshot.Adapter
 
         private void Like_Click(object sender, EventArgs e)
         {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-            }
+            if (!LikeActionEnabled) return;
             _likeAction?.Invoke(AdapterPosition);
         }
 
@@ -107,8 +133,9 @@ namespace Steepshot.Adapter
             Likes.Visibility = (likes > 0) ? ViewStates.Visible : ViewStates.Gone;
         }
 
-        public void UpdateData(Post post, Context context)
+        public void UpdateData(Post post, Context context, bool actionsEnabled)
         {
+            LikeActionEnabled = actionsEnabled;
             _post = post;
             Author.Text = post.Author;
             Comment.Text = post.Body;
@@ -118,8 +145,21 @@ namespace Steepshot.Adapter
             else
                 Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
 
-            Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-
+            if (post.Vote != null)
+            {
+                Like.ClearAnimation();
+                if ((bool)post.Vote)
+                    Like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+                else
+                    Like.SetImageResource(Resource.Drawable.ic_new_like_selected);
+            }
+            else
+            {
+                if (post.WasVoted)
+                    Like.StartAnimation(LikeWaitAnimation);
+                else
+                    Like.StartAnimation(LikeSetAnimation);
+            }
             Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             Time.Text = post.Created.ToPostTime();

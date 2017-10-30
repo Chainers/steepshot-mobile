@@ -1,5 +1,6 @@
 using System;
 using Ditch;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Common
 {
@@ -45,10 +46,12 @@ namespace Steepshot.Core.Models.Common
         public Money PendingPayoutValue { get; set; }
         public double MaxAcceptedPayout { get; set; }
         public Money TotalPayoutReward { get; set; }
-        public bool Vote { get; set; }
+        public bool? Vote { get; set; }
         public bool Flag { get; set; }
         public string[] Tags { get; set; }
         public Size ImageSize { get; set; }
         public int Depth { get; set; }
+        [JsonIgnore]
+        public bool WasVoted { get; set; }
     }
 }

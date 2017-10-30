@@ -113,7 +113,7 @@ namespace Steepshot.Fragment
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
             Context.StartActivity(intent);
         }
-        
+
         private void VotersAction(int position)
         {
             var post = _presenter[position];
@@ -142,6 +142,7 @@ namespace Steepshot.Fragment
                     ShowAlert(errors);
                 else
                 {
+                    _feedAdapter.NotifyDataSetChanged();
                     await Task.Delay(3000);
                 }
                 _feedAdapter.ActionsEnabled = true;

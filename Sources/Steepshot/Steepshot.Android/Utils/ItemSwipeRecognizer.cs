@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.Support.V7.Widget;
@@ -12,16 +13,22 @@ namespace Steepshot.Utils
     public class Suboption
     {
         public EventHandler Click;
-        public View View => _view;
-        private View _view;
-        private View _containerView;
+        public View ContainerView
+        {
+            get
+            {
+                return _containerView;
+            }
+        }
+        private static View _containerView;
         private View _buttonView;
+        private Context _context;
 
         public Suboption(Context context)
         {
+            _context = context;
             LayoutInflater inflater = (LayoutInflater)context.GetSystemService(Context.LayoutInflaterService);
-            _view = inflater.Inflate(Resource.Layout.lyt_comment_item_suboption, null);
-            _containerView = _view.FindViewById(Resource.Id.Suboption);
+            _containerView = inflater.Inflate(Resource.Layout.lyt_comment_item_suboption, null);
             _buttonView = _containerView.FindViewById(Resource.Id.SuboptionButton);
         }
 
@@ -35,40 +42,59 @@ namespace Steepshot.Utils
             _containerView.SetPadding(l, t, r, b);
         }
 
-        public void InvokeClick(View.TouchEventArgs e)
+        public bool InvokeClick(View.TouchEventArgs e)
         {
-            var r = new Rect(_view.Left + _buttonView.Left + _containerView.PaddingLeft - _containerView.PaddingRight,
-                             _view.Top + _buttonView.Top + _containerView.PaddingTop - _containerView.PaddingBottom,
-                             _view.Right - _buttonView.Right + _buttonView.Width + _containerView.PaddingLeft - _containerView.PaddingRight,
-                             _view.Bottom - _buttonView.Bottom + _buttonView.Height + _containerView.PaddingTop - _containerView.PaddingBottom);
+            var r = new Rect(_containerView.Left + _buttonView.Left + _containerView.PaddingLeft - _containerView.PaddingRight,
+                             _containerView.Top + _buttonView.Top + _containerView.PaddingTop - _containerView.PaddingBottom,
+                             _containerView.Right - _buttonView.Right + _buttonView.Width + _containerView.PaddingLeft - _containerView.PaddingRight,
+                             _containerView.Bottom - _buttonView.Bottom + _buttonView.Height + _containerView.PaddingTop - _containerView.PaddingBottom);
             if (r.Contains((int)e.Event.GetX(), (int)e.Event.GetY()))
+            {
                 Click?.Invoke(_buttonView, e);
+                return true;
+            }
+            return false;
         }
     }
 
     public class ItemSwipeRecognizer : ItemTouchHelper.Callback
     {
+        private const double _subOptionWidthCof = 0.2;
         private RecyclerView _recyclerView;
         private int? _previousTouchedItem;
+        private bool _swiped;
+        private float _xBegin, _xEnd, _deltaX, _yTop;
 
         public ItemSwipeRecognizer(RecyclerView recyclerView)
         {
             _previousTouchedItem = null;
             _recyclerView = recyclerView;
-            _recyclerView.Touch += _recyclerView_Touch;
+            _recyclerView.Touch += RecyclerViewTouch;
             AttachToRecycler();
         }
 
-        void _recyclerView_Touch(object sender, View.TouchEventArgs e)
+        void RecyclerViewTouch(object sender, View.TouchEventArgs e)
         {
-            if (_previousTouchedItem != null && e.Event.Action == MotionEventActions.Down)
+            _yTop = e.Event.GetY();
+            ItemSwipeViewHolder viewHolder = null;
+            if (_previousTouchedItem != null)
+                viewHolder = _recyclerView.FindViewHolderForAdapterPosition((int)_previousTouchedItem) as ItemSwipeViewHolder;
+            switch (e.Event.Action)
             {
-                var currentViewHolder = _recyclerView.FindViewHolderForAdapterPosition((int)_previousTouchedItem) as ItemSwipeViewHolder;
-                if (currentViewHolder != null)
-                {
-                    currentViewHolder.SubOptions.ForEach(so => so.InvokeClick(e));
-                    //e.Handled = true;
-                }
+                case MotionEventActions.Down:
+                    if (_swiped && viewHolder != null)
+                        foreach (var subOption in viewHolder.SubOptions)
+                        {
+                            if (subOption.InvokeClick(e)) break;
+                        }
+                    if (_previousTouchedItem != null && viewHolder != null)
+                        ClearView(_recyclerView, viewHolder);
+                    _xBegin = e.Event.GetX();
+                    break;
+                case MotionEventActions.Move:
+                    _xEnd = e.Event.GetX();
+                    _deltaX = _xEnd - _xBegin;
+                    break;
             }
             e.Handled = false;
         }
@@ -97,54 +123,60 @@ namespace Steepshot.Utils
 
         public override void OnChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, bool isCurrentlyActive)
         {
-            var commentsViewHolder = viewHolder as ItemSwipeViewHolder;
+            var itemSwipeViewHolder = viewHolder as ItemSwipeViewHolder;
             var itemView = viewHolder.ItemView;
-            int subOptionWidth = (int)(itemView.Width * 0.2);
-            int swipeLimit = subOptionWidth * commentsViewHolder.SubOptions.Count;
-            if (_previousTouchedItem != null && _previousTouchedItem != commentsViewHolder.AdapterPosition)
-                base.ClearView(recyclerView, recyclerView.FindViewHolderForAdapterPosition((int)_previousTouchedItem));
-            _previousTouchedItem = commentsViewHolder.AdapterPosition;
-            if (dX < 0 && -dX == swipeLimit)
-            {
-                base.ClearView(recyclerView, viewHolder);
-                return;
-            }
-            if (dX < 0 && Math.Abs(dX) > swipeLimit)
-                dX = -swipeLimit;
+            if (itemView.Top > _yTop || itemView.Bottom < _yTop) return;
+            _previousTouchedItem = viewHolder.AdapterPosition;
+            dX = _deltaX;
+            int subOptionWidth = (int)(itemView.Width * _subOptionWidthCof);
+            int swipeLimit = -subOptionWidth * itemSwipeViewHolder.SubOptions.Count;
             var itemToDrawIndex = (int)Math.Ceiling(Math.Abs(dX) / subOptionWidth) - 1;
-            if (isCurrentlyActive == true && dX < 0 && Math.Abs(dX) < swipeLimit)
+            if (dX < 0 && dX > swipeLimit)
             {
                 for (int i = 0; i < itemToDrawIndex; i++)
                 {
-                    commentsViewHolder.SubOptions[i].View.Measure(subOptionWidth, itemView.Height);
-                    commentsViewHolder.SubOptions[i].View.Layout(itemView.Right - subOptionWidth * (i + 1), itemView.Top, itemView.Right - subOptionWidth * i, itemView.Bottom);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Measure(subOptionWidth, itemView.Height);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Layout(itemView.Right - subOptionWidth * (i + 1), itemView.Top, itemView.Right - subOptionWidth * i, itemView.Bottom);
                     c.Save();
-                    c.Translate(commentsViewHolder.SubOptions[i].View.Left, itemView.Top);
-                    commentsViewHolder.SubOptions[i].View.Draw(c);
+                    c.Translate(itemSwipeViewHolder.SubOptions[i].ContainerView.Left, itemView.Top);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Draw(c);
                     c.Restore();
                 }
-                var itemToDraw = commentsViewHolder.SubOptions[itemToDrawIndex];
-                itemToDraw.View.Measure(subOptionWidth, itemView.Height);
-                itemToDraw.View.Layout(itemView.Right + (int)dX, itemView.Top, itemView.Right - subOptionWidth * itemToDrawIndex, itemView.Bottom);
+                var itemToDraw = itemSwipeViewHolder.SubOptions[itemToDrawIndex];
+                itemToDraw.ContainerView.Measure(subOptionWidth, itemView.Height);
+                itemToDraw.ContainerView.Layout(itemView.Right + (int)dX, itemView.Top, itemView.Right - subOptionWidth * itemToDrawIndex, itemView.Bottom);
                 c.Save();
-                c.Translate(itemToDraw.View.Left, itemView.Top);
-                itemToDraw.View.Draw(c);
+                c.Translate(itemToDraw.ContainerView.Left, itemView.Top);
+                itemToDraw.ContainerView.Draw(c);
                 c.Restore();
-                base.OnChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, false);
+                itemView.TranslationX = dX;
             }
             else if (dX < 0)
             {
-                for (int i = 0; i <= itemToDrawIndex; i++)
+                for (int i = 0; i < itemSwipeViewHolder.SubOptions.Count; i++)
                 {
-
-                    commentsViewHolder.SubOptions[i].View.Measure(subOptionWidth, itemView.Height);
-                    commentsViewHolder.SubOptions[i].View.Layout(itemView.Right - subOptionWidth * (i + 1), itemView.Top, itemView.Right - subOptionWidth * i, itemView.Bottom);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Measure(subOptionWidth, itemView.Height);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Layout(itemView.Right - subOptionWidth * (i + 1), itemView.Top, itemView.Right - subOptionWidth * i, itemView.Bottom);
                     c.Save();
-                    c.Translate(commentsViewHolder.SubOptions[i].View.Left, itemView.Top);
-                    commentsViewHolder.SubOptions[i].View.Draw(c);
+                    c.Translate(itemSwipeViewHolder.SubOptions[i].ContainerView.Left, itemView.Top);
+                    itemSwipeViewHolder.SubOptions[i].ContainerView.Draw(c);
                     c.Restore();
                 }
-                base.OnChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, false);
+                itemView.TranslationX = swipeLimit;
+                _swiped = true;
+            }
+        }
+
+        public override void ClearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
+        {
+            _xBegin = _xEnd = _deltaX = 0;
+            _swiped = false;
+            if (viewHolder != null)
+            {
+                ValueAnimator animator = ValueAnimator.OfFloat(viewHolder.ItemView.TranslationX, 0);
+                animator.SetDuration(500);
+                animator.Update += (sender, e) => viewHolder.ItemView.TranslationX = (float)e.Animation.AnimatedValue;
+                animator.Start();
             }
         }
 
