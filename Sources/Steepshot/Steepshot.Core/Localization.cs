@@ -123,6 +123,7 @@
             public const string PublishButtonText = "Publish Photo";
             public const string AppSettingsTitle = "App settings";
             public const string AddAccountText = "Add account";
+            public const string PeopleText = "people";
         }
     }
 }
