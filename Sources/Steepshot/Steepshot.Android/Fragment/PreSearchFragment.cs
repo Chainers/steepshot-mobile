@@ -38,6 +38,7 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
+        private bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
         private static ValueAnimator _fontReductionAnimation;
@@ -111,6 +112,11 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.login)] private Button _loginButton;
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
 #pragma warning restore 0649
+
+        public PreSearchFragment(bool isGuest = false)
+        {
+            _isGuest = isGuest;
+        }
 
         [InjectOnClick(Resource.Id.clear_button)]
         public void OnClearClick(object sender, EventArgs e)
@@ -240,6 +246,8 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Gone;
                 await LoadPosts(true);
             };
+            if(_isGuest)
+                LoadPosts(true);
         }
 
         private void OnPhotoClick(Post post)
