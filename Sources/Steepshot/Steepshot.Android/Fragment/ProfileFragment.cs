@@ -130,7 +130,7 @@ namespace Steepshot.Fragment
 
             if (_profileId != BasePresenter.User.Login)
             {
-                _settings.Visibility = ViewStates.Invisible;
+                _settings.Visibility = ViewStates.Gone;
                 _backButton.Visibility = ViewStates.Visible;
                 _login.Text = _profileId;
                 LoadProfile();
