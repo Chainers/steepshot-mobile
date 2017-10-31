@@ -21,8 +21,8 @@ namespace Steepshot.Utils
             }
         }
         private static View _containerView;
-        private View _buttonView;
-        private Context _context;
+        private static View _buttonView;
+        private static Context _context;
 
         public Suboption(Context context)
         {
@@ -75,25 +75,53 @@ namespace Steepshot.Utils
 
         void RecyclerViewTouch(object sender, View.TouchEventArgs e)
         {
-            _yTop = e.Event.GetY();
             ItemSwipeViewHolder viewHolder = null;
+            View itemView = null;
+            int subOptionWidth, swipeLimit = 0;
+            _yTop = e.Event.GetY();
             if (_previousTouchedItem != null)
+            {
                 viewHolder = _recyclerView.FindViewHolderForAdapterPosition((int)_previousTouchedItem) as ItemSwipeViewHolder;
+                itemView = viewHolder.ItemView;
+                subOptionWidth = (int)(itemView.Width * _subOptionWidthCof);
+                swipeLimit = -subOptionWidth * viewHolder.SubOptions.Count;
+                _swiped = viewHolder != null && viewHolder.ItemView.TranslationX <= swipeLimit;
+            }
+            if (viewHolder != null && (viewHolder.ItemView.Top > _yTop || viewHolder.ItemView.Bottom < _yTop))
+                ClearView(viewHolder);
             switch (e.Event.Action)
             {
                 case MotionEventActions.Down:
-                    if (_swiped && viewHolder != null)
-                        foreach (var subOption in viewHolder.SubOptions)
-                        {
-                            if (subOption.InvokeClick(e)) break;
-                        }
-                    if (_previousTouchedItem != null && viewHolder != null)
-                        ClearView(_recyclerView, viewHolder);
                     _xBegin = e.Event.GetX();
+                    if (_swiped && viewHolder != null)
+                    {
+                        if (_xBegin > viewHolder.ItemView.TranslationX + viewHolder.ItemView.Width)
+                        {
+                            foreach (var subOption in viewHolder.SubOptions)
+                                if (subOption.InvokeClick(e)) break;
+                        }
+                        else
+                            ClearView(viewHolder);
+                    }
                     break;
                 case MotionEventActions.Move:
                     _xEnd = e.Event.GetX();
                     _deltaX = _xEnd - _xBegin;
+                    break;
+                case MotionEventActions.Up:
+                    if (viewHolder != null && !_swiped)
+                        if (Math.Abs(_deltaX) >= 0.2 * Math.Abs(swipeLimit) && (itemView.Top < _yTop && itemView.Bottom > _yTop))
+                        {
+                            if (viewHolder != null)
+                            {
+                                ValueAnimator animator = ValueAnimator.OfFloat(viewHolder.ItemView.TranslationX, swipeLimit);
+                                animator.SetDuration(100);
+                                animator.Update += (s, a) => _deltaX = (float)a.Animation.AnimatedValue;
+                                animator.Start();
+                            }
+                        }
+                        else
+                            ClearView(viewHolder);
                     break;
             }
             e.Handled = false;
@@ -131,7 +159,7 @@ namespace Steepshot.Utils
             int subOptionWidth = (int)(itemView.Width * _subOptionWidthCof);
             int swipeLimit = -subOptionWidth * itemSwipeViewHolder.SubOptions.Count;
             var itemToDrawIndex = (int)Math.Ceiling(Math.Abs(dX) / subOptionWidth) - 1;
-            if (dX < 0 && dX > swipeLimit)
+            if (!_swiped && dX < 0 && dX > swipeLimit)
             {
                 for (int i = 0; i < itemToDrawIndex; i++)
                 {
@@ -151,7 +179,7 @@ namespace Steepshot.Utils
                 c.Restore();
                 itemView.TranslationX = dX;
             }
-            else if (dX < 0)
+            else if (dX < 0 || _swiped)
             {
                 for (int i = 0; i < itemSwipeViewHolder.SubOptions.Count; i++)
                 {
@@ -163,21 +191,26 @@ namespace Steepshot.Utils
                     c.Restore();
                 }
                 itemView.TranslationX = swipeLimit;
-                _swiped = true;
+            }
+        }
+
+        public void ClearView(RecyclerView.ViewHolder viewHolder)
+        {
+            if (viewHolder != null)
+            {
+                _deltaX = 0;
+                ValueAnimator animator = ValueAnimator.OfFloat(viewHolder.ItemView.TranslationX, 0);
+                animator.SetDuration(500);
+                animator.Update += (sender, e) =>
+                    viewHolder.ItemView.TranslationX = (float)e.Animation.AnimatedValue;
+                animator.Start();
+                _swiped = false;
             }
         }
 
         public override void ClearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder)
         {
-            _xBegin = _xEnd = _deltaX = 0;
-            _swiped = false;
-            if (viewHolder != null)
-            {
-                ValueAnimator animator = ValueAnimator.OfFloat(viewHolder.ItemView.TranslationX, 0);
-                animator.SetDuration(500);
-                animator.Update += (sender, e) => viewHolder.ItemView.TranslationX = (float)e.Animation.AnimatedValue;
-                animator.Start();
-            }
+            return;
         }
 
         public override void OnSwiped(RecyclerView.ViewHolder viewHolder, int direction) { }

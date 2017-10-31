@@ -66,47 +66,4 @@ namespace Steepshot.Adapter
             return (int)ViewType.Cell;
         }
     }
-<<<<<<< HEAD
-
-    public class ProfileFeedViewHolder : FeedViewHolder
-    {
-        private readonly bool _isHeaderNeeded;
-
-        public ProfileFeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height, bool isHeaderNeeded)
-            : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, height)
-        {
-            _isHeaderNeeded = isHeaderNeeded;
-        }
-
-        protected override void DoUserAction(object sender, EventArgs e)
-        {
-            UserAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
-        }
-
-        protected override void DoCommentAction(object sender, EventArgs e)
-        {
-            CommentAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
-        }
-
-        protected override void DoVotersAction(object sender, EventArgs e)
-        {
-            VotersAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
-        }
-
-        protected override void DoPhotoAction(object sender, EventArgs e)
-        {
-            PhotoAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
-        }
-
-        protected override void DoLikeAction(object sender, EventArgs e)
-        {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                Like.SetImageResource(!(bool)Post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-            }
-            LikeAction?.Invoke(_isHeaderNeeded ? AdapterPosition - 1 : AdapterPosition);
-        }
-    }
-=======
->>>>>>> 9339ff5b6c9d63aa04a40a605ef87d739a036e11
 }

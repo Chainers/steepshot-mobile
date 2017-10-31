@@ -173,7 +173,7 @@ namespace Steepshot.Activity
                     _adapter.ActionsEnabled = true;
                 }
                 else
-                    ShowAlert(errors, ToastLength.Short);
+                    this.ShowAlert(errors, ToastLength.Short);
             }
             else
             {
