@@ -19,10 +19,10 @@ namespace Steepshot.Fragment
 {
     public class SearchFragment : BaseFragmentWithPresenter<SearchPresenter>
     {
+        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
         private Timer _timer;
         private SearchType _searchType = SearchType.People;
-        private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string> { { SearchType.People, null }, { SearchType.Tags, null } };
-        ScrollListener scrollListner;
+        private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.categories)] RecyclerView _categories;
@@ -54,8 +54,10 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
             _searchView.TextChanged += (sender, e) =>
             {
-                if (string.IsNullOrEmpty(e.Text.ToString()))
-                    _clearButton.Visibility = ViewStates.Gone;
+                _clearButton.Visibility = string.IsNullOrEmpty(e.Text.ToString())
+                    ? ViewStates.Gone
+                    : ViewStates.Visible;
+
                 _timer.Change(500, Timeout.Infinite);
             };
 
@@ -67,9 +69,9 @@ namespace Steepshot.Fragment
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
-            scrollListner = new ScrollListener();
-            scrollListner.ScrolledToBottom += async () => await GetTags(false);
-            _users.AddOnScrollListener(scrollListner);
+            _scrollListner = new ScrollListener();
+            _scrollListner.ScrolledToBottom += async () => await GetTags(false);
+            _users.AddOnScrollListener(_scrollListner);
 
             _categoriesAdapter.Click += OnClick;
             _usersSearchAdapter.UserAction += OnClick;
@@ -78,6 +80,7 @@ namespace Steepshot.Fragment
 
             _searchView.Typeface = Style.Regular;
             _clearButton.Typeface = Style.Regular;
+            _clearButton.Visibility = ViewStates.Gone;
             SwitchSearchType();
             _searchView.RequestFocus();
 
@@ -169,7 +172,7 @@ namespace Steepshot.Fragment
                         Presenter.UserFriendPresenter.Clear();
                     else
                         Presenter.TagsPresenter.Clear();
-                    scrollListner.ClearPosition();
+                    _scrollListner.ClearPosition();
                     _prevQuery[_searchType] = _searchView.Text;
                     _spinner.Visibility = ViewStates.Visible;
                 }

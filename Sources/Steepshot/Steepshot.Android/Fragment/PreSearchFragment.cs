@@ -16,16 +16,23 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
     public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
+        private readonly bool _isGuest;
+        //ValueAnimator disposing issue probably fixed with static modificator
+        private static ValueAnimator _fontGrowingAnimation;
+        private static ValueAnimator _fontReductionAnimation;
+        private static ValueAnimator _grayToBlackAnimation;
+        private static ValueAnimator _blackToGrayAnimation;
+
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -38,23 +45,32 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
-        private bool _isGuest;
-        //ValueAnimator disposing issue probably fixed with static modificator
-        private static ValueAnimator _fontGrowingAnimation;
-        private static ValueAnimator _fontReductionAnimation;
-        private static ValueAnimator _grayToBlackAnimation;
-        private static ValueAnimator _blackToGrayAnimation;
+
         private Button _activeButton;
         private Button _currentButton;
 
-        public string CustomTag
+#pragma warning disable 0649, 4014
+        [InjectView(Resource.Id.search_list)] private RecyclerView _searchList;
+        [InjectView(Resource.Id.search_view)] private TextView _searchView;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.trending_button)] private Button _trendingButton;
+        [InjectView(Resource.Id.hot_button)] private Button _hotButton;
+        [InjectView(Resource.Id.new_button)] private Button _newButton;
+        [InjectView(Resource.Id.clear_button)] private Button _clearButton;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.login)] private Button _loginButton;
+        [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
+#pragma warning restore 0649
+
+        private string CustomTag
         {
             get => Presenter.Tag;
             set => Presenter.Tag = value;
         }
 
-        FeedAdapter _profileFeedAdapter;
-        FeedAdapter ProfileFeedAdapter
+        private FeedAdapter _profileFeedAdapter;
+        private FeedAdapter ProfileFeedAdapter
         {
             get
             {
@@ -71,8 +87,8 @@ namespace Steepshot.Fragment
             }
         }
 
-        GridAdapter _profileGridAdapter;
-        GridAdapter ProfileGridAdapter
+        private GridAdapter _profileGridAdapter;
+        private GridAdapter ProfileGridAdapter
         {
             get
             {
@@ -99,31 +115,85 @@ namespace Steepshot.Fragment
             }
         }
 
-#pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.search_list)] private RecyclerView _searchList;
-        [InjectView(Resource.Id.search_view)] private TextView _searchView;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [InjectView(Resource.Id.trending_button)] private Button _trendingButton;
-        [InjectView(Resource.Id.hot_button)] private Button _hotButton;
-        [InjectView(Resource.Id.new_button)] private Button _newButton;
-        [InjectView(Resource.Id.clear_button)] private Button _clearButton;
-        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.login)] private Button _loginButton;
-        [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
-#pragma warning restore 0649
 
         public PreSearchFragment(bool isGuest = false)
         {
             _isGuest = isGuest;
         }
 
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            if (!IsInitialized)
+            {
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_presearch, null);
+                Cheeseknife.Inject(this, InflatedView);
+            }
+            return InflatedView;
+        }
+
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            if (!IsInitialized)
+            {
+                base.OnViewCreated(view, savedInstanceState);
+
+                if (BasePresenter.User.IsAuthenticated)
+                    _loginButton.Visibility = ViewStates.Gone;
+
+                SetAnimation();
+                _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
+                _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
+                _currentButton = _trendingButton;
+                _trendingButton.Typeface = Style.Semibold;
+                _hotButton.Typeface = Style.Regular;
+                _newButton.Typeface = Style.Regular;
+
+                _searchView.Typeface = Style.Regular;
+                _clearButton.Typeface = Style.Regular;
+                _clearButton.Visibility = ViewStates.Gone;
+                _loginButton.Typeface = Style.Semibold;
+                _scrollListner = new ScrollListener();
+                _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
+
+                _linearLayoutManager = new LinearLayoutManager(Context);
+                _gridLayoutManager = new GridLayoutManager(Context, 3);
+                _feedSpanSizeLookup = new FeedSpanSizeLookup();
+                _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
+
+                _gridItemDecoration = new GridItemDecoration();
+                _searchList.SetLayoutManager(_gridLayoutManager);
+                _searchList.AddItemDecoration(_gridItemDecoration);
+                _searchList.AddOnScrollListener(_scrollListner);
+                _searchList.SetAdapter(ProfileGridAdapter);
+
+                _refresher.Refresh += RefresherRefresh;
+            }
+
+            var s = Activity.Intent.GetStringExtra("SEARCH");
+            if (!string.IsNullOrWhiteSpace(s) && s != CustomTag)
+            {
+                Activity.Intent.RemoveExtra("SEARCH");
+                _searchView.Text = Presenter.Tag = CustomTag = s;
+                _searchView.SetTextColor(Style.R15G24B30);
+                _clearButton.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Visible;
+
+                LoadPosts(true);
+            }
+            else if (!IsInitialized && _isGuest)
+            {
+                LoadPosts(true);
+            }
+        }
+
+
         [InjectOnClick(Resource.Id.clear_button)]
         public void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
-            _searchView.Text = "Tap to search";
+            _searchView.Text = Localization.Texts.TapToSearch;
             _searchView.SetTextColor(Style.R151G155B158);
         }
 
@@ -178,76 +248,16 @@ namespace Steepshot.Fragment
             OpenLogin();
         }
 
-        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+
+        private async void ScrollListnerScrolledToBottom()
         {
-            if (!IsInitialized)
-            {
-                InflatedView = inflater.Inflate(Resource.Layout.lyt_presearch, null);
-                Cheeseknife.Inject(this, InflatedView);
-            }
-            return InflatedView;
+            await LoadPosts();
         }
 
-        public override async void OnViewCreated(View view, Bundle savedInstanceState)
+        private async void RefresherRefresh(object sender, EventArgs e)
         {
-            try //TODO:KOA: is try catch realy needed?
-            {
-                var s = Activity.Intent.GetStringExtra("SEARCH");
-                if (s != null && s != CustomTag)
-                {
-                    Activity.Intent.RemoveExtra("SEARCH");
-                    _searchView.Text = Presenter.Tag = CustomTag = s;
-                    _searchView.SetTextColor(Style.R15G24B30);
-                    _clearButton.Visibility = ViewStates.Visible;
-                    _spinner.Visibility = ViewStates.Visible;
-                    await LoadPosts(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-
-            if (IsInitialized)
-                return;
-
-            base.OnViewCreated(view, savedInstanceState);
-
-            if (BasePresenter.User.IsAuthenticated)
-                _loginButton.Visibility = ViewStates.Gone;
-
-            SetAnimation();
-            _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
-            _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
-            _currentButton = _trendingButton;
-            _trendingButton.Typeface = Style.Semibold;
-            _hotButton.Typeface = Style.Regular;
-            _newButton.Typeface = Style.Regular;
-
-            _searchView.Typeface = Style.Regular;
-            _clearButton.Typeface = Style.Regular;
-            _loginButton.Typeface = Style.Semibold;
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += async () => await LoadPosts();
-
-            _linearLayoutManager = new LinearLayoutManager(Context);
-            _gridLayoutManager = new GridLayoutManager(Context, 3);
-            _feedSpanSizeLookup = new FeedSpanSizeLookup();
-            _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
-
-            _gridItemDecoration = new GridItemDecoration();
-            _searchList.SetLayoutManager(_gridLayoutManager);
-            _searchList.AddItemDecoration(_gridItemDecoration);
-            _searchList.AddOnScrollListener(_scrollListner);
-            _searchList.SetAdapter(ProfileGridAdapter);
-
-            _refresher.Refresh += async delegate
-            {
-                _spinner.Visibility = ViewStates.Gone;
-                await LoadPosts(true);
-            };
-            if(_isGuest)
-                LoadPosts(true);
+            _spinner.Visibility = ViewStates.Gone;
+            await LoadPosts(true);
         }
 
         private void OnPhotoClick(Post post)
@@ -268,11 +278,16 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var feedAdapter = (FeedAdapter)_searchList?.GetAdapter();
+                var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
                 feedAdapter.ActionsEnabled = false;
                 var errors = await Presenter.TryVote(post);
+                if (IsDetached || IsRemoving)
+                    return;
+
                 if (errors != null && errors.Count != 0)
+                {
                     Context.ShowAlert(errors);
+                }
                 else
                 {
                     feedAdapter.NotifyDataSetChanged();
@@ -281,7 +296,9 @@ namespace Steepshot.Fragment
                 feedAdapter.ActionsEnabled = true;
             }
             else
+            {
                 OpenLogin();
+            }
         }
 
         private void UserAction(Post post)
@@ -321,7 +338,7 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
                 _scrollListner.ClearPosition();
                 _feedSpanSizeLookup.LastItemNumber = -1;
-                _searchList?.GetAdapter()?.NotifyDataSetChanged();
+                _searchList.GetAdapter()?.NotifyDataSetChanged();
             }
 
             List<string> errors;
@@ -330,19 +347,21 @@ namespace Steepshot.Fragment
             else
                 errors = await Presenter.TryGetSearchedPosts();
 
-            if (errors == null)
+            if (IsDetached || IsRemoving)
                 return;
 
-            _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
-            if (errors.Any())
-                Context.ShowAlert(errors);
+            if (errors != null && !errors.Any())
+            {
+                _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
+                _searchList.GetAdapter()?.NotifyDataSetChanged();
+            }
             else
-                _searchList?.GetAdapter()?.NotifyDataSetChanged();
+            {
+                Context.ShowAlert(errors);
+            }
 
-            if (_refresher.Refreshing)
-                _refresher.Refreshing = false;
-            if (_spinner != null)
-                _spinner.Visibility = ViewStates.Gone;
+            _refresher.Refreshing = false;
+            _spinner.Visibility = ViewStates.Gone;
         }
 
         private void OpenLogin()
@@ -355,10 +374,9 @@ namespace Steepshot.Fragment
         {
             if (postType == Presenter.PostType)
                 return;
-            if (_spinner != null)
-                _spinner.Visibility = ViewStates.Visible;
-            if (_spinner != null)
-                _refresher.Refreshing = false;
+
+            _spinner.Visibility = ViewStates.Visible;
+            _refresher.Refreshing = false;
 
             switch (postType)
             {
