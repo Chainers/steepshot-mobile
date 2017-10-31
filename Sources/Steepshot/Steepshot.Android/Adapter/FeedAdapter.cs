@@ -29,13 +29,13 @@ namespace Steepshot.Adapter
             }
         }
 
-        private bool _actionsEnabled;
-        public bool ActionsEnabled
+        private bool _isEnableVote;
+        public bool IsEnableVote
         {
-            get => _actionsEnabled;
+            get => _isEnableVote;
             set
             {
-                _actionsEnabled = value;
+                _isEnableVote = value;
                 NotifyDataSetChanged();
             }
         }
@@ -44,7 +44,7 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
-            _actionsEnabled = true;
+            _isEnableVote = true;
         }
 
         public override int GetItemViewType(int position)
@@ -61,7 +61,7 @@ namespace Steepshot.Adapter
             if (post == null)
                 return;
             var vh = (FeedViewHolder)holder;
-            vh.UpdateData(post, Context, _actionsEnabled);
+            vh.UpdateData(post, Context, _isEnableVote);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -100,7 +100,7 @@ namespace Steepshot.Adapter
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
 
-        private bool _actionsEnabled;
+        private static bool _isEnableVote = true;
         private Post _post;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, int height) : base(itemView)
@@ -128,8 +128,7 @@ namespace Steepshot.Adapter
             _cost.Typeface = Style.Semibold;
             _firstComment.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
-
-            _actionsEnabled = true;
+            
             _likeSetAnimation = AnimationUtils.LoadAnimation(itemView.Context, Resource.Animation.like_set);
             _likeSetAnimation.AnimationStart += (sender, e) => _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
             _likeSetAnimation.AnimationEnd += (sender, e) => _like.StartAnimation(_likeWaitAnimation);
@@ -172,12 +171,15 @@ namespace Steepshot.Adapter
 
         private void DoLikeAction(object sender, EventArgs e)
         {
-            if (!_actionsEnabled) return;
+            if (!_isEnableVote)
+                return;
+
             _likeAction.Invoke(_post);
         }
 
-        public void UpdateData(Post post, Context context, bool actionsEnabled)
+        public void UpdateData(Post post, Context context, bool isEnableVote)
         {
+            _isEnableVote = isEnableVote;
             _post = post;
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
@@ -213,23 +215,20 @@ namespace Steepshot.Adapter
                 ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
                 : context.GetString(Resource.String.first_title_comment);
 
-            if (_post.Vote != null)
+            _like.ClearAnimation();
+            if (_isEnableVote)
             {
-                _like.ClearAnimation();
-                if ((bool)post.Vote)
-                    _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
-                else
-                    _like.SetImageResource(Resource.Drawable.ic_new_like_selected);
-            }
-            else
-            {
-                if (post.WasVoted)
-                    _like.StartAnimation(_likeWaitAnimation);
+                if (post.Vote.HasValue)
+                {
+                    _like.SetImageResource(post.Vote.Value ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+                }
                 else
                     _like.StartAnimation(_likeSetAnimation);
             }
-
-            _actionsEnabled = actionsEnabled;
+            else
+            {
+                _like.StartAnimation(post.Vote.HasValue ? _likeWaitAnimation : _likeSetAnimation);
+            }
         }
     }
 }

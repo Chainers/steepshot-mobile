@@ -47,36 +47,27 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(Vote, OnDisposeCts.Token, post);
         }
 
-        public async Task<List<string>> TryVote(int position)
-        {
-            Post post;
-            lock (Items)
-                post = Items[position];
-            if (post == null)
-                return null;
-            return await TryRunTask(Vote, OnDisposeCts.Token, post);
-        }
-
         private async Task<List<string>> Vote(CancellationToken ct, Post post)
         {
-            var request = new VoteRequest(User.UserInfo, (bool)post.Vote ? VoteType.Down : VoteType.Up, post.Url);
-            post.WasVoted = (bool)post.Vote;
-            post.Vote = null;
-            var response = await Api.Vote(request, ct);
-            if (response == null)
+            if (!post.Vote.HasValue)
                 return null;
 
-            if (response.Success)
+            var request = new VoteRequest(User.UserInfo, post.Vote.Value ? VoteType.Down : VoteType.Up, post.Url);
+            var oldValue = post.Vote.Value;
+            post.Vote = null;
+            var response = await Api.Vote(request, ct);
+
+            if (response != null && response.Success)
             {
-                post.Vote = !post.WasVoted;
+                post.Vote = !oldValue;
                 post.Flag = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
             }
             else
-                post.Vote = post.WasVoted;
+                post.Vote = oldValue;
 
-            return response.Errors;
+            return response?.Errors;
         }
 
         public async Task<List<string>> TryFlag(Func<Post, bool> func)
@@ -89,13 +80,11 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(Flag, OnDisposeCts.Token, post);
         }
 
-        public async Task<List<string>> TryFlag(int position)
+        public async Task<List<string>> TryFlag(Post post)
         {
-            Post post;
-            lock (Items)
-                post = Items[position];
             if (post == null)
                 return null;
+
             return await TryRunTask(Flag, OnDisposeCts.Token, post);
         }
 

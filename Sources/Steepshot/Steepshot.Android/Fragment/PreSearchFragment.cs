@@ -279,21 +279,20 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
-                feedAdapter.ActionsEnabled = false;
+                feedAdapter.IsEnableVote = false;
                 var errors = await Presenter.TryVote(post);
                 if (IsDetached || IsRemoving)
                     return;
 
                 if (errors != null && errors.Count != 0)
-                {
                     Context.ShowAlert(errors);
-                }
                 else
-                {
-                    feedAdapter.NotifyDataSetChanged();
                     await Task.Delay(3000);
-                }
-                feedAdapter.ActionsEnabled = true;
+
+                if (IsDetached || IsRemoving)
+                    return;
+
+                feedAdapter.IsEnableVote = true;
             }
             else
             {

@@ -51,7 +51,5 @@ namespace Steepshot.Core.Models.Common
         public string[] Tags { get; set; }
         public Size ImageSize { get; set; }
         public int Depth { get; set; }
-        [JsonIgnore]
-        public bool WasVoted { get; set; }
     }
 }

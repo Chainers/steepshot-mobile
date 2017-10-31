@@ -146,7 +146,7 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            _feedAdapter.ActionsEnabled = false;
+            _feedAdapter.IsEnableVote = false;
 
             var errors = await Presenter.TryVote(post);
             if (IsDetached || IsRemoving)
@@ -155,14 +155,12 @@ namespace Steepshot.Fragment
             if (errors != null && errors.Count != 0)
                 Context.ShowAlert(errors);
             else
-            {
-                _feedAdapter.NotifyDataSetChanged();
                 await Task.Delay(3000);
-                if (IsDetached || IsRemoving)
-                    return;
-            }
 
-            _feedAdapter.ActionsEnabled = true;
+            if (IsDetached || IsRemoving)
+                return;
+
+            _feedAdapter.IsEnableVote = true;
         }
 
         public override void OnDetach()

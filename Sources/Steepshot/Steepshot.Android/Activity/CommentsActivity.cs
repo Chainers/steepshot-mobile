@@ -12,6 +12,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -145,35 +146,36 @@ namespace Steepshot.Activity
             _spinner.Visibility = ViewStates.Gone;
         }
 
-        private void UserAction(int position)
+        private void UserAction(Post post)
         {
-            var user = Presenter[position];
-            if (user == null)
+            if (post == null)
                 return;
 
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra(ProfileActivity.UserExtraName, user.Author);
+            intent.PutExtra(ProfileActivity.UserExtraName, post.Author);
             StartActivity(intent);
         }
 
-        private async void LikeAction(int position)
+        private async void LikeAction(Post post)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                _adapter.ActionsEnabled = false;
-                var errors = await Presenter.TryVote(position);
+                _adapter.IsEnableVote = false;
+
+                var errors = await Presenter.TryVote(post);
 
                 if (IsFinishing || IsDestroyed)
                     return;
 
                 if (errors != null && !errors.Any())
-                {
-                    _adapter.NotifyDataSetChanged();
                     await Task.Delay(3000);
-                    _adapter.ActionsEnabled = true;
-                }
                 else
                     this.ShowAlert(errors, ToastLength.Short);
+
+                if (IsDestroyed || IsFinishing)
+                    return;
+
+                _adapter.IsEnableVote = true;
             }
             else
             {
@@ -182,11 +184,11 @@ namespace Steepshot.Activity
             }
         }
 
-        private async void FlagAction(int position)
+        private async void FlagAction(Post post)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryFlag(position);
+                var errors = await Presenter.TryFlag(post);
 
                 if (IsFinishing || IsDestroyed)
                     return;
