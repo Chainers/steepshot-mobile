@@ -87,10 +87,9 @@ namespace Steepshot.Adapter
             _author.Click += UserAction;
             _cost.Click += UserAction;
 
+            _likeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
             _likeSetAnimation.AnimationStart += LikeAnimationStart;
             _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
-
-            _likeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
             _likeWaitAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_wait);
 
             _flag = new Suboption(itemView.Context);
