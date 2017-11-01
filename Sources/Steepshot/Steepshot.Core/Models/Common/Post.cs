@@ -50,5 +50,9 @@ namespace Steepshot.Core.Models.Common
         public string[] Tags { get; set; }
         public Size ImageSize { get; set; }
         public int Depth { get; set; }
+
+        //system
+        public bool VoteChanging { get; set; }
+        public bool FlagChanging { get; set; }
     }
 }

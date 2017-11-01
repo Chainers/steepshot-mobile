@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
@@ -10,6 +9,14 @@ namespace Steepshot.Core.Presenters
 {
     public class BasePostPresenter : ListPresenter<Post>
     {
+        private const int VoteDelay = 3000;
+        public static bool IsEnableVote { get; set; }
+
+        protected BasePostPresenter()
+        {
+            IsEnableVote = true;
+        }
+
         public void RemovePostsAt(int index)
         {
             lock (Items)
@@ -27,34 +34,22 @@ namespace Steepshot.Core.Presenters
             return -1;
         }
 
-        public async Task<List<string>> TryVote(Func<Post, bool> func)
-        {
-            Post post;
-            lock (Items)
-                post = Items.FirstOrDefault(func);
-
-            if (post == null)
-                return null;
-
-            return await TryRunTask(Vote, OnDisposeCts.Token, post);
-        }
-
         public async Task<List<string>> TryVote(Post post)
         {
-            if (post == null)
+            if (post == null || post.VoteChanging)
                 return null;
 
-            return await TryRunTask(Vote, OnDisposeCts.Token, post);
-        }
+            post.VoteChanging = true;
+            IsEnableVote = false;
+            NotifySourceChanged();
 
-        public async Task<List<string>> TryVote(int position)
-        {
-            Post post;
-            lock (Items)
-                post = Items[position];
-            if (post == null)
-                return null;
-            return await TryRunTask(Vote, OnDisposeCts.Token, post);
+            var errors = await TryRunTask(Vote, OnDisposeCts.Token, post);
+
+            post.VoteChanging = false;
+            IsEnableVote = true;
+            NotifySourceChanged();
+
+            return errors;
         }
 
         private async Task<List<string>> Vote(CancellationToken ct, Post post)
@@ -66,6 +61,10 @@ namespace Steepshot.Core.Presenters
 
             if (response.Success)
             {
+                var td = DateTime.Now - response.Result.VoteTime;
+                if (VoteDelay > td.Milliseconds + 300)
+                    await Task.Delay(VoteDelay - td.Milliseconds, ct);
+
                 post.Vote = !post.Vote;
                 post.Flag = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
@@ -75,24 +74,22 @@ namespace Steepshot.Core.Presenters
             return response.Errors;
         }
 
-        public async Task<List<string>> TryFlag(Func<Post, bool> func)
+        public async Task<List<string>> TryFlag(Post post)
         {
-            Post post;
-            lock (Items)
-                post = Items.FirstOrDefault(func);
-            if (post == null)
+            if (post == null || post.VoteChanging)
                 return null;
-            return await TryRunTask(Flag, OnDisposeCts.Token, post);
-        }
 
-        public async Task<List<string>> TryFlag(int position)
-        {
-            Post post;
-            lock (Items)
-                post = Items[position];
-            if (post == null)
-                return null;
-            return await TryRunTask(Flag, OnDisposeCts.Token, post);
+            post.VoteChanging = true;
+            IsEnableVote = false;
+            NotifySourceChanged();
+
+            var errors = await TryRunTask(Flag, OnDisposeCts.Token, post);
+
+            post.VoteChanging = false;
+            IsEnableVote = true;
+            NotifySourceChanged();
+
+            return errors;
         }
 
         private async Task<List<string>> Flag(CancellationToken ct, Post post)
@@ -108,6 +105,9 @@ namespace Steepshot.Core.Presenters
                 post.Vote = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
+                var td = DateTime.Now - response.Result.VoteTime;
+                if (VoteDelay > td.Milliseconds + 300)
+                    await Task.Delay(VoteDelay - td.Milliseconds, ct);
             }
             return response.Errors;
         }

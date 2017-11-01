@@ -107,6 +107,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<VoteResponse>();
                 if (!resp.IsError)
                 {
+                    var dt = DateTime.Now;
                     var content = _operationManager.GetContent(author, permlink, token.Token);
                     if (!content.IsError)
                     {
@@ -115,6 +116,7 @@ namespace Steepshot.Core.HttpClient
                         {
                             NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue,
                             NetVotes = content.Result.NetVotes,
+                            VoteTime = dt
                         };
                     }
                 }

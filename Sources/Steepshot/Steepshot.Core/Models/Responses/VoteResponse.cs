@@ -1,4 +1,5 @@
-﻿using Ditch;
+﻿using System;
+using Ditch;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -14,6 +15,8 @@ namespace Steepshot.Core.Models.Responses
         public bool IsSucces => _isSucces || Message.Equals(ServerPositiveResponceMsg) || Message.Equals(ServerPositiveResponceMsg2);
 
         public int NetVotes { get; set; }
+
+        public DateTime VoteTime { get; set; }
 
         public VoteResponse(bool isSucces)
         {

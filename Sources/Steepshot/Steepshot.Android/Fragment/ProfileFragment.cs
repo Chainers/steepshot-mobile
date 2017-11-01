@@ -161,8 +161,11 @@ namespace Steepshot.Fragment
         private async Task GetUserPosts(bool isRefresh = false)
         {
             if (isRefresh)
+            {
+                Presenter.Clear();
                 _profileSpanSizeLookup.LastItemNumber = -1;
-            var errors = await Presenter.TryLoadNextPosts(isRefresh);
+            }
+            var errors = await Presenter.TryLoadNextPosts();
             if (errors != null && errors.Count != 0)
                 Context.ShowAlert(errors);
 
