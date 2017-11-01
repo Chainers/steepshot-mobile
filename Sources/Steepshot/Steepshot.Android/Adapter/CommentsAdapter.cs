@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
@@ -13,110 +14,129 @@ namespace Steepshot.Adapter
 {
     public class CommentAdapter : RecyclerView.Adapter
     {
-        private readonly CommentsPresenter _commentsPresenter;
+        private readonly CommentsPresenter _presenter;
         private readonly Context _context;
-        public Action<int> LikeAction, UserAction;
+        public Action<Post> LikeAction, UserAction;
 
-        public override int ItemCount => _commentsPresenter.Count;
+        public override int ItemCount => _presenter.Count;
 
-        public CommentAdapter(Context context, CommentsPresenter commentsPresenter)
+        public CommentAdapter(Context context, CommentsPresenter presenter)
         {
             _context = context;
-            _commentsPresenter = commentsPresenter;
+            _presenter = presenter;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var post = _commentsPresenter[position];
+            var post = _presenter[position];
             if (post == null)
                 return;
 
-            var vh = holder as CommentViewHolder;
-            vh?.UpdateData(post, _context);
+            var vh = (CommentViewHolder)holder;
+            vh.UpdateData(post, _context);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
             var vh = new CommentViewHolder(itemView, LikeAction, UserAction);
-            vh.Author.Typeface = Style.Semibold;
-            vh.Comment.Typeface = vh.Likes.Typeface = vh.Cost.Typeface = vh.Reply.Typeface = Style.Regular;
             return vh;
         }
+    }
 
-        public class CommentViewHolder : RecyclerView.ViewHolder
+    public class CommentViewHolder : RecyclerView.ViewHolder
+    {
+        private readonly ImageView _avatar;
+        private readonly TextView _author;
+        private readonly TextView _comment;
+        private readonly TextView _likes;
+        private readonly TextView _cost;
+        private readonly TextView _reply;
+        private readonly TextView _time;
+        private readonly ImageButton _like;
+        private readonly Action<Post> _likeAction;
+        private readonly Action<Post> _userAction;
+        private readonly Animation _likeSetAnimation;
+        private readonly Animation _likeWaitAnimation;
+
+        private Post _post;
+
+        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction) : base(itemView)
         {
-            public ImageView Avatar { get; }
-            public TextView Author { get; }
-            public TextView Comment { get; }
-            public TextView Likes { get; }
-            public TextView Cost { get; }
-            public TextView Reply { get; }
-            public TextView Time { get; }
-            public ImageButton Like { get; }
-            private Post _post;
-            private readonly Action<int> _likeAction;
-            private readonly Action<int> _userAction;
+            _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
+            _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
+            _comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
+            _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+            _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+            _like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+            _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
+            _time = itemView.FindViewById<TextView>(Resource.Id.time);
 
-            public CommentViewHolder(View itemView, Action<int> likeAction, Action<int> userAction) : base(itemView)
+            _author.Typeface = Style.Semibold;
+            _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
+
+            _likeAction = likeAction;
+            _userAction = userAction;
+
+            _like.Click += Like_Click;
+            _avatar.Click += UserAction;
+            _author.Click += UserAction;
+            _cost.Click += UserAction;
+
+            var context = itemView.RootView.Context;
+            _likeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
+            _likeSetAnimation.AnimationStart += LikeAnimationStart;
+            _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
+            _likeWaitAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_wait);
+        }
+
+
+        private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
+        {
+            _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+        }
+
+        private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
+        {
+            _like.StartAnimation(_likeWaitAnimation);
+        }
+
+        private void UserAction(object sender, EventArgs e)
+        {
+            _userAction?.Invoke(_post);
+        }
+
+        private void Like_Click(object sender, EventArgs e)
+        {
+            if (!BasePostPresenter.IsEnableVote)
+                return;
+
+            _likeAction?.Invoke(_post);
+        }
+
+        public void UpdateData(Post post, Context context)
+        {
+            _post = post;
+            _author.Text = post.Author;
+            _comment.Text = post.Body;
+
+            _avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
+            if (!string.IsNullOrEmpty(post.Avatar))
+                Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(_avatar);
+
+            _like.ClearAnimation();
+            if (BasePostPresenter.IsEnableVote)
             {
-                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
-                Author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
-                Comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
-                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
-                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-                Like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
-                Reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
-                Time = itemView.FindViewById<TextView>(Resource.Id.time);
-
-                _likeAction = likeAction;
-                _userAction = userAction;
-
-                Like.Click += Like_Click;
-                Avatar.Click += InvokeUserAction;
-                Author.Click += InvokeUserAction;
-                Cost.Click += InvokeUserAction;
+                _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            }
+            else
+            {
+                _like.StartAnimation(post.VoteChanging ? _likeWaitAnimation : _likeSetAnimation);
             }
 
-            private void InvokeUserAction(object sender, EventArgs e)
-            {
-                _userAction?.Invoke(AdapterPosition);
-            }
-
-            private void Like_Click(object sender, EventArgs e)
-            {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-                }
-                _likeAction?.Invoke(AdapterPosition);
-            }
-
-            private void CheckLikeVisibility(int likes)
-            {
-                Likes.Visibility = likes > 0
-                    ? ViewStates.Visible
-                    : ViewStates.Gone;
-            }
-
-            public void UpdateData(Post post, Context context)
-            {
-                _post = post;
-                Author.Text = post.Author;
-                Comment.Text = post.Body;
-
-                if (!string.IsNullOrEmpty(post.Avatar))
-                    Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(Avatar);
-                else
-                    Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-
-                Like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_selected : Resource.Drawable.ic_new_like);
-
-                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
-                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
-                Time.Text = post.Created.ToPostTime();
-                //CheckLikeVisibility(post.NetVotes);
-            }
+            _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            _time.Text = post.Created.ToPostTime();
         }
     }
 }

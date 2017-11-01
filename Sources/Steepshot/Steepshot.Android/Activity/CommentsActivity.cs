@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -11,6 +10,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -55,6 +55,7 @@ namespace Steepshot.Activity
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
 
+            Presenter.SourceChanged += PresenterSourceChanged;
             _adapter = new CommentAdapter(this, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
@@ -63,6 +64,14 @@ namespace Steepshot.Activity
             _comments.SetAdapter(_adapter);
 
             LoadComments(_uid);
+        }
+
+        private void PresenterSourceChanged()
+        {
+            if (IsDestroyed || IsFinishing)
+                return;
+
+            RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
         }
 
         protected override void OnDestroy()
@@ -112,7 +121,6 @@ namespace Steepshot.Activity
                     return;
 
                 this.ShowAlert(errors, ToastLength.Short);
-                _adapter.NotifyDataSetChanged();
                 _comments.MoveToPosition(Presenter.Count - 1);
             }
             else
@@ -134,38 +142,30 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (errors != null && !errors.Any())
-                _adapter.NotifyDataSetChanged();
-            else
-                this.ShowAlert(errors, ToastLength.Short);
+            this.ShowAlert(errors, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
 
-        private void UserAction(int position)
+        private void UserAction(Post post)
         {
-            var user = Presenter[position];
-            if (user == null)
+            if (post == null)
                 return;
 
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra(ProfileActivity.UserExtraName, user.Author);
+            intent.PutExtra(ProfileActivity.UserExtraName, post.Author);
             StartActivity(intent);
         }
 
-        private async void LikeAction(int position)
+        private async void LikeAction(Post post)
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryVote(position);
+                var errors = await Presenter.TryVote(post);
 
                 if (IsFinishing || IsDestroyed)
                     return;
-
-                if (errors != null && !errors.Any())
-                    _adapter.NotifyDataSetChanged();
-                else
-                    this.ShowAlert(errors, ToastLength.Short);
+                this.ShowAlert(errors, ToastLength.Short);
             }
             else
             {

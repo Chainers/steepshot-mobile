@@ -12,12 +12,14 @@ namespace Steepshot.Core.Presenters
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
 
-        public bool IsLastReaded { get; protected set; }
         protected const int ServerMaxCount = 20;
+        protected readonly List<T> Items;
         protected string OffsetUrl = string.Empty;
 
+        public bool IsLastReaded { get; protected set; }
+        public event Action SourceChanged;
+
         public virtual int Count => Items.Count;
-        protected readonly List<T> Items;
 
 
         public T this[int position]
@@ -45,6 +47,7 @@ namespace Steepshot.Core.Presenters
                 Items.Clear();
             IsLastReaded = false;
             OffsetUrl = string.Empty;
+            NotifySourceChanged();
         }
 
 
@@ -196,6 +199,11 @@ namespace Steepshot.Core.Presenters
                 _singleTaskCancellationTokenSource?.Cancel();
                 _singleTaskCancellationTokenSource = null;
             }
+        }
+
+        protected void NotifySourceChanged()
+        {
+            SourceChanged?.Invoke();
         }
     }
 }

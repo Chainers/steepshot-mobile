@@ -16,11 +16,8 @@ namespace Steepshot.Core.Presenters
         public string UserName { get; set; }
         
 
-        public async Task<List<string>> TryLoadNextPosts(bool needRefresh = false)
+        public async Task<List<string>> TryLoadNextPosts()
         {
-            if (needRefresh)
-                Clear();
-
             if (IsLastReaded)
                 return null;
 
