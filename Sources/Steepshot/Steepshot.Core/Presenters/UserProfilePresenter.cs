@@ -14,13 +14,10 @@ namespace Steepshot.Core.Presenters
         private const int ItemsLimit = 18;
 
         public string UserName { get; set; }
-        
 
-        public async Task<List<string>> TryLoadNextPosts(bool needRefresh = false)
+
+        public async Task<List<string>> TryLoadNextPosts()
         {
-            if (needRefresh)
-                Clear();
-
             if (IsLastReaded)
                 return null;
 

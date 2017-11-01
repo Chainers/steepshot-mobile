@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -57,6 +55,7 @@ namespace Steepshot.Activity
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
 
+            Presenter.SourceChanged += PresenterSourceChanged;
             _adapter = new CommentAdapter(this, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
@@ -67,6 +66,14 @@ namespace Steepshot.Activity
             var swipeRecognizer = new ItemSwipeRecognizer(_comments);
 
             LoadComments(_uid);
+        }
+
+        private void PresenterSourceChanged()
+        {
+            if (IsDestroyed || IsFinishing)
+                return;
+
+            RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
         }
 
         protected override void OnDestroy()
@@ -116,7 +123,6 @@ namespace Steepshot.Activity
                     return;
 
                 this.ShowAlert(errors, ToastLength.Short);
-                _adapter.NotifyDataSetChanged();
                 _comments.MoveToPosition(Presenter.Count - 1);
             }
             else
@@ -138,10 +144,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (errors != null && !errors.Any())
-                _adapter.NotifyDataSetChanged();
-            else
-                this.ShowAlert(errors, ToastLength.Short);
+            this.ShowAlert(errors, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
@@ -160,22 +163,11 @@ namespace Steepshot.Activity
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                _adapter.IsEnableVote = false;
-
                 var errors = await Presenter.TryVote(post);
 
                 if (IsFinishing || IsDestroyed)
                     return;
-
-                if (errors != null && !errors.Any())
-                    await Task.Delay(3000);
-                else
-                    this.ShowAlert(errors, ToastLength.Short);
-
-                if (IsDestroyed || IsFinishing)
-                    return;
-
-                _adapter.IsEnableVote = true;
+                this.ShowAlert(errors, ToastLength.Short);
             }
             else
             {
@@ -193,10 +185,7 @@ namespace Steepshot.Activity
                 if (IsFinishing || IsDestroyed)
                     return;
 
-                if (errors != null && !errors.Any())
-                    _adapter.NotifyDataSetChanged();
-                else
-                    this.ShowAlert(errors, ToastLength.Short);
+                this.ShowAlert(errors, ToastLength.Short);
             }
             else
             {

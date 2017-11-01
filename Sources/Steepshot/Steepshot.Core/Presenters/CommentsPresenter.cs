@@ -53,6 +53,7 @@ namespace Steepshot.Core.Presenters
                 }
                 if (results.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
             return response.Errors;
         }

@@ -141,6 +141,8 @@ namespace Steepshot.Fragment
                 if (BasePresenter.User.IsAuthenticated)
                     _loginButton.Visibility = ViewStates.Gone;
 
+                Presenter.SourceChanged += PresenterSourceChanged;
+
                 SetAnimation();
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
@@ -249,6 +251,26 @@ namespace Steepshot.Fragment
         }
 
 
+        private void PresenterSourceChanged()
+        {
+            if (IsDetached || IsRemoving)
+                return;
+
+            Activity.RunOnUiThread(() =>
+            {
+                if (Presenter.Count == 0)
+                {
+                    _scrollListner.ClearPosition();
+                    //
+                    _feedSpanSizeLookup.LastItemNumber = -1;
+                }
+                _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
+
+                var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
+                feedAdapter.NotifyDataSetChanged();
+            });
+        }
+
         private async void ScrollListnerScrolledToBottom()
         {
             await LoadPosts();
@@ -278,21 +300,12 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
-                feedAdapter.IsEnableVote = false;
                 var errors = await Presenter.TryVote(post);
-                if (IsDetached || IsRemoving)
-                    return;
-
-                if (errors != null && errors.Count != 0)
-                    Context.ShowAlert(errors);
-                else
-                    await Task.Delay(3000);
 
                 if (IsDetached || IsRemoving)
                     return;
 
-                feedAdapter.IsEnableVote = true;
+                Context.ShowAlert(errors);
             }
             else
             {
@@ -335,9 +348,6 @@ namespace Steepshot.Fragment
             {
                 Presenter.LoadCancel();
                 Presenter.Clear();
-                _scrollListner.ClearPosition();
-                _feedSpanSizeLookup.LastItemNumber = -1;
-                _searchList.GetAdapter()?.NotifyDataSetChanged();
             }
 
             List<string> errors;
@@ -349,15 +359,7 @@ namespace Steepshot.Fragment
             if (IsDetached || IsRemoving)
                 return;
 
-            if (errors != null && !errors.Any())
-            {
-                _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
-                _searchList.GetAdapter()?.NotifyDataSetChanged();
-            }
-            else
-            {
-                Context.ShowAlert(errors);
-            }
+            Context.ShowAlert(errors);
 
             _refresher.Refreshing = false;
             _spinner.Visibility = ViewStates.Gone;

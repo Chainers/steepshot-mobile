@@ -46,10 +46,14 @@ namespace Steepshot.Core.Models.Common
         public Money PendingPayoutValue { get; set; }
         public double MaxAcceptedPayout { get; set; }
         public Money TotalPayoutReward { get; set; }
-        public bool? Vote { get; set; }
+        public bool Vote { get; set; }
         public bool Flag { get; set; }
         public string[] Tags { get; set; }
         public Size ImageSize { get; set; }
         public int Depth { get; set; }
+
+        //system
+        public bool VoteChanging { get; set; }
+        public bool FlagChanging { get; set; }
     }
 }

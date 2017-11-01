@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -22,7 +21,7 @@ namespace Steepshot.Fragment
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
 
-        private FeedAdapter _feedAdapter;
+        private FeedAdapter _adapter;
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
@@ -49,19 +48,20 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _feedAdapter = new FeedAdapter(Context, Presenter);
-            _feedAdapter.LikeAction += LikeAction;
-            _feedAdapter.UserAction += UserAction;
-            _feedAdapter.CommentAction += CommentAction;
-            _feedAdapter.VotersClick += VotersAction;
-            _feedAdapter.PhotoClick += PhotoClick;
+            Presenter.SourceChanged += PresenterSourceChanged;
+            _adapter = new FeedAdapter(Context, Presenter);
+            _adapter.LikeAction += LikeAction;
+            _adapter.UserAction += UserAction;
+            _adapter.CommentAction += CommentAction;
+            _adapter.VotersClick += VotersAction;
+            _adapter.PhotoClick += PhotoClick;
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += LoadPosts;
 
             _refresher.Refresh += OnRefresh;
 
-            _feedList.SetAdapter(_feedAdapter);
+            _feedList.SetAdapter(_adapter);
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _feedList.AddOnScrollListener(_scrollListner);
 
@@ -75,25 +75,29 @@ namespace Steepshot.Fragment
             _feedList.ScrollToPosition(0);
         }
 
+        private void PresenterSourceChanged()
+        {
+            if (IsDetached || IsRemoving)
+                return;
+
+            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+        }
+
         private void OnRefresh(object sender, EventArgs e)
         {
             _scrollListner.ClearPosition();
             Presenter.Clear();
-            _feedAdapter.NotifyDataSetChanged();
             LoadPosts();
         }
 
         private async void LoadPosts()
         {
             var errors = await Presenter.TryLoadNextTopPosts();
+
             if (IsDetached || IsRemoving)
                 return;
 
-            if (errors != null)
-            {
-                Context.ShowAlert(errors);
-                _feedAdapter.NotifyDataSetChanged();
-            }
+            Context.ShowAlert(errors);
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
@@ -146,21 +150,11 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            _feedAdapter.IsEnableVote = false;
-
             var errors = await Presenter.TryVote(post);
-            if (IsDetached || IsRemoving)
-                return;
-
-            if (errors != null && errors.Count != 0)
-                Context.ShowAlert(errors);
-            else
-                await Task.Delay(3000);
 
             if (IsDetached || IsRemoving)
                 return;
-
-            _feedAdapter.IsEnableVote = true;
+            Context.ShowAlert(errors);
         }
 
         public override void OnDetach()
