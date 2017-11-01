@@ -34,7 +34,6 @@ namespace Steepshot.Core.Presenters
             return -1;
         }
 
-
         public async Task<List<string>> TryVote(Post post)
         {
             if (post == null || post.VoteChanging)
@@ -57,8 +56,10 @@ namespace Steepshot.Core.Presenters
         {
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
+            if (response == null)
+                return null;
 
-            if (response != null && response.Success)
+            if (response.Success)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds + 300)
@@ -70,9 +71,8 @@ namespace Steepshot.Core.Presenters
                 post.NetVotes = response.Result.NetVotes;
             }
 
-            return response?.Errors;
+            return response.Errors;
         }
-
 
         public async Task<List<string>> TryFlag(Post post)
         {

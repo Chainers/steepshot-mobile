@@ -1,6 +1,5 @@
 using System;
 using Ditch;
-using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Common
 {

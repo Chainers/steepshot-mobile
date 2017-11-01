@@ -226,6 +226,7 @@
     <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_selected.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_selected.png" />
@@ -569,9 +570,6 @@
     <AndroidAsset Include="Assets\OpenSans-Light.ttf" />
     <AndroidAsset Include="Assets\DebugWif.txt.template" />
     <AndroidAsset Include="Assets\DebugWif.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

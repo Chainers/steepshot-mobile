@@ -301,7 +301,6 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-
                 if (IsDetached || IsRemoving)
                     return;
 

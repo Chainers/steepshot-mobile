@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -93,7 +94,6 @@ namespace Steepshot.Fragment
         private async void LoadPosts()
         {
             var errors = await Presenter.TryLoadNextTopPosts();
-
             if (IsDetached || IsRemoving)
                 return;
 
@@ -151,9 +151,9 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryVote(post);
-
             if (IsDetached || IsRemoving)
                 return;
+
             Context.ShowAlert(errors);
         }
 

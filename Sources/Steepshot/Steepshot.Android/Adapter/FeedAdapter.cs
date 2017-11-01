@@ -116,10 +116,11 @@ namespace Steepshot.Adapter
             _firstComment.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
 
-            _likeSetAnimation = AnimationUtils.LoadAnimation(itemView.Context, Resource.Animation.like_set);
-            _likeSetAnimation.AnimationStart += (sender, e) => _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
-            _likeSetAnimation.AnimationEnd += (sender, e) => _like.StartAnimation(_likeWaitAnimation);
-            _likeWaitAnimation = AnimationUtils.LoadAnimation(itemView.Context, Resource.Animation.like_wait);
+            var context = itemView.Context; //itemView.RootView.Context;
+            _likeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
+            _likeSetAnimation.AnimationStart += LikeAnimationStart;
+            _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
+            _likeWaitAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_wait);
 
             _likeAction = likeAction;
             _userAction = userAction;
@@ -134,6 +135,17 @@ namespace Steepshot.Adapter
             _commentFooter.Click += DoCommentAction;
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
+        }
+
+
+        private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
+        {
+            _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+        }
+
+        private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
+        {
+            _like.StartAnimation(_likeWaitAnimation);
         }
 
         private void DoUserAction(object sender, EventArgs e)
@@ -203,13 +215,9 @@ namespace Steepshot.Adapter
 
             _like.ClearAnimation();
             if (BasePostPresenter.IsEnableVote)
-            {
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
-            }
             else
-            {
                 _like.StartAnimation(post.VoteChanging ? _likeWaitAnimation : _likeSetAnimation);
-            }
         }
     }
 }
