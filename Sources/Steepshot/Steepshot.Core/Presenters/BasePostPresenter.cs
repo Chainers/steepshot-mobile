@@ -21,6 +21,14 @@ namespace Steepshot.Core.Presenters
         {
             lock (Items)
                 Items.RemoveAt(index);
+            NotifySourceChanged();
+        }
+
+        public void RemovePost(Post post)
+        {
+            lock (Items)
+                Items.Remove(post);
+            NotifySourceChanged();
         }
 
         public int IndexOf(Func<Post, bool> func)

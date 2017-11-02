@@ -169,12 +169,17 @@ namespace Steepshot.Adapter
 
         private void DoFlagAction(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            _moreActionsDialog.Dismiss();
+            if (!BasePostPresenter.IsEnableVote)
+                return;
+
+            _flagAction.Invoke(_post);
         }
 
         private void DoHideAction(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            _moreActionsDialog.Dismiss();
+            _hideAction.Invoke(_post);
         }
 
         private void DoDialogCancelAction(object sender, EventArgs e)
@@ -261,7 +266,7 @@ namespace Steepshot.Adapter
             if (BasePostPresenter.IsEnableVote)
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
             else
-                _like.StartAnimation(post.VoteChanging ? _likeWaitAnimation : _likeSetAnimation);
+                _like.StartAnimation(post.VoteChanging ? _likeSetAnimation : _likeWaitAnimation);
         }
     }
 }
