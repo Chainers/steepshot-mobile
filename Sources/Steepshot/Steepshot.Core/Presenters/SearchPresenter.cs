@@ -18,16 +18,11 @@ namespace Steepshot.Core.Presenters
             TagsPresenter = new TagsPresenter();
         }
 
-        public async Task<List<string>> TrySearchCategories(string query, SearchType searchType, bool clear)
+        public async Task<List<string>> TrySearchCategories(string query, SearchType searchType)
         {
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
                 return null;
-
-            if (clear)
-            {
-                UserFriendPresenter.Clear();
-                TagsPresenter.Clear();
-            }
+            
             return await RunAsSingleTask(SearchCategories, query, searchType);
         }
 
