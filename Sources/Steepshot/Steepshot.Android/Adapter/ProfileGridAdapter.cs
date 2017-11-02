@@ -13,9 +13,8 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class ProfileGridAdapter : GridAdapter
+    public class ProfileGridAdapter : GridAdapter<UserProfilePresenter>
     {
-        public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
         private readonly bool _isHeaderNeeded;
@@ -31,7 +30,7 @@ namespace Steepshot.Adapter
         }
 
 
-        public ProfileGridAdapter(Context context, BasePostPresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileGridAdapter(Context context, UserProfilePresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
             _isHeaderNeeded = isHeaderNeeded;
         }
@@ -40,7 +39,7 @@ namespace Steepshot.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (position == 0 && _isHeaderNeeded)
-                ((HeaderViewHolder)holder).UpdateHeader(ProfileData);
+                ((HeaderViewHolder)holder).UpdateHeader(Presenter.UserProfileResponse);
             else
                 base.OnBindViewHolder(holder, _isHeaderNeeded ? position - 1 : position);
         }
@@ -180,7 +179,7 @@ namespace Steepshot.Adapter
                     .CenterCrop()
                     .Into(_profileImage);
             }
-            
+
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _followButton.Visibility = ViewStates.Gone;
@@ -188,29 +187,35 @@ namespace Steepshot.Adapter
             else
             {
                 var background = (GradientDrawable)_followButton.Background;
-                switch (profile.HasFollowed)
+                if (profile.FollowedChanging)
                 {
-                    case true:
+                    background.SetColor(Style.R231G72B00);
+                    background.SetStroke(0, Color.White);
+                    _followButton.Text = string.Empty;
+                    _followButton.SetTextColor(Color.White);
+                    _followButton.Enabled = false;
+                    _loadingSpinner.Visibility = ViewStates.Visible;
+                }
+                else
+                {
+                    if (profile.HasFollowed)
+                    {
                         background.SetColor(Color.White);
                         background.SetStroke(1, Style.R244G244B246);
                         _followButton.Text = Localization.Messages.Unfollow;
                         _followButton.SetTextColor(Style.R15G24B30);
-                        _loadingSpinner.Visibility = ViewStates.Gone;
-                        break;
-                    case false:
+
+                    }
+                    else
+                    {
+
                         background.SetColor(Style.R231G72B00);
                         background.SetStroke(0, Color.White);
                         _followButton.Text = Localization.Messages.Follow;
                         _followButton.SetTextColor(Color.White);
-                        _loadingSpinner.Visibility = ViewStates.Gone;
-                        break;
-                    case null:
-                        background.SetColor(Style.R231G72B00);
-                        background.SetStroke(0, Color.White);
-                        _followButton.Text = string.Empty;
-                        _followButton.SetTextColor(Color.White);
-                        _loadingSpinner.Visibility = ViewStates.Visible;
-                        break;
+                    }
+                    _followButton.Enabled = true;
+                    _loadingSpinner.Visibility = ViewStates.Gone;
                 }
             }
 

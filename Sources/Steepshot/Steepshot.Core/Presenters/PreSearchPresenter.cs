@@ -48,6 +48,7 @@ namespace Steepshot.Core.Presenters
 
                 if (posts.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
             return response.Errors;
         }
@@ -88,6 +89,7 @@ namespace Steepshot.Core.Presenters
 
                 if (posts.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
 
             return response.Errors;

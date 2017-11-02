@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 
@@ -14,7 +13,9 @@ namespace Steepshot.Core.Presenters
         private const int ItemsLimit = 18;
 
         public string UserName { get; set; }
-        
+
+        public UserProfileResponse UserProfileResponse { get; private set; }
+
 
         public async Task<List<string>> TryLoadNextPosts()
         {
@@ -50,17 +51,18 @@ namespace Steepshot.Core.Presenters
                 }
                 if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
             return response.Errors;
         }
 
 
-        public Task<OperationResult<UserProfileResponse>> TryGetUserInfo(string user)
+        public async Task<List<string>> TryGetUserInfo(string user)
         {
-            return TryRunTask<string, UserProfileResponse>(GetUserInfo, OnDisposeCts.Token, user);
+            return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private Task<OperationResult<UserProfileResponse>> GetUserInfo(CancellationToken ct, string user)
+        private async Task<List<string>> GetUserInfo(CancellationToken ct, string user)
         {
             var req = new UserProfileRequest(user)
             {
@@ -68,18 +70,43 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            return Api.GetUserProfile(req, ct);
+            var response = await Api.GetUserProfile(req, ct);
+            if (response == null)
+                return null;
+
+            if (response.Success)
+            {
+                UserProfileResponse = response.Result;
+                NotifySourceChanged();
+            }
+            return response.Errors;
         }
 
-        public async Task<OperationResult<FollowResponse>> TryFollow(bool hasFollowed)
+        public async Task<List<string>> TryFollow()
         {
-            return await TryRunTask<FollowType, FollowResponse>(Follow, OnDisposeCts.Token, hasFollowed ? FollowType.UnFollow : FollowType.Follow);
+            if (UserProfileResponse.FollowedChanging)
+                return null;
+
+            UserProfileResponse.FollowedChanging = true;
+            NotifySourceChanged();
+
+            var errors = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            UserProfileResponse.FollowedChanging = false;
+            NotifySourceChanged();
+            return errors;
         }
 
-        private async Task<OperationResult<FollowResponse>> Follow(CancellationToken ct, FollowType followType)
+        private async Task<List<string>> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
         {
-            var request = new FollowRequest(User.UserInfo, followType, UserName);
-            return await Api.Follow(request, ct);
+            var request = new FollowRequest(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var response = await Api.Follow(request, ct);
+            if (response == null)
+                return null;
+
+            if (response.Success)
+                userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
+
+            return response.Errors;
         }
     }
 }

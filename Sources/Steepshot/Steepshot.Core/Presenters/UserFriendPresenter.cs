@@ -53,6 +53,7 @@ namespace Steepshot.Core.Presenters
 
                 if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
             return response.Errors;
         }
@@ -94,6 +95,7 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
 
             return response.Errors;
@@ -131,6 +133,7 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                NotifySourceChanged();
             }
             return response.Errors;
         }
@@ -138,24 +141,24 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryFollow(UserFriend item)
         {
-            return await TryRunTask(Follow, OnDisposeCts.Token, item);
+            item.FollowedChanging = true;
+            NotifySourceChanged();
+            var errors = await TryRunTask(Follow, OnDisposeCts.Token, item);
+            item.FollowedChanging = false;
+            NotifySourceChanged();
+            return errors;
         }
 
         private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
         {
-            if (!item.HasFollowed.HasValue)
-                return null;
-
-            var request = new FollowRequest(User.UserInfo, item.HasFollowed.Value ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
-            item.HasFollowed = null;
+            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
             if (response == null)
                 return null;
 
             if (response.Success)
-                item.HasFollowed = request.Type == Models.Requests.FollowType.Follow;
-            else
-                item.HasFollowed = request.Type != Models.Requests.FollowType.Follow;
+                item.HasFollowed = !item.HasFollowed;
+
             return response.Errors;
         }
     }
