@@ -22,7 +22,7 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
+    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
@@ -58,6 +58,12 @@ namespace Steepshot.Fragment
 
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
+
+            _flashButton.Click += FlashClick;
+            _shotButton.Click += TakePhotoClick;
+            _closeButton.Click += GoBack;
+            _galleryButton.Click += OpenGallery;
+            _revertButton.Click += SwitchCamera;
 
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
             _orientationListner.OrientationChanged += OnOrientationChanged;
@@ -103,8 +109,8 @@ namespace Steepshot.Fragment
                 StartActivity(i);
             }
         }
+        
 
-        [InjectOnClick(Resource.Id.flash_button)]
         private void FlashClick(object sender, EventArgs e)
         {
             var parameters = _camera.GetParameters();
@@ -116,20 +122,17 @@ namespace Steepshot.Fragment
                 _camera.SetParameters(parameters);
             }
         }
-
-        [InjectOnClick(Resource.Id.shot_button)]
+        
         private void TakePhotoClick(object sender, EventArgs e)
         {
             _camera?.TakePicture(this, null, this);
         }
-
-        [InjectOnClick(Resource.Id.close_button)]
+        
         private void GoBack(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
-
-        [InjectOnClick(Resource.Id.gallery_button)]
+        
         private void OpenGallery(object sender, EventArgs e)
         {
             var intent = new Intent();
@@ -370,8 +373,7 @@ namespace Steepshot.Fragment
             _revertButton.Enabled = false;
             _closeButton.Enabled = false;
         }
-
-        [InjectOnClick(Resource.Id.revert_button)]
+        
         public void SwitchCamera(object sender, EventArgs e)
         {
             if (_camera != null)

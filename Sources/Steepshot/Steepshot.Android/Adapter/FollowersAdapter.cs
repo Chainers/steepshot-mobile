@@ -114,7 +114,6 @@ namespace Steepshot.Adapter
                 if (_userFriends == null)
                     return;
                 _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriends.HasFollowed, _context);
             }
 
             public void UpdateData(UserFriend userFriends, Context context)
@@ -135,44 +134,46 @@ namespace Steepshot.Adapter
                 if (!string.IsNullOrEmpty(userFriends.Avatar))
                     Picasso.With(_context).Load(userFriends.Avatar).NoFade().Resize(300, 0).Into(_friendAvatar);
 
-                CheckFollow(this, _userFriends.HasFollowed, context);
-            }
+                _followButton.Visibility = BasePresenter.User.Login == _friendLogin.Text
+                    ? ViewStates.Gone
+                    : ViewStates.Visible;
 
-            private void CheckFollow(FollowersViewHolder vh, bool? follow, Context context)
-            {
-                if (BasePresenter.User.Login == vh._friendLogin.Text)
-                    vh._followButton.Visibility = ViewStates.Gone;
-                else
-                    vh._followButton.Visibility = ViewStates.Visible;
-
-                var background = (GradientDrawable)vh._followButton.Background;
-
-                switch (follow)
+                if (string.Equals(BasePresenter.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
                 {
-                    case true:
-                        background.SetColor(Color.White);
-                        background.SetStroke(1, Style.R244G244B246);
-                        vh._followButton.Text = Localization.Messages.Unfollow;
-                        vh._followButton.SetTextColor(Style.R15G24B30);
-                        vh._followButton.Enabled = true;
-                        vh._loader.Visibility = ViewStates.Gone;
-                        break;
-                    case false:
+                    _followButton.Visibility = ViewStates.Gone;
+                }
+                else
+                {
+                    var background = (GradientDrawable)_followButton.Background;
+
+                    if (userFriends.FollowedChanging)
+                    {
                         background.SetColor(Style.R231G72B00);
                         background.SetStroke(0, Color.White);
-                        vh._followButton.Text = Localization.Messages.Follow;
-                        vh._followButton.SetTextColor(Color.White);
-                        vh._followButton.Enabled = true;
-                        vh._loader.Visibility = ViewStates.Gone;
-                        break;
-                    case null:
-                        background.SetColor(Style.R231G72B00);
-                        background.SetStroke(0, Color.White);
-                        vh._followButton.Text = string.Empty;
-                        vh._followButton.SetTextColor(Color.White);
-                        vh._followButton.Enabled = false;
-                        vh._loader.Visibility = ViewStates.Visible;
-                        break;
+                        _followButton.Text = string.Empty;
+                        _followButton.SetTextColor(Color.White);
+                        _followButton.Enabled = false;
+                        _loader.Visibility = ViewStates.Visible;
+                    }
+                    else
+                    {
+                        if (userFriends.HasFollowed)
+                        {
+                            background.SetColor(Color.White);
+                            background.SetStroke(1, Style.R244G244B246);
+                            _followButton.Text = Localization.Messages.Unfollow;
+                            _followButton.SetTextColor(Style.R15G24B30);
+                        }
+                        else
+                        {
+                            background.SetColor(Style.R231G72B00);
+                            background.SetStroke(0, Color.White);
+                            _followButton.Text = Localization.Messages.Follow;
+                            _followButton.SetTextColor(Color.White);
+                        }
+                        _followButton.Enabled = true;
+                        _loader.Visibility = ViewStates.Gone;
+                    }
                 }
             }
         }

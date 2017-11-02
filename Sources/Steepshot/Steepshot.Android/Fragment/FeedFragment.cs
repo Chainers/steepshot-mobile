@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -17,7 +16,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
+    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
@@ -29,6 +28,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.logo)] private ImageView _logo;
 #pragma warning restore 0649
 
 
@@ -56,6 +56,7 @@ namespace Steepshot.Fragment
             _adapter.CommentAction += CommentAction;
             _adapter.VotersClick += VotersAction;
             _adapter.PhotoClick += PhotoClick;
+            _logo.Click += OnLogoClick;
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += LoadPosts;
@@ -69,16 +70,15 @@ namespace Steepshot.Fragment
             LoadPosts();
         }
 
-
-        [InjectOnClick(Resource.Id.logo)]
-        public void OnPost(object sender, EventArgs e)
+        
+        private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
         }
 
         private void PresenterSourceChanged()
         {
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
@@ -94,7 +94,7 @@ namespace Steepshot.Fragment
         private async void LoadPosts()
         {
             var errors = await Presenter.TryLoadNextTopPosts();
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);
@@ -151,7 +151,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryVote(post);
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);

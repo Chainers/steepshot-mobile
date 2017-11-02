@@ -58,6 +58,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
         [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -70,6 +71,7 @@ namespace Steepshot.Activity
             _title.Typeface = Style.Regular;
             _description.Typeface = Style.Regular;
             _postButton.Typeface = Style.Semibold;
+            _postButton.Click += OnPost;
 
             _postButton.Text = Localization.Texts.PublishButtonText;
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
@@ -110,6 +112,7 @@ namespace Steepshot.Activity
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
+            Presenter.SourceChanged += PresenterSourceChanged;
             _tagsAdapter = new TagsAdapter(Presenter);
             _tagsAdapter.Click += OnTagsAdapterClick;
             _tagsList.SetAdapter(_tagsAdapter);
@@ -118,6 +121,9 @@ namespace Steepshot.Activity
             _tag.KeyboardDownEvent += HideTagsList;
             _tag.OkKeyEvent += OnTagOnOkKeyEvent;
             _tag.FocusChange += OnTagOnFocusChange;
+
+            _topMarginTagsLayout.Click += OnTagsLayoutClick;
+            _backButton.Click += OnBack;
 
             _timer = new Timer(OnTimer);
 
@@ -134,6 +140,17 @@ namespace Steepshot.Activity
                 _btmp = null;
             }
             GC.Collect(0);
+        }
+
+        private void PresenterSourceChanged()
+        {
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            RunOnUiThread(() =>
+            {
+                _tagsAdapter.NotifyDataSetChanged();
+            });
         }
 
 
@@ -184,9 +201,8 @@ namespace Steepshot.Activity
             AddTag(result.Name);
             _tag.Text = string.Empty;
         }
-        
-        [InjectOnClick(Resource.Id.btn_post)]
-        public async void OnPost(object sender, EventArgs e)
+
+        private async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
             _title.Enabled = false;
@@ -198,14 +214,12 @@ namespace Steepshot.Activity
             await OnPostAsync();
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void OnBack(object sender, EventArgs e)
+        private void OnBack(object sender, EventArgs e)
         {
             OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.top_margin_tags_layout)]
-        public void OnTagsLayoutClick(object sender, EventArgs e)
+        private void OnTagsLayoutClick(object sender, EventArgs e)
         {
             if (!_tag.Enabled)
                 return;
@@ -259,7 +273,6 @@ namespace Steepshot.Activity
             _previousQuery = _tag.Text;
             _tagsList.ScrollToPosition(0);
             Presenter.Clear();
-            _tagsAdapter.NotifyDataSetChanged();
 
             List<string> errors = null;
             if (_tag.Text.Length == 0)
@@ -270,10 +283,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (errors != null && errors.Count > 0)
-                this.ShowAlert(errors);
-            else
-                _tagsAdapter.NotifyDataSetChanged();
+            this.ShowAlert(errors);
         }
 
         private async Task OnPostAsync()

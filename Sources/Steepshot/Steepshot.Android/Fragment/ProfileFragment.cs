@@ -12,13 +12,12 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
+    public sealed class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private bool _isActivated;
         private readonly string _profileId;
@@ -29,19 +28,19 @@ namespace Steepshot.Fragment
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.btn_back)] ImageButton _backButton;
-        [InjectView(Resource.Id.btn_switcher)] ImageButton _switcher;
-        [InjectView(Resource.Id.posts_list)] RecyclerView _postsList;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _loadingSpinner;
-        [InjectView(Resource.Id.list_spinner)] ProgressBar _listSpinner;
-        [InjectView(Resource.Id.refresher)] SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.btn_settings)] ImageButton _settings;
-        [InjectView(Resource.Id.profile_login)] TextView _login;
-        [InjectView(Resource.Id.list_layout)] RelativeLayout _listLayout;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.posts_list)] private RecyclerView _postsList;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [InjectView(Resource.Id.list_spinner)] private ProgressBar _listSpinner;
+        [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.profile_login)] private TextView _login;
+        [InjectView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
 #pragma warning restore 0649
 
-        ProfileFeedAdapter _profileFeedAdapter;
-        ProfileFeedAdapter ProfileFeedAdapter
+        private ProfileFeedAdapter _profileFeedAdapter;
+        private ProfileFeedAdapter ProfileFeedAdapter
         {
             get
             {
@@ -55,14 +54,14 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.VotersClick += VotersAction;
                     _profileFeedAdapter.FollowersAction += OnFollowersClick;
                     _profileFeedAdapter.FollowingAction += OnFollowingClick;
-                    _profileFeedAdapter.FollowAction += async () => await OnFollowClick();
+                    _profileFeedAdapter.FollowAction += OnFollowClick;
                 }
                 return _profileFeedAdapter;
             }
         }
 
-        ProfileGridAdapter _profileGridAdapter;
-        ProfileGridAdapter ProfileGridAdapter
+        private ProfileGridAdapter _profileGridAdapter;
+        private ProfileGridAdapter ProfileGridAdapter
         {
             get
             {
@@ -72,7 +71,7 @@ namespace Steepshot.Fragment
                     _profileGridAdapter.Click += OnPhotoClick;
                     _profileGridAdapter.FollowersAction += OnFollowersClick;
                     _profileGridAdapter.FollowingAction += OnFollowingClick;
-                    _profileGridAdapter.FollowAction += async () => await OnFollowClick();
+                    _profileGridAdapter.FollowAction += OnFollowClick;
                 }
                 return _profileGridAdapter;
             }
@@ -102,10 +101,12 @@ namespace Steepshot.Fragment
             }
         }
 
+
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
         }
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -125,20 +126,12 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             Presenter.UserName = _profileId;
+            Presenter.SourceChanged += PresenterSourceChanged;
 
             _login.Typeface = Style.Semibold;
 
-            if (_profileId != BasePresenter.User.Login)
-            {
-                _settings.Visibility = ViewStates.Gone;
-                _backButton.Visibility = ViewStates.Visible;
-                _login.Text = _profileId;
-                LoadProfile();
-                GetUserPosts();
-            }
-
             _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += () => GetUserPosts();
+            _scrollListner.ScrolledToBottom += GetUserPosts;
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
@@ -151,40 +144,73 @@ namespace Steepshot.Fragment
             _postsList.AddOnScrollListener(_scrollListner);
             _postsList.SetAdapter(ProfileGridAdapter);
 
-            _refresher.Refresh += async delegate
+            _refresher.Refresh += RefresherRefresh;
+            _settings.Click += OnSettingsClick;
+            _login.Click += OnLoginClick;
+            _backButton.Click += GoBackClick;
+            _switcher.Click += OnSwitcherClick;
+
+            if (_profileId != BasePresenter.User.Login)
             {
-                await UpdatePage();
-                _refresher.Refreshing = false;
-            };
+                _settings.Visibility = ViewStates.Gone;
+                _backButton.Visibility = ViewStates.Visible;
+                _login.Text = _profileId;
+                LoadProfile();
+                GetUserPosts();
+            }
         }
 
-        private async Task GetUserPosts(bool isRefresh = false)
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+
+        private void PresenterSourceChanged()
+        {
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Activity.RunOnUiThread(() =>
+            {
+                _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
+                _postsList.GetAdapter()?.NotifyDataSetChanged();
+            });
+        }
+
+        private async void RefresherRefresh(object sender, EventArgs e)
+        {
+            await UpdatePage();
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+            _refresher.Refreshing = false;
+        }
+
+        private async void GetUserPosts()
+        {
+            await GetUserPosts(false);
+        }
+
+        private async Task GetUserPosts(bool isRefresh)
         {
             if (isRefresh)
-            {
                 Presenter.Clear();
-                _profileSpanSizeLookup.LastItemNumber = -1;
-            }
+
             var errors = await Presenter.TryLoadNextPosts();
-            if (errors != null && errors.Count != 0)
-                Context.ShowAlert(errors);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
 
-            _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
-
-            if (_listSpinner != null)
-                _listSpinner.Visibility = ViewStates.Gone;
-            _postsList?.GetAdapter()?.NotifyDataSetChanged();
+            Context.ShowAlert(errors);
+            _listSpinner.Visibility = ViewStates.Gone;
         }
-
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
+        
+        private void OnSettingsClick(object sender, EventArgs e)
         {
             var intent = new Intent(Context, typeof(SettingsActivity));
             StartActivity(intent);
         }
 
-        [InjectOnClick(Resource.Id.profile_login)]
-        public void OnLoginClick(object sender, EventArgs e)
+        private void OnLoginClick(object sender, EventArgs e)
         {
             _postsList.ScrollToPosition(0);
         }
@@ -196,14 +222,12 @@ namespace Steepshot.Fragment
             await GetUserPosts(true);
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
+        private void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.btn_switcher)]
-        public void OnSwitcherClick(object sender, EventArgs e)
+        private void OnSwitcherClick(object sender, EventArgs e)
         {
             if (_postsList.GetLayoutManager() is GridLayoutManager)
             {
@@ -223,53 +247,35 @@ namespace Steepshot.Fragment
 
         private async Task LoadProfile()
         {
-            OperationResult<UserProfileResponse> response = null;
             do
             {
-                if (response != null)
-                    await Task.Delay(5000);
-                response = await Presenter.TryGetUserInfo(_profileId);
-            } while (!response.Success);
+                var errors = await Presenter.TryGetUserInfo(_profileId);
+                if (!IsInitialized || IsDetached || IsRemoving)
+                    return;
 
-            if (response != null && response.Success)
-            {
-                if (_listLayout != null)
+                if (errors != null && !errors.Any())
+                {
                     _listLayout.Visibility = ViewStates.Visible;
+                    break;
+                }
 
-                ProfileGridAdapter.ProfileData = response.Result;
-                ProfileFeedAdapter.ProfileData = response.Result;
-                _postsList?.GetAdapter()?.NotifyDataSetChanged();
-            }
-            else
-            {
-                Context.ShowAlert(response);
-            }
-            if (_loadingSpinner != null)
-                _loadingSpinner.Visibility = ViewStates.Gone;
+                Context.ShowAlert(errors);
+                await Task.Delay(5000);
+                if (!IsInitialized || IsDetached || IsRemoving)
+                    return;
+
+            } while (true);
+
+            _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
-        private async Task OnFollowClick()
+        private async void OnFollowClick()
         {
-            if (!ProfileGridAdapter.ProfileData.HasFollowed.HasValue)
+            var errors = await Presenter.TryFollow();
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
-            var prevFollowState = ProfileGridAdapter.ProfileData.HasFollowed.Value;
-
-            ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = null;
-            _postsList?.GetAdapter()?.NotifyDataSetChanged();
-
-            var response = await Presenter.TryFollow(prevFollowState);
-
-            if (response != null && response.Success)
-            {
-                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = !prevFollowState;
-            }
-            else
-            {
-                ProfileGridAdapter.ProfileData.HasFollowed = ProfileFeedAdapter.ProfileData.HasFollowed = prevFollowState;
-                Context.ShowAlert(response, ToastLength.Long);
-            }
-            _postsList?.GetAdapter()?.NotifyDataSetChanged();
+            Context.ShowAlert(errors, ToastLength.Long);
         }
 
         private void OnPhotoClick(Post post)
@@ -288,17 +294,17 @@ namespace Steepshot.Fragment
 
         private void OnFollowingClick()
         {
-            Activity.Intent.PutExtra("isFollowers", false);
-            Activity.Intent.PutExtra("username", _profileId);
-            Activity.Intent.PutExtra("count", ProfileFeedAdapter.ProfileData.FollowingCount);
+            Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, false);
+            Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
+            Activity.Intent.PutExtra(FollowersFragment.CountExtra, ProfileFeedAdapter.ProfileData.FollowingCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
         private void OnFollowersClick()
         {
-            Activity.Intent.PutExtra("isFollowers", true);
-            Activity.Intent.PutExtra("username", _profileId);
-            Activity.Intent.PutExtra("count", ProfileFeedAdapter.ProfileData.FollowersCount);
+            Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
+            Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
+            Activity.Intent.PutExtra(FollowersFragment.CountExtra, ProfileFeedAdapter.ProfileData.FollowersCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
@@ -335,22 +341,16 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-                if (errors != null && errors.Count != 0)
-                    Context.ShowAlert(errors);
+                if (!IsInitialized || IsDetached || IsRemoving)
+                    return;
 
-                _postsList?.GetAdapter()?.NotifyDataSetChanged();
+                Context.ShowAlert(errors);
             }
             else
             {
                 var intent = new Intent(Context, typeof(PreSignInActivity));
                 StartActivity(intent);
             }
-        }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
         }
     }
 }

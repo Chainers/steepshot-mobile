@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.Net;
 using Steepshot.Core.Services;
 
@@ -6,11 +7,11 @@ namespace Steepshot.Services
 {
     public class ConnectionService : IConnectionService
     {
-        private readonly ConnectivityManager connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(Android.App.Activity.ConnectivityService);
+        private readonly ConnectivityManager _connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(Context.ConnectivityService);
 
         public bool IsConnectionAvailable()
         {
-            var networkInfo = connectivityManager?.ActiveNetworkInfo;
+            var networkInfo = _connectivityManager?.ActiveNetworkInfo;
             return networkInfo?.IsAvailable ?? false;
         }
     }
