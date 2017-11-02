@@ -33,7 +33,7 @@
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <Debugger>Xamarin</Debugger>
     <AndroidSupportedAbis>armeabi-v7a</AndroidSupportedAbis>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
@@ -184,6 +184,7 @@
     <AndroidResource Include="Resources\drawable-xhdpi\unchecked.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
     <AndroidResource Include="Resources\Anim\like_wait.xml" />
+    <AndroidResource Include="Resources\layout\lyt_feed_popup.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
