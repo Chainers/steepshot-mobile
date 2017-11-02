@@ -2,6 +2,7 @@
 {
     public abstract class BaseFragment : Android.Support.V4.App.Fragment
     {
+
         protected bool IsInitialized;
         protected Android.Views.View InflatedView;
 
@@ -15,6 +16,18 @@
         {
             get;
             set;
+        }
+
+        public override void OnDestroyView()
+        {
+            IsInitialized = false;
+            base.OnDestroyView();
+        }
+
+        public override void OnDetach()
+        {
+            IsInitialized = false;
+            base.OnDetach();
         }
     }
 }
