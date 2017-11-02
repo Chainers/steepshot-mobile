@@ -51,12 +51,12 @@
                 android:text="34 min ago" />
         </RelativeLayout>
         <ImageButton
-            android:id="@+id/flag"
+            android:id="@+id/more"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_flag"
+            android:src="@drawable/more"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <RelativeLayout
