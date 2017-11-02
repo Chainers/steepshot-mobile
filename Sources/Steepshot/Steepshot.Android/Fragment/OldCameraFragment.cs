@@ -22,7 +22,7 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
+    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;

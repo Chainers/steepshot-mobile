@@ -24,7 +24,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
+    public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
         private readonly bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
@@ -45,6 +45,7 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
+        private RecyclerView.Adapter _adapter;
 
         private Button _activeButton;
         private Button _currentButton;
@@ -87,14 +88,14 @@ namespace Steepshot.Fragment
             }
         }
 
-        private GridAdapter _profileGridAdapter;
-        private GridAdapter ProfileGridAdapter
+        private GridAdapter<PreSearchPresenter> _profileGridAdapter;
+        private GridAdapter<PreSearchPresenter> ProfileGridAdapter
         {
             get
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new GridAdapter(Context, Presenter);
+                    _profileGridAdapter = new GridAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -167,8 +168,9 @@ namespace Steepshot.Fragment
                 _searchList.SetLayoutManager(_gridLayoutManager);
                 _searchList.AddItemDecoration(_gridItemDecoration);
                 _searchList.AddOnScrollListener(_scrollListner);
-                _searchList.SetAdapter(ProfileGridAdapter);
-
+                _adapter = ProfileGridAdapter;
+                _searchList.SetAdapter(_adapter);
+                _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
             }
 
@@ -223,24 +225,27 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
         }
 
-        [InjectOnClick(Resource.Id.btn_switcher)]
         public void OnSwitcherClick(object sender, EventArgs e)
         {
-            _scrollListner.ClearPosition();
-            _searchList.ScrollToPosition(0);
-            if (_searchList.GetLayoutManager() is GridLayoutManager)
+            lock (_switcher)
             {
-                _switcher.SetImageResource(Resource.Drawable.grid);
-                _searchList.SetLayoutManager(_linearLayoutManager);
-                _searchList.RemoveItemDecoration(_gridItemDecoration);
-                _searchList.SetAdapter(ProfileFeedAdapter);
-            }
-            else
-            {
-                _switcher.SetImageResource(Resource.Drawable.grid_active);
-                _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(_gridItemDecoration);
-                _searchList.SetAdapter(ProfileGridAdapter);
+                _scrollListner.ClearPosition();
+                _searchList.ScrollToPosition(0);
+                if (_searchList.GetLayoutManager() is GridLayoutManager)
+                {
+                    _switcher.SetImageResource(Resource.Drawable.grid);
+                    _searchList.SetLayoutManager(_linearLayoutManager);
+                    _searchList.RemoveItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileFeedAdapter;
+                }
+                else
+                {
+                    _switcher.SetImageResource(Resource.Drawable.grid_active);
+                    _searchList.SetLayoutManager(_gridLayoutManager);
+                    _searchList.AddItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileGridAdapter;
+                }
+                _searchList.SetAdapter(_adapter);
             }
         }
 
@@ -253,21 +258,24 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged()
         {
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Activity.RunOnUiThread(() =>
             {
-                if (Presenter.Count == 0)
+                lock (_switcher)
                 {
-                    _scrollListner.ClearPosition();
-                    //
-                    _feedSpanSizeLookup.LastItemNumber = -1;
+                    if (Presenter.Count == 0)
+                    {
+                        _scrollListner.ClearPosition();
+                        _feedSpanSizeLookup.LastItemNumber = -1;
+                    }
+                    else
+                    {
+                        _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
+                    }
+                    _adapter.NotifyDataSetChanged();
                 }
-                _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
-
-                var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
-                feedAdapter.NotifyDataSetChanged();
             });
         }
 
@@ -301,7 +309,7 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-                if (IsDetached || IsRemoving)
+                if (!IsInitialized || IsDetached || IsRemoving)
                     return;
 
                 Context.ShowAlert(errors);
@@ -355,7 +363,7 @@ namespace Steepshot.Fragment
             else
                 errors = await Presenter.TryGetSearchedPosts();
 
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);

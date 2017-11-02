@@ -17,7 +17,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
+    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
@@ -78,7 +78,7 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged()
         {
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
@@ -94,7 +94,7 @@ namespace Steepshot.Fragment
         private async void LoadPosts()
         {
             var errors = await Presenter.TryLoadNextTopPosts();
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);
@@ -151,7 +151,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryVote(post);
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);

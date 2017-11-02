@@ -38,7 +38,7 @@ namespace Steepshot.Core.Models.Responses
         public int FollowingCount { get; set; }
         public string Username { get; set; }
         public string CurrentUsername { get; set; }
-        public bool? HasFollowed { get; set; }
+        public bool HasFollowed { get; set; }
         public string ProfileImage { get; set; }
         public string CoverImage { get; set; }
         public string Name { get; set; }
@@ -47,5 +47,8 @@ namespace Steepshot.Core.Models.Responses
         public string Website { get; set; }
         public double VotingPower { get; set; }
         public Money EstimatedBalance { get; set; }
+
+        //system
+        public bool FollowedChanging { get; set; }
     }
 }

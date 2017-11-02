@@ -110,6 +110,7 @@ namespace Steepshot.Activity
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
+            Presenter.SourceChanged += PresenterSourceChanged;
             _tagsAdapter = new TagsAdapter(Presenter);
             _tagsAdapter.Click += OnTagsAdapterClick;
             _tagsList.SetAdapter(_tagsAdapter);
@@ -134,6 +135,17 @@ namespace Steepshot.Activity
                 _btmp = null;
             }
             GC.Collect(0);
+        }
+
+        private void PresenterSourceChanged()
+        {
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            RunOnUiThread(() =>
+            {
+                _tagsAdapter.NotifyDataSetChanged();
+            });
         }
 
 
@@ -184,7 +196,7 @@ namespace Steepshot.Activity
             AddTag(result.Name);
             _tag.Text = string.Empty;
         }
-        
+
         [InjectOnClick(Resource.Id.btn_post)]
         public async void OnPost(object sender, EventArgs e)
         {
@@ -259,7 +271,6 @@ namespace Steepshot.Activity
             _previousQuery = _tag.Text;
             _tagsList.ScrollToPosition(0);
             Presenter.Clear();
-            _tagsAdapter.NotifyDataSetChanged();
 
             List<string> errors = null;
             if (_tag.Text.Length == 0)
@@ -270,10 +281,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (errors != null && errors.Count > 0)
-                this.ShowAlert(errors);
-            else
-                _tagsAdapter.NotifyDataSetChanged();
+            this.ShowAlert(errors);
         }
 
         private async Task OnPostAsync()
