@@ -60,6 +60,7 @@ namespace Steepshot.Fragment
             _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? BasePresenter.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Presenter.FollowType.GetDescription();
@@ -87,8 +88,7 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
 
-
-        [InjectOnClick(Resource.Id.btn_back)]
+        
         public void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
@@ -101,8 +101,7 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
         }
-
-
+        
         private async void Follow(int position)
         {
             var errors = await Presenter.TryFollow(Presenter[position]);

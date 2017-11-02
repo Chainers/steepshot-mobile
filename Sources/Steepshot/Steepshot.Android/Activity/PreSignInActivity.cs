@@ -37,6 +37,7 @@ namespace Steepshot.Activity
 #endif
 
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Messages.YourAccountName;
@@ -45,15 +46,23 @@ namespace Steepshot.Activity
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
             _preSignInBtn.Text = Localization.Messages.NextStep;
+            _preSignInBtn.Click += SignInBtn_Click;
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
+        public override async void OnBackPressed()
+        {
+            base.OnBackPressed();
+            var currentUser = BasePresenter.User.GetAllAccounts().FirstOrDefault();
+            if (currentUser != null)
+                await BasePresenter.SwitchChain(currentUser.Chain);
+        }
+
+
         private void GoBack(object sender, EventArgs e)
         {
             OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.pre_sign_in_btn)]
         private async void SignInBtn_Click(object sender, EventArgs e)
         {
             var login = _username.Text?.Trim().ToLower();
@@ -86,13 +95,6 @@ namespace Steepshot.Activity
             _spinner.Visibility = ViewStates.Invisible;
             _preSignInBtn.Text = Localization.Messages.NextStep;
         }
-
-        public override async void OnBackPressed()
-        {
-            base.OnBackPressed();
-            var currentUser = BasePresenter.User.GetAllAccounts().FirstOrDefault();
-            if (currentUser != null)
-                await BasePresenter.SwitchChain(currentUser.Chain);
-        }
+        
     }
 }

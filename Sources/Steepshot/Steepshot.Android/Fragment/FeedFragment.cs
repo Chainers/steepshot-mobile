@@ -29,6 +29,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.logo)] private ImageView _logo;
 #pragma warning restore 0649
 
 
@@ -56,6 +57,7 @@ namespace Steepshot.Fragment
             _adapter.CommentAction += CommentAction;
             _adapter.VotersClick += VotersAction;
             _adapter.PhotoClick += PhotoClick;
+            _logo.Click += OnLogoClick;
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += LoadPosts;
@@ -69,9 +71,8 @@ namespace Steepshot.Fragment
             LoadPosts();
         }
 
-
-        [InjectOnClick(Resource.Id.logo)]
-        public void OnPost(object sender, EventArgs e)
+        
+        private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
         }
