@@ -145,6 +145,10 @@ namespace Steepshot.Fragment
             _postsList.SetAdapter(ProfileGridAdapter);
 
             _refresher.Refresh += RefresherRefresh;
+            _settings.Click += OnSettingsClick;
+            _login.Click += OnLoginClick;
+            _backButton.Click += GoBackClick;
+            _switcher.Click += OnSwitcherClick;
 
             if (_profileId != BasePresenter.User.Login)
             {
@@ -199,16 +203,14 @@ namespace Steepshot.Fragment
             Context.ShowAlert(errors);
             _listSpinner.Visibility = ViewStates.Gone;
         }
-
-        [InjectOnClick(Resource.Id.btn_settings)]
-        public void OnSettingsClick(object sender, EventArgs e)
+        
+        private void OnSettingsClick(object sender, EventArgs e)
         {
             var intent = new Intent(Context, typeof(SettingsActivity));
             StartActivity(intent);
         }
 
-        [InjectOnClick(Resource.Id.profile_login)]
-        public void OnLoginClick(object sender, EventArgs e)
+        private void OnLoginClick(object sender, EventArgs e)
         {
             _postsList.ScrollToPosition(0);
         }
@@ -220,14 +222,12 @@ namespace Steepshot.Fragment
             await GetUserPosts(true);
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
+        private void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.btn_switcher)]
-        public void OnSwitcherClick(object sender, EventArgs e)
+        private void OnSwitcherClick(object sender, EventArgs e)
         {
             if (_postsList.GetLayoutManager() is GridLayoutManager)
             {

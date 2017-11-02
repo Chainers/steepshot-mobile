@@ -62,6 +62,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.login)] private Button _loginButton;
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
+        [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -149,13 +150,18 @@ namespace Steepshot.Fragment
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
                 _currentButton = _trendingButton;
                 _trendingButton.Typeface = Style.Semibold;
+                _trendingButton.Click += OnTrendClick;
                 _hotButton.Typeface = Style.Regular;
+                _hotButton.Click += OnTopClick;
                 _newButton.Typeface = Style.Regular;
+                _newButton.Click += OnNewClick;
 
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
                 _clearButton.Visibility = ViewStates.Gone;
+                _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
+                _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
 
@@ -172,12 +178,14 @@ namespace Steepshot.Fragment
                 _searchList.SetAdapter(_adapter);
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
+
+                _toolbarLayout.Click += OnSearch;
             }
 
-            var s = Activity.Intent.GetStringExtra("SEARCH");
+            var s = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
             if (!string.IsNullOrWhiteSpace(s) && s != CustomTag)
             {
-                Activity.Intent.RemoveExtra("SEARCH");
+                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
                 _searchView.Text = Presenter.Tag = CustomTag = s;
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
@@ -192,8 +200,7 @@ namespace Steepshot.Fragment
         }
 
 
-        [InjectOnClick(Resource.Id.clear_button)]
-        public void OnClearClick(object sender, EventArgs e)
+        private void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
@@ -201,31 +208,27 @@ namespace Steepshot.Fragment
             _searchView.SetTextColor(Style.R151G155B158);
         }
 
-        [InjectOnClick(Resource.Id.trending_button)]
-        public async void OnTrendClick(object sender, EventArgs e)
+        private async void OnTrendClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.Top);
         }
 
-        [InjectOnClick(Resource.Id.hot_button)]
-        public async void OnTopClick(object sender, EventArgs e)
+        private async void OnTopClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.Hot);
         }
 
-        [InjectOnClick(Resource.Id.new_button)]
-        public async void OnNewClick(object sender, EventArgs e)
+        private async void OnNewClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.New);
         }
 
-        [InjectOnClick(Resource.Id.toolbar)]
-        public void OnSearch(object sender, EventArgs e)
+        private void OnSearch(object sender, EventArgs e)
         {
             ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
         }
 
-        public void OnSwitcherClick(object sender, EventArgs e)
+        private void OnSwitcherClick(object sender, EventArgs e)
         {
             lock (_switcher)
             {
@@ -249,12 +252,10 @@ namespace Steepshot.Fragment
             }
         }
 
-        [InjectOnClick(Resource.Id.login)]
-        public void OnLogin(object sender, EventArgs e)
+        private void OnLogin(object sender, EventArgs e)
         {
             OpenLogin();
         }
-
 
         private void PresenterSourceChanged()
         {

@@ -51,6 +51,7 @@ namespace Steepshot.Activity
             SetAddButton(accounts.Count);
 
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Texts.AppSettingsTitle;
@@ -61,8 +62,10 @@ namespace Steepshot.Activity
             _nsfwSwitchText.Typeface = Style.Semibold;
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
+            _termsButton.Click += TermsOfServiceClick;
 
             _addButton.Text = Localization.Texts.AddAccountText;
+            _addButton.Click += AddAccountClick;
 
             _accountsAdapter = new AccountsAdapter();
             _accountsAdapter.AccountsList = accounts;
@@ -117,22 +120,19 @@ namespace Steepshot.Activity
             _accountsAdapter.NotifyDataSetChanged();
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
+        private void GoBackClick(object sender, EventArgs e)
         {
             OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.dtn_terms_of_service)]
-        public void TermsOfServiceClick(object sender, EventArgs e)
+        private void TermsOfServiceClick(object sender, EventArgs e)
         {
             var uri = Android.Net.Uri.Parse("https://steepshot.org/terms-of-service");
             var intent = new Intent(Intent.ActionView, uri);
             StartActivity(intent);
         }
 
-        [InjectOnClick(Resource.Id.add_account)]
-        public async void AddAccountClick(object sender, EventArgs e)
+        private async void AddAccountClick(object sender, EventArgs e)
         {
             await BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             var intent = new Intent(this, typeof(PreSignInActivity));
