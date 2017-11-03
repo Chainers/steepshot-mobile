@@ -203,7 +203,7 @@ namespace Steepshot.Fragment
             Context.ShowAlert(errors);
             _listSpinner.Visibility = ViewStates.Gone;
         }
-        
+
         private void OnSettingsClick(object sender, EventArgs e)
         {
             var intent = new Intent(Context, typeof(SettingsActivity));
@@ -296,7 +296,7 @@ namespace Steepshot.Fragment
         {
             Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, false);
             Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
-            Activity.Intent.PutExtra(FollowersFragment.CountExtra, ProfileFeedAdapter.ProfileData.FollowingCount);
+            Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowingCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
@@ -304,7 +304,7 @@ namespace Steepshot.Fragment
         {
             Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
             Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
-            Activity.Intent.PutExtra(FollowersFragment.CountExtra, ProfileFeedAdapter.ProfileData.FollowersCount);
+            Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowersCount);
             ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 

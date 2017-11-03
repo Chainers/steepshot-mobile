@@ -21,7 +21,7 @@ namespace Steepshot.Fragment
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
 
-        private FeedAdapter _adapter;
+        private FeedAdapter<FeedPresenter> _adapter;
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
@@ -50,7 +50,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             Presenter.SourceChanged += PresenterSourceChanged;
-            _adapter = new FeedAdapter(Context, Presenter);
+            _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
             _adapter.CommentAction += CommentAction;

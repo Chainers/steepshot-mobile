@@ -2,15 +2,13 @@
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class ProfileFeedAdapter : FeedAdapter
+    public class ProfileFeedAdapter : FeedAdapter<UserProfilePresenter>
     {
-        public UserProfileResponse ProfileData;
         public Action FollowersAction, FollowingAction, BalanceAction;
         public Action FollowAction;
         private readonly bool _isHeaderNeeded;
@@ -25,7 +23,7 @@ namespace Steepshot.Adapter
         }
 
 
-        public ProfileFeedAdapter(Context context, BasePostPresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
+        public ProfileFeedAdapter(Context context, UserProfilePresenter presenter, bool isHeaderNeeded = true) : base(context, presenter)
         {
             _isHeaderNeeded = isHeaderNeeded;
         }
@@ -33,7 +31,7 @@ namespace Steepshot.Adapter
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (position == 0 && _isHeaderNeeded)
-                ((HeaderViewHolder)holder).UpdateHeader(ProfileData);
+                ((HeaderViewHolder)holder).UpdateHeader(Presenter.UserProfileResponse);
             else
                 base.OnBindViewHolder(holder, _isHeaderNeeded ? position - 1 : position);
         }

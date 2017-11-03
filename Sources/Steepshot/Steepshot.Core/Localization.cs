@@ -125,6 +125,12 @@
             public const string AddAccountText = "Add account";
             public const string PeopleText = "people";
             public const string TapToSearch = "Tap to search";
+            public const string YearsAgo = "years ago";
+            public const string MonthAgo = "month ago";
+            public const string DaysAgo = "days ago";
+            public const string HrsAgo = "hrs ago";
+            public const string MinAgo = "min ago";
+            public const string SecAgo = "sec ago";
         }
     }
 }

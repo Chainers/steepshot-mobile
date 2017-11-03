@@ -14,9 +14,9 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class FeedAdapter : RecyclerView.Adapter
+    public class FeedAdapter<T> : RecyclerView.Adapter where T : BasePostPresenter
     {
-        protected readonly BasePostPresenter Presenter;
+        protected readonly T Presenter;
         protected readonly Context Context;
         public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
 
@@ -29,7 +29,7 @@ namespace Steepshot.Adapter
             }
         }
 
-        public FeedAdapter(Context context, BasePostPresenter presenter)
+        public FeedAdapter(Context context, T presenter)
         {
             Context = context;
             Presenter = presenter;
