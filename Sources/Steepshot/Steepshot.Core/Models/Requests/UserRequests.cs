@@ -1,5 +1,4 @@
-﻿using System;
-using Steepshot.Core.Exceptions;
+﻿using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
