@@ -12,11 +12,12 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Services;
+using Steepshot.Utils;
 using Android.Content;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
+    [Activity(Label = Core.Constants.Steepshot, MainLauncher = true, Icon = "@mipmap/launch_icon", ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {
@@ -55,6 +56,7 @@ namespace Steepshot.Activity
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             AppSettings.Reporter.SendCrash(e.Exception);
+            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
         private void OnCurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -63,6 +65,7 @@ namespace Steepshot.Activity
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
             AppSettings.Reporter.SendCrash(ex);
+            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
         private void Construct()
