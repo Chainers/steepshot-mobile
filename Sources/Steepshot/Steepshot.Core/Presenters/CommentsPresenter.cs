@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
@@ -26,36 +24,14 @@ namespace Steepshot.Core.Presenters
                 Login = User.Login
             };
 
-            var response = await Api.GetComments(request, ct);
-            if (response == null)
-                return null;
-
-            if (response.Success)
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
             {
-                var results = response.Result.Results;
-                if (results.Count > 0)
-                {
-                    lock (Items)
-                    {
-                        //Comments work wrong so...
-                        //Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
-                        if (Items.Any())
-                        {
-                            var range = Items.Union(results);
-                            Items.Clear();
-                            Items.AddRange(range);
-                        }
-                        else
-                            Items.AddRange(results);
-                    }
+                response = await Api.GetComments(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
-                    OffsetUrl = results.Last().Url;
-                }
-                if (results.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-                NotifySourceChanged();
-            }
-            return response.Errors;
+            return errors;
         }
 
         public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)

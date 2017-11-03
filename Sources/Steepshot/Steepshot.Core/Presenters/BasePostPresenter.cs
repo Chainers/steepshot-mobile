@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -21,6 +23,60 @@ namespace Steepshot.Core.Presenters
         {
             lock (Items)
                 Items.RemoveAt(index);
+            NotifySourceChanged();
+        }
+
+        public void RemovePost(Post post)
+        {
+            if (!User.PostBlackList.Contains(post.Url))
+            {
+                User.PostBlackList.Add(post.Url);
+                User.Save();
+            }
+
+            lock (Items)
+                Items.Remove(post);
+            NotifySourceChanged();
+        }
+
+        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
+        {
+            errors = null;
+            if (response == null)
+                return false;
+
+            if (response.Success)
+            {
+                var results = response.Result.Results;
+                if (results.Count > 0)
+                {
+                    var last = results.Last().Url;
+                    var range = results.Where(i => !User.PostBlackList.Contains(i.Url)).ToArray();
+                    if (range.Any())
+                    {
+                        lock (Items)
+                        {
+                            if (Items.Any())
+                            {
+                                range = Items.Union(range).ToArray();
+                                Items.Clear();
+                            }
+                            Items.AddRange(range);
+                        }
+                        OffsetUrl = last;
+                        NotifySourceChanged();
+                    }
+                    else if (OffsetUrl != last)
+                    {
+                        OffsetUrl = last;
+                        return true;
+                    }
+                }
+                if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
+                    IsLastReaded = true;
+            }
+            errors = response.Errors;
+            return false;
         }
 
         public int IndexOf(Func<Post, bool> func)

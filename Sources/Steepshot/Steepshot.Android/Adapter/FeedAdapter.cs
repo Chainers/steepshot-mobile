@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Android.App;
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -18,7 +19,7 @@ namespace Steepshot.Adapter
     {
         protected readonly T Presenter;
         protected readonly Context Context;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction;
 
         public override int ItemCount
         {
@@ -62,7 +63,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -75,6 +76,8 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _commentAction;
         private readonly Action<Post> _photoAction;
         private readonly Action<Post> _votersAction;
+        private readonly Action<Post> _flagAction;
+        private readonly Action<Post> _hideAction;
         private readonly ImageView _photo;
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -84,13 +87,16 @@ namespace Steepshot.Adapter
         private readonly TextView _likes;
         private readonly TextView _cost;
         private readonly ImageButton _like;
+        private readonly ImageButton _more;
         private readonly LinearLayout _commentFooter;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
+        private readonly Dialog _moreActionsDialog;
+        private readonly Context _context;
 
         private Post _post;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, int height) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -108,6 +114,7 @@ namespace Steepshot.Adapter
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
+            _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
@@ -116,17 +123,22 @@ namespace Steepshot.Adapter
             _firstComment.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
 
-            var context = itemView.Context; //itemView.RootView.Context;
-            _likeSetAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_set);
+            _context = itemView.Context;
+            _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
             _likeSetAnimation.AnimationStart += LikeAnimationStart;
             _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
-            _likeWaitAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_wait);
+            _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
+
+            _moreActionsDialog = new Dialog(_context);
+            _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
             _likeAction = likeAction;
             _userAction = userAction;
             _commentAction = commentAction;
             _photoAction = photoAction;
             _votersAction = votersAction;
+            _flagAction = flagAction;
+            _hideAction = hideAction;
 
             _like.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
@@ -135,8 +147,45 @@ namespace Steepshot.Adapter
             _commentFooter.Click += DoCommentAction;
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
+            _more.Click += DoMoreAction;
         }
 
+        private void DoMoreAction(object sender, EventArgs e)
+        {
+            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_feed_popup, null))
+            {
+                dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
+                var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
+                var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
+                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                flag.Click += DoFlagAction;
+                hide.Click += DoHideAction;
+                cancel.Click += DoDialogCancelAction;
+                _moreActionsDialog.SetContentView(dialogView);
+                _moreActionsDialog.Show();
+            }
+        }
+
+        private void DoFlagAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            if (!BasePostPresenter.IsEnableVote)
+                return;
+
+            _flagAction.Invoke(_post);
+        }
+
+        private void DoHideAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            _hideAction.Invoke(_post);
+        }
+
+        private void DoDialogCancelAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+        }
 
         private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
         {

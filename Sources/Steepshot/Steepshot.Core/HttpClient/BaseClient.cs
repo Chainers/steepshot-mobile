@@ -118,7 +118,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -132,7 +132,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<GetCommentResponse>(response?.Content, errorResult);
+            return CreateResult<UserPostResponse>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationToken ct)

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:minWidth="25px"
+    android:minHeight="25px"
+	android:background="#fff"
+	android:layout_marginLeft="10dp"
+	android:layout_marginRight="10dp">
+    <Button
+		android:id="@+id/flag"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="Flag"
+		android:gravity="center"
+		android:background="#fff"
+    />
+	<Button
+		android:id="@+id/hide"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="Hide"
+		android:gravity="center"
+		android:background="#fff"
+    />
+	<Button
+		android:id="@+id/cancel"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:text="Cancel"
+		android:gravity="center"
+		android:background="#fff"
+    />
+</LinearLayout>

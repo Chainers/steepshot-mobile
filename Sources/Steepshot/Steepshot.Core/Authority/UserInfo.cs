@@ -25,7 +25,7 @@ namespace Steepshot.Core.Authority
 
         public bool IsDev { get; set; } = false;
 
-        public List<string> PostBlackList { get; set; } = new List<string>();
+        public HashSet<string> PostBlackList { get; set; } = new HashSet<string>();
 
         public string DefaultPhotoDirectory { get; set; } = "Steepshot";
     }

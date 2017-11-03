@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
         {
-            var f = new CensoredNamedRequestWithOffsetLimitFields
+            var request = new CensoredNamedRequestWithOffsetLimitFields
             {
                 Login = User.Login,
                 Limit = ItemsLimit,
@@ -29,26 +29,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetUserRecentPosts(f, ct);
 
-            if (response == null)
-                return null;
-
-            if (response.Success)
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
             {
-                var results = response.Result.Results;
-                if (results.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
+                response = await Api.GetUserRecentPosts(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
-                    OffsetUrl = results.Last().Url;
-                }
-                if (results.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-                NotifySourceChanged();
-            }
-            return response.Errors;
+            return errors;
         }
     }
 }

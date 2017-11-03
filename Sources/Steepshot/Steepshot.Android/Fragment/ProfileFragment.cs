@@ -55,6 +55,8 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.FollowersAction += OnFollowersClick;
                     _profileFeedAdapter.FollowingAction += OnFollowingClick;
                     _profileFeedAdapter.FollowAction += OnFollowClick;
+                    _profileFeedAdapter.FlagAction += FlagAction;
+                    _profileFeedAdapter.HideAction += HideAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -351,6 +353,23 @@ namespace Steepshot.Fragment
                 var intent = new Intent(Context, typeof(PreSignInActivity));
                 StartActivity(intent);
             }
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
     }
 }
