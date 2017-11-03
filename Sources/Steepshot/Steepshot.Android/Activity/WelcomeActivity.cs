@@ -98,8 +98,8 @@ namespace Steepshot.Activity
         private void RegistrationClick(object sender, EventArgs e)
         {
             var url = BasePresenter.Chain == KnownChains.Golos
-                ? Core.Constants.GolosRegUrl
-                : Core.Constants.SteemitRegUrl;
+                ? Constants.GolosRegUrl
+                : Constants.SteemitRegUrl;
 
             var uri = Android.Net.Uri.Parse(url);
             var browserIntent = new Intent(Intent.ActionView, uri);

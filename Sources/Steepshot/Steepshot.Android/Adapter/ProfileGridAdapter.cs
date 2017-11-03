@@ -15,7 +15,7 @@ namespace Steepshot.Adapter
 {
     public class ProfileGridAdapter : GridAdapter<UserProfilePresenter>
     {
-        public Action FollowersAction, FollowingAction, BalanceAction;
+        public Action FollowersAction, FollowingAction, BalanceAction = null;
         public Action FollowAction;
         private readonly bool _isHeaderNeeded;
 

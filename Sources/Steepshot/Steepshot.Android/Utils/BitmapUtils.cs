@@ -66,7 +66,7 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
-        public static Bitmap DecodeSampledBitmapFromDescriptor(Java.IO.FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        public static Bitmap DecodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
         {
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
             BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
