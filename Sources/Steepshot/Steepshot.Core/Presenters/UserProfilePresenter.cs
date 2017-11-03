@@ -40,7 +40,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 response = await Api.GetUserPosts(request, ct);
-            } while (OnLoadNextPostsResponce(response, ItemsLimit, out errors));
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
             return errors;
         }
