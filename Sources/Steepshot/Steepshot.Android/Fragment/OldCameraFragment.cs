@@ -15,6 +15,7 @@ using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
@@ -109,7 +110,7 @@ namespace Steepshot.Fragment
                 StartActivity(i);
             }
         }
-        
+
 
         private void FlashClick(object sender, EventArgs e)
         {
@@ -122,17 +123,17 @@ namespace Steepshot.Fragment
                 _camera.SetParameters(parameters);
             }
         }
-        
+
         private void TakePhotoClick(object sender, EventArgs e)
         {
             _camera?.TakePicture(this, null, this);
         }
-        
+
         private void GoBack(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
-        
+
         private void OpenGallery(object sender, EventArgs e)
         {
             var intent = new Intent();
@@ -178,6 +179,7 @@ namespace Steepshot.Fragment
             catch (Java.IO.IOException ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
             }
         }
 
@@ -373,7 +375,7 @@ namespace Steepshot.Fragment
             _revertButton.Enabled = false;
             _closeButton.Enabled = false;
         }
-        
+
         public void SwitchCamera(object sender, EventArgs e)
         {
             if (_camera != null)
@@ -401,6 +403,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
             }
         }
 
