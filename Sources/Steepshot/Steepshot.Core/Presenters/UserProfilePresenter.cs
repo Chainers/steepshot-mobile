@@ -51,6 +51,7 @@ namespace Steepshot.Core.Presenters
                 }
                 if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
+                Items.RemoveAll(i => User.PostBlackList.Contains(i.Url));
                 NotifySourceChanged();
             }
             return response.Errors;
