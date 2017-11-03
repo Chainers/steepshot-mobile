@@ -49,7 +49,7 @@ namespace Steepshot.Activity
             _viewTitle.Typeface = Style.Semibold;
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += OnBack;
-           _switcher.Visibility = ViewStates.Gone;
+            _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Messages.PostComments;
 
@@ -62,6 +62,8 @@ namespace Steepshot.Activity
             _adapter = new CommentAdapter(this, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
+            _adapter.FlagAction += FlagAction;
+            _adapter.HideAction += HideAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -173,6 +175,30 @@ namespace Steepshot.Activity
                 var intent = new Intent(this, typeof(PreSignInActivity));
                 StartActivity(intent);
             }
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFlag(post);
+
+                if (IsFinishing || IsDestroyed)
+                    return;
+                this.ShowAlert(errors, ToastLength.Short);
+            }
+            else
+            {
+                var intent = new Intent(this, typeof(PreSignInActivity));
+                StartActivity(intent);
+            }
+        }
+
+        private void HideAction(Post post)
+        {
+            BasePresenter.User.PostBlacklist.Add(post.Url);
+            BasePresenter.User.Save();
+            Presenter.RemovePost(post);
         }
     }
 }
