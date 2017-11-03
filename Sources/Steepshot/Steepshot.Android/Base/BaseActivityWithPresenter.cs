@@ -12,7 +12,7 @@ namespace Steepshot.Base
             CreatePresenter();
         }
 
-        protected virtual void CreatePresenter()
+        private void CreatePresenter()
         {
             Presenter = new T();
         }

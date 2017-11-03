@@ -82,7 +82,7 @@ namespace Steepshot.Adapter
             _photo.Click += OnClick;
         }
 
-        protected virtual void OnClick(object sender, EventArgs e)
+        private void OnClick(object sender, EventArgs e)
         {
             _click.Invoke(_post);
         }
