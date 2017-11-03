@@ -364,7 +364,7 @@ namespace Steepshot.Activity
                     else
                     {
                         var photo = new Java.IO.File(path);
-                        var stream = new Java.IO.FileInputStream(photo);
+                        var stream = new FileInputStream(photo);
                         var outbytes = new byte[photo.Length()];
                         stream.Read(outbytes);
                         stream.Close();
