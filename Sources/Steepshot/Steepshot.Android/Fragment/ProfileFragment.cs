@@ -369,7 +369,7 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            BasePresenter.User.PostBlacklist.Add(post.Url);
+            BasePresenter.User.PostBlackList.Add(post.Url);
             BasePresenter.User.Save();
             Presenter.RemovePost(post);
         }
