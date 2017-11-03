@@ -54,7 +54,7 @@ namespace Steepshot.Adapter
             if (item == null)
                 return;
 
-            vh.UpdateData(item, _context);
+            vh.UpdateData(item);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -116,7 +116,7 @@ namespace Steepshot.Adapter
                 _followAction?.Invoke(AdapterPosition);
             }
 
-            public void UpdateData(UserFriend userFriends, Context context)
+            public void UpdateData(UserFriend userFriends)
             {
                 _userFriends = userFriends;
 

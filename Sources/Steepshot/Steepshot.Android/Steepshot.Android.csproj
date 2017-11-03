@@ -91,7 +91,6 @@
     <Compile Include="Utils\MessageHelper.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
     <Compile Include="Utils\Style.cs" />
-    <Compile Include="Utils\TagLayout.cs" />
     <Compile Include="Utils\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
@@ -110,7 +109,7 @@
     <Compile Include="Utils\BitmapUtils.cs" />
     <Compile Include="Adapter\ProfileGridAdapter.cs" />
     <Compile Include="Adapter\ProfileFeedAdapter.cs" />
-    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Utils\Enums.cs" />
     <Compile Include="Fragment\PreSearchFragment.cs" />
     <Compile Include="Activity\CameraActivity.cs" />
     <Compile Include="Fragment\OldCameraFragment.cs" />

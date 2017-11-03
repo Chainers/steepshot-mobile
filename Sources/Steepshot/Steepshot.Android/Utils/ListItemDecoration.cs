@@ -4,7 +4,7 @@ namespace Steepshot.Utils
 {
     public class ListItemDecoration : RecyclerView.ItemDecoration
     {
-        private int _offset;
+        private readonly int _offset;
 
         public ListItemDecoration(int offset)
         {

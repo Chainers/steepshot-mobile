@@ -1,10 +1,5 @@
 ﻿namespace Steepshot.Utils
 {
-    public class Constants
-    {
-        
-    }
-
     public enum ViewType
     {
         Header,

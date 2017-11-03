@@ -9,8 +9,8 @@ namespace Steepshot.Utils
             // + 1 because of header
             if (position == 0 || position == LastItemNumber + 1)
                 return 3;
-            else
-                return 1;
+
+            return 1;
         }
     }
 
@@ -21,8 +21,8 @@ namespace Steepshot.Utils
         {
             if (position == LastItemNumber)
                 return 3;
-            else
-                return 1;
+
+            return 1;
         }
     }
 }
