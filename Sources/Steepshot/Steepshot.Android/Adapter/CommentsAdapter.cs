@@ -124,9 +124,10 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(_avatar);
 
+            
             _like.ClearAnimation();
             if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
-                _like.StartAnimation(_likeWaitAnimation);
+                _like.StartAnimation(_likeSetAnimation);
             else
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
 
