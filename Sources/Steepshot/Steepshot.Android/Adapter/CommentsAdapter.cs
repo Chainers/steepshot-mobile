@@ -63,9 +63,9 @@ namespace Steepshot.Adapter
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly Dialog _moreActionsDialog;
+        private readonly Context _context;
 
         private Post _post;
-        private Context _context;
 
         public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction) : base(itemView)
         {
