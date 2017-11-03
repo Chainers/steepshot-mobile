@@ -92,9 +92,9 @@ namespace Steepshot.Adapter
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly Dialog _moreActionsDialog;
+        private readonly Context _context;
 
         private Post _post;
-        private Context _context;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, int height) : base(itemView)
         {
