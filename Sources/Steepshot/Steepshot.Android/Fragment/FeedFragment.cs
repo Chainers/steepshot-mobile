@@ -56,6 +56,8 @@ namespace Steepshot.Fragment
             _adapter.CommentAction += CommentAction;
             _adapter.VotersClick += VotersAction;
             _adapter.PhotoClick += PhotoClick;
+            _adapter.FlagAction += FlagAction;
+            _adapter.HideAction += HideAction;
             _logo.Click += OnLogoClick;
 
             _scrollListner = new ScrollListener();
@@ -70,7 +72,6 @@ namespace Steepshot.Fragment
             LoadPosts();
         }
 
-        
         private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
@@ -155,6 +156,23 @@ namespace Steepshot.Fragment
                 return;
 
             Context.ShowAlert(errors);
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
 
         public override void OnDetach()

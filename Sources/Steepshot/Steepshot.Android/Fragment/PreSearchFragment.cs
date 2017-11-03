@@ -84,6 +84,8 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.UserAction += UserAction;
                     _profileFeedAdapter.CommentAction += CommentAction;
                     _profileFeedAdapter.VotersClick += VotersAction;
+                    _profileFeedAdapter.FlagAction += FlagAction;
+                    _profileFeedAdapter.HideAction += HideAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -319,6 +321,23 @@ namespace Steepshot.Fragment
             {
                 OpenLogin();
             }
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
 
         private void UserAction(Post post)

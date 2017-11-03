@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using Cryptography.ECDSA;
 using Ditch;
 using Steepshot.Core.Authority;
