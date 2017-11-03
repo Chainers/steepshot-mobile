@@ -109,6 +109,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                this.ShowAlert(Localization.Errors.Unknownerror, ToastLength.Short);
             }
         }
 
