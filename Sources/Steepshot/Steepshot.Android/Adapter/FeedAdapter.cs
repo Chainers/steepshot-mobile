@@ -214,10 +214,10 @@ namespace Steepshot.Adapter
                 : context.GetString(Resource.String.first_title_comment);
 
             _like.ClearAnimation();
-            if (BasePostPresenter.IsEnableVote)
-                _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
+                _like.StartAnimation(_likeWaitAnimation);
             else
-                _like.StartAnimation(post.VoteChanging ? _likeWaitAnimation : _likeSetAnimation);
+                _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
         }
     }
 }
