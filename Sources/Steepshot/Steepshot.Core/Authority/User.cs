@@ -67,7 +67,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public List<string> PostBlacklist => UserInfo.PostBlacklist;
+        public List<string> PostBlackList => UserInfo.PostBlackList;
 
         public string Login => UserInfo.Login;
 
