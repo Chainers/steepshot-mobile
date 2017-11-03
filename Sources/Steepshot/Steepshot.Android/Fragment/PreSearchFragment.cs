@@ -71,14 +71,14 @@ namespace Steepshot.Fragment
             set => Presenter.Tag = value;
         }
 
-        private FeedAdapter _profileFeedAdapter;
-        private FeedAdapter ProfileFeedAdapter
+        private FeedAdapter<PreSearchPresenter> _profileFeedAdapter;
+        private FeedAdapter<PreSearchPresenter> ProfileFeedAdapter
         {
             get
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new FeedAdapter(Context, Presenter);
+                    _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
@@ -195,7 +195,7 @@ namespace Steepshot.Fragment
 
                 LoadPosts(true);
             }
-            else if (!IsInitialized && _isGuest)
+            else if (savedInstanceState == null && _isGuest)
             {
                 LoadPosts(true);
             }

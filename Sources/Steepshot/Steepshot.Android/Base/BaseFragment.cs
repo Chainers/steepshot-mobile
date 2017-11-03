@@ -2,7 +2,6 @@
 {
     public abstract class BaseFragment : Android.Support.V4.App.Fragment
     {
-
         protected bool IsInitialized;
         protected Android.Views.View InflatedView;
 
