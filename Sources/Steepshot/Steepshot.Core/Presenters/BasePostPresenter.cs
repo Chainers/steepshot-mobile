@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -26,9 +28,47 @@ namespace Steepshot.Core.Presenters
 
         public void RemovePost(Post post)
         {
+            if (!User.PostBlackList.Contains(post.Url))
+            {
+                User.PostBlackList.Add(post.Url);
+                User.Save();
+            }
+
             lock (Items)
                 Items.Remove(post);
             NotifySourceChanged();
+        }
+
+        protected List<string> OnLoadNextPostsResponce(OperationResult<UserPostResponse> response, int itemsLimit)
+        {
+            if (response == null)
+                return null;
+
+            if (response.Success)
+            {
+                var results = response.Result.Results;
+                if (results.Count > 0)
+                {
+                    OffsetUrl = results.Last().Url;
+                    var range = results.Where(i => !User.PostBlackList.Contains(i.Url)).ToArray();
+                    if (range.Any())
+                    {
+                        lock (Items)
+                        {
+                            if (Items.Any())
+                            {
+                                range = Items.Union(range).ToArray();
+                                Items.Clear();
+                            }
+                            Items.AddRange(range);
+                        }
+                        NotifySourceChanged();
+                    }
+                }
+                if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
+                    IsLastReaded = true;
+            }
+            return response.Errors;
         }
 
         public int IndexOf(Func<Post, bool> func)

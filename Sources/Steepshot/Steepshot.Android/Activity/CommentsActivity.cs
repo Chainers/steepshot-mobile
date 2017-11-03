@@ -196,8 +196,6 @@ namespace Steepshot.Activity
 
         private void HideAction(Post post)
         {
-            BasePresenter.User.PostBlackList.Add(post.Url);
-            BasePresenter.User.Save();
             Presenter.RemovePost(post);
         }
     }

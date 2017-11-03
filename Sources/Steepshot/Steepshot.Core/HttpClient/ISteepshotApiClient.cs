@@ -81,7 +81,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
-        Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationToken ct);
+        Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct);
 
         /// <summary>
         ///     Examples:

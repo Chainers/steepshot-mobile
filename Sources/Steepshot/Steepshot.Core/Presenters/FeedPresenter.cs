@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Requests;
@@ -30,26 +28,7 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
             var response = await Api.GetUserRecentPosts(f, ct);
-
-            if (response == null)
-                return null;
-
-            if (response.Success)
-            {
-                var results = response.Result.Results;
-                if (results.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? results : results.Skip(1));
-
-                    OffsetUrl = results.Last().Url;
-                }
-                if (results.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-                Items.RemoveAll(i => User.PostBlackList.Contains(i.Url));
-                NotifySourceChanged();
-            }
-            return response.Errors;
+            return OnLoadNextPostsResponce(response, ItemsLimit);
         }
     }
 }
