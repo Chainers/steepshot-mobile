@@ -24,8 +24,14 @@ namespace Steepshot.Core.Presenters
                 Login = User.Login
             };
 
-            var response = await Api.GetComments(request, ct);
-            return OnLoadNextPostsResponce(response, ItemsLimit);
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
+            {
+                response = await Api.GetComments(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
+
+            return errors;
         }
 
         public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)
