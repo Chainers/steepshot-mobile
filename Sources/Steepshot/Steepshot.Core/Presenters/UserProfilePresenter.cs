@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 
@@ -25,7 +26,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextPosts(CancellationToken ct)
         {
-            var req = new UserPostsRequest(UserName)
+            var request = new UserPostsRequest(UserName)
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
@@ -33,8 +34,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetUserPosts(req, ct);
-            return OnLoadNextPostsResponce(response, ItemsLimit);
+
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
+            {
+                response = await Api.GetUserPosts(request, ct);
+            } while (OnLoadNextPostsResponce(response, ItemsLimit, out errors));
+
+            return errors;
         }
 
 

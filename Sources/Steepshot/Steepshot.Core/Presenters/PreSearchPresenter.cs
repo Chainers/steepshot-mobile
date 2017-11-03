@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -21,7 +23,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
         {
-            var postrequest = new PostsRequest(PostType)
+            var request = new PostsRequest(PostType)
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -29,8 +31,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetPosts(postrequest, ct);
-            return OnLoadNextPostsResponce(response, ItemsLimit);
+            
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
+            {
+                response = await Api.GetPosts(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
+
+            return errors;
         }
 
         public async Task<List<string>> TryGetSearchedPosts()
@@ -43,7 +52,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> GetSearchedPosts(CancellationToken ct)
         {
-            var postrequest = new PostsByCategoryRequest(PostType, Tag)
+            var request = new PostsByCategoryRequest(PostType, Tag)
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -51,9 +60,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
+            
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
+            {
+                response = await Api.GetPostsByCategory(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
-            var response = await Api.GetPostsByCategory(postrequest, ct);
-            return OnLoadNextPostsResponce(response, ItemsLimit);
+            return errors;
         }
     }
 }

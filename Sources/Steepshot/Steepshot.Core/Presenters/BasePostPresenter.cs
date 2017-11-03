@@ -39,17 +39,18 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged();
         }
 
-        protected List<string> OnLoadNextPostsResponce(OperationResult<UserPostResponse> response, int itemsLimit)
+        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
         {
+            errors = null;
             if (response == null)
-                return null;
+                return false;
 
             if (response.Success)
             {
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    OffsetUrl = results.Last().Url;
+                    var last = results.Last().Url;
                     var range = results.Where(i => !User.PostBlackList.Contains(i.Url)).ToArray();
                     if (range.Any())
                     {
@@ -62,13 +63,20 @@ namespace Steepshot.Core.Presenters
                             }
                             Items.AddRange(range);
                         }
+                        OffsetUrl = last;
                         NotifySourceChanged();
+                    }
+                    else if (OffsetUrl != last)
+                    {
+                        OffsetUrl = last;
+                        return true;
                     }
                 }
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
             }
-            return response.Errors;
+            errors = response.Errors;
+            return false;
         }
 
         public int IndexOf(Func<Post, bool> func)
