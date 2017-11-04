@@ -10,7 +10,7 @@ namespace Steepshot.Adapter
     public class TagsAdapter : RecyclerView.Adapter
     {
         private readonly TagsPresenter _presenter;
-        public Action<int> Click;
+        public Action<string> Click;
 
         public override int ItemCount => _presenter.Count;
 
@@ -42,9 +42,10 @@ namespace Steepshot.Adapter
     {
         private readonly TextView _tag;
         private readonly ViewGroup _tagLayout;
-        private readonly Action<int> _click;
+        private readonly Action<string> _click;
+        private string _text;
 
-        public TagViewHolder(View itemView, Action<int> click) : base(itemView)
+        public TagViewHolder(View itemView, Action<string> click) : base(itemView)
         {
             _click = click;
             _tag = itemView.FindViewById<TextView>(Resource.Id.tag);
@@ -57,12 +58,13 @@ namespace Steepshot.Adapter
 
         public void UpdateData(string text)
         {
+            _text = text;
             _tag.Text = text;
         }
 
         private void OnTagLayoutOnClick(object sender, EventArgs e)
         {
-            _click?.Invoke(AdapterPosition);
+            _click?.Invoke(_text);
         }
     }
 }

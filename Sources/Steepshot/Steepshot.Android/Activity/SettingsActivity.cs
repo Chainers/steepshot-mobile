@@ -101,21 +101,21 @@ namespace Steepshot.Activity
             BasePresenter.User.IsNsfw = _nsfwSwitcher.Checked;
         }
 
-        private void OnAdapterPickAccount(int index)
+        private void OnAdapterPickAccount(UserInfo userInfo)
         {
-            if (_accountsAdapter.AccountsList.Count <= index)
+            if (userInfo == null)
                 return;
-            SwitchChain(_accountsAdapter.AccountsList[index]);
+
+            SwitchChain(userInfo);
         }
 
-        private void OnAdapterDeleteAccount(int index)
+        private void OnAdapterDeleteAccount(UserInfo userInfo)
         {
-            if (_accountsAdapter.AccountsList.Count <= index)
+            if (userInfo == null)
                 return;
 
-            var acc = _accountsAdapter.AccountsList[index];
-            var chainToDelete = acc.Chain;
-            BasePresenter.User.Delete(acc);
+            var chainToDelete = userInfo.Chain;
+            BasePresenter.User.Delete(userInfo);
             RemoveChain(chainToDelete);
             _accountsAdapter.NotifyDataSetChanged();
         }

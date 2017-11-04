@@ -154,11 +154,12 @@ namespace Steepshot.Activity
         }
 
 
-        private void LocalTagsAdapterClick(int i)
+        private void LocalTagsAdapterClick(string tag)
         {
             if (!_localTagsAdapter.Enabled)
                 return;
-            _localTagsAdapter.LocalTags.RemoveAt(i);
+
+            _localTagsAdapter.LocalTags.Remove(tag);
             _localTagsAdapter.NotifyDataSetChanged();
         }
 
@@ -192,13 +193,12 @@ namespace Steepshot.Activity
             _timer.Change(500, Timeout.Infinite);
         }
 
-        private void OnTagsAdapterClick(int position)
+        private void OnTagsAdapterClick(string tag)
         {
-            var result = Presenter[position];
-            if (result == null)
+            if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            AddTag(result.Name);
+            AddTag(tag);
             _tag.Text = string.Empty;
         }
 

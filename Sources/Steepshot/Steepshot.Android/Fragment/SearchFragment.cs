@@ -12,6 +12,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -142,42 +143,42 @@ namespace Steepshot.Fragment
             _timer.Change(500, Timeout.Infinite);
         }
 
-        private void OnClick(int pos)
+        private void OnClick(UserFriend userFriend)
         {
+            if (userFriend == null)
+                return;
+
             if (Activity.CurrentFocus != null)
             {
                 var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
                 imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
             }
-            if (_searchType == SearchType.Tags)
-            {
-                var user = Presenter.TagsPresenter[pos];
-                if (user == null)
-                    return;
 
-                Activity.Intent.PutExtra(SearchExtra, user.Name);
-                Activity.OnBackPressed();
-            }
-            else if (_searchType == SearchType.People)
-            {
-
-                if (Presenter.UserFriendPresenter.Count > pos)
-                {
-                    var user = Presenter.UserFriendPresenter[pos];
-                    if (user == null)
-                        return;
-                    ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
-                }
-            }
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
 
-        private async void Follow(int position)
+
+        private void OnClick(string tag)
         {
-            var user = Presenter.UserFriendPresenter[position];
-            if (user == null)
+            if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            var errors = await Presenter.UserFriendPresenter.TryFollow(user);
+            if (Activity.CurrentFocus != null)
+            {
+                var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
+                imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
+            }
+
+            Activity.Intent.PutExtra(SearchExtra, tag);
+            Activity.OnBackPressed();
+        }
+
+        private async void Follow(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+
+            var errors = await Presenter.UserFriendPresenter.TryFollow(userFriend);
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 

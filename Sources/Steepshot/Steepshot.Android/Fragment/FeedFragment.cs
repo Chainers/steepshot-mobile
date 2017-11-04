@@ -72,6 +72,12 @@ namespace Steepshot.Fragment
             LoadPosts();
         }
 
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+
         private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
@@ -173,12 +179,6 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
-        }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
         }
     }
 }

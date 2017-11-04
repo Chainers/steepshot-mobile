@@ -7,6 +7,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -107,21 +108,23 @@ namespace Steepshot.Fragment
             _bar.Visibility = ViewStates.Gone;
         }
 
-        private void OnClick(int pos)
+        private void OnClick(UserFriend userFriend)
         {
-            var voiter = Presenter[pos];
-            if (voiter == null)
+            if (userFriend == null)
                 return;
 
-            if (voiter.Author == BasePresenter.User.Login)
+            if (userFriend.Author == BasePresenter.User.Login)
                 return;
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(voiter.Author));
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
 
-        private async void OnFollow(int pos)
+        private async void OnFollow(UserFriend userFriend)
         {
-            var errors = await Presenter.TryFollow(Presenter[pos]);
+            if (userFriend == null)
+                return;
+
+            var errors = await Presenter.TryFollow(userFriend);
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 

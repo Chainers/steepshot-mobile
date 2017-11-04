@@ -18,8 +18,8 @@ namespace Steepshot.Adapter
     {
         private readonly Context _context;
         private readonly ListPresenter<UserFriend> _presenter;
-        public Action<int> FollowAction;
-        public Action<int> UserAction;
+        public Action<UserFriend> FollowAction;
+        public Action<UserFriend> UserAction;
 
         public override int ItemCount
         {
@@ -79,12 +79,12 @@ namespace Steepshot.Adapter
             private readonly TextView _friendLogin;
             private readonly Button _followButton;
             private readonly ProgressBar _loader;
-            private readonly Action<int> _followAction;
-            private readonly Action<int> _userAction;
+            private readonly Action<UserFriend> _followAction;
+            private readonly Action<UserFriend> _userAction;
             private readonly Context _context;
             private UserFriend _userFriends;
 
-            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction, Context context)
+            public FollowersViewHolder(View itemView, Action<UserFriend> followAction, Action<UserFriend> userAction, Context context)
                 : base(itemView)
             {
                 _context = context;
@@ -106,14 +106,14 @@ namespace Steepshot.Adapter
 
             private void User_Click(object sender, EventArgs e)
             {
-                _userAction?.Invoke(AdapterPosition);
+                _userAction?.Invoke(_userFriends);
             }
 
             void Follow_Click(object sender, EventArgs e)
             {
                 if (_userFriends == null)
                     return;
-                _followAction?.Invoke(AdapterPosition);
+                _followAction?.Invoke(_userFriends);
             }
 
             public void UpdateData(UserFriend userFriends)
