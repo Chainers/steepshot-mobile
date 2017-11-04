@@ -8,6 +8,7 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -88,7 +89,7 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
 
-        
+
         public void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
@@ -101,10 +102,12 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
         }
-        
-        private async void Follow(int position)
+
+        private async void Follow(UserFriend userFriend)
         {
-            var errors = await Presenter.TryFollow(Presenter[position]);
+            if (userFriend == null)
+                return;
+            var errors = await Presenter.TryFollow(userFriend);
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
@@ -121,13 +124,12 @@ namespace Steepshot.Fragment
             _bar.Visibility = ViewStates.Gone;
         }
 
-        private void UserAction(int position)
+        private void UserAction(UserFriend userFriend)
         {
-            var user = Presenter[position];
-            if (user == null)
+            if (userFriend == null)
                 return;
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
     }
 }
