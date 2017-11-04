@@ -17,12 +17,6 @@
             set;
         }
 
-        public override void OnDestroyView()
-        {
-            IsInitialized = false;
-            base.OnDestroyView();
-        }
-
         public override void OnDetach()
         {
             IsInitialized = false;
