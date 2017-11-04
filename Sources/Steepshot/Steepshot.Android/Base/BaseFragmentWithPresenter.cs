@@ -18,13 +18,13 @@ namespace Steepshot.Base
 
         public override void OnDestroyView()
         {
-            Presenter.TasksCancel(true);
+            //Presenter.TasksCancel();
             base.OnDestroyView();
         }
 
         public override void OnDetach()
         {
-            Presenter.TasksCancel(true);
+            Presenter.TasksCancel();
             base.OnDetach();
         }
     }

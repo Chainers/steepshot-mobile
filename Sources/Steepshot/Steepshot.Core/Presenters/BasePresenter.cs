@@ -305,10 +305,10 @@ namespace Steepshot.Core.Presenters
 
         public void TasksCancel(bool andDispose = false)
         {
-            if (OnDisposeCts != null && !OnDisposeCts.IsCancellationRequested)
+            if (!OnDisposeCts.IsCancellationRequested)
                 OnDisposeCts.Cancel();
 
-            OnDisposeCts = andDispose ? null : new CancellationTokenSource();
+            OnDisposeCts = new CancellationTokenSource();
         }
     }
 }
