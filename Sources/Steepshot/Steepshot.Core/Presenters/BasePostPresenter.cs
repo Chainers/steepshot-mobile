@@ -51,18 +51,24 @@ namespace Steepshot.Core.Presenters
                 if (results.Count > 0)
                 {
                     var last = results.Last().Url;
-                    var range = results.Where(i => !User.PostBlackList.Contains(i.Url)).ToArray();
-                    if (range.Any())
+                    var isAdded = false;
+                    lock (Items)
                     {
-                        lock (Items)
+                        for (var i = 0; i < results.Count; i++)
                         {
-                            if (Items.Any())
-                            {
-                                range = Items.Union(range).ToArray();
-                                Items.Clear();
-                            }
-                            Items.AddRange(range);
+                            var item = results[i];
+                            if (i == 0 && !string.IsNullOrEmpty(OffsetUrl))
+                                continue;
+                            if (User.PostBlackList.Contains(item.Url))
+                                continue;
+
+                            Items.Add(item);
+                            isAdded = true;
                         }
+                    }
+
+                    if (isAdded)
+                    {
                         OffsetUrl = last;
                         NotifySourceChanged();
                     }
