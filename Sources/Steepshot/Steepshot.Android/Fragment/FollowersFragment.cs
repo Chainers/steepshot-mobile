@@ -8,15 +8,20 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FollowersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
+    public sealed class FollowersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
-        private FollowersAdapter _followersAdapter;
+        public const string IsFollowersExtra = "isFollowers";
+        public const string UsernameExtra = "username";
+        public const string CountExtra = "count";
+
+        private FollowersAdapter _adapter;
         private string _username;
 
 #pragma warning disable 0649, 4014
@@ -46,14 +51,17 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
+            var isFollowers = Activity.Intent.GetBooleanExtra(IsFollowersExtra, false);
             Presenter.FollowType = isFollowers ? FriendsType.Followers : FriendsType.Following;
 
-            var count = Activity.Intent.GetIntExtra("count", 0);
+            Presenter.SourceChanged += PresenterSourceChanged;
+
+            var count = Activity.Intent.GetIntExtra(CountExtra, 0);
             _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
-            _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
+            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? BasePresenter.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Presenter.FollowType.GetDescription();
@@ -61,14 +69,14 @@ namespace Steepshot.Fragment
             _viewTitle.Typeface = Style.Semibold;
             _peopleCount.Typeface = Style.Regular;
 
-            _followersAdapter = new FollowersAdapter(Activity, Presenter);
-            _followersAdapter.FollowAction += Follow;
-            _followersAdapter.UserAction += UserAction;
+            _adapter = new FollowersAdapter(Activity, Presenter);
+            _adapter.FollowAction += Follow;
+            _adapter.UserAction += UserAction;
 
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadItems;
 
-            _followersList.SetAdapter(_followersAdapter);
+            _followersList.SetAdapter(_adapter);
             _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             _followersList.AddOnScrollListener(scrollListner);
 
@@ -82,46 +90,46 @@ namespace Steepshot.Fragment
         }
 
 
-        [InjectOnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
 
-
-        private async void Follow(int position)
+        private void PresenterSourceChanged()
         {
-            var errors = await Presenter.TryFollow(Presenter[position]);
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
-            if (errors != null && errors.Count > 0)
-                Context.ShowAlert(errors, ToastLength.Long);
-            else
-                _followersAdapter.NotifyDataSetChanged();
+            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+        }
+
+        private async void Follow(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+            var errors = await Presenter.TryFollow(userFriend);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors, ToastLength.Long);
         }
 
         private async void LoadItems()
         {
             var errors = await Presenter.TryLoadNextUserFriends(_username);
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
-            if (errors != null && errors.Count > 0)
-                Context.ShowAlert(errors, ToastLength.Long);
-            else
-                _followersAdapter.NotifyDataSetChanged();
-
+            Context.ShowAlert(errors, ToastLength.Long);
             _bar.Visibility = ViewStates.Gone;
         }
 
-        private void UserAction(int position)
+        private void UserAction(UserFriend userFriend)
         {
-            var user = Presenter[position];
-            if (user == null)
+            if (userFriend == null)
                 return;
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(user.Author));
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
     }
 }

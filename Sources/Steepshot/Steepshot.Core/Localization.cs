@@ -32,6 +32,8 @@
             public const string InternetUnavailable = "Check your internet connection";
             public const string IncorrectIdentifier = "Incorrect identifier";
             public const string MaxVoteChanges = "Looks like you've already voted for this post a few times. Please try to vote for another post.";
+            public const string UnexpectedError = "An unexpected error occurred.";
+            public const string CameraSettingError = "Camera Setting error.";
 
             /// <summary>
             ///  $"The server did not accept the request! Reason ({code}) {msg}";
@@ -81,7 +83,7 @@
             public const string Account = "account";
 
             public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>";
-            
+
 
             /// <summary>
             /// $"Log in with your {chain} Account";
@@ -125,6 +127,12 @@
             public const string AddAccountText = "Add account";
             public const string PeopleText = "people";
             public const string TapToSearch = "Tap to search";
+            public const string YearsAgo = "years ago";
+            public const string MonthAgo = "month ago";
+            public const string DaysAgo = "days ago";
+            public const string HrsAgo = "hrs ago";
+            public const string MinAgo = "min ago";
+            public const string SecAgo = "sec ago";
         }
     }
 }

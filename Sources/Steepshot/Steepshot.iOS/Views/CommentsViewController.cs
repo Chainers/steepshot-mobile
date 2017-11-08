@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -34,15 +35,8 @@ namespace Steepshot.iOS.Views
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
             commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
             Activeview = commentTextView;
-            _tableSource.Voted += async (vote, url, action) =>
-            {
-                await Vote(vote, url, action);
-            };
-
-            _tableSource.Flaged += async (vote, url, action) =>
-            {
-                await Flag(vote, url, action);
-            };
+            _tableSource.Voted += OnTableSourceOnVoted;
+            _tableSource.Flaged += OnTableSourceOnFlaged;
 
             _tableSource.GoToProfile += (username) =>
             {
@@ -61,6 +55,16 @@ namespace Steepshot.iOS.Views
             };
 
             GetComments();
+        }
+
+        private async void OnTableSourceOnFlaged(bool vote, Post url, Action<Post, VoteResponse> action)
+        {
+            await Flag(vote, url, action);
+        }
+
+        private async void OnTableSourceOnVoted(bool vote, Post url, Action<Post, VoteResponse> action)
+        {
+            await Vote(vote, url, action);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -99,7 +103,7 @@ namespace Steepshot.iOS.Views
             progressBar.StopAnimating();
         }
 
-        private async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
+        private async Task Vote(bool vote, Post post, Action<Post, VoteResponse> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -107,7 +111,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var errors = await _presenter.TryVote(p => p.Url == postUrl);
+            var errors = await _presenter.TryVote(post);
             if (errors == null)
                 return;
 
@@ -120,7 +124,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        public async Task Flag(bool vote, string postUrl, Action<string, VoteResponse> action)
+        public async Task Flag(bool vote, Post post, Action<Post, VoteResponse> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -128,7 +132,7 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var errors = await _presenter.TryFlag(p => p.Url == postUrl);
+            var errors = await _presenter.TryFlag(post);
             if (errors == null)
                 return;
 

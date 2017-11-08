@@ -83,6 +83,12 @@ namespace Steepshot.Activity
             _signInBtn.Click += SignInBtn_Click;
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
         private async void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
         {
             try
@@ -109,6 +115,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                this.ShowAlert(Localization.Errors.Unknownerror, ToastLength.Short);
             }
         }
 

@@ -9,23 +9,23 @@ namespace Steepshot.iOS.ViewSources
     public class UserSearchTableViewSource : UITableViewSource
     {
         private const string CellIdentifier = nameof(UsersSearchViewCell);
-        private readonly FollowersPresenter _followersPresenter;
+        private readonly UserFriendPresenter _presenter;
         public event RowSelectedHandler RowSelectedEvent;
 
-        public UserSearchTableViewSource(FollowersPresenter followersPresenter)
+        public UserSearchTableViewSource(UserFriendPresenter presenter)
         {
-            _followersPresenter = followersPresenter;
+            _presenter = presenter;
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return _followersPresenter.Count;
+            return _presenter.Count;
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var cell = (UsersSearchViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
-            var user = _followersPresenter[indexPath.Row]; //TODO:KOA: if null?
+            var user = _presenter[indexPath.Row]; //TODO:KOA: if null?
             if (user != null)
                 cell.UpdateCell(user);
             return cell;

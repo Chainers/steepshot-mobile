@@ -11,9 +11,9 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class GridAdapter : RecyclerView.Adapter
+    public class GridAdapter<T> : RecyclerView.Adapter where T : BasePostPresenter
     {
-        protected readonly BasePostPresenter Presenter;
+        protected readonly T Presenter;
         protected readonly Context Context;
         public Action<Post> Click;
         protected readonly int CellSize;
@@ -26,7 +26,7 @@ namespace Steepshot.Adapter
             }
         }
 
-        public GridAdapter(Context context, BasePostPresenter presenter)
+        public GridAdapter(Context context, T presenter)
         {
             Context = context;
             Presenter = presenter;
@@ -82,7 +82,7 @@ namespace Steepshot.Adapter
             _photo.Click += OnClick;
         }
 
-        protected virtual void OnClick(object sender, EventArgs e)
+        private void OnClick(object sender, EventArgs e)
         {
             _click.Invoke(_post);
         }

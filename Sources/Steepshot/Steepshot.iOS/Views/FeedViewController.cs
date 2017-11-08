@@ -18,7 +18,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BaseViewControllerWithPresenter<FeedPresenter>
+    public partial class FeedViewController : BaseViewControllerWithPresenter<PreSearchPresenter>
     {
         private PostType _currentPostType = PostType.Top;
         private string _currentPostCategory;
@@ -48,7 +48,15 @@ namespace Steepshot.iOS.Views
 
         protected override void CreatePresenter()
         {
-            _presenter = new FeedPresenter(_isHomeFeed);
+            _presenter = new PreSearchPresenter();
+            _presenter.SourceChanged += SourceChanged;
+            // _presenter = new FeedPresenter(_isHomeFeed);
+        }
+
+        private void SourceChanged()
+        {
+            feedCollection.ReloadData();
+            flowLayout.InvalidateLayout();
         }
 
         public override async void ViewDidLoad()
@@ -77,9 +85,9 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
 
-            _collectionViewSource.Voted += async (vote, url, action) =>
+            _collectionViewSource.Voted += async (vote, post, action) =>
             {
-                await Vote(url);
+                await Vote(post);
             };
             _collectionViewSource.Flagged += Flagged;
 
@@ -227,7 +235,7 @@ namespace Steepshot.iOS.Views
             else
             {
                 _presenter.Tag = CurrentPostCategory;
-                errors = await _presenter.TryLoadNextSearchedPosts();
+                errors = await _presenter.TryGetSearchedPosts();
             }
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
@@ -258,25 +266,24 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task Vote(string postUrl)
+        private async Task Vote(Post post)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
             }
-            var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
-            if (postIndex != -1)
-            {
-                var errors = await _presenter.TryVote(postIndex);
-                ShowAlert(errors);
 
-                feedCollection.ReloadData();
-                flowLayout.InvalidateLayout();
-            }
+            var errors = await _presenter.TryVote(post);
+            ShowAlert(errors);
+
+
+            //feedCollection.ReloadData();
+            //flowLayout.InvalidateLayout();
+
         }
 
-        private void Flagged(bool vote, string postUrl, Action<string, OperationResult<VoteResponse>> action)
+        private void Flagged(bool vote, Post post, Action<Post, OperationResult<VoteResponse>> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -284,45 +291,28 @@ namespace Steepshot.iOS.Views
                 return;
             }
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(postUrl)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj => action.Invoke(postUrl, new OperationResult<VoteResponse>())));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, obj => action.Invoke(post, new OperationResult<VoteResponse>())));
             PresentViewController(actionSheetAlert, true, null);
         }
 
-        private void HidePhoto(string url)
+        private void HidePhoto(Post post)
         {
-            try
-            {
-                BasePresenter.User.PostBlacklist.Add(url);
-                BasePresenter.User.Save();
-                var postIndex = _presenter.IndexOf(p => p.Url == url);
-                if (postIndex != -1)
-                {
-                    _presenter.RemovePostsAt(postIndex);
-                    _collectionViewSource.FeedStrings.RemoveAt(postIndex);
-                    feedCollection.ReloadData();
-                    flowLayout.InvalidateLayout();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
+            BasePresenter.User.PostBlackList.Add(post.Url);
+            BasePresenter.User.Save();
+
+            _presenter.RemovePost(post);
+            //_collectionViewSource.FeedStrings.RemoveAt(postIndex);
         }
 
-        private async Task FlagPhoto(string postUrl)
+        private async Task FlagPhoto(Post post)
         {
-            var postIndex = _presenter.IndexOf(p => p.Url == postUrl);
-            if (postIndex == -1)
+            if (post == null)
                 return;
 
-            var errors = await _presenter.TryFlag(postIndex);
-            if (errors != null && errors.Count != 0)
-                ShowAlert(errors);
-
-            feedCollection.ReloadData();
-            flowLayout.InvalidateLayout();
+            var errors = await _presenter.TryFlag(post);
+            ShowAlert(errors);
         }
 
         private void SetNavBar()

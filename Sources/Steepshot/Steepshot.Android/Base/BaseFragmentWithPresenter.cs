@@ -11,15 +11,21 @@ namespace Steepshot.Base
             CreatePresenter();
         }
 
-        protected virtual void CreatePresenter()
+        private void CreatePresenter()
         {
             Presenter = new T();
         }
 
         public override void OnDestroyView()
         {
-            Presenter.TasksCancel();
+            //Presenter.TasksCancel();
             base.OnDestroyView();
+        }
+
+        public override void OnDetach()
+        {
+            Presenter.TasksCancel();
+            base.OnDetach();
         }
     }
 }

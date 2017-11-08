@@ -48,9 +48,12 @@ namespace Steepshot.Activity
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Messages.PostComments;
+
+            _post.Click += OnPost;
 
             _uid = Intent.GetStringExtra(PostExtraPath);
             _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
@@ -60,6 +63,7 @@ namespace Steepshot.Activity
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
             _adapter.FlagAction += FlagAction;
+            _adapter.HideAction += HideAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -82,14 +86,12 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void OnBack(object sender, EventArgs e)
+        private void OnBack(object sender, EventArgs e)
         {
             OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.btn_post)]
-        public async void OnPost(object sender, EventArgs e)
+        private async void OnPost(object sender, EventArgs e)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -192,6 +194,11 @@ namespace Steepshot.Activity
                 var intent = new Intent(this, typeof(PreSignInActivity));
                 StartActivity(intent);
             }
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
     }
 }

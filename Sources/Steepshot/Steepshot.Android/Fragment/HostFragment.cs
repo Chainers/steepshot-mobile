@@ -3,7 +3,7 @@
 
 namespace Steepshot.Fragment
 {
-    public class HostFragment : BackStackFragment
+    public sealed class HostFragment : BackStackFragment
     {
         private Android.Support.V4.App.Fragment _fragment;
 

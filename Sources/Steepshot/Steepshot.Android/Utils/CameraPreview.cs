@@ -184,8 +184,7 @@ namespace Steepshot.Utils
 
         private Java.IO.File GetDirectoryForPictures()
         {
-            var dir = new Java.IO.File(
-                Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), Core.Constants.Steepshot);
+            var dir = new Java.IO.File(Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures), Constants.Steepshot);
             if (!dir.Exists())
             {
                 dir.Mkdirs();
@@ -220,7 +219,10 @@ namespace Steepshot.Utils
             {
                 _mCamera?.StartPreview();
             }
-            catch { }
+            catch (Exception e)
+            {
+                Toast.MakeText(Context, e.Message, ToastLength.Long).Show();
+            }
         }
 
         public void OnShutter()

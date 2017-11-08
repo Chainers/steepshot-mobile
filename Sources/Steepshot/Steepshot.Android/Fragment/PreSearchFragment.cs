@@ -24,7 +24,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
+    public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
         private readonly bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
@@ -45,6 +45,7 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
+        private RecyclerView.Adapter _adapter;
 
         private Button _activeButton;
         private Button _currentButton;
@@ -61,6 +62,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.login)] private Button _loginButton;
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
+        [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -69,32 +71,34 @@ namespace Steepshot.Fragment
             set => Presenter.Tag = value;
         }
 
-        private FeedAdapter _profileFeedAdapter;
-        private FeedAdapter ProfileFeedAdapter
+        private FeedAdapter<PreSearchPresenter> _profileFeedAdapter;
+        private FeedAdapter<PreSearchPresenter> ProfileFeedAdapter
         {
             get
             {
                 if (_profileFeedAdapter == null)
                 {
-                    _profileFeedAdapter = new FeedAdapter(Context, Presenter);
+                    _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileFeedAdapter.PhotoClick += OnPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
                     _profileFeedAdapter.CommentAction += CommentAction;
                     _profileFeedAdapter.VotersClick += VotersAction;
+                    _profileFeedAdapter.FlagAction += FlagAction;
+                    _profileFeedAdapter.HideAction += HideAction;
                 }
                 return _profileFeedAdapter;
             }
         }
 
-        private GridAdapter _profileGridAdapter;
-        private GridAdapter ProfileGridAdapter
+        private GridAdapter<PreSearchPresenter> _profileGridAdapter;
+        private GridAdapter<PreSearchPresenter> ProfileGridAdapter
         {
             get
             {
                 if (_profileGridAdapter == null)
                 {
-                    _profileGridAdapter = new GridAdapter(Context, Presenter);
+                    _profileGridAdapter = new GridAdapter<PreSearchPresenter>(Context, Presenter);
                     _profileGridAdapter.Click += OnPhotoClick;
                 }
                 return _profileGridAdapter;
@@ -148,13 +152,18 @@ namespace Steepshot.Fragment
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
                 _currentButton = _trendingButton;
                 _trendingButton.Typeface = Style.Semibold;
+                _trendingButton.Click += OnTrendClick;
                 _hotButton.Typeface = Style.Regular;
+                _hotButton.Click += OnTopClick;
                 _newButton.Typeface = Style.Regular;
+                _newButton.Click += OnNewClick;
 
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
                 _clearButton.Visibility = ViewStates.Gone;
+                _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
+                _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
 
@@ -167,15 +176,18 @@ namespace Steepshot.Fragment
                 _searchList.SetLayoutManager(_gridLayoutManager);
                 _searchList.AddItemDecoration(_gridItemDecoration);
                 _searchList.AddOnScrollListener(_scrollListner);
-                _searchList.SetAdapter(ProfileGridAdapter);
-
+                _adapter = ProfileGridAdapter;
+                _searchList.SetAdapter(_adapter);
+                _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
+
+                _toolbarLayout.Click += OnSearch;
             }
 
-            var s = Activity.Intent.GetStringExtra("SEARCH");
+            var s = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
             if (!string.IsNullOrWhiteSpace(s) && s != CustomTag)
             {
-                Activity.Intent.RemoveExtra("SEARCH");
+                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
                 _searchView.Text = Presenter.Tag = CustomTag = s;
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
@@ -183,15 +195,19 @@ namespace Steepshot.Fragment
 
                 LoadPosts(true);
             }
-            else if (!IsInitialized && _isGuest)
+            else if (savedInstanceState == null && _isGuest)
             {
                 LoadPosts(true);
             }
         }
 
-
-        [InjectOnClick(Resource.Id.clear_button)]
-        public void OnClearClick(object sender, EventArgs e)
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+        
+        private void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
@@ -199,75 +215,75 @@ namespace Steepshot.Fragment
             _searchView.SetTextColor(Style.R151G155B158);
         }
 
-        [InjectOnClick(Resource.Id.trending_button)]
-        public async void OnTrendClick(object sender, EventArgs e)
+        private async void OnTrendClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.Top);
         }
 
-        [InjectOnClick(Resource.Id.hot_button)]
-        public async void OnTopClick(object sender, EventArgs e)
+        private async void OnTopClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.Hot);
         }
 
-        [InjectOnClick(Resource.Id.new_button)]
-        public async void OnNewClick(object sender, EventArgs e)
+        private async void OnNewClick(object sender, EventArgs e)
         {
             await SwitchSearchType(PostType.New);
         }
 
-        [InjectOnClick(Resource.Id.toolbar)]
-        public void OnSearch(object sender, EventArgs e)
+        private void OnSearch(object sender, EventArgs e)
         {
             ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
         }
 
-        [InjectOnClick(Resource.Id.btn_switcher)]
-        public void OnSwitcherClick(object sender, EventArgs e)
+        private void OnSwitcherClick(object sender, EventArgs e)
         {
-            _scrollListner.ClearPosition();
-            _searchList.ScrollToPosition(0);
-            if (_searchList.GetLayoutManager() is GridLayoutManager)
+            lock (_switcher)
             {
-                _switcher.SetImageResource(Resource.Drawable.grid);
-                _searchList.SetLayoutManager(_linearLayoutManager);
-                _searchList.RemoveItemDecoration(_gridItemDecoration);
-                _searchList.SetAdapter(ProfileFeedAdapter);
-            }
-            else
-            {
-                _switcher.SetImageResource(Resource.Drawable.grid_active);
-                _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(_gridItemDecoration);
-                _searchList.SetAdapter(ProfileGridAdapter);
+                _scrollListner.ClearPosition();
+                _searchList.ScrollToPosition(0);
+                if (_searchList.GetLayoutManager() is GridLayoutManager)
+                {
+                    _switcher.SetImageResource(Resource.Drawable.grid);
+                    _searchList.SetLayoutManager(_linearLayoutManager);
+                    _searchList.RemoveItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileFeedAdapter;
+                }
+                else
+                {
+                    _switcher.SetImageResource(Resource.Drawable.grid_active);
+                    _searchList.SetLayoutManager(_gridLayoutManager);
+                    _searchList.AddItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileGridAdapter;
+                }
+                _searchList.SetAdapter(_adapter);
             }
         }
 
-        [InjectOnClick(Resource.Id.login)]
-        public void OnLogin(object sender, EventArgs e)
+        private void OnLogin(object sender, EventArgs e)
         {
             OpenLogin();
         }
 
-
         private void PresenterSourceChanged()
         {
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Activity.RunOnUiThread(() =>
             {
-                if (Presenter.Count == 0)
+                lock (_switcher)
                 {
-                    _scrollListner.ClearPosition();
-                    //
-                    _feedSpanSizeLookup.LastItemNumber = -1;
+                    if (Presenter.Count == 0)
+                    {
+                        _scrollListner.ClearPosition();
+                        _feedSpanSizeLookup.LastItemNumber = -1;
+                    }
+                    else
+                    {
+                        _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
+                    }
+                    _adapter.NotifyDataSetChanged();
                 }
-                _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
-
-                var feedAdapter = (FeedAdapter)_searchList.GetAdapter();
-                feedAdapter.NotifyDataSetChanged();
             });
         }
 
@@ -301,7 +317,7 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-                if (IsDetached || IsRemoving)
+                if (!IsInitialized || IsDetached || IsRemoving)
                     return;
 
                 Context.ShowAlert(errors);
@@ -310,6 +326,23 @@ namespace Steepshot.Fragment
             {
                 OpenLogin();
             }
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
 
         private void UserAction(Post post)
@@ -355,7 +388,7 @@ namespace Steepshot.Fragment
             else
                 errors = await Presenter.TryGetSearchedPosts();
 
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);
@@ -411,30 +444,36 @@ namespace Steepshot.Fragment
             _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
             _blackToGrayAnimation.SetDuration(AnimationDuration);
 
-            _fontGrowingAnimation.Update += (sender, e) =>
-            {
-                _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-            };
+            _fontGrowingAnimation.Update += OnFontGrowingAnimationOnUpdate;
+            _fontReductionAnimation.Update += OnFontReductionAnimationOnUpdate;
+            _grayToBlackAnimation.Update += OnGrayToBlackAnimationOnUpdate;
+            _blackToGrayAnimation.Update += OnBlackToGrayAnimationOnUpdate;
+            _blackToGrayAnimation.AnimationEnd += OnBlackToGrayAnimationOnAnimationEnd;
+        }
 
-            _fontReductionAnimation.Update += (sender, e) =>
-            {
-                _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-            };
+        private void OnBlackToGrayAnimationOnAnimationEnd(object sender, EventArgs e)
+        {
+            _currentButton = _activeButton;
+        }
 
-            _grayToBlackAnimation.Update += (sender, e) =>
-            {
-                _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-            };
+        private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+        }
 
-            _blackToGrayAnimation.Update += (sender, e) =>
-            {
-                _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-            };
+        private void OnGrayToBlackAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+        }
 
-            _blackToGrayAnimation.AnimationEnd += (sender, e) =>
-            {
-                _currentButton = _activeButton;
-            };
+        private void OnFontReductionAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _currentButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+        }
+
+        private void OnFontGrowingAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _activeButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
         }
 
         private void AnimatedButtonSwitch()

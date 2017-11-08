@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.Widget;
@@ -17,18 +16,19 @@ using Steepshot.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
+    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
 
-        private FeedAdapter _adapter;
+        private FeedAdapter<FeedPresenter> _adapter;
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.logo)] private ImageView _logo;
 #pragma warning restore 0649
 
 
@@ -50,12 +50,15 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             Presenter.SourceChanged += PresenterSourceChanged;
-            _adapter = new FeedAdapter(Context, Presenter);
+            _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
             _adapter.CommentAction += CommentAction;
             _adapter.VotersClick += VotersAction;
             _adapter.PhotoClick += PhotoClick;
+            _adapter.FlagAction += FlagAction;
+            _adapter.HideAction += HideAction;
+            _logo.Click += OnLogoClick;
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += LoadPosts;
@@ -69,16 +72,20 @@ namespace Steepshot.Fragment
             LoadPosts();
         }
 
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
 
-        [InjectOnClick(Resource.Id.logo)]
-        public void OnPost(object sender, EventArgs e)
+        private void OnLogoClick(object sender, EventArgs e)
         {
             _feedList.ScrollToPosition(0);
         }
 
         private void PresenterSourceChanged()
         {
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
@@ -94,7 +101,7 @@ namespace Steepshot.Fragment
         private async void LoadPosts()
         {
             var errors = await Presenter.TryLoadNextTopPosts();
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);
@@ -151,16 +158,27 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryVote(post);
-            if (IsDetached || IsRemoving)
+            if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors);
         }
 
-        public override void OnDetach()
+        private async void FlagAction(Post post)
         {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized || IsDetached || IsRemoving)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
         }
     }
 }

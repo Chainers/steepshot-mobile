@@ -17,7 +17,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class WelcomeActivity : BaseActivity
     {
         private int _clickCount;
@@ -30,6 +30,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
         [InjectView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
         [InjectView(Resource.Id.terms)] private TextView _termsTextView;
+        [InjectView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -52,6 +53,11 @@ namespace Steepshot.Activity
             _regButton.Text = Localization.Texts.CreateButtonText;
             _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
+
+            _steemLogin.Click += SteemLogin;
+            _golosLogin.Click += GolosLogin;
+            _regButton.Click += RegistrationClick;
+            _steepshotLogo.Click += Logo_Click;
         }
 
         protected override void OnDestroy()
@@ -60,7 +66,7 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.steem_login)]
+
         private async void SteemLogin(object sender, EventArgs e)
         {
             _steemLoader.Visibility = ViewStates.Visible;
@@ -76,7 +82,6 @@ namespace Steepshot.Activity
             _steemLogin.Text = Localization.Texts.SignInButtonText;
         }
 
-        [InjectOnClick(Resource.Id.golos_login)]
         private async void GolosLogin(object sender, EventArgs e)
         {
             _golosLoder.Visibility = ViewStates.Visible;
@@ -90,19 +95,17 @@ namespace Steepshot.Activity
             _golosLogin.Enabled = true;
         }
 
-        [InjectOnClick(Resource.Id.reg_button)]
         private void RegistrationClick(object sender, EventArgs e)
         {
             var url = BasePresenter.Chain == KnownChains.Golos
-                ? Core.Constants.GolosRegUrl
-                : Core.Constants.SteemitRegUrl;
+                ? Constants.GolosRegUrl
+                : Constants.SteemitRegUrl;
 
             var uri = Android.Net.Uri.Parse(url);
             var browserIntent = new Intent(Intent.ActionView, uri);
             StartActivity(browserIntent);
         }
 
-        [InjectOnClick(Resource.Id.steepshot_logo)]
         private void Logo_Click(object sender, EventArgs e)
         {
             _clickCount++;

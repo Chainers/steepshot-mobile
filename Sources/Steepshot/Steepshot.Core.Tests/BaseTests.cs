@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Autofac;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
@@ -44,8 +46,8 @@ namespace Steepshot.Core.Tests
                 {"Golos", new DitchApi()}
             };
 
-            Api["Steem"].Connect(KnownChains.Steem, IsDev);
-            Api["Golos"].Connect(KnownChains.Golos, IsDev);
+            var steem = Api["Steem"].Connect(KnownChains.Steem, IsDev, true).Result;
+            var golos = Api["Golos"].Connect(KnownChains.Golos, IsDev, true).Result;
         }
 
         protected UserInfo Authenticate(string name)

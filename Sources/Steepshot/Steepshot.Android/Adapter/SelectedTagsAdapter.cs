@@ -8,7 +8,7 @@ namespace Steepshot.Adapter
     {
         public readonly List<string> LocalTags = new List<string>();
         public bool Enabled = true;
-        public Action<int> Click;
+        public Action<string> Click;
 
 
         public override int ItemCount => LocalTags.Count;

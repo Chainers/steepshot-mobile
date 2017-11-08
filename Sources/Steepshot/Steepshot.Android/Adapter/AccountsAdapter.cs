@@ -13,8 +13,8 @@ namespace Steepshot.Adapter
     public class AccountsAdapter : RecyclerView.Adapter
     {
         public List<UserInfo> AccountsList;
-        public Action<int> DeleteAccount;
-        public Action<int> PickAccount;
+        public Action<UserInfo> DeleteAccount;
+        public Action<UserInfo> PickAccount;
 
         public override int ItemCount => AccountsList.Count;
 
@@ -23,8 +23,9 @@ namespace Steepshot.Adapter
             var account = AccountsList[position];
             if (account == null)
                 return;
+
             var tHolder = (AccountViewHolder)holder;
-            tHolder.UpdateData(account.Chain);
+            tHolder.UpdateData(account);
 
         }
 
@@ -42,10 +43,11 @@ namespace Steepshot.Adapter
         private readonly ImageView _checkImage;
         private readonly ImageButton _deleteAccountButton;
         private readonly RelativeLayout _cellLayout;
-        private readonly Action<int> _pickAccount;
-        private readonly Action<int> _deleteAccount;
+        private readonly Action<UserInfo> _pickAccount;
+        private readonly Action<UserInfo> _deleteAccount;
+        private UserInfo _userInfo;
 
-        public AccountViewHolder(View itemView, Action<int> pickAccount, Action<int> deleteAccount) : base(itemView)
+        public AccountViewHolder(View itemView, Action<UserInfo> pickAccount, Action<UserInfo> deleteAccount) : base(itemView)
         {
             _pickAccount = pickAccount;
             _deleteAccount = deleteAccount;
@@ -60,20 +62,21 @@ namespace Steepshot.Adapter
             _cellLayout.Click += OnCellLayoutOnClick;
         }
 
-        public void UpdateData(KnownChains chains)
+        public void UpdateData(UserInfo userInfo)
         {
-            _cellText.Text = $"{chains} {Localization.Messages.Account}";
-            _checkImage.SetImageResource(BasePresenter.Chain == chains ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
+            _userInfo = userInfo;
+            _cellText.Text = $"{userInfo.Chain} {Localization.Messages.Account}";
+            _checkImage.SetImageResource(BasePresenter.Chain == userInfo.Chain ? Resource.Drawable.@checked : Resource.Drawable.@unchecked);
         }
 
         private void OnCellLayoutOnClick(object sender, EventArgs e)
         {
-            _pickAccount?.Invoke(AdapterPosition);
+            _pickAccount?.Invoke(_userInfo);
         }
 
         private void OnDeleteAccountButtonOnClick(object sender, EventArgs e)
         {
-            _deleteAccount?.Invoke(AdapterPosition);
+            _deleteAccount?.Invoke(_userInfo);
         }
     }
 }

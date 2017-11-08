@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -23,7 +23,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
         {
-            var postrequest = new PostsRequest(PostType)
+            var request = new PostsRequest(PostType)
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -31,25 +31,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            var response = await Api.GetPosts(postrequest, ct);
-            if (response == null)
-                return null;
-
-            if (response.Success)
+            
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
             {
-                var posts = response.Result.Results;
-                if (posts.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? posts : posts.Skip(1));
+                response = await Api.GetPosts(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
-                    OffsetUrl = posts.Last().Url;
-                }
-
-                if (posts.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-            }
-            return response.Errors;
+            return errors;
         }
 
         public async Task<List<string>> TryGetSearchedPosts()
@@ -62,7 +52,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> GetSearchedPosts(CancellationToken ct)
         {
-            var postrequest = new PostsByCategoryRequest(PostType, Tag)
+            var request = new PostsByCategoryRequest(PostType, Tag)
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -70,27 +60,15 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-
-            var response = await Api.GetPostsByCategory(postrequest, ct);
-            if (response == null)
-                return null;
-
-            if (response.Success)
+            
+            List<string> errors;
+            OperationResult<UserPostResponse> response;
+            do
             {
-                var posts = response.Result.Results;
-                if (posts.Count > 0)
-                {
-                    lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? posts : posts.Skip(1));
+                response = await Api.GetPostsByCategory(request, ct);
+            } while (ResponseProcessing(response, ItemsLimit, out errors));
 
-                    OffsetUrl = posts.Last().Url;
-                }
-
-                if (posts.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                    IsLastReaded = true;
-            }
-
-            return response.Errors;
+            return errors;
         }
     }
 }

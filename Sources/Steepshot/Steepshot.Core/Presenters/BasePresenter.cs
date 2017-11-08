@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using Cryptography.ECDSA;
 using Ditch;
 using Steepshot.Core.Authority;
@@ -25,9 +24,7 @@ namespace Steepshot.Core.Presenters
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
         protected CancellationTokenSource OnDisposeCts;
-
-
-
+        
         public static string Currency
         {
             get
@@ -39,7 +36,7 @@ namespace Steepshot.Core.Presenters
         }
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
-        private static Timer ReconectTimer;
+        private static Timer _reconectTimer;
 
         static BasePresenter()
         {
@@ -51,6 +48,7 @@ namespace Steepshot.Core.Presenters
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new DitchApi();
+            
             TryConnect(Chain, AppSettings.IsDev);
             // static constructor initialization.
             Task.Run(() =>
@@ -66,10 +64,10 @@ namespace Steepshot.Core.Presenters
 
         private static async Task TryConnect(KnownChains chain, bool isDev)
         {
-            if (ReconectTimer != null)
+            if (_reconectTimer != null)
             {
-                ReconectTimer.Dispose();
-                ReconectTimer = null;
+                _reconectTimer.Dispose();
+                _reconectTimer = null;
             }
 
             var isConnected = ConnectionService.IsConnectionAvailable();
@@ -77,7 +75,7 @@ namespace Steepshot.Core.Presenters
             if (!isConnected)
             {
                 OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                ReconectTimer = new Timer(TryReconect, null, 0, 5000);
+                _reconectTimer = new Timer(TryReconect, null, 0, 5000);
             }
         }
 
@@ -92,17 +90,17 @@ namespace Steepshot.Core.Presenters
 
             //TODO:ReconectTimer == null exception, need multithread handling (lock)
 
-            ReconectTimer.Change(int.MaxValue, 5000);
+            _reconectTimer.Change(int.MaxValue, 5000);
             isConnected = Api.TryReconnectChain(Chain);
             if (!isConnected)
             {
                 OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                ReconectTimer.Change(5000, 5000);
+                _reconectTimer.Change(5000, 5000);
             }
             else
             {
                 OnAllert?.Invoke(string.Empty);
-                ReconectTimer.Dispose();
+                _reconectTimer.Dispose();
             }
         }
 
@@ -304,9 +302,11 @@ namespace Steepshot.Core.Presenters
 
         #endregion
 
-        public void TasksCancel()
+        public void TasksCancel(bool andDispose = false)
         {
-            OnDisposeCts.Cancel();
+            if (!OnDisposeCts.IsCancellationRequested)
+                OnDisposeCts.Cancel();
+
             OnDisposeCts = new CancellationTokenSource();
         }
     }

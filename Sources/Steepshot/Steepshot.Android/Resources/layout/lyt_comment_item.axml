@@ -29,6 +29,15 @@
         android:layout_alignParentRight="true"
         android:gravity="center"
         android:text="22 Apr 2017" />
+    <ImageButton
+        android:id="@+id/more"
+        android:layout_width="40dp"
+        android:layout_height="20dp"
+        android:src="@drawable/more"
+        android:background="@android:color/transparent"
+        android:layout_marginStart="9dp"
+        android:gravity="center"		
+	    android:layout_toLeftOf="@id/time"/>   	
     <RelativeLayout
         android:id="@+id/comment_text_layout"
         android:layout_width="match_parent"

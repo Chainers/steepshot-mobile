@@ -15,6 +15,7 @@ using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
@@ -22,7 +23,7 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
+    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
@@ -58,6 +59,12 @@ namespace Steepshot.Fragment
 
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
+
+            _flashButton.Click += FlashClick;
+            _shotButton.Click += TakePhotoClick;
+            _closeButton.Click += GoBack;
+            _galleryButton.Click += OpenGallery;
+            _revertButton.Click += SwitchCamera;
 
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
             _orientationListner.OrientationChanged += OnOrientationChanged;
@@ -104,7 +111,7 @@ namespace Steepshot.Fragment
             }
         }
 
-        [InjectOnClick(Resource.Id.flash_button)]
+
         private void FlashClick(object sender, EventArgs e)
         {
             var parameters = _camera.GetParameters();
@@ -117,19 +124,16 @@ namespace Steepshot.Fragment
             }
         }
 
-        [InjectOnClick(Resource.Id.shot_button)]
         private void TakePhotoClick(object sender, EventArgs e)
         {
             _camera?.TakePicture(this, null, this);
         }
 
-        [InjectOnClick(Resource.Id.close_button)]
         private void GoBack(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.gallery_button)]
         private void OpenGallery(object sender, EventArgs e)
         {
             var intent = new Intent();
@@ -175,6 +179,7 @@ namespace Steepshot.Fragment
             catch (Java.IO.IOException ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
             }
         }
 
@@ -319,7 +324,7 @@ namespace Steepshot.Fragment
             Task.Run(() =>
             {
                 var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-                var directory = new Java.IO.File(directoryPictures, Core.Constants.Steepshot);
+                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
                 if (!directory.Exists())
                     directory.Mkdirs();
 
@@ -371,7 +376,6 @@ namespace Steepshot.Fragment
             _closeButton.Enabled = false;
         }
 
-        [InjectOnClick(Resource.Id.revert_button)]
         public void SwitchCamera(object sender, EventArgs e)
         {
             if (_camera != null)
@@ -399,6 +403,7 @@ namespace Steepshot.Fragment
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
             }
         }
 

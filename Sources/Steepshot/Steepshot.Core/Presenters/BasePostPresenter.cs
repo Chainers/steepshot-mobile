@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
@@ -16,24 +18,66 @@ namespace Steepshot.Core.Presenters
         {
             IsEnableVote = true;
         }
-
-        public void RemovePostsAt(int index)
+        
+        public void RemovePost(Post post)
         {
-            lock (Items)
-                Items.RemoveAt(index);
-        }
-
-        public int IndexOf(Func<Post, bool> func)
-        {
-            lock (Items)
+            if (!User.PostBlackList.Contains(post.Url))
             {
-                for (var i = 0; i < Items.Count; i++)
-                    if (func(Items[i]))
-                        return i;
+                User.PostBlackList.Add(post.Url);
+                User.Save();
             }
-            return -1;
+
+            lock (Items)
+                Items.Remove(post);
+            NotifySourceChanged();
         }
 
+        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
+        {
+            errors = null;
+            if (response == null)
+                return false;
+
+            if (response.Success)
+            {
+                var results = response.Result.Results;
+                if (results.Count > 0)
+                {
+                    var last = results.Last().Url;
+                    var isAdded = false;
+                    lock (Items)
+                    {
+                        for (var i = 0; i < results.Count; i++)
+                        {
+                            var item = results[i];
+                            if (i == 0 && !string.IsNullOrEmpty(OffsetUrl))
+                                continue;
+                            if (User.PostBlackList.Contains(item.Url))
+                                continue;
+
+                            Items.Add(item);
+                            isAdded = true;
+                        }
+                    }
+
+                    if (isAdded)
+                    {
+                        OffsetUrl = last;
+                        NotifySourceChanged();
+                    }
+                    else if (OffsetUrl != last)
+                    {
+                        OffsetUrl = last;
+                        return true;
+                    }
+                }
+                if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
+                    IsLastReaded = true;
+            }
+            errors = response.Errors;
+            return false;
+        }
+        
         public async Task<List<string>> TryVote(Post post)
         {
             if (post == null || post.VoteChanging)

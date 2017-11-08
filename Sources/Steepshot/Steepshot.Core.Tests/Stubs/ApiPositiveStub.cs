@@ -56,8 +56,12 @@ namespace Steepshot.Core.Tests.Stubs
             Converter = new JsonNetConverter();
         }
 
+        public async Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain)
+        {
+            return true;
+        }
 
-        public bool Connect(KnownChains chain, bool isDev)
+        public bool TryReconnectChain(KnownChains chain)
         {
             return true;
         }
@@ -238,16 +242,16 @@ namespace Steepshot.Core.Tests.Stubs
 
             return new OperationResult<UserPostResponse> { Result = resp };
         }
-        
-        public async Task<OperationResult<SearchResponse<VotersResult>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+
+        public async Task<OperationResult<SearchResponse<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
         {
-            var resp = Converter.Deserialize<SearchResponse<VotersResult>>(VotersResult1Json);
+            var resp = Converter.Deserialize<SearchResponse<UserFriend>>(VotersResult1Json);
             var skip = 0;
             if (!string.IsNullOrEmpty(request.Offset))
             {
                 foreach (var itm in resp.Results)
                 {
-                    if (request.Offset.Equals(itm.Username))
+                    if (request.Offset.Equals(itm.Author))
                         break;
                     skip++;
                 }
@@ -256,7 +260,7 @@ namespace Steepshot.Core.Tests.Stubs
             resp.Count = resp.Results.Count;
 
 
-            return new OperationResult<SearchResponse<VotersResult>> { Result = resp };
+            return new OperationResult<SearchResponse<UserFriend>> { Result = resp };
         }
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
@@ -269,31 +273,31 @@ namespace Steepshot.Core.Tests.Stubs
             return new OperationResult<FollowResponse> { Result = new FollowResponse(true) };
         }
 
-        public async Task<OperationResult<GetCommentResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
         {
-            var rez = Converter.Deserialize<GetCommentResponse>(GetCommentsJson);
+            var rez = Converter.Deserialize<UserPostResponse>(GetCommentsJson);
             if (string.IsNullOrEmpty(request.Login))
                 foreach (var itm in rez.Results)
                     itm.Vote = false;
 
-            return new OperationResult<GetCommentResponse> { Result = rez };
+            return new OperationResult<UserPostResponse> { Result = rez };
         }
 
         public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationToken ct)
         {
             return new OperationResult<CreateCommentResponse> { Result = new CreateCommentResponse(true) };
         }
-        
-        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, CancellationToken ct)
+
+        public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
         {
             return new OperationResult<ImageUploadResponse> { Result = new ImageUploadResponse() };
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, string trx, CancellationToken ct)
+        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
         {
             return new OperationResult<UploadResponse> { Result = new UploadResponse() };
         }
-
+        
         public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
         {
             List<string> tags = new List<string>();

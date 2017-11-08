@@ -16,5 +16,11 @@
             get;
             set;
         }
+
+        public override void OnDetach()
+        {
+            IsInitialized = false;
+            base.OnDetach();
+        }
     }
 }
