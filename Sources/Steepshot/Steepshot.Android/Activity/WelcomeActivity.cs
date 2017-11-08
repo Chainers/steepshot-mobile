@@ -17,7 +17,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(NoHistory = true, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class WelcomeActivity : BaseActivity
     {
         private int _clickCount;
@@ -94,7 +94,7 @@ namespace Steepshot.Activity
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
         }
-        
+
         private void RegistrationClick(object sender, EventArgs e)
         {
             var url = BasePresenter.Chain == KnownChains.Golos
@@ -105,7 +105,7 @@ namespace Steepshot.Activity
             var browserIntent = new Intent(Intent.ActionView, uri);
             StartActivity(browserIntent);
         }
-        
+
         private void Logo_Click(object sender, EventArgs e)
         {
             _clickCount++;
