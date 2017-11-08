@@ -136,6 +136,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ServerResponceTests.cs" />
     <Compile Include="Stubs\ApiPositiveStub.cs" />
     <Compile Include="BaseTests.cs" />
     <Compile Include="HttpClient\ApiTest.cs" />
