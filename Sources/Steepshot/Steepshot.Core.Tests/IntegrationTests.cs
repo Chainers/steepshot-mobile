@@ -699,7 +699,7 @@ namespace Steepshot.Core.Tests
 
         [Test, Sequential]
         public void Comments_With_SessionId_Check_True_Votes([Values("Steem", "Golos")] string name,
-            [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/hi-golos")] string url)
+            [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/egregious-2017-10-16-10-48-02")] string url)
         {
             // Arrange
             UserInfo user = Users[name];
@@ -1135,18 +1135,6 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Terms_Of_Service([Values("Steem", "Golos")] string name)
-        {
-            // Arrange
-            // Act
-            var response = Api[name].TermsOfService(CancellationToken.None).Result;
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Result.Text, Is.Not.Empty);
-        }
-
-        [Test, Sequential]
         public void GetPostInfo([Values("Steem", "Golos")] string name,
             [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string url)
         {
@@ -1235,11 +1223,16 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "title", "cat1", "cat2", "cat3", "cat4");
 
             // Act
-            var response = Api[name].Upload(request, CancellationToken.None).Result;
-
+            var response = Api[name].UploadWithPrepare(request, CancellationToken.None).Result;
             // Assert
             AssertResult(response);
             Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
+
+            //var response = Api[name].Upload(request, CancellationToken.None).Result;
+
+            //// Assert
+            //AssertResult(response);
+            //Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
         }
 
         [Test, Sequential]
@@ -1250,11 +1243,15 @@ namespace Steepshot.Core.Tests
             var request = new UploadImageRequest(Authenticate(name), "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
 
             // Act
-            var response = Api[name].Upload(request, CancellationToken.None).Result;
-
-            // Assert
+            var response = Api[name].UploadWithPrepare(request, CancellationToken.None).Result;
             AssertResult(response);
             Assert.That(response.Errors.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
+
+            //var response = Api[name].Upload(request, CancellationToken.None).Result;
+
+            //// Assert
+            //AssertResult(response);
+            //Assert.That(response.Errors.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
         }
 
         [Test, Sequential]
