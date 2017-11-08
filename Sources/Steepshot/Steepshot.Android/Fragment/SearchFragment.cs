@@ -95,6 +95,12 @@ namespace Steepshot.Fragment
             imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
         }
 
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+
         private void OnClearClick(object sender, EventArgs e)
         {
             _searchView.Text = string.Empty;
@@ -258,12 +264,6 @@ namespace Steepshot.Fragment
             btSecond.SetTextColor(Style.R151G155B158);
 
             await GetTags(true);
-        }
-
-        public override void OnDetach()
-        {
-            base.OnDetach();
-            Cheeseknife.Reset(this);
         }
     }
 }

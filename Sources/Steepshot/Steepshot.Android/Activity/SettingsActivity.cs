@@ -91,6 +91,12 @@ namespace Steepshot.Activity
             }
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
         private void OnLowRatedSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
             BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;

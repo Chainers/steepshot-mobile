@@ -49,6 +49,12 @@ namespace Steepshot.Activity
             _preSignInBtn.Click += SignInBtn_Click;
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+        
         public override async void OnBackPressed()
         {
             base.OnBackPressed();

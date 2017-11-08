@@ -28,6 +28,12 @@ namespace Steepshot.Activity
             _testContainer.StepFinished += UpdateResult;
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Cheeseknife.Reset(this);
+        }
+
         [InjectOnClick(Resource.Id.run_api_tests)]
         private async void RunApiTest(object sender, EventArgs e)
         {

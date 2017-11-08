@@ -159,9 +159,16 @@ namespace Steepshot.Adapter
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+
+                flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
+
+                hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
+
+                cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
+
                 _moreActionsDialog.SetContentView(dialogView);
                 _moreActionsDialog.Show();
             }
