@@ -265,7 +265,6 @@
       <DependentUpon>FeedCollectionViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Cells\BaseProfileCell.cs" />
-    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Cells\UsersSearchViewCell.cs" />
     <Compile Include="Cells\UsersSearchViewCell.designer.cs">
       <DependentUpon>UsersSearchViewCell.cs</DependentUpon>

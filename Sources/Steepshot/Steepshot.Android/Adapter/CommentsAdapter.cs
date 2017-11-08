@@ -9,6 +9,7 @@ using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Adapter

@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             _tagsSource = new PostTagsTableViewSource(_presenter.TagsPresenter);
-            _usersSource = new UserSearchTableViewSource(_presenter.FollowersPresenter);
+            _usersSource = new UserSearchTableViewSource(_presenter.UserFriendPresenter);
 
             _timer = new Timer(OnTimer);
             tagsTable.Source = _tagsSource;
@@ -92,7 +92,7 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                var errors = await _presenter.TrySearchCategories(query, _searchType, false);
+                var errors = await _presenter.TrySearchCategories(query, _searchType);
                 if (errors == null)
                     return;
                 if (errors.Any())
@@ -108,7 +108,7 @@ namespace Steepshot.iOS.Views
                     else
                     {
                         usersTable.ReloadData();
-                        shouldHide = _presenter.FollowersPresenter.Count == 0;
+                        shouldHide = _presenter.UserFriendPresenter.Count == 0;
                     }
                     if (shouldHide)
                     {
@@ -144,7 +144,7 @@ namespace Steepshot.iOS.Views
             else
             {
                 var myViewController = new ProfileViewController();
-                var user = _presenter.FollowersPresenter[row]; //TODO:KOA: if null?
+                var user = _presenter.UserFriendPresenter[row]; //TODO:KOA: if null?
                 myViewController.Username = user?.Author;
                 NavigationController.PushViewController(myViewController, true);
             }

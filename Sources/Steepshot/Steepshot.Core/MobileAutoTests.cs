@@ -502,7 +502,7 @@ namespace Steepshot.Core
 
             sb.AppendLine("pass.");
         }
-        
+
         private void GetPostInfoTest(StringBuilder sb, int num)
         {
             sb.Append($"{num}) GetPostInfoTest : ");
@@ -674,14 +674,7 @@ namespace Steepshot.Core
                         sb.AppendLine($"warn. Reason:{Environment.NewLine} First url mast be {offset}");
                         return true;
                     }
-
-                    var voters = itm as VotersResult;
-                    if (voters != null && !voters.Username.Equals(offset))
-                    {
-                        sb.AppendLine($"warn. Reason:{Environment.NewLine} First Username mast be {offset}");
-                        return true;
-                    }
-
+                    
                     var friend = itm as UserFriend;
                     if (friend != null && !friend.Author.Equals(offset))
                     {
@@ -695,7 +688,6 @@ namespace Steepshot.Core
                         sb.AppendLine($"warn. Reason:{Environment.NewLine} First Name mast be {offset}");
                         return true;
                     }
-
                 }
             }
 

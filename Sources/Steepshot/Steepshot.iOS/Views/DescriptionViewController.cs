@@ -185,17 +185,25 @@ namespace Steepshot.iOS.Views
                 {
                     Description = descriptionTextField.Text
                 };
-                var result = await _presenter.TryUpload(request);
-
-                if (result != null && result.Success)
+                var serverResult = await _presenter.TryUploadWithPrepare(request);
+                if (!serverResult.Success)
                 {
-                    TagsList.Clear();
-                    ShouldProfileUpdate = true;
-                    NavigationController.PopViewController(true);
+                    ShowAlert(serverResult);
                 }
                 else
                 {
-                    ShowAlert(result);
+                    var result = await _presenter.TryUpload(request, serverResult.Result);
+
+                    if (result != null && result.Success)
+                    {
+                        TagsList.Clear();
+                        ShouldProfileUpdate = true;
+                        NavigationController.PopViewController(true);
+                    }
+                    else
+                    {
+                        ShowAlert(result);
+                    }
                 }
             }
             catch (Exception ex)

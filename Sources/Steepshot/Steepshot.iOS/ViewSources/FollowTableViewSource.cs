@@ -12,7 +12,7 @@ namespace Steepshot.iOS.ViewSources
         public event FollowEventHandler Follow;
         public event HeaderTappedHandler GoToProfile;
 
-        public FollowTableViewSource(FollowersPresenter presenter) : base(presenter) { }
+        public FollowTableViewSource(UserFriendPresenter presenter) : base(presenter) { }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
