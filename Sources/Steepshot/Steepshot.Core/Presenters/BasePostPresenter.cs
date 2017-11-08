@@ -18,14 +18,7 @@ namespace Steepshot.Core.Presenters
         {
             IsEnableVote = true;
         }
-
-        public void RemovePostsAt(int index)
-        {
-            lock (Items)
-                Items.RemoveAt(index);
-            NotifySourceChanged();
-        }
-
+        
         public void RemovePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
@@ -84,18 +77,7 @@ namespace Steepshot.Core.Presenters
             errors = response.Errors;
             return false;
         }
-
-        public int IndexOf(Func<Post, bool> func)
-        {
-            lock (Items)
-            {
-                for (var i = 0; i < Items.Count; i++)
-                    if (func(Items[i]))
-                        return i;
-            }
-            return -1;
-        }
-
+        
         public async Task<List<string>> TryVote(Post post)
         {
             if (post == null || post.VoteChanging)

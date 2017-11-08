@@ -11,7 +11,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FollowViewController : BaseViewControllerWithPresenter<FollowersPresenter>
+    public partial class FollowViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
         private readonly FriendsType _friendsType;
         private readonly string _username;
@@ -26,7 +26,7 @@ namespace Steepshot.iOS.Views
 
         protected override void CreatePresenter()
         {
-            _presenter = new FollowersPresenter(_friendsType);
+            _presenter = new UserFriendPresenter { FollowType = _friendsType };
         }
 
         public override void ViewDidLoad()

@@ -7,13 +7,13 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class VotersViewController : BaseViewControllerWithPresenter<VotersPresenter>
+    public partial class VotersViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
         public string PostUrl;
 
         protected override void CreatePresenter()
         {
-            _presenter = new VotersPresenter();
+            _presenter = new UserFriendPresenter();
         }
 
         public override void ViewDidLoad()
@@ -30,7 +30,7 @@ namespace Steepshot.iOS.Views
             tableSource.RowSelectedEvent += (row) =>
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = _presenter[row]?.Username;
+                myViewController.Username = _presenter[row]?.Author;
                 NavigationController.PushViewController(myViewController, true);
             };
 
@@ -55,7 +55,7 @@ namespace Steepshot.iOS.Views
 
             progressBar.StartAnimating();
 
-            var errors = await _presenter.TryLoadNext(PostUrl);
+            var errors = await _presenter.TryLoadNextPostVoters(PostUrl);
 
             if (errors != null && errors.Count > 0)
                 ShowAlert(errors);

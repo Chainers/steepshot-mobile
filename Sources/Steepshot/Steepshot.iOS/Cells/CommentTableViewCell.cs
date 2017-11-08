@@ -80,27 +80,31 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost.Url, (postUrl, post) =>
+            Voted(!likeButton.Selected, _currentPost, VotedAction);
+        }
+
+        private void VotedAction(Post post, VoteResponse voteResponse)
+        {
+            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                if (postUrl == _currentPost.Url)
-                {
-                    likeButton.Selected = post.IsSucces;
-                    likeButton.Enabled = true;
-                }
-            });
+                likeButton.Selected = voteResponse.IsSucces;
+                likeButton.Enabled = true;
+            }
         }
 
         private void FlagTap(object sender, EventArgs e)
         {
             flagButton.Enabled = false;
-            Flaged(!flagButton.Selected, _currentPost.Url, (postUrl, post) =>
+            Flaged(!flagButton.Selected, _currentPost, FlagedAction);
+        }
+
+        private void FlagedAction(Post post, VoteResponse voteResponse)
+        {
+            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                if (postUrl == _currentPost.Url)
-                {
-                    flagButton.Selected = post.IsSucces;
-                    flagButton.Enabled = true;
-                }
-            });
+                flagButton.Selected = voteResponse.IsSucces;
+                flagButton.Enabled = true;
+            }
         }
     }
 }

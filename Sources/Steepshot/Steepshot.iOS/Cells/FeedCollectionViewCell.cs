@@ -7,6 +7,7 @@ using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -137,34 +138,38 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost.Url, (url, post) =>
+            Voted(!likeButton.Selected, _currentPost, VotedAction);
+        }
+
+        private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)
+        {
+            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase) && operationResult.Success)
             {
-                if (url == _currentPost.Url && post.Success)
-                {
-                    likeButton.Selected = post.Result.IsSucces;
-                    flagButton.Selected = _currentPost.Flag;
-                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
-                }
-                likeButton.Enabled = true;
-            });
+                likeButton.Selected = operationResult.Result.IsSucces;
+                flagButton.Selected = _currentPost.Flag;
+                rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
+                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+            }
+            likeButton.Enabled = true;
         }
 
         private void FlagButton_TouchDown(object sender, EventArgs e)
         {
             flagButton.Enabled = false;
-            Flagged(!flagButton.Selected, _currentPost.Url, (url, post) =>
+            Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
+        }
+
+        private void FlaggedAction(Post post, OperationResult<VoteResponse> result)
+        {
+            if (result.Success && string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                if (url == _currentPost.Url && post.Success)
-                {
-                    flagButton.Selected = post.Result.IsSucces;
-                    likeButton.Selected = _currentPost.Vote;
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
-                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
-                }
-                flagButton.Selected = _currentPost.Flag;
-                flagButton.Enabled = true;
-            });
+                flagButton.Selected = result.Result.IsSucces;
+                likeButton.Selected = _currentPost.Vote;
+                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+                rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);
+            }
+            flagButton.Selected = _currentPost.Flag;
+            flagButton.Enabled = true;
         }
     }
 }

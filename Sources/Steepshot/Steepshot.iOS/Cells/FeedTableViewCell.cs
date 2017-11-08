@@ -13,7 +13,7 @@ namespace Steepshot.iOS.Cells
 {
     public delegate void HeaderTappedHandler(string username);
     public delegate void ImagePreviewHandler(UIImage image, string imageUrl);
-    public delegate void VoteEventHandler<T>(bool vote, string postUri, Action<string, T> success);
+    public delegate void VoteEventHandler<T>(bool vote, Post post, Action<Post, T> success);
 
     public partial class FeedTableViewCell : UITableViewCell
     {
@@ -150,13 +150,13 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost.Url, (url, post) =>
+            Voted(!likeButton.Selected, _currentPost, (post, voteResponse) =>
             {
-                if (url == _currentPost.Url)
+                if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
                 {
-                    likeButton.Selected = post.IsSucces;
+                    likeButton.Selected = voteResponse.IsSucces;
                     likeButton.Enabled = true;
-                    rewards.Text = $"{BasePresenter.Currency}{post.NewTotalPayoutReward.ToString()}";
+                    rewards.Text = $"{BasePresenter.Currency}{voteResponse.NewTotalPayoutReward.ToString()}";
 
                     _currentPost.NetVotes++;
                     netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";

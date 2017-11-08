@@ -6,12 +6,12 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-    public class VotersTableViewSource : BaseUiTableViewSource<VotersResult>
+    public class VotersTableViewSource : BaseUiTableViewSource<UserFriend>
     {
         private const string CellIdentifier = nameof(UsersSearchViewCell);
         public event RowSelectedHandler RowSelectedEvent;
 
-        public VotersTableViewSource(VotersPresenter presenter) : base(presenter) { }
+        public VotersTableViewSource(UserFriendPresenter presenter) : base(presenter) { }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
