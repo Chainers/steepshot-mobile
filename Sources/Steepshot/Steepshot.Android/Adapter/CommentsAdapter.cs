@@ -112,9 +112,16 @@ namespace Steepshot.Adapter
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+
+                flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
+
+                hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
+
+                cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
+
                 _moreActionsDialog.SetContentView(dialogView);
                 _moreActionsDialog.Show();
             }
@@ -173,7 +180,7 @@ namespace Steepshot.Adapter
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(_avatar);
 
-            
+
             _like.ClearAnimation();
             if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
                 _like.StartAnimation(_likeSetAnimation);

@@ -53,6 +53,13 @@ namespace Steepshot.Activity
             }
         }
 
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
+            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
+        }
+
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             AppSettings.Reporter.SendCrash(e.Exception);

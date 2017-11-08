@@ -201,7 +201,12 @@ namespace Steepshot.Fragment
             }
         }
 
-
+        public override void OnDetach()
+        {
+            base.OnDetach();
+            Cheeseknife.Reset(this);
+        }
+        
         private void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
@@ -439,30 +444,36 @@ namespace Steepshot.Fragment
             _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
             _blackToGrayAnimation.SetDuration(AnimationDuration);
 
-            _fontGrowingAnimation.Update += (sender, e) =>
-            {
-                _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-            };
+            _fontGrowingAnimation.Update += OnFontGrowingAnimationOnUpdate;
+            _fontReductionAnimation.Update += OnFontReductionAnimationOnUpdate;
+            _grayToBlackAnimation.Update += OnGrayToBlackAnimationOnUpdate;
+            _blackToGrayAnimation.Update += OnBlackToGrayAnimationOnUpdate;
+            _blackToGrayAnimation.AnimationEnd += OnBlackToGrayAnimationOnAnimationEnd;
+        }
 
-            _fontReductionAnimation.Update += (sender, e) =>
-            {
-                _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-            };
+        private void OnBlackToGrayAnimationOnAnimationEnd(object sender, EventArgs e)
+        {
+            _currentButton = _activeButton;
+        }
 
-            _grayToBlackAnimation.Update += (sender, e) =>
-            {
-                _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-            };
+        private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+        }
 
-            _blackToGrayAnimation.Update += (sender, e) =>
-            {
-                _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-            };
+        private void OnGrayToBlackAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+        }
 
-            _blackToGrayAnimation.AnimationEnd += (sender, e) =>
-            {
-                _currentButton = _activeButton;
-            };
+        private void OnFontReductionAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _currentButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+        }
+
+        private void OnFontGrowingAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
+        {
+            _activeButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
         }
 
         private void AnimatedButtonSwitch()
