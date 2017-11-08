@@ -26,8 +26,8 @@ namespace Steepshot.Utils
         // zoomed below or above the zoom boundaries, before animating back to the
         // min/max zoom boundary.
         //
-        static readonly float SuperMinMultiplier = 0.5f;
-        static readonly float SuperMaxMultiplier = 1f;
+        private static readonly float SuperMinMultiplier = 0.5f;
+        private static readonly float SuperMaxMultiplier = 1f;
 
         //
         // Scale of image ranges from minScale to maxScale, where minScale == 1
@@ -49,30 +49,30 @@ namespace Steepshot.Utils
         //
         public int ViewWidth, ViewHeight, PrevViewWidth, PrevViewHeight;
 
-        ScaleImageViewListener _listener;
+        private ScaleImageViewListener _listener;
 
-        TouchState _state;
+        private TouchState _state;
 
-        float _minScale;
-        float _maxScale;
-        float _superMinScale;
-        float _superMaxScale;
-        float[] _m;
+        private float _minScale;
+        private float _maxScale;
+        private float _superMinScale;
+        private float _superMaxScale;
+        private float[] _m;
 
-        Context _context;
-        Fling _fling;
+        private Context _context;
+        private Fling _fling;
 
-        ScaleType _mScaleType;
+        private ScaleType _mScaleType;
 
-        bool _imageRenderedAtLeastOnce;
-        bool _onDrawReady;
+        private bool _imageRenderedAtLeastOnce;
+        private bool _onDrawReady;
 
-        ZoomVariables _delayedZoomVariables;
+        private ZoomVariables _delayedZoomVariables;
 
         //
         // Size of image when it is stretched to fit view. Before and After rotation.
         //
-        float _matchViewWidth, _matchViewHeight, _prevMatchViewWidth, _prevMatchViewHeight;
+        private float _matchViewWidth, _matchViewHeight, _prevMatchViewWidth, _prevMatchViewHeight;
 
         //
         // After setting image, a value of true means the new image should maintain
@@ -85,10 +85,11 @@ namespace Steepshot.Utils
         //
         //bool setImageCalledRecenterImage;
 
-        ScaleGestureDetector _scaleDetector;
-        GestureDetector _gestureDetector;
-        GestureDetector.IOnDoubleTapListener _doubleTapListener;
-        IOnTouchListener _touchListener;
+        private ScaleGestureDetector _scaleDetector;
+        private GestureDetector _gestureDetector;
+        private GestureDetector.IOnDoubleTapListener _doubleTapListener;
+        private IOnTouchListener _touchListener;
+        private const float Tolerance = 0.0000000001f;
 
         public ScaleImageView(Context context) : base(context)
         {
@@ -107,7 +108,7 @@ namespace Steepshot.Utils
 
         public ScaleImageView(IntPtr inptr, JniHandleOwnership hadle) : base(inptr, hadle) { }
 
-        void SharedConstructing(Context context)
+        private void SharedConstructing(Context context)
         {
             Clickable = true;
             _context = context;
@@ -210,7 +211,7 @@ namespace Steepshot.Utils
         //
         public bool IsZoomed()
         {
-            return _normalizedScale != 1f;
+            return Math.Abs(_normalizedScale - 1f) > Tolerance;
         }
 
         //
@@ -234,7 +235,7 @@ namespace Steepshot.Utils
         // Save the current matrix and view dimensions
         // in the prevMatrix and prevView variables.
         //
-        void SavePreviousImageValues()
+        private void SavePreviousImageValues()
         {
             if (_matrix != null && ViewHeight != 0 && ViewWidth != 0)
             {
@@ -414,7 +415,7 @@ namespace Steepshot.Utils
             }
             SetScaleType(scaleType);
             ResetZoom();
-            ScaleImage(scale, ViewWidth / 2, ViewHeight / 2, false);
+            ScaleImage(scale, ViewWidth / 2f, ViewHeight / 2f, false);
             _matrix.GetValues(_m);
             _m[Matrix.MtransX] = -((focusX * GetImageWidth()) - (ViewWidth * 0.5f));
             _m[Matrix.MtransY] = -((focusY * GetImageHeight()) - (ViewHeight * 0.5f));
@@ -451,7 +452,7 @@ namespace Steepshot.Utils
             }
             var drawableWidth = drawable.IntrinsicWidth;
             var drawableHeight = drawable.IntrinsicHeight;
-            var point = TransformCoordTouchToBitmap(ViewWidth / 2, ViewHeight / 2, true);
+            var point = TransformCoordTouchToBitmap(ViewWidth / 2f, ViewHeight / 2f, true);
             point.X /= drawableWidth;
             point.Y /= drawableHeight;
             return point;
@@ -479,7 +480,7 @@ namespace Steepshot.Utils
             var transY = _m[Matrix.MtransY];
             var fixTransX = GetFixTrans(transX, ViewWidth, GetImageWidth());
             var fixTransY = GetFixTrans(transY, ViewHeight, GetImageHeight());
-            if (fixTransX != 0f || fixTransY != 0f)
+            if (Math.Abs(fixTransX) > Tolerance || Math.Abs(fixTransY) > Tolerance)
             {
                 _matrix.PostTranslate(fixTransX, fixTransY);
             }
@@ -492,7 +493,7 @@ namespace Steepshot.Utils
         // be centered incorrectly within the view. fixScaleTrans first calls fixTrans() and 
         // then makes sure the image is centered correctly within the view.
         //
-        void FixScaleTrans()
+        private void FixScaleTrans()
         {
             FixTrans();
             _matrix.GetValues(_m);
@@ -507,7 +508,7 @@ namespace Steepshot.Utils
             _matrix.SetValues(_m);
         }
 
-        float GetFixTrans(float trans, float viewSize, float contentSize)
+        private float GetFixTrans(float trans, float viewSize, float contentSize)
         {
             float minTrans, maxTrans;
 
@@ -584,7 +585,7 @@ namespace Steepshot.Utils
         // it is made to fit the screen according to the dimensions of the previous image matrix. This
         // allows the image to maintain its zoom after rotation.
         //
-        void FitImageToView()
+        private void FitImageToView()
         {
             var drawable = Drawable;
             if (drawable == null || drawable.IntrinsicWidth == 0 || drawable.IntrinsicHeight == 0)
@@ -646,7 +647,7 @@ namespace Steepshot.Utils
             }
             else
             {
-                if (_prevMatchViewWidth == 0f || _prevMatchViewHeight == 0f)
+                if (Math.Abs(_prevMatchViewWidth) < Tolerance || Math.Abs(_prevMatchViewHeight) < Tolerance)
                 {
                     SavePreviousImageValues();
                 }
@@ -694,7 +695,7 @@ namespace Steepshot.Utils
         // @param drawableWidth
         // @return
         //
-        int SetViewSize(int mode, int size, int drawableWidth)
+        private int SetViewSize(int mode, int size, int drawableWidth)
         {
             switch ((MeasureSpecMode)mode)
             {
@@ -719,7 +720,7 @@ namespace Steepshot.Utils
         // @param viewSize width/height of view after rotation
         // @param drawableSize width/height of drawable
         //
-        void TranslateMatrixAfterRotate(int axis, float trans, float prevImageSize, float imageSize, int prevViewSize, int viewSize, int drawableSize)
+        private void TranslateMatrixAfterRotate(int axis, float trans, float prevImageSize, float imageSize, int prevViewSize, int viewSize, int drawableSize)
         {
             if (imageSize < viewSize)
             {
@@ -747,7 +748,7 @@ namespace Steepshot.Utils
             }
         }
 
-        void SetState(TouchState state)
+        private void SetState(TouchState state)
         {
             _state = state;
         }
@@ -757,7 +758,7 @@ namespace Steepshot.Utils
         // to the view's listener.
         // @author Ortiz
         //
-        class GestureListener : GestureDetector.SimpleOnGestureListener
+        private class GestureListener : GestureDetector.SimpleOnGestureListener
         {
             readonly ScaleImageView _view;
 
@@ -806,7 +807,7 @@ namespace Steepshot.Utils
                 }
                 if (_view._state == TouchState.None)
                 {
-                    var targetZoom = (_view._normalizedScale == _view._minScale) ? _view._maxScale : _view._minScale;
+                    var targetZoom = (Math.Abs(_view._normalizedScale - _view._minScale) < Tolerance) ? _view._maxScale : _view._minScale;
                     var doubleTap = new DoubleTapZoom(_view, targetZoom, e.GetX(), e.GetY(), false);
                     _view.CompatPostOnAnimation(doubleTap);
                     consumed = true;
@@ -829,7 +830,7 @@ namespace Steepshot.Utils
         // touch events to Scale Detector and Gesture Detector.
         // @author Ortiz
         //
-        class ScaleImageViewListener : Java.Lang.Object, IOnTouchListener
+        private class ScaleImageViewListener : Java.Lang.Object, IOnTouchListener
         {
             //
             // Remember last point position for dragging
@@ -892,7 +893,7 @@ namespace Steepshot.Utils
         // ScaleListener detects user two finger scaling and scales image.
         // @author Ortiz
         //
-        class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener
+        private class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener
         {
             readonly ScaleImageView _view;
 
@@ -931,13 +932,13 @@ namespace Steepshot.Utils
                 }
                 if (animateToZoomBoundary)
                 {
-                    var doubleTap = new DoubleTapZoom(_view, targetZoom, _view.ViewWidth / 2, _view.ViewHeight / 2, true);
+                    var doubleTap = new DoubleTapZoom(_view, targetZoom, _view.ViewWidth / 2f, _view.ViewHeight / 2f, true);
                     _view.CompatPostOnAnimation(doubleTap);
                 }
             }
         }
 
-        void ScaleImage(float deltaScale, float focusX, float focusY, bool stretchImageToSuper)
+        private void ScaleImage(float deltaScale, float focusX, float focusY, bool stretchImageToSuper)
         {
             float lowerScale, upperScale;
 
@@ -972,20 +973,20 @@ namespace Steepshot.Utils
         // an animated zoom in/out graphic to the image.
         // @author Ortiz
         //
-        class DoubleTapZoom : Java.Lang.Object, IRunnable
+        private class DoubleTapZoom : Java.Lang.Object, IRunnable
         {
-            static readonly float ZoomTime = 500;
+            private static readonly float ZoomTime = 500;
 
-            readonly long _startTime;
-            readonly float _startZoom;
-            readonly float _targetZoom;
-            readonly float _bitmapX;
-            readonly float _bitmapY;
-            readonly bool _stretchImageToSuper;
-            readonly AccelerateDecelerateInterpolator _interpolator = new AccelerateDecelerateInterpolator();
-            readonly PointF _startTouch;
-            readonly PointF _endTouch;
-            readonly ScaleImageView _view;
+            private readonly long _startTime;
+            private readonly float _startZoom;
+            private readonly float _targetZoom;
+            private readonly float _bitmapX;
+            private readonly float _bitmapY;
+            private readonly bool _stretchImageToSuper;
+            private readonly AccelerateDecelerateInterpolator _interpolator = new AccelerateDecelerateInterpolator();
+            private readonly PointF _startTouch;
+            private readonly PointF _endTouch;
+            private readonly ScaleImageView _view;
 
             public DoubleTapZoom(ScaleImageView view, float targetZoom, float focusX, float focusY, bool stretchImageToSuper)
             {
@@ -1003,7 +1004,7 @@ namespace Steepshot.Utils
                 // Used for translating image during scaling
                 //
                 _startTouch = view.TransformCoordBitmapToTouch(_bitmapX, _bitmapY);
-                _endTouch = new PointF(view.ViewWidth / 2, view.ViewHeight / 2);
+                _endTouch = new PointF(view.ViewWidth / 2f, view.ViewHeight / 2f);
             }
 
             public void Run()
@@ -1077,7 +1078,7 @@ namespace Steepshot.Utils
         // @param clipToBitmap Touch event may occur within view, but outside image content. True, to clip return value to the bounds of the bitmap size.
         // @return Coordinates of the point touched, in the coordinate system of the original drawable.
         //
-        PointF TransformCoordTouchToBitmap(float x, float y, bool clipToBitmap)
+        private PointF TransformCoordTouchToBitmap(float x, float y, bool clipToBitmap)
         {
             _matrix.GetValues(_m);
             float origW = Drawable.IntrinsicWidth;
@@ -1101,7 +1102,7 @@ namespace Steepshot.Utils
         // @param by y-coordinate in original bitmap coordinate system
         // @return Coordinates of the point in the view's coordinate system.
         //
-        PointF TransformCoordBitmapToTouch(float bx, float by)
+        private PointF TransformCoordBitmapToTouch(float bx, float by)
         {
             _matrix.GetValues(_m);
             float origW = Drawable.IntrinsicWidth;
@@ -1119,7 +1120,7 @@ namespace Steepshot.Utils
         // are interpolated by the Scroller.
         // @author Ortiz
         //
-        class Fling : Java.Lang.Object, IRunnable
+        private class Fling : Java.Lang.Object, IRunnable
         {
             readonly ScaleImageView _view;
             Scroller _scroller;
@@ -1160,7 +1161,10 @@ namespace Steepshot.Utils
                     _currX = startX;
                     _currY = startY;
                 }
-                catch { }
+                catch
+                {
+                    //todo nothing
+                }
             }
 
             public void CancelFling()
@@ -1195,90 +1199,93 @@ namespace Steepshot.Utils
                         _view.CompatPostOnAnimation(this);
                     }
                 }
-                catch { }
+                catch
+                {
+                    //todo nothing
+                }
             }
         }
 
-        class CompatScroller
-        {
-            readonly Scroller _scroller;
-            readonly OverScroller _overScroller;
-            readonly bool _isPreGingerbread;
+        //class CompatScroller
+        //{
+        //    readonly Scroller _scroller;
+        //    readonly OverScroller _overScroller;
+        //    readonly bool _isPreGingerbread;
 
-            public CompatScroller(Context context)
-            {
-                if (Build.VERSION.SdkInt < BuildVersionCodes.Gingerbread)
-                {
-                    _isPreGingerbread = true;
-                    _scroller = new Scroller(context);
-                }
-                else
-                {
-                    _isPreGingerbread = false;
-                    _overScroller = new OverScroller(context);
-                }
-            }
+        //    public CompatScroller(Context context)
+        //    {
+        //        if (Build.VERSION.SdkInt < BuildVersionCodes.Gingerbread)
+        //        {
+        //            _isPreGingerbread = true;
+        //            _scroller = new Scroller(context);
+        //        }
+        //        else
+        //        {
+        //            _isPreGingerbread = false;
+        //            _overScroller = new OverScroller(context);
+        //        }
+        //    }
 
-            public void Fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX, int minY, int maxY)
-            {
-                if (_isPreGingerbread)
-                {
-                    _scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
-                }
-                else
-                {
-                    _overScroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
-                }
-            }
+        //    public void Fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX, int minY, int maxY)
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            _scroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+        //        }
+        //        else
+        //        {
+        //            _overScroller.Fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY);
+        //        }
+        //    }
 
-            public void ForceFinished(bool finished)
-            {
-                if (_isPreGingerbread)
-                {
-                    _scroller.ForceFinished(finished);
-                }
-                else
-                {
-                    _overScroller.ForceFinished(finished);
-                }
-            }
+        //    public void ForceFinished(bool finished)
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            _scroller.ForceFinished(finished);
+        //        }
+        //        else
+        //        {
+        //            _overScroller.ForceFinished(finished);
+        //        }
+        //    }
 
-            public bool IsFinished()
-            {
-                if (_isPreGingerbread)
-                {
-                    return _scroller.IsFinished;
-                }
-                return _overScroller.IsFinished;
-            }
+        //    public bool IsFinished()
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            return _scroller.IsFinished;
+        //        }
+        //        return _overScroller.IsFinished;
+        //    }
 
-            public bool ComputeScrollOffset()
-            {
-                if (_isPreGingerbread)
-                {
-                    return _scroller.ComputeScrollOffset();
-                }
-                return _overScroller.ComputeScrollOffset();
-            }
+        //    public bool ComputeScrollOffset()
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            return _scroller.ComputeScrollOffset();
+        //        }
+        //        return _overScroller.ComputeScrollOffset();
+        //    }
 
-            public int GetCurrX()
-            {
-                if (_isPreGingerbread)
-                {
-                    return _scroller.CurrX;
-                }
-                return _overScroller.CurrX;
-            }
+        //    public int GetCurrX()
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            return _scroller.CurrX;
+        //        }
+        //        return _overScroller.CurrX;
+        //    }
 
-            public int GetCurrY()
-            {
-                if (_isPreGingerbread)
-                {
-                    return _scroller.CurrY;
-                }
-                return _overScroller.CurrY;
-            }
-        }
+        //    public int GetCurrY()
+        //    {
+        //        if (_isPreGingerbread)
+        //        {
+        //            return _scroller.CurrY;
+        //        }
+        //        return _overScroller.CurrY;
+        //    }
+        //}
 
         public void CompatPostOnAnimation(IRunnable runnable)
         {
@@ -1292,7 +1299,7 @@ namespace Steepshot.Utils
             }
         }
 
-        class ZoomVariables
+        private class ZoomVariables
         {
             public readonly float Scale;
             public readonly float FocusX;
@@ -1308,9 +1315,9 @@ namespace Steepshot.Utils
             }
         }
 
-        void PrintMatrixInfo()
-        {
-            _matrix.GetValues(_m);
-        }
+        //private void PrintMatrixInfo()
+        //{
+        //    _matrix.GetValues(_m);
+        //}
     }
 }
