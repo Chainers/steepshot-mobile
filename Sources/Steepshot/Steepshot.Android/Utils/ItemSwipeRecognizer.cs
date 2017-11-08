@@ -84,14 +84,14 @@ namespace Steepshot.Utils
         {
             ItemSwipeViewHolder viewHolder = null;
             View itemView = null;
-            int subOptionWidth = 0, swipeLimit = 0;
-            if (_previousTouchedItem != null)
+            var swipeLimit = 0;
+            if (_previousTouchedItem.HasValue)
             {
                 viewHolder = _recyclerView.FindViewHolderForAdapterPosition(_previousTouchedItem.Value) as ItemSwipeViewHolder;
                 if (viewHolder != null)
                 {
                     itemView = viewHolder.ItemView;
-                    subOptionWidth = (int)(itemView.Width * _subOptionWidthCof);
+                    var subOptionWidth = (int)(itemView.Width * _subOptionWidthCof);
                     swipeLimit = -subOptionWidth * viewHolder.SubOptions.Count;
                     _swiped = viewHolder.ItemView.TranslationX <= swipeLimit;
                 }

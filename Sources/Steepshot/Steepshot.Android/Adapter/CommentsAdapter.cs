@@ -56,7 +56,6 @@ namespace Steepshot.Adapter
         private readonly TextView _reply;
         private readonly TextView _time;
         private readonly ImageButton _like;
-        private readonly Suboption _flag;
         private readonly ImageButton _more;
         private readonly Action<Post> _likeAction;
         private readonly Action<Post> _flagAction;
@@ -103,19 +102,20 @@ namespace Steepshot.Adapter
 
             _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
 
-            _flag = new Suboption(itemView.Context);
-            _flag.Text = "Flag";
-            _flag.Click += Flag_Click;
-            var _flag2 = new Suboption(itemView.Context);
-            _flag2.Text = "Hide";
-            _flag2.Click += Flag_Click;
-            SubOptions.Add(_flag2);
-            SubOptions.Add(_flag);
+            var btn1 = new Suboption(itemView.Context);
+            btn1.Text = "Flag";
+            btn1.Click += Flag_Click;
+            SubOptions.Add(btn1);
 
+            var btn2 = new Suboption(itemView.Context);
+            btn2.Text = "Hide";
+            btn2.Click += Hide_Click;
+            SubOptions.Add(btn2);
+            
             _moreActionsDialog = new Dialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
         }
-
+        
         private void DoMoreAction(object sender, EventArgs e)
         {
             var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
@@ -152,7 +152,7 @@ namespace Steepshot.Adapter
         private void DoHideAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            _hideAction.Invoke(_post);
+            _hideAction?.Invoke(_post);
         }
 
         private void DoDialogCancelAction(object sender, EventArgs e)
@@ -181,6 +181,11 @@ namespace Steepshot.Adapter
                 return;
 
             _flagAction?.Invoke(_post);
+        }
+
+        private void Hide_Click(object sender, EventArgs eventArgs)
+        {
+            _hideAction?.Invoke(_post);
         }
 
         private void Like_Click(object sender, EventArgs e)
