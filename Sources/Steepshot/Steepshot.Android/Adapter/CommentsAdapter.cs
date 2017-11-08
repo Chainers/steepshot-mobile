@@ -92,8 +92,12 @@ namespace Steepshot.Adapter
             _likeWaitAnimation = AnimationUtils.LoadAnimation(context, Resource.Animation.like_wait);
 
             _flag = new Suboption(itemView.Context);
-            _flag.SetImageResource(Resource.Drawable.ic_flag);
+            _flag.Text = "Flag";
             _flag.Click += Flag_Click;
+            var _flag2 = new Suboption(itemView.Context);
+            _flag2.Text = "Hide";
+            _flag2.Click += Flag_Click;
+            SubOptions.Add(_flag2);
             SubOptions.Add(_flag);
         }
 
@@ -143,7 +147,6 @@ namespace Steepshot.Adapter
             if (BasePostPresenter.IsEnableVote)
             {
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
-                _flag.SetImageResource(post.Flag ? Resource.Drawable.ic_flag_active : Resource.Drawable.ic_flag);
             }
             else
             {
