@@ -28,7 +28,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
+    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
