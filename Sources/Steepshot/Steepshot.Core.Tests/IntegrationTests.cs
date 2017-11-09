@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
@@ -769,7 +770,7 @@ namespace Steepshot.Core.Tests
             var userPostsResponse = Api[name].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
             var lastPost = userPostsResponse.Result.Results.First();
             const string body = "Ллойс!";
-            var createCommentRequest = new CreateCommentRequest(Authenticate(name), lastPost.Url, body, AppSettings.AppInfo);
+            var createCommentRequest = new CommentRequest(Authenticate(name), lastPost.Url, body, AppSettings.AppInfo);
 
             // Act
             var response1 = Api[name].CreateComment(createCommentRequest, CancellationToken.None).Result;
@@ -779,6 +780,30 @@ namespace Steepshot.Core.Tests
             AssertResult(response1);
             AssertResult(response2);
             Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds.") || response2.Errors.Contains("Duplicate transaction check failed"), string.Join(Environment.NewLine, response2.Errors));
+        }
+
+        [Test, Sequential]
+        public void EditCommentTest([Values("Steem", "Golos")] string name)
+        {
+            // Arrange
+            UserInfo user = Users[name];
+            var api = Api[name];
+            var userPostsRequest = new UserPostsRequest(user.Login);
+            userPostsRequest.ShowLowRated = true;
+            userPostsRequest.ShowNsfw = true;
+            var userPostsResponse = api.GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+
+            var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
+            Assert.IsNotNull(post);
+            var namedRequest = new NamedInfoRequest(post.Url);
+            var comments = api.GetComments(namedRequest, CancellationToken.None).Result;
+            var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
+            Assert.IsNotNull(comment);
+
+            var editCommentRequest = new CommentRequest(user, comment.Url, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
+
+            var result = Api[name].EditComment(editCommentRequest, CancellationToken.None).Result;
+            AssertResult(result);
         }
 
         [Test, Sequential]

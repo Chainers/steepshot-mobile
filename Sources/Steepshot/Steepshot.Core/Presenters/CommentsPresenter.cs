@@ -34,14 +34,14 @@ namespace Steepshot.Core.Presenters
             return errors;
         }
 
-        public async Task<OperationResult<CreateCommentResponse>> TryCreateComment(string comment, string url)
+        public async Task<OperationResult<CommentResponse>> TryCreateComment(string comment, string url)
         {
-            return await TryRunTask<string, string, CreateCommentResponse>(CreateComment, OnDisposeCts.Token, comment, url);
+            return await TryRunTask<string, string, CommentResponse>(CreateComment, OnDisposeCts.Token, comment, url);
         }
 
-        private async Task<OperationResult<CreateCommentResponse>> CreateComment(CancellationToken ct, string comment, string url)
+        private async Task<OperationResult<CommentResponse>> CreateComment(CancellationToken ct, string comment, string url)
         {
-            var reqv = new CreateCommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
+            var reqv = new CommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv, ct);
         }
     }
