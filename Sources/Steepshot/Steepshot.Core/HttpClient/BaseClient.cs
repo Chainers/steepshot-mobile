@@ -18,7 +18,7 @@ namespace Steepshot.Core.HttpClient
         protected ApiGateway Gateway;
 
         protected CancellationTokenSource CtsMain;
-        private readonly JsonNetConverter _jsonConverter;
+        protected readonly JsonNetConverter _jsonConverter;
 
         protected BaseClient()
         {
@@ -197,7 +197,9 @@ namespace Steepshot.Core.HttpClient
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             parameters.Add("query", request.Query);
 
-            var response = await Gateway.Get(GatewayVersion.V1P1, "user/search", parameters, ct);
+            var endpoint = "user/search";
+
+            var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
             return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
@@ -208,7 +210,10 @@ namespace Steepshot.Core.HttpClient
             if (!EnableRead)
                 return null;
 
-            var response = await Gateway.Get(GatewayVersion.V1, $"user/{request.Username}/exists", new Dictionary<string, object>(), ct);
+            var parameters = new Dictionary<string, object>();
+            var endpoint = $"user/{request.Username}/exists";
+
+            var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
             return CreateResult<UserExistsResponse>(response?.Content, errorResult);
@@ -221,8 +226,9 @@ namespace Steepshot.Core.HttpClient
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            var endpoint = "categories/top";
 
-            var response = await Gateway.Get(GatewayVersion.V1, "categories/top", parameters, ct);
+            var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
             var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
@@ -252,8 +258,9 @@ namespace Steepshot.Core.HttpClient
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             parameters.Add("query", request.Query);
+            var endpoint = "categories/search";
 
-            var response = await Gateway.Get(GatewayVersion.V1, "categories/search", parameters, ct);
+            var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
             var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
@@ -349,7 +356,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        protected OperationResult<T> CreateResult<T>(string json, OperationResult error)
+        protected virtual OperationResult<T> CreateResult<T>(string json, OperationResult error)
         {
             var result = new OperationResult<T>();
 

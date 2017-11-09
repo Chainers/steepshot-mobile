@@ -258,8 +258,7 @@ namespace Steepshot.Core.Tests.Stubs
             }
             resp.Results = resp.Results.Skip(skip).Take(request.Limit).ToList();
             resp.Count = resp.Results.Count;
-
-
+            
             return new OperationResult<SearchResponse<UserFriend>> { Result = resp };
         }
 
