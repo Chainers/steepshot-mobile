@@ -454,6 +454,7 @@ namespace Steepshot.Fragment
         private void OnBlackToGrayAnimationOnAnimationEnd(object sender, EventArgs e)
         {
             _currentButton = _activeButton;
+            _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
         }
 
         private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
@@ -478,6 +479,7 @@ namespace Steepshot.Fragment
 
         private void AnimatedButtonSwitch()
         {
+            _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = false;
             TransitionManager.BeginDelayedTransition(_searchTypeLayout);
 
             _activeButton.Typeface = Style.Semibold;
