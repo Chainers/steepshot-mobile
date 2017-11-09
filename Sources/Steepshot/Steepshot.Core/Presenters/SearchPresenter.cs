@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Steepshot.Core.Presenters
@@ -21,20 +20,22 @@ namespace Steepshot.Core.Presenters
         public async Task<List<string>> TrySearchCategories(string query, SearchType searchType)
         {
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
-                return null;
-            
-            return await RunAsSingleTask(SearchCategories, query, searchType);
-        }
+            {
+                if (searchType == SearchType.Tags)
+                    TagsPresenter.NotifySourceChanged();
+                else
+                    UserFriendPresenter.NotifySourceChanged();
 
-        private async Task<List<string>> SearchCategories(CancellationToken ct, string query, SearchType searchType)
-        {
+                return new List<string>();
+            }
+
             if (string.IsNullOrEmpty(query))
                 return await TagsPresenter.TryGetTopTags();
 
             if (searchType == SearchType.Tags)
                 return await TagsPresenter.TryLoadNext(query);
 
-            return await UserFriendPresenter.TryLoadNextSearchUser(ct, query);
+            return await UserFriendPresenter.TryLoadNextSearchUser(query);
         }
     }
 }
