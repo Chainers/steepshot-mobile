@@ -236,8 +236,9 @@ namespace Steepshot.Core.HttpClient
             {
                 string author;
                 string commentPermlink;
+                string parentAuthor;
                 string parentPermlink;
-                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentPermlink) || !string.Equals(author, request.Login))
+                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
                 {
                     return new OperationResult<CommentResponse>
                     {
@@ -245,7 +246,7 @@ namespace Steepshot.Core.HttpClient
                     };
                 }
 
-                var op = new CommentOperation(author, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
                 // var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
                 var resp = _operationManager.BroadcastOperations(keys, token.Token, op);
@@ -376,28 +377,21 @@ namespace Steepshot.Core.HttpClient
             return true;
         }
 
-        private bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentPermlink)
+        private bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentAuthor, out string parentPermlink)
         {
             var start = url.LastIndexOf('#');
 
+            author = parentPermlink = parentAuthor = commentPermlink = null;
+
             if (start == -1)
-            {
-                author = parentPermlink = commentPermlink = null;
                 return false;
-            }
 
             if (!TryCastUrlToAuthorAndPermlink(url.Remove(0, start + 1), out author, out commentPermlink))
-            {
-                author = parentPermlink = commentPermlink = null;
                 return false;
-            }
 
-            string parentAuthor;
-            if (!TryCastUrlToAuthorAndPermlink(url.Substring(0, start), out parentAuthor, out parentPermlink) || parentAuthor != author)
-            {
-                author = parentPermlink = null;
+
+            if (!TryCastUrlToAuthorAndPermlink(url.Substring(0, start), out parentAuthor, out parentPermlink))
                 return false;
-            }
 
             return true;
         }
