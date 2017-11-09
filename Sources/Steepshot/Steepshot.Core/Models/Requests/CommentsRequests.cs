@@ -4,9 +4,9 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class CreateCommentRequest : AuthorizedRequest
+    public class CommentRequest : AuthorizedRequest
     {
-        public CreateCommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
+        public CommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
         {
             if (string.IsNullOrWhiteSpace(url))
                 throw new UserException(Localization.Errors.EmptyUrlField);
