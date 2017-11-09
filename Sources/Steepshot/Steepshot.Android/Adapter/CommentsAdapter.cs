@@ -178,7 +178,7 @@ namespace Steepshot.Adapter
 
             _avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(_avatar);
+                Picasso.With(context).Load(post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Into(_avatar);
 
 
             _like.ClearAnimation();
