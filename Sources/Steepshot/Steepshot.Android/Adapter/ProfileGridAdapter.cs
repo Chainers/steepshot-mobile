@@ -174,7 +174,7 @@ namespace Steepshot.Adapter
             _profileImage.SetImageResource(Resource.Drawable.holder);
             if (!string.IsNullOrEmpty(profile.ProfileImage))
             {
-                Picasso.With(_context).Load(profile.ProfileImage)
+                Picasso.With(_context).Load(profile.ProfileImage).Placeholder(Resource.Drawable.holder)
                     .Resize(300, 300)
                     .CenterCrop()
                     .Into(_profileImage);
