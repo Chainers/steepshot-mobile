@@ -201,7 +201,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected void NotifySourceChanged()
+        internal void NotifySourceChanged()
         {
             SourceChanged?.Invoke();
         }

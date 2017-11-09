@@ -38,10 +38,13 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.categories)] private RecyclerView _categories;
         [InjectView(Resource.Id.users)] private RecyclerView _users;
         [InjectView(Resource.Id.search_view)] private EditText _searchView;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [InjectView(Resource.Id.people_loading_spinner)] private ProgressBar _peopleSpinner;
+        [InjectView(Resource.Id.tag_loading_spinner)] private ProgressBar _tagSpinner;
         [InjectView(Resource.Id.tags_button)] private Button _tagsButton;
         [InjectView(Resource.Id.people_button)] private Button _peopleButton;
         [InjectView(Resource.Id.clear_button)] private Button _clearButton;
+        [InjectView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
+        [InjectView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
 #pragma warning restore 0649
 
 
@@ -88,7 +91,7 @@ namespace Steepshot.Fragment
             _clearButton.Click += OnClearClick;
             _tagsButton.Click += TagsClick;
             _peopleButton.Click += PeopleClick;
-            SwitchSearchType();
+            SwitchSearchType(false);
             _searchView.RequestFocus();
 
             var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
@@ -125,6 +128,7 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
+                _peopleSpinner.Visibility = ViewStates.Gone;
                 _usersSearchAdapter.NotifyDataSetChanged();
             });
         }
@@ -136,6 +140,7 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
+                _tagSpinner.Visibility = ViewStates.Gone;
                 _categoriesAdapter.NotifyDataSetChanged();
             });
         }
@@ -204,10 +209,10 @@ namespace Steepshot.Fragment
 
         private async void GetTags()
         {
-            await GetTags(false);
+            await GetTags(false, false);
         }
 
-        private async Task GetTags(bool clear)
+        private async Task GetTags(bool clear, bool isLoaderNeeded = true)
         {
             if (clear)
             {
@@ -227,32 +232,37 @@ namespace Steepshot.Fragment
                     _prevQuery.Add(_searchType, _searchView.Text);
             }
 
-            _spinner.Visibility = ViewStates.Visible;
+            if (isLoaderNeeded)
+            {
+                if (_searchType == SearchType.People)
+                    _peopleSpinner.Visibility = ViewStates.Visible;
+                else
+                    _tagSpinner.Visibility = ViewStates.Visible;
+            }
 
             var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Short);
-            _spinner.Visibility = ViewStates.Gone;
         }
 
-        private async void SwitchSearchType()
+        private async void SwitchSearchType(bool isLoaderNeeded = true)
         {
             var btMain = _peopleButton;
             var btSecond = _tagsButton;
-            var rvmain = _users;
-            var rvSecond = _categories;
+            var rvMain = _usersLayout;
+            var rvSecond = _tagsLayout;
 
             if (_searchType == SearchType.Tags)
             {
                 btMain = _tagsButton;
                 btSecond = _peopleButton;
-                rvmain = _categories;
-                rvSecond = _users;
+                rvMain = _tagsLayout;
+                rvSecond = _usersLayout;
             }
 
-            rvmain.Visibility = ViewStates.Visible;
+            rvMain.Visibility = ViewStates.Visible;
             rvSecond.Visibility = ViewStates.Gone;
 
             btMain.Typeface = Style.Semibold;
@@ -263,7 +273,7 @@ namespace Steepshot.Fragment
             btSecond.SetTextSize(Android.Util.ComplexUnitType.Sp, 14);
             btSecond.SetTextColor(Style.R151G155B158);
 
-            await GetTags(true);
+            await GetTags(true, isLoaderNeeded);
         }
     }
 }
