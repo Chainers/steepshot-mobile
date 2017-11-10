@@ -5,7 +5,6 @@ using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;

@@ -57,6 +57,7 @@ namespace Steepshot.Core.Presenters
             if (!available)
                 return new List<string> { Localization.Errors.InternetUnavailable };
 
+            CancellationToken ts;
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
@@ -67,10 +68,11 @@ namespace Steepshot.Core.Presenters
                         return null;
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
+                ts = _singleTaskCancellationTokenSource.Token;
             }
             try
             {
-                return await func(_singleTaskCancellationTokenSource.Token);
+                return await func(ts);
             }
             catch (OperationCanceledException)
             {
@@ -104,6 +106,7 @@ namespace Steepshot.Core.Presenters
             if (!available)
                 return new List<string> { Localization.Errors.InternetUnavailable };
 
+            CancellationToken ts;
             lock (_sync)
             {
                 if (_singleTaskCancellationTokenSource != null)
@@ -114,10 +117,11 @@ namespace Steepshot.Core.Presenters
                         return null;
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
+                ts = _singleTaskCancellationTokenSource.Token;
             }
             try
             {
-                return await func(_singleTaskCancellationTokenSource.Token, param1);
+                return await func(ts, param1);
             }
             catch (OperationCanceledException)
             {
@@ -144,54 +148,7 @@ namespace Steepshot.Core.Presenters
             }
             return null;
         }
-
-        protected async Task<List<string>> RunAsSingleTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, T1 param1, T2 param2, bool cancelPrevTask = true)
-        {
-            var available = ConnectionService.IsConnectionAvailable();
-            if (!available)
-                return new List<string> { Localization.Errors.InternetUnavailable };
-
-            lock (_sync)
-            {
-                if (_singleTaskCancellationTokenSource != null)
-                {
-                    if (cancelPrevTask)
-                        _singleTaskCancellationTokenSource.Cancel();
-                    else
-                        return null;
-                }
-                _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
-            }
-            try
-            {
-                return await func(_singleTaskCancellationTokenSource.Token, param1, param2);
-            }
-            catch (OperationCanceledException)
-            {
-                // to do nothing
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new List<string> { ex.Message };
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                lock (_sync)
-                {
-                    if (_singleTaskCancellationTokenSource != null)
-                    {
-                        _singleTaskCancellationTokenSource.Dispose();
-                        _singleTaskCancellationTokenSource = null;
-                    }
-                }
-            }
-            return null;
-        }
-
+        
         public void LoadCancel()
         {
             lock (_sync)

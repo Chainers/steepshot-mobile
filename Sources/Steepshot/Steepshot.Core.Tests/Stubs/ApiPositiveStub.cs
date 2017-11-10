@@ -56,16 +56,16 @@ namespace Steepshot.Core.Tests.Stubs
             Converter = new JsonNetConverter();
         }
 
-        public async Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain)
+        public async Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain, CancellationToken token)
         {
             return true;
         }
 
-        public bool TryReconnectChain(KnownChains chain)
+        public bool TryReconnectChain(KnownChains chain, CancellationToken toke)
         {
             return true;
         }
-
+        
         public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             return new OperationResult<LoginResponse>

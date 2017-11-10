@@ -22,7 +22,7 @@ namespace Steepshot.Core.Tests.Stubs
         {
             if (error.Success)
             {
-                var jObject = _jsonConverter.Deserialize<JObject>(json);
+                var jObject = JsonConverter.Deserialize<JObject>(json);
                 var type = typeof(T);
                 var mNames = GetPropertyNames(type);
                 var jNames = jObject.Children().Select(jtoken => ToTitleCase(jtoken.Path)).ToArray();

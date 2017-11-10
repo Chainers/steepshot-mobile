@@ -16,15 +16,20 @@ namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
-        protected static readonly ISteepshotApiClient Api;
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
+        protected static readonly ISteepshotApiClient Api;
+
+        private static readonly object ctsSync = new object();
+        private static CancellationTokenSource _reconecTokenSource;
         private static IConnectionService _connectionService;
+
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
+
         protected CancellationTokenSource OnDisposeCts;
-        
+
         public static string Currency
         {
             get
@@ -36,7 +41,6 @@ namespace Steepshot.Core.Presenters
         }
         public static User User { get; set; }
         public static KnownChains Chain { get; set; }
-        private static Timer _reconectTimer;
 
         static BasePresenter()
         {
@@ -48,8 +52,9 @@ namespace Steepshot.Core.Presenters
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new DitchApi();
-            
-            TryConnect(Chain, AppSettings.IsDev);
+
+            var ts = GetReconectToken();
+            TryRunTask(TryConnect, ts, Chain, AppSettings.IsDev);
             // static constructor initialization.
             Task.Run(() =>
             {
@@ -62,46 +67,50 @@ namespace Steepshot.Core.Presenters
             OnDisposeCts = new CancellationTokenSource();
         }
 
-        private static async Task TryConnect(KnownChains chain, bool isDev)
+        private static async Task<List<string>> TryConnect(CancellationToken token, KnownChains chain, bool isDev)
         {
-            if (_reconectTimer != null)
-            {
-                _reconectTimer.Dispose();
-                _reconectTimer = null;
-            }
+            var isConnectionAvailable = ConnectionService.IsConnectionAvailable();
+            var isConnected = await Api.Connect(chain, isDev, isConnectionAvailable, token);
 
-            var isConnected = ConnectionService.IsConnectionAvailable();
-            isConnected = await Api.Connect(chain, isDev, isConnected);
             if (!isConnected)
             {
-                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                _reconectTimer = new Timer(TryReconect, null, 0, 5000);
+                OnAllert?.Invoke(isConnectionAvailable
+                    ? Localization.Errors.InternetUnavailable
+                    : Localization.Errors.EnableConnectToBlockchain);
+
+                await TryRunTask(TryReconect, token);
             }
+            return new List<string>();
         }
 
-        private static void TryReconect(object state)
+        private static async Task<List<string>> TryReconect(CancellationToken token)
         {
-            var isConnected = ConnectionService.IsConnectionAvailable();
-            if (!isConnected)
+            do
             {
-                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                return;
-            }
+                if (token.IsCancellationRequested)
+                    return null;
 
-            //TODO:ReconectTimer == null exception, need multithread handling (lock)
+                await Task.Delay(5000, token);
 
-            _reconectTimer.Change(int.MaxValue, 5000);
-            isConnected = Api.TryReconnectChain(Chain);
-            if (!isConnected)
-            {
-                OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                _reconectTimer.Change(5000, 5000);
-            }
-            else
-            {
-                OnAllert?.Invoke(string.Empty);
-                _reconectTimer.Dispose();
-            }
+                var isConnected = ConnectionService.IsConnectionAvailable();
+                if (!isConnected)
+                {
+                    OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                }
+                else
+                {
+                    isConnected = Api.TryReconnectChain(Chain, token);
+                    if (!isConnected)
+                    {
+                        OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                    }
+                    else
+                    {
+                        OnAllert?.Invoke(string.Empty);
+                        return null;
+                    }
+                }
+            } while (true);
         }
 
         public static async Task SwitchChain(bool isDev)
@@ -110,7 +119,9 @@ namespace Steepshot.Core.Presenters
                 return;
 
             AppSettings.IsDev = isDev;
-            await TryConnect(Chain, isDev);
+
+            var ts = GetReconectToken();
+            await TryRunTask(TryConnect, ts, Chain, isDev);
         }
 
         public static async Task SwitchChain(UserInfo userInfo)
@@ -121,7 +132,9 @@ namespace Steepshot.Core.Presenters
             User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
-            await TryConnect(userInfo.Chain, AppSettings.IsDev);
+
+            var ts = GetReconectToken();
+            await TryRunTask(TryConnect, ts, userInfo.Chain, AppSettings.IsDev);
         }
 
         public static async Task SwitchChain(KnownChains chain)
@@ -130,7 +143,10 @@ namespace Steepshot.Core.Presenters
                 return;
 
             Chain = chain;
-            await TryConnect(chain, AppSettings.IsDev);
+
+
+            var ts = GetReconectToken();
+            await TryRunTask(TryConnect, ts, chain, AppSettings.IsDev);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
@@ -141,9 +157,26 @@ namespace Steepshot.Core.Presenters
             return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
 
+
+        private static CancellationToken GetReconectToken()
+        {
+            CancellationToken ts;
+            lock (ctsSync)
+            {
+                if (_reconecTokenSource != null && !_reconecTokenSource.IsCancellationRequested)
+                {
+                    _reconecTokenSource.Cancel();
+                }
+                _reconecTokenSource = new CancellationTokenSource();
+                ts = _reconecTokenSource.Token;
+            }
+
+            return ts;
+        }
+
         #region TryRunTask
 
-        protected async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
+        protected static async Task<OperationResult<TResult>> TryRunTask<TResult>(Func<CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct)
         {
             try
             {
@@ -170,7 +203,7 @@ namespace Steepshot.Core.Presenters
             return null;
         }
 
-        protected async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
+        protected static async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -197,7 +230,7 @@ namespace Steepshot.Core.Presenters
             return null;
         }
 
-        protected async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
@@ -225,7 +258,7 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        protected async Task<List<string>> TryRunTask(Func<CancellationToken, Task<List<string>>> func, CancellationToken ct)
+        protected static async Task<List<string>> TryRunTask(Func<CancellationToken, Task<List<string>>> func, CancellationToken ct)
         {
             try
             {
@@ -250,7 +283,7 @@ namespace Steepshot.Core.Presenters
             return null;
         }
 
-        protected async Task<List<string>> TryRunTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, CancellationToken ct, T1 param1)
+        protected static async Task<List<string>> TryRunTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -275,7 +308,7 @@ namespace Steepshot.Core.Presenters
             return null;
         }
 
-        protected async Task<List<string>> TryRunTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<List<string>> TryRunTask<T1, T2>(Func<CancellationToken, T1, T2, Task<List<string>>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
