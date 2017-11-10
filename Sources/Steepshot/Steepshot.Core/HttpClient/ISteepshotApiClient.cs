@@ -89,7 +89,9 @@ namespace Steepshot.Core.HttpClient
         ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
         ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
         /// </summary>
-        Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationToken ct);
+        Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct);
+
+        Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct);
 
         /// <summary>
         ///     Examples:

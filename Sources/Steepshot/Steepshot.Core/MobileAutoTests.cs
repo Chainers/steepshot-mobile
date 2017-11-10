@@ -237,7 +237,7 @@ namespace Steepshot.Core
             }
 
             var testPost = postsResp.Result.Results.First();
-            var req = new CreateCommentRequest(_user, testPost.Url, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
+            var req = new CommentRequest(_user, testPost.Url, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
             var rez = _api.CreateComment(req, CancellationToken.None)
                 .Result;
 

@@ -1,13 +1,13 @@
 namespace Steepshot.Core.Models.Responses
 {
-    public class CreateCommentResponse : MessageField
+    public class CommentResponse : MessageField
     {
         private const string ServerPositiveResponceMsg = "Comment created";
         private readonly bool _isCreated;
 
         public bool IsCreated => _isCreated || Message.Equals(ServerPositiveResponceMsg);
 
-        public CreateCommentResponse(bool isCreated)
+        public CommentResponse(bool isCreated)
         {
             _isCreated = isCreated;
         }

@@ -32,8 +32,8 @@
             android:background="@android:color/transparent"
             android:textCursorDrawable="@drawable/input"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/search_small"
-            android:layout_toLeftOf="@+id/clear_button" />
+            android:layout_toRightOf="@id/search_small"
+            android:layout_toLeftOf="@id/clear_button" />
         <Button
             android:id="@+id/clear_button"
             android:layout_width="40dp"
@@ -51,14 +51,14 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/rgb244_244_246"
-            android:layout_below="@+id/search_view" />
+            android:layout_below="@id/search_view" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/search_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:layout_alignLeft="@+id/toolbar"
+        android:layout_below="@id/toolbar"
+        android:layout_alignLeft="@id/toolbar"
         android:layout_marginTop="34dp"
         android:layout_marginBottom="34dp">
         <Button
@@ -82,28 +82,42 @@
             android:textColor="@color/rgb151_155_158"
             android:textAllCaps="false"
             android:gravity="bottom"
-            android:layout_toRightOf="@+id/people_button" />
+            android:layout_toRightOf="@id/people_button" />
     </RelativeLayout>
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/users"
-        android:layout_below="@+id/search_type"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="0.0dp" />
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/categories"
-        android:layout_below="@+id/search_type"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="0.0dp" />
-    <ProgressBar
-        android:id="@+id/loading_spinner"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:visibility="gone"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/color_primary"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="10dp" />
+    <RelativeLayout
+        android:id="@+id/users_layout"
+        android:layout_below="@id/search_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/users"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ProgressBar
+            android:id="@+id/people_loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/rgb15_24_30"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/tags_layout"
+        android:layout_below="@id/search_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/categories"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ProgressBar
+            android:id="@+id/tag_loading_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/rgb15_24_30"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 </RelativeLayout>

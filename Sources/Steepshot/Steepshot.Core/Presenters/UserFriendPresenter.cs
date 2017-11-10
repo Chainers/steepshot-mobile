@@ -102,9 +102,9 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<List<string>> TryLoadNextSearchUser(CancellationToken ct, string query)
+        public async Task<List<string>> TryLoadNextSearchUser(string query)
         {
-            return await LoadNextSearchUser(ct, query);
+            return await RunAsSingleTask(LoadNextSearchUser, query);
         }
 
         private async Task<List<string>> LoadNextSearchUser(CancellationToken ct, string query)
@@ -137,7 +137,6 @@ namespace Steepshot.Core.Presenters
             }
             return response.Errors;
         }
-
 
         public async Task<List<string>> TryFollow(UserFriend item)
         {

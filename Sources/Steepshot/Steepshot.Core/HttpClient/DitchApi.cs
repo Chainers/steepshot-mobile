@@ -13,20 +13,17 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.HttpClient
 {
     public class DitchApi : BaseClient, ISteepshotApiClient
     {
-        private readonly JsonNetConverter _jsonConverter;
         private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         private readonly OperationManager _operationManager;
         protected volatile bool EnableWrite;
 
         public DitchApi()
         {
-            _jsonConverter = new JsonNetConverter();
             _operationManager = new OperationManager();
         }
 
@@ -186,14 +183,14 @@ namespace Steepshot.Core.HttpClient
             }, token.Token);
         }
 
-        public async Task<OperationResult<CreateCommentResponse>> CreateComment(CreateCommentRequest request, CancellationToken ct)
+        public async Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct)
         {
             if (!EnableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
-                return new OperationResult<CreateCommentResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+                return new OperationResult<CommentResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
 
             var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
             return await Task.Run(() =>
@@ -202,7 +199,7 @@ namespace Steepshot.Core.HttpClient
                 string permlink;
                 if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
                 {
-                    return new OperationResult<CreateCommentResponse>
+                    return new OperationResult<CommentResponse>
                     {
                         Errors = new List<string> { Localization.Errors.IncorrectIdentifier }
                     };
@@ -212,14 +209,58 @@ namespace Steepshot.Core.HttpClient
 
                 var resp = _operationManager.BroadcastOperations(keys, token.Token, op);
 
-                var result = new OperationResult<CreateCommentResponse>();
+                var result = new OperationResult<CommentResponse>();
                 if (!resp.IsError)
                 {
-                    result.Result = new CreateCommentResponse(true);
+                    result.Result = new CommentResponse(true);
                     result.Result.Permlink = op.Permlink;
                 }
                 else
                     OnError(resp, result);
+                Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, token.Token).Wait(5000);
+                return result;
+            }, token.Token);
+        }
+
+        public async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
+        {
+            if (!EnableWrite)
+                return null;
+
+            var keys = ToKeyArr(request.PostingKey);
+            if (keys == null)
+                return new OperationResult<CommentResponse> { Errors = new List<string> { Localization.Errors.WrongPrivateKey } };
+
+            var token = CancellationTokenSource.CreateLinkedTokenSource(ct, CtsMain.Token);
+            return await Task.Run(() =>
+            {
+                string author;
+                string commentPermlink;
+                string parentAuthor;
+                string parentPermlink;
+                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
+                {
+                    return new OperationResult<CommentResponse>
+                    {
+                        Errors = new List<string> { Localization.Errors.IncorrectIdentifier }
+                    };
+                }
+
+                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                // var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+
+                var resp = _operationManager.BroadcastOperations(keys, token.Token, op);
+
+                var result = new OperationResult<CommentResponse>();
+                if (!resp.IsError)
+                {
+                    result.Result = new CommentResponse(true);
+                    result.Result.Permlink = op.Permlink;
+                }
+                else
+                {
+                    OnError(resp, result);
+                }
                 Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, token.Token).Wait(5000);
                 return result;
             }, token.Token);
@@ -333,6 +374,25 @@ namespace Steepshot.Core.HttpClient
             }
             author = authPostArr[0];
             permlink = authPostArr[1];
+            return true;
+        }
+
+        private bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentAuthor, out string parentPermlink)
+        {
+            var start = url.LastIndexOf('#');
+
+            author = parentPermlink = parentAuthor = commentPermlink = null;
+
+            if (start == -1)
+                return false;
+
+            if (!TryCastUrlToAuthorAndPermlink(url.Remove(0, start + 1), out author, out commentPermlink))
+                return false;
+
+
+            if (!TryCastUrlToAuthorAndPermlink(url.Substring(0, start), out parentAuthor, out parentPermlink))
+                return false;
+
             return true;
         }
 
