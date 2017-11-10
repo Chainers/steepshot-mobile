@@ -239,9 +239,10 @@ namespace Steepshot.Adapter
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
 
-            _avatar.SetImageResource(Resource.Drawable.holder);
             if (!string.IsNullOrEmpty(post.Avatar))
                 Picasso.With(context).Load(post.Avatar).Placeholder(Resource.Drawable.holder).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(_avatar);
+            else
+                Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
 
             _photo.SetImageResource(0);
             var photo = post.Photos?.FirstOrDefault();
