@@ -10,6 +10,7 @@ using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Fragment
 {
@@ -76,7 +77,7 @@ namespace Steepshot.Fragment
         }
 
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
