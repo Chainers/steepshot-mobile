@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
@@ -17,7 +18,7 @@ namespace Steepshot.Core.Presenters
         protected string OffsetUrl = string.Empty;
 
         public bool IsLastReaded { get; protected set; }
-        public event Action SourceChanged;
+        public event Action<Status> SourceChanged;
 
         public virtual int Count => Items.Count;
 
@@ -203,7 +204,12 @@ namespace Steepshot.Core.Presenters
 
         internal void NotifySourceChanged()
         {
-            SourceChanged?.Invoke();
+            SourceChanged?.Invoke(new Status(true));
+        }
+
+        internal void NotifySourceChanged(bool isChanged)
+        {
+            SourceChanged?.Invoke(new Status(isChanged));
         }
     }
 }

@@ -63,10 +63,12 @@ namespace Steepshot.Core.Presenters
             
             List<string> errors;
             OperationResult<UserPostResponse> response;
+            bool isNeedRepeat;
             do
             {
                 response = await Api.GetPostsByCategory(request, ct);
-            } while (ResponseProcessing(response, ItemsLimit, out errors));
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+            } while (isNeedRepeat);
 
             return errors;
         }
