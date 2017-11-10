@@ -8,8 +8,8 @@ namespace Steepshot.Core.HttpClient
 {
     public interface ISteepshotApiClient
     {
-        Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain);
-        bool TryReconnectChain(KnownChains chain);
+        Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain, CancellationToken token);
+        bool TryReconnectChain(KnownChains chain, CancellationToken toke);
 
         /// <summary>
         ///     Examples:

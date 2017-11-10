@@ -32,14 +32,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-
 using SharpRaven.Data;
-using SharpRaven.Utilities;
 
 namespace SharpRaven
 {

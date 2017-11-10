@@ -18,11 +18,11 @@ namespace Steepshot.Core.HttpClient
         protected ApiGateway Gateway;
 
         protected CancellationTokenSource CtsMain;
-        protected readonly JsonNetConverter _jsonConverter;
+        protected readonly JsonNetConverter JsonConverter;
 
         protected BaseClient()
         {
-            _jsonConverter = new JsonNetConverter();
+            JsonConverter = new JsonNetConverter();
             CtsMain = new CancellationTokenSource();
             //Gateway = new ApiGateway();
         }
@@ -328,7 +328,7 @@ namespace Steepshot.Core.HttpClient
             if (response.StatusCode == HttpStatusCode.BadRequest ||
                 response.StatusCode == HttpStatusCode.Forbidden)
             {
-                var dic = _jsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                var dic = JsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
                 foreach (var kvp in dic)
                 {
                     result.Errors.AddRange(kvp.Value);
@@ -362,7 +362,7 @@ namespace Steepshot.Core.HttpClient
 
             if (error.Success)
             {
-                result.Result = _jsonConverter.Deserialize<T>(json);
+                result.Result = JsonConverter.Deserialize<T>(json);
             }
             else
             {

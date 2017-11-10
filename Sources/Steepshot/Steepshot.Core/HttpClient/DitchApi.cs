@@ -20,21 +20,21 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         private readonly OperationManager _operationManager;
-        protected volatile bool EnableWrite;
+        private volatile bool _enableWrite;
 
         public DitchApi()
         {
             _operationManager = new OperationManager();
         }
 
-        public async Task<bool> Connect(KnownChains chain, bool isDev, bool connectToBlockcain)
+        public async Task<bool> Connect(KnownChains chain, bool isDev, bool connectToBlockcain, CancellationToken token)
         {
             var sUrl = chain == KnownChains.Steem
                 ? (isDev ? Constants.SteemUrlQa : Constants.SteemUrl)
                 : (isDev ? Constants.GolosUrlQa : Constants.GolosUrl);
 
             EnableRead = false;
-            EnableWrite = false;
+            _enableWrite = false;
             if (Gateway != null)
             {
                 CtsMain.Cancel();
@@ -43,37 +43,38 @@ namespace Steepshot.Core.HttpClient
             Gateway = new ApiGateway(sUrl);
             EnableRead = true;
             if (connectToBlockcain)
-                return await Task.Run(() => TryReconnectChain(chain));
+                return await Task.Run(() => TryReconnectChain(chain, token), token);
             return false;
         }
 
-        public bool TryReconnectChain(KnownChains chain)
+        public bool TryReconnectChain(KnownChains chain, CancellationToken token)
         {
             try
             {
-                if (!EnableWrite)
+                if (!_enableWrite)
                 {
                     var cUrls = (chain == KnownChains.Steem)
                         ? new List<string> { "wss://steemd.steemit.com" }
                         : new List<string> { "wss://ws.golos.io" };
 
-                    var conectedTo = _operationManager.TryConnectTo(cUrls, CtsMain.Token);
+                    var cts = CancellationTokenSource.CreateLinkedTokenSource(token, CtsMain.Token);
+                    var conectedTo = _operationManager.TryConnectTo(cUrls, cts.Token);
                     if (!string.IsNullOrEmpty(conectedTo))
-                        EnableWrite = true;
+                        _enableWrite = true;
                 }
             }
             catch (Exception)
             {
                 //todo nothing
             }
-            return EnableWrite;
+            return _enableWrite;
         }
 
         #region Post requests
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
@@ -129,7 +130,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
@@ -158,7 +159,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
@@ -185,7 +186,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
@@ -224,7 +225,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
@@ -281,7 +282,7 @@ namespace Steepshot.Core.HttpClient
             {
                 var op = new FollowOperation(request.Login, "steepshot", Ditch.Operations.Enums.FollowType.blog, request.Login);
                 var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, token.Token, op);
-                var trx = _jsonConverter.Serialize(tr);
+                var trx = JsonConverter.Serialize(tr);
 
                 PostOperation.PrepareTags(request.Tags);
 
@@ -294,7 +295,7 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
         {
-            if (!EnableWrite)
+            if (!_enableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);

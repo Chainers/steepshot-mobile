@@ -32,14 +32,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 #if net35
 using System.Web;
 #endif
 using Newtonsoft.Json;
 
 using SharpRaven.Utilities;
-using System.Collections.Specialized;
 
 namespace SharpRaven.Data
 {
