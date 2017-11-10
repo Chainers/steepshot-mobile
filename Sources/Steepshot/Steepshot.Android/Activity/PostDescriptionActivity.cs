@@ -73,16 +73,8 @@ namespace Steepshot.Activity
             _postButton.Typeface = Style.Semibold;
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
-            _photoFrame.Click += (sender, e) => 
-            {
-                if(_btmp == null)
-                {
-                    _btmp = BitmapFactory.DecodeFile(_path);
-                    _shouldCompress = true;
-                }
-                _btmp = BitmapUtils.RotateImage(_btmp, 90);
-                _photoFrame.SetImageBitmap(_btmp);
-            };
+            _photoFrame.Click += PhotoFrameOnClick;
+            _photoFrame.SetScaleType(ImageView.ScaleType.FitCenter);
             _postButton.Text = Localization.Texts.PublishButtonText;
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             _path = Intent.GetStringExtra(PhotoExtraPath);
@@ -138,6 +130,17 @@ namespace Steepshot.Activity
             _timer = new Timer(OnTimer);
 
             SearchTextChanged();
+        }
+
+        private void PhotoFrameOnClick(object sender, EventArgs e)
+        {
+            if (_btmp == null)
+            {
+                _btmp = BitmapFactory.DecodeFile(_path);
+                _shouldCompress = true;
+            }
+            _btmp = BitmapUtils.RotateImage(_btmp, 90);
+            _photoFrame.SetImageBitmap(_btmp);
         }
 
         protected override void OnDestroy()
