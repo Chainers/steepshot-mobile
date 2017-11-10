@@ -3,29 +3,57 @@
     android:layout_width="match_parent"
     android:background="@android:color/white"
     android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo_small"
-        android:layout_marginTop="25dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginBottom="10dp" />
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/feed_refresher"
+    <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cl_profile"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+            <android.support.design.widget.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll|enterAlways">
+                <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"					
+					android:id="@+id/feed_header"
+                    android:layout_width="match_parent"
+                    android:background="@android:color/white"
+                    android:layout_height="70dp">
+                    <ImageView
+                        android:id="@+id/logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/logo_small"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginBottom="10dp" />
+			    </RelativeLayout>
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>	
+    <RelativeLayout
+        android:id="@+id/list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/logo">
-        <FrameLayout
-            android:id="@+id/fragment_container"
+		android:layout_below="@+id/feed_header"	
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">		
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/feed_refresher"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/feed_list"
+            <FrameLayout
+                android:id="@+id/fragment_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-    </android.support.v4.widget.SwipeRefreshLayout>
+                android:layout_height="match_parent">
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/feed_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+        </android.support.v4.widget.SwipeRefreshLayout>
+	</RelativeLayout>		
+	</android.support.design.widget.CoordinatorLayout>
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"
