@@ -74,7 +74,6 @@ namespace Steepshot.Activity
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
-            _photoFrame.SetScaleType(ImageView.ScaleType.FitCenter);
             _postButton.Text = Localization.Texts.PublishButtonText;
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             _path = Intent.GetStringExtra(PhotoExtraPath);
