@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="20dp">
         <refractored.controls.CircleImageView
             android:id="@+id/profile_image"
             android:layout_width="70dp"
@@ -187,7 +187,9 @@
             android:id="@+id/top_balance_line"
             android:layout_width="match_parent"
             android:layout_height="2px"
-            android:background="@color/rgb244_244_246" />
+            android:background="@color/rgb244_244_246"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp" />
         <ImageView
             android:id="@+id/balance_img"
             android:layout_width="12dp"
@@ -227,6 +229,8 @@
             android:layout_width="match_parent"
             android:layout_height="2px"
             android:background="@color/rgb244_244_246"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp" />
     </RelativeLayout>
 </RelativeLayout>

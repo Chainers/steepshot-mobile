@@ -171,14 +171,15 @@ namespace Steepshot.Adapter
             if (profile == null)
                 return;
 
-            _profileImage.SetImageResource(Resource.Drawable.holder);
             if (!string.IsNullOrEmpty(profile.ProfileImage))
             {
-                Picasso.With(_context).Load(profile.ProfileImage)
+                Picasso.With(_context).Load(profile.ProfileImage).Placeholder(Resource.Drawable.holder)
                     .Resize(300, 300)
                     .CenterCrop()
                     .Into(_profileImage);
             }
+            else
+                Picasso.With(_context).Load(Resource.Drawable.holder).Into(_profileImage);
 
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {

@@ -130,9 +130,10 @@ namespace Steepshot.Adapter
 
                 _friendLogin.Text = userFriends.Author;
 
-                _friendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
                 if (!string.IsNullOrEmpty(userFriends.Avatar))
-                    Picasso.With(_context).Load(userFriends.Avatar).NoFade().Resize(300, 0).Into(_friendAvatar);
+                    Picasso.With(_context).Load(userFriends.Avatar).Placeholder(Resource.Drawable.holder).NoFade().Resize(300, 0).Into(_friendAvatar);
+                else
+                    Picasso.With(_context).Load(Resource.Drawable.holder).Into(_friendAvatar);
 
                 _followButton.Visibility = BasePresenter.User.Login == _friendLogin.Text
                     ? ViewStates.Gone

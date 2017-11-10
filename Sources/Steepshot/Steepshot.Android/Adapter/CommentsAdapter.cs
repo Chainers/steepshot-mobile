@@ -177,10 +177,10 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
             _comment.Text = post.Body;
 
-            _avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
             if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(context).Load(post.Avatar).Resize(300, 0).Into(_avatar);
-
+                Picasso.With(context).Load(post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Into(_avatar);
+            else
+                Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
 
             _like.ClearAnimation();
             if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
