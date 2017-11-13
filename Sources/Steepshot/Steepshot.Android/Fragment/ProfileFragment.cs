@@ -163,6 +163,18 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
+            {
+                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
+                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
+                var post = Presenter.GetPostByUrl(postUrl);
+                post.Children += count;
+                _postsList.GetAdapter()?.NotifyDataSetChanged();
+            }
+        }
+
         public override void OnDetach()
         {
             base.OnDetach();
@@ -318,7 +330,7 @@ namespace Steepshot.Fragment
 
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            Context.StartActivity(intent);
+            StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
         private void VotersAction(Post post)

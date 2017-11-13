@@ -21,10 +21,14 @@ namespace Steepshot.Activity
     public sealed class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
     {
         public const string PostExtraPath = "uid";
+        public const int RequestCode = 124;
+        public const string ResultString = "result";
+        public const string CountString = "count";
 
         private CommentAdapter _adapter;
         private string _uid;
         private LinearLayoutManager _manager;
+        private int _counter = 0;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.comments_list)] private RecyclerView _comments;
@@ -126,6 +130,12 @@ namespace Steepshot.Activity
 
                 this.ShowAlert(errors, ToastLength.Short);
                 _comments.MoveToPosition(Presenter.Count - 1);
+
+                _counter++;
+                Intent returnIntent = new Intent();
+                returnIntent.PutExtra(ResultString, _uid);
+                returnIntent.PutExtra(CountString, _counter);
+                SetResult(Result.Ok, returnIntent);
             }
             else
             {
