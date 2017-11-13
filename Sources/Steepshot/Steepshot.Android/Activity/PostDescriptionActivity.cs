@@ -121,7 +121,7 @@ namespace Steepshot.Activity
 
             _tag.TextChanged += OnTagOnTextChanged;
             _tag.KeyboardDownEvent += HideTagsList;
-            _tag.OkKeyEvent += OnTagOnOkKeyEvent;
+            _tag.OkKeyEvent += HideTagsList;
             _tag.FocusChange += OnTagOnFocusChange;
 
             _topMarginTagsLayout.Click += OnTagsLayoutClick;
@@ -185,13 +185,6 @@ namespace Steepshot.Activity
             }
         }
 
-        private void OnTagOnOkKeyEvent()
-        {
-            HideTagsList();
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
-        }
-
         private void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
         {
             var txt = e.Text.ToString();
@@ -229,7 +222,10 @@ namespace Steepshot.Activity
 
         private void OnBack(object sender, EventArgs e)
         {
-            OnBackPressed();
+            if (_tag.HasFocus)
+                HideTagsList();
+            else
+                OnBackPressed();
         }
 
         private void OnTagsLayoutClick(object sender, EventArgs e)
@@ -392,7 +388,6 @@ namespace Steepshot.Activity
             });
         }
 
-
         private async void TryUpload()
         {
             if (_request == null || _response == null)
@@ -450,6 +445,8 @@ namespace Steepshot.Activity
             Window.SetSoftInputMode(SoftInput.AdjustPan);
             _tag.ClearFocus();
             AnimateTagsLayout(Resource.Id.description_layout);
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
         }
     }
 }
