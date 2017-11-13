@@ -15,26 +15,28 @@ namespace Steepshot.Core.Tests
     public class ServerResponceTests
     {
         private const bool IsDev = false;
-        private static readonly Dictionary<string, UserInfo> Users;
-        private static readonly Dictionary<string, BaseClient> Gateway;
+        private static readonly Dictionary<KnownChains, UserInfo> Users;
+        private static readonly Dictionary<KnownChains, BaseClient> Gateway;
 
         static ServerResponceTests()
         {
-            Gateway = new Dictionary<string, BaseClient>
+            Gateway = new Dictionary<KnownChains, BaseClient>
             {
-                {"Steem", new AssertedBaseClient(IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
-                {"Golos", new AssertedBaseClient(IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.Steem, new AssertedBaseClient(IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
+                {KnownChains.Golos, new AssertedBaseClient(IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.GolosTestNet, new AssertedBaseClient("wss://ws.testnet.golos.io")},
             };
 
-            Users = new Dictionary<string, UserInfo>
+            Users = new Dictionary<KnownChains, UserInfo>
             {
-                {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
-                {"Golos", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}}
+                {KnownChains.Steem, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
+                {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
+                {KnownChains.GolosTestNet, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosTestNetWif"]}},
             };
         }
 
         [Test]
-        public async Task GetUserPostsTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetUserPostsTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -49,7 +51,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task GetUserRecentPostsTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetUserRecentPostsTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var user = Users[apiName];
             var request = new CensoredNamedRequestWithOffsetLimitFields
@@ -64,7 +66,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task GetPostsTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetPostsTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var request = new PostsRequest(PostType.Top);
 
@@ -73,7 +75,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public async Task GetPostsByCategoryTest([Values("Steem", "Golos")] string apiName, [Values("food", "ru--golos")] string category)
+        public async Task GetPostsByCategoryTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("food", "ru--golos")] string category)
         {
             var request = new PostsByCategoryRequest(PostType.Top, category);
             var errors = await Gateway[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -81,7 +83,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public async Task GetPostVotersTest([Values("Steem", "Golos")] string apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
+        public async Task GetPostVotersTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
         {
             var request = new InfoRequest(url)
             {
@@ -95,7 +97,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public async Task GetCommentsTest([Values("Steem", "Golos")] string apiName, [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/cat636281384922864910")] string url)
+        public async Task GetCommentsTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/cat636281384922864910")] string url)
         {
             var request = new NamedInfoRequest(url);
             var errors = await Gateway[apiName].GetComments(request, CancellationToken.None);
@@ -103,7 +105,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task GetUserProfileTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetUserProfileTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var user = Users[apiName];
             var request = new UserProfileRequest(user.Login);
@@ -113,7 +115,7 @@ namespace Steepshot.Core.Tests
 
 
         [Test]
-        public async Task GetUserFriendsTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetUserFriendsTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var user = Users[apiName];
             var request = new UserFriendsRequest(user.Login, FriendsType.Following);
@@ -122,7 +124,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public async Task GetPostInfoTest([Values("Steem", "Golos")] string apiName,
+        public async Task GetPostInfoTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName,
                 [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string url)
         {
             var request = new NamedInfoRequest(url)
@@ -135,7 +137,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task SearchUserTest([Values("Steem", "Golos")] string apiName)
+        public async Task SearchUserTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var request = new SearchWithQueryRequest("aar");
             var errors = await Gateway[apiName].SearchUser(request, CancellationToken.None);
@@ -143,7 +145,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task UserExistsCheckTest([Values("Steem", "Golos")] string apiName)
+        public async Task UserExistsCheckTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var user = Users[apiName];
             var request = new UserExistsRequests(user.Login);
@@ -152,7 +154,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task GetCategoriesTest([Values("Steem", "Golos")] string apiName)
+        public async Task GetCategoriesTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var request = new OffsetLimitFields();
             var errors = await Gateway[apiName].GetCategories(request, CancellationToken.None);
@@ -160,7 +162,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public async Task SearchCategoriesTest([Values("Steem", "Golos")] string apiName)
+        public async Task SearchCategoriesTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var request = new SearchWithQueryRequest("ru");
             var errors = await Gateway[apiName].SearchCategories(request, CancellationToken.None);

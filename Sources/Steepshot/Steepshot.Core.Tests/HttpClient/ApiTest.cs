@@ -12,7 +12,7 @@ namespace Steepshot.Core.Tests.HttpClient
     public class ApiTest : BaseTests
     {
         [Test, Sequential]
-        public void LoginWithPostingKeyTest([Values("Steem", "Golos")] string apiName)
+        public void LoginWithPostingKeyTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             var api = Api[apiName];
             var user = Users[apiName];
@@ -23,9 +23,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void UploadWithPrepareTest([Values("Steem", "Golos")] string apiName)
+        public void UploadWithPrepareTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
-            var user = Authenticate(apiName);
+            var user = Users[apiName];
 
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
@@ -55,9 +55,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void CreateCommentTest([Values("Steem", "Golos")] string apiName)
+        public void CreateCommentTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
-            var user = Authenticate(apiName);
+            var user = Users[apiName];
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login);
@@ -87,9 +87,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void VotePostTest([Values("Steem", "Golos")] string apiName)
+        public void VotePostTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
-            var user = Authenticate(apiName);
+            var user = Users[apiName];
 
             // Load last created post
             var userPostsRequest = new PostsRequest(PostType.New) { Login = user.Login };
@@ -140,9 +140,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void VoteCommentTest([Values("Steem", "Golos")] string apiName)
+        public void VoteCommentTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
-            var user = Authenticate(apiName);
+            var user = Users[apiName];
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login) { ShowLowRated = true, ShowNsfw = true };
@@ -194,9 +194,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void FollowTest([Values("Steem", "Golos")] string apiName, [Values("asduj", "pmartynov")] string followUser)
+        public void FollowTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("asduj", "pmartynov", "korzunav")] string followUser)
         {
-            var user = Authenticate(apiName);
+            var user = Users[apiName];
 
             // 7) Follow
             var followRequest = new FollowRequest(user, FollowType.Follow, followUser);

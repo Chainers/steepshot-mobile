@@ -29,9 +29,24 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<bool> Connect(KnownChains chain, bool isDev, bool connectToBlockcain, CancellationToken token)
         {
-            var sUrl = chain == KnownChains.Steem
-                ? (isDev ? Constants.SteemUrlQa : Constants.SteemUrl)
-                : (isDev ? Constants.GolosUrlQa : Constants.GolosUrl);
+            var sUrl = string.Empty;
+            switch (chain)
+            {
+                case KnownChains.Steem when isDev:
+                    sUrl = Constants.SteemUrlQa;
+                    break;
+                case KnownChains.Steem when !isDev:
+                    sUrl = Constants.SteemUrl;
+                    break;
+                case KnownChains.GolosTestNet when isDev:
+                case KnownChains.Golos when isDev:
+                    sUrl = Constants.GolosUrlQa;
+                    break;
+                case KnownChains.GolosTestNet when !isDev:
+                case KnownChains.Golos when !isDev:
+                    sUrl = Constants.GolosUrl;
+                    break;
+            }
 
             EnableRead = false;
             _enableWrite = false;
@@ -53,9 +68,19 @@ namespace Steepshot.Core.HttpClient
             {
                 if (!_enableWrite)
                 {
-                    var cUrls = (chain == KnownChains.Steem)
-                        ? new List<string> { "wss://steemd.steemit.com" }
-                        : new List<string> { "wss://ws.golos.io" };
+                    var cUrls = new List<string>();
+                    switch (chain)
+                    {
+                        case KnownChains.Steem:
+                            cUrls = new List<string> { "wss://steemd.steemit.com" };
+                            break;
+                        case KnownChains.Golos:
+                            cUrls = new List<string> { "wss://ws.golos.io" };
+                            break;
+                        case KnownChains.GolosTestNet:
+                            cUrls = new List<string> { "wss://ws.testnet.golos.io" };
+                            break;
+                    }
 
                     var cts = CancellationTokenSource.CreateLinkedTokenSource(token, CtsMain.Token);
                     var conectedTo = _operationManager.TryConnectTo(cUrls, cts.Token);

@@ -17,8 +17,8 @@ namespace Steepshot.Core.Tests
     public class BaseTests
     {
         private const bool IsDev = false;
-        protected static readonly Dictionary<string, UserInfo> Users;
-        protected static readonly Dictionary<string, ISteepshotApiClient> Api;
+        protected static readonly Dictionary<KnownChains, UserInfo> Users;
+        protected static readonly Dictionary<KnownChains, ISteepshotApiClient> Api;
 
         static BaseTests()
         {
@@ -33,40 +33,26 @@ namespace Steepshot.Core.Tests
 
             AppSettings.Container = builder.Build();
             AppSettings.IsDev = IsDev;
-            Users = new Dictionary<string, UserInfo>
+
+            Users = new Dictionary<KnownChains, UserInfo>
             {
-                {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
-                {"Golos", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}}
+                {KnownChains.Steem, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
+                {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
+                {KnownChains.GolosTestNet, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosTestNetWif"]}},
             };
 
-            Api = new Dictionary<string, ISteepshotApiClient>
+            Api = new Dictionary<KnownChains, ISteepshotApiClient>
             {
-                {"Steem", new DitchApi()},
-                {"Golos", new DitchApi()}
+                {KnownChains.Steem, new DitchApi()},
+                {KnownChains.Golos, new DitchApi()},
+                {KnownChains.GolosTestNet, new DitchApi()}
             };
 
-            var steem = Api["Steem"].Connect(KnownChains.Steem, IsDev, true, CancellationToken.None).Result;
-            var golos = Api["Golos"].Connect(KnownChains.Golos, IsDev, true, CancellationToken.None).Result;
+            var steem = Api[KnownChains.Steem].Connect(KnownChains.Steem, IsDev, true, CancellationToken.None).Result;
+            var golos = Api[KnownChains.Golos].Connect(KnownChains.Golos, IsDev, true, CancellationToken.None).Result;
+            var golosTestNet = Api[KnownChains.GolosTestNet].Connect(KnownChains.GolosTestNet, IsDev, true, CancellationToken.None).Result;
         }
-
-        protected UserInfo Authenticate(string name)
-        {
-            //ISteepshotApiClient api = Api[name];
-            UserInfo user = Users[name];
-
-            //// Arrange
-            //var request = new AuthorizedRequest(user);
-
-            //// Act
-            //var response = api.LoginWithPostingKey(request).Result;
-
-            //// Assert
-            //AssertResult(response);
-            //Assert.That(response.Result.IsLoggedIn, Is.True);
-            //user.SessionId = response.Result.SessionId;
-            return user;
-        }
-
+        
         protected string GetTestImagePath()
         {
             var currentDir = AppContext.BaseDirectory;
