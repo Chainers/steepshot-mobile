@@ -30,6 +30,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 response = await Api.GetComments(request, ct);
+                Clear();
                 isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
             } while (isNeedRepeat);
 

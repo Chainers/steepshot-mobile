@@ -33,6 +33,11 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged();
         }
 
+        public Post GetPostByUrl(string url)
+        {
+            return Items.FirstOrDefault(p => p.Url == url);
+        }
+
         protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
         {
             errors = null;
