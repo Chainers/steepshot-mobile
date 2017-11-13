@@ -184,6 +184,9 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\unchecked.png" />
     <AndroidResource Include="Resources\Anim\like_wait.xml" />
     <AndroidResource Include="Resources\layout\lyt_feed_popup.axml" />
+    <AndroidResource Include="Resources\drawable-mdpi\rotate.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\rotate.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\rotate.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
