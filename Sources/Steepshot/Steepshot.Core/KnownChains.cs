@@ -4,6 +4,7 @@
     {
         None,
         Steem,
-        Golos
+        Golos,
+        GolosTestNet
     }
 }

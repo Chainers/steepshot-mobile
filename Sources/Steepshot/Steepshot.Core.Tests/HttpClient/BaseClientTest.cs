@@ -9,7 +9,9 @@ namespace Steepshot.Core.Tests.HttpClient
     public class BaseClientTest : BaseTests
     {
         [Test, Sequential]
-        public void GetPostVotersTest([Values("Steem", "Golos")] string apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
+        public void GetPostVotersTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, 
+            [Values("@steepshot/steepshot-some-stats-and-explanations",
+            "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
         {
             var count = 40;
             var request = new InfoRequest(url)
@@ -28,7 +30,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void GetPostVotersCancelTestTest([Values("Steem", "Golos")] string apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")] string url)
+        public void GetPostVotersCancelTestTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName,
+            [Values("@steepshot/steepshot-some-stats-and-explanations", 
+            "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")] string url)
         {
             try
             {
