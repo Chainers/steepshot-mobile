@@ -51,6 +51,7 @@ namespace Steepshot.Activity
             var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
 
             _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
@@ -117,6 +118,11 @@ namespace Steepshot.Activity
                 AppSettings.Reporter.SendCrash(ex);
                 this.ShowAlert(Localization.Errors.Unknownerror, ToastLength.Short);
             }
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            OnBackPressed();
         }
 
         private async void SignInBtn_Click(object sender, EventArgs e)
