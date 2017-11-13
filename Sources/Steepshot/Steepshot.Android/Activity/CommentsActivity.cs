@@ -13,6 +13,7 @@ using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Activity
 {
@@ -71,7 +72,7 @@ namespace Steepshot.Activity
             LoadComments(_uid);
         }
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (IsDestroyed || IsFinishing)
                 return;

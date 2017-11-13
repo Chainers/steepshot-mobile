@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -59,11 +60,10 @@ namespace Steepshot.Core.Presenters
                             isAdded = true;
                         }
                     }
-
+                    NotifySourceChanged(isAdded);
                     if (isAdded)
                     {
                         OffsetUrl = last;
-                        NotifySourceChanged();
                     }
                     else if (OffsetUrl != last)
                     {
