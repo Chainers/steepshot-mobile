@@ -25,6 +25,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Activity
 {
@@ -142,7 +143,7 @@ namespace Steepshot.Activity
             GC.Collect(0);
         }
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (IsFinishing || IsDestroyed)
                 return;
