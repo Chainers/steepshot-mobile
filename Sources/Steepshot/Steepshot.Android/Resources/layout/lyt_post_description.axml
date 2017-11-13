@@ -53,19 +53,29 @@
             android:layout_centerInParent="true"
             android:textSize="14sp" />
     </RelativeLayout>
-    <ImageView
-        android:id="@+id/photo"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:scaleType="centerCrop"
+    <RelativeLayout
+        android:id="@+id/photo_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_below="@id/toolbar"
-        android:layout_marginLeft="15dp" />
+        android:layout_marginLeft="15dp">
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/rotate" />
+    </RelativeLayout>
     <RelativeLayout
         android:id="@+id/title_layout"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_toRightOf="@id/photo"
+        android:layout_toRightOf="@id/photo_layout"
         android:layout_below="@id/toolbar"
         android:layout_marginTop="20dp"
         android:layout_marginRight="15dp"
