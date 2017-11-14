@@ -108,6 +108,7 @@ namespace Steepshot.Fragment
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
                 StartActivity(i);
+                Activity.Finish();
             }
         }
 
@@ -352,6 +353,7 @@ namespace Steepshot.Fragment
                 Activity.RunOnUiThread(() =>
                 {
                     StartActivity(i);
+                    Activity.Finish();
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;

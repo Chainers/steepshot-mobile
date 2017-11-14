@@ -25,6 +25,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Activity
 {
@@ -72,7 +73,8 @@ namespace Steepshot.Activity
             _description.Typeface = Style.Regular;
             _postButton.Typeface = Style.Semibold;
             _postButton.Click += OnPost;
-
+            _photoFrame.Clickable = true;
+            _photoFrame.Click += PhotoFrameOnClick;
             _postButton.Text = Localization.Texts.PublishButtonText;
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             _path = Intent.GetStringExtra(PhotoExtraPath);
@@ -119,15 +121,27 @@ namespace Steepshot.Activity
 
             _tag.TextChanged += OnTagOnTextChanged;
             _tag.KeyboardDownEvent += HideTagsList;
-            _tag.OkKeyEvent += OnTagOnOkKeyEvent;
+            _tag.OkKeyEvent += HideTagsList;
             _tag.FocusChange += OnTagOnFocusChange;
 
             _topMarginTagsLayout.Click += OnTagsLayoutClick;
             _backButton.Click += OnBack;
+            _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
 
             SearchTextChanged();
+        }
+
+        private void PhotoFrameOnClick(object sender, EventArgs e)
+        {
+            if (_btmp == null)
+            {
+                _btmp = BitmapFactory.DecodeFile(_path);
+                _shouldCompress = true;
+            }
+            _btmp = BitmapUtils.RotateImage(_btmp, 90);
+            _photoFrame.SetImageBitmap(_btmp);
         }
 
         protected override void OnDestroy()
@@ -142,7 +156,7 @@ namespace Steepshot.Activity
             GC.Collect(0);
         }
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (IsFinishing || IsDestroyed)
                 return;
@@ -161,6 +175,8 @@ namespace Steepshot.Activity
 
             _localTagsAdapter.LocalTags.Remove(tag);
             _localTagsAdapter.NotifyDataSetChanged();
+            if (_localTagsAdapter.LocalTags.Count() == 0)
+                _localTagsList.Visibility = ViewStates.Gone;
         }
 
         private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
@@ -170,13 +186,6 @@ namespace Steepshot.Activity
                 Window.SetSoftInputMode(SoftInput.AdjustResize);
                 AnimateTagsLayout(Resource.Id.toolbar);
             }
-        }
-
-        private void OnTagOnOkKeyEvent()
-        {
-            HideTagsList();
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
         }
 
         private void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
@@ -216,7 +225,15 @@ namespace Steepshot.Activity
 
         private void OnBack(object sender, EventArgs e)
         {
-            OnBackPressed();
+            if (_tag.HasFocus)
+                HideTagsList();
+            else
+                OnBackPressed();
+        }
+
+        private void OnRootLayoutClick(object sender, EventArgs e)
+        {
+            CloseKeyboard();
         }
 
         private void OnTagsLayoutClick(object sender, EventArgs e)
@@ -254,6 +271,8 @@ namespace Steepshot.Activity
             {
                 _localTagsAdapter.NotifyDataSetChanged();
                 _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
+                if(_localTagsAdapter.LocalTags.Count() == 1)
+                    _localTagsList.Visibility = ViewStates.Visible;
             });
         }
 
@@ -379,7 +398,6 @@ namespace Steepshot.Activity
             });
         }
 
-
         private async void TryUpload()
         {
             if (_request == null || _response == null)
@@ -396,6 +414,7 @@ namespace Steepshot.Activity
             {
                 OnUploadEnded();
                 BasePresenter.ShouldUpdateProfile = true;
+                this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
                 Finish();
             }
             else
@@ -434,9 +453,23 @@ namespace Steepshot.Activity
 
         private void HideTagsList()
         {
+            var txt = _tag.Text =_tag.Text.Trim();
+            if (!string.IsNullOrEmpty(txt))
+            {
+                _tag.Text = string.Empty;
+                AddTag(txt);
+            }
+                
             Window.SetSoftInputMode(SoftInput.AdjustPan);
             _tag.ClearFocus();
             AnimateTagsLayout(Resource.Id.description_layout);
+            CloseKeyboard();
+        }
+
+        private void CloseKeyboard()
+        {
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
         }
     }
 }

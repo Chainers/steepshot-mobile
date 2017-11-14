@@ -21,6 +21,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Fragment
 {
@@ -201,6 +202,18 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
+            {
+                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
+                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
+                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
+                post.Children += count;
+                _adapter.NotifyDataSetChanged();
+            }
+        }
+
         public override void OnDetach()
         {
             base.OnDetach();
@@ -264,7 +277,7 @@ namespace Steepshot.Fragment
             OpenLogin();
         }
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
@@ -361,7 +374,7 @@ namespace Steepshot.Fragment
 
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            Context.StartActivity(intent);
+            StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
         private void VotersAction(Post post)
