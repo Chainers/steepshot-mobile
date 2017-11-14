@@ -69,6 +69,7 @@ namespace Steepshot.Activity
             _adapter.UserAction += UserAction;
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
+            _adapter.ReplyAction += ReplyAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -169,6 +170,21 @@ namespace Steepshot.Activity
             var intent = new Intent(this, typeof(ProfileActivity));
             intent.PutExtra(ProfileActivity.UserExtraName, post.Author);
             StartActivity(intent);
+        }
+
+        private void ReplyAction(Post post)
+        {
+            if (post == null)
+                return;
+            if (!_textInput.Text.StartsWith($"@{post.Author}"))
+            {
+                _textInput.Text = $"@{post.Author} {_textInput.Text}";
+                _textInput.SetSelection(_textInput.Text.Length);
+            }
+            
+            _textInput.RequestFocus();
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.ShowSoftInput(_textInput, ShowFlags.Implicit);
         }
 
         private async void LikeAction(Post post)

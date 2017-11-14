@@ -14,6 +14,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using Android.Content;
+using Android.Runtime;
 
 namespace Steepshot.Activity
 {
@@ -31,6 +32,7 @@ namespace Steepshot.Activity
 
             AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
+            AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
@@ -58,6 +60,7 @@ namespace Steepshot.Activity
             base.OnDestroy();
             AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
+            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
         }
 
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
@@ -72,6 +75,12 @@ namespace Steepshot.Activity
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
             AppSettings.Reporter.SendCrash(ex);
+            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
+        }
+
+        private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+        {
+            AppSettings.Reporter.SendCrash(e.Exception);
             this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
