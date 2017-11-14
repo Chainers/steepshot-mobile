@@ -14,6 +14,7 @@ using Steepshot.Base;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Fragment
 {
@@ -93,22 +94,22 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                         BasePresenter.ShouldUpdateProfile = false;
                     }
-                    if (BasePresenter.ShouldUpdateProfile)
-                    {
-                        UpdatePage();
-                        BasePresenter.ShouldUpdateProfile = false;
-                    }
+                    UpdateProfile();
                 }
                 UserVisibleHint = value;
             }
         }
-
 
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
         }
 
+        public override void OnResume()
+        {
+            base.OnResume();
+            UpdateProfile();
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -162,13 +163,25 @@ namespace Steepshot.Fragment
             }
         }
 
+        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
+        {
+            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
+            {
+                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
+                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
+                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
+                post.Children += count;
+                _postsList.GetAdapter()?.NotifyDataSetChanged();
+            }
+        }
+
         public override void OnDetach()
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
         }
 
-        private void PresenterSourceChanged()
+        private void PresenterSourceChanged(Status status)
         {
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
@@ -317,7 +330,7 @@ namespace Steepshot.Fragment
 
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            Context.StartActivity(intent);
+            StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
         private void VotersAction(Post post)
@@ -370,6 +383,15 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        private void UpdateProfile()
+        {
+            if (BasePresenter.ShouldUpdateProfile)
+            {
+                UpdatePage();
+                BasePresenter.ShouldUpdateProfile = false;
+            }
         }
     }
 }

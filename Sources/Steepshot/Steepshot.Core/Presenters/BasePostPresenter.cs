@@ -18,7 +18,7 @@ namespace Steepshot.Core.Presenters
         {
             IsEnableVote = true;
         }
-        
+
         public void RemovePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
@@ -32,7 +32,13 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged();
         }
 
-        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
+        public Post FirstOrDefault(Func<Post, bool> func)
+        {
+            lock (Items)
+                return Items.FirstOrDefault(func);
+        }
+
+        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
         {
             errors = null;
             if (response == null)
@@ -47,6 +53,9 @@ namespace Steepshot.Core.Presenters
                     var isAdded = false;
                     lock (Items)
                     {
+                        if (isNeedClearItems)
+                            Items.Clear();
+
                         for (var i = 0; i < results.Count; i++)
                         {
                             var item = results[i];
@@ -59,17 +68,18 @@ namespace Steepshot.Core.Presenters
                             isAdded = true;
                         }
                     }
-
+                    
                     if (isAdded)
                     {
                         OffsetUrl = last;
-                        NotifySourceChanged();
                     }
                     else if (OffsetUrl != last)
                     {
                         OffsetUrl = last;
                         return true;
                     }
+
+                    NotifySourceChanged(isAdded);
                 }
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
@@ -77,7 +87,7 @@ namespace Steepshot.Core.Presenters
             errors = response.Errors;
             return false;
         }
-        
+
         public async Task<List<string>> TryVote(Post post)
         {
             if (post == null || post.VoteChanging)

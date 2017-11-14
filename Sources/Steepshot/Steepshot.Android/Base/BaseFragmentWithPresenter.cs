@@ -16,12 +16,6 @@ namespace Steepshot.Base
             Presenter = new T();
         }
 
-        public override void OnDestroyView()
-        {
-            //Presenter.TasksCancel();
-            base.OnDestroyView();
-        }
-
         public override void OnDetach()
         {
             Presenter.TasksCancel();
