@@ -6,7 +6,7 @@ using Steepshot.Fragment;
 
 namespace Steepshot.Activity
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, NoHistory = true)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class CameraActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
