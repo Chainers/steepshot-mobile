@@ -18,7 +18,7 @@ namespace Steepshot.Adapter
     {
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
-        public Action<Post> LikeAction, UserAction, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction;
 
         public override int ItemCount => _presenter.Count;
 
@@ -41,7 +41,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
-            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction, HideAction);
+            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction, HideAction, ReplyAction);
             return vh;
         }
     }
@@ -61,6 +61,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _userAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
+        private readonly Action<Post> _replyAction;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly Dialog _moreActionsDialog;
@@ -68,7 +69,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -87,12 +88,14 @@ namespace Steepshot.Adapter
             _userAction = userAction;
             _flagAction = flagAction;
             _hideAction = hideAction;
+            _replyAction = replyAction;
 
             _like.Click += Like_Click;
             _avatar.Click += UserAction;
             _author.Click += UserAction;
             _cost.Click += UserAction;
             _more.Click += DoMoreAction;
+            _reply.Click += ReplyAction;
 
             _context = itemView.RootView.Context;
             _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
@@ -161,6 +164,11 @@ namespace Steepshot.Adapter
         private void UserAction(object sender, EventArgs e)
         {
             _userAction?.Invoke(_post);
+        }
+
+        private void ReplyAction(object sender, EventArgs e)
+        {
+            _replyAction?.Invoke(_post);
         }
 
         private void Like_Click(object sender, EventArgs e)
