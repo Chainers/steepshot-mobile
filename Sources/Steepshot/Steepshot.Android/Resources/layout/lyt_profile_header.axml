@@ -3,234 +3,248 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white">
+  <RelativeLayout
+      android:id="@+id/top_profile_layout"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="30dp"
+      android:layout_marginTop="20dp">
+    <refractored.controls.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/holder" />
     <RelativeLayout
-        android:id="@+id/top_profile_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp">
-        <refractored.controls.CircleImageView
-            android:id="@+id/profile_image"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/holder" />
-        <RelativeLayout
-            android:id="@+id/follow_container"
-            android:layout_width="108dp"
-            android:layout_height="43dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp">
-            <ProgressBar
-                android:id="@+id/loading_spinner"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:indeterminateTintMode="src_atop"
-                android:indeterminateTint="@android:color/white"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                android:visibility="gone" />
-            <Button
-                android:id="@+id/follow_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/follow_button_corners"
-                android:textSize="14sp"
-                android:textColor="@android:color/white"
-                android:layout_margin="3dp"
-                android:text="Follow"
-                android:textAllCaps="false" />
-        </RelativeLayout>
+        android:id="@+id/follow_container"
+        android:layout_width="108dp"
+        android:layout_height="43dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="29dp">
+      <ProgressBar
+          android:id="@+id/loading_spinner"
+          android:layout_width="40dp"
+          android:layout_height="40dp"
+          android:indeterminateTintMode="src_atop"
+          android:indeterminateTint="@android:color/white"
+          android:layout_centerInParent="true"
+          android:elevation="10dp"
+          android:visibility="gone" />
+      <Button
+          android:id="@+id/follow_button"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@drawable/follow_button_corners"
+          android:textSize="14sp"
+          android:textColor="@android:color/white"
+          android:layout_margin="3dp"
+          android:text="Follow"
+          android:textAllCaps="false" />
     </RelativeLayout>
+  </RelativeLayout>
+  <TextView
+      android:id="@+id/profile_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Your Name"
+      android:textSize="20sp"
+      android:textColor="@color/rgb151_155_158"
+      android:layout_below="@+id/top_profile_layout"
+      android:layout_alignLeft="@+id/top_profile_layout"
+      android:layout_marginTop="9dp" />
+  <TextView
+      android:id="@+id/place"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Location"
+      android:textSize="12sp"
+      android:textColor="@color/rgb151_155_158"
+      android:layout_below="@+id/profile_name"
+      android:layout_alignLeft="@+id/profile_name"
+      android:layout_marginTop="1dp" />
+  <TextView
+      android:id="@+id/description"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="About you..."
+      android:textSize="14sp"
+      android:textColor="@color/rgb151_155_158"
+      android:layout_below="@+id/place"
+      android:layout_alignLeft="@+id/place"
+      android:layout_marginTop="11dp"
+      android:layout_marginRight="29dp" />
+  <TextView
+      android:id="@+id/site"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="your website"
+      android:textSize="14sp"
+      android:textColor="@color/rgb151_155_158"
+      android:layout_below="@+id/description"
+      android:layout_alignLeft="@+id/description"
+      android:layout_marginTop="5dp"
+      android:layout_marginRight="29dp"
+      android:autoLink="web"
+      android:linksClickable="true"
+      android:textColorLink="@color/rgb231_72_0" />
+  <LinearLayout
+      android:id="@+id/photos_btn"
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:orientation="vertical"
+      android:layout_below="@+id/site"
+      android:layout_alignLeft="@+id/site"
+      android:layout_marginTop="19dp">
     <TextView
-        android:id="@+id/profile_name"
+        android:id="@+id/photos_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your Name"
-        android:textSize="20sp"
+        android:textAllCaps="true"
+        android:text="0"
+        android:textColor="@color/rgb15_24_30"
+        android:lines="1"
+        android:textSize="20sp" />
+    <TextView
+        android:id="@+id/photos_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/photos"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/top_profile_layout"
-        android:layout_alignLeft="@+id/top_profile_layout"
-        android:layout_marginTop="9dp" />
-    <TextView
-        android:id="@+id/place"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location"
         android:textSize="12sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/profile_name"
-        android:layout_alignLeft="@+id/profile_name"
+        android:lines="1"
         android:layout_marginTop="1dp" />
+  </LinearLayout>
+  <LinearLayout
+      android:id="@+id/following_btn"
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:orientation="vertical"
+      android:layout_below="@+id/site"
+      android:layout_toRightOf="@+id/photos_btn"
+      android:layout_marginTop="19dp"
+      android:layout_marginLeft="50dp"
+      android:clickable="true"
+      android:background="?android:attr/selectableItemBackground">
     <TextView
-        android:id="@+id/description"
+        android:id="@+id/following_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="About you..."
-        android:textSize="14sp"
+        android:textAllCaps="true"
+        android:text="0"
+        android:textColor="@color/rgb15_24_30"
+        android:lines="1"
+        android:textSize="20sp" />
+    <TextView
+        android:id="@+id/following_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/following"
         android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/place"
-        android:layout_alignLeft="@+id/place"
-        android:layout_marginTop="11dp"
+        android:textSize="12sp"
+        android:lines="1"
+        android:layout_marginTop="1dp" />
+  </LinearLayout>
+  <LinearLayout
+      android:id="@+id/followers_btn"
+      android:layout_height="wrap_content"
+      android:layout_width="wrap_content"
+      android:orientation="vertical"
+      android:layout_below="@+id/site"
+      android:layout_toRightOf="@+id/following_btn"
+      android:layout_marginTop="19dp"
+      android:layout_marginLeft="50dp"
+      android:clickable="true"
+      android:background="?android:attr/selectableItemBackground">
+    <TextView
+        android:id="@+id/followers_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="true"
+        android:text="0"
+        android:textColor="@color/rgb15_24_30"
+        android:lines="1"
+        android:textSize="20sp" />
+    <TextView
+        android:id="@+id/followers_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_followers"
+        android:textColor="@color/rgb151_155_158"
+        android:textSize="12sp"
+        android:lines="1"
+        android:layout_marginTop="1dp" />
+  </LinearLayout>
+  <RelativeLayout
+      android:id="@+id/balance_container"
+      android:layout_width="wrap_content"
+      android:layout_height="49dp"
+      android:layout_marginTop="25dp"
+      android:layout_marginBottom="2dp"
+      android:layout_below="@+id/photos_btn"
+      android:clickable="true"
+      android:background="?android:attr/selectableItemBackground">
+    <View
+        android:id="@+id/top_balance_line"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/rgb244_244_246"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp" />
+    <ImageView
+        android:id="@+id/balance_img"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:src="@drawable/balance"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="30dp" />
+    <TextView
+        android:id="@+id/balance_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Account Balance"
+        android:textColor="@color/rgb15_24_30"
+        android:textSize="14sp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/balance_img"
+        android:layout_marginLeft="9dp" />
+    <TextView
+        android:id="@+id/balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$ 0"
+        android:textColor="@color/rgb231_72_0"
+        android:textSize="14sp"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/arrow_balance_img"
+        android:layout_marginRight="13dp" />
+    <ImageView
+        android:id="@+id/arrow_balance_img"
+        android:layout_width="7dp"
+        android:layout_height="11dp"
+        android:src="@drawable/forward"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
         android:layout_marginRight="29dp" />
-    <TextView
-        android:id="@+id/site"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="your website"
-        android:textSize="14sp"
-        android:textColor="@color/rgb151_155_158"
-        android:layout_below="@+id/description"
-        android:layout_alignLeft="@+id/description"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="29dp"
-        android:autoLink="web"
-        android:linksClickable="true"
-        android:textColorLink="@color/rgb231_72_0" />
-    <LinearLayout
-        android:id="@+id/photos_btn"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_alignLeft="@+id/site"
-        android:layout_marginTop="19dp">
-        <TextView
-            android:id="@+id/photos_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:text="0"
-            android:textColor="@color/rgb15_24_30"
-            android:lines="1"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/photos_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/photos"
-            android:textColor="@color/rgb151_155_158"
-            android:textSize="12sp"
-            android:lines="1"
-            android:layout_marginTop="1dp" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/following_btn"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/photos_btn"
-        android:layout_marginTop="19dp"
-        android:layout_marginLeft="50dp"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
-        <TextView
-            android:id="@+id/following_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:text="0"
-            android:textColor="@color/rgb15_24_30"
-            android:lines="1"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/following_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/following"
-            android:textColor="@color/rgb151_155_158"
-            android:textSize="12sp"
-            android:lines="1"
-            android:layout_marginTop="1dp" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/followers_btn"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@+id/site"
-        android:layout_toRightOf="@+id/following_btn"
-        android:layout_marginTop="19dp"
-        android:layout_marginLeft="50dp"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
-        <TextView
-            android:id="@+id/followers_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:text="0"
-            android:textColor="@color/rgb15_24_30"
-            android:lines="1"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/followers_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_followers"
-            android:textColor="@color/rgb151_155_158"
-            android:textSize="12sp"
-            android:lines="1"
-            android:layout_marginTop="1dp" />
-    </LinearLayout>
-    <RelativeLayout
-        android:id="@+id/balance_container"
-        android:layout_width="wrap_content"
-        android:layout_height="49dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="2dp"
-        android:layout_below="@+id/photos_btn"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground">
-        <View
-            android:id="@+id/top_balance_line"
-            android:layout_width="match_parent"
-            android:layout_height="2px"
-            android:background="@color/rgb244_244_246"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp" />
-        <ImageView
-            android:id="@+id/balance_img"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:src="@drawable/balance"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="30dp" />
-        <TextView
-            android:id="@+id/balance_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Account Balance"
-            android:textColor="@color/rgb15_24_30"
-            android:textSize="14sp"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/balance_img"
-            android:layout_marginLeft="9dp" />
-        <TextView
-            android:id="@+id/balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="$ 0"
-            android:textColor="@color/rgb231_72_0"
-            android:textSize="14sp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/arrow_balance_img"
-            android:layout_marginRight="13dp" />
-        <ImageView
-            android:id="@+id/arrow_balance_img"
-            android:layout_width="7dp"
-            android:layout_height="11dp"
-            android:src="@drawable/forward"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2px"
-            android:background="@color/rgb244_244_246"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp" />
-    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/rgb244_244_246"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp" />
+  </RelativeLayout>
+  <Button
+      android:id="@+id/first_post"
+      android:layout_width="match_parent"
+      android:layout_height="50dp"
+      android:textColor="@color/white"
+      android:textAllCaps="false"
+      android:background="@drawable/first_post_button"
+      android:layout_marginLeft="30dp"
+      android:layout_marginRight="30dp"
+      android:layout_marginTop="90dp"
+      android:textSize="14sp"
+      android:text="Create first photo"
+      android:layout_below="@+id/balance_container"
+      android:visibility="gone"/>
 </RelativeLayout>
