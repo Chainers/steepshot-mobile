@@ -43,9 +43,9 @@ namespace Steepshot.Core.Tests
 
             Api = new Dictionary<KnownChains, ISteepshotApiClient>
             {
-                {KnownChains.Steem, new DitchApi()},
-                {KnownChains.Golos, new DitchApi()},
-                {KnownChains.GolosTestNet, new DitchApi()}
+                {KnownChains.Steem, new SteepshotApiClient()},
+                {KnownChains.Golos, new SteepshotApiClient()},
+                {KnownChains.GolosTestNet, new SteepshotApiClient()}
             };
 
             var steem = Api[KnownChains.Steem].Connect(KnownChains.Steem, IsDev, true, CancellationToken.None).Result;

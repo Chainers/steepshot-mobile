@@ -1,5 +1,6 @@
 using System;
 using Ditch;
+using Ditch.Core;
 
 namespace Steepshot.Core.Models.Common
 {

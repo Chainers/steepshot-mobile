@@ -9,14 +9,23 @@ namespace Steepshot.Core.HttpClient
     public interface ISteepshotApiClient
     {
         Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain, CancellationToken token);
-        bool TryReconnectChain(KnownChains chain, CancellationToken toke);
+        bool TryReconnectChain(CancellationToken toke);
 
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/login-with-posting HTTP/1.1
-        ///             {"username":"joseph.kalu","posting_key":"test1234"}
-        /// </summary>
+        #region Post
+
+        Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct);
+
+        Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct);
+
         Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct);
+
+        Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct);
+
+        Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct);
+
+        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
+
+        #endregion
 
         /// <summary>
         ///     Examples:
@@ -56,62 +65,14 @@ namespace Steepshot.Core.HttpClient
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
         Task<OperationResult<SearchResponse<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct);
-
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/post/cat1/@joseph.kalu/cat636206825039716128/upvote HTTP/1.1
-        ///             Cookie: sessionid=q9umzz8q17bclh8yvkkipww3e96dtdn3
-        ///             {"identifier":"/cat1/@joseph.kalu/cat636206825039716128"}
-        ///     2) POST https://steepshot.org/api/v1/post//cat1/@joseph.kalu/cat636206825039716128/downvote HTTP/1.1
-        ///             Cookie: sessionid=idf14yl65njwggzf41t58bjjiiw2z006
-        ///             {"identifier":"/cat1/@joseph.kalu/cat636206825039716128"}
-        /// </summary>
-        Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct);
-
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/user/asduj/follow HTTP/1.1
-        ///             Cookie: sessionid=neg365kgpokr5kz8sia2eohc854z15od
-        ///     2) POST https://steepshot.org/api/v1/user/asduj/unfollow HTTP/1.1
-        ///             Cookie: sessionid=mobma1s0mrt7lhwutshrodqcvvbi7vgr
-        /// </summary>
-        Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct);
-
+        
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
         Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct);
 
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comment HTTP/1.1
-        ///             Cookie: sessionid=gyhzep1qsqlbuuqsduji2vkrr2gdcp01
-        ///             {"url":"@joseph.kalu/cat636203355240074655","body":"nailed it !","title":"свитшот"}
-        /// </summary>
-        Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct);
-
-        Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct);
-
-        /// <summary>
-        ///     Examples:
-        ///     1) POST https://steepshot.org/api/v1/post HTTP/1.1
-        ///             Cookie: sessionid=qps2cjt685or8g5kbyq0ybdti9nzf9ly
-        ///             Content-Disposition: form-data; name="title"
-        ///             cat636206837437954906
-        ///             Content-Disposition: form-data; name="tags"
-        ///             cat1
-        ///             Content-Disposition: form-data; name="tags"
-        ///             cat2
-        ///             Content-Disposition: form-data; name="tags"
-        ///             cat3
-        ///             Content-Disposition: form-data; name="tags"
-        ///             cat4
-        ///             Content-Disposition: form-data; name="photo"; filename="cat636206837437954906"
-        ///             Content-Type: application/octet-stream
-        /// </summary>
-        Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
-
+       
         Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct);
 
         /// <summary>

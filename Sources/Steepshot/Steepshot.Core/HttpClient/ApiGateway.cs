@@ -40,7 +40,7 @@ namespace Steepshot.Core.HttpClient
             request.AddParameter(_serializer.ContentType, parameters, ParameterType.RequestBody);
             return _restClient.Execute(request, ct);
         }
-        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, string trx, CancellationToken ct)
+        public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, CancellationToken ct)
         {
             var resource = GetResource(version, endpoint);
             var restRequest = new RestRequest(resource)
@@ -56,8 +56,8 @@ namespace Steepshot.Core.HttpClient
                 restRequest.AddParameter("description", request.Description);
             if (!string.IsNullOrWhiteSpace(request.Login))
                 restRequest.AddParameter("username", request.Login);
-            if (!string.IsNullOrWhiteSpace(trx))
-                restRequest.AddParameter("trx", trx);
+            if (!string.IsNullOrWhiteSpace(request.VerifyTransaction))
+                restRequest.AddParameter("trx", request.VerifyTransaction);
             if (!request.IsNeedRewards)
                 restRequest.AddParameter("set_beneficiary", "steepshot_no_rewards");
             foreach (var tag in request.Tags)

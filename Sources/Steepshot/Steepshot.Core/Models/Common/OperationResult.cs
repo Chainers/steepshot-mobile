@@ -12,10 +12,27 @@ namespace Steepshot.Core.Models.Common
         {
             Errors = new List<string>();
         }
+
+        public OperationResult(List<string> errors)
+        {
+            Errors = errors ?? new List<string>();
+        }
+
+        public OperationResult(string error)
+        {
+            Errors = new List<string> { error };
+        }
     }
 
     public class OperationResult<T> : OperationResult
     {
         public T Result { get; set; }
+
+
+        public OperationResult() { }
+
+        public OperationResult(List<string> errors) : base(errors) { }
+
+        public OperationResult(string error) : base(error) { }
     }
 }
