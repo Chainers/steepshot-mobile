@@ -6,13 +6,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" />
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.1" />
-    <PackageReference Include="Ditch" Version="2.2.12" />
+    <PackageReference Include="Ditch.Core" Version="3.0.1" />
+    <PackageReference Include="Ditch.Golos" Version="3.0.1" />
+    <PackageReference Include="Ditch.Steem" Version="3.0.1" />
     <PackageReference Include="FubarCoder.RestSharp.Portable.Core" Version="4.0.8" />
     <PackageReference Include="FubarCoder.RestSharp.Portable.HttpClient" Version="4.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0" />
-    <PackageReference Include="WebSocket4Net" Version="0.15.0-beta9" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpRaven\SharpRavenPortable.csproj" />

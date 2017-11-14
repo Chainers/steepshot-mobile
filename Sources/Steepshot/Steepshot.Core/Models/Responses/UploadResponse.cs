@@ -1,4 +1,4 @@
-﻿using Ditch.Operations.Post;
+﻿using System;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -42,5 +42,12 @@ namespace Steepshot.Core.Models.Responses
         public object Meta { get; set; }
 
         public Beneficiary[] Beneficiaries { get; set; }
+    }
+    
+    public class Beneficiary
+    {
+        public string Account { get; set; }
+        
+        public UInt16 Weight { get; set; }
     }
 }

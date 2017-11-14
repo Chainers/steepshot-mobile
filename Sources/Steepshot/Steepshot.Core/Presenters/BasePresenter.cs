@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cryptography.ECDSA;
 using Ditch;
+using Ditch.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
@@ -51,7 +52,7 @@ namespace Steepshot.Core.Presenters
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
-            Api = new DitchApi();
+            Api = new SteepshotApiClient();
 
             var ts = GetReconectToken();
             TryRunTask(TryConnect, ts, Chain, AppSettings.IsDev);
@@ -99,7 +100,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    isConnected = Api.TryReconnectChain(Chain, token);
+                    isConnected = Api.TryReconnectChain(token);
                     if (!isConnected)
                     {
                         OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);

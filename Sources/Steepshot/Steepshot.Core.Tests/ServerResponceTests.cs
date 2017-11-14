@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Serializing;
 using Steepshot.Core.Tests.Stubs;
 
 namespace Steepshot.Core.Tests
@@ -16,15 +17,16 @@ namespace Steepshot.Core.Tests
     {
         private const bool IsDev = false;
         private static readonly Dictionary<KnownChains, UserInfo> Users;
-        private static readonly Dictionary<KnownChains, BaseClient> Gateway;
+        private static readonly Dictionary<KnownChains, BaseServerClient> Gateway;
 
         static ServerResponceTests()
         {
-            Gateway = new Dictionary<KnownChains, BaseClient>
+            var converter = new JsonNetConverter();
+            Gateway = new Dictionary<KnownChains, BaseServerClient>
             {
-                {KnownChains.Steem, new AssertedBaseClient(IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
-                {KnownChains.Golos, new AssertedBaseClient(IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
-                {KnownChains.GolosTestNet, new AssertedBaseClient("wss://ws.testnet.golos.io")},
+                {KnownChains.Steem, new AssertedBaseClient(converter, IsDev ? Constants.SteemUrlQa : Constants.SteemUrl)},
+                {KnownChains.Golos, new AssertedBaseClient(converter, IsDev ? Constants.GolosUrlQa : Constants.GolosUrl)},
+                {KnownChains.GolosTestNet, new AssertedBaseClient(converter, "wss://ws.testnet.golos.io")},
             };
 
             Users = new Dictionary<KnownChains, UserInfo>
