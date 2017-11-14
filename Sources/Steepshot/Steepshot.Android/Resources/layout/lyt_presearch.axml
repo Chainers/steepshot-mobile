@@ -9,15 +9,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="14dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="20dp"
         android:clickable="true">
         <ImageView
             android:id="@+id/search_small"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:src="@drawable/search_small"
-			android:layout_centerVertical="true"
-            android:layout_marginBottom="5dp"
+            android:layout_marginTop="19dp"
             android:layout_marginRight="8dp" />
         <TextView
             android:id="@+id/search_view"
@@ -27,9 +25,9 @@
             android:textSize="14sp"
             android:singleLine="true"
             android:textColor="@color/rgb151_155_158"
-            android:layout_marginBottom="14dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
             android:background="@android:color/transparent"
-            android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/search_small"
             android:layout_toLeftOf="@+id/clear_button" />
         <Button
