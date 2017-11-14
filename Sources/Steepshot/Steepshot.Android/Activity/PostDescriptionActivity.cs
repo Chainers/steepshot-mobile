@@ -126,6 +126,7 @@ namespace Steepshot.Activity
 
             _topMarginTagsLayout.Click += OnTagsLayoutClick;
             _backButton.Click += OnBack;
+            _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
 
@@ -174,6 +175,8 @@ namespace Steepshot.Activity
 
             _localTagsAdapter.LocalTags.Remove(tag);
             _localTagsAdapter.NotifyDataSetChanged();
+            if (_localTagsAdapter.LocalTags.Count() == 0)
+                _localTagsList.Visibility = ViewStates.Gone;
         }
 
         private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
@@ -228,6 +231,11 @@ namespace Steepshot.Activity
                 OnBackPressed();
         }
 
+        private void OnRootLayoutClick(object sender, EventArgs e)
+        {
+            CloseKeyboard();
+        }
+
         private void OnTagsLayoutClick(object sender, EventArgs e)
         {
             if (!_tag.Enabled)
@@ -263,6 +271,8 @@ namespace Steepshot.Activity
             {
                 _localTagsAdapter.NotifyDataSetChanged();
                 _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
+                if(_localTagsAdapter.LocalTags.Count() == 1)
+                    _localTagsList.Visibility = ViewStates.Visible;
             });
         }
 
@@ -404,6 +414,7 @@ namespace Steepshot.Activity
             {
                 OnUploadEnded();
                 BasePresenter.ShouldUpdateProfile = true;
+                this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
                 Finish();
             }
             else
@@ -442,9 +453,21 @@ namespace Steepshot.Activity
 
         private void HideTagsList()
         {
+            var txt = _tag.Text =_tag.Text.Trim();
+            if (!string.IsNullOrEmpty(txt))
+            {
+                _tag.Text = string.Empty;
+                AddTag(txt);
+            }
+                
             Window.SetSoftInputMode(SoftInput.AdjustPan);
             _tag.ClearFocus();
             AnimateTagsLayout(Resource.Id.description_layout);
+            CloseKeyboard();
+        }
+
+        private void CloseKeyboard()
+        {
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
         }

@@ -51,6 +51,14 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            if(BasePresenter.ShouldUpdateProfile)
+            {
+                OnTabSelected(_adapter.Count - 1);
+            }
+        }
 
         private void OnTabLayoutOnTabSelected(object sender, TabLayout.TabSelectedEventArgs e)
         {
