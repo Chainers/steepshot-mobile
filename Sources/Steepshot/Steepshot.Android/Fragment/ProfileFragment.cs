@@ -94,22 +94,22 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                         BasePresenter.ShouldUpdateProfile = false;
                     }
-                    if (BasePresenter.ShouldUpdateProfile)
-                    {
-                        UpdatePage();
-                        BasePresenter.ShouldUpdateProfile = false;
-                    }
+                    UpdateProfile();
                 }
                 UserVisibleHint = value;
             }
         }
-
 
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
         }
 
+        public override void OnResume()
+        {
+            base.OnResume();
+            UpdateProfile();
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -383,6 +383,15 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        private void UpdateProfile()
+        {
+            if (BasePresenter.ShouldUpdateProfile)
+            {
+                UpdatePage();
+                BasePresenter.ShouldUpdateProfile = false;
+            }
         }
     }
 }

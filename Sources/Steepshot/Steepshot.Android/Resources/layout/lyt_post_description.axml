@@ -3,11 +3,13 @@
     android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
     android:background="@android:color/white">
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:clickable="true">
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="18dp"
@@ -196,6 +198,7 @@
             android:id="@+id/local_tags_list"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:visibility="gone"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp" />
     </LinearLayout>
