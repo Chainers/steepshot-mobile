@@ -111,8 +111,7 @@ namespace Steepshot.Activity
             _post.Enabled = false;
             _postImage.Visibility = ViewStates.Invisible;
 
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            HideKeyboard();
 
             var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
 

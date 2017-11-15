@@ -37,6 +37,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -82,6 +83,7 @@ namespace Steepshot.Activity
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
             _signInBtn.Click += SignInBtn_Click;
+            _rootLayout.Click += HideKeyboard;
         }
 
         protected override void OnDestroy()
@@ -161,6 +163,11 @@ namespace Steepshot.Activity
             appCompatButton.Enabled = true;
             appCompatButton.Text = Localization.Texts.EnterAccountText;
             _spinner.Visibility = ViewStates.Invisible;
+        }
+
+        private void HideKeyboard(object sender, EventArgs e)
+        {
+            HideKeyboard();
         }
     }
 }
