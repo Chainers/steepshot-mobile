@@ -6,7 +6,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Activity;
 using Steepshot.Core;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -97,7 +96,6 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _balanceContainer;
         private readonly Button _followButton;
         private readonly ProgressBar _loadingSpinner;
-        private readonly Button _firstPostButton;
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
@@ -124,7 +122,6 @@ namespace Steepshot.Adapter
             _balanceContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.balance_container);
             _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
             _loadingSpinner = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
-            _firstPostButton = itemView.FindViewById<Button>(Resource.Id.first_post);
 
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;
@@ -148,13 +145,6 @@ namespace Steepshot.Adapter
             _followersBtn.Click += OnFollowersBtnOnClick;
             _balanceContainer.Click += OnBalanceContainerOnClick;
             _followButton.Click += OnFollowButtonOnClick;
-            _firstPostButton.Click += OnFirstPostButtonClick;
-        }
-
-        private void OnFirstPostButtonClick(object sender, EventArgs e)
-        {
-            var intent = new Intent(_context, typeof(CameraActivity));
-            _context.StartActivity(intent);
         }
 
         private void OnFollowButtonOnClick(object sender, EventArgs e)
@@ -271,12 +261,6 @@ namespace Steepshot.Adapter
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
-
-            _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
-            _firstPostButton.Visibility =
-                profile.Username == BasePresenter.User.UserInfo.Login && profile.PostCount == 0
-                    ? ViewStates.Visible
-                    : ViewStates.Gone;
         }
     }
 }
