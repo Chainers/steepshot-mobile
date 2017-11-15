@@ -286,25 +286,6 @@ namespace Steepshot.Core
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
                 return;
             }
-
-            var ditchApi = _api as DitchApi;
-            if (ditchApi != null)
-            {
-                var operationResult = ditchApi.GetDiscussion(_user.Login, response.Result.Permlink, CancellationToken.None)
-                    .Result;
-
-                if (!operationResult.Success)
-                {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, operationResult.Errors)}");
-                    return;
-                }
-                if (operationResult.Result.Beneficiaries.Length == 0)
-                {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} Empty beneficeares");
-                    return;
-                }
-            }
-
             sb.AppendLine("pass.");
         }
 
@@ -674,7 +655,7 @@ namespace Steepshot.Core
                         sb.AppendLine($"warn. Reason:{Environment.NewLine} First url mast be {offset}");
                         return true;
                     }
-                    
+
                     var friend = itm as UserFriend;
                     if (friend != null && !friend.Author.Equals(offset))
                     {

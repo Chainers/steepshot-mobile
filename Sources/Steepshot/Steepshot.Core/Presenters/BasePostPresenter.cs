@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -19,7 +18,7 @@ namespace Steepshot.Core.Presenters
         {
             IsEnableVote = true;
         }
-        
+
         public void RemovePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
@@ -33,12 +32,13 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged();
         }
 
-        public Post GetPostByUrl(string url)
+        public Post FirstOrDefault(Func<Post, bool> func)
         {
-            return Items.FirstOrDefault(p => p.Url == url);
+            lock (Items)
+                return Items.FirstOrDefault(func);
         }
 
-        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors)
+        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
         {
             errors = null;
             if (response == null)
@@ -53,6 +53,9 @@ namespace Steepshot.Core.Presenters
                     var isAdded = false;
                     lock (Items)
                     {
+                        if (isNeedClearItems)
+                            Clear(false);
+
                         for (var i = 0; i < results.Count; i++)
                         {
                             var item = results[i];
@@ -65,7 +68,7 @@ namespace Steepshot.Core.Presenters
                             isAdded = true;
                         }
                     }
-                    NotifySourceChanged(isAdded);
+
                     if (isAdded)
                     {
                         OffsetUrl = last;
@@ -75,6 +78,8 @@ namespace Steepshot.Core.Presenters
                         OffsetUrl = last;
                         return true;
                     }
+
+                    NotifySourceChanged(isAdded);
                 }
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
@@ -82,7 +87,7 @@ namespace Steepshot.Core.Presenters
             errors = response.Errors;
             return false;
         }
-        
+
         public async Task<List<string>> TryVote(Post post)
         {
             if (post == null || post.VoteChanging)

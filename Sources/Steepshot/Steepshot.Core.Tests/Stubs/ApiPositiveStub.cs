@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Ditch;
+using Ditch.Core;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -61,11 +61,16 @@ namespace Steepshot.Core.Tests.Stubs
             return true;
         }
 
+        public bool TryReconnectChain(CancellationToken toke)
+        {
+            return true;
+        }
+
         public bool TryReconnectChain(KnownChains chain, CancellationToken toke)
         {
             return true;
         }
-        
+
         public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             return new OperationResult<LoginResponse>
@@ -258,7 +263,7 @@ namespace Steepshot.Core.Tests.Stubs
             }
             resp.Results = resp.Results.Skip(skip).Take(request.Limit).ToList();
             resp.Count = resp.Results.Count;
-            
+
             return new OperationResult<SearchResponse<UserFriend>> { Result = resp };
         }
 
@@ -289,7 +294,7 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
         {
-             return new OperationResult<CommentResponse> { Result = new CommentResponse(true) };
+            return new OperationResult<CommentResponse> { Result = new CommentResponse(true) };
         }
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
@@ -301,7 +306,7 @@ namespace Steepshot.Core.Tests.Stubs
         {
             return new OperationResult<UploadResponse> { Result = new UploadResponse() };
         }
-        
+
         public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
         {
             List<string> tags = new List<string>();

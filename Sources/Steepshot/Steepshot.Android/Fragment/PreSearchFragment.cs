@@ -212,7 +212,7 @@ namespace Steepshot.Fragment
             {
                 var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
                 var count = data.GetIntExtra(CommentsActivity.CountString, 0);
-                var post = Presenter.GetPostByUrl(postUrl);
+                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }

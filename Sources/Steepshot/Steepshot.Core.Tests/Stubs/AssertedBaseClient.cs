@@ -7,12 +7,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class AssertedBaseClient : BaseClient
+    public class AssertedBaseClient : BaseServerClient
     {
-        public AssertedBaseClient(string url)
+        public AssertedBaseClient(JsonNetConverter converter, string url) : base(converter)
         {
             Gateway = new ApiGateway(url);
             EnableRead = true;
