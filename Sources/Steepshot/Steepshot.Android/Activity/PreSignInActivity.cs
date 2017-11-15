@@ -24,6 +24,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
 
 
@@ -47,6 +48,7 @@ namespace Steepshot.Activity
             _preSignInBtn.Typeface = Style.Semibold;
             _preSignInBtn.Text = Localization.Messages.NextStep;
             _preSignInBtn.Click += SignInBtn_Click;
+            _rootLayout.Click += HideKeyboard;
         }
 
         protected override void OnDestroy()
@@ -62,7 +64,6 @@ namespace Steepshot.Activity
             if (currentUser != null)
                 await BasePresenter.SwitchChain(currentUser.Chain);
         }
-
 
         private void GoBack(object sender, EventArgs e)
         {
@@ -101,6 +102,10 @@ namespace Steepshot.Activity
             _spinner.Visibility = ViewStates.Invisible;
             _preSignInBtn.Text = Localization.Messages.NextStep;
         }
-        
+
+        private void HideKeyboard(object sender, EventArgs e)
+        {
+            HideKeyboard();
+        }
     }
 }

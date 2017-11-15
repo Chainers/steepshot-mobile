@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.Support.V7.App;
+using Android.Views.InputMethods;
 using Steepshot.Fragment;
 
 namespace Steepshot.Base
@@ -23,6 +24,12 @@ namespace Steepshot.Base
         {
             GC.Collect();
             base.OnTrimMemory(level);
+        }
+
+        protected void HideKeyboard()
+        {
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
         }
     }
 }

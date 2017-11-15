@@ -233,7 +233,7 @@ namespace Steepshot.Activity
 
         private void OnRootLayoutClick(object sender, EventArgs e)
         {
-            CloseKeyboard();
+            HideKeyboard();
         }
 
         private void OnTagsLayoutClick(object sender, EventArgs e)
@@ -463,13 +463,7 @@ namespace Steepshot.Activity
             Window.SetSoftInputMode(SoftInput.AdjustPan);
             _tag.ClearFocus();
             AnimateTagsLayout(Resource.Id.description_layout);
-            CloseKeyboard();
-        }
-
-        private void CloseKeyboard()
-        {
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            HideKeyboard();
         }
     }
 }
