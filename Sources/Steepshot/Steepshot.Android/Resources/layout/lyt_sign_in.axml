@@ -60,6 +60,7 @@
         android:gravity="center"
         android:layout_below="@id/input_password_separator"
         android:background="@drawable/follow_button_corners"
+        android:backgroundTint="@color/rgb231_72_0"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="29dp" />
