@@ -42,13 +42,14 @@ namespace Steepshot.Core.Presenters
             Items = new List<T>();
         }
 
-        public void Clear()
+        public void Clear(bool isNotify = true)
         {
             lock (Items)
                 Items.Clear();
             IsLastReaded = false;
             OffsetUrl = string.Empty;
-            NotifySourceChanged();
+            if (isNotify)
+                NotifySourceChanged();
         }
 
 
@@ -149,7 +150,7 @@ namespace Steepshot.Core.Presenters
             }
             return null;
         }
-        
+
         public void LoadCancel()
         {
             lock (_sync)
