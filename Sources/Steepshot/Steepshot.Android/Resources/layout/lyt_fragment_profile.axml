@@ -11,15 +11,11 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:stateListAnimator="@null"
+            android:elevation="2dp"
             android:fitsSystemWindows="true">
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
-                app:layout_scrollFlags="scroll|enterAlways">
                 <include
                     layout="@layout/top_panel" />
-            </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
         <RelativeLayout
             android:id="@+id/list_layout"
@@ -37,20 +33,25 @@
                     android:id="@+id/posts_list"
                     android:clipToPadding="false" />
             </android.support.v4.widget.SwipeRefreshLayout>
-            <Button
-                android:id="@+id/first_post"
+          <RelativeLayout
+                android:id="@+id/first_post_panel"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:background="@drawable/first_post_button"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginBottom="100dp"
-                android:textSize="14sp"
-                android:text="Create first photo"
-                android:visibility="gone"
-                android:layout_alignParentBottom="true"/>
+                android:layout_height="match_parent"
+                android:layout_marginTop="335dp"
+                android:visibility="gone">
+                <Button
+                    android:id="@+id/first_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:background="@drawable/first_post_button"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:textSize="14sp"
+                    android:text="Create first photo"                    
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
             <ProgressBar
                 android:id="@+id/list_spinner"
                 android:layout_width="wrap_content"
