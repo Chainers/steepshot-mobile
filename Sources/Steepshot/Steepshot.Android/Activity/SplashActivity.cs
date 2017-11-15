@@ -14,6 +14,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Services;
 using Steepshot.Utils;
 using Android.Content;
+using Android.Runtime;
 
 namespace Steepshot.Activity
 {
@@ -29,8 +30,13 @@ namespace Steepshot.Activity
             if (AppSettings.Container == null)
                 Construct();
 
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
+            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
+            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
+
             AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
+            AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
@@ -53,13 +59,6 @@ namespace Steepshot.Activity
             }
         }
 
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
-            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
-        }
-
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             AppSettings.Reporter.SendCrash(e.Exception);
@@ -72,6 +71,12 @@ namespace Steepshot.Activity
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
             AppSettings.Reporter.SendCrash(ex);
+            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
+        }
+
+        private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+        {
+            AppSettings.Reporter.SendCrash(e.Exception);
             this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 

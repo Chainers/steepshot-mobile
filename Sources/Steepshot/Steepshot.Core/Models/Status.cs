@@ -2,7 +2,7 @@
 {
     public struct Status
     {
-        public bool IsChanged { get; set; }
+        public bool IsChanged { get; }
 
         public Status(bool isChanged)
         {

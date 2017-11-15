@@ -26,12 +26,13 @@ namespace Steepshot.Core.Presenters
 
             List<string> errors;
             OperationResult<UserPostResponse> response;
+            var isNeedClearItems = true;
             bool isNeedRepeat;
             do
             {
                 response = await Api.GetComments(request, ct);
-                Clear();
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors, isNeedClearItems);
+                isNeedClearItems = false;
             } while (isNeedRepeat);
 
             return errors;

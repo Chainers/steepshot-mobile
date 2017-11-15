@@ -41,5 +41,7 @@ namespace Steepshot.Core.Models.Requests
         public string[] Tags { get; }
 
         public bool IsNeedRewards { get; }
+
+        public string VerifyTransaction { get; set; }
     }
 }

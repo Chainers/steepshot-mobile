@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -52,7 +53,7 @@ namespace Steepshot.iOS.Views
             // _presenter = new FeedPresenter(_isHomeFeed);
         }
 
-        private void SourceChanged()
+        private void SourceChanged(Status status)
         {
             feedCollection.ReloadData();
             flowLayout.InvalidateLayout();
