@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -38,6 +40,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.profile_login)] private TextView _login;
         [InjectView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
+        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
 #pragma warning restore 0649
 
         private ProfileFeedAdapter _profileFeedAdapter;
@@ -135,6 +138,7 @@ namespace Steepshot.Fragment
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += GetUserPosts;
+            _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
             _linearLayoutManager = new LinearLayoutManager(Context);
             _gridLayoutManager = new GridLayoutManager(Context, 3);
@@ -179,6 +183,11 @@ namespace Steepshot.Fragment
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
+        }
+
+        private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
+        {
+            ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
         private void PresenterSourceChanged(Status status)

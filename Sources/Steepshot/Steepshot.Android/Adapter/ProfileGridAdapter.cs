@@ -271,6 +271,8 @@ namespace Steepshot.Adapter
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
+
+            _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
             _firstPostButton.Visibility =
                 profile.Username == BasePresenter.User.UserInfo.Login && profile.PostCount == 0
                     ? ViewStates.Visible
