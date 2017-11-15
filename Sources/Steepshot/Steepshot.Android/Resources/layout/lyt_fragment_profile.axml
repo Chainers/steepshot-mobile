@@ -37,6 +37,20 @@
                     android:id="@+id/posts_list"
                     android:clipToPadding="false" />
             </android.support.v4.widget.SwipeRefreshLayout>
+            <Button
+                android:id="@+id/first_post"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:background="@drawable/first_post_button"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="100dp"
+                android:textSize="14sp"
+                android:text="Create first photo"
+                android:visibility="gone"
+                android:layout_alignParentBottom="true"/>
             <ProgressBar
                 android:id="@+id/list_spinner"
                 android:layout_width="wrap_content"
