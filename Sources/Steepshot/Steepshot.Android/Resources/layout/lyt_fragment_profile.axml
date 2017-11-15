@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true">
@@ -34,7 +35,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/posts_list"
-                    android:clipToPadding="false"/>
+                    android:clipToPadding="false" />
             </android.support.v4.widget.SwipeRefreshLayout>
             <ProgressBar
                 android:id="@+id/list_spinner"

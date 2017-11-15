@@ -1,6 +1,9 @@
-﻿using Android.Graphics;
+﻿using Android.Content.Res;
+using Android.Graphics;
 using Android.Media;
+using Android.Util;
 using Java.IO;
+using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Utils
 {
@@ -91,6 +94,11 @@ namespace Steepshot.Utils
         public static Color GetColorFromInteger(int color)
         {
             return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
+        }
+
+        public static float DpToPixel(float dp, Resources resources)
+        {
+            return resources.DisplayMetrics.Density * dp;
         }
 
         /*
