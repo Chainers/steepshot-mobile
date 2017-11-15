@@ -30,6 +30,10 @@ namespace Steepshot.Activity
             if (AppSettings.Container == null)
                 Construct();
 
+            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
+            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
+            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
+
             AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
@@ -53,14 +57,6 @@ namespace Steepshot.Activity
             {
                 StartActivity(BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
             }
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
-            TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
-            AndroidEnvironment.UnhandledExceptionRaiser -= OnUnhandledExceptionRaiser;
         }
 
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)

@@ -45,6 +45,20 @@ namespace Steepshot.Activity
             base.OpenNewContentFragment(frag);
         }
 
+        public override void OnBackPressed()
+        {
+            if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
+            {
+                var intent = new Intent(Intent.ActionMain);
+                intent.AddCategory(Intent.CategoryHome);
+                intent.SetFlags(ActivityFlags.NewTask);
+                StartActivity(intent);
+                Finish();
+            }
+            else
+                base.OnBackPressed();
+        }
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
