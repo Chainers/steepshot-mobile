@@ -47,7 +47,8 @@
                 android:textSize="14sp"
                 android:textAllCaps="false"
                 android:gravity="center"
-                android:background="@drawable/follow_button_corners" />
+                android:background="@drawable/follow_button_corners"
+                android:backgroundTint="@color/rgb231_72_0"/>
             <ProgressBar
                 android:id="@+id/loading_spinner"
                 android:layout_width="40dp"
