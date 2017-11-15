@@ -54,7 +54,7 @@ namespace Steepshot.Core.Presenters
                     lock (Items)
                     {
                         if (isNeedClearItems)
-                            Items.Clear();
+                            Clear(false);
 
                         for (var i = 0; i < results.Count; i++)
                         {
@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                             isAdded = true;
                         }
                     }
-                    
+
                     if (isAdded)
                     {
                         OffsetUrl = last;
