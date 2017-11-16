@@ -104,6 +104,7 @@ namespace Steepshot.Fragment
             if (!_isFollowers && _username == BasePresenter.User.Login)
                 _peopleCount.Text = $"{Presenter.FindAll(u => u.HasFollowed).Count:N0} {Localization.Texts.PeopleText}";
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            BasePresenter.ShouldUpdateProfile = true;
         }
 
         private async void Follow(UserFriend userFriend)
