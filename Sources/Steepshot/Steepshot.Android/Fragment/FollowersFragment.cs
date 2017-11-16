@@ -24,6 +24,7 @@ namespace Steepshot.Fragment
 
         private FollowersAdapter _adapter;
         private string _username;
+        private bool _isFollowers;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
@@ -52,8 +53,8 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            var isFollowers = Activity.Intent.GetBooleanExtra(IsFollowersExtra, false);
-            Presenter.FollowType = isFollowers ? FriendsType.Followers : FriendsType.Following;
+            _isFollowers = Activity.Intent.GetBooleanExtra(IsFollowersExtra, false);
+            Presenter.FollowType = _isFollowers ? FriendsType.Followers : FriendsType.Following;
 
             Presenter.SourceChanged += PresenterSourceChanged;
 
@@ -100,8 +101,10 @@ namespace Steepshot.Fragment
         {
             if (!IsInitialized || IsDetached || IsRemoving)
                 return;
-
+            if (!_isFollowers && _username == BasePresenter.User.Login)
+                _peopleCount.Text = $"{Presenter.FindAll(u => u.HasFollowed).Count:N0} {Localization.Texts.PeopleText}";
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            BasePresenter.ShouldUpdateProfile = true;
         }
 
         private async void Follow(UserFriend userFriend)

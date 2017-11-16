@@ -19,6 +19,12 @@ namespace Steepshot.Core.Presenters
                 return Items.FirstOrDefault(func);
         }
 
+        public List<UserFriend> FindAll(Predicate<UserFriend> match)
+        {
+            lock (Items)
+                return Items.FindAll(match);
+        }
+
 
         public async Task<List<string>> TryLoadNextPostVoters(string url)
         {
