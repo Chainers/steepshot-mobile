@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
+using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -94,31 +96,40 @@ namespace Steepshot.Activity
 
         private async void OnButtonScanDefaultViewOnClick(object sender, EventArgs e)
         {
-            try
+            if (PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.Camera) == (int)Permission.Granted
+                    && PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.WriteExternalStorage) == (int)Permission.Granted)
             {
-                //Tell our scanner to use the default overlay
-                _scanner.UseCustomOverlay = false;
-
-                //We can customize the top and bottom text of the default overlay
-                _scanner.TopText = Localization.Messages.CameraHoldUp;
-                _scanner.BottomText = Localization.Messages.WaitforScan;
-
-                //Start scanning
-                var result = await _scanner.Scan();
-
-                if (IsFinishing || IsDestroyed)
-                    return;
-
-                if (result != null)
+                try
                 {
-                    _password.Text = result.Text;
-                    SignInBtn_Click(_signInBtn, null);
+                    //Tell our scanner to use the default overlay
+                    _scanner.UseCustomOverlay = false;
+
+                    //We can customize the top and bottom text of the default overlay
+                    _scanner.TopText = Localization.Messages.CameraHoldUp;
+                    _scanner.BottomText = Localization.Messages.WaitforScan;
+
+                    //Start scanning
+                    var result = await _scanner.Scan();
+
+                    if (IsFinishing || IsDestroyed)
+                        return;
+
+                    if (result != null)
+                    {
+                        _password.Text = result.Text;
+                        SignInBtn_Click(_signInBtn, null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    this.ShowAlert(Localization.Errors.Unknownerror, ToastLength.Short);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                AppSettings.Reporter.SendCrash(ex);
-                this.ShowAlert(Localization.Errors.Unknownerror, ToastLength.Short);
+                //Replace for Permission request
+                this.ShowAlert("Check your app permissions");
             }
         }
 

@@ -78,9 +78,18 @@ namespace Steepshot.Activity
         {
             if (e.Tab.Position == 2)
             {
-                _prevTab.Select();
-                var intent = new Intent(this, typeof(CameraActivity));
-                StartActivity(intent);
+                if (PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.Camera) == (int)Permission.Granted
+                    && PermissionChecker.CheckSelfPermission(this, Android.Manifest.Permission.WriteExternalStorage) == (int)Permission.Granted)
+                {
+                    _prevTab.Select();
+                    var intent = new Intent(this, typeof(CameraActivity));
+                    StartActivity(intent);
+                }
+                else
+                {
+                    //Replace for Permission request
+                    this.ShowAlert("Check your app permissions");
+                }
             }
             else
             {
