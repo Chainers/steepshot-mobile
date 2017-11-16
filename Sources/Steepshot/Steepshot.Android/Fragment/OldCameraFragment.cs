@@ -393,19 +393,24 @@ namespace Steepshot.Fragment
 
         private void EnableCamera(int cameraToSwitch)
         {
-            _camera = Camera.Open(cameraToSwitch);
-            _cameraId = cameraToSwitch;
-            SetPreviewSize(FullScreen);
-            SetCameraDisplayOrientation(_cameraId);
             try
             {
+                _camera = Camera.Open(cameraToSwitch);
+                _cameraId = cameraToSwitch;
+                SetPreviewSize(FullScreen);
+                SetCameraDisplayOrientation(_cameraId);
                 _camera.SetPreviewDisplay(_holder);
                 _camera.StartPreview();
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
+                if (ex.GetType() == typeof(Java.Lang.RuntimeException) && ex.Message == "Fail to connect to camera service")
+                    Activity.Finish();
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
+                }
             }
         }
 
