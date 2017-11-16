@@ -41,6 +41,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.send_spinner)] private ProgressBar _sendSpinner;
         [InjectView(Resource.Id.btn_post_image)] private ImageView _postImage;
+        [InjectView(Resource.Id.message)] private RelativeLayout _messagePanel;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -73,6 +74,8 @@ namespace Steepshot.Activity
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
+            if (!BasePresenter.User.IsAuthenticated)
+                _messagePanel.Visibility = ViewStates.Gone;
 
             LoadComments(_uid);
         }
@@ -98,12 +101,6 @@ namespace Steepshot.Activity
 
         private async void OnPost(object sender, EventArgs e)
         {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                this.ShowAlert(GetString(Resource.String.need_login), ToastLength.Short);
-                return;
-            }
-
             if (string.IsNullOrWhiteSpace(_textInput.Text))
                 return;
 
@@ -180,7 +177,7 @@ namespace Steepshot.Activity
                 _textInput.Text = $"@{post.Author} {_textInput.Text}";
                 _textInput.SetSelection(_textInput.Text.Length);
             }
-            
+
             _textInput.RequestFocus();
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.ShowSoftInput(_textInput, ShowFlags.Implicit);

@@ -380,10 +380,14 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
-
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode);
+            if (post.Children > 0)
+            {
+                var intent = new Intent(Context, typeof(CommentsActivity));
+                intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
+                StartActivityForResult(intent, CommentsActivity.RequestCode);
+            }
+            else
+                OpenLogin();
         }
 
         private void VotersAction(Post post)
@@ -481,22 +485,22 @@ namespace Steepshot.Fragment
 
         private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
         }
 
         private void OnGrayToBlackAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
         }
 
         private void OnFontReductionAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _currentButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+            _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
         }
 
         private void OnFontGrowingAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _activeButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+            _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
         }
 
         private void AnimatedButtonSwitch()
