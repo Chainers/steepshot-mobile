@@ -91,6 +91,12 @@ namespace Steepshot.Activity
             }
         }
 
+        protected override void OnResume()
+        {
+            _addButton.Enabled = true;
+            base.OnResume();
+        }
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
@@ -140,6 +146,7 @@ namespace Steepshot.Activity
 
         private async void AddAccountClick(object sender, EventArgs e)
         {
+            _addButton.Enabled = false;
             await BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             var intent = new Intent(this, typeof(PreSignInActivity));
             StartActivity(intent);
