@@ -57,6 +57,7 @@
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             android:src="@drawable/more"
+            android:layout_marginRight="10dp"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <RelativeLayout

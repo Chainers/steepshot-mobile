@@ -11,6 +11,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -38,6 +39,8 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.profile_login)] private TextView _login;
         [InjectView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
+        [InjectView(Resource.Id.first_post_panel)] private RelativeLayout _firstPostPanel;
+        [InjectView(Resource.Id.first_post)] private Button _firstPostButton;
 #pragma warning restore 0649
 
         private ProfileFeedAdapter _profileFeedAdapter;
@@ -152,6 +155,13 @@ namespace Steepshot.Fragment
             _login.Click += OnLoginClick;
             _backButton.Click += GoBackClick;
             _switcher.Click += OnSwitcherClick;
+            _firstPostButton.Click += OnFirstPostButtonClick;
+
+            _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
+            _firstPostPanel.Visibility =
+                _profileId == BasePresenter.User.Login && Presenter.Count == 0
+                    ? ViewStates.Visible
+                    : ViewStates.Gone;
 
             if (_profileId != BasePresenter.User.Login)
             {
@@ -179,6 +189,12 @@ namespace Steepshot.Fragment
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
+        }
+
+        private void OnFirstPostButtonClick(object sender, EventArgs e)
+        {
+            var intent = new Intent(Activity, typeof(CameraActivity));
+            Activity.StartActivity(intent);
         }
 
         private void PresenterSourceChanged(Status status)
