@@ -34,6 +34,7 @@ namespace Steepshot.Core.Models.Responses
         public DateTime Created { get; set; }
         public int Reputation { get; set; }
         public int PostCount { get; set; }
+        public int HiddenPostCount { get; set; }
         public int CommentCount { get; set; }
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }

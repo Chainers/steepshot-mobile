@@ -71,7 +71,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="29dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:indeterminateTintMode="src_atop"
         android:indeterminateTint="@color/white"
         android:layout_centerHorizontal="true"
