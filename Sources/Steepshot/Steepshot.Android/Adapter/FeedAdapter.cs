@@ -148,6 +148,8 @@ namespace Steepshot.Adapter
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
+
+            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
         }
 
         private void DoMoreAction(object sender, EventArgs e)

@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using Android.Content;
 using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
@@ -30,6 +32,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.logo)] private ImageView _logo;
+        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
 #pragma warning restore 0649
 
 
@@ -72,6 +75,7 @@ namespace Steepshot.Fragment
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
             _logo.Click += OnLogoClick;
+            _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += LoadPosts;
@@ -83,6 +87,11 @@ namespace Steepshot.Fragment
             _feedList.AddOnScrollListener(_scrollListner);
 
             LoadPosts();
+        }
+
+        private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
+        {
+            ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
         public override void OnDetach()

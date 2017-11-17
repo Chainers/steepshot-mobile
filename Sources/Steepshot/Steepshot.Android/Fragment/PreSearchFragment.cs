@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.Transitions;
 using Android.Support.V4.Content;
+using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Util;
@@ -64,6 +66,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.login)] private Button _loginButton;
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
         [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
+        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -158,6 +161,7 @@ namespace Steepshot.Fragment
                 _hotButton.Click += OnTopClick;
                 _newButton.Typeface = Style.Regular;
                 _newButton.Click += OnNewClick;
+                _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
@@ -212,6 +216,11 @@ namespace Steepshot.Fragment
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }
+        }
+
+        private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
+        {
+            ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
         public override void OnDetach()
@@ -371,10 +380,14 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
-
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode);
+            if (post.Children > 0)
+            {
+                var intent = new Intent(Context, typeof(CommentsActivity));
+                intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
+                StartActivityForResult(intent, CommentsActivity.RequestCode);
+            }
+            else
+                OpenLogin();
         }
 
         private void VotersAction(Post post)
@@ -472,22 +485,22 @@ namespace Steepshot.Fragment
 
         private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
         }
 
         private void OnGrayToBlackAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int) e.Animation.AnimatedValue)));
+            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
         }
 
         private void OnFontReductionAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _currentButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+            _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
         }
 
         private void OnFontGrowingAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
         {
-            _activeButton.SetTextSize(ComplexUnitType.Sp, (float) e.Animation.AnimatedValue);
+            _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
         }
 
         private void AnimatedButtonSwitch()

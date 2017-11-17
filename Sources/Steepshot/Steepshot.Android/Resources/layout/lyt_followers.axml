@@ -7,6 +7,8 @@
         android:id="@+id/follow_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:stateListAnimator="@null"
+        android:elevation="2dp"
         android:fitsSystemWindows="true">
         <RelativeLayout
             android:layout_width="wrap_content"
