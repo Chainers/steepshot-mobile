@@ -12,6 +12,7 @@ namespace Steepshot.Utils
         public override void OnClick(View widget)
         {
             SpanClicked?.Invoke(Tag);
+            widget.Invalidate();
         }
 
         public override void UpdateDrawState(Android.Text.TextPaint ds)
