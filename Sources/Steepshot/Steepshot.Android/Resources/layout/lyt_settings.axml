@@ -41,6 +41,7 @@
                 android:textColor="@color/white"
                 android:textAllCaps="false"
                 android:background="@drawable/follow_button_corners"
+                android:backgroundTint="@color/rgb231_72_0"
                 android:layout_below="@id/accounts_list"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"

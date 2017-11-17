@@ -155,6 +155,7 @@ namespace Steepshot.Adapter
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
+            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
             _tags = new CustomClickableSpan[4];
             for (int i = 0; i < _tags.Count(); i++)

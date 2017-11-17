@@ -133,6 +133,7 @@
             public const string HrsAgo = "hrs ago";
             public const string MinAgo = "min ago";
             public const string SecAgo = "sec ago";
+            public const string CreateFirstPostText = "Create first photo";
         }
     }
 }
