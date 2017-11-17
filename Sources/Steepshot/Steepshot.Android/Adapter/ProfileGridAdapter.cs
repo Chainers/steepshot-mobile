@@ -206,11 +206,9 @@ namespace Steepshot.Adapter
                         background.SetStroke(1, Style.R244G244B246);
                         _followButton.Text = Localization.Messages.Unfollow;
                         _followButton.SetTextColor(Style.R15G24B30);
-
                     }
                     else
                     {
-
                         background.SetColor(Style.R231G72B00);
                         background.SetStroke(0, Color.White);
                         _followButton.Text = Localization.Messages.Follow;

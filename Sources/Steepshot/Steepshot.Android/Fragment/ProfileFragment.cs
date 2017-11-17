@@ -39,7 +39,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.profile_login)] private TextView _login;
         [InjectView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
-        [InjectView(Resource.Id.first_post_panel)] private RelativeLayout _firstPostPanel;
         [InjectView(Resource.Id.first_post)] private Button _firstPostButton;
 #pragma warning restore 0649
 
@@ -136,7 +135,8 @@ namespace Steepshot.Fragment
             Presenter.SourceChanged += PresenterSourceChanged;
 
             _login.Typeface = Style.Semibold;
-
+            _firstPostButton.Typeface = Style.Semibold;
+                
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += GetUserPosts;
 
@@ -159,10 +159,6 @@ namespace Steepshot.Fragment
             _firstPostButton.Click += OnFirstPostButtonClick;
 
             _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
-            _firstPostPanel.Visibility =
-                _profileId == BasePresenter.User.Login && Presenter.Count == 0
-                    ? ViewStates.Visible
-                    : ViewStates.Gone;
 
             if (_profileId != BasePresenter.User.Login)
             {
@@ -298,6 +294,10 @@ namespace Steepshot.Fragment
 
             } while (true);
 
+            _firstPostButton.Visibility =
+                    _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                    ? ViewStates.Visible
+                    : ViewStates.Gone;
             _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
