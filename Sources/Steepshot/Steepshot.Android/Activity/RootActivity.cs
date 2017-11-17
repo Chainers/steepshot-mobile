@@ -112,6 +112,12 @@ namespace Steepshot.Activity
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
+        public void SelectTab(int position)
+        {
+            var tab = _tabLayout.GetTabAt(position);
+            tab.Select();
+        }
+
         private void OnTabSelected(int position)
         {
             _viewPager.SetCurrentItem(position, false);

@@ -58,6 +58,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.FollowAction += OnFollowClick;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -383,6 +384,12 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        private void TagAction(string tag)
+        {
+            Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+            ((RootActivity)Activity).SelectTab(1);
         }
 
         private void UpdateProfile()

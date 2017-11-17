@@ -87,6 +87,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.VotersClick += VotersAction;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
             }
@@ -111,10 +112,14 @@ namespace Steepshot.Fragment
             get => base.CustomUserVisibleHint;
             set
             {
-                if (value && !_isActivated)
+                if (value)
                 {
-                    LoadPosts();
-                    _isActivated = true;
+                    var shouldLoadPosts = SearchByTag();
+                    if (shouldLoadPosts && !_isActivated)
+                    {
+                        LoadPosts();
+                        _isActivated = true;
+                    }
                 }
                 UserVisibleHint = value;
             }
@@ -185,18 +190,8 @@ namespace Steepshot.Fragment
                 _toolbarLayout.Click += OnSearch;
             }
 
-            var s = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
-            if (!string.IsNullOrWhiteSpace(s) && s != CustomTag)
-            {
-                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
-                _searchView.Text = Presenter.Tag = CustomTag = s;
-                _searchView.SetTextColor(Style.R15G24B30);
-                _clearButton.Visibility = ViewStates.Visible;
-                _spinner.Visibility = ViewStates.Visible;
-
-                LoadPosts(true);
-            }
-            else if (savedInstanceState == null && _isGuest)
+            var shouldLoadPosts = SearchByTag();
+            if (shouldLoadPosts && savedInstanceState == null && _isGuest)
             {
                 LoadPosts(true);
             }
@@ -358,6 +353,11 @@ namespace Steepshot.Fragment
             Presenter.RemovePost(post);
         }
 
+        private void TagAction(string tag)
+        {
+            SearchByTag(tag);
+        }
+
         private void UserAction(Post post)
         {
             if (post == null)
@@ -441,6 +441,27 @@ namespace Steepshot.Fragment
             }
             Presenter.PostType = postType;
             await LoadPosts(true);
+        }
+
+        private bool SearchByTag(string tag = null)
+        {
+            string selectedTag;
+            if (tag == null)
+                selectedTag = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
+            else
+                selectedTag = tag;
+            if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
+            {
+                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
+                _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
+                _searchView.SetTextColor(Style.R15G24B30);
+                _clearButton.Visibility = ViewStates.Visible;
+                _spinner.Visibility = ViewStates.Visible;
+
+                LoadPosts(true);
+                return false;
+            }
+            return true;
         }
 
         private void SetAnimation()
