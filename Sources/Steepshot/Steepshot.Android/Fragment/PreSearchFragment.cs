@@ -230,6 +230,9 @@ namespace Steepshot.Fragment
             _clearButton.Visibility = ViewStates.Gone;
             _searchView.Text = Localization.Texts.TapToSearch;
             _searchView.SetTextColor(Style.R151G155B158);
+            _spinner.Visibility = ViewStates.Visible;
+            _refresher.Refreshing = false;
+            LoadPosts(true);
         }
 
         private async void OnTrendClick(object sender, EventArgs e)
@@ -419,8 +422,11 @@ namespace Steepshot.Fragment
 
             Context.ShowAlert(errors);
 
-            _refresher.Refreshing = false;
-            _spinner.Visibility = ViewStates.Gone;
+            if (errors != null)
+            {
+                _refresher.Refreshing = false;
+                _spinner.Visibility = ViewStates.Gone;
+            }
         }
 
         private void OpenLogin()

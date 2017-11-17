@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Method;
@@ -138,6 +139,7 @@ namespace Steepshot.Adapter
             _moreActionsDialog = new Dialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _title.MovementMethod = new LinkMovementMethod();
+            _title.SetHighlightColor(Color.Transparent);
 
             _likeAction = likeAction;
             _userAction = userAction;
@@ -157,7 +159,7 @@ namespace Steepshot.Adapter
             _more.Click += DoMoreAction;
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
-            _tags = new CustomClickableSpan[4];
+            _tags = new CustomClickableSpan[5];
             for (int i = 0; i < _tags.Count(); i++)
             {
                 _tags[i] = new CustomClickableSpan();
@@ -277,16 +279,18 @@ namespace Steepshot.Adapter
             builder.Append(title);
             title.Dispose();
 
+            int j = 0;
             for (int i = 0; i < post.Tags.Count(); i++)
             {
                 if (post.Tags[i] != "steepshot")
                 {
-                    _tags[i].Tag = post.Tags[i];
+                    _tags[j].Tag = post.Tags[i];
                     var tag = new SpannableString($" #{post.Tags[i]}");
-                    tag.SetSpan(_tags[i], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
+                    tag.SetSpan(_tags[j], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
                     tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
                     builder.Append(tag);
                     tag.Dispose();
+                    j++;
                 }
             }
             _title.SetText(builder, TextView.BufferType.Spannable);
