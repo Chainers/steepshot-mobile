@@ -52,6 +52,7 @@
             android:textColor="@color/white"
             android:textAllCaps="false"
             android:background="@drawable/follow_button_corners"
+            android:backgroundTint="@color/rgb231_72_0"
             android:layout_centerInParent="true"
             android:textSize="14sp" />
     </RelativeLayout>
