@@ -94,7 +94,7 @@ namespace Steepshot.Adapter
             var photo = post.Photos?.FirstOrDefault();
             if (photo != null)
             {
-                Picasso.With(context).Load(photo).NoFade().Resize(cellSize, cellSize).CenterCrop().Priority(Picasso.Priority.Low).Into(_photo);
+                Picasso.With(context).Load(photo).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Priority(Picasso.Priority.Low).Into(_photo);
             }
         }
     }
