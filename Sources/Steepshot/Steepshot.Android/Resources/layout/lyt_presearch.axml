@@ -33,7 +33,7 @@
         <Button
             android:id="@+id/clear_button"
             android:layout_width="40dp"
-            android:layout_height="30dp"
+            android:layout_height="50dp"
             android:text="Clear"
             android:textSize="14sp"
             android:textAllCaps="false"

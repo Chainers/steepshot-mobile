@@ -344,6 +344,11 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
+            if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+            {
+                OpenLogin();
+                return;
+            }
 
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
@@ -379,10 +384,7 @@ namespace Steepshot.Fragment
                 Context.ShowAlert(errors);
             }
             else
-            {
-                var intent = new Intent(Context, typeof(PreSignInActivity));
-                StartActivity(intent);
-            }
+                OpenLogin();
         }
 
         private async void FlagAction(Post post)
@@ -406,6 +408,12 @@ namespace Steepshot.Fragment
         {
             Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
             ((RootActivity)Activity).SelectTab(1);
+        }
+
+        private void OpenLogin()
+        {
+            var intent = new Intent(Activity, typeof(WelcomeActivity));
+            StartActivity(intent);
         }
 
         private void UpdateProfile()

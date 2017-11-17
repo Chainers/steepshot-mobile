@@ -383,14 +383,15 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
-            if (post.Children > 0)
+            if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
             {
-                var intent = new Intent(Context, typeof(CommentsActivity));
-                intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-                StartActivityForResult(intent, CommentsActivity.RequestCode);
-            }
-            else
                 OpenLogin();
+                return;
+            }
+
+            var intent = new Intent(Context, typeof(CommentsActivity));
+            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
+            StartActivityForResult(intent, CommentsActivity.RequestCode); 
         }
 
         private void VotersAction(Post post)
