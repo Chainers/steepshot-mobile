@@ -71,6 +71,7 @@ namespace Steepshot.Fragment
             _adapter.PhotoClick += PhotoClick;
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
+            _adapter.TagAction += TagAction;
             _logo.Click += OnLogoClick;
 
             _scrollListner = new ScrollListener();
@@ -192,6 +193,12 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        private void TagAction(string tag)
+        {
+            Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+            ((RootActivity)Activity).SelectTab(1);
         }
     }
 }

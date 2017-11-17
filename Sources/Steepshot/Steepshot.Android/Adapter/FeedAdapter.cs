@@ -3,6 +3,9 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Support.V7.Widget;
+using Android.Text;
+using Android.Text.Method;
+using Android.Text.Style;
 using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
@@ -20,6 +23,7 @@ namespace Steepshot.Adapter
         protected readonly T Presenter;
         protected readonly Context Context;
         public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction;
+        public Action<string> TagAction;
 
         public override int ItemCount
         {
@@ -63,7 +67,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -81,7 +85,7 @@ namespace Steepshot.Adapter
         private readonly ImageView _photo;
         private readonly ImageView _avatar;
         private readonly TextView _author;
-        private readonly TextView _firstComment;
+        private readonly TextView _title;
         private readonly TextView _commentSubtitle;
         private readonly TextView _time;
         private readonly TextView _likes;
@@ -94,9 +98,11 @@ namespace Steepshot.Adapter
         private readonly Dialog _moreActionsDialog;
         private readonly Context _context;
 
+        private readonly CustomClickableSpan[] _tags;
+
         private Post _post;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -107,7 +113,7 @@ namespace Steepshot.Adapter
 
             _photo.LayoutParameters = parameters;
 
-            _firstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
+            _title = itemView.FindViewById<TextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
@@ -120,7 +126,7 @@ namespace Steepshot.Adapter
             _time.Typeface = Style.Regular;
             _likes.Typeface = Style.Semibold;
             _cost.Typeface = Style.Semibold;
-            _firstComment.Typeface = Style.Regular;
+            _title.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
 
             _context = itemView.Context;
@@ -131,6 +137,7 @@ namespace Steepshot.Adapter
 
             _moreActionsDialog = new Dialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
+            _title.MovementMethod = new LinkMovementMethod();
 
             _likeAction = likeAction;
             _userAction = userAction;
@@ -148,6 +155,13 @@ namespace Steepshot.Adapter
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
+
+            _tags = new CustomClickableSpan[4];
+            for (int i = 0; i < _tags.Count(); i++)
+            {
+                _tags[i] = new CustomClickableSpan();
+                _tags[i].SpanClicked += tagAction;
+            }
         }
 
         private void DoMoreAction(object sender, EventArgs e)
@@ -256,15 +270,26 @@ namespace Steepshot.Adapter
 
             _author.Text = post.Author;
 
-            if (string.IsNullOrEmpty(post.Title))
+            var builder = new SpannableStringBuilder();
+            var title = new SpannableString(post.Title);
+            title.SetSpan(null, 0, title.Length(), 0);
+            builder.Append(title);
+            title.Dispose();
+
+            for (int i = 0; i < post.Tags.Count(); i++)
             {
-                _firstComment.Visibility = ViewStates.Gone;
+                if (post.Tags[i] != "steepshot")
+                {
+                    _tags[i].Tag = post.Tags[i];
+                    var tag = new SpannableString($" #{post.Tags[i]}");
+                    tag.SetSpan(_tags[i], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
+                    tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
+                    builder.Append(tag);
+                    tag.Dispose();
+                }
             }
-            else
-            {
-                _firstComment.Visibility = ViewStates.Visible;
-                _firstComment.Text = post.Title;
-            }
+            _title.SetText(builder, TextView.BufferType.Spannable);
+            builder.Dispose();
 
             _commentSubtitle.Text = post.Children > 0
                 ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
