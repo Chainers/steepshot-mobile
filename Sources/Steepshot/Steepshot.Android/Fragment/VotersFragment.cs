@@ -79,7 +79,7 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -102,7 +102,7 @@ namespace Steepshot.Fragment
         private async void LoadNext()
         {
             var errors = await Presenter.TryLoadNextPostVoters(_url);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);
@@ -126,7 +126,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryFollow(userFriend);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Short);
