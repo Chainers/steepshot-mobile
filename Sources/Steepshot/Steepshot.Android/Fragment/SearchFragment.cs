@@ -12,6 +12,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -46,6 +47,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.clear_button)] private Button _clearButton;
         [InjectView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
         [InjectView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
 
@@ -97,6 +99,9 @@ namespace Steepshot.Fragment
 
             var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
             imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
+
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
         }
 
         public override void OnDetach()
@@ -215,6 +220,7 @@ namespace Steepshot.Fragment
 
         private async Task GetTags(bool clear, bool isLoaderNeeded = true)
         {
+            CheckQueryIsEmpty();
             if (clear)
             {
                 if (_prevQuery.ContainsKey(_searchType) && string.Equals(_prevQuery[_searchType], _searchView.Text, StringComparison.OrdinalIgnoreCase))
@@ -245,7 +251,17 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
+            CheckQueryIsEmpty();
             Context.ShowAlert(errors, ToastLength.Short);
+        }
+
+        private void CheckQueryIsEmpty()
+        {
+            if (_searchType == SearchType.People)
+                _emptyQueryLabel.Visibility =
+                    Presenter.UserFriendPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            else
+                _emptyQueryLabel.Visibility = Presenter.TagsPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private async void SwitchSearchType(bool isLoaderNeeded = true)
