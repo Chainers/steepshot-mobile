@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -61,18 +63,21 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var view = new ImageView(Context);
-                    view.SetScaleType(ImageView.ScaleType.CenterInside);
+                    view.SetScaleType(ImageView.ScaleType.CenterCrop);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }
         }
     }
 
-    public class ImageViewHolder : RecyclerView.ViewHolder
+    public class ImageViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
         private Post _post;
+        private Context _context;
+        private string _photoString;
+
 
         public ImageViewHolder(View itemView, Action<Post> click) : base(itemView)
         {
@@ -90,12 +95,34 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context, int cellSize)
         {
             _post = post;
-            _photo.SetImageResource(0);
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo != null)
+            _context = context;
+            _photoString = post.Photos?.FirstOrDefault();
+            if (_photoString != null)
             {
-                Picasso.With(context).Load(photo).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Priority(Picasso.Priority.Low).Into(_photo);
+                Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Into(_photo, OnSuccess, OnError);
             }
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _photo.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Into(this);
         }
     }
 }
