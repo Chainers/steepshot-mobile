@@ -104,7 +104,6 @@ namespace Steepshot.Adapter
 
         private Post _post;
         private string _photoString;
-        private string _avatarString;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
@@ -255,13 +254,12 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
-            _avatarString = post.Avatar;
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
 
-            if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(_context).Load(_avatarString).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
+            if (!string.IsNullOrEmpty(_post.Avatar))
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
             else
                 Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
 
@@ -335,7 +333,7 @@ namespace Steepshot.Adapter
 
         private void OnErrorAvatar()
         {
-            Picasso.With(_context).Load(_avatarString).NoFade().Into(this);
+            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(this);
         }
     }
 }

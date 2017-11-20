@@ -72,7 +72,7 @@ namespace Steepshot.Adapter
             }
         }
 
-        private class FollowersViewHolder : RecyclerView.ViewHolder
+        private class FollowersViewHolder : RecyclerView.ViewHolder, ITarget
         {
             private readonly CircleImageView _friendAvatar;
             private readonly TextView _friendName;
@@ -130,8 +130,13 @@ namespace Steepshot.Adapter
 
                 _friendLogin.Text = userFriends.Author;
 
-                if (!string.IsNullOrEmpty(userFriends.Avatar))
-                    Picasso.With(_context).Load(userFriends.Avatar).Placeholder(Resource.Drawable.holder).NoFade().Resize(300, 0).Into(_friendAvatar);
+                if (!string.IsNullOrEmpty(_userFriends.Avatar))
+                    Picasso.With(_context).Load(_userFriends.Avatar)
+                       .Placeholder(Resource.Drawable.holder)
+                       .NoFade()
+                       .Resize(300, 0)
+                       .Priority(Picasso.Priority.Normal)
+                       .Into(_friendAvatar, OnSuccess, OnError);
                 else
                     Picasso.With(_context).Load(Resource.Drawable.holder).Into(_friendAvatar);
 
@@ -176,6 +181,28 @@ namespace Steepshot.Adapter
                         _loader.Visibility = ViewStates.Gone;
                     }
                 }
+            }
+
+            private void OnSuccess()
+            {
+            }
+
+            private void OnError()
+            {
+                Picasso.With(_context).Load(_userFriends.Avatar).NoFade().Into(this);
+            }
+
+            public void OnBitmapFailed(Drawable p0)
+            {
+            }
+
+            public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+            {
+                _friendAvatar.SetImageBitmap(p0);
+            }
+
+            public void OnPrepareLoad(Drawable p0)
+            {
             }
         }
     }
