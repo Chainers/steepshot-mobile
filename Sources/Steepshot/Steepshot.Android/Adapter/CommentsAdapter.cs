@@ -1,6 +1,8 @@
 ﻿using System;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.Animations;
@@ -46,7 +48,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class CommentViewHolder : RecyclerView.ViewHolder
+    public class CommentViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -187,8 +189,13 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
             _comment.Text = post.Body;
 
-            if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(context).Load(post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Into(_avatar);
+            if (!string.IsNullOrEmpty(_post.Avatar))
+                Picasso.With(_context).Load(_post.Avatar)
+                       .Placeholder(Resource.Drawable.holder)
+                       .NoFade()
+                       .Resize(300, 0)
+                       .Priority(Picasso.Priority.Normal)
+                       .Into(_avatar, OnSuccess, OnError);
             else
                 Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
 
@@ -201,6 +208,28 @@ namespace Steepshot.Adapter
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(this);
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _avatar.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
         }
     }
 }
