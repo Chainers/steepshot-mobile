@@ -134,6 +134,7 @@
             public const string MinAgo = "min ago";
             public const string SecAgo = "sec ago";
             public const string CreateFirstPostText = "Create first photo";
+            public const string EmptyQuery = "It's very strange, but we do not have anything yet for this query. Try to look for something else ...";
         }
     }
 }

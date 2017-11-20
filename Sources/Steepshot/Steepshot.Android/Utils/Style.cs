@@ -6,6 +6,7 @@ namespace Steepshot.Utils
 {
     public static class Style
     {
+        public static readonly Typeface Light;
         public static readonly Typeface Regular;
         public static readonly Typeface Semibold;
 
@@ -16,6 +17,7 @@ namespace Steepshot.Utils
 
         static Style()
         {
+            Light = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Light.ttf");
             Regular = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Regular.ttf");
             Semibold = Typeface.CreateFromAsset(Application.Context.Assets, "OpenSans-Semibold.ttf");
             R15G24B30 = BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Application.Context, Resource.Color.rgb15_24_30));
