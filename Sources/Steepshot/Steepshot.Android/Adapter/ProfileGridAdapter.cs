@@ -74,7 +74,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class HeaderViewHolder : RecyclerView.ViewHolder
+    public class HeaderViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Context _context;
         private readonly TextView _name;
@@ -97,6 +97,8 @@ namespace Steepshot.Adapter
         private readonly ProgressBar _loadingSpinner;
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
+
+        private string _userAvatar;
 
         public HeaderViewHolder(View itemView, Context context, Action followersAction, Action followingAction, Action balanceAction, Action followAction) : base(itemView)
         {
@@ -170,13 +172,15 @@ namespace Steepshot.Adapter
         {
             if (profile == null)
                 return;
-
-            if (!string.IsNullOrEmpty(profile.ProfileImage))
+            
+            _userAvatar = profile.ProfileImage;
+            if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(profile.ProfileImage).Placeholder(Resource.Drawable.holder)
-                    .Resize(300, 300)
-                    .CenterCrop()
-                    .Into(_profileImage);
+                Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.holder)
+                      .NoFade()
+                      .Resize(300, 300)
+                      .CenterCrop()
+                      .Into(_profileImage, OnSuccess, OnError);
             }
             else
                 Picasso.With(_context).Load(Resource.Drawable.holder).Into(_profileImage);
@@ -258,6 +262,28 @@ namespace Steepshot.Adapter
             _followersCount.Text = profile.FollowersCount.ToString("#,##0");
 
             _balance.Text = BasePresenter.ToFormatedCurrencyString(profile.EstimatedBalance);
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _profileImage.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.holder).NoFade().Into(this);
         }
     }
 }
