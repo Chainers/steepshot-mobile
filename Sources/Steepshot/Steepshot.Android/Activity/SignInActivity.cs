@@ -3,6 +3,8 @@ using System.IO;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
@@ -21,13 +23,14 @@ using ZXing.Mobile;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>
+    public sealed class SignInActivity : BaseActivityWithPresenter<SignInPresenter>, ITarget
     {
         public const string LoginExtraPath = "login";
         public const string AvatarUrlExtraPath = "avatar_url";
 
         private MobileBarcodeScanner _scanner;
         private string _username;
+        private string _profileImageUrl;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
@@ -51,7 +54,7 @@ namespace Steepshot.Activity
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();
             _username = Intent.GetStringExtra(LoginExtraPath);
-            var profileImage = Intent.GetStringExtra(AvatarUrlExtraPath);
+            _profileImageUrl = Intent.GetStringExtra(AvatarUrlExtraPath);
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBack;
@@ -77,11 +80,16 @@ namespace Steepshot.Activity
             }
             catch
             {
-                //todo nothing
+                //to do nothing
             }
 #endif
-            if (!string.IsNullOrEmpty(profileImage))
-                Picasso.With(this).Load(profileImage).Into(_profileImage);
+            if (!string.IsNullOrEmpty(_profileImageUrl))
+                Picasso.With(this).Load(_profileImageUrl)
+                       .Placeholder(Resource.Drawable.holder)
+                       .NoFade()
+                       .Resize(300, 0)
+                       .Priority(Picasso.Priority.Normal)
+                       .Into(_profileImage, OnSuccess, OnError);
 
             _buttonScanDefaultView.Click += OnButtonScanDefaultViewOnClick;
             _signInBtn.Click += SignInBtn_Click;
@@ -179,6 +187,28 @@ namespace Steepshot.Activity
         private void HideKeyboard(object sender, EventArgs e)
         {
             HideKeyboard();
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(this).Load(_profileImageUrl).NoFade().Into(this);
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _profileImage.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
         }
     }
 }
