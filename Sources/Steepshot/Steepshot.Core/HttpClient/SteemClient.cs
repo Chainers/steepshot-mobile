@@ -108,7 +108,7 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 var op = request.Type == FollowType.Follow
-                    ? new FollowOperation(request.Login, request.Username, DitchFollowType.blog, request.Login)
+                    ? new FollowOperation(request.Login, request.Username, DitchFollowType.Blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
@@ -134,7 +134,7 @@ namespace Steepshot.Core.HttpClient
 
             return await Task.Run(() =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.blog, request.Login);
+                var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
 
                 var result = new OperationResult<LoginResponse>();
@@ -282,7 +282,7 @@ namespace Steepshot.Core.HttpClient
                 return string.Empty;
 
 
-            var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.blog, request.Login);
+            var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
             var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, ct, op);
             return JsonConverter.Serialize(tr);
         }
