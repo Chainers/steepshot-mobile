@@ -58,7 +58,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var view = new ImageView(Context);
-                    view.SetScaleType(ImageView.ScaleType.CenterInside);
+                    view.SetScaleType(ImageView.ScaleType.CenterCrop);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }

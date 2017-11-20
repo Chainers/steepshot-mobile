@@ -3,6 +3,7 @@ using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Text.Method;
@@ -74,7 +75,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class FeedViewHolder : RecyclerView.ViewHolder
+    public class FeedViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Action<Post> _likeAction;
         private readonly Action<Post> _userAction;
@@ -102,6 +103,8 @@ namespace Steepshot.Adapter
         private readonly CustomClickableSpan[] _tags;
 
         private Post _post;
+        private string _photoString;
+        private string _avatarString;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
@@ -252,20 +255,21 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
+            _avatarString = post.Avatar;
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
 
             if (!string.IsNullOrEmpty(post.Avatar))
-                Picasso.With(context).Load(post.Avatar).Placeholder(Resource.Drawable.holder).NoFade().Priority(Picasso.Priority.Low).Resize(300, 0).Into(_avatar);
+                Picasso.With(_context).Load(_avatarString).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
             else
                 Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
 
             _photo.SetImageResource(0);
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo != null)
+            _photoString = post.Photos?.FirstOrDefault();
+            if (_photoString != null)
             {
-                Picasso.With(context).Load(photo).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo);
+                Picasso.With(_context).Load(_photoString).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo, OnSuccess, OnError);
                 var parameters = _photo.LayoutParameters;
                 parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
                 _photo.LayoutParameters = parameters;
@@ -305,6 +309,33 @@ namespace Steepshot.Adapter
                 _like.StartAnimation(_likeSetAnimation);
             else
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _photo.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(_context).Load(_photoString).NoFade().Into(this);
+        }
+
+        private void OnErrorAvatar()
+        {
+            Picasso.With(_context).Load(_avatarString).NoFade().Into(this);
         }
     }
 }
