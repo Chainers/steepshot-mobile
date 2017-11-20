@@ -188,6 +188,9 @@
     <AndroidResource Include="Resources\drawable-mdpi\rotate.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\rotate.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\rotate.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\flash_off.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\flash_off.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\flash_off.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
