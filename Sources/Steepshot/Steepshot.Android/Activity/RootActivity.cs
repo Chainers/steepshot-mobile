@@ -48,13 +48,7 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
-            {
-                var intent = new Intent(Intent.ActionMain);
-                intent.AddCategory(Intent.CategoryHome);
-                intent.SetFlags(ActivityFlags.NewTask);
-                StartActivity(intent);
-                Finish();
-            }
+                MinimizeApp();
             else
                 base.OnBackPressed();
         }

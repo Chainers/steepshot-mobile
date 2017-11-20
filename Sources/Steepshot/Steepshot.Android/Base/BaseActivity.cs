@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.Content;
 using Android.Support.V7.App;
 using Android.Views.InputMethods;
 using Steepshot.Fragment;
@@ -30,6 +31,15 @@ namespace Steepshot.Base
         {
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+        }
+
+        protected void MinimizeApp()
+        {
+            var intent = new Intent(Intent.ActionMain);
+            intent.AddCategory(Intent.CategoryHome);
+            intent.SetFlags(ActivityFlags.NewTask);
+            StartActivity(intent);
+            Finish();
         }
     }
 }
