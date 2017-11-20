@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
 using Ditch.Golos;
+using Ditch.Golos.Helpers;
 using Ditch.Golos.Operations.Get;
 using Ditch.Golos.Operations.Post;
 using Steepshot.Core.Models.Common;
@@ -239,7 +240,7 @@ namespace Steepshot.Core.HttpClient
                 var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
                 var post = new PostOperation(category, request.Login, request.Title, uploadResponse.Payload.Body, meta);
                 BaseOperation[] ops;
-                if (uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any())
+                if (uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
                 {
                     var beneficiaries = uploadResponse.Beneficiaries
                         .Select(i => new DitchBeneficiary(i.Account, i.Weight))
