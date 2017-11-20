@@ -196,7 +196,7 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -209,7 +209,7 @@ namespace Steepshot.Fragment
         private async void RefresherRefresh(object sender, EventArgs e)
         {
             await UpdatePage();
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
             _refresher.Refreshing = false;
         }
@@ -225,7 +225,7 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
 
             var errors = await Presenter.TryLoadNextPosts();
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);
@@ -278,7 +278,7 @@ namespace Steepshot.Fragment
             do
             {
                 var errors = await Presenter.TryGetUserInfo(_profileId);
-                if (!IsInitialized || IsDetached || IsRemoving)
+                if (!IsInitialized)
                     return;
 
                 if (errors != null && !errors.Any())
@@ -289,7 +289,7 @@ namespace Steepshot.Fragment
 
                 Context.ShowAlert(errors);
                 await Task.Delay(5000);
-                if (!IsInitialized || IsDetached || IsRemoving)
+                if (!IsInitialized)
                     return;
 
             } while (true);
@@ -304,7 +304,7 @@ namespace Steepshot.Fragment
         private async void OnFollowClick()
         {
             var errors = await Presenter.TryFollow();
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Long);
@@ -378,7 +378,7 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-                if (!IsInitialized || IsDetached || IsRemoving)
+                if (!IsInitialized)
                     return;
 
                 Context.ShowAlert(errors);
@@ -393,7 +393,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryFlag(post);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);

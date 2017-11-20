@@ -124,7 +124,7 @@ namespace Steepshot.Fragment
 
         private void UserFriendPresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -136,7 +136,7 @@ namespace Steepshot.Fragment
 
         private void TagsPresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -191,7 +191,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.UserFriendPresenter.TryFollow(userFriend);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);
@@ -199,7 +199,7 @@ namespace Steepshot.Fragment
 
         private void OnTimer(object state)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -242,7 +242,7 @@ namespace Steepshot.Fragment
             }
 
             var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Short);

@@ -99,7 +99,7 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
             if (!_isFollowers && _username == BasePresenter.User.Login)
                 _peopleCount.Text = $"{Presenter.FindAll(u => u.HasFollowed).Count:N0} {Localization.Texts.PeopleText}";
@@ -112,7 +112,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
             var errors = await Presenter.TryFollow(userFriend);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Long);
@@ -121,7 +121,7 @@ namespace Steepshot.Fragment
         private async void LoadItems()
         {
             var errors = await Presenter.TryLoadNextUserFriends(_username);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors, ToastLength.Long);

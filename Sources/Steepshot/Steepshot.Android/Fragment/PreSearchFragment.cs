@@ -286,7 +286,7 @@ namespace Steepshot.Fragment
 
         private void PresenterSourceChanged(Status status)
         {
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Activity.RunOnUiThread(() =>
@@ -337,7 +337,7 @@ namespace Steepshot.Fragment
             if (BasePresenter.User.IsAuthenticated)
             {
                 var errors = await Presenter.TryVote(post);
-                if (!IsInitialized || IsDetached || IsRemoving)
+                if (!IsInitialized)
                     return;
 
                 Context.ShowAlert(errors);
@@ -354,7 +354,7 @@ namespace Steepshot.Fragment
                 return;
 
             var errors = await Presenter.TryFlag(post);
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);
@@ -418,7 +418,7 @@ namespace Steepshot.Fragment
             else
                 errors = await Presenter.TryGetSearchedPosts();
 
-            if (!IsInitialized || IsDetached || IsRemoving)
+            if (!IsInitialized)
                 return;
 
             Context.ShowAlert(errors);
