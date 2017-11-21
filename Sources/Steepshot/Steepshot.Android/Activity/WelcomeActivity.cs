@@ -81,7 +81,7 @@ namespace Steepshot.Activity
 
             _steemLoader.Visibility = ViewStates.Gone;
             _steemLogin.Enabled = true;
-            _steemLogin.Text = Localization.Texts.SignInButtonText;
+            _steemLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Steem");
         }
 
         private async void GolosLogin(object sender, EventArgs e)
@@ -96,7 +96,7 @@ namespace Steepshot.Activity
 
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
-            _golosLogin.Text = Localization.Texts.SignInButtonText;
+            _golosLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Golos");
         }
 
         private void RegistrationClick(object sender, EventArgs e)
