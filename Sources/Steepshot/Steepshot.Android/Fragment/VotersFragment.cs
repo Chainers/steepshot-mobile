@@ -27,6 +27,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -67,6 +68,10 @@ namespace Steepshot.Fragment
             scrollListner.ScrolledToBottom += LoadNext;
             _votersList.AddOnScrollListener(scrollListner);
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
+
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+
             LoadNext();
         }
 
@@ -107,6 +112,8 @@ namespace Steepshot.Fragment
 
             Context.ShowAlert(errors);
             _bar.Visibility = ViewStates.Gone;
+
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private void OnClick(UserFriend userFriend)

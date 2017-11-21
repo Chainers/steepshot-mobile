@@ -122,4 +122,16 @@
             android:indeterminateTint="@color/rgb15_24_30"
             android:layout_centerInParent="true" />
     </RelativeLayout>
+    <TextView
+        android:id="@+id/empty_query_label"
+        android:layout_below="@id/search_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="45dp"
+        android:textSize="27sp"
+        android:textColor="@color/rgb15_24_30"
+        android:text="It's very strange, but we do not have anything yet for this query. Try to look for something else ..." />
 </RelativeLayout>
