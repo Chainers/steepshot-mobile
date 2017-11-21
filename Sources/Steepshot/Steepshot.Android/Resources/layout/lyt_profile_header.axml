@@ -224,7 +224,8 @@
             android:src="@drawable/forward"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="29dp" />
+            android:layout_marginRight="29dp"
+            android:visibility="invisible"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="2px"

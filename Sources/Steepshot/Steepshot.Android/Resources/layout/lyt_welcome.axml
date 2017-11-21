@@ -40,38 +40,42 @@
         android:textAllCaps="false"
         android:layout_marginRight="15dp"
         android:layout_marginLeft="15dp" />
-    <ImageButton
-        android:id="@+id/golos_login"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/more"
-        android:background="@drawable/circle_border"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_above="@id/reg_button" />
-    <ProgressBar
-        android:id="@+id/golos_loading_spinner"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/rgb231_72_0"
-        android:visibility="gone"
-        android:elevation="10dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="20dp"
-        android:layout_alignParentRight="true"
-        android:layout_above="@id/reg_button" />
     <RelativeLayout
-        android:id="@+id/steem_login_layout"
+        android:id="@+id/golos_login_layout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="20dp"
+        android:layout_above="@id/reg_button"
+        android:background="@android:color/transparent">
+        <Button
+            android:id="@+id/golos_login"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/follow_button_corners"
+            android:backgroundTint="@color/rgb231_72_0"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textAllCaps="false" />
+        <ProgressBar
+            android:id="@+id/golos_loading_spinner"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:elevation="10dp" />
+    </RelativeLayout>
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginRight="14dp"
         android:layout_marginLeft="15dp"
         android:layout_marginBottom="20dp"
         android:background="@android:color/transparent"
-        android:layout_toLeftOf="@id/golos_login"
-        android:layout_above="@id/reg_button">
+        android:layout_above="@id/golos_login_layout">
         <Button
             android:id="@+id/steem_login"
             android:layout_width="match_parent"
