@@ -67,6 +67,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
         [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -191,6 +192,9 @@ namespace Steepshot.Fragment
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
 
+                _emptyQueryLabel.Typeface = Style.Light;
+                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+
                 _toolbarLayout.Click += OnSearch;
             }
 
@@ -224,6 +228,7 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
         
+
         private void OnClearClick(object sender, EventArgs e)
         {
             CustomTag = null;
@@ -391,7 +396,7 @@ namespace Steepshot.Fragment
 
             var intent = new Intent(Context, typeof(CommentsActivity));
             intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode); 
+            StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
         private void VotersAction(Post post)
@@ -405,7 +410,7 @@ namespace Steepshot.Fragment
         }
 
         private async Task LoadPosts(bool clearOld = false)
-        {
+        {                 
             if (clearOld)
             {
                 Presenter.LoadCancel();
@@ -428,6 +433,7 @@ namespace Steepshot.Fragment
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
             }
+            
         }
 
         private void OpenLogin()
@@ -437,10 +443,10 @@ namespace Steepshot.Fragment
         }
 
         private async Task SwitchSearchType(PostType postType)
-        {
+        {            
             if (postType == Presenter.PostType)
                 return;
-
+            
             _spinner.Visibility = ViewStates.Visible;
             _refresher.Refreshing = false;
 
@@ -461,6 +467,7 @@ namespace Steepshot.Fragment
             }
             Presenter.PostType = postType;
             await LoadPosts(true);
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private bool SearchByTag(string tag = null)
