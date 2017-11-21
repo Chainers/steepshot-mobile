@@ -90,7 +90,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryVote(Post post)
         {
-            if (post == null || post.VoteChanging)
+            if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
 
             post.VoteChanging = true;
@@ -130,16 +130,16 @@ namespace Steepshot.Core.Presenters
 
         public async Task<List<string>> TryFlag(Post post)
         {
-            if (post == null || post.VoteChanging)
+            if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
 
-            post.VoteChanging = true;
+            post.FlagChanging = true;
             IsEnableVote = false;
             NotifySourceChanged();
 
             var errors = await TryRunTask(Flag, OnDisposeCts.Token, post);
 
-            post.VoteChanging = false;
+            post.FlagChanging = false;
             IsEnableVote = true;
             NotifySourceChanged();
 
