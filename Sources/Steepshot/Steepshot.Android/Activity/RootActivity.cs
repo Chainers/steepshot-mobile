@@ -26,10 +26,11 @@ namespace Steepshot.Activity
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            base.OnCreate(savedInstanceState);
+
             if (BasePresenter.User.IsAuthenticated && !BasePresenter.User.IsNeedRewards)
                 BasePresenter.User.IsNeedRewards = true; // for android users set true by default
 
-            base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Inject(this);
             _adapter = new Adapter.PagerAdapter(SupportFragmentManager);

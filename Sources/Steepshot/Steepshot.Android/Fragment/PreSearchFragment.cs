@@ -129,6 +129,10 @@ namespace Steepshot.Fragment
             }
         }
 
+        public PreSearchFragment()
+        {
+            // _isGuest = true; TODO Initialize from bundle
+        }
 
         public PreSearchFragment(bool isGuest = false)
         {
