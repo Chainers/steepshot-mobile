@@ -107,7 +107,7 @@
                     android:id="@+id/dtn_terms_of_service"
                     android:layout_width="match_parent"
                     android:layout_height="59dp"
-                    android:text="Term of Services"
+                    android:text="Terms of Service"
                     android:textSize="@dimen/dp_button_text"
                     android:textAllCaps="false"
                     android:textColor="@color/rgb15_24_30"
