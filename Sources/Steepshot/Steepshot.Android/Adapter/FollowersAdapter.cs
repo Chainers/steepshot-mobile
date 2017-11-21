@@ -101,6 +101,7 @@ namespace Steepshot.Adapter
                 _userAction = userAction;
                 _followButton.Click += Follow_Click;
                 _friendName.Click += User_Click;
+                _friendLogin.Click += User_Click;
                 _friendAvatar.Click += User_Click;
             }
 

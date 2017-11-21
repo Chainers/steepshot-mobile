@@ -63,7 +63,8 @@
             android:textColor="@color/rgb15_24_30"
             android:textStyle="bold"
             android:maxLines="1"
-            android:text="Username" />
+            android:text="Username"
+            android:clickable="true"/>
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
