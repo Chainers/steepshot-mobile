@@ -24,7 +24,7 @@ namespace Steepshot.Activity
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.steem_login)] private Button _steemLogin;
-        [InjectView(Resource.Id.golos_login)] private ImageButton _golosLogin;
+        [InjectView(Resource.Id.golos_login)] private Button _golosLogin;
         [InjectView(Resource.Id.reg_button)] private Button _regButton;
         [InjectView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
         [InjectView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
@@ -47,9 +47,11 @@ namespace Steepshot.Activity
 
             _termsTextView.Typeface = Style.Regular;
             _steemLogin.Typeface = Style.Semibold;
+            _golosLogin.Typeface = Style.Semibold;
             _regButton.Typeface = Style.Semibold;
 
-            _steemLogin.Text = Localization.Texts.SignInButtonText;
+            _steemLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Steem");
+            _golosLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Golos");
             _regButton.Text = Localization.Texts.CreateButtonText;
             _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
@@ -86,6 +88,7 @@ namespace Steepshot.Activity
         {
             _golosLoder.Visibility = ViewStates.Visible;
             _golosLogin.Enabled = false;
+            _golosLogin.Text = string.Empty;
 
             await PickChain(KnownChains.Golos);
             if (IsFinishing || IsDestroyed)
@@ -93,6 +96,7 @@ namespace Steepshot.Activity
 
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
+            _golosLogin.Text = Localization.Texts.SignInButtonText;
         }
 
         private void RegistrationClick(object sender, EventArgs e)
