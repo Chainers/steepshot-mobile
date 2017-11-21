@@ -12,6 +12,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -33,6 +34,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.logo)] private ImageView _logo;
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
 
@@ -87,6 +89,10 @@ namespace Steepshot.Fragment
             _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
             _feedList.AddOnScrollListener(_scrollListner);
 
+
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+
             LoadPosts();
         }
 
@@ -131,6 +137,8 @@ namespace Steepshot.Fragment
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
+
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private void PhotoClick(Post post)
