@@ -245,6 +245,7 @@ namespace Steepshot.Fragment
                     _peopleSpinner.Visibility = ViewStates.Visible;
                 else
                     _tagSpinner.Visibility = ViewStates.Visible;
+                _emptyQueryLabel.Visibility = ViewStates.Invisible;
             }
 
             var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
