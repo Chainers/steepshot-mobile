@@ -118,7 +118,7 @@
 
         public class Texts
         {
-            public const string SignInButtonText = "Sign in to your Steem account";
+            public const string SignInButtonText = "Sign in with {0}";
             public const string CreateButtonText = "Create a new account";
             public const string EnterAccountText = "Enter to your account";
             public const string PasswordViewTitleText = "Account posting key";
