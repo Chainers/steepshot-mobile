@@ -103,6 +103,11 @@ namespace Steepshot.Fragment
             }
         }
 
+        public ProfileFragment()
+        {
+            //_profileId = "joseph.kalu"; TODO Initialize from bundle
+        }
+
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
