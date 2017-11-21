@@ -410,7 +410,7 @@ namespace Steepshot.Fragment
         }
 
         private async Task LoadPosts(bool clearOld = false)
-        {
+        {                 
             if (clearOld)
             {
                 Presenter.LoadCancel();
@@ -433,8 +433,7 @@ namespace Steepshot.Fragment
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
             }
-
-            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            
         }
 
         private void OpenLogin()
@@ -444,10 +443,10 @@ namespace Steepshot.Fragment
         }
 
         private async Task SwitchSearchType(PostType postType)
-        {
+        {            
             if (postType == Presenter.PostType)
                 return;
-
+            
             _spinner.Visibility = ViewStates.Visible;
             _refresher.Refreshing = false;
 
@@ -468,6 +467,7 @@ namespace Steepshot.Fragment
             }
             Presenter.PostType = postType;
             await LoadPosts(true);
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private bool SearchByTag(string tag = null)
