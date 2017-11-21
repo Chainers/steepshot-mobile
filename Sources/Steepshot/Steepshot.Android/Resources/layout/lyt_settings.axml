@@ -66,7 +66,7 @@
                         android:id="@+id/nsfw_switch_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Show nsfw content"
+                        android:text="Show NSFW content"
                         android:textColor="@color/rgb15_24_30"
                         android:textSize="@dimen/dp_button_text"
                         android:layout_centerVertical="true" />
