@@ -206,7 +206,7 @@ namespace Steepshot.Adapter
                     if (profile.HasFollowed)
                     {
                         background.SetColor(Color.White);
-                        background.SetStroke(1, Style.R244G244B246);
+                        background.SetStroke(3, Style.R244G244B246);
                         _followButton.Text = Localization.Messages.Unfollow;
                         _followButton.SetTextColor(Style.R15G24B30);
                     }
