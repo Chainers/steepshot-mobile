@@ -104,6 +104,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
         private string _photoString;
+        public const string ClipboardTitle = "Steepshot's post link";
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
@@ -177,6 +178,7 @@ namespace Steepshot.Adapter
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
+                var share = dialogView.FindViewById<Button>(Resource.Id.share);
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
 
                 flag.Click -= DoFlagAction;
@@ -184,6 +186,10 @@ namespace Steepshot.Adapter
 
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
+
+                share.Visibility = ViewStates.Visible;
+                share.Click -= DoShareAction;
+                share.Click += DoShareAction;
 
                 cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
@@ -206,6 +212,17 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             _hideAction.Invoke(_post);
+        }
+
+        private void DoShareAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            var clipboard = (Android.Content.ClipboardManager)_context.GetSystemService(Context.ClipboardService);
+            var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(Localization.Texts.PostLink, _post.Url));
+            clipboard.PrimaryClip = clip;
+            _context.ShowAlert(Localization.Texts.Copied, ToastLength.Short);
+            clip.Dispose();
+            clipboard.Dispose();
         }
 
         private void DoDialogCancelAction(object sender, EventArgs e)
