@@ -178,7 +178,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"
-                    android:maxLength="255"
+                    android:maxLength="32"
                     android:gravity="bottom"
                     android:hint="Add Hashtag"
                     android:background="@android:color/transparent"
