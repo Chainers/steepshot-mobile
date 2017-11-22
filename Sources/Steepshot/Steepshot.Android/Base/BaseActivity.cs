@@ -16,6 +16,7 @@ namespace Steepshot.Base
     public abstract class BaseActivity : AppCompatActivity
     {
         protected HostFragment CurrentHostFragment;
+        public static LruCache Cache;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -37,11 +38,11 @@ namespace Steepshot.Base
 #else
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 #endif
-            /* TODO Do we need to initialize cache when on trim is invoked
+
             var d = new Picasso.Builder(this);
             Cache = new LruCache(this);
             d.MemoryCache(Cache);
-            Picasso.SetSingletonInstance(d.Build());*/
+            Picasso.SetSingletonInstance(d.Build());
 
             AppSettings.Container = builder.Build();
         }
