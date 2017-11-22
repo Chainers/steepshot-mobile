@@ -111,8 +111,8 @@
                         android:paddingBottom="3dp" />
                     <ImageButton
                         android:id="@+id/btn_switcher"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:src="@drawable/grid_active"
                         android:scaleType="center"
                         android:layout_alignParentRight="true"

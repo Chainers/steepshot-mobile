@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
@@ -18,16 +17,9 @@ namespace Steepshot.Activity
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {
-        public static LruCache Cache;
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            var d = new Picasso.Builder(this);
-            Cache = new LruCache(this);
-            d.MemoryCache(Cache);
-            Picasso.SetSingletonInstance(d.Build());
 
             AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
