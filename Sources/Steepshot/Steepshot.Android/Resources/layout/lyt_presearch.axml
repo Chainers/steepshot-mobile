@@ -73,52 +73,51 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/toolbar"
                     android:layout_alignLeft="@+id/toolbar"
-                    android:layout_marginTop="34dp"
-                    android:layout_marginLeft="14dp"
-                    android:layout_marginBottom="34dp">
+                    android:layout_marginLeft="14dp">
                     <Button
                         android:id="@+id/trending_button"
                         android:layout_width="90dp"
-                        android:layout_height="27dp"
+                        android:layout_height="60dp"
                         android:text="Top"
                         android:textSize="20sp"
                         android:textColor="@color/rgb15_24_30"
                         android:textAllCaps="false"
                         android:background="@android:color/transparent"
-                        android:gravity="bottom" />
+                        android:gravity="center_vertical" />
                     <Button
                         android:id="@+id/hot_button"
                         android:layout_width="90dp"
-                        android:layout_height="27dp"
+                        android:layout_height="60dp"
                         android:text="Hot"
                         android:background="@android:color/transparent"
                         android:textSize="14sp"
                         android:textColor="@color/rgb151_155_158"
                         android:textAllCaps="false"
-                        android:gravity="bottom"
+                        android:gravity="center_vertical"
                         android:paddingBottom="2dp"
                         android:layout_toRightOf="@id/trending_button" />
                     <Button
                         android:id="@+id/new_button"
                         android:layout_width="90dp"
-                        android:layout_height="27dp"
+                        android:layout_height="60dp"
                         android:text="New"
                         android:background="@android:color/transparent"
                         android:textSize="14sp"
                         android:textColor="@color/rgb151_155_158"
                         android:textAllCaps="false"
-                        android:gravity="bottom"
+                        android:gravity="center_vertical"
                         android:layout_toRightOf="@id/hot_button"
                         android:paddingBottom="2dp" />
                     <ImageButton
                         android:id="@+id/btn_switcher"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:src="@drawable/grid_active"
                         android:scaleType="center"
                         android:layout_alignParentRight="true"
                         android:layout_alignTop="@+id/profile_login"
                         android:layout_marginRight="15dp"
+                        android:layout_centerVertical="true"
                         android:background="@android:color/transparent" />
                 </RelativeLayout>
             </android.support.design.widget.CollapsingToolbarLayout>
