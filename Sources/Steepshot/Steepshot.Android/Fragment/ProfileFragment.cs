@@ -425,6 +425,7 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.ShouldUpdateProfile)
             {
+                _listSpinner.Visibility = ViewStates.Visible;
                 UpdatePage();
                 BasePresenter.ShouldUpdateProfile = false;
             }
