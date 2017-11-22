@@ -240,6 +240,7 @@ namespace Steepshot.Fragment
             _searchView.Text = Localization.Texts.TapToSearch;
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
             _refresher.Refreshing = false;
             LoadPosts(true);
         }
@@ -436,6 +437,7 @@ namespace Steepshot.Fragment
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
+                _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
             }
 
         }
@@ -489,6 +491,7 @@ namespace Steepshot.Fragment
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
                 _spinner.Visibility = ViewStates.Visible;
+                _emptyQueryLabel.Visibility = ViewStates.Invisible;
 
                 LoadPosts(true);
                 return false;
