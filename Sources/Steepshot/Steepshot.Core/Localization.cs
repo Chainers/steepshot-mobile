@@ -135,6 +135,8 @@
             public const string SecAgo = "sec ago";
             public const string CreateFirstPostText = "Create first photo";
             public const string EmptyQuery = "It's very strange, but we do not have anything yet for this query. Try to look for something else ...";
+            public const string Copied = "Copied to clipboard";
+            public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
         }
     }
 }

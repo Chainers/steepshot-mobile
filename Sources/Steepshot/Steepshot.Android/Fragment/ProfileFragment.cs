@@ -103,6 +103,11 @@ namespace Steepshot.Fragment
             }
         }
 
+        public ProfileFragment()
+        {
+            //_profileId = "joseph.kalu"; TODO Initialize from bundle
+        }
+
         public ProfileFragment(string profileId)
         {
             _profileId = profileId;
@@ -420,6 +425,7 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.ShouldUpdateProfile)
             {
+                _listSpinner.Visibility = ViewStates.Visible;
                 UpdatePage();
                 BasePresenter.ShouldUpdateProfile = false;
             }

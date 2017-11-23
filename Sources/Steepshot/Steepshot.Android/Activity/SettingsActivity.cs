@@ -21,6 +21,8 @@ namespace Steepshot.Activity
     public sealed class SettingsActivity : BaseActivity
     {
         private AccountsAdapter _accountsAdapter;
+        private bool _lowRatedChanged;
+        private bool _nsfwChanged;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.add_account)] private Button _addButton;
@@ -76,13 +78,11 @@ namespace Steepshot.Activity
             _accountsList.SetLayoutManager(new LinearLayoutManager(this));
             _accountsList.SetAdapter(_accountsAdapter);
 
-            _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
-
-            _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
-
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
 
+            _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
+            _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
             //for tests
             if (BasePresenter.User.IsDev || BasePresenter.User.Login.Equals("joseph.kalu"))
             {
@@ -97,6 +97,13 @@ namespace Steepshot.Activity
             base.OnResume();
         }
 
+        public override void OnBackPressed()
+        {
+            if (_nsfwChanged || _lowRatedChanged)
+                BasePresenter.ShouldUpdateProfile = true;
+            base.OnBackPressed();
+        }
+
         protected override void OnDestroy()
         {
             base.OnDestroy();
@@ -106,11 +113,13 @@ namespace Steepshot.Activity
         private void OnLowRatedSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
             BasePresenter.User.IsLowRated = _lowRatedSwitcher.Checked;
+            _lowRatedChanged = !_lowRatedChanged;
         }
 
         private void OnNsfwSwitcherOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
             BasePresenter.User.IsNsfw = _nsfwSwitcher.Checked;
+            _nsfwChanged = !_nsfwChanged;
         }
 
         private void OnAdapterPickAccount(UserInfo userInfo)

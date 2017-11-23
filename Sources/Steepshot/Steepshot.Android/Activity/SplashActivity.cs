@@ -3,15 +3,10 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Autofac;
-using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
-using Steepshot.Services;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
@@ -22,13 +17,9 @@ namespace Steepshot.Activity
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@drawable/logo_login", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {
-        public static LruCache Cache;
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            if (AppSettings.Container == null)
-                Construct();
 
             AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException -= OnTaskSchedulerOnUnobservedTaskException;
@@ -78,28 +69,6 @@ namespace Steepshot.Activity
         {
             AppSettings.Reporter.SendCrash(e.Exception);
             this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
-        }
-
-        private void Construct()
-        {
-            var builder = new ContainerBuilder();
-
-            builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
-            builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
-            builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
-#if DEBUG
-            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
-#else
-            builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
-#endif
-
-            var d = new Picasso.Builder(this);
-            Cache = new LruCache(this);
-            d.MemoryCache(Cache);
-            Picasso.SetSingletonInstance(d.Build());
-
-            AppSettings.Container = builder.Build();
         }
     }
 }
