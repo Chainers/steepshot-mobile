@@ -376,7 +376,10 @@ namespace Steepshot.Fragment
 
         private void TagAction(string tag)
         {
-            SearchByTag(tag);
+            if (tag != null)
+                SearchByTag(tag);
+            else
+                _adapter.NotifyDataSetChanged();
         }
 
         private void UserAction(Post post)
