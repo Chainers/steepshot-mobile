@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using Android.OS;
 using Android.Support.V4.App;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 
 namespace Steepshot.Adapter
 {
-    public class PagerAdapter : FragmentPagerAdapter
+    public class PagerAdapter : FragmentStatePagerAdapter
     {
         public readonly int[] TabIconsInactive = {
             Resource.Drawable.home,
@@ -73,6 +74,11 @@ namespace Steepshot.Adapter
                 if (frag != null)
                     _tabs.Add(frag);
             }
+        }
+
+        public override IParcelable SaveState()
+        {
+            return null;
         }
     }
 }
