@@ -129,6 +129,10 @@ namespace Steepshot.Fragment
             }
         }
 
+        public PreSearchFragment()
+        {
+            // _isGuest = true; TODO Initialize from bundle
+        }
 
         public PreSearchFragment(bool isGuest = false)
         {
@@ -159,7 +163,7 @@ namespace Steepshot.Fragment
 
                 SetAnimation();
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
-                _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 2, Resources.DisplayMetrics);
+                _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
                 _currentButton = _trendingButton;
                 _trendingButton.Typeface = Style.Semibold;
                 _trendingButton.Click += OnTrendClick;
@@ -227,7 +231,7 @@ namespace Steepshot.Fragment
             base.OnDetach();
             Cheeseknife.Reset(this);
         }
-        
+
 
         private void OnClearClick(object sender, EventArgs e)
         {
@@ -236,6 +240,7 @@ namespace Steepshot.Fragment
             _searchView.Text = Localization.Texts.TapToSearch;
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
             _refresher.Refreshing = false;
             LoadPosts(true);
         }
@@ -410,7 +415,7 @@ namespace Steepshot.Fragment
         }
 
         private async Task LoadPosts(bool clearOld = false)
-        {                 
+        {
             if (clearOld)
             {
                 Presenter.LoadCancel();
@@ -432,8 +437,9 @@ namespace Steepshot.Fragment
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
+                _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
             }
-            
+
         }
 
         private void OpenLogin()
@@ -443,10 +449,10 @@ namespace Steepshot.Fragment
         }
 
         private async Task SwitchSearchType(PostType postType)
-        {            
+        {
             if (postType == Presenter.PostType)
                 return;
-            
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
             _spinner.Visibility = ViewStates.Visible;
             _refresher.Refreshing = false;
 
@@ -467,7 +473,8 @@ namespace Steepshot.Fragment
             }
             Presenter.PostType = postType;
             await LoadPosts(true);
-            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            if (postType == Presenter.PostType)
+                _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private bool SearchByTag(string tag = null)
@@ -484,6 +491,7 @@ namespace Steepshot.Fragment
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
                 _spinner.Visibility = ViewStates.Visible;
+                _emptyQueryLabel.Visibility = ViewStates.Invisible;
 
                 LoadPosts(true);
                 return false;
@@ -546,7 +554,7 @@ namespace Steepshot.Fragment
             _activeButton.Typeface = Style.Semibold;
             _currentButton.Typeface = Style.Regular;
 
-            _activeButton.SetPadding(0, 0, 0, 0);
+            _activeButton.SetPadding(0, 0, 0, _bottomPadding * 2);
             _currentButton.SetPadding(0, 0, 0, _bottomPadding);
 
             var lastButton = _buttonsList.OrderByDescending(b => b.GetX()).First();
