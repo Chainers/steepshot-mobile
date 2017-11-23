@@ -55,5 +55,6 @@ namespace Steepshot.Core.Models.Common
         //system
         public bool VoteChanging { get; set; }
         public bool FlagChanging { get; set; }
+        public bool IsExpanded { get; set; }
     }
 }
