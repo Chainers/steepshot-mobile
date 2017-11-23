@@ -29,7 +29,7 @@ namespace Steepshot.Fragment
 {
     public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
-        private readonly bool _isGuest;
+        private bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
         private static ValueAnimator _fontReductionAnimation;
@@ -132,6 +132,20 @@ namespace Steepshot.Fragment
         public PreSearchFragment()
         {
             // _isGuest = true; TODO Initialize from bundle
+        }
+
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            if (savedInstanceState != null)
+                _isGuest = savedInstanceState.GetBoolean("isGuest");
+            base.OnCreate(savedInstanceState);
+        }
+
+        public override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutBoolean("isGuest", _isGuest);
+            base.OnSaveInstanceState(outState);
         }
 
         public PreSearchFragment(bool isGuest = false)
