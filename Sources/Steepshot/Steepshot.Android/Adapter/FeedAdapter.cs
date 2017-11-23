@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -87,7 +88,7 @@ namespace Steepshot.Adapter
         private readonly ImageView _photo;
         private readonly ImageView _avatar;
         private readonly TextView _author;
-        private readonly TextView _title;
+        private readonly CustomTextView _title;
         private readonly TextView _commentSubtitle;
         private readonly TextView _time;
         private readonly TextView _likes;
@@ -105,6 +106,11 @@ namespace Steepshot.Adapter
         private Post _post;
         private string _photoString;
         public const string ClipboardTitle = "Steepshot's post link";
+        private int _textViewWidth;
+
+        private const string _tagFormat = " #{0}";
+        private const string tagToExclude = "steepshot";
+        private const int _maxLines = 3;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
@@ -117,7 +123,7 @@ namespace Steepshot.Adapter
 
             _photo.LayoutParameters = parameters;
 
-            _title = itemView.FindViewById<TextView>(Resource.Id.first_comment);
+            _title = itemView.FindViewById<CustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
@@ -156,7 +162,7 @@ namespace Steepshot.Adapter
             _avatar.Click += DoUserAction;
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
-            _commentFooter.Click += DoCommentAction;
+            _commentSubtitle.Click += DoCommentAction;
             _likes.Click += DoVotersAction;
             _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
@@ -167,6 +173,21 @@ namespace Steepshot.Adapter
             {
                 _tags[i] = new CustomClickableSpan();
                 _tags[i].SpanClicked += tagAction;
+            }
+
+            _title.Click += (sender, e) => 
+            {
+                _post.IsExpanded = true;
+                tagAction?.Invoke(null);
+            };
+
+            if (_title.OnMeasureInvoked == null)
+            {
+                _title.OnMeasureInvoked += (width, he) =>
+                {
+                    _textViewWidth = width;
+                    UpdateText();
+                };
             }
         }
 
@@ -274,6 +295,7 @@ namespace Steepshot.Adapter
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
+            _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
                 Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
@@ -290,30 +312,7 @@ namespace Steepshot.Adapter
                 _photo.LayoutParameters = parameters;
             }
 
-            _author.Text = post.Author;
-
-            var builder = new SpannableStringBuilder();
-            var title = new SpannableString(post.Title);
-            title.SetSpan(null, 0, title.Length(), 0);
-            builder.Append(title);
-            title.Dispose();
-
-            int j = 0;
-            for (int i = 0; i < post.Tags.Count(); i++)
-            {
-                if (post.Tags[i] != "steepshot")
-                {
-                    _tags[j].Tag = post.Tags[i];
-                    var tag = new SpannableString($" #{post.Tags[i]}");
-                    tag.SetSpan(_tags[j], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
-                    tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
-                    builder.Append(tag);
-                    tag.Dispose();
-                    j++;
-                }
-            }
-            _title.SetText(builder, TextView.BufferType.Spannable);
-            builder.Dispose();
+            UpdateText();
 
             _commentSubtitle.Text = post.Children > 0
                 ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
@@ -324,6 +323,71 @@ namespace Steepshot.Adapter
                 _like.StartAnimation(_likeSetAnimation);
             else
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+        }
+
+        private void UpdateText()
+        {
+            int nLines = 0;
+            int textMaxLength = int.MaxValue;
+            if (!_post.IsExpanded)
+            {
+                if (_textViewWidth == 0)
+                    return;
+
+                var titleWithTags = new StringBuilder(_post.Title);
+
+                foreach (var item in _post.Tags)
+                {
+                    if (item != tagToExclude)
+                        titleWithTags.AppendFormat(_tagFormat, item);
+                }
+
+                var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
+                nLines = layout.LineCount;
+                if (nLines > _maxLines)
+                {
+                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - Localization.Texts.ShowMoreString.Length;
+                }
+            }
+
+            var builder = new SpannableStringBuilder();
+            if (_post.Title.Length > textMaxLength)
+            {
+                var title = new SpannableString(_post.Title.Substring(0, textMaxLength));
+                title.SetSpan(null, 0, title.Length(), 0);
+                builder.Append(title);
+                title.Dispose();
+            }
+            else
+            {
+                var title = new SpannableString(_post.Title);
+                title.SetSpan(null, 0, title.Length(), 0);
+                builder.Append(title);
+                title.Dispose();
+
+                int j = 0;
+                for (int i = 0; i < _post.Tags.Count(); i++)
+                {
+                    if (_post.Tags[i] != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, _post.Tags[i]).Length)
+                    {
+                        _tags[j].Tag = _post.Tags[i];
+                        var tag = new SpannableString(string.Format(_tagFormat, _post.Tags[i]));
+                        tag.SetSpan(_tags[j], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
+                        tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
+                        builder.Append(tag);
+                        tag.Dispose();
+                        j++;
+                    }
+                }
+            }
+            if (textMaxLength != int.MaxValue)
+            {
+                var tag = new SpannableString(Localization.Texts.ShowMoreString);
+                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
+                builder.Append(tag);
+            }
+            _title.SetText(builder, TextView.BufferType.Spannable);
+            builder.Dispose();
         }
 
         public void OnBitmapFailed(Drawable p0)
