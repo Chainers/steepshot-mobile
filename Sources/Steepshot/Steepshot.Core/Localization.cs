@@ -137,6 +137,7 @@
             public const string EmptyQuery = "It's very strange, but we do not have anything yet for this query. Try to look for something else ...";
             public const string Copied = "Copied to clipboard";
             public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
+            public const string ShowMoreString = " Show more...";
         }
     }
 }

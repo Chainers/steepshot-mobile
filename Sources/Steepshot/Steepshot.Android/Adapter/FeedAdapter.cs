@@ -107,8 +107,10 @@ namespace Steepshot.Adapter
         private string _photoString;
         public const string ClipboardTitle = "Steepshot's post link";
         private int _textViewWidth;
-        private const string _showMoreString = " Show more...";
-        private readonly string _tagFormat = " Show more...";
+
+        private const string _tagFormat = " #{0}";
+        private const string tagToExclude = "steepshot";
+        private const int _maxLines = 3;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
@@ -323,10 +325,6 @@ namespace Steepshot.Adapter
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
         }
 
-        private const string tagFormat = " #{0}";
-        private const string tagToExclude = "steepshot";
-        private const int _maxLines = 3;
-
         private void UpdateText()
         {
             int nLines = 0;
@@ -341,14 +339,14 @@ namespace Steepshot.Adapter
                 foreach (var item in _post.Tags)
                 {
                     if (item != tagToExclude)
-                        titleWithTags.AppendFormat(tagFormat, item);
+                        titleWithTags.AppendFormat(_tagFormat, item);
                 }
 
                 var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
                 nLines = layout.LineCount;
                 if (nLines > _maxLines)
                 {
-                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - _showMoreString.Length;
+                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - Localization.Texts.ShowMoreString.Length;
                 }
             }
 
@@ -370,10 +368,10 @@ namespace Steepshot.Adapter
                 int j = 0;
                 for (int i = 0; i < _post.Tags.Count(); i++)
                 {
-                    if (_post.Tags[i] != tagToExclude && textMaxLength - builder.Length() - _showMoreString.Length >= string.Format(tagFormat, _post.Tags[i]).Length)
+                    if (_post.Tags[i] != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, _post.Tags[i]).Length)
                     {
                         _tags[j].Tag = _post.Tags[i];
-                        var tag = new SpannableString(string.Format(tagFormat, _post.Tags[i]));
+                        var tag = new SpannableString(string.Format(_tagFormat, _post.Tags[i]));
                         tag.SetSpan(_tags[j], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
                         tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
                         builder.Append(tag);
@@ -384,8 +382,8 @@ namespace Steepshot.Adapter
             }
             if (textMaxLength != int.MaxValue)
             {
-                var tag = new SpannableString(_showMoreString);
-                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, _showMoreString.Length, 0);
+                var tag = new SpannableString(Localization.Texts.ShowMoreString);
+                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
                 builder.Append(tag);
             }
             _title.SetText(builder, TextView.BufferType.Spannable);
