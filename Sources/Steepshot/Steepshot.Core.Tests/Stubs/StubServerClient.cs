@@ -11,9 +11,9 @@ using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class AssertedBaseClient : BaseServerClient
+    public class StubServerClient : BaseServerClient
     {
-        public AssertedBaseClient(JsonNetConverter converter, string url) : base(converter)
+        public StubServerClient(JsonNetConverter converter, string url) : base(converter)
         {
             Gateway = new ApiGateway(url);
             EnableRead = true;
