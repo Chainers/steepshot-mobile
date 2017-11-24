@@ -9,8 +9,6 @@ namespace Steepshot.Core.Authority
 
         public KnownChains Chain { get; set; } = KnownChains.Steem;
 
-        public string SessionId { get; set; } = string.Empty;
-
         public string Login { get; set; } = string.Empty;
 
         public string PostingKey { get; set; } = string.Empty;

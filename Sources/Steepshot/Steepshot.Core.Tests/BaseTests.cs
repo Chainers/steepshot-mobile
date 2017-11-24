@@ -38,21 +38,18 @@ namespace Steepshot.Core.Tests
             {
                 {KnownChains.Steem, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
                 {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
-                {KnownChains.GolosTestNet, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosTestNetWif"]}},
             };
 
             Api = new Dictionary<KnownChains, ISteepshotApiClient>
             {
                 {KnownChains.Steem, new SteepshotApiClient()},
                 {KnownChains.Golos, new SteepshotApiClient()},
-                {KnownChains.GolosTestNet, new SteepshotApiClient()}
             };
 
             var steem = Api[KnownChains.Steem].Connect(KnownChains.Steem, IsDev, true, CancellationToken.None).Result;
             var golos = Api[KnownChains.Golos].Connect(KnownChains.Golos, IsDev, true, CancellationToken.None).Result;
-            var golosTestNet = Api[KnownChains.GolosTestNet].Connect(KnownChains.GolosTestNet, IsDev, true, CancellationToken.None).Result;
         }
-        
+
         protected string GetTestImagePath()
         {
             var currentDir = AppContext.BaseDirectory;

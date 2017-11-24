@@ -33,11 +33,9 @@ namespace Steepshot.Core.HttpClient
                 case KnownChains.Steem when !isDev:
                     sUrl = Constants.SteemUrl;
                     break;
-                case KnownChains.GolosTestNet when isDev:
                 case KnownChains.Golos when isDev:
                     sUrl = Constants.GolosUrlQa;
                     break;
-                case KnownChains.GolosTestNet when !isDev:
                 case KnownChains.Golos when !isDev:
                     sUrl = Constants.GolosUrl;
                     break;
@@ -77,7 +75,7 @@ namespace Steepshot.Core.HttpClient
             return _ditchClient.TryReconnectChain(token);
         }
 
-        public async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.LoginWithPostingKey(request, ct);
             _serverServerClient.Trace("login-with-posting", request.Login, result.Errors, string.Empty, ct);//.Wait(5000);
@@ -91,7 +89,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.Follow(request, ct);
             _serverServerClient.Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username, ct);//.Wait(5000);
@@ -125,42 +123,42 @@ namespace Steepshot.Core.HttpClient
             return await _serverServerClient.UploadWithPrepare(request, ct);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetUserPosts(request, ct);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
         {
             return await _serverServerClient.GetUserRecentPosts(request, ct);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetPosts(PostsRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetPosts(request, ct);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetPostsByCategory(request, ct);
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetPostVoters(request, ct);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetComments(NamedInfoRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetComments(request, ct);
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
         {
             return await _serverServerClient.GetCategories(request, ct);
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationToken ct)
         {
             return await _serverServerClient.SearchCategories(request, ct);
         }
@@ -170,7 +168,7 @@ namespace Steepshot.Core.HttpClient
             return await _serverServerClient.GetUserProfile(request, ct);
         }
 
-        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetUserFriends(request, ct);
         }
@@ -180,7 +178,7 @@ namespace Steepshot.Core.HttpClient
             return await _serverServerClient.GetPostInfo(request, ct);
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
         {
             return await _serverServerClient.SearchUser(request, ct);
         }

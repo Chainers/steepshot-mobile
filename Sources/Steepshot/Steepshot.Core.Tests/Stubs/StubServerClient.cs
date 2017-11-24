@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Serializing;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Tests.Stubs
 {
@@ -33,14 +34,20 @@ namespace Steepshot.Core.Tests.Stubs
                 {
                     if (!mNames.Contains(pName))
                     {
-                        msg.Add($"Missing in model {pName}");
+                        if (pName == "Count" || pName == "Offset" || pName == "TotalCount")
+                            Console.WriteLine($"Warning: Missing in model {pName}");
+                        else
+                            msg.Add($"Missing in model {pName}");
                     }
                 }
                 foreach (var pName in mNames)
                 {
                     if (!jNames.Contains(pName))
                     {
-                        msg.Add($"Missing in json {pName}");
+                        if (pName == "Count" || pName == "Offset" || pName == "TotalCount")
+                            Console.WriteLine($"Warning: Missing in model {pName}");
+                        else
+                            msg.Add($"Missing in json {pName}");
                     }
                 }
 
@@ -58,6 +65,9 @@ namespace Steepshot.Core.Tests.Stubs
             var resp = new HashSet<string>();
             foreach (var prop in props)
             {
+                var ignore = prop.GetCustomAttribute<JsonIgnoreAttribute>();
+                if (ignore != null)
+                    continue;
                 var order = prop.GetCustomAttribute<JsonPropertyAttribute>();
                 if (order != null)
                 {

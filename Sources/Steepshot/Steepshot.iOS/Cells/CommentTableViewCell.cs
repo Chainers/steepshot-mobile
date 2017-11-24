@@ -87,7 +87,7 @@ namespace Steepshot.iOS.Cells
         {
             if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                likeButton.Selected = voteResponse.IsSucces;
+                likeButton.Selected = voteResponse.IsSuccess;
                 likeButton.Enabled = true;
             }
         }
@@ -102,7 +102,7 @@ namespace Steepshot.iOS.Cells
         {
             if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                flagButton.Selected = voteResponse.IsSucces;
+                flagButton.Selected = voteResponse.IsSuccess;
                 flagButton.Enabled = true;
             }
         }

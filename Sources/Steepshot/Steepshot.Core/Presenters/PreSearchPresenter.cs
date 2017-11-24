@@ -33,7 +33,7 @@ namespace Steepshot.Core.Presenters
             };
             
             List<string> errors;
-            OperationResult<UserPostResponse> response;
+            OperationResult<ListResponce<Post>> response;
             do
             {
                 response = await Api.GetPosts(request, ct);
@@ -62,7 +62,7 @@ namespace Steepshot.Core.Presenters
             };
             
             List<string> errors;
-            OperationResult<UserPostResponse> response;
+            OperationResult<ListResponce<Post>> response;
             bool isNeedRepeat;
             do
             {
