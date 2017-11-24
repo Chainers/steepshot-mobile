@@ -16,6 +16,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -92,12 +93,16 @@ namespace Steepshot.Fragment
                 {
                     if (!_isActivated)
                     {
-                        LoadProfile();
-                        GetUserPosts();
+                        if (Presenter != null)
+                        {
+                            LoadProfile();
+                            GetUserPosts();
+                            BasePresenter.ShouldUpdateProfile = false;
+                        }
+                        else
+                            BasePresenter.ShouldUpdateProfile = true;
                         _isActivated = true;
-                        BasePresenter.ShouldUpdateProfile = false;
                     }
-                    UpdateProfile();
                 }
                 UserVisibleHint = value;
             }
@@ -105,7 +110,6 @@ namespace Steepshot.Fragment
 
         public ProfileFragment()
         {
-            //_profileId = "joseph.kalu"; TODO Initialize from bundle
         }
 
         public override void OnCreate(Bundle savedInstanceState)
@@ -113,7 +117,6 @@ namespace Steepshot.Fragment
             base.OnCreate(savedInstanceState);
             if (savedInstanceState != null)
                 _profileId = savedInstanceState.GetString("profileId");
-            // base.OnCreate(savedInstanceState);
         }
 
         public override void OnSaveInstanceState(Bundle outState)

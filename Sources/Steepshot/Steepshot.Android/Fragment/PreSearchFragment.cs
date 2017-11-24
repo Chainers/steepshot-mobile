@@ -48,6 +48,7 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
+        private bool _isNeedToLoadPosts;
         private RecyclerView.Adapter _adapter;
 
         private Button _activeButton;
@@ -121,7 +122,10 @@ namespace Steepshot.Fragment
                     var shouldLoadPosts = SearchByTag();
                     if (shouldLoadPosts && !_isActivated)
                     {
-                        LoadPosts();
+                        if (Presenter != null)
+                            LoadPosts();
+                        else
+                            _isNeedToLoadPosts = true;
                         _isActivated = true;
                     }
                 }
@@ -131,7 +135,6 @@ namespace Steepshot.Fragment
 
         public PreSearchFragment()
         {
-            // _isGuest = true; TODO Initialize from bundle
         }
 
 
@@ -217,8 +220,9 @@ namespace Steepshot.Fragment
             }
 
             var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null && _isGuest)
+            if (shouldLoadPosts && savedInstanceState == null && (_isGuest || _isNeedToLoadPosts))
             {
+                _isNeedToLoadPosts = false;
                 LoadPosts(true);
             }
         }
@@ -498,7 +502,7 @@ namespace Steepshot.Fragment
         {
             string selectedTag;
             if (tag == null)
-                selectedTag = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
+                selectedTag = Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
             else
                 selectedTag = tag;
             if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
