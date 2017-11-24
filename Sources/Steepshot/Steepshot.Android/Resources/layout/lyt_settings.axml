@@ -37,11 +37,10 @@
             <Button
                 android:id="@+id/add_account"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:textColor="@color/white"
                 android:textAllCaps="false"
-                android:background="@drawable/follow_button_corners"
-                android:backgroundTint="@color/rgb231_72_0"
+                android:background="@drawable/steem_login_border"
                 android:layout_below="@id/accounts_list"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
