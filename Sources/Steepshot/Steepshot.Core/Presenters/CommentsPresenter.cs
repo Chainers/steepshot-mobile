@@ -25,7 +25,7 @@ namespace Steepshot.Core.Presenters
             };
 
             List<string> errors;
-            OperationResult<UserPostResponse> response;
+            OperationResult<ListResponce<Post>> response;
             var isNeedClearItems = true;
             bool isNeedRepeat;
             do

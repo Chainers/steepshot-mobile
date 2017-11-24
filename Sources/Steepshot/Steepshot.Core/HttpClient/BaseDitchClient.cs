@@ -29,9 +29,9 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct);
 
-        public abstract Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct);
 
-        public abstract Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct);
 
         public abstract Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct);
 
