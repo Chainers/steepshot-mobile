@@ -12,7 +12,6 @@
             public const string EnableConnectToBlockchain = "Failed to connect to blockchain!";
             public const string ServeNotRespond = "The server does not respond to the request. Check your internet connection and try again.";
             public const string ServeUnexpectedError = "An unexpected error occurred. Check the Internet or try restarting the application.";
-            public const string MissingSessionId = "SessionId field is missing.";
             public const string EmptyCommentField = "Comment may not be blank!";
             public const string Unknownerror = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
@@ -138,6 +137,7 @@
             public const string Copied = "Copied to clipboard";
             public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
             public const string ShowMoreString = " Show more...";
+            public const string SignIn = "Sign in";
         }
     }
 }

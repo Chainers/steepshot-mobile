@@ -12,18 +12,18 @@ namespace Steepshot.Core.Tests.HttpClient
     public class ApiTest : BaseTests
     {
         [Test, Sequential]
-        public void LoginWithPostingKeyTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void LoginWithPostingKeyTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var api = Api[apiName];
             var user = Users[apiName];
             var request = new AuthorizedRequest(user);
             var response = api.LoginWithPostingKey(request, CancellationToken.None).Result;
             AssertResult(response);
-            Assert.That(response.Result.IsLoggedIn, Is.True);
+            Assert.That(response.Result.IsSuccess, Is.True);
         }
 
         [Test, Sequential]
-        public void UploadWithPrepareTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void UploadWithPrepareTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -55,7 +55,7 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void CreateCommentTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void CreateCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -74,7 +74,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var createCommentRequest = new CommentRequest(user, lastPost.Url, body, AppSettings.AppInfo);
             var createCommentResponse = Api[apiName].CreateComment(createCommentRequest, CancellationToken.None).Result;
             AssertResult(createCommentResponse);
-            Assert.That(createCommentResponse.Result.IsCreated, Is.True);
+            Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -87,7 +87,7 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void VotePostTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void VotePostTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -101,14 +101,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteUpRequest = new VoteRequest(user, VoteType.Up, lastPost.Url);
             var voteUpResponse = Api[apiName].Vote(voteUpRequest, CancellationToken.None).Result;
             AssertResult(voteUpResponse);
-            Assert.That(voteUpResponse.Result.IsSucces, Is.True);
+            Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward <= voteUpResponse.Result.NewTotalPayoutReward);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            // Provide sessionId with request to be able read voting information
             userPostsRequest.Offset = lastPost.Url;
             var userPostsResponse2 = Api[apiName].GetPosts(userPostsRequest, CancellationToken.None).Result;
             // Check if last post was voted
@@ -122,14 +121,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteDownRequest = new VoteRequest(user, VoteType.Down, lastPost.Url);
             var voteDownResponse = Api[apiName].Vote(voteDownRequest, CancellationToken.None).Result;
             AssertResult(voteDownResponse);
-            Assert.That(voteDownResponse.Result.IsSucces, Is.True);
+            Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward >= voteDownResponse.Result.NewTotalPayoutReward);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            // Provide sessionId with request to be able read voting information
             var userPostsResponse3 = Api[apiName].GetPosts(userPostsRequest, CancellationToken.None).Result;
             // Check if last post was voted
             AssertResult(userPostsResponse3);
@@ -140,7 +138,7 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void VoteCommentTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void VoteCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -158,13 +156,12 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteUpCommentRequest = new VoteRequest(user, VoteType.Up, commentUrl);
             var voteUpCommentResponse = Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None).Result;
             AssertResult(voteUpCommentResponse);
-            Assert.That(voteUpCommentResponse.Result.IsSucces, Is.True);
+            Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
             Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            // Provide sessionId with request to be able read voting information
             getCommentsRequest.Login = user.Login;
             var commentsResponse2 = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
             // Check if last comment was voted
@@ -177,13 +174,12 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteDownCommentRequest = new VoteRequest(user, VoteType.Down, commentUrl);
             var voteDownCommentResponse = Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None).Result;
             AssertResult(voteDownCommentResponse);
-            Assert.That(voteDownCommentResponse.Result.IsSucces, Is.True);
+            Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
             Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            // Provide sessionId with request to be able read voting information
             getCommentsRequest.Login = user.Login;
             var commentsResponse3 = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
             // Check if last comment was voted
@@ -194,7 +190,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test, Sequential]
-        public void FollowTest([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("asduj", "pmartynov", "korzunav")] string followUser)
+        public void FollowTest(
+            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
+            [Values("asduj", "pmartynov")] string followUser)
         {
             var user = Users[apiName];
 

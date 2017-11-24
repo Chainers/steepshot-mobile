@@ -15,7 +15,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new VoteRequest(new UserInfo { SessionId = "sessionId" }, VoteType.Up, "");
+                new VoteRequest(new UserInfo(), VoteType.Up, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("identifier"));
         }
@@ -25,7 +25,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new FollowRequest(new UserInfo { SessionId = "sessionId" }, FollowType.Follow, "");
+                new FollowRequest(new UserInfo(), FollowType.Follow, "");
             });
             Assert.That(ex.ParamName, Is.EqualTo("username"));
         }
@@ -45,7 +45,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new CommentRequest(new UserInfo { SessionId = "sessionId" }, "", "test", AppSettings.AppInfo);
+                new CommentRequest(new UserInfo(), "", "test", AppSettings.AppInfo);
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -57,9 +57,9 @@ namespace Steepshot.Core.Tests
             var file = File.ReadAllBytes(GetTestImagePath());
 
             // Act
-            var requestArray = new UploadImageRequest(new UserInfo { SessionId = "sessionId" }, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var requestArray = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
             var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageRequest(new UserInfo { SessionId = "sessionId" }, "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
+            var requestBase64 = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
 
             // Assert
             Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
@@ -71,7 +71,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new UploadImageRequest(new UserInfo { SessionId = "sessionId" }, "", new byte[] { }, "cat1", "cat2", "cat3", "cat4");
+                new UploadImageRequest(new UserInfo(), "", new byte[] { }, "cat1", "cat2", "cat3", "cat4");
                 new InfoRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("title"));

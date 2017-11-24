@@ -1,6 +1,7 @@
 using System;
 using Ditch;
 using Ditch.Core;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Responses
 {
@@ -39,7 +40,7 @@ namespace Steepshot.Core.Models.Responses
         public int FollowersCount { get; set; }
         public int FollowingCount { get; set; }
         public string Username { get; set; }
-        public string CurrentUsername { get; set; }
+        public string CurrentUser { get; set; }
         public bool HasFollowed { get; set; }
         public string ProfileImage { get; set; }
         public string CoverImage { get; set; }
@@ -51,6 +52,7 @@ namespace Steepshot.Core.Models.Responses
         public Money EstimatedBalance { get; set; }
 
         //system
+        [JsonIgnore]
         public bool FollowedChanging { get; set; }
     }
 }

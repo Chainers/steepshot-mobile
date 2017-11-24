@@ -172,7 +172,7 @@ namespace Steepshot.Adapter
         {
             if (profile == null)
                 return;
-            
+
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
@@ -194,7 +194,8 @@ namespace Steepshot.Adapter
                 var background = (GradientDrawable)_followButton.Background;
                 if (profile.FollowedChanging)
                 {
-                    background.SetColor(Style.R231G72B00);
+                    background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                    background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                     background.SetStroke(0, Color.White);
                     _followButton.Text = string.Empty;
                     _followButton.SetTextColor(Color.White);
@@ -205,14 +206,15 @@ namespace Steepshot.Adapter
                 {
                     if (profile.HasFollowed)
                     {
-                        background.SetColor(Color.White);
+                        background.SetColors(new int[] { Color.White, Color.White });
                         background.SetStroke(3, Style.R244G244B246);
                         _followButton.Text = Localization.Messages.Unfollow;
                         _followButton.SetTextColor(Style.R15G24B30);
                     }
                     else
                     {
-                        background.SetColor(Style.R231G72B00);
+                        background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                        background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                         background.SetStroke(0, Color.White);
                         _followButton.Text = Localization.Messages.Follow;
                         _followButton.SetTextColor(Color.White);

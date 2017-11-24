@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@drawable/welcome_screen_background">
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/dev_switch"
         android:layout_width="wrap_content"
@@ -12,9 +12,9 @@
         android:id="@+id/steepshot_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/logo_big"
+        android:src="@drawable/logo_main"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
+        android:layout_marginTop="150dp" />
     <TextView
         android:id="@+id/terms"
         android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
     <Button
         android:id="@+id/reg_button"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_above="@id/terms"
         android:background="@drawable/circle_border"
         android:textColor="@color/rgb15_24_30"
@@ -43,7 +43,7 @@
     <RelativeLayout
         android:id="@+id/golos_login_layout"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginRight="14dp"
         android:layout_marginLeft="15dp"
         android:layout_marginBottom="20dp"
@@ -52,16 +52,15 @@
         <Button
             android:id="@+id/golos_login"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/follow_button_corners"
-            android:backgroundTint="@color/rgb231_72_0"
+            android:layout_height="50dp"
+            android:background="@drawable/blue_circle_border"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textAllCaps="false" />
         <ProgressBar
             android:id="@+id/golos_loading_spinner"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:indeterminateTintMode="src_atop"
             android:indeterminateTint="@color/white"
             android:layout_centerInParent="true"
@@ -70,7 +69,7 @@
     </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_marginRight="14dp"
         android:layout_marginLeft="15dp"
         android:layout_marginBottom="20dp"
@@ -79,16 +78,15 @@
         <Button
             android:id="@+id/steem_login"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/follow_button_corners"
-            android:backgroundTint="@color/rgb231_72_0"
+            android:layout_height="50dp"
+            android:background="@drawable/steem_login_border"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textAllCaps="false" />
         <ProgressBar
             android:id="@+id/steem_loading_spinner"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:indeterminateTintMode="src_atop"
             android:indeterminateTint="@color/white"
             android:layout_centerInParent="true"

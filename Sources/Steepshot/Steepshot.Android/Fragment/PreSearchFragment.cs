@@ -195,6 +195,7 @@ namespace Steepshot.Fragment
                 _clearButton.Visibility = ViewStates.Gone;
                 _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
+                _loginButton.Text = Localization.Texts.SignIn;
                 _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
