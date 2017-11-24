@@ -37,7 +37,7 @@
         <RelativeLayout
             android:id="@+id/sign_in_cont"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_below="@+id/input_username_layout"
             android:layout_marginTop="50dp">
             <Button
@@ -49,8 +49,7 @@
                 android:textSize="14sp"
                 android:textAllCaps="false"
                 android:gravity="center"
-                android:background="@drawable/follow_button_corners"
-                android:backgroundTint="@color/rgb231_72_0"/>
+                android:background="@drawable/steem_login_border" />
             <ProgressBar
                 android:id="@+id/loading_spinner"
                 android:layout_width="40dp"
