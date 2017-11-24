@@ -39,7 +39,7 @@ namespace Steepshot.Core.HttpClient
                         EnableWrite = true;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 //todo nothing
             }
