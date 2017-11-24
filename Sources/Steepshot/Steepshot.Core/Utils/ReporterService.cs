@@ -43,6 +43,7 @@ namespace Steepshot.Core.Utils
             sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
             sentryEvent.Tags.Add("Login", BasePresenter.User.Login);
             sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());
+            sentryEvent.Tags.Add("AppBuild", _appInfoService.GetBuildVersion());
             sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
             sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
             return sentryEvent;

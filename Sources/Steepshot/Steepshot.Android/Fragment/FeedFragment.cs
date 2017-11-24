@@ -214,8 +214,13 @@ namespace Steepshot.Fragment
 
         private void TagAction(string tag)
         {
-            Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-            ((RootActivity)Activity).SelectTab(1);
+            if (tag != null)
+            {
+                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+                ((RootActivity)Activity).SelectTab(1);
+            }
+            else
+                _adapter.NotifyDataSetChanged();
         }
     }
 }

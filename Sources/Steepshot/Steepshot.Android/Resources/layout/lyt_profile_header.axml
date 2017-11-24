@@ -187,9 +187,7 @@
             android:id="@+id/top_balance_line"
             android:layout_width="match_parent"
             android:layout_height="2px"
-            android:background="@color/rgb244_244_246"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp" />
+            android:background="@color/rgb244_244_246" />
         <ImageView
             android:id="@+id/balance_img"
             android:layout_width="12dp"
@@ -225,13 +223,11 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="29dp"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
         <View
             android:layout_width="match_parent"
             android:layout_height="2px"
             android:background="@color/rgb244_244_246"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp" />
+            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 </RelativeLayout>

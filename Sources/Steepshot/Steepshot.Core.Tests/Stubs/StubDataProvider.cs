@@ -24,12 +24,6 @@ namespace Steepshot.Core.Tests.Stubs
                     Chain = KnownChains.Steem,
                     Login = "joseph.kalu",
                     PostingKey = ConfigurationManager.AppSettings["SteemWif"]
-                },
-                new UserInfo
-                {
-                    Chain = KnownChains.GolosTestNet,
-                    Login = "joseph.kalu",
-                    PostingKey = ConfigurationManager.AppSettings["GolosTestNetWif"]
                 }
             };
         }

@@ -27,7 +27,7 @@ namespace Steepshot.Core.HttpClient
 
         #region Get requests
 
-        public async Task<OperationResult<UserPostResponse>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -42,10 +42,10 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<UserPostResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -59,10 +59,10 @@ namespace Steepshot.Core.HttpClient
 
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
-            return CreateResult<UserPostResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPosts(PostsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetPosts(PostsRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -77,10 +77,10 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<UserPostResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -95,10 +95,10 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<UserPostResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -113,10 +113,10 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
+            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserPostResponse>> GetComments(NamedInfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<Post>>> GetComments(NamedInfoRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -130,7 +130,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<UserPostResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationToken ct)
@@ -151,7 +151,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserProfileResponse>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<UserFriendsResponse>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -165,7 +165,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<UserFriendsResponse>(response?.Content, errorResult);
+            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationToken ct)
@@ -185,7 +185,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<Post>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -200,7 +200,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            return CreateResult<SearchResponse<UserFriend>>(response?.Content, errorResult);
+            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
         }
 
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationToken ct)
@@ -217,7 +217,7 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<UserExistsResponse>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -229,7 +229,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
+            var result = CreateResult<ListResponce<SearchResult>>(response?.Content, errorResult);
             if (result.Success)
             {
                 foreach (var category in result.Result.Results)
@@ -241,7 +241,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<SearchResult>>> SearchCategories(SearchWithQueryRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
@@ -261,7 +261,7 @@ namespace Steepshot.Core.HttpClient
             var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
             var errorResult = CheckErrors(response);
 
-            var result = CreateResult<SearchResponse<SearchResult>>(response?.Content, errorResult);
+            var result = CreateResult<ListResponce<SearchResult>>(response?.Content, errorResult);
 
             if (result.Success)
             {

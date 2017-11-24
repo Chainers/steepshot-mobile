@@ -178,6 +178,7 @@ namespace Steepshot.Fragment
                 _clearButton.Visibility = ViewStates.Gone;
                 _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
+                _loginButton.Text = Localization.Texts.SignIn;
                 _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
@@ -377,7 +378,10 @@ namespace Steepshot.Fragment
 
         private void TagAction(string tag)
         {
-            SearchByTag(tag);
+            if (tag != null)
+                SearchByTag(tag);
+            else
+                _adapter.NotifyDataSetChanged();
         }
 
         private void UserAction(Post post)
