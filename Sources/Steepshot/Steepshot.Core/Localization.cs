@@ -137,6 +137,7 @@
             public const string Copied = "Copied to clipboard";
             public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
             public const string ShowMoreString = " Show more...";
+            public const string SignIn = "Sign in";
         }
     }
 }
