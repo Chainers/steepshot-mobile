@@ -113,7 +113,7 @@ namespace Steepshot.iOS.Views
 
                 if (response != null && response.Success)
                 {
-                    BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, Username, password.Text, BasePresenter.Chain, false);
+                    BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain, false);
 
                     var myViewController = new MainTabBarController();
 

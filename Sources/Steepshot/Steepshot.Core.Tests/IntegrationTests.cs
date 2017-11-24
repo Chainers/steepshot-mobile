@@ -80,8 +80,6 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Title, Is.Not.Empty);
@@ -137,16 +135,13 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
-            Assert.That(response.Result.Count, Is.EqualTo(request.Limit));
         }
 
         [Test, Sequential]
-        public void UserPosts_With_SessionId_Some_Votes_True([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void UserPosts_With_User_Some_Votes_True([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -162,7 +157,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void UserPosts_Without_SessionId_All_Votes_False([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void UserPosts_Without_User_All_Votes_False([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -191,7 +186,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
@@ -213,12 +208,11 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Url, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
-            Assert.That(response.Result.Count, Is.EqualTo(request.Limit));
         }
 
         [Test, Sequential]
@@ -247,7 +241,6 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.EqualTo(defaultLimit));
         }
 
         [Test, Sequential]
@@ -263,14 +256,12 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Offset, Is.Not.Empty);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(request.Limit, Is.EqualTo(response.Result.Count));
+            Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
         [Test, Sequential]
-        public void Posts_Top_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void Posts_Top_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -281,8 +272,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Offset, Is.Not.Empty);
-            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.Any());
         }
 
         [Test, Sequential]
@@ -426,7 +416,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Posts_By_Category_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("steepshot", "steepshot")] string category)
+        public void Posts_By_Category_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("steepshot", "steepshot")] string category)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -674,7 +664,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Body, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Title, Is.Not.Empty);
@@ -698,7 +688,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Comments_With_SessionId_Check_True_Votes([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName,
+        public void Comments_With_User_Check_True_Votes([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName,
             [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/egregious-2017-10-16-10-48-02")] string url)
         {
             // Arrange
@@ -714,7 +704,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Comments_Without_SessionId_Check_False_Votes(
+        public void Comments_Without_User_Check_False_Votes(
             [Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName,
             [Values("@dollarvigilante/could-ethereum-be-made-obsolete-by-the-new-decentralized-smart-contract-platform-eos",
                 "@siberianshamen/chto-takoe-golos")] string url)
@@ -816,8 +806,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
@@ -838,8 +827,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.EqualTo("food"));
@@ -856,8 +844,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount, Is.EqualTo(-1));
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
@@ -873,8 +860,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
@@ -891,8 +877,6 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response);
             Assert.That(response.Result.Results, Is.Empty);
-            Assert.That(response.Result.Count, Is.EqualTo(0));
-            Assert.That(response.Result.TotalCount, Is.EqualTo(0));
         }
 
         [Test, Sequential]
@@ -939,9 +923,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.EqualTo(limit));
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
-            Assert.That(response.Result.TotalCount > limit);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.EqualTo("bitcoin"));
         }
@@ -961,7 +943,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Categories_Search_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void Categories_Search_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("lif");
@@ -971,8 +953,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
@@ -998,7 +979,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.FollowersCount, Is.Not.Null);
             Assert.That(response.Result.FollowingCount, Is.Not.Null);
             Assert.That(response.Result.Username, Is.Not.Empty);
-            Assert.That(response.Result.CurrentUsername, Is.Not.Null);
+            Assert.That(response.Result.CurrentUser, Is.Not.Null);
             Assert.That(response.Result.ProfileImage, Is.Not.Null);
             Assert.That(response.Result.HasFollowed, Is.Not.Null);
             Assert.That(response.Result.EstimatedBalance, Is.Not.Null);
@@ -1024,7 +1005,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void UserProfile_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("thecryptofiend", "phoenix")] string user)
+        public void UserProfile_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("thecryptofiend", "phoenix")] string user)
         {
             // Arrange
             var request = new UserProfileRequest(user) { Login = user };
@@ -1044,7 +1025,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.FollowersCount, Is.Not.Null);
             Assert.That(response.Result.FollowingCount, Is.Not.Null);
             Assert.That(response.Result.Username, Is.Not.Empty);
-            Assert.That(response.Result.CurrentUsername, Is.Not.Null);
+            Assert.That(response.Result.CurrentUser, Is.Not.Null);
             Assert.That(response.Result.ProfileImage, Is.Not.Null);
             Assert.That(response.Result.HasFollowed, Is.Not.Null);
             Assert.That(response.Result.EstimatedBalance, Is.Not.Null);
@@ -1067,15 +1048,13 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Null);
             Assert.That(response.Result.Results.First().Avatar, Is.Not.Null);
             Assert.That(response.Result.Results.First().Reputation, Is.Not.Null);
             Assert.That(response.Result.Results.First().HasFollowed, Is.False);
-            var noHasFollowTrueWithoutSessionId = response.Result.Results.Any(x => x.HasFollowed == true);
-            Assert.That(noHasFollowTrueWithoutSessionId, Is.False);
+            var noHasFollowTrueWithoutUser = response.Result.Results.Any(x => x.HasFollowed == true);
+            Assert.That(noHasFollowTrueWithoutUser, Is.False);
         }
 
         [Test, Sequential]
@@ -1090,15 +1069,13 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Null);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Null);
             Assert.That(response.Result.Results.First().Avatar, Is.Not.Null);
             Assert.That(response.Result.Results.First().Reputation, Is.Not.Null);
             Assert.That(response.Result.Results.First().HasFollowed, Is.False);
-            var noHasFollowTrueWithoutSessionId = response.Result.Results.Any(x => x.HasFollowed == true);
-            Assert.That(noHasFollowTrueWithoutSessionId, Is.False);
+            var noHasFollowTrueWithoutUser = response.Result.Results.Any(x => x.HasFollowed == true);
+            Assert.That(noHasFollowTrueWithoutUser, Is.False);
         }
 
         [Test, Sequential]
@@ -1113,7 +1090,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count == 0);
+            Assert.That(response.Result.Results.Any());
             Assert.That(response.Result.Results, Is.Empty);
         }
 
@@ -1131,8 +1108,6 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Null);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.EqualTo(offset));
@@ -1140,7 +1115,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void UserFriends_Followers_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
+        public void UserFriends_Followers_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -1151,8 +1126,6 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.Not.Null);
-            Assert.That(response.Result.Offset, Is.Not.Null);
             Assert.That(response.Result.Results, Is.Not.Empty);
             var someResponsesAreHasFollowTrue = response.Result.Results.Any(x => x.HasFollowed == true);
             Assert.That(someResponsesAreHasFollowTrue, Is.True);
@@ -1193,7 +1166,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void GetPostInfo_With_SessionId([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
+        public void GetPostInfo_With_User([Values(KnownChains.Steem, KnownChains.Golos, KnownChains.GolosTestNet)] KnownChains apiName, [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -1289,8 +1262,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count > 0);
-            Assert.That(response.Result.TotalCount >= 0);
+            Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
@@ -1307,8 +1279,6 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response);
             Assert.That(response.Result.Results, Is.Empty);
-            Assert.That(response.Result.Count, Is.EqualTo(0));
-            Assert.That(response.Result.TotalCount, Is.EqualTo(0));
         }
 
         [Test, Sequential]
@@ -1355,9 +1325,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Count, Is.EqualTo(limit));
             Assert.That(response.Result.Results.Count, Is.EqualTo(limit));
-            Assert.That(response.Result.TotalCount >= limit);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.EqualTo("abit"));
         }

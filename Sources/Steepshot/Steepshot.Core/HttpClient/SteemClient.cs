@@ -96,14 +96,14 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<FollowResponse>> Follow(FollowRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
             if (!EnableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
-                return new OperationResult<FollowResponse>(Localization.Errors.WrongPrivateKey);
+                return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
 
             return await Task.Run(() =>
             {
@@ -112,10 +112,10 @@ namespace Steepshot.Core.HttpClient
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
-                var result = new OperationResult<FollowResponse>();
+                var result = new OperationResult<VoidResponse>();
 
                 if (!resp.IsError)
-                    result.Result = new FollowResponse(true);
+                    result.Result = new VoidResponse(true);
                 else
                     OnError(resp, result);
 
@@ -123,24 +123,24 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<LoginResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             if (!EnableWrite)
                 return null;
 
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
-                return new OperationResult<LoginResponse>(Localization.Errors.WrongPrivateKey);
+                return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
 
             return await Task.Run(() =>
             {
                 var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
 
-                var result = new OperationResult<LoginResponse>();
+                var result = new OperationResult<VoidResponse>();
 
                 if (!resp.IsError)
-                    result.Result = new LoginResponse(true);
+                    result.Result = new VoidResponse(true);
                 else
                     OnError(resp, result);
 

@@ -169,7 +169,7 @@ namespace Steepshot.Activity
 
             if (response != null && response.Success)
             {
-                BasePresenter.User.AddAndSwitchUser(response.Result.SessionId, login, pass, BasePresenter.Chain, true);
+                BasePresenter.User.AddAndSwitchUser(login, pass, BasePresenter.Chain, true);
                 var intent = new Intent(this, typeof(RootActivity));
                 intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
                 StartActivity(intent);

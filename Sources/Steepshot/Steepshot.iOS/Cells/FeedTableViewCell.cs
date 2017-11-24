@@ -154,7 +154,7 @@ namespace Steepshot.iOS.Cells
             {
                 if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
                 {
-                    likeButton.Selected = voteResponse.IsSucces;
+                    likeButton.Selected = voteResponse.IsSuccess;
                     likeButton.Enabled = true;
                     rewards.Text = $"{BasePresenter.Currency}{voteResponse.NewTotalPayoutReward.ToString()}";
 

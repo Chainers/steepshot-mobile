@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
                 return Items.FirstOrDefault(func);
         }
 
-        protected bool ResponseProcessing(OperationResult<UserPostResponse> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
         {
             errors = null;
             if (response == null)

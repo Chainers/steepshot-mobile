@@ -153,13 +153,12 @@
     </android.support.design.widget.CoordinatorLayout>
     <Button
         android:id="@+id/login"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_alignParentBottom="true"
-        android:text="Login in your account"
+        android:layout_centerHorizontal="true"
+        android:text="Login"
         android:background="@drawable/blue_circle_border"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_marginBottom="17dp"
         android:textColor="@color/white"
         android:textSize="14sp"
