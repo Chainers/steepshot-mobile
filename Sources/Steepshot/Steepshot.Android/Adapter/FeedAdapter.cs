@@ -175,7 +175,7 @@ namespace Steepshot.Adapter
                 _tags[i].SpanClicked += tagAction;
             }
 
-            _title.Click += (sender, e) => 
+            _title.Click += (sender, e) =>
             {
                 _post.IsExpanded = true;
                 tagAction?.Invoke(null);
