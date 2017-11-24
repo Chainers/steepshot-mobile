@@ -37,7 +37,7 @@ namespace Steepshot.Core.Presenters
 
             List<string> errors;
             bool isNeedRepeat;
-            OperationResult<UserPostResponse> response;
+            OperationResult<ListResponce<Post>> response;
             do
             {
                 response = await Api.GetUserPosts(request, ct);

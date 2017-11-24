@@ -5,6 +5,5 @@
         None,
         Steem,
         Golos,
-        GolosTestNet
     }
 }

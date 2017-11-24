@@ -8,12 +8,12 @@ namespace Steepshot.Core.Presenters
 {
     public class SignInPresenter : BasePresenter
     {
-        public async Task<OperationResult<LoginResponse>> TrySignIn(string login, string postingKey)
+        public async Task<OperationResult<VoidResponse>> TrySignIn(string login, string postingKey)
         {
-            return await TryRunTask<string, string, LoginResponse>(SignIn, OnDisposeCts.Token, login, postingKey);
+            return await TryRunTask<string, string, VoidResponse>(SignIn, OnDisposeCts.Token, login, postingKey);
         }
 
-        private Task<OperationResult<LoginResponse>> SignIn(CancellationToken ct, string login, string postingKey)
+        private Task<OperationResult<VoidResponse>> SignIn(CancellationToken ct, string login, string postingKey)
         {
             var request = new AuthorizedRequest(login, postingKey);
             return Api.LoginWithPostingKey(request, ct);
