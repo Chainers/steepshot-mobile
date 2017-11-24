@@ -124,7 +124,7 @@
         android:minHeight="70dp">
         <Steepshot.Utils.CustomTextView
             android:id="@+id/first_comment"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="                                                                                                                                                          "
             android:clickable="true"
