@@ -55,10 +55,10 @@ namespace Steepshot.Core.HttpClient
                 CtsMain = new CancellationTokenSource();
                 cts = CancellationTokenSource.CreateLinkedTokenSource(token, CtsMain.Token);
 
-                if (chain == KnownChains.Golos)
-                    _ditchClient = new GolosClient(_converter);
-                else
+                if (chain == KnownChains.Steem)
                     _ditchClient = new SteemClient(_converter);
+                else
+                    _ditchClient = new GolosClient(_converter);
 
                 _serverServerClient.Gateway = new ApiGateway(sUrl);
                 _serverServerClient.EnableRead = true;
