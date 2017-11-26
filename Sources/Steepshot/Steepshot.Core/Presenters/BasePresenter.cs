@@ -28,6 +28,7 @@ namespace Steepshot.Core.Presenters
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
+        public static bool IsPicassoInitialized;
 
         protected CancellationTokenSource OnDisposeCts;
 

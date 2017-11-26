@@ -30,11 +30,14 @@ namespace Steepshot.Activity
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
-            var d = new Picasso.Builder(this);
-            Cache = new LruCache(this);
-            d.MemoryCache(Cache);
-            Picasso.SetSingletonInstance(d.Build());
-
+            if(!BasePresenter.IsPicassoInitialized)
+            {
+                var d = new Picasso.Builder(this);
+                Cache = new LruCache(this);
+                d.MemoryCache(Cache);
+                Picasso.SetSingletonInstance(d.Build());
+                BasePresenter.IsPicassoInitialized = true;
+            }
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
