@@ -18,6 +18,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using System.Collections.Generic;
 
 namespace Steepshot.Adapter
 {
@@ -85,6 +86,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _votersAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
+        private readonly Action<string> _tagAction;
         private readonly ImageView _photo;
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -101,7 +103,7 @@ namespace Steepshot.Adapter
         private readonly Dialog _moreActionsDialog;
         private readonly Context _context;
 
-        private readonly CustomClickableSpan[] _tags;
+        private readonly List<CustomClickableSpan> _tags;
 
         private Post _post;
         private string _photoString;
@@ -157,6 +159,7 @@ namespace Steepshot.Adapter
             _votersAction = votersAction;
             _flagAction = flagAction;
             _hideAction = hideAction;
+            _tagAction = tagAction;
 
             _like.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
@@ -168,27 +171,26 @@ namespace Steepshot.Adapter
             _more.Click += DoMoreAction;
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
-            _tags = new CustomClickableSpan[5];
-            for (int i = 0; i < _tags.Count(); i++)
-            {
-                _tags[i] = new CustomClickableSpan();
-                _tags[i].SpanClicked += tagAction;
-            }
+            _tags = new List<CustomClickableSpan>();
 
-            _title.Click += (sender, e) => 
-            {
-                _post.IsExpanded = true;
-                tagAction?.Invoke(null);
-            };
+            _title.Click += OnTitleOnClick;
 
             if (_title.OnMeasureInvoked == null)
             {
-                _title.OnMeasureInvoked += (width, he) =>
-                {
-                    _textViewWidth = width;
-                    UpdateText();
-                };
+                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
+        }
+
+        private void OnTitleOnMeasureInvoked(int width, int he)
+        {
+            _textViewWidth = width;
+            UpdateText();
+        }
+
+        private void OnTitleOnClick(object sender, EventArgs e)
+        {
+            _post.IsExpanded = true;
+            _tagAction?.Invoke(null);
         }
 
         private void DoMoreAction(object sender, EventArgs e)
@@ -327,8 +329,7 @@ namespace Steepshot.Adapter
 
         private void UpdateText()
         {
-            int nLines = 0;
-            int textMaxLength = int.MaxValue;
+            var textMaxLength = int.MaxValue;
             if (!_post.IsExpanded)
             {
                 if (_textViewWidth == 0)
@@ -343,7 +344,7 @@ namespace Steepshot.Adapter
                 }
 
                 var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
-                nLines = layout.LineCount;
+                var nLines = layout.LineCount;
                 if (nLines > _maxLines)
                 {
                     textMaxLength = layout.GetLineEnd(_maxLines - 1) - Localization.Texts.ShowMoreString.Length;
@@ -365,17 +366,26 @@ namespace Steepshot.Adapter
                 builder.Append(title);
                 title.Dispose();
 
-                int j = 0;
-                for (int i = 0; i < _post.Tags.Count(); i++)
+                var j = 0;
+                var tags = _post.Tags.Distinct();
+
+                foreach (var tag in tags)
                 {
-                    if (_post.Tags[i] != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, _post.Tags[i]).Length)
+                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, tag).Length)
                     {
-                        _tags[j].Tag = _post.Tags[i];
-                        var tag = new SpannableString(string.Format(_tagFormat, _post.Tags[i]));
-                        tag.SetSpan(_tags[j], 0, tag.Length(), SpanTypes.ExclusiveExclusive);
-                        tag.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, tag.Length(), 0);
-                        builder.Append(tag);
-                        tag.Dispose();
+                        if (j >= _tags.Count)
+                        {
+                            var ccs = new CustomClickableSpan();
+                            ccs.SpanClicked += _tagAction;
+                            _tags.Add(ccs);
+                        }
+
+                        _tags[j].Tag = tag;
+                        var spannableString = new SpannableString(string.Format(_tagFormat, tag));
+                        spannableString.SetSpan(_tags[j], 0, spannableString.Length(), SpanTypes.ExclusiveExclusive);
+                        spannableString.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, spannableString.Length(), 0);
+                        builder.Append(spannableString);
+                        spannableString.Dispose();
                         j++;
                     }
                 }

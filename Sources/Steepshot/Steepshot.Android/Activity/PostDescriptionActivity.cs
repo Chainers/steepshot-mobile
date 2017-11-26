@@ -271,7 +271,7 @@ namespace Steepshot.Activity
             {
                 _localTagsAdapter.NotifyDataSetChanged();
                 _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
-                if(_localTagsAdapter.LocalTags.Count() == 1)
+                if (_localTagsAdapter.LocalTags.Count() == 1)
                     _localTagsList.Visibility = ViewStates.Visible;
             });
         }
@@ -342,7 +342,7 @@ namespace Steepshot.Activity
                 return;
             }
 
-            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags.ToArray())
+            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
             {
                 Description = _description.Text
             };
@@ -453,13 +453,13 @@ namespace Steepshot.Activity
 
         private void HideTagsList()
         {
-            var txt = _tag.Text =_tag.Text.Trim();
+            var txt = _tag.Text = _tag.Text.Trim();
             if (!string.IsNullOrEmpty(txt))
             {
                 _tag.Text = string.Empty;
                 AddTag(txt);
             }
-                
+
             Window.SetSoftInputMode(SoftInput.AdjustPan);
             _tag.ClearFocus();
             AnimateTagsLayout(Resource.Id.description_layout);
