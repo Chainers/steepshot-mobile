@@ -94,7 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textSize="14sp"
-            android:maxLength="220"
+            android:maxLength="100"
             android:hint="Enter a title of your photo"
             android:background="@android:color/transparent"
             android:textCursorDrawable="@drawable/input"
