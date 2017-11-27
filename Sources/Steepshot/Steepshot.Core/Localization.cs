@@ -81,7 +81,7 @@
             public const string NextStep = "Next step";
             public const string Account = "account";
 
-            public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Use</a> and <a href=\"{Constants.Pp}\">Privacy policy</a>";
+            public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Service</a> & <a href=\"{Constants.Pp}\">Privacy policy</a>";
             public const string PostDelay = "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain";
 
             /// <summary>
@@ -118,7 +118,7 @@
         public class Texts
         {
             public const string SignInButtonText = "Sign in with {0}";
-            public const string CreateButtonText = "Create a new account";
+            public const string CreateButtonText = "Create new account";
             public const string EnterAccountText = "Enter to your account";
             public const string PasswordViewTitleText = "Account posting key";
             public const string PublishButtonText = "Publish Photo";
