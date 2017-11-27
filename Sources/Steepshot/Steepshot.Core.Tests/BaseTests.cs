@@ -46,8 +46,8 @@ namespace Steepshot.Core.Tests
                 {KnownChains.Golos, new SteepshotApiClient()},
             };
 
-            var steem = Api[KnownChains.Steem].Connect(KnownChains.Steem, IsDev, true, CancellationToken.None).Result;
-            var golos = Api[KnownChains.Golos].Connect(KnownChains.Golos, IsDev, true, CancellationToken.None).Result;
+            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev, CancellationToken.None);
+            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev, CancellationToken.None);
         }
 
         protected string GetTestImagePath()

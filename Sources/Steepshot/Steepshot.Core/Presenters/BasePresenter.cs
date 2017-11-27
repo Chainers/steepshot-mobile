@@ -54,7 +54,7 @@ namespace Steepshot.Core.Presenters
             Api = new SteepshotApiClient();
 
             var ts = GetReconectToken();
-            TryRunTask(TryConnect, ts, Chain, AppSettings.IsDev);
+            Api.InitConnector(Chain, AppSettings.IsDev, ts);
             // static constructor initialization.
             Task.Run(() =>
             {
@@ -67,52 +67,6 @@ namespace Steepshot.Core.Presenters
             OnDisposeCts = new CancellationTokenSource();
         }
 
-        private static async Task<List<string>> TryConnect(CancellationToken token, KnownChains chain, bool isDev)
-        {
-            var isConnectionAvailable = ConnectionService.IsConnectionAvailable();
-            var isConnected = await Api.Connect(chain, isDev, isConnectionAvailable, token);
-
-            if (!isConnected)
-            {
-                OnAllert?.Invoke(isConnectionAvailable
-                    ? Localization.Errors.InternetUnavailable
-                    : Localization.Errors.EnableConnectToBlockchain);
-
-                await TryRunTask(TryReconect, token);
-            }
-            return new List<string>();
-        }
-
-        private static async Task<List<string>> TryReconect(CancellationToken token)
-        {
-            do
-            {
-                if (token.IsCancellationRequested)
-                    return null;
-
-                await Task.Delay(5000, token);
-
-                var isConnected = ConnectionService.IsConnectionAvailable();
-                if (!isConnected)
-                {
-                    OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                }
-                else
-                {
-                    isConnected = Api.TryReconnectChain(token);
-                    if (!isConnected)
-                    {
-                        OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                    }
-                    else
-                    {
-                        OnAllert?.Invoke(string.Empty);
-                        return null;
-                    }
-                }
-            } while (true);
-        }
-
         public static async Task SwitchChain(bool isDev)
         {
             if (AppSettings.IsDev == isDev)
@@ -121,7 +75,8 @@ namespace Steepshot.Core.Presenters
             AppSettings.IsDev = isDev;
 
             var ts = GetReconectToken();
-            await TryRunTask(TryConnect, ts, Chain, isDev);
+
+            Api.InitConnector(Chain, isDev, ts);
         }
 
         public static async Task SwitchChain(UserInfo userInfo)
@@ -134,7 +89,7 @@ namespace Steepshot.Core.Presenters
             Chain = userInfo.Chain;
 
             var ts = GetReconectToken();
-            await TryRunTask(TryConnect, ts, userInfo.Chain, AppSettings.IsDev);
+            Api.InitConnector(userInfo.Chain, AppSettings.IsDev, ts);
         }
 
         public static async Task SwitchChain(KnownChains chain)
@@ -144,9 +99,8 @@ namespace Steepshot.Core.Presenters
 
             Chain = chain;
 
-
             var ts = GetReconectToken();
-            await TryRunTask(TryConnect, ts, chain, AppSettings.IsDev);
+            Api.InitConnector(chain, AppSettings.IsDev, ts);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)

@@ -12,7 +12,7 @@ namespace Steepshot.Core.Tests
     [TestFixture]
     public class IntegrationTests : BaseTests
     {
-        [Test, Sequential]
+        [Test]
         public void Login_With_Posting_Key_Invalid_Credentials([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -31,7 +31,7 @@ namespace Steepshot.Core.Tests
                         || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Login_With_Posting_Key_Wrong_PostingKey([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -49,7 +49,7 @@ namespace Steepshot.Core.Tests
                         || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Login_With_Posting_Key_Wrong_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -67,7 +67,7 @@ namespace Steepshot.Core.Tests
                         || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserPosts([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -102,7 +102,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Depth, Is.Not.Null);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserPosts_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -140,7 +140,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserPosts_With_User_Some_Votes_True([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -156,7 +156,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.True);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserPosts_Without_User_All_Votes_False([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -171,7 +171,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserRecentPosts([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -191,7 +191,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserRecentPosts_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -215,7 +215,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_Top([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -229,7 +229,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_Top_Limit_Default([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -243,7 +243,7 @@ namespace Steepshot.Core.Tests
             AssertResult(response);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_Hot_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -260,7 +260,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_Top_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -275,7 +275,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Any());
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_Hot([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -289,7 +289,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_New([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -303,11 +303,10 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        [Test, Sequential]
-        public void Posts_By_Category(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("food", "ru--golos")] string category)
+        [Test]
+        public void Posts_By_Category([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
+            var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
 
@@ -322,7 +321,7 @@ namespace Steepshot.Core.Tests
             Assert.That(postShouldHaveCategoryInCategory, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_By_Category_Invalid_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -336,7 +335,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Not Found"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_By_Category_Not_Existing_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -350,7 +349,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_By_Category_Empty_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -364,11 +363,10 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Not Found"));
         }
 
-        [Test, Sequential]
-        public void Posts_By_Category_Hot(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("food", "ru--golos")] string category)
+        [Test]
+        public void Posts_By_Category_Hot([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
+            var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Hot, category);
 
@@ -383,11 +381,12 @@ namespace Steepshot.Core.Tests
             Assert.That(postShouldHaveCategoryInCategory, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Posts_By_Category_New([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
+            var category = "steepshot";
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.New, "food");
+            var request = new PostsByCategoryRequest(PostType.New, category);
 
             // Act
             var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
@@ -395,16 +394,15 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response);
             Assert.That(response.Result.Results, Is.Not.Empty);
-            var postsWithoutCategoryInTags = response.Result.Results.Where(x => !x.Tags.Contains("food"));
-            var postShouldHaveCategoryInCategory = postsWithoutCategoryInTags.Any(x => !x.Category.Equals("food"));
+            var postsWithoutCategoryInTags = response.Result.Results.Where(x => !x.Tags.Contains(category));
+            var postShouldHaveCategoryInCategory = postsWithoutCategoryInTags.Any(x => !x.Category.Equals(category));
             Assert.That(postShouldHaveCategoryInCategory, Is.False);
         }
 
-        [Test, Sequential]
-        public void Posts_By_Category_Offset_Limit(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("food", "ru--golos")] string category)
+        [Test]
+        public void Posts_By_Category_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
+            var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
             request.Offset = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result.Result.Results.First().Url;
@@ -421,11 +419,10 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Url, Is.EqualTo(request.Offset));
         }
 
-        [Test, Sequential]
-        public void Posts_By_Category_With_User(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("steepshot", "steepshot")] string category)
+        [Test]
+        public void Posts_By_Category_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
+            var category = "steepshot";
             // Arrange
             UserInfo user = Users[apiName];
             var request = new PostsByCategoryRequest(PostType.Top, category) { Login = user.Login };
@@ -439,7 +436,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Up_Already_Voted([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Load last post
@@ -467,7 +464,7 @@ namespace Steepshot.Core.Tests
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Down_Already_Voted([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Load last post
@@ -494,7 +491,7 @@ namespace Steepshot.Core.Tests
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Invalid_Identifier1([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -508,7 +505,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Invalid_Identifier2([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -522,7 +519,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Invalid_Identifier3([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -536,7 +533,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Vote_Invalid_Identifier4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -550,7 +547,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Up_Already_Flagged([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Load last post
@@ -576,7 +573,7 @@ namespace Steepshot.Core.Tests
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Down_Already_Flagged([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Load last post
@@ -603,7 +600,7 @@ namespace Steepshot.Core.Tests
                         || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Invalid_Identifier1([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -617,7 +614,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Invalid_Identifier2([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -631,7 +628,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Invalid_Identifier3([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -645,7 +642,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Flag_Invalid_Identifier4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -660,7 +657,8 @@ namespace Steepshot.Core.Tests
         }
 
         [Test, Sequential]
-        public void Comments([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
+        public void Comments(
+            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
             [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/cat636281384922864910")] string url)
         {
             // Arrange
@@ -727,7 +725,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Comments_Invalid_Url([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -741,7 +739,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Comments_Invalid_Url_But_Valid_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -755,7 +753,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void CreateComment_20_Seconds_Delay([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -778,7 +776,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds.") || response2.Errors.Contains("Duplicate transaction check failed"), string.Join(Environment.NewLine, response2.Errors));
         }
 
-        [Test, Sequential]
+        [Test]
         public void EditCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -802,7 +800,7 @@ namespace Steepshot.Core.Tests
             AssertResult(result);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -818,7 +816,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -840,7 +838,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Name, Is.EqualTo("food"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -856,7 +854,7 @@ namespace Steepshot.Core.Tests
         }
 
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -872,7 +870,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_Invalid_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -886,7 +884,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_Short_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -900,7 +898,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Query should have at least 2 characters"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_Empty_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -914,7 +912,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("This field may not be blank."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -935,7 +933,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Name, Is.EqualTo("bitcoin"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -949,7 +947,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Category used for offset was not found"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Categories_Search_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -999,7 +997,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Website, Is.Not.Null);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserProfile_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1047,7 +1045,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Website, Is.Not.Null);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserFriends_Following([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1068,7 +1066,7 @@ namespace Steepshot.Core.Tests
             Assert.That(noHasFollowTrueWithoutUser, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserFriends_Followers([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1089,7 +1087,7 @@ namespace Steepshot.Core.Tests
             Assert.That(noHasFollowTrueWithoutUser, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserFriends_Followers_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1127,7 +1125,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.Count == 1);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UserFriends_Followers_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1215,7 +1213,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Depth, Is.Not.Null);
         }
 
-        [Test, Sequential]
+        [Test]
         public void GetPostInfo_Invalid_Url([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1229,11 +1227,11 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Wrong identifier."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Upload_Empty_Photo([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
-            var request = new UploadImageRequest(Users[apiName], "title", "cat1", "cat2", "cat3", "cat4");
+            var request = new UploadImageRequest(Users[apiName], "title", new byte[0], new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Act
             var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
@@ -1248,12 +1246,12 @@ namespace Steepshot.Core.Tests
             //Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void Upload_Tags_Greater_Than_4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());
-            var request = new UploadImageRequest(Users[apiName], "cat", file, "cat1", "cat2", "cat3", "cat4", "cat5");
+            var request = new UploadImageRequest(Users[apiName], "cat", file, new[] { "cat1", "cat2", "cat3", "cat4", "cat5" });
 
             // Act
             var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
@@ -1267,7 +1265,7 @@ namespace Steepshot.Core.Tests
             //Assert.That(response.Errors.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1283,7 +1281,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Author, Is.Not.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search_Invalid_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1297,7 +1295,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Empty);
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search_Short_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1311,7 +1309,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Query should have at least 3 characters"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search_Empty_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1325,7 +1323,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("This field may not be blank."));
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1346,7 +1344,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Author, Is.EqualTo("abit"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Search_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1360,7 +1358,7 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Errors.Contains("Username used for offset was not found"));
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Exists_Check_Valid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1374,7 +1372,7 @@ namespace Steepshot.Core.Tests
             Assert.True(response.Result.Exists);
         }
 
-        [Test, Sequential]
+        [Test]
         public void User_Exists_Check_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             // Arrange
@@ -1388,7 +1386,7 @@ namespace Steepshot.Core.Tests
             Assert.False(response.Result.Exists);
         }
 
-        [Test, Sequential]
+        [Test]
         public void CancelationTest()
         {
             // Arrange

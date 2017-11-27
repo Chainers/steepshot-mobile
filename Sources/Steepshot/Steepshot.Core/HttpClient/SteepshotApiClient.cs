@@ -22,7 +22,7 @@ namespace Steepshot.Core.HttpClient
             _serverServerClient = new BaseServerClient(_converter);
         }
 
-        public async Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain, CancellationToken token)
+        public void InitConnector(KnownChains chain, bool isDev, CancellationToken token)
         {
             var sUrl = string.Empty;
             switch (chain)
@@ -41,19 +41,16 @@ namespace Steepshot.Core.HttpClient
                     break;
             }
 
-            CancellationTokenSource cts;
             lock (_serverServerClient)
             {
                 if (_serverServerClient.Gateway != null)
                 {
                     _ditchClient.EnableWrite = false;
-                    _serverServerClient.EnableRead = false;
 
                     CtsMain.Cancel();
                 }
 
                 CtsMain = new CancellationTokenSource();
-                cts = CancellationTokenSource.CreateLinkedTokenSource(token, CtsMain.Token);
 
                 if (chain == KnownChains.Steem)
                     _ditchClient = new SteemClient(_converter);
@@ -63,11 +60,6 @@ namespace Steepshot.Core.HttpClient
                 _serverServerClient.Gateway = new ApiGateway(sUrl);
                 _serverServerClient.EnableRead = true;
             }
-
-            if (enableConnectToBlockcain)
-                return await Task.Run(() => TryReconnectChain(cts.Token), cts.Token);
-
-            return false;
         }
 
         public bool TryReconnectChain(CancellationToken token)
