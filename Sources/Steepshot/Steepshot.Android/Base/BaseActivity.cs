@@ -21,8 +21,8 @@ namespace Steepshot.Base
         protected override void OnCreate(Bundle savedInstanceState)
         {
             InitIoC();
-            InitPicassoCache();
             base.OnCreate(savedInstanceState);
+            InitPicassoCache();
         }
 
         private void InitPicassoCache()
