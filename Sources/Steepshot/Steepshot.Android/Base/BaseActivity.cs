@@ -20,12 +20,12 @@ namespace Steepshot.Base
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
             if (AppSettings.Container == null)
                 Construct();
+            base.OnCreate(savedInstanceState);
         }
 
-        private void Construct()
+        public static void Construct()
         {
             var builder = new ContainerBuilder();
 
@@ -38,12 +38,6 @@ namespace Steepshot.Base
 #else
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 #endif
-
-            var d = new Picasso.Builder(this);
-            Cache = new LruCache(this);
-            d.MemoryCache(Cache);
-            Picasso.SetSingletonInstance(d.Build());
-
             AppSettings.Container = builder.Build();
         }
 
@@ -58,7 +52,7 @@ namespace Steepshot.Base
             CurrentHostFragment?.ReplaceFragment(frag, true);
         }
 
-        public override void OnTrimMemory(Android.Content.TrimMemory level)
+        public override void OnTrimMemory(TrimMemory level)
         {
             if (level == TrimMemory.Complete)
             {
