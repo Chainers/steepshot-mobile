@@ -29,7 +29,7 @@ namespace Steepshot.Fragment
 {
     public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
-        private readonly bool _isGuest;
+        private bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
         private static ValueAnimator _fontReductionAnimation;
@@ -48,6 +48,7 @@ namespace Steepshot.Fragment
         private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
+        private bool _isNeedToLoadPosts;
         private RecyclerView.Adapter _adapter;
 
         private Button _activeButton;
@@ -121,7 +122,10 @@ namespace Steepshot.Fragment
                     var shouldLoadPosts = SearchByTag();
                     if (shouldLoadPosts && !_isActivated)
                     {
-                        LoadPosts();
+                        if (Presenter != null)
+                            LoadPosts();
+                        else
+                            _isNeedToLoadPosts = true;
                         _isActivated = true;
                     }
                 }
@@ -131,7 +135,20 @@ namespace Steepshot.Fragment
 
         public PreSearchFragment()
         {
-            // _isGuest = true; TODO Initialize from bundle
+        }
+
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            if (savedInstanceState != null)
+                _isGuest = savedInstanceState.GetBoolean("isGuest");
+            base.OnCreate(savedInstanceState);
+        }
+
+        public override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutBoolean("isGuest", _isGuest);
+            base.OnSaveInstanceState(outState);
         }
 
         public PreSearchFragment(bool isGuest = false)
@@ -204,8 +221,9 @@ namespace Steepshot.Fragment
             }
 
             var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null && _isGuest)
+            if (shouldLoadPosts && savedInstanceState == null && (_isGuest || _isNeedToLoadPosts))
             {
+                _isNeedToLoadPosts = false;
                 LoadPosts(true);
             }
         }
@@ -485,7 +503,7 @@ namespace Steepshot.Fragment
         {
             string selectedTag;
             if (tag == null)
-                selectedTag = Activity.Intent.GetStringExtra(SearchFragment.SearchExtra);
+                selectedTag = Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
             else
                 selectedTag = tag;
             if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)

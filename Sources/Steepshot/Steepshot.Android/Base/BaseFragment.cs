@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Base
+﻿using Steepshot.Core.Utils;
+
+namespace Steepshot.Base
 {
     public abstract class BaseFragment : Android.Support.V4.App.Fragment
     {
@@ -9,6 +11,13 @@
         {
             base.OnViewCreated(view, savedInstanceState);
             IsInitialized = true;
+        }
+
+        public override void OnCreate(Android.OS.Bundle savedInstanceState)
+        {
+            if (AppSettings.Container == null)
+                BaseActivity.Construct();
+            base.OnCreate(savedInstanceState);
         }
 
         public virtual bool CustomUserVisibleHint

@@ -16,13 +16,14 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
     public sealed class ProfileFragment : BaseFragmentWithPresenter<UserProfilePresenter>
     {
         private bool _isActivated;
-        private readonly string _profileId;
+        private string _profileId;
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -92,12 +93,16 @@ namespace Steepshot.Fragment
                 {
                     if (!_isActivated)
                     {
-                        LoadProfile();
-                        GetUserPosts();
+                        if (Presenter != null)
+                        {
+                            LoadProfile();
+                            GetUserPosts();
+                            BasePresenter.ShouldUpdateProfile = false;
+                        }
+                        else
+                            BasePresenter.ShouldUpdateProfile = true;
                         _isActivated = true;
-                        BasePresenter.ShouldUpdateProfile = false;
                     }
-                    UpdateProfile();
                 }
                 UserVisibleHint = value;
             }
@@ -105,7 +110,19 @@ namespace Steepshot.Fragment
 
         public ProfileFragment()
         {
-            //_profileId = "joseph.kalu"; TODO Initialize from bundle
+        }
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            if (savedInstanceState != null)
+                _profileId = savedInstanceState.GetString("profileId");
+        }
+
+        public override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutString("profileId", _profileId);
+            base.OnSaveInstanceState(outState);
         }
 
         public ProfileFragment(string profileId)
