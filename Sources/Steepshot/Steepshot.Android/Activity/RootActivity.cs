@@ -65,7 +65,7 @@ namespace Steepshot.Activity
             base.OnResume();
             if(BasePresenter.ShouldUpdateProfile)
             {
-                OnTabSelected(_adapter.Count - 1);
+                SelectTab(_adapter.Count - 1);
             }
         }
 
@@ -88,7 +88,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                OnTabSelected(e.Tab.Position);
+                SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
             }
         }
@@ -103,7 +103,7 @@ namespace Steepshot.Activity
                 _tabLayout.AddTab(tab);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            OnTabSelected(0);
+            SelectTab(0);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -111,6 +111,7 @@ namespace Steepshot.Activity
         {
             var tab = _tabLayout.GetTabAt(position);
             tab.Select();
+            OnTabSelected(position);
         }
 
         private void OnTabSelected(int position)
