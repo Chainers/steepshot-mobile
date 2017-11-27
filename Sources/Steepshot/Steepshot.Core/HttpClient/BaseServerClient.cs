@@ -326,7 +326,7 @@ namespace Steepshot.Core.HttpClient
         private void AddVotersTypeParameters(Dictionary<string, object> parameters, VotersType? type)
         {
             if (type != null)
-                parameters.Add(type == VotersType.likes ? "likes" : "flags", 1);
+                parameters.Add(type == VotersType.Likes ? "Likes" : "Flags", 1);
         }
 
         private void AddLoginParameter(Dictionary<string, object> parameters, string login)
