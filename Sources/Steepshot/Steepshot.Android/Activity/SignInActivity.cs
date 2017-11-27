@@ -61,7 +61,7 @@ namespace Steepshot.Activity
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
-            _signInBtn.Text = Localization.Texts.EnterAccountText;
+            _signInBtn.Text = Localization.Texts.SignIn;
 
             _viewTitle.Typeface = Style.Semibold;
             _password.Typeface = Style.Semibold;
