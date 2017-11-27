@@ -36,6 +36,12 @@ namespace Steepshot.Core.Models.Requests
         Following
     }
 
+    public enum VotersType
+    {
+        likes,
+        flags
+    }
+
     public class UserFriendsRequest : NamedRequestWithOffsetLimitFields
     {
         public UserFriendsRequest(string username, FriendsType type)
@@ -49,5 +55,15 @@ namespace Steepshot.Core.Models.Requests
 
         public string Username { get; }
         public FriendsType Type { get; }
+    }
+
+    public class VotersRequest : InfoRequest
+    {
+        public VotersRequest(string url, VotersType type) : base(url)
+        {
+            Type = type;
+        }
+
+        public VotersType Type { get; }
     }
 }

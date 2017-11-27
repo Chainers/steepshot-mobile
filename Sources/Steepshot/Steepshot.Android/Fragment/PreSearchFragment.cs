@@ -426,13 +426,14 @@ namespace Steepshot.Fragment
             StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
-        private void VotersAction(Post post)
+        private void VotersAction(Post post, bool isLikers)
         {
             if (post == null)
                 return;
 
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
-            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 

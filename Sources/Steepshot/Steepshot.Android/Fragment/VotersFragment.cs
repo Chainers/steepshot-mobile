@@ -16,8 +16,10 @@ namespace Steepshot.Fragment
 {
     public sealed class VotersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
+        public static string VotersType = "voterstype";
         private FollowersAdapter _adapter;
         private string _url;
+        private bool _isLikers;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
@@ -56,10 +58,14 @@ namespace Steepshot.Fragment
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Typeface = Style.Semibold;
             _peopleCount.Typeface = Style.Regular;
-            _viewTitle.Text = Localization.Messages.Voters;
+
+            _isLikers = Activity.Intent.GetBooleanExtra(VotersType, true);
+            _viewTitle.Text = _isLikers ? Localization.Messages.Voters : Localization.Messages.FlagVoters;
 
             _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
             Presenter.SourceChanged += PresenterSourceChanged;
+            Presenter.VotersType =
+                _isLikers ? Core.Models.Requests.VotersType.likes : Core.Models.Requests.VotersType.flags;
             _adapter = new FollowersAdapter(Activity, Presenter);
             _adapter.UserAction += OnClick;
             _adapter.FollowAction += OnFollow;
