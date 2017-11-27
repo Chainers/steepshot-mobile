@@ -15,8 +15,7 @@ namespace Steepshot.Base
 
         public override void OnCreate(Android.OS.Bundle savedInstanceState)
         {
-            if (AppSettings.Container == null)
-                BaseActivity.Construct();
+            BaseActivity.InitIoC();
             base.OnCreate(savedInstanceState);
         }
 
