@@ -94,7 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textSize="14sp"
-            android:maxLength="220"
+            android:maxLength="100"
             android:hint="Enter a title of your photo"
             android:background="@android:color/transparent"
             android:textCursorDrawable="@drawable/input"
@@ -149,7 +149,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/description_layout"
-        android:layout_marginTop="5dp"
+        android:paddingTop="5dp"
+        android:clickable="true"
         android:background="@color/white">
         <LinearLayout
             android:id="@+id/top_margin_tags_layout"
@@ -179,6 +180,8 @@
                     android:textSize="14sp"
                     android:maxLength="32"
                     android:gravity="bottom"
+                    android:singleLine="true"
+                    android:imeOptions="actionDone"
                     android:hint="Add Hashtag"
                     android:background="@android:color/transparent"
                     android:textCursorDrawable="@drawable/input"
@@ -206,7 +209,6 @@
         android:id="@+id/tags_list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:elevation="2dp"
         android:visibility="gone"
         android:layout_below="@id/tags_layout"
         android:background="@color/white">
@@ -214,7 +216,6 @@
             android:id="@+id/tags_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="15dp"
-            android:layout_marginBottom="15dp" />
+            android:paddingLeft="15dp" />
     </LinearLayout>
 </RelativeLayout>
