@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Cryptography.ECDSA;
-using Ditch;
 using Ditch.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
@@ -28,7 +27,6 @@ namespace Steepshot.Core.Presenters
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
         public static bool ShouldUpdateProfile;
         public static event Action<string> OnAllert;
-        public static bool IsPicassoInitialized;
 
         protected CancellationTokenSource OnDisposeCts;
 
