@@ -55,6 +55,7 @@
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";
             public const string Likes = "like's";
+            public const string Flags = "flags";
             public const string Follow = "Follow";
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
@@ -62,6 +63,7 @@
             public const string TryAgain = "Try again";
             public const string Forget = "Forget";
             public const string Voters = "Likes";
+            public const string FlagVoters = "Flags";
             public const string ViewComments = "View {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";

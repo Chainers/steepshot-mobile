@@ -105,6 +105,7 @@ namespace Steepshot.Core.HttpClient
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
+            AddVotersTypeParameters(parameters, ((VotersRequest)request).Type);
             if (!string.IsNullOrEmpty(request.Login))
                 AddLoginParameter(parameters, request.Login);
 
@@ -320,6 +321,12 @@ namespace Steepshot.Core.HttpClient
 
             if (limit > 0)
                 parameters.Add("limit", limit);
+        }
+
+        private void AddVotersTypeParameters(Dictionary<string, object> parameters, VotersType? type)
+        {
+            if (type != null)
+                parameters.Add(type == VotersType.likes ? "likes" : "flags", 1);
         }
 
         private void AddLoginParameter(Dictionary<string, object> parameters, string login)
