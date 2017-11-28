@@ -61,7 +61,7 @@ namespace Steepshot.Core.HttpClient
         ///     Examples:
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
-        Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct);
+        Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(VotersRequest request, CancellationToken ct);
 
         /// <summary>
         ///     Examples:

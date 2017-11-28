@@ -108,6 +108,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Vote(CancellationToken ct, Post post)
         {
+            var wasFlaged = post.Flag;
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
             if (response == null)
@@ -123,6 +124,9 @@ namespace Steepshot.Core.Presenters
                 post.Flag = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
+                post.NetLikes = post.Vote ? post.NetLikes + 1 : post.NetLikes - 1;
+                if (wasFlaged)
+                    post.NetFlags--;
             }
 
             return response.Errors;
@@ -148,6 +152,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> Flag(CancellationToken ct, Post post)
         {
+            var wasVote = post.Vote;
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
             if (response == null)
@@ -159,6 +164,9 @@ namespace Steepshot.Core.Presenters
                 post.Vote = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
+                post.NetFlags = post.Flag ? post.NetFlags + 1 : post.NetFlags - 1;
+                if (wasVote)
+                    post.NetLikes--;
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds + 300)
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
