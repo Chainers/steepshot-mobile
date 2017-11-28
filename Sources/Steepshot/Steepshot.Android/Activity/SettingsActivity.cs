@@ -38,6 +38,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
         [InjectView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
+        [InjectView(Resource.Id.add_account_loading_spinner)] private ProgressBar _addAccountLoader;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -93,6 +94,8 @@ namespace Steepshot.Activity
 
         protected override void OnResume()
         {
+            _addAccountLoader.Visibility = ViewStates.Gone;
+            _addButton.Text = Localization.Texts.AddAccountText;
             _addButton.Enabled = true;
             base.OnResume();
         }
@@ -155,6 +158,8 @@ namespace Steepshot.Activity
 
         private async void AddAccountClick(object sender, EventArgs e)
         {
+            _addAccountLoader.Visibility = ViewStates.Visible;
+            _addButton.Text = string.Empty;
             _addButton.Enabled = false;
             await BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem);
             var intent = new Intent(this, typeof(PreSignInActivity));
