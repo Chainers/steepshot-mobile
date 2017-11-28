@@ -1,11 +1,12 @@
-﻿using Steepshot.Base;
-
+﻿using Android.App;
+using Steepshot.Base;
 
 namespace Steepshot.Fragment
 {
     public sealed class HostFragment : BackStackFragment
     {
-        private Android.Support.V4.App.Fragment _fragment;
+        private BaseFragment _fragment;
+        private string _firstFragmentName;
 
         public override bool UserVisibleHint
         {
@@ -18,7 +19,6 @@ namespace Steepshot.Fragment
             }
         }
 
-
         public override Android.Views.View OnCreateView(Android.Views.LayoutInflater inflater, Android.Views.ViewGroup container, Android.OS.Bundle savedInstanceState)
         {
             base.OnCreateView(inflater, container, savedInstanceState);
@@ -30,20 +30,25 @@ namespace Steepshot.Fragment
             return view;
         }
 
-        public void ReplaceFragment(Android.Support.V4.App.Fragment fragment, bool addToBackstack)
+        public void ReplaceFragment(BaseFragment fragment, bool addToBackstack)
         {
             var transaction = ChildFragmentManager.BeginTransaction();
             transaction.Replace(Resource.Id.child_fragment_container, fragment);
 
             if (addToBackstack)
-                transaction.AddToBackStack(null);
+                transaction.AddToBackStack(fragment.Name);
 
             transaction.Commit();
         }
 
-        public static HostFragment NewInstance(Android.Support.V4.App.Fragment fragment)
+        public static HostFragment NewInstance(BaseFragment fragment)
         {
-            return new HostFragment { _fragment = fragment };
+            return new HostFragment { _fragment = fragment, _firstFragmentName = fragment.Name };
+        }
+
+        public void Clear()
+        {
+            ChildFragmentManager.PopBackStackImmediate(_firstFragmentName, (int)PopBackStackFlags.Inclusive);
         }
     }
 }

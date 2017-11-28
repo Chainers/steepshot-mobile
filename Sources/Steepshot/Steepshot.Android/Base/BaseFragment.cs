@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Utils;
+﻿using System;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Base
 {
@@ -6,6 +7,7 @@ namespace Steepshot.Base
     {
         protected bool IsInitialized;
         protected Android.Views.View InflatedView;
+        public string Name { get; private set; }
 
         public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
         {
@@ -15,6 +17,7 @@ namespace Steepshot.Base
 
         public override void OnCreate(Android.OS.Bundle savedInstanceState)
         {
+            Name = Guid.NewGuid().ToString();
             BaseActivity.InitIoC();
             base.OnCreate(savedInstanceState);
         }
