@@ -8,7 +8,7 @@ namespace Steepshot.Core.HttpClient
 {
     public interface ISteepshotApiClient
     {
-        Task<bool> Connect(KnownChains chain, bool isDev, bool enableConnectToBlockcain, CancellationToken token);
+        void InitConnector(KnownChains chain, bool isDev, CancellationToken token);
         bool TryReconnectChain(CancellationToken toke);
 
         #region Post
@@ -62,14 +62,14 @@ namespace Steepshot.Core.HttpClient
         ///     1) GET https://qa.golos.steepshot.org/api/v1/post/@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy/voters
         /// </summary>
         Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct);
-        
+
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/@joseph.kalu/cat636203355240074655/comments HTTP/1.1
         /// </summary>
         Task<OperationResult<ListResponce<Post>>> GetComments(NamedInfoRequest request, CancellationToken ct);
 
-       
+
         Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct);
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Steepshot.Core.HttpClient
         ///     3) GET https://steepshot.org/api/v1/user/joseph.kalu/followers?offset=vivianupman&amp;limit=5 HTTP/1.1
         /// </summary>
         Task<OperationResult<ListResponce<UserFriend>>> GetUserFriends(UserFriendsRequest request, CancellationToken ct);
-        
+
         /// <summary>
         ///     Examples:
         ///     1) GET https://steepshot.org/api/v1/post/spam/@joseph.kalu/test-post-127/info HTTP/1.1
