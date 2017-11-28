@@ -20,6 +20,8 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly OperationManager _operationManager;
 
+        public override bool IsConnected => _operationManager.IsConnected;
+
         public SteemClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
             _operationManager = new OperationManager();
@@ -28,11 +30,16 @@ namespace Steepshot.Core.HttpClient
 
         public override bool TryReconnectChain(CancellationToken token)
         {
+            if (EnableWrite)
+                return EnableWrite;
+
+            bool lockWasTaken = false;
             try
             {
+                Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "wss://steemd.steemit.com" };
+                    var cUrls = new List<string> { "wss://steemd2.steepshot.org", "wss://steemd.steemit.com" };
                     var conectedTo = _operationManager.TryConnectTo(cUrls, token);
                     if (!string.IsNullOrEmpty(conectedTo))
                         EnableWrite = true;
@@ -42,6 +49,11 @@ namespace Steepshot.Core.HttpClient
             {
                 //todo nothing
             }
+            finally
+            {
+                if (lockWasTaken)
+                    Monitor.Exit(SyncConnection);
+            }
             return EnableWrite;
         }
 
@@ -49,15 +61,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<VoteResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoteResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoteResponse>(Localization.Errors.WrongPrivateKey);
+
                 string author;
                 string permlink;
                 if (!TryCastUrlToAuthorAndPermlink(request.Identifier, out author, out permlink))
@@ -98,15 +110,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
+
                 var op = request.Type == FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, DitchFollowType.Blog, request.Login)
                     : new UnfollowOperation(request.Login, request.Username, request.Login);
@@ -125,15 +137,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
+
                 var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
 
@@ -150,15 +162,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<CommentResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
+
                 string author;
                 string permlink;
                 if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
@@ -183,15 +195,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<CommentResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
+
                 string author;
                 string commentPermlink;
                 string parentAuthor;
@@ -221,15 +233,15 @@ namespace Steepshot.Core.HttpClient
 
         public override async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
         {
-            if (!EnableWrite)
-                return null;
-
-            var keys = ToKeyArr(request.PostingKey);
-            if (keys == null)
-                return new OperationResult<ImageUploadResponse>(Localization.Errors.WrongPrivateKey);
-
             return await Task.Run(() =>
             {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<ImageUploadResponse>(Localization.Errors.EnableConnectToBlockchain);
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<ImageUploadResponse>(Localization.Errors.WrongPrivateKey);
+
                 Transliteration.PrepareTags(request.Tags);
 
                 var meta = uploadResponse.Meta.ToString();
@@ -247,8 +259,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         post,
-                        new BeneficiariesOperation(request.Login, post.Permlink, _operationManager.SbdSymbol,
-                            beneficiaries)
+                        new BeneficiariesOperation(request.Login, post.Permlink, _operationManager.SbdSymbol,beneficiaries)
                     };
                 }
                 else
@@ -286,7 +297,7 @@ namespace Steepshot.Core.HttpClient
             var tr = _operationManager.CreateTransaction(DynamicGlobalPropertyApiObj.Default, keys, ct, op);
             return JsonConverter.Serialize(tr);
         }
-        
+
         #endregion
     }
 }

@@ -29,6 +29,8 @@ namespace Steepshot.Fragment
 {
     public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
     {
+        public const string IsGuestKey = "isGuest";
+
         private bool _isGuest;
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
@@ -141,13 +143,13 @@ namespace Steepshot.Fragment
         public override void OnCreate(Bundle savedInstanceState)
         {
             if (savedInstanceState != null)
-                _isGuest = savedInstanceState.GetBoolean("isGuest");
+                _isGuest = savedInstanceState.GetBoolean(IsGuestKey);
             base.OnCreate(savedInstanceState);
         }
 
         public override void OnSaveInstanceState(Bundle outState)
         {
-            outState.PutBoolean("isGuest", _isGuest);
+            outState.PutBoolean(IsGuestKey, _isGuest);
             base.OnSaveInstanceState(outState);
         }
 
@@ -502,11 +504,8 @@ namespace Steepshot.Fragment
 
         private bool SearchByTag(string tag = null)
         {
-            string selectedTag;
-            if (tag == null)
-                selectedTag = Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
-            else
-                selectedTag = tag;
+            var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
+
             if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
             {
                 Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
@@ -582,11 +581,11 @@ namespace Steepshot.Fragment
 
             var lastButton = _buttonsList.OrderByDescending(b => b.GetX()).First();
 
-            RelativeLayout.LayoutParams activeButtonLayoutParameters = (RelativeLayout.LayoutParams)_activeButton.LayoutParameters;
+            var activeButtonLayoutParameters = (RelativeLayout.LayoutParams)_activeButton.LayoutParameters;
             activeButtonLayoutParameters.RemoveRule(LayoutRules.RightOf);
             _activeButton.LayoutParameters = activeButtonLayoutParameters;
 
-            RelativeLayout.LayoutParams currentButtonLayoutParameters = (RelativeLayout.LayoutParams)_currentButton.LayoutParameters;
+            var currentButtonLayoutParameters = (RelativeLayout.LayoutParams)_currentButton.LayoutParameters;
             currentButtonLayoutParameters.AddRule(LayoutRules.RightOf, lastButton.Id);
             _currentButton.LayoutParameters = currentButtonLayoutParameters;
 

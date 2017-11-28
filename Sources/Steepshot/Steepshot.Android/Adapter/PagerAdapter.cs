@@ -22,14 +22,14 @@ namespace Steepshot.Adapter
             Resource.Drawable.profile_active
         };
 
-        private readonly List<Android.Support.V4.App.Fragment> _tabs;
+        private readonly List<HostFragment> _tabs;
 
         public override int Count => TabIconsInactive.Length;
 
 
         public PagerAdapter(FragmentManager fm) : base(fm)
         {
-            _tabs = new List<Android.Support.V4.App.Fragment>();
+            _tabs = new List<HostFragment>();
             InitializeTabs();
         }
 
@@ -44,15 +44,9 @@ namespace Steepshot.Adapter
 
         private void InitializeTabs()
         {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                _tabs.Add(new FeedFragment());
-                return;
-            }
-
             for (var i = 0; i < TabIconsInactive.Length; i++)
             {
-                Android.Support.V4.App.Fragment frag;
+                HostFragment frag;
                 switch (i)
                 {
                     case 0:
@@ -62,7 +56,7 @@ namespace Steepshot.Adapter
                         frag = HostFragment.NewInstance(new PreSearchFragment());
                         break;
                     case 2:
-                        frag = new Android.Support.V4.App.Fragment();
+                        frag = new HostFragment();
                         break;
                     case 3:
                         frag = HostFragment.NewInstance(new ProfileFragment(BasePresenter.User.Login));

@@ -57,9 +57,9 @@ namespace Steepshot.Core.Tests
             var file = File.ReadAllBytes(GetTestImagePath());
 
             // Act
-            var requestArray = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var requestArray = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
             var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, base64, "cat1", "cat2", "cat3", "cat4");
+            var requestBase64 = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Assert
             Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
@@ -71,7 +71,7 @@ namespace Steepshot.Core.Tests
         {
             var ex = Assert.Throws<ArgumentNullException>(() =>
             {
-                new UploadImageRequest(new UserInfo(), "", new byte[] { }, "cat1", "cat2", "cat3", "cat4");
+                new UploadImageRequest(new UserInfo(), "", new byte[] { }, new[] { "cat1", "cat2", "cat3", "cat4" });
                 new InfoRequest("");
             });
             Assert.That(ex.ParamName, Is.EqualTo("title"));

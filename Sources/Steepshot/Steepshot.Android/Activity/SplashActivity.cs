@@ -10,7 +10,6 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
-using Square.Picasso;
 
 namespace Steepshot.Activity
 {
@@ -29,15 +28,6 @@ namespace Steepshot.Activity
             AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
-
-            if(!BasePresenter.IsPicassoInitialized)
-            {
-                var d = new Picasso.Builder(this);
-                Cache = new LruCache(this);
-                d.MemoryCache(Cache);
-                Picasso.SetSingletonInstance(d.Build());
-                BasePresenter.IsPicassoInitialized = true;
-            }
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
