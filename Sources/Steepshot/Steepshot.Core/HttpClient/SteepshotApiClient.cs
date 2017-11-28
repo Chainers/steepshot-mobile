@@ -143,7 +143,7 @@ namespace Steepshot.Core.HttpClient
             return await _serverServerClient.GetPostsByCategory(request, ct);
         }
 
-        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(VotersRequest request, CancellationToken ct)
         {
             return await _serverServerClient.GetPostVoters(request, ct);
         }

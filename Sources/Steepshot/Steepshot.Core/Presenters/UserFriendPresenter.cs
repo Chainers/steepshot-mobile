@@ -36,6 +36,9 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextPostVoters(CancellationToken ct, string url)
         {
+            if (!VotersType.HasValue)
+                return null;
+
             var request = new VotersRequest(url, VotersType.Value)
             {
                 Offset = OffsetUrl,
