@@ -220,7 +220,7 @@ namespace Steepshot.Fragment
             if (tag != null)
             {
                 Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((RootActivity)Activity).SelectTab(1);
+                ((RootActivity)Activity).SelectTabWithClearing(1);
             }
             else
                 _adapter.NotifyDataSetChanged();

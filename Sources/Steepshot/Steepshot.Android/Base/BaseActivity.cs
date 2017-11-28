@@ -16,29 +16,43 @@ namespace Steepshot.Base
     public abstract class BaseActivity : AppCompatActivity
     {
         protected HostFragment CurrentHostFragment;
-        public static LruCache Cache;
+        protected static LruCache Cache;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            if (AppSettings.Container == null)
-                Construct();
+            InitIoC();
             base.OnCreate(savedInstanceState);
+            InitPicassoCache();
         }
 
-        public static void Construct()
+        private void InitPicassoCache()
         {
-            var builder = new ContainerBuilder();
+            if (Cache == null)
+            {
+                Cache = new LruCache(this);
+                var d = new Picasso.Builder(this);
+                d.MemoryCache(Cache);
+                Picasso.SetSingletonInstance(d.Build());
+            }
+        }
 
-            builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
-            builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
-            builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
+        public static void InitIoC()
+        {
+            if (AppSettings.Container == null)
+            {
+                var builder = new ContainerBuilder();
+
+                builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
+                builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
+                builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
+                builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
 #if DEBUG
-            builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+                builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
 #else
             builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
 #endif
-            AppSettings.Container = builder.Build();
+                AppSettings.Container = builder.Build();
+            }
         }
 
         public override void OnBackPressed()
@@ -47,7 +61,7 @@ namespace Steepshot.Base
                 base.OnBackPressed();
         }
 
-        public virtual void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        public virtual void OpenNewContentFragment(BaseFragment frag)
         {
             CurrentHostFragment?.ReplaceFragment(frag, true);
         }
@@ -56,7 +70,7 @@ namespace Steepshot.Base
         {
             if (level == TrimMemory.Complete)
             {
-                if(AppSettings.Container != null)
+                if (AppSettings.Container != null)
                 {
                     AppSettings.Container.Dispose();
                     AppSettings.Container = null;

@@ -17,13 +17,16 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         protected readonly JsonNetConverter JsonConverter;
+        protected readonly object SyncConnection;
 
         public volatile bool EnableWrite;
 
+        public abstract bool IsConnected { get; }
+
         protected BaseDitchClient(JsonNetConverter jsonConverter)
         {
-
             JsonConverter = jsonConverter;
+            SyncConnection = new object();
         }
 
 
@@ -43,7 +46,7 @@ namespace Steepshot.Core.HttpClient
 
 
         public abstract bool TryReconnectChain(CancellationToken token);
-        
+
 
         protected bool TryCastUrlToAuthorAndPermlink(string url, out string author, out string permlink)
         {
@@ -109,20 +112,20 @@ namespace Steepshot.Core.HttpClient
                     switch (response.Error.Code)
                     {
                         case (int)ErrorCodes.ConnectionTimeoutError:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
+                                break;
+                            }
                         case (int)ErrorCodes.ResponseTimeoutError:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
+                                break;
+                            }
                         default:
-                        {
-                            operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
+                                break;
+                            }
                     }
                 }
                 else if (response.Error is ResponseError)
@@ -133,28 +136,28 @@ namespace Steepshot.Core.HttpClient
                     switch (typedError.Data.Code)
                     {
                         case 10: //Assert Exception
-                        {
-                            if (typedError.Data.Stack.Any())
                             {
-                                if (typedError.Data.Stack[0].Format.Contains("STEEMIT_MAX_VOTE_CHANGES"))
+                                if (typedError.Data.Stack.Any())
                                 {
-                                    operationResult.Errors.Add(Localization.Errors.MaxVoteChanges);
-                                    break;
+                                    if (typedError.Data.Stack[0].Format.Contains("STEEMIT_MAX_VOTE_CHANGES"))
+                                    {
+                                        operationResult.Errors.Add(Localization.Errors.MaxVoteChanges);
+                                        break;
+                                    }
+                                    var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
+                                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
+                                    {
+                                        operationResult.Errors.Add(match.Value);
+                                        break;
+                                    }
                                 }
-                                var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
-                                if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
-                                {
-                                    operationResult.Errors.Add(match.Value);
-                                    break;
-                                }
+                                goto default;
                             }
-                            goto default;
-                        }
                         case 13: //unknown key
-                        {
-                            operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
-                            break;
-                        }
+                            {
+                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                break;
+                            }
                         //case 3000000: "transaction exception"
                         //case 3010000: "missing required active authority"
                         //case 3020000: "missing required owner authority"
@@ -163,20 +166,20 @@ namespace Steepshot.Core.HttpClient
                         //case 3050000: "irrelevant signature included"
                         //case 3060000: "duplicate signature included"
                         case 3030000:
-                        {
-                            if (t.Name == "LoginResponse")
                             {
-                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                if (t.Name == "LoginResponse")
+                                {
+                                    operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                    break;
+                                }
+                                goto default;
+                            }
+                        default:
+                            {
+                                operationResult.Errors.Add(
+                                    Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
                                 break;
                             }
-                            goto default;
-                        }
-                        default:
-                        {
-                            operationResult.Errors.Add(
-                                Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
-                            break;
-                        }
                     }
                 }
                 else

@@ -30,7 +30,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
             user.IsNeedRewards = false;
-            var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, "cat1", "cat2", "cat3", "cat4");
+            var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
             var servResp = Api[apiName].UploadWithPrepare(createPostRequest, CancellationToken.None).Result;
             AssertResult(servResp);
             var createPostResponse = Api[apiName].Upload(createPostRequest, servResp.Result, CancellationToken.None).Result;

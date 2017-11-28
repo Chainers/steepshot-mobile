@@ -34,26 +34,41 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp" />
-            <Button
-                android:id="@+id/add_account"
+            <RelativeLayout
+                android:id="@+id/button_with_loader"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:background="@drawable/steem_login_border"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/accounts_list"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:textSize="14sp"
-                android:layout_marginBottom="40dp"
-                android:text="Add account" />
+                android:layout_marginRight="15dp"                
+                android:layout_marginBottom="40dp">
+                <Button
+                    android:id="@+id/add_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:background="@drawable/steem_login_border"
+                    android:layout_below="@id/accounts_list"
+                    android:textSize="14sp"
+                    android:text="Add account" />
+                <ProgressBar
+                    android:id="@+id/add_account_loading_spinner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/white"
+                    android:layout_centerInParent="true"
+                    android:visibility="gone"
+                    android:elevation="10dp" />
+            </RelativeLayout> 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:layout_below="@id/add_account">
+                android:layout_below="@id/button_with_loader">
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
