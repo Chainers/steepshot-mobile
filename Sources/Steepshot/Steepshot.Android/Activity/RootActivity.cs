@@ -40,7 +40,7 @@ namespace Steepshot.Activity
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
         }
 
-        public override void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        public override void OpenNewContentFragment(BaseFragment frag)
         {
             CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
             base.OpenNewContentFragment(frag);
@@ -112,6 +112,13 @@ namespace Steepshot.Activity
             var tab = _tabLayout.GetTabAt(position);
             tab.Select();
             OnTabSelected(position);
+        }
+
+        public void SelectTabWithClearing(int position)
+        {
+            SelectTab(position);
+            var hostFragment = _adapter.GetItem(position) as HostFragment;
+            hostFragment?.Clear();
         }
 
         private void OnTabSelected(int position)
