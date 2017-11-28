@@ -16,6 +16,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
@@ -158,7 +159,7 @@ namespace Steepshot.Fragment
 
             _login.Typeface = Style.Semibold;
             _firstPostButton.Typeface = Style.Semibold;
-                
+
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += GetUserPosts;
 
@@ -377,12 +378,14 @@ namespace Steepshot.Fragment
             StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
-        private void VotersAction(Post post)
+        private void VotersAction(Post post, VotersType type)
         {
             if (post == null)
                 return;
-
+            var isLikers = type == VotersType.Likes;
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
