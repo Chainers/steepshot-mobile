@@ -98,14 +98,14 @@ namespace Steepshot.Core.HttpClient
             return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
         }
 
-        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(VotersRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
-            AddVotersTypeParameters(parameters, ((VotersRequest)request).Type);
+            AddVotersTypeParameters(parameters, request.Type);
             if (!string.IsNullOrEmpty(request.Login))
                 AddLoginParameter(parameters, request.Login);
 
@@ -323,10 +323,10 @@ namespace Steepshot.Core.HttpClient
                 parameters.Add("limit", limit);
         }
 
-        private void AddVotersTypeParameters(Dictionary<string, object> parameters, VotersType? type)
+        private void AddVotersTypeParameters(Dictionary<string, object> parameters, VotersType type)
         {
-            if (type != null)
-                parameters.Add(type == VotersType.Likes ? "Likes" : "Flags", 1);
+            if (type != VotersType.All)
+                parameters.Add(type == VotersType.Likes ? "likes" : "flags", 1);
         }
 
         private void AddLoginParameter(Dictionary<string, object> parameters, string login)

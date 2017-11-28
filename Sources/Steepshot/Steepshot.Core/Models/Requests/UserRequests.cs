@@ -39,7 +39,8 @@ namespace Steepshot.Core.Models.Requests
     public enum VotersType
     {
         Likes,
-        Flags
+        Flags,
+        All
     }
 
     public class UserFriendsRequest : NamedRequestWithOffsetLimitFields
