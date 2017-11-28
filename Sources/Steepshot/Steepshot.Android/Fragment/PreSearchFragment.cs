@@ -506,6 +506,7 @@ namespace Steepshot.Fragment
         {
             var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
 
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
             if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
             {
                 Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
@@ -513,7 +514,6 @@ namespace Steepshot.Fragment
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
                 _spinner.Visibility = ViewStates.Visible;
-                _emptyQueryLabel.Visibility = ViewStates.Invisible;
 
                 LoadPosts(true);
                 return false;
