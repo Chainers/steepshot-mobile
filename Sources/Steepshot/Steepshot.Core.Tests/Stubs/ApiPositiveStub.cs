@@ -235,7 +235,7 @@ namespace Steepshot.Core.Tests.Stubs
             return new OperationResult<ListResponce<Post>> { Result = resp };
         }
 
-        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(InfoRequest request, CancellationToken ct)
+        public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(VotersRequest request, CancellationToken ct)
         {
             var resp = Converter.Deserialize<ListResponce<UserFriend>>(VotersResult1Json);
             var skip = 0;

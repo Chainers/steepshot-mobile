@@ -89,7 +89,7 @@ namespace Steepshot.Core.Tests
             [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
             [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
         {
-            var request = new InfoRequest(url)
+            var request = new VotersRequest(url, VotersType.All)
             {
                 Limit = 40,
                 Offset = string.Empty,
