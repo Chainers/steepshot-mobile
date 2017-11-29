@@ -15,7 +15,7 @@
             public const string EmptyCommentField = "Comment may not be blank!";
             public const string Unknownerror = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
-            public const string EmptyTitleField = "Title cannot be empty";
+            public const string EmptyTitleField = "Title required";
             public const string EmptyPhotoField = "Photo cannot be empty";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
@@ -49,12 +49,13 @@
 
         public class Messages
         {
-            public const string PostFirstComment = "Post first comment";
+            public const string PostFirstComment = "Post your first comment";
             public const string PostComments = "Post comments";
             public const string RapidPosting = "You post so fast. Try it later";
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";
-            public const string Likes = "like's";
+            public const string Likes = "likes";
+            public const string Flags = "flags";
             public const string Follow = "Follow";
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
@@ -62,6 +63,7 @@
             public const string TryAgain = "Try again";
             public const string Forget = "Forget";
             public const string Voters = "Likes";
+            public const string FlagVoters = "Flags";
             public const string ViewComments = "View {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";

@@ -195,7 +195,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                var intent = new Intent(this, typeof(PreSignInActivity));
+                var intent = new Intent(this, typeof(WelcomeActivity));
                 StartActivity(intent);
             }
         }
@@ -212,7 +212,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                var intent = new Intent(this, typeof(PreSignInActivity));
+                var intent = new Intent(this, typeof(WelcomeActivity));
                 StartActivity(intent);
             }
         }

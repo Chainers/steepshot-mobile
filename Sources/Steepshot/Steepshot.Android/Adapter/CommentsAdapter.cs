@@ -109,6 +109,7 @@ namespace Steepshot.Adapter
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _reply.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Gone;
         }
 
         private void DoMoreAction(object sender, EventArgs e)

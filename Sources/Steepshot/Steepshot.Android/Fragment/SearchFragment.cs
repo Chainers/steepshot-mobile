@@ -50,7 +50,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
-
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -102,6 +101,7 @@ namespace Steepshot.Fragment
 
             _emptyQueryLabel.Typeface = Style.Light;
             _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
         }
 
         public override void OnDetach()
@@ -241,23 +241,25 @@ namespace Steepshot.Fragment
 
             if (isLoaderNeeded)
             {
+                _emptyQueryLabel.Visibility = ViewStates.Invisible;
                 if (_searchType == SearchType.People)
                     _peopleSpinner.Visibility = ViewStates.Visible;
                 else
                     _tagSpinner.Visibility = ViewStates.Visible;
-                _emptyQueryLabel.Visibility = ViewStates.Invisible;
             }
 
             var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
-
             CheckQueryIsEmpty();
             Context.ShowAlert(errors, ToastLength.Short);
         }
 
         private void CheckQueryIsEmpty()
         {
+            if (string.IsNullOrEmpty(_searchView.Text))
+                return;
+
             if (_searchType == SearchType.People)
                 _emptyQueryLabel.Visibility =
                     Presenter.UserFriendPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;

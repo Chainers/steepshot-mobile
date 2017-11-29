@@ -16,7 +16,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Fragment
 {
@@ -84,9 +84,9 @@ namespace Steepshot.Fragment
             }
         }
 
-        public override bool CustomUserVisibleHint
+        public override bool UserVisibleHint
         {
-            get => base.CustomUserVisibleHint;
+            get => base.UserVisibleHint;
             set
             {
                 if (value)
@@ -104,7 +104,7 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                     }
                 }
-                UserVisibleHint = value;
+                base.UserVisibleHint = value;
             }
         }
 
@@ -133,7 +133,8 @@ namespace Steepshot.Fragment
         public override void OnResume()
         {
             base.OnResume();
-            UpdateProfile();
+            if (UserVisibleHint)
+                UpdateProfile();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -158,7 +159,7 @@ namespace Steepshot.Fragment
 
             _login.Typeface = Style.Semibold;
             _firstPostButton.Typeface = Style.Semibold;
-                
+
             _scrollListner = new ScrollListener();
             _scrollListner.ScrolledToBottom += GetUserPosts;
 
@@ -325,11 +326,19 @@ namespace Steepshot.Fragment
 
         private async void OnFollowClick()
         {
-            var errors = await Presenter.TryFollow();
-            if (!IsInitialized)
-                return;
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFollow();
+                if (!IsInitialized)
+                    return;
 
-            Context.ShowAlert(errors, ToastLength.Long);
+                Context.ShowAlert(errors, ToastLength.Long);
+            }
+            else
+            {
+                var intent = new Intent(Activity, typeof(WelcomeActivity));
+                StartActivity(intent);
+            }
         }
 
         private void OnPhotoClick(Post post)
@@ -377,12 +386,14 @@ namespace Steepshot.Fragment
             StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
-        private void VotersAction(Post post)
+        private void VotersAction(Post post, VotersType type)
         {
             if (post == null)
                 return;
-
+            var isLikers = type == VotersType.Likes;
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
@@ -431,7 +442,7 @@ namespace Steepshot.Fragment
             if (tag != null)
             {
                 Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((RootActivity)Activity).SelectTab(1);
+                ((IClearable)Activity).SelectTabWithClearing(1);
             }
             else
                 _postsList.GetAdapter()?.NotifyDataSetChanged();
