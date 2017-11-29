@@ -33,8 +33,8 @@ namespace Steepshot.Fragment
 
             if (_fragment != null && _fragment.UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
             {
-                ChildFragmentManager.PopBackStack();
                 _isPopped = true;
+                ChildFragmentManager.PopBackStack();
                 return true;
             }
 

@@ -506,19 +506,21 @@ namespace Steepshot.Fragment
 
         private bool SearchByTag(string tag = null)
         {
-            var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
-
-            _emptyQueryLabel.Visibility = ViewStates.Invisible;
-            if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
+            if (IsInitialized)
             {
-                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
-                _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
-                _searchView.SetTextColor(Style.R15G24B30);
-                _clearButton.Visibility = ViewStates.Visible;
-                _spinner.Visibility = ViewStates.Visible;
+                var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
+                _emptyQueryLabel.Visibility = ViewStates.Invisible;
+                if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
+                {
+                    Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
+                    _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
+                    _searchView.SetTextColor(Style.R15G24B30);
+                    _clearButton.Visibility = ViewStates.Visible;
+                    _spinner.Visibility = ViewStates.Visible;
 
-                LoadPosts(true);
-                return false;
+                    LoadPosts(true);
+                    return false;
+                }
             }
             return true;
         }

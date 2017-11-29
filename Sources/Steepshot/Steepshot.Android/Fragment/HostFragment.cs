@@ -66,6 +66,7 @@ namespace Steepshot.Fragment
 
         public void Clear()
         {
+            _isPopped = true;
             ChildFragmentManager.PopBackStackImmediate(_firstFragmentId, (int)PopBackStackFlags.Inclusive);
         } 
     }
