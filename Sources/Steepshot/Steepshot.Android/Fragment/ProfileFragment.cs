@@ -17,7 +17,6 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -327,11 +326,19 @@ namespace Steepshot.Fragment
 
         private async void OnFollowClick()
         {
-            var errors = await Presenter.TryFollow();
-            if (!IsInitialized)
-                return;
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFollow();
+                if (!IsInitialized)
+                    return;
 
-            Context.ShowAlert(errors, ToastLength.Long);
+                Context.ShowAlert(errors, ToastLength.Long);
+            }
+            else
+            {
+                var intent = new Intent(Activity, typeof(WelcomeActivity));
+                StartActivity(intent);
+            }
         }
 
         private void OnPhotoClick(Post post)
