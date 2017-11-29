@@ -168,6 +168,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_presearch, null);
                 Cheeseknife.Inject(this, InflatedView);
             }
+            ToggleTabBar();
             return InflatedView;
         }
 
@@ -230,14 +231,13 @@ namespace Steepshot.Fragment
                 _isNeedToLoadPosts = false;
                 LoadPosts(true);
             }
-        }
 
-        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
+            var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
+            if (!string.IsNullOrWhiteSpace(postUrl))
             {
-                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
-                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
+                var count = Activity.Intent.GetIntExtra(CommentsFragment.CountString, 0);
+                Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
+                Activity.Intent.RemoveExtra(CommentsFragment.CountString);
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
@@ -425,9 +425,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode);
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url));
         }
 
         private void VotersAction(Post post, VotersType type)

@@ -17,6 +17,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Interfaces;
 
 namespace Steepshot.Fragment
 {
@@ -144,61 +145,61 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_fragment_profile, null);
                 Cheeseknife.Inject(this, InflatedView);
             }
+            ToggleTabBar();
             return InflatedView;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            if (IsInitialized)
-                return;
-
-            base.OnViewCreated(view, savedInstanceState);
-
-            Presenter.UserName = _profileId;
-            Presenter.SourceChanged += PresenterSourceChanged;
-
-            _login.Typeface = Style.Semibold;
-            _firstPostButton.Typeface = Style.Semibold;
-
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += GetUserPosts;
-
-            _linearLayoutManager = new LinearLayoutManager(Context);
-            _gridLayoutManager = new GridLayoutManager(Context, 3);
-            _profileSpanSizeLookup = new ProfileSpanSizeLookup();
-            _gridLayoutManager.SetSpanSizeLookup(_profileSpanSizeLookup);
-
-            _gridItemDecoration = new GridItemDecoration(true);
-            _postsList.SetLayoutManager(_gridLayoutManager);
-            _postsList.AddItemDecoration(_gridItemDecoration);
-            _postsList.AddOnScrollListener(_scrollListner);
-            _postsList.SetAdapter(ProfileGridAdapter);
-
-            _refresher.Refresh += RefresherRefresh;
-            _settings.Click += OnSettingsClick;
-            _login.Click += OnLoginClick;
-            _backButton.Click += GoBackClick;
-            _switcher.Click += OnSwitcherClick;
-            _firstPostButton.Click += OnFirstPostButtonClick;
-
-            _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
-
-            if (_profileId != BasePresenter.User.Login)
+            if (!IsInitialized)
             {
-                _settings.Visibility = ViewStates.Gone;
-                _backButton.Visibility = ViewStates.Visible;
-                _login.Text = _profileId;
-                LoadProfile();
-                GetUserPosts();
+                base.OnViewCreated(view, savedInstanceState);
+
+                Presenter.UserName = _profileId;
+                Presenter.SourceChanged += PresenterSourceChanged;
+
+                _login.Typeface = Style.Semibold;
+                _firstPostButton.Typeface = Style.Semibold;
+
+                _scrollListner = new ScrollListener();
+                _scrollListner.ScrolledToBottom += GetUserPosts;
+
+                _linearLayoutManager = new LinearLayoutManager(Context);
+                _gridLayoutManager = new GridLayoutManager(Context, 3);
+                _profileSpanSizeLookup = new ProfileSpanSizeLookup();
+                _gridLayoutManager.SetSpanSizeLookup(_profileSpanSizeLookup);
+
+                _gridItemDecoration = new GridItemDecoration(true);
+                _postsList.SetLayoutManager(_gridLayoutManager);
+                _postsList.AddItemDecoration(_gridItemDecoration);
+                _postsList.AddOnScrollListener(_scrollListner);
+                _postsList.SetAdapter(ProfileGridAdapter);
+
+                _refresher.Refresh += RefresherRefresh;
+                _settings.Click += OnSettingsClick;
+                _login.Click += OnLoginClick;
+                _backButton.Click += GoBackClick;
+                _switcher.Click += OnSwitcherClick;
+                _firstPostButton.Click += OnFirstPostButtonClick;
+
+                _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
+
+                if (_profileId != BasePresenter.User.Login)
+                {
+                    _settings.Visibility = ViewStates.Gone;
+                    _backButton.Visibility = ViewStates.Visible;
+                    _login.Text = _profileId;
+                    LoadProfile();
+                    GetUserPosts();
+                }
             }
-        }
 
-        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
+            var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
+            if (!string.IsNullOrWhiteSpace(postUrl))
             {
-                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
-                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
+                var count = Activity.Intent.GetIntExtra(CommentsFragment.CountString, 0);
+                Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
+                Activity.Intent.RemoveExtra(CommentsFragment.CountString);
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
                 post.Children += count;
                 _postsList.GetAdapter()?.NotifyDataSetChanged();
@@ -381,9 +382,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode);
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url));
         }
 
         private void VotersAction(Post post, VotersType type)

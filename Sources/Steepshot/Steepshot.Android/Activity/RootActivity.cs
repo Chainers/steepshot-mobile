@@ -8,6 +8,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
+using Steepshot.Interfaces;
 using Steepshot.Utils;
 
 namespace Steepshot.Activity
@@ -20,7 +21,7 @@ namespace Steepshot.Activity
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
-        [InjectView(Resource.Id.tab_layout)] private TabLayout _tabLayout;
+        [InjectView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
 #pragma warning restore 0649
 
 
