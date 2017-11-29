@@ -46,55 +46,55 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_feed, null);
                 Cheeseknife.Inject(this, InflatedView);
             }
+            ToggleTabBar();
             return InflatedView;
-        }
-
-        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            if (resultCode == -1 && requestCode == CommentsActivity.RequestCode)
-            {
-                var postUrl = data.GetStringExtra(CommentsActivity.ResultString);
-                var count = data.GetIntExtra(CommentsActivity.CountString, 0);
-                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
-                post.Children += count;
-                _adapter.NotifyDataSetChanged();
-            }
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            if (IsInitialized)
-                return;
+            if (!IsInitialized)
+            {
+                base.OnViewCreated(view, savedInstanceState);
 
-            base.OnViewCreated(view, savedInstanceState);
+                Presenter.SourceChanged += PresenterSourceChanged;
+                _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
+                _adapter.LikeAction += LikeAction;
+                _adapter.UserAction += UserAction;
+                _adapter.CommentAction += CommentAction;
+                _adapter.VotersClick += VotersAction;
+                _adapter.PhotoClick += PhotoClick;
+                _adapter.FlagAction += FlagAction;
+                _adapter.HideAction += HideAction;
+                _adapter.TagAction += TagAction;
+                _logo.Click += OnLogoClick;
+                _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
-            Presenter.SourceChanged += PresenterSourceChanged;
-            _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
-            _adapter.LikeAction += LikeAction;
-            _adapter.UserAction += UserAction;
-            _adapter.CommentAction += CommentAction;
-            _adapter.VotersClick += VotersAction;
-            _adapter.PhotoClick += PhotoClick;
-            _adapter.FlagAction += FlagAction;
-            _adapter.HideAction += HideAction;
-            _adapter.TagAction += TagAction;
-            _logo.Click += OnLogoClick;
-            _toolbar.OffsetChanged += OnToolbarOffsetChanged;
+                _scrollListner = new ScrollListener();
+                _scrollListner.ScrolledToBottom += LoadPosts;
 
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += LoadPosts;
+                _refresher.Refresh += OnRefresh;
 
-            _refresher.Refresh += OnRefresh;
-
-            _feedList.SetAdapter(_adapter);
-            _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-            _feedList.AddOnScrollListener(_scrollListner);
+                _feedList.SetAdapter(_adapter);
+                _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+                _feedList.AddOnScrollListener(_scrollListner);
 
 
-            _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+                _emptyQueryLabel.Typeface = Style.Light;
+                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
 
-            LoadPosts();
+                LoadPosts();
+            }
+
+            var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
+            if (!string.IsNullOrWhiteSpace(postUrl))
+            {
+                var count = Activity.Intent.GetIntExtra(CommentsFragment.CountString, 0);
+                Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
+                Activity.Intent.RemoveExtra(CommentsFragment.CountString);
+                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
+                post.Children += count;
+                _adapter.NotifyDataSetChanged();
+            }
         }
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
@@ -160,10 +160,8 @@ namespace Steepshot.Fragment
         {
             if (post == null)
                 return;
-
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra(CommentsActivity.PostExtraPath, post.Url);
-            StartActivityForResult(intent, CommentsActivity.RequestCode);
+            
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url));
         }
 
         private void VotersAction(Post post, VotersType type)

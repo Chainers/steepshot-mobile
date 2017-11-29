@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
+using Android.Views;
 using Android.Views.InputMethods;
 using Autofac;
 using Square.Picasso;
@@ -81,10 +82,16 @@ namespace Steepshot.Base
             base.OnTrimMemory(level);
         }
 
-        protected void HideKeyboard()
+        public void HideKeyboard()
         {
             var imm = GetSystemService(InputMethodService) as InputMethodManager;
             imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+        }
+
+        public void OpenKeyboard(View view)
+        {
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.ShowSoftInput(view, ShowFlags.Implicit);
         }
 
         protected void MinimizeApp()

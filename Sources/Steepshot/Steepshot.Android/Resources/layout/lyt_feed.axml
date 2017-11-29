@@ -22,14 +22,14 @@
                     android:layout_width="match_parent"
                     android:background="@android:color/white"
                     android:layout_height="50dp"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp">
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
                     <ImageView
                         android:id="@+id/logo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_logo_small"
-                        android:layout_marginLeft="15dp"
+                        android:layout_marginLeft="5dp"
                         android:layout_centerVertical="true" />
                 </RelativeLayout>
             </android.support.design.widget.CollapsingToolbarLayout>
