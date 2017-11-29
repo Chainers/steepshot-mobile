@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
+using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -42,7 +44,7 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
 
-        public abstract string GetVerifyTransaction(UploadImageRequest request, CancellationToken ct);
+        public abstract OperationResult<string> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct);
 
 
         public abstract bool TryReconnectChain(CancellationToken token);
@@ -187,6 +189,17 @@ namespace Steepshot.Core.HttpClient
                     operationResult.Errors.Add(response.GetErrorMessage());
                 }
             }
+        }
+
+
+        protected static JsonSerializerSettings GetJsonSerializerSettings()
+        {
+            var rez = new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK",
+                Culture = CultureInfo.InvariantCulture
+            };
+            return rez;
         }
     }
 }

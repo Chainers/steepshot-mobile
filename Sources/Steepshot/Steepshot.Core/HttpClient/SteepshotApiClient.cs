@@ -111,7 +111,12 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
         {
-            request.VerifyTransaction = _ditchClient.GetVerifyTransaction(request, ct);
+            var responce = _ditchClient.GetVerifyTransaction(request, ct);
+
+            if (!responce.Success)
+                return new OperationResult<UploadResponse>(responce.Errors);
+
+            request.VerifyTransaction = responce.Result;
             return await _serverServerClient.UploadWithPrepare(request, ct);
         }
 
