@@ -14,6 +14,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using DitchFollowType = Ditch.Golos.Operations.Enums.FollowType;
 using DitchBeneficiary = Ditch.Golos.Operations.Post.Beneficiary;
+using Ditch.Core;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -25,7 +26,10 @@ namespace Steepshot.Core.HttpClient
 
         public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
-            _operationManager = new OperationManager();
+            var jss = GetJsonSerializerSettings();
+            //var cm = new HttpManager(jss);
+            var cm = new WebSocketManager(jss);
+            _operationManager = new OperationManager(cm, jss);
         }
 
         public override bool TryReconnectChain(CancellationToken token)
@@ -39,6 +43,7 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
+                    //var cUrls = new List<string> { "https://public-ws.golos.io" };
                     var cUrls = new List<string> { "wss://ws.golos.io" };
                     var conectedTo = _operationManager.TryConnectTo(cUrls, token);
                     if (!string.IsNullOrEmpty(conectedTo))
@@ -286,16 +291,20 @@ namespace Steepshot.Core.HttpClient
 
         #region Get
 
-        public override string GetVerifyTransaction(UploadImageRequest request, CancellationToken ct)
+        public override OperationResult<string> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct)
         {
+            if (!TryReconnectChain(ct))
+                return new OperationResult<string>(Localization.Errors.EnableConnectToBlockchain);
+
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
-                return string.Empty;
+                return new OperationResult<string>(Localization.Errors.WrongPrivateKey);
+
 
             var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
             var properties = new DynamicGlobalPropertyObject { HeadBlockId = Hex.ToString(_operationManager.ChainId), Time = DateTime.Now, HeadBlockNumber = 0 };
             var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
-            return JsonConverter.Serialize(tr);
+            return new OperationResult<string>() { Result = JsonConverter.Serialize(tr) };
         }
 
         #endregion
