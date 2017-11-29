@@ -1,9 +1,11 @@
 using System;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -115,11 +117,19 @@ namespace Steepshot.Fragment
         {
             if (userFriend == null)
                 return;
-            var errors = await Presenter.TryFollow(userFriend);
-            if (!IsInitialized)
-                return;
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFollow(userFriend);
+                if (!IsInitialized)
+                    return;
 
-            Context.ShowAlert(errors, ToastLength.Long);
+                Context.ShowAlert(errors, ToastLength.Long);
+            }
+            else
+            {
+                var intent = new Intent(Activity, typeof(WelcomeActivity));
+                StartActivity(intent);
+            }
         }
 
         private async void LoadItems()
