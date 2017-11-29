@@ -16,7 +16,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -84,9 +83,9 @@ namespace Steepshot.Fragment
             }
         }
 
-        public override bool CustomUserVisibleHint
+        public override bool UserVisibleHint
         {
-            get => base.CustomUserVisibleHint;
+            get => base.UserVisibleHint;
             set
             {
                 if (value)
@@ -104,7 +103,7 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                     }
                 }
-                UserVisibleHint = value;
+                base.UserVisibleHint = value;
             }
         }
 
@@ -133,7 +132,8 @@ namespace Steepshot.Fragment
         public override void OnResume()
         {
             base.OnResume();
-            UpdateProfile();
+            if (UserVisibleHint)
+                UpdateProfile();
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -431,7 +431,7 @@ namespace Steepshot.Fragment
             if (tag != null)
             {
                 Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((RootActivity)Activity).SelectTabWithClearing(1);
+                ((IClearable)Activity).SelectTabWithClearing(1);
             }
             else
                 _postsList.GetAdapter()?.NotifyDataSetChanged();

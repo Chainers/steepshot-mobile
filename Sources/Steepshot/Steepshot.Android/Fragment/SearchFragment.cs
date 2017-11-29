@@ -50,7 +50,6 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
-
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
