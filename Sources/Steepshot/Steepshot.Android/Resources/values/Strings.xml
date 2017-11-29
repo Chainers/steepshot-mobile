@@ -18,7 +18,7 @@
   <string name = "Trending">Trending</string>
   <string name = "view_n_comments">See all {0} comments</string>
   <string name = "title_comment"><b>{0}</b> {1}</string>
-  <string name = "first_title_comment">Post first comment</string>
+  <string name = "first_title_comment">Post your first comment</string>
   <string name = "time_hours">{0} hours</string>
   <string name = "time_mins">{0} minutes</string>
   <string name = "time_days">{0} days</string>

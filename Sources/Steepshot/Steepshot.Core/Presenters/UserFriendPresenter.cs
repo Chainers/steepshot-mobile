@@ -12,6 +12,7 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
         public FriendsType? FollowType { get; set; }
+        public VotersType? VotersType { get; set; }
 
         public UserFriend FirstOrDefault(Func<UserFriend, bool> func)
         {
@@ -35,7 +36,10 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNextPostVoters(CancellationToken ct, string url)
         {
-            var request = new InfoRequest(url)
+            if (!VotersType.HasValue)
+                return null;
+
+            var request = new VotersRequest(url, VotersType.Value)
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit,
