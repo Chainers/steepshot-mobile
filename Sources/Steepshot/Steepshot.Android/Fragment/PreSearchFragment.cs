@@ -296,14 +296,14 @@ namespace Steepshot.Fragment
                 _searchList.ScrollToPosition(0);
                 if (_searchList.GetLayoutManager() is GridLayoutManager)
                 {
-                    _switcher.SetImageResource(Resource.Drawable.grid);
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid);
                     _searchList.SetLayoutManager(_linearLayoutManager);
                     _searchList.RemoveItemDecoration(_gridItemDecoration);
                     _adapter = ProfileFeedAdapter;
                 }
                 else
                 {
-                    _switcher.SetImageResource(Resource.Drawable.grid_active);
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
                     _searchList.SetLayoutManager(_gridLayoutManager);
                     _searchList.AddItemDecoration(_gridItemDecoration);
                     _adapter = ProfileGridAdapter;

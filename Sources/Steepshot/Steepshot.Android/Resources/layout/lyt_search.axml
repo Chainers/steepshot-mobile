@@ -16,7 +16,7 @@
             android:id="@+id/search_small"
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:src="@drawable/search_small"
+            android:src="@drawable/ic_search_small"
             android:layout_centerVertical="true"
             android:layout_marginTop="19dp"
             android:layout_marginRight="8dp" />
@@ -31,7 +31,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginBottom="15dp"
             android:background="@android:color/transparent"
-            android:textCursorDrawable="@drawable/input"
+            android:textCursorDrawable="@drawable/ic_input"
             android:layout_toRightOf="@id/search_small"
             android:layout_toLeftOf="@id/clear_button" />
         <Button

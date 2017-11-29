@@ -14,7 +14,7 @@ using Android.Runtime;
 namespace Steepshot.Activity
 {
     [Activity(Label = Constants.Steepshot, MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
-    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@mipmap/launch_icon", DataMimeType = "image/*")]
+    [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@mipmap/ic_launch_icon", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)

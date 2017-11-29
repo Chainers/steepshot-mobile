@@ -9,17 +9,17 @@ namespace Steepshot.Adapter
     public class PagerAdapter : FragmentStatePagerAdapter
     {
         public readonly int[] TabIconsInactive = {
-            Resource.Drawable.home,
-            Resource.Drawable.search,
-            Resource.Drawable.create,
-            Resource.Drawable.profile
+            Resource.Drawable.ic_home,
+            Resource.Drawable.ic_browse,
+            Resource.Drawable.ic_create,
+            Resource.Drawable.ic_profile
         };
 
         public readonly int[] TabIconsActive = {
-            Resource.Drawable.home_active,
-            Resource.Drawable.search_active,
-            Resource.Drawable.create_active,
-            Resource.Drawable.profile_active
+            Resource.Drawable.ic_home_active,
+            Resource.Drawable.ic_browse_active,
+            Resource.Drawable.ic_create_active,
+            Resource.Drawable.ic_profile_active
         };
 
         private readonly List<HostFragment> _tabs;
