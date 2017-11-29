@@ -13,7 +13,7 @@ namespace Steepshot.Core.Tests.HttpClient
             [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
         {
             var count = 40;
-            var request = new InfoRequest(url)
+            var request = new VotersRequest(url, VotersType.All)
             {
                 Limit = count,
                 Offset = string.Empty,
@@ -34,7 +34,7 @@ namespace Steepshot.Core.Tests.HttpClient
             try
             {
                 var count = 40;
-                var request = new InfoRequest(url)
+                var request = new VotersRequest(url, VotersType.All)
                 {
                     Limit = count,
                     Offset = string.Empty
