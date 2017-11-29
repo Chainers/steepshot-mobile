@@ -98,7 +98,7 @@ namespace Steepshot.Adapter
         private readonly TextView _likes;
         private readonly TextView _flags;
         private readonly TextView _cost;
-        private readonly ImageButton _like;
+        private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _more;
         private readonly LinearLayout _commentFooter;
         private readonly Animation _likeSetAnimation;
@@ -134,7 +134,7 @@ namespace Steepshot.Adapter
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-            _like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
 
@@ -166,7 +166,7 @@ namespace Steepshot.Adapter
             _hideAction = hideAction;
             _tagAction = tagAction;
 
-            _like.Click += DoLikeAction;
+            _likeOrFlag.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
@@ -206,6 +206,7 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
+                flag.Text = _post.Flag ? Localization.Texts.UnFlag : Localization.Texts.Flag;
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 var share = dialogView.FindViewById<Button>(Resource.Id.share);
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
@@ -261,12 +262,12 @@ namespace Steepshot.Adapter
 
         private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
         {
-            _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+            _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
         }
 
         private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
         {
-            _like.StartAnimation(_likeWaitAnimation);
+            _likeOrFlag.StartAnimation(_likeWaitAnimation);
         }
 
         private void DoUserAction(object sender, EventArgs e)
@@ -332,11 +333,31 @@ namespace Steepshot.Adapter
                 ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
                 : context.GetString(Resource.String.first_title_comment);
 
-            _like.ClearAnimation();
-            if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
-                _like.StartAnimation(_likeSetAnimation);
+            _likeOrFlag.ClearAnimation();
+            if (!BasePostPresenter.IsEnableVote)
+            {
+                if (post.VoteChanging)
+                    _likeOrFlag.StartAnimation(_likeSetAnimation);
+                else if (post.FlagChanging)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+            }
             else
-                _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            {
+                if (post.Vote || !post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_filled
+                        : Resource.Drawable.ic_new_like_selected);
+                    _likeOrFlag.Click -= DoFlagAction;
+                    _likeOrFlag.Click += DoLikeAction;
+                }
+                else
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+                    _likeOrFlag.Click -= DoLikeAction;
+                    _likeOrFlag.Click += DoFlagAction;
+                }
+            }
         }
 
         private void UpdateText()
