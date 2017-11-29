@@ -20,7 +20,7 @@ namespace Steepshot.Core.Presenters
         private static readonly CultureInfo CultureInfo;
         protected static readonly ISteepshotApiClient Api;
 
-        private static readonly object ctsSync = new object();
+        private static readonly object CtsSync = new object();
         private static CancellationTokenSource _reconecTokenSource;
         private static IConnectionService _connectionService;
 
@@ -55,6 +55,7 @@ namespace Steepshot.Core.Presenters
 
             var ts = GetReconectToken();
             Api.InitConnector(Chain, AppSettings.IsDev, ts);
+            TryRunTask(TryСonect, ts);
             // static constructor initialization.
             Task.Run(() =>
             {
@@ -67,6 +68,26 @@ namespace Steepshot.Core.Presenters
             OnDisposeCts = new CancellationTokenSource();
         }
 
+
+        private static async Task<List<string>> TryСonect(CancellationToken token)
+        {
+            do
+            {
+                token.ThrowIfCancellationRequested();
+                
+                var isConnected = Api.TryReconnectChain(token);
+                if (!isConnected)
+                    OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                else
+                    return null;
+
+                await Task.Delay(5000, token);
+
+            } while (true);
+        }
+
+
+
         public static async Task SwitchChain(bool isDev)
         {
             if (AppSettings.IsDev == isDev)
@@ -77,6 +98,7 @@ namespace Steepshot.Core.Presenters
             var ts = GetReconectToken();
 
             Api.InitConnector(Chain, isDev, ts);
+            await TryRunTask(TryСonect, ts);
         }
 
         public static async Task SwitchChain(UserInfo userInfo)
@@ -90,6 +112,7 @@ namespace Steepshot.Core.Presenters
 
             var ts = GetReconectToken();
             Api.InitConnector(userInfo.Chain, AppSettings.IsDev, ts);
+            await TryRunTask(TryСonect, ts);
         }
 
         public static async Task SwitchChain(KnownChains chain)
@@ -101,6 +124,7 @@ namespace Steepshot.Core.Presenters
 
             var ts = GetReconectToken();
             Api.InitConnector(chain, AppSettings.IsDev, ts);
+            await TryRunTask(TryСonect, ts);
         }
 
         public static string ToFormatedCurrencyString(Money value, string postfix = null)
@@ -115,7 +139,7 @@ namespace Steepshot.Core.Presenters
         private static CancellationToken GetReconectToken()
         {
             CancellationToken ts;
-            lock (ctsSync)
+            lock (CtsSync)
             {
                 if (_reconecTokenSource != null && !_reconecTokenSource.IsCancellationRequested)
                 {
