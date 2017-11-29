@@ -19,6 +19,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Adapter
 {
@@ -26,7 +27,8 @@ namespace Steepshot.Adapter
     {
         protected readonly T Presenter;
         protected readonly Context Context;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
 
         public override int ItemCount
@@ -83,7 +85,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _userAction;
         private readonly Action<Post> _commentAction;
         private readonly Action<Post> _photoAction;
-        private readonly Action<Post> _votersAction;
+        private readonly Action<Post, VotersType> _votersAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
         private readonly Action<string> _tagAction;
@@ -94,6 +96,7 @@ namespace Steepshot.Adapter
         private readonly TextView _commentSubtitle;
         private readonly TextView _time;
         private readonly TextView _likes;
+        private readonly TextView _flags;
         private readonly TextView _cost;
         private readonly ImageButton _like;
         private readonly ImageButton _more;
@@ -114,7 +117,7 @@ namespace Steepshot.Adapter
         private const string tagToExclude = "steepshot";
         private const int _maxLines = 3;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
@@ -129,6 +132,7 @@ namespace Steepshot.Adapter
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+            _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
@@ -137,6 +141,7 @@ namespace Steepshot.Adapter
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
             _likes.Typeface = Style.Semibold;
+            _flags.Typeface = Style.Semibold;
             _cost.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
@@ -166,7 +171,8 @@ namespace Steepshot.Adapter
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
             _commentSubtitle.Click += DoCommentAction;
-            _likes.Click += DoVotersAction;
+            _likes.Click += DoLikersAction;
+            _flags.Click += DoFlagersAction;
             _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
@@ -273,9 +279,14 @@ namespace Steepshot.Adapter
             _commentAction?.Invoke(_post);
         }
 
-        private void DoVotersAction(object sender, EventArgs e)
+        private void DoLikersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post);
+            _votersAction?.Invoke(_post, VotersType.Likes);
+        }
+
+        private void DoFlagersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(_post, VotersType.Flags);
         }
 
         private void DoPhotoAction(object sender, EventArgs e)
@@ -294,7 +305,8 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
-            _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
+            _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;

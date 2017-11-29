@@ -84,6 +84,18 @@
             android:gravity="center"
             android:paddingLeft="15dp"
             android:paddingRight="15dp" />
+        <TextView
+            android:id="@+id/flags"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:text="789 flags"
+            android:textSize="14sp"
+            android:textColor="@color/rgb15_24_30"
+            android:gravity="center"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:layout_toRightOf="@id/likes" />
         <ImageButton
             android:id="@+id/btn_like"
             android:background="@android:color/transparent"

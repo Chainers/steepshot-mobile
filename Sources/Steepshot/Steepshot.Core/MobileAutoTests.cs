@@ -391,7 +391,7 @@ namespace Steepshot.Core
             if (testPost == null)
                 return;
 
-            var request = new InfoRequest(testPost.Url) { Limit = limit, Login = _user.Login };
+            var request = new VotersRequest(testPost.Url, VotersType.All) { Limit = limit, Login = _user.Login };
             var response = _api.GetPostVoters(request, CancellationToken.None).Result;
 
             if (IsError1(sb, limit, response, response.Result.Results.Count))

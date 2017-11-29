@@ -125,6 +125,7 @@
     <Compile Include="Utils\SpanSizeLookups.cs" />
     <Compile Include="Utils\CustomClickableSpan.cs" />
     <Compile Include="Utils\CustomTextView.cs" />
+    <Compile Include="Activity\IClearable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

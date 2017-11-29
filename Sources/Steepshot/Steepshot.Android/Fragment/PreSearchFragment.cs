@@ -114,9 +114,12 @@ namespace Steepshot.Fragment
             }
         }
 
-        public override bool CustomUserVisibleHint
+        public override bool UserVisibleHint
         {
-            get => base.CustomUserVisibleHint;
+            get
+            {
+                return base.UserVisibleHint;
+            }
             set
             {
                 if (value)
@@ -131,7 +134,7 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                     }
                 }
-                UserVisibleHint = value;
+                base.UserVisibleHint = value;
             }
         }
 
@@ -157,7 +160,6 @@ namespace Steepshot.Fragment
         {
             _isGuest = isGuest;
         }
-
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -223,7 +225,7 @@ namespace Steepshot.Fragment
             }
 
             var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null && (_isGuest || _isNeedToLoadPosts))
+            if (shouldLoadPosts && savedInstanceState == null &&  _isNeedToLoadPosts)
             {
                 _isNeedToLoadPosts = false;
                 LoadPosts(true);
@@ -428,13 +430,14 @@ namespace Steepshot.Fragment
             StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
-        private void VotersAction(Post post)
+        private void VotersAction(Post post, VotersType type)
         {
             if (post == null)
                 return;
-
+            var isLikers = type == VotersType.Likes;
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
-            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
@@ -503,19 +506,21 @@ namespace Steepshot.Fragment
 
         private bool SearchByTag(string tag = null)
         {
-            var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
-
-            if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
+            if (IsInitialized)
             {
-                Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
-                _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
-                _searchView.SetTextColor(Style.R15G24B30);
-                _clearButton.Visibility = ViewStates.Visible;
-                _spinner.Visibility = ViewStates.Visible;
+                var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
                 _emptyQueryLabel.Visibility = ViewStates.Invisible;
+                if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
+                {
+                    Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
+                    _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
+                    _searchView.SetTextColor(Style.R15G24B30);
+                    _clearButton.Visibility = ViewStates.Visible;
+                    _spinner.Visibility = ViewStates.Visible;
 
-                LoadPosts(true);
-                return false;
+                    LoadPosts(true);
+                    return false;
+                }
             }
             return true;
         }

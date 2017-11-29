@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Utils;
+﻿using System;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Base
 {
@@ -17,12 +18,6 @@ namespace Steepshot.Base
         {
             BaseActivity.InitIoC();
             base.OnCreate(savedInstanceState);
-        }
-
-        public virtual bool CustomUserVisibleHint
-        {
-            get;
-            set;
         }
 
         public override void OnDetach()

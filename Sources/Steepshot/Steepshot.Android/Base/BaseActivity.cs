@@ -61,7 +61,7 @@ namespace Steepshot.Base
                 base.OnBackPressed();
         }
 
-        public virtual void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        public virtual void OpenNewContentFragment(BaseFragment frag)
         {
             CurrentHostFragment?.ReplaceFragment(frag, true);
         }
