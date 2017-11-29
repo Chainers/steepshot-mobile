@@ -430,13 +430,14 @@ namespace Steepshot.Fragment
             StartActivityForResult(intent, CommentsActivity.RequestCode);
         }
 
-        private void VotersAction(Post post)
+        private void VotersAction(Post post, VotersType type)
         {
             if (post == null)
                 return;
-
+            var isLikers = type == VotersType.Likes;
             Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
-            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, post.NetVotes);
+            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
@@ -507,6 +508,7 @@ namespace Steepshot.Fragment
         {
             var selectedTag = tag ?? Activity?.Intent?.GetStringExtra(SearchFragment.SearchExtra);
 
+            _emptyQueryLabel.Visibility = ViewStates.Invisible;
             if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
             {
                 Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
@@ -514,7 +516,6 @@ namespace Steepshot.Fragment
                 _searchView.SetTextColor(Style.R15G24B30);
                 _clearButton.Visibility = ViewStates.Visible;
                 _spinner.Visibility = ViewStates.Visible;
-                _emptyQueryLabel.Visibility = ViewStates.Invisible;
 
                 LoadPosts(true);
                 return false;
