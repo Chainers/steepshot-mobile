@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Steepshot.Activity
+namespace Steepshot.Interfaces
 {
     public interface IClearable
     {

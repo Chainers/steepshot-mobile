@@ -64,10 +64,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Activity\PostPreviewActivity.cs" />
-    <Compile Include="Activity\CommentsActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
     <Compile Include="Activity\PostDescriptionActivity.cs" />
-    <Compile Include="Activity\ProfileActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
     <Compile Include="Activity\TestActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
@@ -124,7 +122,8 @@
     <Compile Include="Utils\SpanSizeLookups.cs" />
     <Compile Include="Utils\CustomClickableSpan.cs" />
     <Compile Include="Utils\CustomTextView.cs" />
-    <Compile Include="Activity\IClearable.cs" />
+    <Compile Include="Interfaces\IClearable.cs" />
+    <Compile Include="Fragment\CommentsFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -619,6 +618,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xhdpi\welcome_background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

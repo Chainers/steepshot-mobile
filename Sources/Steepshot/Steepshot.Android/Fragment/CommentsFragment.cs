@@ -1,10 +1,7 @@
-using System;
-using Android.App;
-using Android.Content;
+﻿using System;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Views.InputMethods;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
@@ -14,11 +11,12 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Activity;
+using Android.Content;
 
-namespace Steepshot.Activity
+namespace Steepshot.Fragment
 {
-    [Activity(Label = "CommentsActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class CommentsActivity : BaseActivityWithPresenter<CommentsPresenter>
+    public class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
     {
         public const string PostExtraPath = "uid";
         public const int RequestCode = 124;
@@ -44,12 +42,33 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.message)] private RelativeLayout _messagePanel;
 #pragma warning restore 0649
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        public CommentsFragment()
         {
-            base.OnCreate(savedInstanceState);
 
-            SetContentView(Resource.Layout.lyt_comments);
-            Cheeseknife.Inject(this);
+        }
+
+        public CommentsFragment(string uid)
+        {
+            _uid = uid;
+        }
+
+        public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            if (!IsInitialized)
+            {
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_comments, null);
+                Cheeseknife.Inject(this, InflatedView);
+            }
+            ToggleTabBar(true);
+            return InflatedView;
+        }
+
+        public override void OnViewCreated(View view, Bundle savedInstanceState)
+        {
+            if (IsInitialized)
+                return;
+
+            base.OnViewCreated(view, savedInstanceState);
 
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
@@ -61,11 +80,10 @@ namespace Steepshot.Activity
 
             _post.Click += OnPost;
 
-            _uid = Intent.GetStringExtra(PostExtraPath);
-            _manager = new LinearLayoutManager(this, LinearLayoutManager.Vertical, false);
+            _manager = new LinearLayoutManager(Context, LinearLayoutManager.Vertical, false);
 
             Presenter.SourceChanged += PresenterSourceChanged;
-            _adapter = new CommentAdapter(this, Presenter);
+            _adapter = new CommentAdapter(Context, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
             _adapter.FlagAction += FlagAction;
@@ -82,21 +100,21 @@ namespace Steepshot.Activity
 
         private void PresenterSourceChanged(Status status)
         {
-            if (IsDestroyed || IsFinishing)
+            if (!IsInitialized)
                 return;
 
-            RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
         }
 
-        protected override void OnDestroy()
+        public override void OnDetach()
         {
-            base.OnDestroy();
+            base.OnDetach();
             Cheeseknife.Reset(this);
         }
 
         private void OnBack(object sender, EventArgs e)
         {
-            OnBackPressed();
+            Activity.OnBackPressed();
         }
 
         private async void OnPost(object sender, EventArgs e)
@@ -112,7 +130,7 @@ namespace Steepshot.Activity
 
             var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
 
-            if (IsFinishing || IsDestroyed)
+            if (!IsInitialized)
                 return;
 
             if (resp != null && resp.Success)
@@ -122,21 +140,20 @@ namespace Steepshot.Activity
 
                 var errors = await Presenter.TryLoadNextComments(_uid);
 
-                if (IsFinishing || IsDestroyed)
+                if (!IsInitialized)
                     return;
 
-                this.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(errors, ToastLength.Short);
                 _comments.MoveToPosition(Presenter.Count - 1);
 
                 _counter++;
-                Intent returnIntent = new Intent();
-                returnIntent.PutExtra(ResultString, _uid);
-                returnIntent.PutExtra(CountString, _counter);
-                SetResult(Result.Ok, returnIntent);
+
+                Activity.Intent.PutExtra(ResultString, _uid);
+                Activity.Intent.PutExtra(CountString, _counter);
             }
             else
             {
-                this.ShowAlert(resp, ToastLength.Short);
+                Context.ShowAlert(resp, ToastLength.Short);
             }
 
             _sendSpinner.Visibility = ViewStates.Invisible;
@@ -150,10 +167,10 @@ namespace Steepshot.Activity
 
             var errors = await Presenter.TryLoadNextComments(postUrl);
 
-            if (IsFinishing || IsDestroyed)
+            if (!IsInitialized)
                 return;
 
-            this.ShowAlert(errors, ToastLength.Short);
+            Context.ShowAlert(errors, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
@@ -163,9 +180,8 @@ namespace Steepshot.Activity
             if (post == null)
                 return;
 
-            var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutExtra(ProfileActivity.UserExtraName, post.Author);
-            StartActivity(intent);
+            if (BasePresenter.User.Login != post.Author)
+                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
         }
 
         private void ReplyAction(Post post)
@@ -179,8 +195,7 @@ namespace Steepshot.Activity
             }
 
             _textInput.RequestFocus();
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.ShowSoftInput(_textInput, ShowFlags.Implicit);
+            ((BaseActivity)Activity).OpenKeyboard(_textInput);
         }
 
         private async void LikeAction(Post post)
@@ -189,13 +204,13 @@ namespace Steepshot.Activity
             {
                 var errors = await Presenter.TryVote(post);
 
-                if (IsFinishing || IsDestroyed)
+                if (!IsInitialized)
                     return;
-                this.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(errors, ToastLength.Short);
             }
             else
             {
-                var intent = new Intent(this, typeof(WelcomeActivity));
+                var intent = new Intent(Context, typeof(WelcomeActivity));
                 StartActivity(intent);
             }
         }
@@ -206,13 +221,13 @@ namespace Steepshot.Activity
             {
                 var errors = await Presenter.TryFlag(post);
 
-                if (IsFinishing || IsDestroyed)
+                if (!IsInitialized)
                     return;
-                this.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(errors, ToastLength.Short);
             }
             else
             {
-                var intent = new Intent(this, typeof(WelcomeActivity));
+                var intent = new Intent(Context, typeof(WelcomeActivity));
                 StartActivity(intent);
             }
         }
@@ -220,6 +235,11 @@ namespace Steepshot.Activity
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        protected void HideKeyboard()
+        {
+            ((BaseActivity)Activity).HideKeyboard();
         }
     }
 }
