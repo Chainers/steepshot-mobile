@@ -192,13 +192,13 @@ namespace Steepshot.Adapter
 
             if (!string.IsNullOrEmpty(_post.Avatar))
                 Picasso.With(_context).Load(_post.Avatar)
-                       .Placeholder(Resource.Drawable.holder)
+                       .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Resize(300, 0)
                        .Priority(Picasso.Priority.Normal)
                        .Into(_avatar, OnSuccess, OnError);
             else
-                Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
+                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _like.ClearAnimation();
             if (!BasePostPresenter.IsEnableVote && post.VoteChanging)

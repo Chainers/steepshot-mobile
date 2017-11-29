@@ -312,9 +312,9 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
             else
-                Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
+                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _photo.SetImageResource(0);
             _photoString = post.Photos?.FirstOrDefault();

@@ -127,7 +127,7 @@
                     android:textColor="@color/rgb15_24_30"
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
-                    android:drawableRight="@drawable/forward" />
+                    android:drawableRight="@drawable/ic_forward" />
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

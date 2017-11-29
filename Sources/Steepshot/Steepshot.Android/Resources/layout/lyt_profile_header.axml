@@ -13,7 +13,7 @@
             android:id="@+id/profile_image"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/holder" />
+            android:src="@drawable/ic_holder" />
         <RelativeLayout
             android:id="@+id/follow_container"
             android:layout_width="108dp"
@@ -192,7 +192,7 @@
             android:id="@+id/balance_img"
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:src="@drawable/balance"
+            android:src="@drawable/ic_balance"
             android:layout_centerVertical="true"
             android:layout_marginLeft="30dp" />
         <TextView
@@ -219,7 +219,7 @@
             android:id="@+id/arrow_balance_img"
             android:layout_width="7dp"
             android:layout_height="11dp"
-            android:src="@drawable/forward"
+            android:src="@drawable/ic_forward"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_marginRight="29dp"

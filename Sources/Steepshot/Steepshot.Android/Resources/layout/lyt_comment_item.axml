@@ -9,7 +9,7 @@
         android:id="@+id/avatar"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:src="@drawable/holder" />
+        android:src="@drawable/ic_holder" />
     <TextView
         android:id="@+id/sender_name"
         android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
         android:id="@+id/more"
         android:layout_width="40dp"
         android:layout_height="20dp"
-        android:src="@drawable/more"
+        android:src="@drawable/ic_more"
         android:background="@android:color/transparent"
         android:layout_marginStart="9dp"
         android:gravity="center"		

@@ -282,14 +282,14 @@ namespace Steepshot.Fragment
         {
             if (_postsList.GetLayoutManager() is GridLayoutManager)
             {
-                _switcher.SetImageResource(Resource.Drawable.grid);
+                _switcher.SetImageResource(Resource.Drawable.ic_grid);
                 _postsList.SetLayoutManager(_linearLayoutManager);
                 _postsList.RemoveItemDecoration(_gridItemDecoration);
                 _postsList.SetAdapter(ProfileFeedAdapter);
             }
             else
             {
-                _switcher.SetImageResource(Resource.Drawable.grid_active);
+                _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
                 _postsList.SetLayoutManager(_gridLayoutManager);
                 _postsList.AddItemDecoration(_gridItemDecoration);
                 _postsList.SetAdapter(ProfileGridAdapter);

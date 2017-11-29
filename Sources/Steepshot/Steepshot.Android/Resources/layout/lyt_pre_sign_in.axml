@@ -21,7 +21,7 @@
             android:maxLength="16"
             android:gravity="center"
             android:inputType="textNoSuggestions"
-            android:textCursorDrawable="@drawable/input"
+            android:textCursorDrawable="@drawable/ic_input"
             android:background="@android:color/transparent"
             android:imeOptions="actionDone"
             android:hint="Account name"
