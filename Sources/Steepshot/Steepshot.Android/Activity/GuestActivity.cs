@@ -2,6 +2,7 @@
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
+using Steepshot.Interfaces;
 
 namespace Steepshot.Activity
 {

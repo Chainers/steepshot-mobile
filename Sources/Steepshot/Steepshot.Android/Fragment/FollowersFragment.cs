@@ -46,6 +46,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_followers, null);
                 Cheeseknife.Inject(this, InflatedView);
             }
+            ToggleTabBar();
             return InflatedView;
         }
 

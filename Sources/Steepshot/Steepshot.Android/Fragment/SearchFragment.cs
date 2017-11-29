@@ -17,6 +17,8 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Android.Support.Design.Widget;
+using Steepshot.Activity;
 
 namespace Steepshot.Fragment
 {
@@ -57,6 +59,7 @@ namespace Steepshot.Fragment
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_search, null);
                 Cheeseknife.Inject(this, InflatedView);
             }
+            ToggleTabBar();
             return InflatedView;
         }
 
