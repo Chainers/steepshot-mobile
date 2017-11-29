@@ -13,7 +13,7 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
-    public sealed class RootActivity : BaseActivity
+    public sealed class RootActivity : BaseActivity, IClearable
     {
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
@@ -50,8 +50,6 @@ namespace Steepshot.Activity
         {
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
                 MinimizeApp();
-            else
-                base.OnBackPressed();
         }
 
         protected override void OnDestroy()

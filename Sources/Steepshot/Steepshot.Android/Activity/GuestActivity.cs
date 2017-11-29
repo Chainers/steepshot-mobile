@@ -6,7 +6,7 @@ using Steepshot.Fragment;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class GuestActivity : BaseActivity
+    public sealed class GuestActivity : BaseActivity, IClearable
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -14,6 +14,7 @@ namespace Steepshot.Activity
 
             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
             CurrentHostFragment = HostFragment.NewInstance(new PreSearchFragment(true));
+            CurrentHostFragment.UserVisibleHint = true;
             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
             fragmentTransaction.Commit();
         }
@@ -22,8 +23,11 @@ namespace Steepshot.Activity
         {
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
                 MinimizeApp();
-            else
-                base.OnBackPressed();
+        }
+
+        public void SelectTabWithClearing(int position)
+        {
+            CurrentHostFragment?.Clear();
         }
     }
 }

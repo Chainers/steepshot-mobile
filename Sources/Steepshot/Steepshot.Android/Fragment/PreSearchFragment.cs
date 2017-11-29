@@ -114,9 +114,12 @@ namespace Steepshot.Fragment
             }
         }
 
-        public override bool CustomUserVisibleHint
+        public override bool UserVisibleHint
         {
-            get => base.CustomUserVisibleHint;
+            get
+            {
+                return base.UserVisibleHint;
+            }
             set
             {
                 if (value)
@@ -131,7 +134,7 @@ namespace Steepshot.Fragment
                         _isActivated = true;
                     }
                 }
-                UserVisibleHint = value;
+                base.UserVisibleHint = value;
             }
         }
 
@@ -157,7 +160,6 @@ namespace Steepshot.Fragment
         {
             _isGuest = isGuest;
         }
-
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -223,7 +225,7 @@ namespace Steepshot.Fragment
             }
 
             var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null && (_isGuest || _isNeedToLoadPosts))
+            if (shouldLoadPosts && savedInstanceState == null &&  _isNeedToLoadPosts)
             {
                 _isNeedToLoadPosts = false;
                 LoadPosts(true);
