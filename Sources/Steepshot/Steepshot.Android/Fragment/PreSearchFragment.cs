@@ -425,7 +425,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url));
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
         }
 
         private void VotersAction(Post post, VotersType type)

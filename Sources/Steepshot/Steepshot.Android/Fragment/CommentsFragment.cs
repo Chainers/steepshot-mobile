@@ -25,6 +25,7 @@ namespace Steepshot.Fragment
 
         private CommentAdapter _adapter;
         private string _uid;
+        private bool _openKeyboard;
         private LinearLayoutManager _manager;
         private int _counter = 0;
 
@@ -47,9 +48,10 @@ namespace Steepshot.Fragment
 
         }
 
-        public CommentsFragment(string uid)
+        public CommentsFragment(string uid, bool openKeyboard)
         {
             _uid = uid;
+            _openKeyboard = openKeyboard;
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -96,6 +98,11 @@ namespace Steepshot.Fragment
                 _messagePanel.Visibility = ViewStates.Gone;
 
             LoadComments(_uid);
+            if (_openKeyboard)
+            {
+                _openKeyboard = false;
+                OpenKeyboard();
+            }
         }
 
         private void PresenterSourceChanged(Status status)
@@ -193,9 +200,7 @@ namespace Steepshot.Fragment
                 _textInput.Text = $"@{post.Author} {_textInput.Text}";
                 _textInput.SetSelection(_textInput.Text.Length);
             }
-
-            _textInput.RequestFocus();
-            ((BaseActivity)Activity).OpenKeyboard(_textInput);
+            OpenKeyboard();
         }
 
         private async void LikeAction(Post post)
@@ -237,9 +242,15 @@ namespace Steepshot.Fragment
             Presenter.RemovePost(post);
         }
 
-        protected void HideKeyboard()
+        private void HideKeyboard()
         {
             ((BaseActivity)Activity).HideKeyboard();
+        }
+
+        private void OpenKeyboard()
+        {
+            _textInput.RequestFocus();
+            ((BaseActivity)Activity).OpenKeyboard(_textInput);
         }
     }
 }
