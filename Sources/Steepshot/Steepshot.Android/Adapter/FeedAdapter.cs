@@ -306,7 +306,13 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
-            _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+            }
+            else
+                _flags.Visibility = ViewStates.Gone;
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;
