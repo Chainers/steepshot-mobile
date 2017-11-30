@@ -36,8 +36,8 @@
         android:src="@drawable/ic_more"
         android:background="@android:color/transparent"
         android:layout_marginStart="9dp"
-        android:gravity="center"		
-	    android:layout_toLeftOf="@id/time"/>   	
+        android:gravity="center"
+        android:layout_toLeftOf="@id/time" />
     <RelativeLayout
         android:id="@+id/comment_text_layout"
         android:layout_width="match_parent"
@@ -88,6 +88,15 @@
             android:clickable="true"
             android:layout_marginEnd="33dp"
             android:text="15 Like's" />
+        <TextView
+            android:id="@+id/flags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/rgb151_155_158"
+            android:clickable="true"
+            android:layout_marginEnd="33dp"
+            android:text="15 flags" />
         <TextView
             android:id="@+id/cost"
             android:layout_width="wrap_content"
