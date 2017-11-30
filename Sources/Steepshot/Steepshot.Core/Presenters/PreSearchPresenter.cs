@@ -9,7 +9,7 @@ namespace Steepshot.Core.Presenters
 {
     public sealed class PreSearchPresenter : BasePostPresenter
     {
-        public PostType PostType = PostType.Top;
+        public PostType PostType = PostType.Hot;
         private const int ItemsLimit = 18;
         public string Tag;
 
