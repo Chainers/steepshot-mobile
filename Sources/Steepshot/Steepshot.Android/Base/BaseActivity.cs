@@ -1,7 +1,9 @@
 ﻿using System;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
+using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
 using Autofac;
@@ -11,6 +13,7 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 using Steepshot.Services;
+using LruCache = Square.Picasso.LruCache;
 
 namespace Steepshot.Base
 {
@@ -24,6 +27,17 @@ namespace Steepshot.Base
             InitIoC();
             base.OnCreate(savedInstanceState);
             InitPicassoCache();
+        }
+
+        public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
+        {
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.M)
+            {
+                Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+                Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LightStatusBar;
+                Window.SetStatusBarColor(Color.White);
+            }
+            return base.OnCreateView(parent, name, context, attrs);
         }
 
         private void InitPicassoCache()
