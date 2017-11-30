@@ -42,10 +42,11 @@ namespace Steepshot.Base
             if (AppSettings.Container == null)
             {
                 var builder = new ContainerBuilder();
-
+                var saverService = new SaverService();
+                var dataProvider = new DataProvider(saverService);
                 builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
-                builder.RegisterType<DataProvider>().As<IDataProvider>().SingleInstance();
-                builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
+                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
+                builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
                 builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
 #if DEBUG
                 builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
