@@ -113,7 +113,7 @@
                         android:id="@+id/btn_switcher"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:src="@drawable/ic_grid_active"
+                        android:src="@drawable/ic_grid"
                         android:scaleType="center"
                         android:layout_alignParentRight="true"
                         android:layout_alignTop="@+id/profile_login"
