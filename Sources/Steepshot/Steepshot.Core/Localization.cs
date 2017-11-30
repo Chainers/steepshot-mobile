@@ -30,7 +30,7 @@
             public const string PostTagsError = "Post tags page get items error: ";
             public const string InternetUnavailable = "Check your internet connection";
             public const string IncorrectIdentifier = "Incorrect identifier";
-            public const string MaxVoteChanges = "Looks like you've already voted for this post a few times. Please try to vote for another post.";
+            public const string MaxVoteChanges = "You`ve already liked this post a few times. Please try another one.";
             public const string UnexpectedError = "An unexpected error occurred.";
             public const string CameraSettingError = "Camera Setting error.";
 
