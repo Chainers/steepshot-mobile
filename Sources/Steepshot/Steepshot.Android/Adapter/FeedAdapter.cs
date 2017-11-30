@@ -19,6 +19,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Collections.Generic;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Adapter
@@ -328,7 +329,8 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(_context).Load(_photoString).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo, OnSuccess, OnError);
                 var parameters = _photo.LayoutParameters;
-                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
+                var size = new Size() { Height = post.ImageSize.Height / Style.Density, Width = post.ImageSize.Width / Style.Density };
+                parameters.Height = (int)((OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight)) * Style.Density);
                 _photo.LayoutParameters = parameters;
             }
 
