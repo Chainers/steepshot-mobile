@@ -74,6 +74,17 @@ namespace Steepshot.Core.Authority
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
+        public int SelectedTab
+        {
+            get => UserInfo.SelectedTab;
+            set
+            {
+                UserInfo.SelectedTab = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public User()
         {
             _data = AppSettings.DataProvider;
@@ -155,6 +166,22 @@ namespace Steepshot.Core.Authority
         public void Save()
         {
             _data.Update(UserInfo);
+        }
+
+        public void SetTabSettings(string tabKey, TabSettings value)
+        {
+            if (UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
+                UserInfo.Navigation.TabSettings[tabKey] = value;
+            else
+                UserInfo.Navigation.TabSettings.Add(tabKey, value);
+        }
+
+        public TabSettings GetTabSettings(string tabKey)
+        {
+            if (!UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
+                UserInfo.Navigation.TabSettings.Add(tabKey, new TabSettings());
+
+            return UserInfo.Navigation.TabSettings[tabKey];
         }
     }
 }

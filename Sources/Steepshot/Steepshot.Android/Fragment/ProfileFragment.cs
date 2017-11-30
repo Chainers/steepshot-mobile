@@ -18,6 +18,7 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Interfaces;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Fragment
 {
@@ -25,11 +26,14 @@ namespace Steepshot.Fragment
     {
         private bool _isActivated;
         private string _profileId;
+        private TabSettings _tabSettings;
+
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
         private GridItemDecoration _gridItemDecoration;
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
+        private RecyclerView.Adapter _adapter;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -109,10 +113,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        public ProfileFragment()
-        {
-        }
-
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -170,10 +170,14 @@ namespace Steepshot.Fragment
                 _gridLayoutManager.SetSpanSizeLookup(_profileSpanSizeLookup);
 
                 _gridItemDecoration = new GridItemDecoration(true);
-                _postsList.SetLayoutManager(_gridLayoutManager);
-                _postsList.AddItemDecoration(_gridItemDecoration);
+
+                _tabSettings = BasePresenter.User.Login.Equals(_profileId)
+                    ? BasePresenter.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : BasePresenter.User.GetTabSettings(nameof(ProfileFragment));
+
+                SwitchListAdapter(_tabSettings.IsGridView);
+
                 _postsList.AddOnScrollListener(_scrollListner);
-                _postsList.SetAdapter(ProfileGridAdapter);
 
                 _refresher.Refresh += RefresherRefresh;
                 _settings.Click += OnSettingsClick;
@@ -202,7 +206,7 @@ namespace Steepshot.Fragment
                 Activity.Intent.RemoveExtra(CommentsFragment.CountString);
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
                 post.Children += count;
-                _postsList.GetAdapter()?.NotifyDataSetChanged();
+                _adapter.NotifyDataSetChanged();
             }
         }
 
@@ -226,7 +230,7 @@ namespace Steepshot.Fragment
             Activity.RunOnUiThread(() =>
             {
                 _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
-                _postsList.GetAdapter()?.NotifyDataSetChanged();
+                _adapter.NotifyDataSetChanged();
             });
         }
 
@@ -281,19 +285,32 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
-            if (_postsList.GetLayoutManager() is GridLayoutManager)
+            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            BasePresenter.User.Save();
+            SwitchListAdapter(_tabSettings.IsGridView);
+        }
+
+        private void SwitchListAdapter(bool isGridView)
+        {
+            lock (_switcher)
             {
-                _switcher.SetImageResource(Resource.Drawable.ic_grid);
-                _postsList.SetLayoutManager(_linearLayoutManager);
-                _postsList.RemoveItemDecoration(_gridItemDecoration);
-                _postsList.SetAdapter(ProfileFeedAdapter);
-            }
-            else
-            {
-                _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
-                _postsList.SetLayoutManager(_gridLayoutManager);
-                _postsList.AddItemDecoration(_gridItemDecoration);
-                _postsList.SetAdapter(ProfileGridAdapter);
+                _scrollListner.ClearPosition();
+                _postsList.ScrollToPosition(0);
+                if (isGridView)
+                {
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
+                    _postsList.SetLayoutManager(_gridLayoutManager);
+                    _postsList.AddItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileGridAdapter;
+                }
+                else
+                {
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid);
+                    _postsList.SetLayoutManager(_linearLayoutManager);
+                    _postsList.RemoveItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileFeedAdapter;
+                }
+                _postsList.SetAdapter(_adapter);
             }
         }
 
