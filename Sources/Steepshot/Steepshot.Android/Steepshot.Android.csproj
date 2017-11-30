@@ -141,7 +141,6 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_revert.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_revert.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_flash.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_flash.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flash.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_shot.png" />

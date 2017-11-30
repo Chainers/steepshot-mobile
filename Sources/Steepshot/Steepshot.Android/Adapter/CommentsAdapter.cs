@@ -54,6 +54,7 @@ namespace Steepshot.Adapter
         private readonly TextView _author;
         private readonly TextView _comment;
         private readonly TextView _likes;
+        private readonly TextView _flags;
         private readonly TextView _cost;
         private readonly TextView _reply;
         private readonly TextView _time;
@@ -77,6 +78,7 @@ namespace Steepshot.Adapter
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
             _comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+            _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
             _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
@@ -207,6 +209,13 @@ namespace Steepshot.Adapter
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
 
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+            }
+            else
+                _flags.Visibility = ViewStates.Gone;
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
         }

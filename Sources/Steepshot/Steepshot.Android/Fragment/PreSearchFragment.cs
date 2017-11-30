@@ -186,10 +186,10 @@ namespace Steepshot.Fragment
                 SetAnimation();
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
-                _currentButton = _trendingButton;
-                _trendingButton.Typeface = Style.Semibold;
+                _currentButton = _hotButton;
+                _trendingButton.Typeface = Style.Regular;
                 _trendingButton.Click += OnTrendClick;
-                _hotButton.Typeface = Style.Regular;
+                _hotButton.Typeface = Style.Semibold;
                 _hotButton.Click += OnTopClick;
                 _newButton.Typeface = Style.Regular;
                 _newButton.Click += OnNewClick;
@@ -226,7 +226,7 @@ namespace Steepshot.Fragment
             }
 
             var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null &&  _isNeedToLoadPosts)
+            if (shouldLoadPosts && savedInstanceState == null && _isNeedToLoadPosts)
             {
                 _isNeedToLoadPosts = false;
                 LoadPosts(true);
