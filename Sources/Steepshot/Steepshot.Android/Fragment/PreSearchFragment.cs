@@ -211,10 +211,10 @@ namespace Steepshot.Fragment
                 _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
 
                 _gridItemDecoration = new GridItemDecoration();
-                _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(_gridItemDecoration);
+                _searchList.SetLayoutManager(_linearLayoutManager);
+                _searchList.RemoveItemDecoration(_gridItemDecoration);
                 _searchList.AddOnScrollListener(_scrollListner);
-                _adapter = ProfileGridAdapter;
+                _adapter = ProfileFeedAdapter;
                 _searchList.SetAdapter(_adapter);
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
