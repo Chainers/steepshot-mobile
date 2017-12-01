@@ -99,8 +99,11 @@ namespace Steepshot.Base
 
         public void HideKeyboard()
         {
-            var imm = GetSystemService(InputMethodService) as InputMethodManager;
-            imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            if (CurrentFocus != null)
+            {
+                var imm = GetSystemService(InputMethodService) as InputMethodManager;
+                imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            }
         }
 
         public void OpenKeyboard(View view)
