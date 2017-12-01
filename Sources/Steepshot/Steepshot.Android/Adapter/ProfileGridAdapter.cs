@@ -176,14 +176,14 @@ namespace Steepshot.Adapter
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {
-                Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.holder)
+                Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder)
                       .NoFade()
                       .Resize(300, 300)
                       .CenterCrop()
                       .Into(_profileImage, OnSuccess, OnError);
             }
             else
-                Picasso.With(_context).Load(Resource.Drawable.holder).Into(_profileImage);
+                Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
@@ -285,7 +285,7 @@ namespace Steepshot.Adapter
 
         private void OnError()
         {
-            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.holder).NoFade().Into(this);
+            Picasso.With(_context).Load(_userAvatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(this);
         }
     }
 }

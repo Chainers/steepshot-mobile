@@ -28,6 +28,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.add_account)] private Button _addButton;
         [InjectView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
         [InjectView(Resource.Id.tests)] private AppCompatButton _testsButton;
+        [InjectView(Resource.Id.btn_guide)] private Button _guideButton;
         [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
         [InjectView(Resource.Id.low_switch)] private Switch _lowRatedSwitcher;
         [InjectView(Resource.Id.version_textview)] private TextView _versionText;
@@ -66,6 +67,8 @@ namespace Steepshot.Activity
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
             _termsButton.Click += TermsOfServiceClick;
+            _guideButton.Typeface = Style.Semibold;
+            _guideButton.Click += GuideClick;
 
             _addButton.Text = Localization.Texts.AddAccountText;
             _addButton.Click += AddAccountClick;
@@ -151,7 +154,14 @@ namespace Steepshot.Activity
 
         private void TermsOfServiceClick(object sender, EventArgs e)
         {
-            var uri = Android.Net.Uri.Parse("https://steepshot.org/terms-of-service");
+            var uri = Android.Net.Uri.Parse(Constants.Tos);
+            var intent = new Intent(Intent.ActionView, uri);
+            StartActivity(intent);
+        }
+
+        private void GuideClick(object sender, EventArgs e)
+        {
+            var uri = Android.Net.Uri.Parse(Constants.Guide);
             var intent = new Intent(Intent.ActionView, uri);
             StartActivity(intent);
         }

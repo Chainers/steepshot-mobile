@@ -69,24 +69,25 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        private static async Task<List<string>> TryСonect(CancellationToken token)
+        private static Task<List<string>> TryСonect(CancellationToken token)
         {
-            do
+            return Task.Run(async () =>
             {
-                token.ThrowIfCancellationRequested();
-                
-                var isConnected = Api.TryReconnectChain(token);
-                if (!isConnected)
-                    OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
-                else
-                    return null;
+                do
+                {
+                    token.ThrowIfCancellationRequested();
 
-                await Task.Delay(5000, token);
+                    var isConnected = Api.TryReconnectChain(token);
+                    if (!isConnected)
+                        OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                    else
+                        return new List<string>();
 
-            } while (true);
+                    await Task.Delay(5000, token);
+
+                } while (true);
+            }, token);
         }
-
-
 
         public static async Task SwitchChain(bool isDev)
         {

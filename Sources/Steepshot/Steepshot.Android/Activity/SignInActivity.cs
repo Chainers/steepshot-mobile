@@ -85,7 +85,7 @@ namespace Steepshot.Activity
 #endif
             if (!string.IsNullOrEmpty(_profileImageUrl))
                 Picasso.With(this).Load(_profileImageUrl)
-                       .Placeholder(Resource.Drawable.holder)
+                       .Placeholder(Resource.Drawable.ic_holder)
                        .NoFade()
                        .Resize(300, 0)
                        .Priority(Picasso.Priority.Normal)

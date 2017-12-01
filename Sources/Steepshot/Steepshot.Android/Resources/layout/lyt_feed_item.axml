@@ -7,7 +7,7 @@
     <RelativeLayout
         android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="@dimen/dp_feed_item_header_height"
         android:background="@android:color/white">
         <LinearLayout
             android:id="@+id/avatar_container"
@@ -19,7 +19,7 @@
                 android:id="@+id/profile_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/holder" />
+                android:src="@drawable/ic_holder" />
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/text_container"
@@ -55,7 +55,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
-            android:src="@drawable/more"
+            android:src="@drawable/ic_more"
             android:layout_marginRight="10dp"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>

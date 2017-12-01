@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Steepshot.Core.Models.Requests;
+using System;
 using System.Collections.Generic;
 
 namespace Steepshot.Core.Authority
@@ -26,5 +27,20 @@ namespace Steepshot.Core.Authority
         public HashSet<string> PostBlackList { get; set; } = new HashSet<string>();
 
         public string DefaultPhotoDirectory { get; set; } = "Steepshot";
+
+        public Navigation Navigation { get; set; } = new Navigation();
+
+        public int SelectedTab { get; set; } = 0;
+    }
+
+    public class Navigation
+    {
+        public Dictionary<string, TabSettings> TabSettings { get; set; } = new Dictionary<string, TabSettings>();
+    }
+
+    public class TabSettings
+    {
+        public bool IsGridView { get; set; } = false;
+        public PostType PostType { get; set; } = PostType.Hot;
     }
 }

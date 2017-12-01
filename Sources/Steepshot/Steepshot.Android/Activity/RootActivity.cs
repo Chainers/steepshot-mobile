@@ -62,7 +62,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             base.OnResume();
-            if(BasePresenter.ShouldUpdateProfile)
+            if (BasePresenter.ShouldUpdateProfile)
             {
                 SelectTab(_adapter.Count - 1);
             }
@@ -89,6 +89,7 @@ namespace Steepshot.Activity
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
+                BasePresenter.User.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -102,7 +103,7 @@ namespace Steepshot.Activity
                 _tabLayout.AddTab(tab);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(0);
+            SelectTab(BasePresenter.User.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 

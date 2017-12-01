@@ -19,6 +19,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Collections.Generic;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Adapter
@@ -307,15 +308,21 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
-            _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+            }
+            else
+                _flags.Visibility = ViewStates.Gone;
             _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
             else
-                Picasso.With(context).Load(Resource.Drawable.holder).Into(_avatar);
+                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
             _photo.SetImageResource(0);
             _photoString = post.Photos?.FirstOrDefault();
@@ -323,7 +330,8 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(_context).Load(_photoString).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo, OnSuccess, OnError);
                 var parameters = _photo.LayoutParameters;
-                parameters.Height = (int)OptimalPhotoSize.Get(post.ImageSize, context.Resources.DisplayMetrics.WidthPixels, 400, 1300);
+                var size = new Size() { Height = post.ImageSize.Height / Style.Density, Width = post.ImageSize.Width / Style.Density };
+                parameters.Height = (int)((OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight)) * Style.Density);
                 _photo.LayoutParameters = parameters;
             }
 

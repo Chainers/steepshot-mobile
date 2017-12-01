@@ -18,14 +18,14 @@
         android:layout_height="60dp"
         android:layout_marginLeft="10dp"
         android:background="@android:color/transparent"
-        android:src="@drawable/close_black"
+        android:src="@drawable/ic_close_black"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true" />
     <ImageView
         android:id="@+id/pick_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/unchecked"
+        android:src="@drawable/ic_unchecked"
         android:layout_toLeftOf="@id/delete_btn"
         android:layout_centerVertical="true" />
 </RelativeLayout>

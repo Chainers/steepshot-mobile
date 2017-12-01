@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/accounts_list"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"                
+                android:layout_marginRight="15dp"
                 android:layout_marginBottom="40dp">
                 <Button
                     android:id="@+id/add_account"
@@ -61,7 +61,7 @@
                     android:layout_centerInParent="true"
                     android:visibility="gone"
                     android:elevation="10dp" />
-            </RelativeLayout> 
+            </RelativeLayout>
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
@@ -118,6 +118,21 @@
                     android:layout_height="1dp"
                     android:background="@color/rgb244_244_246" />
                 <Button
+                    android:id="@+id/btn_guide"
+                    android:layout_width="match_parent"
+                    android:layout_height="59dp"
+                    android:text="Community Guidelines"
+                    android:textSize="@dimen/dp_button_text"
+                    android:textAllCaps="false"
+                    android:textColor="@color/rgb15_24_30"
+                    android:background="@android:color/transparent"
+                    android:gravity="center_vertical"
+                    android:drawableRight="@drawable/ic_forward" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/rgb244_244_246" />
+                <Button
                     android:id="@+id/dtn_terms_of_service"
                     android:layout_width="match_parent"
                     android:layout_height="59dp"
@@ -127,7 +142,7 @@
                     android:textColor="@color/rgb15_24_30"
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
-                    android:drawableRight="@drawable/forward" />
+                    android:drawableRight="@drawable/ic_forward" />
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

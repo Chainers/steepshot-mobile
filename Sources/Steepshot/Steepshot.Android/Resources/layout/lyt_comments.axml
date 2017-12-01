@@ -43,7 +43,7 @@
                 android:layout_height="40dp"
                 android:layout_marginLeft="10dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/send"
+                android:src="@drawable/ic_send"
                 android:background="@drawable/white_rounded_border"
                 android:scaleType="center" />
             <ProgressBar
@@ -72,7 +72,7 @@
                 android:textSize="14sp"
                 android:textColor="@color/rgb15_24_30"
                 android:textColorHint="@color/rgb151_155_158"
-                android:textCursorDrawable="@drawable/input"
+                android:textCursorDrawable="@drawable/ic_input"
                 android:singleLine="false"
                 android:hint="Put your comment here..."
                 android:paddingLeft="25dp"
