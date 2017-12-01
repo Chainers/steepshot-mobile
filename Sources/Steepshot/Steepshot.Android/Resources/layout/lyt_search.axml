@@ -63,10 +63,10 @@
         android:layout_marginTop="34dp"
         android:layout_marginBottom="34dp">
         <Button
-            android:id="@+id/people_button"
+            android:id="@+id/tags_button"
             android:layout_width="66dp"
             android:layout_height="27dp"
-            android:text="People"
+            android:text="Tag"
             android:textSize="20sp"
             android:textColor="@color/rgb15_24_30"
             android:textAllCaps="false"
@@ -74,16 +74,16 @@
             android:background="@android:color/transparent"
             android:gravity="bottom" />
         <Button
-            android:id="@+id/tags_button"
+            android:id="@+id/people_button"
             android:layout_width="85dp"
             android:layout_height="27dp"
-            android:text="Hashtag"
+            android:text="Users"
             android:background="@android:color/transparent"
             android:textSize="14sp"
             android:textColor="@color/rgb151_155_158"
             android:textAllCaps="false"
             android:gravity="bottom"
-            android:layout_toRightOf="@id/people_button" />
+            android:layout_toRightOf="@id/tags_button" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/users_layout"
