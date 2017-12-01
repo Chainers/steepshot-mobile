@@ -131,6 +131,11 @@ namespace Steepshot.Fragment
             _profileId = profileId;
         }
 
+        public ProfileFragment()
+        {
+            //This is fix for crashing when app killed in background
+        }
+
         public override void OnResume()
         {
             base.OnResume();
