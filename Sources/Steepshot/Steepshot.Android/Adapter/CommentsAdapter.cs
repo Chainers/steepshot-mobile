@@ -58,7 +58,7 @@ namespace Steepshot.Adapter
         private readonly TextView _cost;
         private readonly TextView _reply;
         private readonly TextView _time;
-        private readonly ImageButton _like;
+        private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _more;
         private readonly Action<Post> _likeAction;
         private readonly Action<Post> _userAction;
@@ -80,7 +80,7 @@ namespace Steepshot.Adapter
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-            _like = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
+            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.like_btn);
             _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
@@ -94,7 +94,7 @@ namespace Steepshot.Adapter
             _hideAction = hideAction;
             _replyAction = replyAction;
 
-            _like.Click += Like_Click;
+            _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
             _author.Click += UserAction;
             _cost.Click += UserAction;
@@ -121,6 +121,7 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
+                flag.Text = _post.Flag ? Localization.Texts.UnFlag : Localization.Texts.Flag;
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
 
@@ -160,12 +161,12 @@ namespace Steepshot.Adapter
 
         private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
         {
-            _like.SetImageResource(Resource.Drawable.ic_new_like_filled);
+            _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
         }
 
         private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
         {
-            _like.StartAnimation(_likeWaitAnimation);
+            _likeOrFlag.StartAnimation(_likeWaitAnimation);
         }
 
         private void UserAction(object sender, EventArgs e)
@@ -202,11 +203,31 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            _like.ClearAnimation();
-            if (!BasePostPresenter.IsEnableVote && post.VoteChanging)
-                _like.StartAnimation(_likeSetAnimation);
+            _likeOrFlag.ClearAnimation();
+            if (!BasePostPresenter.IsEnableVote)
+            {
+                if (post.VoteChanging)
+                    _likeOrFlag.StartAnimation(_likeSetAnimation);
+                else if (post.FlagChanging)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
+            }
             else
-                _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
+            {
+                if (post.Vote || !post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_filled
+                        : Resource.Drawable.ic_new_like_selected);
+                    _likeOrFlag.Click -= DoFlagAction;
+                    _likeOrFlag.Click += Like_Click;
+                }
+                else
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
+                    _likeOrFlag.Click -= Like_Click;
+                    _likeOrFlag.Click += DoFlagAction;
+                }
+            }
 
             _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
             if (post.NetFlags > 0)

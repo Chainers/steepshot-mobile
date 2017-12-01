@@ -347,7 +347,7 @@ namespace Steepshot.Adapter
                 if (post.VoteChanging)
                     _likeOrFlag.StartAnimation(_likeSetAnimation);
                 else if (post.FlagChanging)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
             }
             else
             {
@@ -361,7 +361,7 @@ namespace Steepshot.Adapter
                 }
                 else
                 {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
                     _likeOrFlag.Click -= DoLikeAction;
                     _likeOrFlag.Click += DoFlagAction;
                 }
