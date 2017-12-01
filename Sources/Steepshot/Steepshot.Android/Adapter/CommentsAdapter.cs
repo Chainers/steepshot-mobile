@@ -219,7 +219,7 @@ namespace Steepshot.Adapter
             else
                 _like.SetImageResource(post.Vote ? Resource.Drawable.ic_new_like_filled : Resource.Drawable.ic_new_like_selected);
 
-            _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
