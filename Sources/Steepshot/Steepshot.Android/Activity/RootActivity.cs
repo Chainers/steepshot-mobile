@@ -6,6 +6,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
@@ -62,7 +63,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             base.OnResume();
-            if (BasePresenter.ShouldUpdateProfile)
+            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
             {
                 SelectTab(_adapter.Count - 1);
             }
