@@ -26,7 +26,7 @@ namespace Steepshot.Core.Presenters
         private static IConnectionService _connectionService;
 
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
-        public static ProfileUpdateType ProfileUpdateType;
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
         public static event Action<string> OnAllert;
 
         protected CancellationTokenSource OnDisposeCts;
