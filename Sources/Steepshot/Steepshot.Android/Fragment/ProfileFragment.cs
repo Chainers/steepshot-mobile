@@ -280,7 +280,11 @@ namespace Steepshot.Fragment
             _scrollListner.ClearPosition();
             await LoadProfile();
             if (updateType == ProfileUpdateType.Full)
+            {
+                _listSpinner.Visibility = ViewStates.Visible;
                 await GetUserPosts(true);
+                _listSpinner.Visibility = ViewStates.Gone;
+            }
         }
 
         private void GoBackClick(object sender, EventArgs e)
@@ -479,7 +483,6 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
             {
-                _listSpinner.Visibility = ViewStates.Visible;
                 UpdatePage(BasePresenter.ProfileUpdateType);
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
             }
