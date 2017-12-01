@@ -41,11 +41,12 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.send_spinner)] private ProgressBar _sendSpinner;
         [InjectView(Resource.Id.btn_post_image)] private ImageView _postImage;
         [InjectView(Resource.Id.message)] private RelativeLayout _messagePanel;
+        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
-
+       
         public CommentsFragment()
         {
-
+            //This is fix for crashing when app killed in background
         }
 
         public CommentsFragment(string uid, bool openKeyboard)
@@ -81,6 +82,7 @@ namespace Steepshot.Fragment
             _viewTitle.Text = Localization.Messages.PostComments;
 
             _post.Click += OnPost;
+            _rootLayout.Click += OnRootClick;
 
             _manager = new LinearLayoutManager(Context, LinearLayoutManager.Vertical, false);
 
@@ -91,6 +93,7 @@ namespace Steepshot.Fragment
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
+            _adapter.RootClickAction += HideKeyboard;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -110,7 +113,11 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            Activity.RunOnUiThread(() =>
+            {
+                _comments.Visibility = ViewStates.Visible;
+                _adapter.NotifyDataSetChanged();
+            });
         }
 
         public override void OnDetach()
@@ -121,7 +128,13 @@ namespace Steepshot.Fragment
 
         private void OnBack(object sender, EventArgs e)
         {
+            HideKeyboard();
             Activity.OnBackPressed();
+        }
+
+        private void OnRootClick(object sender, EventArgs e)
+        {
+            HideKeyboard();
         }
 
         private async void OnPost(object sender, EventArgs e)

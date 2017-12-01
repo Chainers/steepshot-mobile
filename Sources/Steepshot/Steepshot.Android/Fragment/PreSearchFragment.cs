@@ -67,13 +67,19 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.hot_button)] private Button _hotButton;
         [InjectView(Resource.Id.new_button)] private Button _newButton;
         [InjectView(Resource.Id.clear_button)] private Button _clearButton;
-        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
         [InjectView(Resource.Id.login)] private Button _loginButton;
         [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
         [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _panelSwitcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
+        [InjectView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -143,8 +149,8 @@ namespace Steepshot.Fragment
 
         public PreSearchFragment()
         {
+            //This is fix for crashing when app killed in background
         }
-
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -225,7 +231,13 @@ namespace Steepshot.Fragment
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
 
-                _toolbarLayout.Click += OnSearch;
+                _searchToolbarLayout.Click += OnSearch;
+
+                _viewTitle.Typeface = Style.Semibold;
+                _backButton.Visibility = ViewStates.Visible;
+                _backButton.Click += GoBackClick;
+                _panelSwitcher.Visibility = ViewStates.Gone;
+                _settings.Visibility = ViewStates.Gone;
             }
 
             var isLoaded = LoadPostsByTag();
@@ -257,7 +269,6 @@ namespace Steepshot.Fragment
             base.OnDetach();
             Cheeseknife.Reset(this);
         }
-
 
         private void OnClearClick(object sender, EventArgs e)
         {
@@ -325,6 +336,11 @@ namespace Steepshot.Fragment
         private void OnLogin(object sender, EventArgs e)
         {
             OpenLogin();
+        }
+
+        private void GoBackClick(object sender, EventArgs e)
+        {
+            Activity.OnBackPressed();
         }
 
         private void PresenterSourceChanged(Status status)
@@ -411,7 +427,10 @@ namespace Steepshot.Fragment
         private void TagAction(string tag)
         {
             if (tag != null)
-                LoadPostsByTag(tag);
+            {
+                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+            }
             else
                 _adapter.NotifyDataSetChanged();
         }
@@ -520,10 +539,13 @@ namespace Steepshot.Fragment
                 if (!string.IsNullOrWhiteSpace(selectedTag) && selectedTag != CustomTag)
                 {
                     Activity.Intent.RemoveExtra(SearchFragment.SearchExtra);
-                    _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
+                    _viewTitle.Text = _searchView.Text = Presenter.Tag = CustomTag = selectedTag;
                     _searchView.SetTextColor(Style.R15G24B30);
                     _clearButton.Visibility = ViewStates.Visible;
                     _spinner.Visibility = ViewStates.Visible;
+
+                    _searchToolbarLayout.Visibility = ViewStates.Gone;
+                    _tagToolbarLayout.Visibility = ViewStates.Visible;
 
                     LoadPosts(selectedTag, true);
                     return true;
