@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
         };
 
         private Timer _timer;
-        private SearchType _searchType = SearchType.People;
+        private SearchType _searchType = SearchType.Tags;
         private ScrollListener _scrollListner;
         private TagsAdapter _categoriesAdapter;
         private FollowersAdapter _usersSearchAdapter;
@@ -99,8 +99,7 @@ namespace Steepshot.Fragment
             SwitchSearchType(false);
             _searchView.RequestFocus();
 
-            var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-            imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
+            ((BaseActivity)Activity).OpenKeyboard(_searchView);
 
             _emptyQueryLabel.Typeface = Style.Light;
             _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
