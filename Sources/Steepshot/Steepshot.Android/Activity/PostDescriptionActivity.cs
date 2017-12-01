@@ -264,7 +264,7 @@ namespace Steepshot.Activity
         private void AddTag(string tag)
         {
             tag = tag.Trim();
-            if (_localTagsAdapter.LocalTags.Count >= 4 || _localTagsAdapter.LocalTags.Any(t => t == tag))
+            if (_localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
             _localTagsAdapter.LocalTags.Add(tag);
             RunOnUiThread(() =>

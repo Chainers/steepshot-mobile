@@ -21,6 +21,7 @@
         public const string GolosRegUrl = "https://golos.io/enter_email";
 
         public const string Tos = "https://steepshot.org/terms-of-service";
+        public const string Guide = "https://alpha.steepshot.io/guide";
         public const string Pp = "https://steepshot.org/privacy-policy";
     }
 }

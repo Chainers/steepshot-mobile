@@ -14,7 +14,7 @@
         android:elevation="10dp"
         app:tabMode="fixed"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="@dimen/dp_tab_bar_height"
         android:layout_alignParentBottom="true"
         app:tabGravity="fill"
         app:tabMaxWidth="0dp"

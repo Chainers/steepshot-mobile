@@ -123,7 +123,7 @@ namespace Steepshot.Fragment
                 var mode = parameters.FlashMode != Camera.Parameters.FlashModeOff ? Camera.Parameters.FlashModeOff : Camera.Parameters.FlashModeOn;
                 parameters.FlashMode = mode;
                 _camera.SetParameters(parameters);
-                _flashButton.SetImageResource(mode == Camera.Parameters.FlashModeOff ? Resource.Drawable.flash_off : Resource.Drawable.flash);
+                _flashButton.SetImageResource(mode == Camera.Parameters.FlashModeOff ? Resource.Drawable.ic_flash_off : Resource.Drawable.ic_flash);
             }
         }
 

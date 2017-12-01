@@ -24,6 +24,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Fragment
 {
@@ -32,6 +33,8 @@ namespace Steepshot.Fragment
         public const string IsGuestKey = "isGuest";
 
         private bool _isGuest;
+        private TabSettings _tabSettings;
+
         //ValueAnimator disposing issue probably fixed with static modificator
         private static ValueAnimator _fontGrowingAnimation;
         private static ValueAnimator _fontReductionAnimation;
@@ -57,7 +60,7 @@ namespace Steepshot.Fragment
         private Button _currentButton;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.search_list)] private RecyclerView _searchList;
+        [InjectView(Resource.Id.search_list)] private RecyclerView _postsList;
         [InjectView(Resource.Id.search_view)] private TextView _searchView;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
         [InjectView(Resource.Id.trending_button)] private Button _trendingButton;
@@ -124,11 +127,11 @@ namespace Steepshot.Fragment
             {
                 if (value)
                 {
-                    var shouldLoadPosts = SearchByTag();
-                    if (shouldLoadPosts && !_isActivated)
+                    var isLoaded = LoadPostsByTag();
+                    if (!isLoaded && !_isActivated)
                     {
                         if (Presenter != null)
-                            LoadPosts();
+                            LoadPosts(null, false);
                         else
                             _isNeedToLoadPosts = true;
                         _isActivated = true;
@@ -186,10 +189,10 @@ namespace Steepshot.Fragment
                 SetAnimation();
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
-                _currentButton = _trendingButton;
-                _trendingButton.Typeface = Style.Semibold;
+                _currentButton = _hotButton;
+                _trendingButton.Typeface = Style.Regular;
                 _trendingButton.Click += OnTrendClick;
-                _hotButton.Typeface = Style.Regular;
+                _hotButton.Typeface = Style.Semibold;
                 _hotButton.Click += OnTopClick;
                 _newButton.Typeface = Style.Regular;
                 _newButton.Click += OnNewClick;
@@ -211,11 +214,11 @@ namespace Steepshot.Fragment
                 _gridLayoutManager.SetSpanSizeLookup(_feedSpanSizeLookup);
 
                 _gridItemDecoration = new GridItemDecoration();
-                _searchList.SetLayoutManager(_gridLayoutManager);
-                _searchList.AddItemDecoration(_gridItemDecoration);
-                _searchList.AddOnScrollListener(_scrollListner);
-                _adapter = ProfileGridAdapter;
-                _searchList.SetAdapter(_adapter);
+
+                _tabSettings = BasePresenter.User.GetTabSettings(nameof(PreSearchFragment));
+                SwitchListAdapter(_tabSettings.IsGridView);
+                _postsList.AddOnScrollListener(_scrollListner);
+
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
 
@@ -225,11 +228,11 @@ namespace Steepshot.Fragment
                 _toolbarLayout.Click += OnSearch;
             }
 
-            var shouldLoadPosts = SearchByTag();
-            if (shouldLoadPosts && savedInstanceState == null &&  _isNeedToLoadPosts)
+            var isLoaded = LoadPostsByTag();
+            if (!isLoaded && savedInstanceState == null && _isNeedToLoadPosts)
             {
                 _isNeedToLoadPosts = false;
-                LoadPosts(true);
+                LoadPosts(null, true);
             }
 
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
@@ -265,7 +268,7 @@ namespace Steepshot.Fragment
             _spinner.Visibility = ViewStates.Visible;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
             _refresher.Refreshing = false;
-            LoadPosts(true);
+            LoadPosts(null, true);
         }
 
         private async void OnTrendClick(object sender, EventArgs e)
@@ -290,25 +293,32 @@ namespace Steepshot.Fragment
 
         private void OnSwitcherClick(object sender, EventArgs e)
         {
+            _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
+            BasePresenter.User.Save();
+            SwitchListAdapter(_tabSettings.IsGridView);
+        }
+
+        private void SwitchListAdapter(bool isGridView)
+        {
             lock (_switcher)
             {
                 _scrollListner.ClearPosition();
-                _searchList.ScrollToPosition(0);
-                if (_searchList.GetLayoutManager() is GridLayoutManager)
+                _postsList.ScrollToPosition(0);
+                if (isGridView)
                 {
-                    _switcher.SetImageResource(Resource.Drawable.grid);
-                    _searchList.SetLayoutManager(_linearLayoutManager);
-                    _searchList.RemoveItemDecoration(_gridItemDecoration);
-                    _adapter = ProfileFeedAdapter;
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
+                    _postsList.SetLayoutManager(_gridLayoutManager);
+                    _postsList.AddItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileGridAdapter;
                 }
                 else
                 {
-                    _switcher.SetImageResource(Resource.Drawable.grid_active);
-                    _searchList.SetLayoutManager(_gridLayoutManager);
-                    _searchList.AddItemDecoration(_gridItemDecoration);
-                    _adapter = ProfileGridAdapter;
+                    _switcher.SetImageResource(Resource.Drawable.ic_grid);
+                    _postsList.SetLayoutManager(_linearLayoutManager);
+                    _postsList.RemoveItemDecoration(_gridItemDecoration);
+                    _adapter = ProfileFeedAdapter;
                 }
-                _searchList.SetAdapter(_adapter);
+                _postsList.SetAdapter(_adapter);
             }
         }
 
@@ -342,13 +352,13 @@ namespace Steepshot.Fragment
 
         private async void ScrollListnerScrolledToBottom()
         {
-            await LoadPosts();
+            await LoadPosts(CustomTag, false);
         }
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
             _spinner.Visibility = ViewStates.Gone;
-            await LoadPosts(true);
+            await LoadPosts(CustomTag, true);
         }
 
         private void OnPhotoClick(Post post)
@@ -401,7 +411,7 @@ namespace Steepshot.Fragment
         private void TagAction(string tag)
         {
             if (tag != null)
-                SearchByTag(tag);
+                LoadPostsByTag(tag);
             else
                 _adapter.NotifyDataSetChanged();
         }
@@ -425,7 +435,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url));
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
         }
 
         private void VotersAction(Post post, VotersType type)
@@ -439,7 +449,7 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
-        private async Task LoadPosts(bool clearOld = false)
+        private async Task LoadPosts(string tag, bool clearOld)
         {
             if (clearOld)
             {
@@ -448,7 +458,7 @@ namespace Steepshot.Fragment
             }
 
             List<string> errors;
-            if (string.IsNullOrEmpty(CustomTag))
+            if (string.IsNullOrEmpty(tag))
                 errors = await Presenter.TryLoadNextTopPosts();
             else
                 errors = await Presenter.TryGetSearchedPosts();
@@ -464,7 +474,6 @@ namespace Steepshot.Fragment
                 _spinner.Visibility = ViewStates.Gone;
                 _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
             }
-
         }
 
         private void OpenLogin()
@@ -497,12 +506,12 @@ namespace Steepshot.Fragment
                     break;
             }
             Presenter.PostType = postType;
-            await LoadPosts(true);
+            await LoadPosts(CustomTag, true);
             if (postType == Presenter.PostType)
                 _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
-        private bool SearchByTag(string tag = null)
+        private bool LoadPostsByTag(string tag = null)
         {
             if (IsInitialized)
             {
@@ -516,11 +525,11 @@ namespace Steepshot.Fragment
                     _clearButton.Visibility = ViewStates.Visible;
                     _spinner.Visibility = ViewStates.Visible;
 
-                    LoadPosts(true);
-                    return false;
+                    LoadPosts(selectedTag, true);
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         private void SetAnimation()

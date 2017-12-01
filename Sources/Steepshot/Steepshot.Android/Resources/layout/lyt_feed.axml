@@ -28,7 +28,7 @@
                         android:id="@+id/logo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/logo_small"
+                        android:src="@drawable/ic_logo_small"
                         android:layout_marginLeft="5dp"
                         android:layout_centerVertical="true" />
                 </RelativeLayout>

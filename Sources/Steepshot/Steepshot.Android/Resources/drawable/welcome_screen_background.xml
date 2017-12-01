@@ -4,7 +4,7 @@
   <item>
     <bitmap
       android:gravity="fill"
-      android:src="@drawable/welcome_background"/>
+      android:src="@drawable/ic_welcome_background"/>
   </item>
 
   <item

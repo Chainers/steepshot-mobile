@@ -16,7 +16,7 @@
         android:layout_marginTop="44dp"
         android:layout_below="@id/top_panel"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/holder" />
+        android:src="@drawable/ic_holder" />
     <android.support.design.widget.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/input_password_layout"
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
             android:gravity="center"
             android:textSize="14sp"
             android:maxLength="52"
-            android:textCursorDrawable="@drawable/input"
+            android:textCursorDrawable="@drawable/ic_input"
             android:imeOptions="actionDone"
             android:background="@android:color/transparent"
             android:textColor="@color/rgb15_24_30" />
