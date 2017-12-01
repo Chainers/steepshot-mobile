@@ -17,7 +17,6 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Interfaces;
 using Steepshot.Core.Authority;
 
 namespace Steepshot.Fragment
@@ -102,10 +101,10 @@ namespace Steepshot.Fragment
                         {
                             LoadProfile();
                             GetUserPosts();
-                            BasePresenter.ShouldUpdateProfile = false;
+                            BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
                         }
                         else
-                            BasePresenter.ShouldUpdateProfile = true;
+                            BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                         _isActivated = true;
                     }
                 }
@@ -241,7 +240,7 @@ namespace Steepshot.Fragment
 
         private async void RefresherRefresh(object sender, EventArgs e)
         {
-            await UpdatePage();
+            await UpdatePage(ProfileUpdateType.Full);
             if (!IsInitialized)
                 return;
             _refresher.Refreshing = false;
@@ -276,11 +275,12 @@ namespace Steepshot.Fragment
             _postsList.ScrollToPosition(0);
         }
 
-        private async Task UpdatePage()
+        private async Task UpdatePage(ProfileUpdateType updateType)
         {
             _scrollListner.ClearPosition();
             await LoadProfile();
-            await GetUserPosts(true);
+            if (updateType == ProfileUpdateType.Full)
+                await GetUserPosts(true);
         }
 
         private void GoBackClick(object sender, EventArgs e)
@@ -477,11 +477,11 @@ namespace Steepshot.Fragment
 
         private void UpdateProfile()
         {
-            if (BasePresenter.ShouldUpdateProfile)
+            if (BasePresenter.ProfileUpdateType != ProfileUpdateType.None)
             {
                 _listSpinner.Visibility = ViewStates.Visible;
-                UpdatePage();
-                BasePresenter.ShouldUpdateProfile = false;
+                UpdatePage(BasePresenter.ProfileUpdateType);
+                BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
             }
         }
     }
