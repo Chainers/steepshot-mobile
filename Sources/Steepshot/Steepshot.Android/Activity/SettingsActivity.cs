@@ -11,6 +11,7 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -106,7 +107,7 @@ namespace Steepshot.Activity
         public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
-                BasePresenter.ShouldUpdateProfile = true;
+                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
         }
 

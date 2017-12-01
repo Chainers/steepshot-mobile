@@ -413,7 +413,7 @@ namespace Steepshot.Activity
             if (resp != null && resp.Success)
             {
                 OnUploadEnded();
-                BasePresenter.ShouldUpdateProfile = true;
+                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
                 Finish();
             }

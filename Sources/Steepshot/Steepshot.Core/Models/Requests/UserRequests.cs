@@ -43,6 +43,14 @@ namespace Steepshot.Core.Models.Requests
         All
     }
 
+    public enum ProfileUpdateType
+    {
+        Full,
+        OnlyInfo,
+        OnlyPosts,
+        None
+    }
+
     public class UserFriendsRequest : NamedRequestWithOffsetLimitFields
     {
         public UserFriendsRequest(string username, FriendsType type)
