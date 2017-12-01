@@ -128,6 +128,7 @@ namespace Steepshot.Fragment
 
         private void OnBack(object sender, EventArgs e)
         {
+            HideKeyboard();
             Activity.OnBackPressed();
         }
 
