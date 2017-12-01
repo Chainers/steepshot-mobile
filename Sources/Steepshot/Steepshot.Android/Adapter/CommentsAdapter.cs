@@ -189,8 +189,10 @@ namespace Steepshot.Adapter
         {
             if (!BasePostPresenter.IsEnableVote)
                 return;
-
-            _likeAction?.Invoke(_post);
+            if (_post.Flag)
+                _flagAction?.Invoke(_post);
+            else
+                _likeAction?.Invoke(_post);
         }
 
         private void Root_Click(object sender, EventArgs e)
@@ -220,7 +222,7 @@ namespace Steepshot.Adapter
                 if (post.VoteChanging)
                     _likeOrFlag.StartAnimation(_likeSetAnimation);
                 else if (post.FlagChanging)
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
             }
             else
             {
@@ -229,14 +231,10 @@ namespace Steepshot.Adapter
                     _likeOrFlag.SetImageResource(post.Vote
                         ? Resource.Drawable.ic_new_like_filled
                         : Resource.Drawable.ic_new_like_selected);
-                    _likeOrFlag.Click -= DoFlagAction;
-                    _likeOrFlag.Click += Like_Click;
                 }
                 else
                 {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_browse);
-                    _likeOrFlag.Click -= Like_Click;
-                    _likeOrFlag.Click += DoFlagAction;
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
                 }
             }
 
