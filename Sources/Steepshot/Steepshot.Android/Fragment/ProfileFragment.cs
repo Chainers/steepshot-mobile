@@ -131,6 +131,11 @@ namespace Steepshot.Fragment
             _profileId = profileId;
         }
 
+        public ProfileFragment()
+        {
+            //This is fix for crashing when app killed in background
+        }
+
         public override void OnResume()
         {
             base.OnResume();
@@ -458,7 +463,7 @@ namespace Steepshot.Fragment
             if (tag != null)
             {
                 Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((IClearable)Activity).SelectTabWithClearing(1);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
             }
             else
                 _postsList.GetAdapter()?.NotifyDataSetChanged();

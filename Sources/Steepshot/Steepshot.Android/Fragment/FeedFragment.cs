@@ -218,7 +218,7 @@ namespace Steepshot.Fragment
             if (tag != null)
             {
                 Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
-                ((RootActivity)Activity).SelectTabWithClearing(1);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
             }
             else
                 _adapter.NotifyDataSetChanged();

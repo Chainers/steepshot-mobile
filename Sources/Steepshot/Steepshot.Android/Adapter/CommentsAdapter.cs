@@ -21,6 +21,7 @@ namespace Steepshot.Adapter
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
         public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction;
+        public Action RootClickAction;
 
         public override int ItemCount => _presenter.Count;
 
@@ -43,7 +44,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
-            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction, HideAction, ReplyAction);
+            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction, HideAction, ReplyAction, RootClickAction);
             return vh;
         }
     }
@@ -65,14 +66,16 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
         private readonly Action<Post> _replyAction;
+        private readonly Action _rootAction;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly Dialog _moreActionsDialog;
         private readonly Context _context;
+        private readonly RelativeLayout _rootView;
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -84,6 +87,7 @@ namespace Steepshot.Adapter
             _reply = itemView.FindViewById<TextView>(Resource.Id.reply_btn);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
+            _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
 
             _author.Typeface = Style.Semibold;
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
@@ -93,6 +97,7 @@ namespace Steepshot.Adapter
             _flagAction = flagAction;
             _hideAction = hideAction;
             _replyAction = replyAction;
+            _rootAction = rootClickAction;
 
             _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
@@ -100,6 +105,7 @@ namespace Steepshot.Adapter
             _cost.Click += UserAction;
             _more.Click += DoMoreAction;
             _reply.Click += ReplyAction;
+            _rootView.Click += Root_Click;
 
             _context = itemView.RootView.Context;
             _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
@@ -187,6 +193,11 @@ namespace Steepshot.Adapter
             _likeAction?.Invoke(_post);
         }
 
+        private void Root_Click(object sender, EventArgs e)
+        {
+            _rootAction?.Invoke();
+        }
+
         public void UpdateData(Post post, Context context)
         {
             _post = post;
@@ -229,7 +240,7 @@ namespace Steepshot.Adapter
                 }
             }
 
-            _likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;

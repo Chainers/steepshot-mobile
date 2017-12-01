@@ -50,7 +50,7 @@ namespace Steepshot.Core.HttpClient
                 ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters
             };
 
-            restRequest.AddFile("photo", request.Photo, request.Title);
+            restRequest.AddFile("photo", request.Photo, request.Title.Substring(0, 20));
             restRequest.AddParameter("title", request.Title);
             if (!string.IsNullOrWhiteSpace(request.Description))
                 restRequest.AddParameter("description", request.Description);
