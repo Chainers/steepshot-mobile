@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RestSharp.Portable;
@@ -40,6 +41,7 @@ namespace Steepshot.Core.HttpClient
             request.AddParameter(_serializer.ContentType, parameters, ParameterType.RequestBody);
             return _restClient.Execute(request, ct);
         }
+
         public Task<IRestResponse> Upload(GatewayVersion version, string endpoint, UploadImageRequest request, CancellationToken ct)
         {
             var resource = GetResource(version, endpoint);
@@ -50,7 +52,8 @@ namespace Steepshot.Core.HttpClient
                 ContentCollectionMode = ContentCollectionMode.MultiPartForFileParameters
             };
 
-            restRequest.AddFile("photo", request.Photo, request.Title.Substring(0, 20));
+            var fTitle = Guid.NewGuid().ToString(); //request.Title.Length > 20 ? request.Title.Remove(20) : request.Title;
+            restRequest.AddFile("photo", request.Photo, fTitle);
             restRequest.AddParameter("title", request.Title);
             if (!string.IsNullOrWhiteSpace(request.Description))
                 restRequest.AddParameter("description", request.Description);
