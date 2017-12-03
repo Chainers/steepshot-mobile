@@ -10,6 +10,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
@@ -25,7 +26,7 @@ namespace Steepshot.Core.Presenters
         private static IConnectionService _connectionService;
 
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
-        public static bool ShouldUpdateProfile;
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
         public static event Action<string> OnAllert;
 
         protected CancellationTokenSource OnDisposeCts;

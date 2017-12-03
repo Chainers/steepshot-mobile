@@ -33,7 +33,7 @@ namespace Steepshot.Fragment
         };
 
         private Timer _timer;
-        private SearchType _searchType = SearchType.People;
+        private SearchType _searchType = SearchType.Tags;
         private ScrollListener _scrollListner;
         private TagsAdapter _categoriesAdapter;
         private FollowersAdapter _usersSearchAdapter;
@@ -99,8 +99,7 @@ namespace Steepshot.Fragment
             SwitchSearchType(false);
             _searchView.RequestFocus();
 
-            var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-            imm.ShowSoftInput(_searchView, ShowFlags.Implicit);
+            ((BaseActivity)Activity).OpenKeyboard(_searchView);
 
             _emptyQueryLabel.Typeface = Style.Light;
             _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
@@ -168,12 +167,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (Activity.CurrentFocus != null)
-            {
-                var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-                imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
-            }
-
+            ((BaseActivity)Activity).HideKeyboard();
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
 
@@ -183,14 +177,9 @@ namespace Steepshot.Fragment
             if (string.IsNullOrWhiteSpace(tag))
                 return;
 
-            if (Activity.CurrentFocus != null)
-            {
-                var imm = (InputMethodManager)Activity.GetSystemService(Context.InputMethodService);
-                imm.HideSoftInputFromWindow(Activity.CurrentFocus.WindowToken, 0);
-            }
-
+            ((BaseActivity)Activity).HideKeyboard();
             Activity.Intent.PutExtra(SearchExtra, tag);
-            Activity.OnBackPressed();
+            ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
         }
 
         private async void Follow(UserFriend userFriend)
