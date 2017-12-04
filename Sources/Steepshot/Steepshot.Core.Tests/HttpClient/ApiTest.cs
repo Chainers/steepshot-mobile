@@ -11,7 +11,7 @@ namespace Steepshot.Core.Tests.HttpClient
     [TestFixture]
     public class ApiTest : BaseTests
     {
-        [Test, Sequential]
+        [Test]
         public void LoginWithPostingKeyTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var api = Api[apiName];
@@ -19,10 +19,11 @@ namespace Steepshot.Core.Tests.HttpClient
             var request = new AuthorizedRequest(user);
             var response = api.LoginWithPostingKey(request, CancellationToken.None).Result;
             AssertResult(response);
+            Assert.That(response.Success, Is.True);
             Assert.That(response.Result.IsSuccess, Is.True);
         }
 
-        [Test, Sequential]
+        [Test]
         public void UploadWithPrepareTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
@@ -54,7 +55,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
         }
 
-        [Test, Sequential]
+        [Test]
         public void CreateCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
@@ -86,7 +87,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentResponse.Result.Permlink)));
         }
 
-        [Test, Sequential]
+        [Test]
         public void VotePostTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];
@@ -137,7 +138,7 @@ namespace Steepshot.Core.Tests.HttpClient
             //Assert.That(post.Vote, Is.False);
         }
 
-        [Test, Sequential]
+        [Test]
         public void VoteCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var user = Users[apiName];

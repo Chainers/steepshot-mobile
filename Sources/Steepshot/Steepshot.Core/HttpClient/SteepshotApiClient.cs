@@ -43,10 +43,9 @@ namespace Steepshot.Core.HttpClient
 
             lock (_serverServerClient)
             {
-                if (_serverServerClient.Gateway != null)
+                if (!string.IsNullOrEmpty(_serverServerClient.Gateway.Url))
                 {
                     _ditchClient.EnableWrite = false;
-
                     CtsMain.Cancel();
                 }
 
@@ -57,7 +56,7 @@ namespace Steepshot.Core.HttpClient
                 else
                     _ditchClient = new GolosClient(_converter);
 
-                _serverServerClient.Gateway = new ApiGateway(sUrl);
+                _serverServerClient.Gateway.Url = sUrl;
                 _serverServerClient.EnableRead = true;
             }
         }

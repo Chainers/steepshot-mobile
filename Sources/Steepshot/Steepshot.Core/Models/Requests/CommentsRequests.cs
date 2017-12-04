@@ -9,9 +9,9 @@ namespace Steepshot.Core.Models.Requests
         public CommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new UserException(Localization.Errors.EmptyUrlField);
+                throw new UserException("url", Localization.Errors.EmptyUrlField);
             if (string.IsNullOrWhiteSpace(body))
-                throw new UserException(Localization.Errors.EmptyCommentField);
+                throw new UserException("body", Localization.Errors.EmptyCommentField);
 
             Url = url;
             Body = body;
