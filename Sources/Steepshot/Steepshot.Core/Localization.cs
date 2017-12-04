@@ -146,6 +146,8 @@
             public const string SignIn = "Sign in";
             public const string FlagPost = "Flag post";
             public const string UnFlagPost = "Unflag post";
+            public const string FlagComment = "Flag comment";
+            public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";
