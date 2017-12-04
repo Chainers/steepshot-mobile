@@ -33,6 +33,8 @@
             public const string MaxVoteChanges = "You`ve already liked this post a few times. Please try another one.";
             public const string UnexpectedError = "An unexpected error occurred.";
             public const string CameraSettingError = "Camera Setting error.";
+            public const string VotedInASimilarWay = "You have already voted in a similar way.";
+
 
             /// <summary>
             ///  $"The server did not accept the request! Reason ({code}) {msg}";
