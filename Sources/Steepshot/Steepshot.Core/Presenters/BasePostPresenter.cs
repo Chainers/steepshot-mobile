@@ -117,19 +117,29 @@ namespace Steepshot.Core.Presenters
             if (response.Success)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
-                if (VoteDelay > td.Milliseconds + 300)
+                if (VoteDelay > td.Milliseconds)
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
-
-                post.Vote = !post.Vote;
-                post.Flag = false;
-                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+                
                 post.NetVotes = response.Result.NetVotes;
-                post.NetLikes = post.Vote ? post.NetLikes + 1 : post.NetLikes - 1;
-                if (wasFlaged)
-                    post.NetFlags--;
+                ChangeLike(post, wasFlaged);
+                post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
+            }
+            else if(response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
+            {
+                response.Errors.Clear();
+                ChangeLike(post, wasFlaged);
             }
 
             return response.Errors;
+        }
+
+        private void ChangeLike(Post post, bool wasFlaged)
+        {
+            post.Vote = !post.Vote;
+            post.Flag = false;
+            post.NetLikes = post.Vote ? post.NetLikes + 1 : post.NetLikes - 1;
+            if (wasFlaged)
+                post.NetFlags--;
         }
 
         public async Task<List<string>> TryFlag(Post post)
@@ -160,18 +170,28 @@ namespace Steepshot.Core.Presenters
 
             if (response.Success)
             {
-                post.Flag = !post.Flag;
-                post.Vote = false;
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;
-                post.NetFlags = post.Flag ? post.NetFlags + 1 : post.NetFlags - 1;
-                if (wasVote)
-                    post.NetLikes--;
+                ChangeFlag(post, wasVote);
                 var td = DateTime.Now - response.Result.VoteTime;
-                if (VoteDelay > td.Milliseconds + 300)
+                if (VoteDelay > td.Milliseconds)
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
             }
+            else if (response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
+            {
+                response.Errors.Clear();
+                ChangeFlag(post, wasVote);
+            }
             return response.Errors;
+        }
+
+        private void ChangeFlag(Post post, bool wasVote)
+        {
+            post.Flag = !post.Flag;
+            post.Vote = false;
+            post.NetFlags = post.Flag ? post.NetFlags + 1 : post.NetFlags - 1;
+            if (wasVote)
+                post.NetLikes--;
         }
     }
 }
