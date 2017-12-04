@@ -562,20 +562,25 @@ namespace Steepshot.Fragment
             _fontReductionAnimation = ValueAnimator.OfFloat(MaxFontSize, MinFontSize);
             _fontReductionAnimation.SetDuration(AnimationDuration);
 
-            _grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
-            _grayToBlackAnimation.SetDuration(AnimationDuration);
-
-            _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
-            _blackToGrayAnimation.SetDuration(AnimationDuration);
-
             _fontGrowingAnimation.Update += OnFontGrowingAnimationOnUpdate;
             _fontReductionAnimation.Update += OnFontReductionAnimationOnUpdate;
-            _grayToBlackAnimation.Update += OnGrayToBlackAnimationOnUpdate;
-            _blackToGrayAnimation.Update += OnBlackToGrayAnimationOnUpdate;
-            _blackToGrayAnimation.AnimationEnd += OnBlackToGrayAnimationOnAnimationEnd;
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
+            {
+                _grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
+                _grayToBlackAnimation.SetDuration(AnimationDuration);
+
+                _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
+                _blackToGrayAnimation.SetDuration(AnimationDuration);
+
+                _grayToBlackAnimation.Update += OnGrayToBlackAnimationOnUpdate;
+                _blackToGrayAnimation.Update += OnBlackToGrayAnimationOnUpdate;
+                _blackToGrayAnimation.AnimationEnd += OnAnimationEnd;
+            }
+            else
+                _fontReductionAnimation.AnimationEnd += OnAnimationEnd;
         }
 
-        private void OnBlackToGrayAnimationOnAnimationEnd(object sender, EventArgs e)
+        private void OnAnimationEnd(object sender, EventArgs e)
         {
             _currentButton = _activeButton;
             _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
@@ -624,8 +629,16 @@ namespace Steepshot.Fragment
 
             _fontGrowingAnimation.Start();
             _fontReductionAnimation.Start();
-            _grayToBlackAnimation.Start();
-            _blackToGrayAnimation.Start();
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
+            {
+                _grayToBlackAnimation.Start();
+                _blackToGrayAnimation.Start();
+            }
+            else
+            {
+                _currentButton.SetTextColor(Style.R151G155B158);
+                _activeButton.SetTextColor(Style.R15G24B30);
+            }
         }
     }
 }

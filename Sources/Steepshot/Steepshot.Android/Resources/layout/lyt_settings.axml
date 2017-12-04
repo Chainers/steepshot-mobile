@@ -106,7 +106,7 @@
                         android:textColor="@color/rgb15_24_30"
                         android:textSize="@dimen/dp_button_text"
                         android:layout_centerVertical="true" />
-                    <Switch
+                    <android.support.v7.widget.SwitchCompat
                         android:id="@+id/low_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

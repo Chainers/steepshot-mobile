@@ -31,7 +31,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.tests)] private AppCompatButton _testsButton;
         [InjectView(Resource.Id.btn_guide)] private Button _guideButton;
         [InjectView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
-        [InjectView(Resource.Id.low_switch)] private Switch _lowRatedSwitcher;
+        [InjectView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
         [InjectView(Resource.Id.version_textview)] private TextView _versionText;
         [InjectView(Resource.Id.nsfw_switch_text)] private TextView _nsfwSwitchText;
         [InjectView(Resource.Id.low_switch_text)] private TextView _lowSwitchText;
@@ -79,7 +79,8 @@ namespace Steepshot.Activity
             _accountsAdapter.DeleteAccount += OnAdapterDeleteAccount;
             _accountsAdapter.PickAccount += OnAdapterPickAccount;
 
-            _accountsList.NestedScrollingEnabled = false;
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
+                _accountsList.NestedScrollingEnabled = false;
             _accountsList.SetLayoutManager(new LinearLayoutManager(this));
             _accountsList.SetAdapter(_accountsAdapter);
 
