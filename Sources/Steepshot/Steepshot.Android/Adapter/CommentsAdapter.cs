@@ -1,8 +1,8 @@
 ﻿using System;
-using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Views.Animations;
@@ -69,7 +69,7 @@ namespace Steepshot.Adapter
         private readonly Action _rootAction;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
-        private readonly Dialog _moreActionsDialog;
+        private readonly BottomSheetDialog _moreActionsDialog;
         private readonly Context _context;
         private readonly RelativeLayout _rootView;
 
@@ -113,7 +113,7 @@ namespace Steepshot.Adapter
             _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
             _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
 
-            _moreActionsDialog = new Dialog(_context);
+            _moreActionsDialog = new BottomSheetDialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
@@ -127,9 +127,16 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
-                flag.Text = _post.Flag ? Localization.Texts.UnFlag : Localization.Texts.Flag;
+                flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
+                flag.Typeface = Style.Semibold;
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
+                hide.Text = Localization.Texts.HidePost;
+                hide.Typeface = Style.Semibold;
+                if (_post.Author == BasePresenter.User.Login)
+                    flag.Visibility = hide.Visibility = ViewStates.Gone;
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                cancel.Text = Localization.Texts.Cancel;
+                cancel.Typeface = Style.Semibold;
 
                 flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
@@ -141,6 +148,8 @@ namespace Steepshot.Adapter
                 cancel.Click += DoDialogCancelAction;
 
                 _moreActionsDialog.SetContentView(dialogView);
+                dialogView.SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
         }
@@ -205,6 +214,9 @@ namespace Steepshot.Adapter
             _post = post;
             _author.Text = post.Author;
             _comment.Text = post.Body;
+
+            if (_post.Author == BasePresenter.User.Login)
+                _more.Visibility = ViewStates.Gone;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
                 Picasso.With(_context).Load(_post.Avatar)

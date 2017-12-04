@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Text;
-using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -19,6 +18,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Collections.Generic;
+using Android.Support.Design.Widget;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 
@@ -104,7 +104,7 @@ namespace Steepshot.Adapter
         private readonly LinearLayout _commentFooter;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
-        private readonly Dialog _moreActionsDialog;
+        private readonly BottomSheetDialog _moreActionsDialog;
         private readonly Context _context;
 
         private readonly List<CustomClickableSpan> _tags;
@@ -153,7 +153,7 @@ namespace Steepshot.Adapter
             _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
             _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
 
-            _moreActionsDialog = new Dialog(_context);
+            _moreActionsDialog = new BottomSheetDialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _title.MovementMethod = new LinkMovementMethod();
             _title.SetHighlightColor(Color.Transparent);
@@ -207,10 +207,21 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
-                flag.Text = _post.Flag ? Localization.Texts.UnFlag : Localization.Texts.Flag;
+                flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
+                flag.Typeface = Style.Semibold;
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
-                var share = dialogView.FindViewById<Button>(Resource.Id.share);
+                hide.Text = Localization.Texts.HidePost;
+                hide.Typeface = Style.Semibold;
+                hide.Visibility = ViewStates.Visible;
+                if (_post.Author == BasePresenter.User.Login)
+                    flag.Visibility = hide.Visibility = ViewStates.Gone;
+                var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
+                copylink.Text = Localization.Texts.CopyLink;
+                copylink.Typeface = Style.Semibold;
+                copylink.Visibility = ViewStates.Visible;
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                cancel.Text = Localization.Texts.Cancel;
+                cancel.Typeface = Style.Semibold;
 
                 flag.Click -= DoFlagAction;
                 flag.Click += DoFlagAction;
@@ -218,14 +229,15 @@ namespace Steepshot.Adapter
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
 
-                share.Visibility = ViewStates.Visible;
-                share.Click -= DoShareAction;
-                share.Click += DoShareAction;
+                copylink.Click -= DoShareAction;
+                copylink.Click += DoShareAction;
 
                 cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
 
                 _moreActionsDialog.SetContentView(dialogView);
+                dialogView.SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
         }

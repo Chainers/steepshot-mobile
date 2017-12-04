@@ -140,8 +140,11 @@
             public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
             public const string ShowMoreString = " Show more...";
             public const string SignIn = "Sign in";
-            public const string Flag = "Flag";
-            public const string UnFlag = "Unflag";
+            public const string FlagPost = "Flag post";
+            public const string UnFlagPost = "Unflag post";
+            public const string HidePost = "Hide post";
+            public const string CopyLink = "Copy link";
+            public const string Cancel = "Cancel";
         }
     }
 }
