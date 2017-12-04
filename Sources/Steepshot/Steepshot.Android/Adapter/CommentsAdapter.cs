@@ -250,11 +250,11 @@ namespace Steepshot.Adapter
                 }
             }
 
-            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             }
             else
                 _flags.Visibility = ViewStates.Gone;

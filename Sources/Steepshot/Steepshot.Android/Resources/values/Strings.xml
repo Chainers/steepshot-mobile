@@ -17,6 +17,7 @@
   <string name = "hot">Hot"</string>
   <string name = "Trending">Trending</string>
   <string name = "view_n_comments">See all {0} comments</string>
+  <string name = "view_comment">See comment</string>
   <string name = "title_comment"><b>{0}</b> {1}</string>
   <string name = "first_title_comment">Post your first comment</string>
   <string name = "time_hours">{0} hours</string>

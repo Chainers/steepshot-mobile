@@ -14,10 +14,10 @@ namespace Steepshot.Core.Utils
                 return $"{period.Days / 30} {Localization.Texts.MonthAgo}";
 
             if (period.Days != 0)
-                return $"{period.Days} {Localization.Texts.DaysAgo}";
+                return $"{period.Days} {(period.Days == 1 ? Localization.Texts.DayAgo : Localization.Texts.DaysAgo)}";
 
             if (period.Hours != 0)
-                return $"{period.Hours} {Localization.Texts.HrsAgo}";
+                return $"{period.Hours} {(period.Hours == 1 ? Localization.Texts.HrAgo : Localization.Texts.HrsAgo)}";
 
             if (period.Minutes != 0)
                 return $"{period.Minutes} {Localization.Texts.MinAgo}";

@@ -55,7 +55,9 @@
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";
             public const string Likes = "likes";
+            public const string Like = "like";
             public const string Flags = "flags";
+            public const string Flag = "flag";
             public const string Follow = "Follow";
             public const string Unfollow = "Unfollow";
             public const string Error = "Error";
@@ -131,7 +133,9 @@
             public const string YearsAgo = "years ago";
             public const string MonthAgo = "month ago";
             public const string DaysAgo = "days ago";
+            public const string DayAgo = "day ago";
             public const string HrsAgo = "hrs ago";
+            public const string HrAgo = "hr ago";
             public const string MinAgo = "min ago";
             public const string SecAgo = "sec ago";
             public const string CreateFirstPostText = "Create first photo";
