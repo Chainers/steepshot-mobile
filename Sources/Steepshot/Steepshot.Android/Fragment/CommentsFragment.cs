@@ -79,7 +79,7 @@ namespace Steepshot.Fragment
             _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Messages.PostComments;
+            _viewTitle.Text = Localization.Messages.Comments;
 
             _post.Click += OnPost;
             _rootLayout.Click += OnRootClick;
