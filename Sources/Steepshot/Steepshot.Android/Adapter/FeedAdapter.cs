@@ -212,6 +212,7 @@ namespace Steepshot.Adapter
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = Localization.Texts.HidePost;
                 hide.Typeface = Style.Semibold;
+                hide.Visibility = ViewStates.Visible;
                 if (_post.Author == BasePresenter.User.Login)
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
@@ -234,8 +235,6 @@ namespace Steepshot.Adapter
                 cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
 
-                var padding = (int)BitmapUtils.DpToPixel(10, _context.Resources);
-                _moreActionsDialog.Window.DecorView.SetPadding(padding, padding, padding, padding);
                 _moreActionsDialog.SetContentView(dialogView);
                 dialogView.SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
