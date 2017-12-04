@@ -34,7 +34,10 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Inject(this);
 #if DEBUG
-            _username.Text = "joseph.kalu";
+            var di = AssetsHelper.GetDebugInfo(Assets);
+            _username.Text = BasePresenter.Chain == KnownChains.Golos
+                ? di.GolosTestLogin
+                : di.SteemTestLogin;
 #endif
 
             _backButton.Visibility = ViewStates.Visible;

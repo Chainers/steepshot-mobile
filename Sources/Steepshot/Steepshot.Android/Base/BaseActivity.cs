@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
@@ -13,6 +14,7 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Fragment;
 using Steepshot.Services;
+using Steepshot.Utils;
 using LruCache = Square.Picasso.LruCache;
 
 namespace Steepshot.Base
@@ -24,7 +26,7 @@ namespace Steepshot.Base
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            InitIoC();
+            InitIoC(Assets);
             base.OnCreate(savedInstanceState);
             InitPicassoCache();
         }
@@ -51,22 +53,26 @@ namespace Steepshot.Base
             }
         }
 
-        public static void InitIoC()
+        public static void InitIoC(AssetManager assetManagerssets)
         {
             if (AppSettings.Container == null)
             {
                 var builder = new ContainerBuilder();
                 var saverService = new SaverService();
                 var dataProvider = new DataProvider(saverService);
-                builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
+                var appInfo = new AppInfo();
+                var connectionService = new ConnectionService();
+                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
                 builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
-                builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
-#if DEBUG
-                builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
-#else
-            builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
-#endif
+                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
+//#if DEBUG
+//                builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+//#else
+                var configInfo = AssetsHelper.GetConfigInfo(assetManagerssets);
+                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDSN);
+                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+//#endif
                 AppSettings.Container = builder.Build();
             }
         }

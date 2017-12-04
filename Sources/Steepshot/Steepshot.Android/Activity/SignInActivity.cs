@@ -68,20 +68,10 @@ namespace Steepshot.Activity
             _signInBtn.Typeface = Style.Semibold;
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
-            try
-            {
-                var stream = Assets.Open("DebugWif.txt");
-                using (var sr = new StreamReader(stream))
-                {
-                    var wif = sr.ReadToEnd();
-                    _password.Text = wif;
-                }
-                stream.Dispose();
-            }
-            catch
-            {
-                //to do nothing
-            }
+            var di = AssetsHelper.GetDebugInfo(Assets);
+            _password.Text = BasePresenter.Chain == KnownChains.Golos
+                ? di.GolosTestWif
+                : di.SteemTestWif;
 #endif
             if (!string.IsNullOrEmpty(_profileImageUrl))
                 Picasso.With(this).Load(_profileImageUrl)

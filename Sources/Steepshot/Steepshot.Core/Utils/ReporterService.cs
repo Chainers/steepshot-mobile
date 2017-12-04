@@ -9,6 +9,7 @@ namespace Steepshot.Core.Utils
     public class ReporterService : IReporterService
     {
         private readonly IAppInfo _appInfoService;
+        private readonly string _dsn;
 
         private IRavenClient _ravenClient;
 
@@ -16,9 +17,9 @@ namespace Steepshot.Core.Utils
         {
             get
             {
-                if (_ravenClient == null)
+                if (_ravenClient == null && !string.IsNullOrWhiteSpace(_dsn))
                 {
-                    _ravenClient = new RavenClient("***REMOVED***");
+                    _ravenClient = new RavenClient(_dsn);
                     SharpRaven.Utilities.SystemUtil.Idiom = "Phone";
                     SharpRaven.Utilities.SystemUtil.OS = "";
                 }
@@ -26,15 +27,15 @@ namespace Steepshot.Core.Utils
             }
         }
 
-
-        public ReporterService(IAppInfo appInfoService)
+        public ReporterService(IAppInfo appInfoService, string dsn)
         {
             _appInfoService = appInfoService;
+            _dsn = dsn;
         }
 
         public void SendCrash(Exception ex)
         {
-            RavenClient.Capture(CreateSentryEvent(ex));
+            RavenClient?.Capture(CreateSentryEvent(ex));
         }
 
         private SentryEvent CreateSentryEvent(Exception ex)

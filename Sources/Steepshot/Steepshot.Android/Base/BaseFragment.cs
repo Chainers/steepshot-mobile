@@ -22,7 +22,7 @@ namespace Steepshot.Base
 
         public override void OnCreate(Android.OS.Bundle savedInstanceState)
         {
-            BaseActivity.InitIoC();
+            BaseActivity.InitIoC(Context.Assets);
             base.OnCreate(savedInstanceState);
         }
 
