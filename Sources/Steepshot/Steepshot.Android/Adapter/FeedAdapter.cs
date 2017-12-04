@@ -322,11 +322,11 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
-            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             }
             else
                 _flags.Visibility = ViewStates.Gone;
@@ -353,7 +353,7 @@ namespace Steepshot.Adapter
             UpdateText();
 
             _commentSubtitle.Text = post.Children > 0
-                ? string.Format(context.GetString(Resource.String.view_n_comments), post.Children)
+                ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
                 : context.GetString(Resource.String.first_title_comment);
 
             _likeOrFlag.ClearAnimation();

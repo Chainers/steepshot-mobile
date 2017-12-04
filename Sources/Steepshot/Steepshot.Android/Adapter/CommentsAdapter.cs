@@ -127,7 +127,7 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
-                flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
+                flag.Text = _post.Flag ? Localization.Texts.UnFlagComment : Localization.Texts.FlagComment;
                 flag.Typeface = Style.Semibold;
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = Localization.Texts.HidePost;
@@ -250,11 +250,11 @@ namespace Steepshot.Adapter
                 }
             }
 
-            _likes.Text = $"{post.NetLikes} {Localization.Messages.Likes}";
+            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags} {Localization.Messages.Flags}";
+                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             }
             else
                 _flags.Visibility = ViewStates.Gone;
