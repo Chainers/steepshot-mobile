@@ -52,6 +52,7 @@ namespace Steepshot.iOS.Views
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
                     descriptionTextField.ResignFirstResponder();
+                    titleTextField.ResignFirstResponder();
                 });
             View.AddGestureRecognizer(tap);
             titleTextField.Layer.BorderWidth = descriptionTextField.Layer.BorderWidth = 1;

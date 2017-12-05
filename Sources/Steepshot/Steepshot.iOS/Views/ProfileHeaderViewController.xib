@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -94,7 +94,7 @@
                     </constraints>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="100" verticalCompressionResistancePriority="800" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="9" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V7u-dk-4I0">
-                    <rect key="frame" x="10" y="171" width="355" height="90"/>
+                    <rect key="frame" x="10" y="118.5" width="355" height="142.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
@@ -113,11 +113,11 @@
                         <constraint firstAttribute="width" constant="75" id="YaW-4I-WWn"/>
                     </constraints>
                 </imageView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lCJ-v2-4Ba">
-                    <rect key="frame" x="102" y="133.5" width="170" height="27.5"/>
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lCJ-v2-4Ba">
+                    <rect key="frame" x="102" y="118.5" width="170" height="0.0"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QQr-X2-dlE">
-                            <rect key="frame" x="0.0" y="0.0" width="80" height="27.5"/>
+                            <rect key="frame" x="0.0" y="0.0" width="80" height="0.0"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             <constraints>
                                 <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="bfD-sW-p3T"/>
@@ -126,7 +126,7 @@
                             <state key="normal" image="wallet.png"/>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NGg-te-euX">
-                            <rect key="frame" x="90" y="0.0" width="80" height="27.5"/>
+                            <rect key="frame" x="90" y="0.0" width="80" height="0.0"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="80" id="fSa-a4-FjJ"/>
@@ -137,7 +137,7 @@
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <constraints>
                         <constraint firstAttribute="trailing" secondItem="NGg-te-euX" secondAttribute="trailing" id="3mA-oA-GWG"/>
-                        <constraint firstAttribute="height" constant="27.5" id="3oZ-9N-s6h"/>
+                        <constraint firstAttribute="height" id="3oZ-9N-s6h"/>
                         <constraint firstAttribute="bottom" secondItem="NGg-te-euX" secondAttribute="bottom" id="LyH-Fc-AjU"/>
                         <constraint firstItem="QQr-X2-dlE" firstAttribute="leading" secondItem="lCJ-v2-4Ba" secondAttribute="leading" id="YSi-zS-YBf"/>
                         <constraint firstAttribute="bottom" secondItem="QQr-X2-dlE" secondAttribute="bottom" id="cJf-Bj-G0s"/>
@@ -179,10 +179,10 @@
                 <constraint firstAttribute="trailing" secondItem="kql-hF-tcg" secondAttribute="trailing" id="cnB-Zh-T3v"/>
                 <constraint firstAttribute="trailing" secondItem="wRl-Nh-b7g" secondAttribute="trailing" id="g2K-Ef-1bc"/>
                 <constraint firstItem="wUV-ge-M5X" firstAttribute="top" secondItem="kql-hF-tcg" secondAttribute="bottom" constant="10" id="gF3-Nz-cBG"/>
-                <constraint firstItem="V7u-dk-4I0" firstAttribute="top" secondItem="lCJ-v2-4Ba" secondAttribute="bottom" constant="10" id="jJh-sW-dyc"/>
+                <constraint firstItem="V7u-dk-4I0" firstAttribute="top" secondItem="lCJ-v2-4Ba" secondAttribute="bottom" id="jJh-sW-dyc"/>
                 <constraint firstAttribute="bottom" secondItem="wUV-ge-M5X" secondAttribute="bottom" id="kmy-Xm-Uoi"/>
                 <constraint firstAttribute="trailing" secondItem="wUV-ge-M5X" secondAttribute="trailing" id="pF0-BI-Tuh"/>
-                <constraint firstItem="lCJ-v2-4Ba" firstAttribute="top" secondItem="6GR-YN-5de" secondAttribute="bottom" constant="15" id="qzN-5J-Mbw"/>
+                <constraint firstItem="lCJ-v2-4Ba" firstAttribute="top" secondItem="6GR-YN-5de" secondAttribute="bottom" id="qzN-5J-Mbw"/>
                 <constraint firstAttribute="trailing" secondItem="cWD-8y-Ce0" secondAttribute="trailing" id="rVy-fZ-w3O"/>
                 <constraint firstItem="cWD-8y-Ce0" firstAttribute="top" secondItem="wRl-Nh-b7g" secondAttribute="bottom" constant="5.5" id="vWJ-6O-nvH"/>
             </constraints>
