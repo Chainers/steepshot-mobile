@@ -4,8 +4,8 @@ namespace Steepshot.Core.Models.Requests
 {
     public class CensoredNamedRequestWithOffsetLimitFields : NamedRequestWithOffsetLimitFields
     {
-		public bool ShowNsfw { get; set; }
-		public bool ShowLowRated { get; set; }
+        public bool ShowNsfw { get; set; }
+        public bool ShowLowRated { get; set; }
     }
 
     public class UserPostsRequest : CensoredNamedRequestWithOffsetLimitFields

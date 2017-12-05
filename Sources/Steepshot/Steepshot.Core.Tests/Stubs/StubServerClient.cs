@@ -9,6 +9,9 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Models.Responses;
+using System.Threading.Tasks;
+using System.Net.Http;
+using NUnit.Framework;
 
 namespace Steepshot.Core.Tests.Stubs
 {
@@ -16,14 +19,16 @@ namespace Steepshot.Core.Tests.Stubs
     {
         public StubServerClient(JsonNetConverter converter, string url) : base(converter)
         {
-            Gateway = new ApiGateway(url);
+            Gateway.Url = url;
             EnableRead = true;
         }
 
-        protected override OperationResult<T> CreateResult<T>(string json, OperationResult error)
+        protected override async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response)
         {
-            if (error.Success)
+            if (response.IsSuccessStatusCode)
             {
+                var json = await response.Content.ReadAsStringAsync();
+
                 var jObject = JsonConverter.Deserialize<JObject>(json);
                 var type = typeof(T);
                 var mNames = GetPropertyNames(type);
@@ -40,6 +45,7 @@ namespace Steepshot.Core.Tests.Stubs
                             msg.Add($"Missing in model {pName}");
                     }
                 }
+
                 foreach (var pName in mNames)
                 {
                     if (!jNames.Contains(pName))
@@ -51,12 +57,9 @@ namespace Steepshot.Core.Tests.Stubs
                     }
                 }
 
-                if (msg.Any())
-                {
-                    error.Errors.Add($"Some properties ({msg.Count}) was missed! {Environment.NewLine} {string.Join(Environment.NewLine, msg)}");
-                }
+                Assert.IsFalse(msg.Any(), $"Some properties ({msg.Count}) was missed! {Environment.NewLine} {string.Join(Environment.NewLine, msg)}");
             }
-            return base.CreateResult<T>(json, error);
+            return await base.CreateResult<T>(response);
         }
 
         private HashSet<string> GetPropertyNames(Type type)
