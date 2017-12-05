@@ -2,65 +2,52 @@
 
 namespace Steepshot.Utils
 {
-	public class GridItemdecoration : RecyclerView.ItemDecoration
-	{
-		private readonly int _mSizeGridSpacingPx;
-		private readonly int _mGridSize;
+    public class GridItemDecoration : RecyclerView.ItemDecoration
+    {
+        private readonly bool _skipFirst;
 
-		private bool _mNeedLeftSpacing;
+        public GridItemDecoration()
+        {
+            _skipFirst = false;
+        }
 
-		public GridItemdecoration(int gridSpacingPx, int gridSize)
-		{
-			_mSizeGridSpacingPx = gridSpacingPx;
-			_mGridSize = gridSize;
-		}
 
-		public override void GetItemOffsets(Android.Graphics.Rect outRect, Android.Views.View view, RecyclerView parent, RecyclerView.State state)
-		{
-			var frameWidth = (int)((parent.Width - (float)_mSizeGridSpacingPx * (_mGridSize - 1)) / _mGridSize);
-			var padding = parent.Width / _mGridSize - frameWidth;
-			var itemPosition = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
+        public GridItemDecoration(bool skipFirst)
+        {
+            _skipFirst = skipFirst;
+        }
 
-			outRect.Top = itemPosition < _mGridSize ? 0 : _mSizeGridSpacingPx;
+        public override void GetItemOffsets(Android.Graphics.Rect outRect, Android.Views.View view, RecyclerView parent, RecyclerView.State state)
+        {
+            var index = ((RecyclerView.LayoutParams)view.LayoutParameters).ViewAdapterPosition;
+            if (_skipFirst)
+            {
+                if (index == 0)
+                {
+                    base.GetItemOffsets(outRect, view, parent, state);
+                    return;
+                }
+                index--;
+            }
 
-			if (itemPosition % _mGridSize == 0)
-			{
-				outRect.Left = 0;
-				outRect.Right = padding;
-				_mNeedLeftSpacing = true;
-			}
-			else if ((itemPosition + 1) % _mGridSize == 0)
-			{
-				_mNeedLeftSpacing = false;
-				outRect.Right = 0;
-				outRect.Left = padding;
-			}
-			else if (_mNeedLeftSpacing)
-			{
-				_mNeedLeftSpacing = false;
-				outRect.Left = _mSizeGridSpacingPx - padding;
-				if ((itemPosition + 2) % _mGridSize == 0)
-				{
-					outRect.Right = _mSizeGridSpacingPx - padding;
-				}
-				else
-				{
-					outRect.Right = _mSizeGridSpacingPx / 2;
-				}
-			}
-			else if ((itemPosition + 2) % _mGridSize == 0)
-			{
-				_mNeedLeftSpacing = false;
-				outRect.Left = _mSizeGridSpacingPx / 2;
-				outRect.Right = _mSizeGridSpacingPx - padding;
-			}
-			else
-			{
-				_mNeedLeftSpacing = false;
-				outRect.Left = _mSizeGridSpacingPx / 2;
-				outRect.Right = _mSizeGridSpacingPx / 2;
-			}
-			outRect.Bottom = 0;
-		}
-	}
+            switch (index % 3)
+            {
+                case 0:
+                    {
+                        outRect.Set(0, 0, 2, 3);
+                        break;
+                    }
+                case 1:
+                    {
+                        outRect.Set(1, 0, 1, 3);
+                        break;
+                    }
+                case 2:
+                    {
+                        outRect.Set(2, 0, 0, 3);
+                        break;
+                    }
+            }
+        }
+    }
 }

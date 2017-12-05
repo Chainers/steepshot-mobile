@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -12,23 +11,29 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FollowViewController : BaseViewControllerWithPresenter<FollowersPresenter>
+    public partial class FollowViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
+        private readonly FriendsType _friendsType;
+        private readonly string _username;
         private FollowTableViewSource _tableSource;
-        public string Username = BasePresenter.User.Login;
-        public FriendsType FriendsType = FriendsType.Followers;
+
+
+        public FollowViewController(FriendsType friendsType, string username)
+        {
+            _friendsType = friendsType;
+            _username = username;
+        }
 
         protected override void CreatePresenter()
         {
-            _presenter = new FollowersPresenter();
+            _presenter = new UserFriendPresenter { FollowType = _friendsType };
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            _tableSource = new FollowTableViewSource();
-            _tableSource.TableItems = _presenter.Users;
+            _tableSource = new FollowTableViewSource(_presenter);
             followTableView.Source = _tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
@@ -41,7 +46,7 @@ namespace Steepshot.iOS.Views
 
             _tableSource.ScrolledToBottom += () =>
             {
-                if (_presenter._hasItems)
+                if (!_presenter.IsLastReaded)
                     GetItems();
             };
 
@@ -63,7 +68,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (Username == BasePresenter.User.Login)
+            if (_username == BasePresenter.User.Login)
                 NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
@@ -74,11 +79,10 @@ namespace Steepshot.iOS.Views
                 return;
 
             progressBar.StartAnimating();
-            await _presenter.GetItems(FriendsType, Username).ContinueWith((errors) =>
+            await _presenter.TryLoadNextUserFriends(_username).ContinueWith((errors) =>
             {
                 var errorsList = errors.Result;
-                if (errorsList != null && errorsList.Count > 0)
-                    ShowAlert(errorsList[0]);
+                ShowAlert(errorsList);
                 InvokeOnMainThread(() =>
                 {
                     followTableView.ReloadData();
@@ -88,31 +92,22 @@ namespace Steepshot.iOS.Views
         }
 
 
-        public async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
+        private async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
         {
-            bool? success = null;
-            try
+            var success = false;
+            var user = _presenter.FirstOrDefault(fgh => fgh.Author == author);
+            if (user != null)
             {
-                var request = new FollowRequest(BasePresenter.User.UserInfo, followType, author);
-                var response = await _presenter.Follow(_presenter.Users.First(fgh => fgh.Author == author));
-                if (response.Success)
+                var errors = await _presenter.TryFollow(user);
+                if (errors != null)
                 {
-                    var user = _tableSource.TableItems.FirstOrDefault(f => f.Author == request.Username);
-                    if (user != null)
-                        success = user.HasFollowed = response.Result.IsSuccess;
+                    if (!errors.Any())
+                        success = true;
+                    else
+                        ShowAlert(errors);
                 }
-                //else
-                //Reporter.SendCrash(Localization.Errors.FollowError + response.Errors[0], BasePresenter.User.Login, AppVersion);
-
             }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                callback(author, success);
-            }
+            callback(author, success);
         }
     }
 }

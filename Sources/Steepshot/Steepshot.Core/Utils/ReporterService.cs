@@ -9,6 +9,7 @@ namespace Steepshot.Core.Utils
     public class ReporterService : IReporterService
     {
         private readonly IAppInfo _appInfoService;
+        private readonly string _dsn;
 
         private IRavenClient _ravenClient;
 
@@ -16,9 +17,9 @@ namespace Steepshot.Core.Utils
         {
             get
             {
-                if (_ravenClient == null)
+                if (_ravenClient == null && !string.IsNullOrWhiteSpace(_dsn))
                 {
-                    _ravenClient = new RavenClient("https://0dd6dd160ea74f30b47b58d4bf1d2e90:9786b36530c140b09612ddd96775f9b3@sentry.steepshot.org/6");
+                    _ravenClient = new RavenClient(_dsn);
                     SharpRaven.Utilities.SystemUtil.Idiom = "Phone";
                     SharpRaven.Utilities.SystemUtil.OS = "";
                 }
@@ -26,15 +27,15 @@ namespace Steepshot.Core.Utils
             }
         }
 
-
-        public ReporterService(IAppInfo appInfoService)
+        public ReporterService(IAppInfo appInfoService, string dsn)
         {
             _appInfoService = appInfoService;
+            _dsn = dsn;
         }
 
         public void SendCrash(Exception ex)
         {
-            RavenClient.Capture(CreateSentryEvent(ex));
+            RavenClient?.Capture(CreateSentryEvent(ex));
         }
 
         private SentryEvent CreateSentryEvent(Exception ex)
@@ -43,6 +44,7 @@ namespace Steepshot.Core.Utils
             sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
             sentryEvent.Tags.Add("Login", BasePresenter.User.Login);
             sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());
+            sentryEvent.Tags.Add("AppBuild", _appInfoService.GetBuildVersion());
             sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
             sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
             return sentryEvent;

@@ -1,7 +1,7 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -21,7 +21,8 @@ namespace Steepshot.Core.Models.Requests
     {
         public VoteRequest(UserInfo user, VoteType type, string identifier) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(identifier)) throw new ArgumentNullException(nameof(identifier));
+            if (string.IsNullOrWhiteSpace(identifier))
+                throw new UserException(Localization.Errors.EmptyUrlField);
 
             Type = type;
             Identifier = identifier;

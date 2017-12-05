@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -34,15 +34,8 @@ namespace Steepshot.iOS.Views
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
             commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
             Activeview = commentTextView;
-            _tableSource.Voted += (vote, url, action) =>
-            {
-                Vote(vote, url, action);
-            };
-
-            _tableSource.Flaged += (vote, url, action) =>
-            {
-                Flag(vote, url, action);
-            };
+            _tableSource.Voted += OnTableSourceOnVoted;
+            _tableSource.Flaged += OnTableSourceOnFlaged;
 
             _tableSource.GoToProfile += (username) =>
             {
@@ -63,6 +56,16 @@ namespace Steepshot.iOS.Views
             GetComments();
         }
 
+        private async void OnTableSourceOnFlaged(bool vote, Post url, Action<Post, VoteResponse> action)
+        {
+            await Flag(vote, url, action);
+        }
+
+        private async void OnTableSourceOnVoted(bool vote, Post url, Action<Post, VoteResponse> action)
+        {
+            await Vote(vote, url, action);
+        }
+
         public override void ViewWillAppear(bool animated)
         {
             _navigationBarHidden = NavigationController.NavigationBarHidden;
@@ -80,105 +83,79 @@ namespace Steepshot.iOS.Views
         public async Task GetComments()
         {
             progressBar.StartAnimating();
-            try
+
+            _presenter.Clear();
+            var errors = await _presenter.TryLoadNextComments(PostUrl);
+            if (errors == null)
+                return;
+            if (errors.Any())
+                ShowAlert(errors);
+            else
             {
-                var result = await _presenter.GetComments(PostUrl);
-                _tableSource.TableItems.Clear();
-                _tableSource.TableItems.AddRange(result);
                 commentsTable.ReloadData();
-                //kostil?
+                //TODO:KOA: WTF?
                 commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
                 await Task.Delay(TimeSpan.FromMilliseconds(10));
                 commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
             }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            finally
-            {
-                progressBar.StopAnimating();
-            }
+
+            progressBar.StopAnimating();
         }
 
-        public async Task Vote(bool vote, string postUrl, Action<string, VoteResponse> action)
+        private async Task Vote(bool vote, Post post, Action<Post, VoteResponse> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
             }
-            try
+
+            var errors = await _presenter.TryVote(post);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors);
+            else
             {
-                var response = await _presenter.Vote(_presenter.Posts.First(p => p.Url == postUrl));
-                if (response.Success)
-                {
-                    _tableSource.TableItems.First(p => p.Url == postUrl).Vote = vote;
-                    action.Invoke(postUrl, response.Result);
-                    _tableSource.TableItems.First(p => p.Url == postUrl).Flag = false;
-                }
-                else
-                    ShowAlert(response.Errors[0]);
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
+                //TODO:KOA: NOTWORK
+                //action.Invoke(postUrl, errors);
             }
         }
 
-
-
-        public async Task Flag(bool vote, string postUrl, Action<string, VoteResponse> action)
+        public async Task Flag(bool vote, Post post, Action<Post, VoteResponse> action)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
             }
-            try
+
+            var errors = await _presenter.TryFlag(post);
+            if (errors == null)
+                return;
+
+            if (errors.Any())
+                ShowAlert(errors);
+            else
             {
-                var post = _presenter.Posts.First(p => p.Url == postUrl);
-                var flagResponse = await _presenter.Flag(post);
-                if (flagResponse.Success)
-                {
-                    post.Flag = flagResponse.Result.IsSucces;
-                    if (flagResponse.Result.IsSucces)
-                    {
-                        if (post.Vote)
-                            if (post.NetVotes == 1)
-                                post.NetVotes = 0;
-                            else
-                                post.NetVotes--;
-                        post.Vote = false;
-                    }
-                    action.Invoke(postUrl, flagResponse.Result);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
+                //TODO:KOA: NOTWORK
+                //action.Invoke(postUrl, flagResponse.Result);
             }
         }
 
-        public async Task CreateComment()
+        private async Task CreateComment()
         {
-            try
+            if (!BasePresenter.User.IsAuthenticated)
             {
-                if (!BasePresenter.User.IsAuthenticated)
-                {
-                    LoginTapped();
-                    return;
-                }
-                var response = await _presenter.CreateComment(commentTextView.Text, PostUrl);
-                if (response.Success)
-                {
-                    commentTextView.Text = string.Empty;
-                    await GetComments();
-                }
+                LoginTapped();
+                return;
             }
-            catch (Exception ex)
+            var response = await _presenter.TryCreateComment(commentTextView.Text, PostUrl);
+            if (response.Success)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                commentTextView.Text = string.Empty;
+                await GetComments();
             }
         }
 

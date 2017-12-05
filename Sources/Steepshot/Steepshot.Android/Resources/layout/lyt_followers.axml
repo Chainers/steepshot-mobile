@@ -2,50 +2,57 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:minWidth="25dp"
-    android:minHeight="25dp">
-<!--Followers-->
-    <RelativeLayout
-        android:id="@+id/toolbar"
+    android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/follow_panel"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <TextView
-            android:text="@string/text_followers"
+        android:layout_height="wrap_content"
+        android:stateListAnimator="@null"
+        android:elevation="2dp"
+        android:fitsSystemWindows="true">
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_back"
-            android:scaleType="center"
-            android:background="@android:color/transparent" />
-    </RelativeLayout>
+            android:layout_height="wrap_content">
+            <include
+                layout="@layout/top_panel" />
+            <TextView
+                android:id="@+id/people_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 people"
+                android:layout_marginRight="15dp"
+                android:textSize="14sp"
+                android:textColor="@color/rgb15_24_30"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+    </android.support.design.widget.AppBarLayout>
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_below="@+id/follow_panel">
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/followers_list" />
     </FrameLayout>
+    <TextView
+        android:id="@+id/empty_query_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="100dp"
+        android:textSize="27sp"
+        android:textColor="@color/rgb15_24_30"
+        android:text="It's very strange, but we do not have anything yet for this query. Try to look for something else ..."/>
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/color_primary"
+        android:indeterminateTint="@color/rgb15_24_30"
         android:layout_centerInParent="true" />
 </RelativeLayout>

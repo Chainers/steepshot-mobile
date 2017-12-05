@@ -22,7 +22,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             SetText(BasePresenter.Chain);
-            loginButton.TouchDown += (sender, e) => GetUserInfo();
+            loginButton.TouchDown += async (sender, e) => await GetUserInfo();
             loginLabel.Font = Constants.Bold175;
             signLabel.Font = Constants.Bold125;
             loginText.Font = Constants.Bold135;
@@ -66,20 +66,18 @@ namespace Steepshot.iOS.Views
                 BasePresenter.SwitchChain(NewAccountNetwork);
             }
 
-            UITapGestureRecognizer devTap = new UITapGestureRecognizer(
-                () =>
+            UITapGestureRecognizer devTap = new UITapGestureRecognizer(() =>
             {
                 devSwitch.Hidden = !devSwitch.Hidden;
             });
             devTap.NumberOfTapsRequired = 10;
 
-            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(
-                () =>
-                {
-                    var network = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-                    SetText(network);
-                    BasePresenter.SwitchChain(network);
-                });
+            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(() =>
+            {
+                var network = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                SetText(network);
+                BasePresenter.SwitchChain(network);
+            });
             golosTap.NumberOfTapsRequired = 5;
 
             golosHidden.AddGestureRecognizer(devTap);
@@ -115,36 +113,32 @@ namespace Steepshot.iOS.Views
 
         private async Task GetUserInfo()
         {
-            activityIndicator.StartAnimating();
-            loginButton.Enabled = false;
-            try
-            {
-                var response = await _presenter.GetAccountInfo(loginText.Text);
-                if (response.Success)
-                {
-                    var myViewController = new LoginViewController();
-                    myViewController.AvatarLink = response.Result.ProfileImage;
-                    myViewController.Username = response.Result.Username;
-                    NavigationController.PushViewController(myViewController, true);
-                }
-                else
-                {
-                    ShowAlert(response.Errors[0]);
-                }
-            }
-            catch (ArgumentNullException)
+            if (string.IsNullOrWhiteSpace(loginText.Text))
             {
                 ShowAlert(Localization.Errors.EmptyLogin);
+                return;
             }
-            catch (Exception ex)
+
+            activityIndicator.StartAnimating();
+            loginButton.Enabled = false;
+
+            var response = await _presenter.TryGetAccountInfo(loginText.Text);
+            if (response != null && response.Success)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                var myViewController = new LoginViewController
+                {
+                    AvatarLink = response.Result.ProfileImage,
+                    Username = response.Result.Username
+                };
+                NavigationController.PushViewController(myViewController, true);
             }
-            finally
+            else
             {
-                loginButton.Enabled = true;
-                activityIndicator.StopAnimating();
+                ShowAlert(response);
             }
+
+            loginButton.Enabled = true;
+            activityIndicator.StopAnimating();
         }
     }
 

@@ -20,22 +20,21 @@ namespace Steepshot.iOS.ViewSources
             {
                 cell.Voted += (vote, url, action) =>
                 {
-                    Voted(vote, url, action);
+                    Voted?.Invoke(vote, url, action);
                 };
             }
             if (!cell.IsFlagedSet)
             {
                 cell.Flaged += (vote, postUri, action) =>
                 {
-                    Flaged(vote, postUri, action);
+                    Flaged?.Invoke(vote, postUri, action);
                 };
             }
             if (!cell.IsGoToProfileSet)
             {
                 cell.GoToProfile += (username) =>
                 {
-                    if (GoToProfile != null)
-                        GoToProfile(username);
+                    GoToProfile?.Invoke(username);
                 };
             }
             cell.UpdateCell(TableItems[indexPath.Row]);

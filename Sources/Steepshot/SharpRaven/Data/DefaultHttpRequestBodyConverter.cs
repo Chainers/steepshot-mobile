@@ -28,7 +28,6 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Text;
 #if net35

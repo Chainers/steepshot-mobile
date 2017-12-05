@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -6,6 +7,7 @@ using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -59,17 +61,18 @@ namespace Steepshot.iOS.Cells
                                                      .DownSample(width: 20)
                                                      .Into(avatarImage);
 
-
-            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Body, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
-                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                     .Retry(2, 200)
-                                                     .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                     .Into(bodyImage);
+            var photo = _currentPost.Photos?.FirstOrDefault();
+            if (photo != null)
+                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .Retry(2, 200)
+                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                                         .Into(bodyImage);
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
-            //rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            
+            rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
@@ -82,7 +85,7 @@ namespace Steepshot.iOS.Cells
 
             imageWidth.Constant = UIScreen.MainScreen.Bounds.Width;
             imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
-            if(_currentPost.ImageSize.Width != 0)
+            if (_currentPost.ImageSize.Width != 0)
                 bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             else
                 bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
@@ -92,7 +95,9 @@ namespace Steepshot.iOS.Cells
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
-                    ImagePreview(bodyImage.Image, _currentPost.Body);
+                    var photoUrl = _currentPost.Photos?.FirstOrDefault();
+                    if (photoUrl != null)
+                        ImagePreview(bodyImage.Image, photoUrl);
                 });
                 bodyImage.AddGestureRecognizer(tap);
 
@@ -133,34 +138,38 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost.Url, (url, post) =>
+            Voted(!likeButton.Selected, _currentPost, VotedAction);
+        }
+
+        private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)
+        {
+            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase) && operationResult.Success)
             {
-                if (url == _currentPost.Url && post.Success)
-                {
-                    likeButton.Selected = post.Result.IsSucces;
-                    flagButton.Selected = _currentPost.Flag;
-                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
-                }
-                likeButton.Enabled = true;
-            });
+                likeButton.Selected = operationResult.Result.IsSuccess;
+                flagButton.Selected = _currentPost.Flag;
+                rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
+                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+            }
+            likeButton.Enabled = true;
         }
 
         private void FlagButton_TouchDown(object sender, EventArgs e)
         {
             flagButton.Enabled = false;
-            Flagged(!flagButton.Selected, _currentPost.Url, (url, post) =>
+            Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
+        }
+
+        private void FlaggedAction(Post post, OperationResult<VoteResponse> result)
+        {
+            if (result.Success && string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                if (url == _currentPost.Url && post.Success)
-                {
-                    flagButton.Selected = post.Result.IsSucces;
-                    likeButton.Selected = _currentPost.Vote;
-                    netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
-                    rewards.Text = BaseViewController.ToFormatedCurrencyString(post.Result.NewTotalPayoutReward);
-                }
-                flagButton.Selected = _currentPost.Flag;
-                flagButton.Enabled = true;
-            });
+                flagButton.Selected = result.Result.IsSuccess;
+                likeButton.Selected = _currentPost.Vote;
+                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+                rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);
+            }
+            flagButton.Selected = _currentPost.Flag;
+            flagButton.Enabled = true;
         }
     }
 }

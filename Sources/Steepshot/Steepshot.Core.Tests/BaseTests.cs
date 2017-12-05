@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 using Autofac;
-using Ditch;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
@@ -18,9 +17,8 @@ namespace Steepshot.Core.Tests
     public class BaseTests
     {
         private const bool IsDev = false;
-        protected static readonly Dictionary<string, UserInfo> Users;
-        protected static readonly Dictionary<string, ISteepshotApiClient> Api;
-        protected static readonly Dictionary<string, ChainInfo> Chain;
+        protected static readonly Dictionary<KnownChains, UserInfo> Users;
+        protected static readonly Dictionary<KnownChains, ISteepshotApiClient> Api;
 
         static BaseTests()
         {
@@ -35,38 +33,21 @@ namespace Steepshot.Core.Tests
 
             AppSettings.Container = builder.Build();
             AppSettings.IsDev = IsDev;
-            Users = new Dictionary<string, UserInfo>
+
+            Users = new Dictionary<KnownChains, UserInfo>
             {
-                {"Steem", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
-                {"Golos", new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}}
+                {KnownChains.Steem, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
+                {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
             };
 
-            Api = new Dictionary<string, ISteepshotApiClient>
+            Api = new Dictionary<KnownChains, ISteepshotApiClient>
             {
-                //{"Steem", new SteepshotApiClient(Constants.SteemUrl)},
-                //{"Golos", new SteepshotApiClient(Constants.GolosUrl)}
-
-                {"Steem", new DitchApi(KnownChains.Steem, IsDev)},
-                {"Golos", new DitchApi(KnownChains.Golos, IsDev)}
+                {KnownChains.Steem, new SteepshotApiClient()},
+                {KnownChains.Golos, new SteepshotApiClient()},
             };
-        }
 
-        protected UserInfo Authenticate(string name)
-        {
-            //ISteepshotApiClient api = Api[name];
-            UserInfo user = Users[name];
-
-            //// Arrange
-            //var request = new AuthorizedRequest(user);
-
-            //// Act
-            //var response = api.LoginWithPostingKey(request).Result;
-
-            //// Assert
-            //AssertResult(response);
-            //Assert.That(response.Result.IsLoggedIn, Is.True);
-            //user.SessionId = response.Result.SessionId;
-            return user;
+            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev, CancellationToken.None);
+            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev, CancellationToken.None);
         }
 
         protected string GetTestImagePath()

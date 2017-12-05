@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/welcome_screen_background">
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/dev_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+    <ImageView
+        android:id="@+id/steepshot_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_logo_main"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp" />
+    <TextView
+        android:id="@+id/terms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/rgb151_155_158"
+        android:textSize="12sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="28dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginLeft="60dp"
+        android:linksClickable="true"
+        android:gravity="center" />
+    <Button
+        android:id="@+id/reg_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@id/terms"
+        android:background="@drawable/circle_border"
+        android:textColor="@color/rgb15_24_30"
+        android:textSize="14sp"
+        android:textAllCaps="false"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp" />
+    <RelativeLayout
+        android:id="@+id/golos_login_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="20dp"
+        android:layout_above="@id/reg_button"
+        android:background="@android:color/transparent">
+        <Button
+            android:id="@+id/golos_login"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/blue_circle_border"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textAllCaps="false" />
+        <ProgressBar
+            android:id="@+id/golos_loading_spinner"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:elevation="10dp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:layout_above="@id/golos_login_layout">
+        <Button
+            android:id="@+id/steem_login"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/steem_login_border"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textAllCaps="false" />
+        <ProgressBar
+            android:id="@+id/steem_loading_spinner"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:elevation="10dp" />
+    </RelativeLayout>
+</RelativeLayout>

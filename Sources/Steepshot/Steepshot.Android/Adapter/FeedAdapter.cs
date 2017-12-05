@@ -1,163 +1,482 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Android.Content;
+using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Text;
+using Android.Text.Method;
+using Android.Text.Style;
 using Android.Views;
+using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using System.Collections.Generic;
+using Android.Support.Design.Widget;
+using Steepshot.Core.Models;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Adapter
 {
-
-    public class FeedAdapter : RecyclerView.Adapter
+    public class FeedAdapter<T> : RecyclerView.Adapter where T : BasePostPresenter
     {
-        private readonly List<Post> _posts;
-        private readonly Context _context;
-        private readonly string _commentPattern = "<b>{0}</b> {1}";
-        public Action<int> LikeAction, UserAction, CommentAction, PhotoClick, VotersClick;
+        protected readonly T Presenter;
+        protected readonly Context Context;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post, VotersType> VotersClick;
+        public Action<string> TagAction;
 
-        public FeedAdapter(Context context, List<Post> posts)
+        public override int ItemCount
         {
-            _context = context;
-            _posts = posts;
+            get
+            {
+                var count = Presenter.Count;
+                return count == 0 || Presenter.IsLastReaded ? count : count + 1;
+            }
         }
 
-        public Post GetItem(int position)
+        public FeedAdapter(Context context, T presenter)
         {
-            return _posts[position];
+            Context = context;
+            Presenter = presenter;
         }
-        public override int ItemCount => _posts.Count;
+
+        public override int GetItemViewType(int position)
+        {
+            if (Presenter.Count == position)
+                return (int)ViewType.Loader;
+
+            return (int)ViewType.Cell;
+        }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var vh = holder as FeedViewHolder;
-            if (vh == null) return;
-
-            vh.Photo.SetImageResource(0);
-            var post = _posts[position];
-            vh.Author.Text = post.Author;
-            if (post.Title != null)
-            {
-                vh.FirstComment.Visibility = ViewStates.Visible;
-                vh.FirstComment.TextFormatted = Html.FromHtml(string.Format(_commentPattern, post.Author, post.Title));
-            }
-            else
-            {
-                vh.FirstComment.Visibility = ViewStates.Gone;
-            }
-
-            vh.CommentSubtitle.Text = post.Children > 0
-                ? string.Format(_context.GetString(Resource.String.view_n_comments), post.Children)
-                : _context.GetString(Resource.String.first_title_comment);
-
-            vh.UpdateData(post, _context);
-
-            //TODO: KOA: delete try{}catch ???
-            try
-            {
-                var photo = post.Photos?.FirstOrDefault();
-                if (photo != null)
-                    Picasso.With(_context).Load(photo).NoFade().Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(vh.Photo);
-            }
-            catch
-            {
-                //TODO:KOA: Empty try{}catch
-            }
-
-            if (!string.IsNullOrEmpty(post.Avatar))
-            {
-                //TODO: KOA: delete try{}catch ???
-                try
-                {
-                    Picasso.With(_context).Load(post.Avatar).NoFade().Priority(Picasso.Priority.Low).Resize(80, 0).Into(vh.Avatar);
-                }
-                catch
-                {
-                    //TODO:KOA: Empty try{}catch
-                }
-            }
-            else
-            {
-                vh.Avatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
-            }
-            vh.Like.SetImageResource(post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+            var post = Presenter[position];
+            if (post == null)
+                return;
+            var vh = (FeedViewHolder)holder;
+            vh.UpdateData(post, Context);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).
-                    Inflate(Resource.Layout.lyt_feed_item, parent, false);
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    return vh;
+            }
+        }
+    }
 
-            var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, parent.Context.Resources.DisplayMetrics.WidthPixels);
-            return vh;
+    public class FeedViewHolder : RecyclerView.ViewHolder, ITarget
+    {
+        private readonly Action<Post> _likeAction;
+        private readonly Action<Post> _userAction;
+        private readonly Action<Post> _commentAction;
+        private readonly Action<Post> _photoAction;
+        private readonly Action<Post, VotersType> _votersAction;
+        private readonly Action<Post> _flagAction;
+        private readonly Action<Post> _hideAction;
+        private readonly Action<string> _tagAction;
+        private readonly ImageView _photo;
+        private readonly ImageView _avatar;
+        private readonly TextView _author;
+        private readonly CustomTextView _title;
+        private readonly TextView _commentSubtitle;
+        private readonly TextView _time;
+        private readonly TextView _likes;
+        private readonly TextView _flags;
+        private readonly TextView _cost;
+        private readonly ImageButton _likeOrFlag;
+        private readonly ImageButton _more;
+        private readonly LinearLayout _commentFooter;
+        private readonly Animation _likeSetAnimation;
+        private readonly Animation _likeWaitAnimation;
+        private readonly BottomSheetDialog _moreActionsDialog;
+        private readonly Context _context;
+
+        private readonly List<CustomClickableSpan> _tags;
+
+        private Post _post;
+        private string _photoString;
+        public const string ClipboardTitle = "Steepshot's post link";
+        private int _textViewWidth;
+
+        private const string _tagFormat = " #{0}";
+        private const string tagToExclude = "steepshot";
+        private const int _maxLines = 3;
+
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
+        {
+            _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+            _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
+            _photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+
+            var parameters = _photo.LayoutParameters;
+            parameters.Height = height;
+
+            _photo.LayoutParameters = parameters;
+
+            _title = itemView.FindViewById<CustomTextView>(Resource.Id.first_comment);
+            _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
+            _time = itemView.FindViewById<TextView>(Resource.Id.time);
+            _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
+            _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
+            _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
+            _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+            _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
+            _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
+
+            _author.Typeface = Style.Semibold;
+            _time.Typeface = Style.Regular;
+            _likes.Typeface = Style.Semibold;
+            _flags.Typeface = Style.Semibold;
+            _cost.Typeface = Style.Semibold;
+            _title.Typeface = Style.Regular;
+            _commentSubtitle.Typeface = Style.Regular;
+
+            _context = itemView.Context;
+            _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
+            _likeSetAnimation.AnimationStart += LikeAnimationStart;
+            _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
+            _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
+
+            _moreActionsDialog = new BottomSheetDialog(_context);
+            _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
+            _title.MovementMethod = new LinkMovementMethod();
+            _title.SetHighlightColor(Color.Transparent);
+
+            _likeAction = likeAction;
+            _userAction = userAction;
+            _commentAction = commentAction;
+            _photoAction = photoAction;
+            _votersAction = votersAction;
+            _flagAction = flagAction;
+            _hideAction = hideAction;
+            _tagAction = tagAction;
+
+            _likeOrFlag.Click += DoLikeAction;
+            _avatar.Click += DoUserAction;
+            _author.Click += DoUserAction;
+            _cost.Click += DoUserAction;
+            _commentSubtitle.Click += DoCommentAction;
+            _likes.Click += DoLikersAction;
+            _flags.Click += DoFlagersAction;
+            _photo.Click += DoPhotoAction;
+            _more.Click += DoMoreAction;
+            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+
+            _tags = new List<CustomClickableSpan>();
+
+            _title.Click += OnTitleOnClick;
+
+            if (_title.OnMeasureInvoked == null)
+            {
+                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
+            }
         }
 
-        public class FeedViewHolder : RecyclerView.ViewHolder
+        private void OnTitleOnMeasureInvoked(int width, int he)
         {
-            public ImageView Photo { get; }
-            public ImageView Avatar { get; }
-            public TextView Author { get; }
-            public TextView FirstComment { get; }
-            public TextView CommentSubtitle { get; }
-            public TextView Time { get; }
-            public TextView Likes { get; }
-            public TextView Cost { get; }
-            public ImageButton Like { get; }
-            Post _post;
-            readonly Action<int> _likeAction;
+            _textViewWidth = width;
+            UpdateText();
+        }
 
-            public FeedViewHolder(View itemView, Action<int> likeAction, Action<int> userAction, Action<int> commentAction, Action<int> photoAction, Action<int> votersAction, int height) : base(itemView)
+        private void OnTitleOnClick(object sender, EventArgs e)
+        {
+            _post.IsExpanded = true;
+            _tagAction?.Invoke(null);
+        }
+
+        private void DoMoreAction(object sender, EventArgs e)
+        {
+            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_feed_popup, null))
             {
-                Avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
-                Author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-                Photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+                dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
+                var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
+                flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
+                flag.Typeface = Style.Semibold;
+                var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
+                hide.Text = Localization.Texts.HidePost;
+                hide.Typeface = Style.Semibold;
+                hide.Visibility = ViewStates.Visible;
+                if (_post.Author == BasePresenter.User.Login)
+                    flag.Visibility = hide.Visibility = ViewStates.Gone;
+                var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
+                copylink.Text = Localization.Texts.CopyLink;
+                copylink.Typeface = Style.Semibold;
+                copylink.Visibility = ViewStates.Visible;
+                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                cancel.Text = Localization.Texts.Cancel;
+                cancel.Typeface = Style.Semibold;
 
-                var parameters = Photo.LayoutParameters;
-                parameters.Height = height;
-                Photo.LayoutParameters = parameters;
+                flag.Click -= DoFlagAction;
+                flag.Click += DoFlagAction;
 
-                FirstComment = itemView.FindViewById<TextView>(Resource.Id.first_comment);
-                CommentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
-                Time = itemView.FindViewById<TextView>(Resource.Id.time);
-                Likes = itemView.FindViewById<TextView>(Resource.Id.likes);
-                Cost = itemView.FindViewById<TextView>(Resource.Id.cost);
-                Like = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
+                hide.Click -= DoHideAction;
+                hide.Click += DoHideAction;
 
-                _likeAction = likeAction;
+                copylink.Click -= DoShareAction;
+                copylink.Click += DoShareAction;
 
-                Like.Click += Like_Click;
-                Avatar.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Author.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                Cost.Click += (sender, e) => userAction?.Invoke(AdapterPosition);
-                FirstComment.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-                CommentSubtitle.Click += (sender, e) => commentAction?.Invoke(AdapterPosition);
-                Likes.Click += (sender, e) => votersAction?.Invoke(AdapterPosition);
-                Photo.Click += (sender, e) => photoAction?.Invoke(AdapterPosition);
+                cancel.Click -= DoDialogCancelAction;
+                cancel.Click += DoDialogCancelAction;
+
+                _moreActionsDialog.SetContentView(dialogView);
+                dialogView.SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Show();
+            }
+        }
+
+        private void DoFlagAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            if (!BasePostPresenter.IsEnableVote)
+                return;
+
+            _flagAction.Invoke(_post);
+        }
+
+        private void DoHideAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            _hideAction.Invoke(_post);
+        }
+
+        private void DoShareAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            var clipboard = (Android.Content.ClipboardManager)_context.GetSystemService(Context.ClipboardService);
+            var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(Localization.Texts.PostLink, _post.Url));
+            clipboard.PrimaryClip = clip;
+            _context.ShowAlert(Localization.Texts.Copied, ToastLength.Short);
+            clip.Dispose();
+            clipboard.Dispose();
+        }
+
+        private void DoDialogCancelAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+        }
+
+        private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
+        {
+            _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
+        }
+
+        private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
+        {
+            _likeOrFlag.StartAnimation(_likeWaitAnimation);
+        }
+
+        private void DoUserAction(object sender, EventArgs e)
+        {
+            _userAction?.Invoke(_post);
+        }
+
+        private void DoCommentAction(object sender, EventArgs e)
+        {
+            _commentAction?.Invoke(_post);
+        }
+
+        private void DoLikersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(_post, VotersType.Likes);
+        }
+
+        private void DoFlagersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(_post, VotersType.Flags);
+        }
+
+        private void DoPhotoAction(object sender, EventArgs e)
+        {
+            _photoAction?.Invoke(_post);
+        }
+
+        private void DoLikeAction(object sender, EventArgs e)
+        {
+            if (!BasePostPresenter.IsEnableVote)
+                return;
+
+            if (_post.Flag)
+                _flagAction?.Invoke(_post);
+            else
+                _likeAction?.Invoke(_post);
+        }
+
+        public void UpdateData(Post post, Context context)
+        {
+            _post = post;
+            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            if (post.NetFlags > 0)
+            {
+                _flags.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+            }
+            else
+                _flags.Visibility = ViewStates.Gone;
+            _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            _time.Text = post.Created.ToPostTime();
+            _author.Text = post.Author;
+
+            if (!string.IsNullOrEmpty(_post.Avatar))
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
+            else
+                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+
+            _photo.SetImageResource(0);
+            _photoString = post.Photos?.FirstOrDefault();
+            if (_photoString != null)
+            {
+                Picasso.With(_context).Load(_photoString).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo, OnSuccess, OnError);
+                var parameters = _photo.LayoutParameters;
+                var size = new Size() { Height = post.ImageSize.Height / Style.Density, Width = post.ImageSize.Width / Style.Density };
+                parameters.Height = (int)((OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight)) * Style.Density);
+                _photo.LayoutParameters = parameters;
             }
 
-            void Like_Click(object sender, EventArgs e)
+            UpdateText();
+
+            _commentSubtitle.Text = post.Children > 0
+                ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
+                : context.GetString(Resource.String.first_title_comment);
+
+            _likeOrFlag.ClearAnimation();
+            if (!BasePostPresenter.IsEnableVote)
             {
-                if (BasePresenter.User.IsAuthenticated)
+                if (post.VoteChanging)
+                    _likeOrFlag.StartAnimation(_likeSetAnimation);
+                else if (post.FlagChanging)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag);
+            }
+            else
+            {
+                if (post.Vote || !post.Flag)
                 {
-                    Like.SetImageResource(!_post.Vote ? Resource.Drawable.ic_heart_blue : Resource.Drawable.ic_heart);
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_filled
+                        : Resource.Drawable.ic_new_like_selected);
                 }
-                _likeAction?.Invoke(AdapterPosition);
+                else
+                {
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
+                }
+            }
+        }
+
+        private void UpdateText()
+        {
+            var textMaxLength = int.MaxValue;
+            if (!_post.IsExpanded)
+            {
+                if (_textViewWidth == 0)
+                    return;
+
+                var titleWithTags = new StringBuilder(_post.Title);
+
+                foreach (var item in _post.Tags)
+                {
+                    if (item != tagToExclude)
+                        titleWithTags.AppendFormat(_tagFormat, item);
+                }
+
+                var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
+                var nLines = layout.LineCount;
+                if (nLines > _maxLines)
+                {
+                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - Localization.Texts.ShowMoreString.Length;
+                }
             }
 
-            public void UpdateData(Post post, Context context)
+            var builder = new SpannableStringBuilder();
+            if (_post.Title.Length > textMaxLength)
             {
-                _post = post;
-                Likes.Text = $"{post.NetVotes} {Localization.Messages.Likes}";
-                Cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
-                Time.Text = post.Created.ToPostTime();
+                var title = new SpannableString(_post.Title.Substring(0, textMaxLength));
+                title.SetSpan(null, 0, title.Length(), 0);
+                builder.Append(title);
+                title.Dispose();
             }
+            else
+            {
+                var title = new SpannableString(_post.Title);
+                title.SetSpan(null, 0, title.Length(), 0);
+                builder.Append(title);
+                title.Dispose();
+
+                var j = 0;
+                var tags = _post.Tags.Distinct();
+
+                foreach (var tag in tags)
+                {
+                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, tag).Length)
+                    {
+                        if (j >= _tags.Count)
+                        {
+                            var ccs = new CustomClickableSpan();
+                            ccs.SpanClicked += _tagAction;
+                            _tags.Add(ccs);
+                        }
+
+                        _tags[j].Tag = tag;
+                        var spannableString = new SpannableString(string.Format(_tagFormat, tag));
+                        spannableString.SetSpan(_tags[j], 0, spannableString.Length(), SpanTypes.ExclusiveExclusive);
+                        spannableString.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, spannableString.Length(), 0);
+                        builder.Append(spannableString);
+                        spannableString.Dispose();
+                        j++;
+                    }
+                }
+            }
+            if (textMaxLength != int.MaxValue)
+            {
+                var tag = new SpannableString(Localization.Texts.ShowMoreString);
+                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
+                builder.Append(tag);
+            }
+            _title.SetText(builder, TextView.BufferType.Spannable);
+            builder.Dispose();
+        }
+
+        public void OnBitmapFailed(Drawable p0)
+        {
+        }
+
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            _photo.SetImageBitmap(p0);
+        }
+
+        public void OnPrepareLoad(Drawable p0)
+        {
+        }
+
+        private void OnSuccess()
+        {
+        }
+
+        private void OnError()
+        {
+            Picasso.With(_context).Load(_photoString).NoFade().Into(this);
+        }
+
+        private void OnErrorAvatar()
+        {
+            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(this);
         }
     }
 }

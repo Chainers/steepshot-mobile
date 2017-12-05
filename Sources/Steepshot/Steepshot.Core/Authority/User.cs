@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authority
@@ -67,7 +66,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public List<string> PostBlacklist => UserInfo.PostBlacklist;
+        public HashSet<string> PostBlackList => UserInfo.PostBlackList;
 
         public string Login => UserInfo.Login;
 
@@ -75,9 +74,20 @@ namespace Steepshot.Core.Authority
 
         public bool IsAuthenticated => !string.IsNullOrEmpty(UserInfo?.PostingKey);
 
+        public int SelectedTab
+        {
+            get => UserInfo.SelectedTab;
+            set
+            {
+                UserInfo.SelectedTab = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public User()
         {
-            _data = AppSettings.Container.Resolve<IDataProvider>();
+            _data = AppSettings.DataProvider;
         }
 
         public void Load()
@@ -99,7 +109,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public void AddAndSwitchUser(string sessionId, string login, string pass, KnownChains chain, bool isNeedRewards)
+        public void AddAndSwitchUser(string login, string pass, KnownChains chain, bool isNeedRewards)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {
@@ -113,7 +123,6 @@ namespace Steepshot.Core.Authority
                 Login = login,
                 Chain = chain,
                 PostingKey = pass,
-                SessionId = sessionId,
                 IsNeedRewards = isNeedRewards
             };
 
@@ -157,6 +166,22 @@ namespace Steepshot.Core.Authority
         public void Save()
         {
             _data.Update(UserInfo);
+        }
+
+        public void SetTabSettings(string tabKey, TabSettings value)
+        {
+            if (UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
+                UserInfo.Navigation.TabSettings[tabKey] = value;
+            else
+                UserInfo.Navigation.TabSettings.Add(tabKey, value);
+        }
+
+        public TabSettings GetTabSettings(string tabKey)
+        {
+            if (!UserInfo.Navigation.TabSettings.ContainsKey(tabKey))
+                UserInfo.Navigation.TabSettings.Add(tabKey, new TabSettings());
+
+            return UserInfo.Navigation.TabSettings[tabKey];
         }
     }
 }

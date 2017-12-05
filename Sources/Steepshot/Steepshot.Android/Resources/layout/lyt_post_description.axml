@@ -1,138 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fafafa">
+    android:clickable="true"
+    android:background="@android:color/white">
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <TextView
-            android:text="@string/add_description"
-            android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
+        android:layout_height="40dp"
+        android:clickable="true">
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_back"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_back_arrow"
             android:scaleType="center"
-            android:background="@android:color/transparent" />
-        <Button
-            android:id="@+id/toggle_description"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/circle_border"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:textSize="25sp"
-            android:text="+"
-            android:paddingBottom="5px"
-            android:layout_marginRight="5dp" />
-    </RelativeLayout>
-    <ScrollView
-        android:id="@+id/description_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:layout_above="@+id/btn_post">
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:id="@+id/photo"
-                android:layout_height="0dp"
-                android:layout_width="match_parent"
-                android:background="@color/black" />
-            <TextView
-                android:id="@+id/d_title"
-                android:layout_below="@+id/photo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:textSize="10sp"
-                android:layout_marginLeft="5dp"
-                android:textAllCaps="true"
-                android:textColor="@color/light_gray"
-                android:text="Add title" />
-            <EditText
-                android:id="@+id/d_edit"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:gravity="start"
-                android:layout_below="@+id/d_title"
-                android:background="@android:color/transparent"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:padding="10dp"
-                android:maxLength="255" />
-            <TextView
-                android:id="@+id/description_title"
-                android:layout_below="@+id/d_edit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:padding="5dp"
-                android:textSize="10sp"
-                android:layout_marginLeft="5dp"
-                android:textAllCaps="true"
-                android:textColor="@color/light_gray"
-                android:text="@string/add_description" />
-            <EditText
-                android:id="@+id/description_edit"
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:gravity="start"
-                android:visibility="gone"
-                android:layout_below="@+id/description_title"
-                android:background="@android:color/transparent"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:padding="10dp"
-                android:maxLength="255" />
-            <Steepshot.Utils.TagLayout
-                android:id="@+id/tag_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/description_edit" />
-        </RelativeLayout>
-    </ScrollView>
-    <Button
-        android:id="@+id/btn_post"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/color_primary"
-        android:textAllCaps="true"
-        android:textStyle="bold"
-        android:background="@color/white"
-        android:layout_alignParentBottom="true"
-        android:textSize="15sp"
-        android:text="Post photo"
-        android:enabled="false" />
-    <RelativeLayout
-        android:id="@+id/load_layout"
-        android:layout_width="match_parent"
-        android:background="#80FFFFFF"
-        android:visibility="gone"
-        android:layout_height="match_parent"
-        android:clickable="true">
-        <ProgressBar
-            android:id="@+id/loading_spinner"
+            android:layout_marginLeft="15dp"
+            android:background="@android:color/transparent"
+            android:layout_centerVertical="true" />
+        <TextView
+            android:id="@+id/page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/color_primary"
+            android:text="Post settings"
+            android:textSize="14sp"
+            android:textColor="@color/rgb15_24_30"
             android:layout_centerInParent="true" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/btn_post_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="17dp"
+        android:layout_alignParentBottom="true">
+        <ProgressBar
+            android:id="@+id/loading_spinner"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:visibility="gone"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/white"
+            android:layout_centerInParent="true"
+            android:elevation="10dp" />
+        <Button
+            android:id="@+id/btn_post"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:background="@drawable/steem_login_border"
+            android:layout_centerInParent="true"
+            android:textSize="14sp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/photo_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/toolbar"
+        android:layout_marginLeft="15dp">
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_rotate" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_toRightOf="@id/photo_layout"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="20dp">
+        <ImageView
+            android:id="@+id/title_image"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:src="@drawable/ic_edit"
+            android:layout_below="@id/toolbar"
+            android:layout_centerVertical="true" />
+        <EditText
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:maxLength="255"
+            android:hint="Enter a title of your photo"
+            android:background="@android:color/transparent"
+            android:textCursorDrawable="@drawable/ic_input"
+            android:layout_toRightOf="@id/title_image"
+            android:layout_marginLeft="10dp"
+            android:textColorHint="@color/rgb151_155_158" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/rgb244_244_246"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/description_layout"
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:layout_below="@id/title_layout"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp">
+        <ImageView
+            android:id="@+id/description_image"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:src="@drawable/ic_edit"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="14dp" />
+        <EditText
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="14sp"
+            android:maxLength="255"
+            android:gravity="bottom"
+            android:hint="Enter a description of your photo"
+            android:background="@android:color/transparent"
+            android:textCursorDrawable="@drawable/ic_input"
+            android:layout_toRightOf="@id/description_image"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentBottom="true"
+            android:textColorHint="@color/rgb151_155_158" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/rgb244_244_246"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/tags_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/description_layout"
+        android:paddingTop="5dp"
+        android:clickable="true"
+        android:background="@color/white">
+        <LinearLayout
+            android:id="@+id/top_margin_tags_layout"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:paddingTop="45dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/hash_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#"
+                    android:gravity="bottom"
+                    android:textColor="@color/rgb151_155_158"
+                    android:layout_marginBottom="10dp" />
+                <Steepshot.Utils.NewTextEdit
+                    android:id="@+id/tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:maxLength="32"
+                    android:gravity="bottom"
+                    android:singleLine="true"
+                    android:imeOptions="actionDone"
+                    android:hint="Add Hashtag"
+                    android:background="@android:color/transparent"
+                    android:textCursorDrawable="@drawable/ic_input"
+                    android:layout_toRightOf="@id/hash_tag"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:inputType="textNoSuggestions"
+                    android:textColorHint="@color/rgb151_155_158" />
+            </LinearLayout>
+            <View
+                android:id="@+id/tag_view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/rgb244_244_246" />
+        </LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/local_tags_list"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:visibility="gone"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/tags_list_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_below="@id/tags_layout"
+        android:background="@color/white">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/tags_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="15dp" />
+    </LinearLayout>
 </RelativeLayout>

@@ -7,88 +7,143 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Fragment
 {
-    public class VotersFragment : BaseFragmentWithPresenter<VotersPresenter>
+    public sealed class VotersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
-        private VotersAdapter _votersAdapter;
+        public static string VotersType = "voterstype";
+        private FollowersAdapter _adapter;
         private string _url;
+        private bool _isLikers;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
         [InjectView(Resource.Id.followers_list)] private RecyclerView _votersList;
-        [InjectView(Resource.Id.Title)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new VotersPresenter();
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
-                V = inflater.Inflate(Resource.Layout.lyt_followers, null);
-                Cheeseknife.Inject(this, V);
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_followers, null);
+                Cheeseknife.Inject(this, InflatedView);
             }
-            return V;
+            ToggleTabBar();
+            return InflatedView;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
-            _viewTitle.Text = Localization.Messages.Voters;
-            _url = Activity.Intent.GetStringExtra("url");
-            _votersAdapter = new VotersAdapter(Activity, _presenter.Voters);
-            _votersAdapter.Click += OnClick;
-            _votersList.SetAdapter(_votersAdapter);
+
+            var count = Activity.Intent.GetIntExtra(FeedFragment.PostNetVotesExtraPath, 0);
+            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
+
+            _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Typeface = Style.Semibold;
+            _peopleCount.Typeface = Style.Regular;
+
+            _isLikers = Activity.Intent.GetBooleanExtra(VotersType, true);
+            _viewTitle.Text = _isLikers ? Localization.Messages.Voters : Localization.Messages.FlagVoters;
+
+            _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
+            Presenter.SourceChanged += PresenterSourceChanged;
+            Presenter.VotersType =
+                _isLikers ? Core.Models.Requests.VotersType.Likes : Core.Models.Requests.VotersType.Flags;
+            _adapter = new FollowersAdapter(Activity, Presenter);
+            _adapter.UserAction += OnClick;
+            _adapter.FollowAction += OnFollow;
+            _votersList.SetAdapter(_adapter);
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadNext;
             _votersList.AddOnScrollListener(scrollListner);
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
+
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+
             LoadNext();
-        }
-
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
-        {
-            Activity.OnBackPressed();
-        }
-
-        public override void OnDestroy()
-        {
-            _presenter.LoadCancel();
-            base.OnDestroy();
-        }
-
-        private async void LoadNext()
-        {
-            var errors = await _presenter.TryLoadNext(_url);
-
-            if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
-            else
-                _votersAdapter?.NotifyDataSetChanged();
-
-            if (_bar != null)
-                _bar.Visibility = ViewStates.Gone;
-        }
-
-        private void OnClick(int pos)
-        {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_votersAdapter.Items[pos].Username));
         }
 
         public override void OnDetach()
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
+        }
+
+
+        private void PresenterSourceChanged(Status status)
+        {
+            if (!IsInitialized)
+                return;
+
+            Activity.RunOnUiThread(() =>
+            {
+                _adapter.NotifyDataSetChanged();
+            });
+        }
+
+        private void GoBackClick(object sender, EventArgs e)
+        {
+            Activity.OnBackPressed();
+        }
+
+        public override void OnDestroy()
+        {
+            Presenter.LoadCancel();
+            base.OnDestroy();
+        }
+
+        private async void LoadNext()
+        {
+            var errors = await Presenter.TryLoadNextPostVoters(_url);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors);
+            _bar.Visibility = ViewStates.Gone;
+
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+        }
+
+        private void OnClick(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+
+            if (userFriend.Author == BasePresenter.User.Login)
+                return;
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
+        }
+
+        private async void OnFollow(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+
+            var errors = await Presenter.TryFollow(userFriend);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors, ToastLength.Short);
         }
     }
 }

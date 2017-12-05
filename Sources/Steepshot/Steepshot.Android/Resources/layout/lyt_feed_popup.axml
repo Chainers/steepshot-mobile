@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:padding="10dp">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"    
+        android:layout_height="wrap_content"
+        android:background="@drawable/popup_background">
+        <Button
+            android:id="@+id/flag"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:text="Flag post"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:background="@drawable/popup_background"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:id="@+id/hide"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:text="Hide post"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:background="@drawable/popup_background"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:id="@+id/copylink"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:text="Copy link"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:background="@drawable/popup_background"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/cancel"
+        android:layout_width="fill_parent"
+        android:layout_height="65dp"
+        android:text="Cancel"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        android:background="@drawable/popup_background"/>
+</LinearLayout>

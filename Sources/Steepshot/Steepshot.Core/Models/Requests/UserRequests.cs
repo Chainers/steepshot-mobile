@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -6,7 +6,8 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserExistsRequests(string username)
         {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(username))
+                throw new UserException(Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }
@@ -18,12 +19,15 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserProfileRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(username))
+                throw new UserException(Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }
 
         public string Username { get; }
+        public bool ShowNsfw { get; set; }
+        public bool ShowLowRated { get; set; }
     }
 
     public enum FriendsType
@@ -32,11 +36,27 @@ namespace Steepshot.Core.Models.Requests
         Following
     }
 
+    public enum VotersType
+    {
+        Likes,
+        Flags,
+        All
+    }
+
+    public enum ProfileUpdateType
+    {
+        Full,
+        OnlyInfo,
+        OnlyPosts,
+        None
+    }
+
     public class UserFriendsRequest : NamedRequestWithOffsetLimitFields
     {
         public UserFriendsRequest(string username, FriendsType type)
         {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(username))
+                throw new UserException(Localization.Errors.EmptyUsernameField);
 
             Username = username;
             Type = type;
@@ -44,5 +64,15 @@ namespace Steepshot.Core.Models.Requests
 
         public string Username { get; }
         public FriendsType Type { get; }
+    }
+
+    public class VotersRequest : InfoRequest
+    {
+        public VotersRequest(string url, VotersType type) : base(url)
+        {
+            Type = type;
+        }
+
+        public VotersType Type { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Foundation;
 using Steepshot.Core;
@@ -13,8 +14,8 @@ namespace Steepshot.iOS.Views
     public partial class TagsSearchViewController : BaseViewControllerWithPresenter<SearchPresenter>
     {
         private Timer _timer;
-        private PostTagsTableViewSource _tagsSource = new PostTagsTableViewSource();
-        private UserSearchTableViewSource _usersSource = new UserSearchTableViewSource();
+        private PostTagsTableViewSource _tagsSource;
+        private UserSearchTableViewSource _usersSource;
         private SearchType _searchType = SearchType.Tags;
 
         protected override void CreatePresenter()
@@ -40,12 +41,13 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            _tagsSource = new PostTagsTableViewSource(_presenter.TagsPresenter);
+            _usersSource = new UserSearchTableViewSource(_presenter.UserFriendPresenter);
+
             _timer = new Timer(OnTimer);
-            _tagsSource.Tags = _presenter.Tags;
             tagsTable.Source = _tagsSource;
             tagsTable.RegisterClassForCellReuse(typeof(UITableViewCell), "PostTagsCell");
             _tagsSource.RowSelectedEvent += TableTagSelected;
-            _usersSource.Users = _presenter.Users;
             usersTable.Source = _usersSource;
             usersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             usersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
@@ -90,22 +92,23 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                var errors = await _presenter.SearchCategories(query, _searchType);
-                if (errors != null && errors.Count > 0)
-                    ShowAlert(errors[0]);
+                var errors = await _presenter.TrySearchCategories(query, _searchType);
+                if (errors == null)
+                    return;
+                if (errors.Any())
+                    ShowAlert(errors);
                 else
                 {
-
                     bool shouldHide;
                     if (_searchType == SearchType.Tags)
                     {
                         tagsTable.ReloadData();
-                        shouldHide = _tagsSource.Tags == null || _tagsSource.Tags.Count == 0;
+                        shouldHide = _presenter.TagsPresenter.Count == 0;
                     }
                     else
                     {
                         usersTable.ReloadData();
-                        shouldHide = _usersSource.Users == null || _usersSource.Users.Count == 0;
+                        shouldHide = _presenter.UserFriendPresenter.Count == 0;
                     }
                     if (shouldHide)
                     {
@@ -134,13 +137,15 @@ namespace Steepshot.iOS.Views
         {
             if (_searchType == SearchType.Tags)
             {
-                CurrentPostCategory = _tagsSource.Tags[row].Name;
+                var tag = _presenter.TagsPresenter[row]; //TODO:KOA: if null?
+                CurrentPostCategory = tag?.Name;
                 NavigationController.PopViewController(true);
             }
             else
             {
                 var myViewController = new ProfileViewController();
-                myViewController.Username = _usersSource.Users[row].Author;
+                var user = _presenter.UserFriendPresenter[row]; //TODO:KOA: if null?
+                myViewController.Username = user?.Author;
                 NavigationController.PushViewController(myViewController, true);
             }
         }
@@ -152,16 +157,16 @@ namespace Steepshot.iOS.Views
             if (_searchType == SearchType.Tags)
             {
                 searchTextField.Placeholder = Localization.Messages.TypeTag;
-                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
-                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
+                peopleButton.Font = Helpers.Constants.Regular15;
+                tagsButton.Font = Helpers.Constants.Bold175;
                 tagsTable.Hidden = false;
                 usersTable.Hidden = true;
             }
             else
             {
                 searchTextField.Placeholder = Localization.Messages.TypeUsername;
-                tagsButton.Font = Steepshot.iOS.Helpers.Constants.Regular15;
-                peopleButton.Font = Steepshot.iOS.Helpers.Constants.Bold175;
+                tagsButton.Font = Helpers.Constants.Regular15;
+                peopleButton.Font = Helpers.Constants.Bold175;
                 tagsTable.Hidden = true;
                 usersTable.Hidden = false;
             }

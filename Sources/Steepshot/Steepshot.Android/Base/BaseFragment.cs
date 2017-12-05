@@ -1,55 +1,35 @@
-﻿using System.Collections.Generic;
-using Android.App;
-using Android.Content;
-using Steepshot.Core;
+﻿using Android.Views;
+using Steepshot.Activity;
 
 namespace Steepshot.Base
 {
-    public abstract class BaseFragment : Android.Support.V4.App.Fragment, IBaseView
+    public abstract class BaseFragment : Android.Support.V4.App.Fragment
     {
         protected bool IsInitialized;
-        protected Android.Views.View V;
+        protected View InflatedView;
 
-        public override void OnViewCreated(Android.Views.View view, Android.OS.Bundle savedInstanceState)
+        public override void OnViewCreated(View view, Android.OS.Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             IsInitialized = true;
         }
 
-        public Context GetContext()
+        protected void ToggleTabBar(bool shouldHide = false)
         {
-            return Context;
+            if (Activity is RootActivity activity)
+                activity._tabLayout.Visibility = shouldHide ? ViewStates.Gone : ViewStates.Visible;
         }
 
-        public virtual bool CustomUserVisibleHint
+        public override void OnCreate(Android.OS.Bundle savedInstanceState)
         {
-            get;
-            set;
+            BaseActivity.InitIoC(Context.Assets);
+            base.OnCreate(savedInstanceState);
         }
 
-        protected virtual void ShowAlert(int messageid)
+        public override void OnDetach()
         {
-            Show(GetString(messageid));
-        }
-
-        protected virtual void ShowAlert(string message)
-        {
-            Show(message);
-        }
-
-        protected virtual void ShowAlert(List<string> messages)
-        {
-            Show(messages[0]);
-            //   Show(string.Join(System.Environment.NewLine, messages));
-        }
-
-        private void Show(string text)
-        {
-            var alert = new AlertDialog.Builder(Context);
-            alert.SetMessage(text);
-            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
-            Dialog dialog = alert.Create();
-            dialog.Show();
+            IsInitialized = false;
+            base.OnDetach();
         }
     }
 }

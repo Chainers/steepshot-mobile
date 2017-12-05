@@ -1,5 +1,7 @@
 using System;
 using Ditch;
+using Ditch.Core;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Models.Common
 {
@@ -28,7 +30,7 @@ namespace Steepshot.Core.Models.Common
     {
         public string Body { get; set; }
         public string[] Photos { get; set; }
-        public string Discription { get; set; }
+        public string Description { get; set; }
         public string Title { get; set; }
         public string Url { get; set; }
         public string Category { get; set; }
@@ -38,6 +40,8 @@ namespace Steepshot.Core.Models.Common
         public int AuthorRewards { get; set; }
         public int AuthorReputation { get; set; }
         public int NetVotes { get; set; }
+        public int NetLikes { get; set; }
+        public int NetFlags { get; set; }
         public int Children { get; set; }
         public DateTime Created { get; set; }
         public Money CuratorPayoutValue { get; set; }
@@ -50,5 +54,15 @@ namespace Steepshot.Core.Models.Common
         public string[] Tags { get; set; }
         public Size ImageSize { get; set; }
         public int Depth { get; set; }
+        public string[] Resteemed { get; set; }
+        public string[] TopLikersAvatars { get; set; }
+
+        //system
+        [JsonIgnore]
+        public bool VoteChanging { get; set; }
+        [JsonIgnore]
+        public bool FlagChanging { get; set; }
+        [JsonIgnore]
+        public bool IsExpanded { get; set; }
     }
 }

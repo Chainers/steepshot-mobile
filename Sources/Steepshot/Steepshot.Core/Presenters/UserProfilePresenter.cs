@@ -1,102 +1,103 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
-    public class UserProfilePresenter : BaseFeedPresenter
+    public sealed class UserProfilePresenter : BasePostPresenter
     {
-        private readonly string _username;
-        public event Action PostsLoaded;
-        public event Action PostsCleared;
-        private bool IsLastReaded = false;
-        private string OffsetUrl = string.Empty;
-        private const int ItemsLimit = 20;
-        protected const int ServerMaxCount = 20;
+        private const int ItemsLimit = 18;
 
-        public UserProfilePresenter(string username)
+        public string UserName { get; set; }
+
+        public UserProfileResponse UserProfileResponse { get; private set; }
+
+
+        public async Task<List<string>> TryLoadNextPosts()
         {
-            _username = username;
+            if (IsLastReaded)
+                return null;
+
+            return await RunAsSingleTask(LoadNextPosts);
         }
 
-        public void ClearPosts()
+        private async Task<List<string>> LoadNextPosts(CancellationToken ct)
         {
-            Posts.Clear();
-            PostsCleared?.Invoke();
-            IsLastReaded = false;
-            OffsetUrl = string.Empty;
-        }
-
-        public async Task<OperationResult<UserProfileResponse>> GetUserInfo(string user, bool requireUpdate = false)
-        {
-            var req = new UserProfileRequest(user)
+            var request = new UserPostsRequest(UserName)
             {
-                Login = User.Login
+                Login = User.Login,
+                Offset = OffsetUrl,
+                Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
             };
-            return await Api.GetUserProfile(req);
-        }
 
-        public async Task<List<string>> GetUserPosts(bool needRefresh = false)
-        {
-            List<string> errors = null;
-            try
+            List<string> errors;
+            bool isNeedRepeat;
+            OperationResult<ListResponce<Post>> response;
+            do
             {
-                if (needRefresh)
-                {
-                    OffsetUrl = string.Empty;
-                    IsLastReaded = false;
-                    Posts?.Clear();
-                }
+                response = await Api.GetUserPosts(request, ct);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+            } while (isNeedRepeat);
 
-                if (IsLastReaded)
-                    return errors;
-
-                var req = new UserPostsRequest(_username)
-                {
-                    Login = User.Login,
-                    Offset = OffsetUrl,
-                    Limit = ItemsLimit,
-                    ShowNsfw = User.IsNsfw,
-                    ShowLowRated = User.IsLowRated
-                };
-                var response = await Api.GetUserPosts(req);
-                errors = response?.Errors;
-
-                if (response.Success)
-                {
-                    var voters = response.Result.Results;
-                    if (voters.Count > 0)
-                    {
-                        Posts.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
-                        OffsetUrl = voters.Last().Url;
-                    }
-
-                    PostsLoaded?.Invoke();
-                    if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
-                        IsLastReaded = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
             return errors;
         }
 
-        public async Task<OperationResult<FollowResponse>> Follow(int hasFollowed)
+
+        public async Task<List<string>> TryGetUserInfo(string user)
         {
-            var request = new FollowRequest(User.UserInfo, hasFollowed == 0 ? FollowType.Follow : FollowType.UnFollow, _username);
-            var resp = await Api.Follow(request);
-            if (resp.Errors.Count == 0)
+            return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
+        }
+
+        private async Task<List<string>> GetUserInfo(CancellationToken ct, string user)
+        {
+            var req = new UserProfileRequest(user)
             {
-                //userData.HasFollowed = (resp.Result.IsSuccess) ? 1 : 0;
+                Login = User.Login,
+                ShowNsfw = User.IsNsfw,
+                ShowLowRated = User.IsLowRated
+            };
+            var response = await Api.GetUserProfile(req, ct);
+            if (response == null)
+                return null;
+
+            if (response.Success)
+            {
+                UserProfileResponse = response.Result;
+                NotifySourceChanged();
             }
-            return resp;
+            return response.Errors;
+        }
+
+        public async Task<List<string>> TryFollow()
+        {
+            if (UserProfileResponse.FollowedChanging)
+                return null;
+
+            UserProfileResponse.FollowedChanging = true;
+            NotifySourceChanged();
+
+            var errors = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            UserProfileResponse.FollowedChanging = false;
+            NotifySourceChanged();
+            return errors;
+        }
+
+        private async Task<List<string>> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
+        {
+            var request = new FollowRequest(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var response = await Api.Follow(request, ct);
+            if (response == null)
+                return null;
+
+            if (response.Success)
+                userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
+
+            return response.Errors;
         }
     }
 }

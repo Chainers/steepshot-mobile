@@ -1,27 +1,35 @@
 ﻿using System;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Steepshot.Core.Models.Requests
 {
     public class UploadImageRequest : AuthorizedRequest
     {
-        private UploadImageRequest(UserInfo user, string title, params string[] tags) : base(user)
+        private UploadImageRequest(UserInfo user, string title, IList<string> tags) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(title)) throw new ArgumentNullException(nameof(title));
+            if (string.IsNullOrWhiteSpace(title))
+                throw new UserException(Localization.Errors.EmptyTitleField);
 
             Title = title;
-            Tags = tags;
+            Tags = tags.Any() ? tags.Select(i => i.ToLower()).Distinct().ToArray() : new string[0];
             IsNeedRewards = user.IsNeedRewards;
         }
 
-        public UploadImageRequest(UserInfo user, string title, byte[] photo, params string[] tags) : this(user, title, tags)
+        public UploadImageRequest(UserInfo user, string title, byte[] photo, IList<string> tags) : this(user, title, tags)
         {
-            Photo = photo ?? throw new ArgumentNullException(nameof(photo));
+            if (photo == null || photo.Length == 0)
+                throw new UserException(Localization.Errors.EmptyPhotoField);
+
+            Photo = photo;
         }
 
-        public UploadImageRequest(UserInfo user, string title, string photo, params string[] tags) : this(user, title, tags)
+        public UploadImageRequest(UserInfo user, string title, string photo, IList<string> tags) : this(user, title, tags)
         {
-            if (string.IsNullOrWhiteSpace(photo)) throw new ArgumentNullException(nameof(photo));
+            if (string.IsNullOrWhiteSpace(photo))
+                throw new UserException(Localization.Errors.EmptyPhotoField);
 
             Photo = Convert.FromBase64String(photo);
         }
@@ -35,5 +43,7 @@ namespace Steepshot.Core.Models.Requests
         public string[] Tags { get; }
 
         public bool IsNeedRewards { get; }
+
+        public string VerifyTransaction { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -12,7 +12,8 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserPostsRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(username))
+                throw new UserException(Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }

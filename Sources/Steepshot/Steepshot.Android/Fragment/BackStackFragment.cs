@@ -1,37 +1,43 @@
 ﻿using Android.Support.V4.App;
+using Steepshot.Base;
 
 namespace Steepshot.Fragment
 {
     public class BackStackFragment : Android.Support.V4.App.Fragment
     {
+        protected BaseFragment _fragment;
+        protected bool _isPopped;
+
         public bool HandleBackPressed(FragmentManager fm)
         {
-            if (fm?.Fragments != null)
+            if (fm?.Fragments == null)
+                return false;
+
+            foreach (var frag in fm.Fragments)
             {
-                foreach (var frag in fm.Fragments)
+                var backStack = frag as BackStackFragment;
+                if (backStack != null && backStack.UserVisibleHint)
                 {
-                    var backStack = frag as BackStackFragment;
-                    if (backStack != null && backStack.IsVisible)
-                    {
-                        if (backStack.OnBackPressed())
-                        {
-                            return true;
-                        }
-                    }
+                    if (backStack.OnBackPressed())
+                        return true;
                 }
             }
+
             return false;
         }
 
-        protected bool OnBackPressed()
+        public bool OnBackPressed()
         {
             if (HandleBackPressed(ChildFragmentManager))
                 return true;
-            else if (UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
+
+            if (_fragment != null && _fragment.UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
             {
+                _isPopped = true;
                 ChildFragmentManager.PopBackStack();
                 return true;
             }
+
             return false;
         }
     }

@@ -1,22 +1,80 @@
-﻿using System.Collections.Generic;
-using Android.App;
+﻿using System;
 using Android.Content;
+using Android.Content.Res;
+using Android.Graphics;
+using Android.OS;
 using Android.Support.V7.App;
+using Android.Util;
+using Android.Views;
+using Android.Views.InputMethods;
+using Autofac;
 using Square.Picasso;
-using Steepshot.Core;
+using Steepshot.Core.Authority;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 using Steepshot.Fragment;
-using AlertDialog = Android.Support.V7.App.AlertDialog;
+using Steepshot.Services;
+using Steepshot.Utils;
+using LruCache = Square.Picasso.LruCache;
 
 namespace Steepshot.Base
 {
-    public abstract class BaseActivity : AppCompatActivity, IBaseView
+    public abstract class BaseActivity : AppCompatActivity
     {
-        public static LruCache Cache { get; set; }
         protected HostFragment CurrentHostFragment;
+        protected static LruCache Cache;
 
-        public Context GetContext()
+        protected override void OnCreate(Bundle savedInstanceState)
         {
-            return this;
+            InitIoC(Assets);
+            base.OnCreate(savedInstanceState);
+            InitPicassoCache();
+        }
+
+        public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
+        {
+            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.M)
+            {
+                Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+                Window.DecorView.SystemUiVisibility |= (StatusBarVisibility)SystemUiFlags.LightStatusBar;
+                Window.SetStatusBarColor(Color.White);
+            }
+            return base.OnCreateView(parent, name, context, attrs);
+        }
+
+        private void InitPicassoCache()
+        {
+            if (Cache == null)
+            {
+                Cache = new LruCache(this);
+                var d = new Picasso.Builder(this);
+                d.MemoryCache(Cache);
+                Picasso.SetSingletonInstance(d.Build());
+            }
+        }
+
+        public static void InitIoC(AssetManager assetManagerssets)
+        {
+            if (AppSettings.Container == null)
+            {
+                var builder = new ContainerBuilder();
+                var saverService = new SaverService();
+                var dataProvider = new DataProvider(saverService);
+                var appInfo = new AppInfo();
+                var connectionService = new ConnectionService();
+                builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
+                builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
+                builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
+                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
+//#if DEBUG
+//                builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
+//#else
+                var configInfo = AssetsHelper.GetConfigInfo(assetManagerssets);
+                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDSN);
+                builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+//#endif
+                AppSettings.Container = builder.Build();
+            }
         }
 
         public override void OnBackPressed()
@@ -25,33 +83,48 @@ namespace Steepshot.Base
                 base.OnBackPressed();
         }
 
-        public virtual void OpenNewContentFragment(Android.Support.V4.App.Fragment frag)
+        public virtual void OpenNewContentFragment(BaseFragment frag)
         {
-            CurrentHostFragment.ReplaceFragment(frag, true);
+            CurrentHostFragment?.ReplaceFragment(frag, true);
         }
 
-        protected virtual void ShowAlert(int messageid)
+        public override void OnTrimMemory(TrimMemory level)
         {
-            Show(GetString(messageid));
+            if (level == TrimMemory.Complete)
+            {
+                if (AppSettings.Container != null)
+                {
+                    AppSettings.Container.Dispose();
+                    AppSettings.Container = null;
+                }
+            }
+
+            GC.Collect();
+            base.OnTrimMemory(level);
         }
 
-        protected virtual void ShowAlert(string message)
+        public void HideKeyboard()
         {
-            Show(message);
+            if (CurrentFocus != null)
+            {
+                var imm = GetSystemService(InputMethodService) as InputMethodManager;
+                imm?.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            }
         }
 
-        protected virtual void ShowAlert(List<string> messages)
+        public void OpenKeyboard(View view)
         {
-            Show(string.Join(System.Environment.NewLine, messages));
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.ShowSoftInput(view, ShowFlags.Implicit);
         }
 
-        private void Show(string text)
+        protected void MinimizeApp()
         {
-            var alert = new AlertDialog.Builder(this);
-            alert.SetMessage(text);
-            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
-            Dialog dialog = alert.Create();
-            dialog.Show();
+            var intent = new Intent(Intent.ActionMain);
+            intent.AddCategory(Intent.CategoryHome);
+            intent.SetFlags(ActivityFlags.NewTask);
+            StartActivity(intent);
+            Finish();
         }
     }
 }

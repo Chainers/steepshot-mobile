@@ -1,6 +1,9 @@
-﻿using Android.Graphics;
+﻿using Android.Content.Res;
+using Android.Graphics;
 using Android.Media;
+using Android.Util;
 using Java.IO;
+using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Utils
 {
@@ -66,17 +69,7 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
-        public static Bitmap DecodeSampledBitmapFromResource(string path, int reqWidth, int reqHeight)
-        {
-            var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFile(path, options);
-            options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
-            options.InJustDecodeBounds = false;
-            options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
-            return BitmapFactory.DecodeFile(path, options);
-        }
-
-        public static Bitmap DecodeSampledBitmapFromDescriptor(Java.IO.FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        public static Bitmap DecodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
         {
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
             BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
@@ -96,6 +89,16 @@ namespace Steepshot.Utils
                 inSampleSize *= 2;
 
             return inSampleSize;
+        }
+
+        public static Color GetColorFromInteger(int color)
+        {
+            return Color.Rgb(Color.GetRedComponent(color), Color.GetGreenComponent(color), Color.GetBlueComponent(color));
+        }
+
+        public static float DpToPixel(float dp, Resources resources)
+        {
+            return resources.DisplayMetrics.Density * dp;
         }
 
         /*

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -26,7 +26,7 @@ namespace Steepshot.Core.Models.Requests
         public NamedInfoRequest(string url)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new ArgumentNullException(nameof(url));
+                throw new UserException(Localization.Errors.EmptyUrlField);
 
             Url = url;
         }
@@ -34,12 +34,12 @@ namespace Steepshot.Core.Models.Requests
         public string Url { get; }
     }
 
-    public class InfoRequest : OffsetLimitFields
+    public class InfoRequest : NamedRequestWithOffsetLimitFields
     {
-        public InfoRequest(string url)
+        public InfoRequest(string url) : base()
         {
-            if (string.IsNullOrWhiteSpace(url)) throw new ArgumentNullException(nameof(url));
-
+            if (string.IsNullOrWhiteSpace(url))
+                throw new UserException(Localization.Errors.EmptyUrlField);
             Url = url;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -33,13 +34,15 @@ namespace Steepshot.iOS.Cells
 
         public override void UpdateCell(Post post, NSMutableAttributedString comment)
         {
-            ImageUrl = post.Body;
+            var photoUrl = post.Photos?.FirstOrDefault();
+            ImageUrl = photoUrl;
             photoImg.Image = null;
             _scheduledWork?.Cancel();
-            _scheduledWork = ImageService.Instance.LoadUrl(post.Body, Constants.ImageCacheDuration)
-                                         .Retry(2, 200)
-                                         .DownSample(width: _downSampleWidth)
-                                         .Into(photoImg);
+            if (photoUrl != null)
+                _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
+                                             .Retry(2, 200)
+                                             .DownSample(width: _downSampleWidth)
+                                             .Into(photoImg);
         }
         /*
 		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)

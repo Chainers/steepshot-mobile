@@ -3,68 +3,75 @@
     android:layout_width="match_parent"
     android:background="@android:color/white"
     android:layout_height="match_parent">
-    <RelativeLayout
-        android:id="@+id/toolbar"
+    <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cl_profile"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="@color/color_primary"
-        android:minWidth="25px"
-        android:minHeight="25px">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:text="@string/text_login"
-            android:id="@+id/btn_login" />
-        <TextView
-            android:text="@string/following"
-            android:layout_width="wrap_content"
-            android:textAllCaps="true"
-            android:textSize="@dimen/dp_head_text"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_centerInParent="true"
-            android:layout_height="wrap_content"
-            android:id="@+id/Title" />
-        <ImageView
-            android:id="@+id/pop_up_arrow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/Title"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_popup_arrow_down"
-            android:layout_marginLeft="5dp" />
-        <ImageButton
-            android:id="@+id/btn_search"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_search"
-            android:scaleType="center"
-            android:layout_alignParentRight="true"
-            android:background="@android:color/transparent" />
-    </RelativeLayout>
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/feed_refresher"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
-        <FrameLayout
-            android:id="@+id/fragment_container"
+        android:layout_height="match_parent">
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/app_bar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <android.support.v7.widget.RecyclerView
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+            <android.support.design.widget.CollapsingToolbarLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/feed_list" />
-        </FrameLayout>
-    </android.support.v4.widget.SwipeRefreshLayout>
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll|enterAlways">
+                <RelativeLayout
+                    android:id="@+id/feed_header"
+                    android:layout_width="match_parent"
+                    android:background="@android:color/white"
+                    android:layout_height="50dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+                    <ImageView
+                        android:id="@+id/logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_logo_small"
+                        android:layout_marginLeft="5dp"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+            </android.support.design.widget.CollapsingToolbarLayout>
+        </android.support.design.widget.AppBarLayout>
+        <RelativeLayout
+            android:id="@+id/list_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/feed_header"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/feed_refresher"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <FrameLayout
+                    android:id="@+id/fragment_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/feed_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </FrameLayout>
+            </android.support.v4.widget.SwipeRefreshLayout>
+            <TextView
+                android:id="@+id/empty_query_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginTop="80dp"
+                android:textSize="27sp"
+                android:textColor="@color/rgb15_24_30"
+                android:text="It's very strange, but we do not have anything yet for this query. Try to look for something else ..." />
+        </RelativeLayout>
+    </android.support.design.widget.CoordinatorLayout>
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/color_primary"
+        android:indeterminateTint="@color/rgb15_24_30"
         android:layout_centerInParent="true" />
 </RelativeLayout>

@@ -1,5 +1,5 @@
-using System;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -13,7 +13,8 @@ namespace Steepshot.Core.Models.Requests
     {
         public FollowRequest(UserInfo user, FollowType type, string username) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrWhiteSpace(username))
+                throw new UserException(Localization.Errors.EmptyUsernameField);
 
             Type = type;
             Username = username;

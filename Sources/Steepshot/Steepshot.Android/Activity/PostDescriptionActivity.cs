@@ -1,70 +1,66 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V7.Widget;
+using Android.Text;
+using Android.Transitions;
+using Android.Util;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
-using Autofac;
 using Com.Lilarcor.Cheeseknife;
-using Square.Picasso;
+using Java.IO;
+using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateHidden | SoftInput.AdjustPan)]
-    public class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
+    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
+    public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
-        public static int TagRequestCode = 1225;
+        public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
+
         private string _path;
         private bool _shouldCompress;
-
-        private string[] _tags = new string[0];
-        private FrameLayout _add;
-
+        private Timer _timer;
         private Bitmap _btmp;
+        private SelectedTagsAdapter _localTagsAdapter;
+        private TagsAdapter _tagsAdapter;
+        private UploadImageRequest _request;
+        private UploadResponse _response;
+        private string _previousQuery;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.d_edit)] EditText _tbTitle;
-        [InjectView(Resource.Id.load_layout)] RelativeLayout _loadLayout;
-        [InjectView(Resource.Id.btn_post)] Button _postButton;
-        [InjectView(Resource.Id.description_scroll)] ScrollView _descriptionScroll;
-        [InjectView(Resource.Id.tag_container)] TagLayout _tagLayout;
-        [InjectView(Resource.Id.photo)] ImageView _photoFrame;
-
-        [InjectView(Resource.Id.description_title)] private TextView _descriptionTitle;
-        [InjectView(Resource.Id.description_edit)] private EditText _tbDescription;
+        [InjectView(Resource.Id.title)] private EditText _title;
+        [InjectView(Resource.Id.description)] private EditText _description;
+        [InjectView(Resource.Id.btn_post)] private Button _postButton;
+        [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
+        [InjectView(Resource.Id.tags_list)] private RecyclerView _tagsList;
+        [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
+        [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
+        [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
+        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
+        [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
+        [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
-
-        [InjectOnClick(Resource.Id.btn_post)]
-        public void OnPost(object sender, EventArgs e)
-        {
-            _postButton.Enabled = false;
-            _loadLayout.Visibility = ViewStates.Visible;
-            OnPostAsync();
-        }
-
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void OnBack(object sender, EventArgs e)
-        {
-            OnBackPressed();
-        }
-
-        [InjectOnClick(Resource.Id.toggle_description)]
-        public void ToggleDescription(object sender, EventArgs e)
-        {
-            _descriptionTitle.Visibility = _descriptionTitle.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
-            _tbDescription.Visibility = _tbDescription.Visibility == ViewStates.Gone ? ViewStates.Visible : ViewStates.Gone;
-        }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -72,75 +68,81 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
 
-            _photoFrame.SetBackgroundColor(Color.Black);
-            var parameters = _photoFrame.LayoutParameters;
-            parameters.Height = Resources.DisplayMetrics.WidthPixels;
-            _photoFrame.LayoutParameters = parameters;
-            _postButton.Enabled = true;
+            _pageTitle.Typeface = Style.Semibold;
+            _title.Typeface = Style.Regular;
+            _description.Typeface = Style.Regular;
+            _postButton.Typeface = Style.Semibold;
+            _postButton.Click += OnPost;
+            _photoFrame.Clickable = true;
+            _photoFrame.Click += PhotoFrameOnClick;
+            _postButton.Text = Localization.Texts.PublishButtonText;
+            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             _path = Intent.GetStringExtra(PhotoExtraPath);
-            _shouldCompress = Intent.GetBooleanExtra("SHOULD_COMPRESS", true);
             var photoUri = Android.Net.Uri.Parse(_path);
 
-            if (!_shouldCompress)
-                _photoFrame.SetImageURI(photoUri);
-            else
+            _postButton.Enabled = true;
+            if (_shouldCompress)
             {
-                Task.Run(() =>
+                FileDescriptor fileDescriptor = null;
+                try
                 {
-                    var fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
                     _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
                     _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
                     _photoFrame.SetImageBitmap(_btmp);
-                });
+                }
+                catch (Exception ex)
+                {
+                    _postButton.Enabled = false;
+                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                finally
+                {
+                    fileDescriptor?.Dispose();
+                }
             }
-        }
-
-        public void AddTags(string[] tags)
-        {
-            _tags = tags;
-            _tagLayout.RemoveAllViews();
-
-            _add = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_add_tag, null, false);
-            _add.Click += (sender, e) => OpenTags();
-            _tagLayout.AddView(_add);
-            _tagLayout.RequestLayout();
-
-            foreach (var item in tags)
+            else
             {
-                var tag = (FrameLayout)LayoutInflater.Inflate(Resource.Layout.lyt_tag, null, false);
-                tag.FindViewById<TextView>(Resource.Id.text).Text = item;
-                tag.Click += (sender, e) => _tagLayout.RemoveView(tag);
-                _tagLayout.AddView(tag);
-                _tagLayout.RequestLayout();
+                _photoFrame.SetImageURI(photoUri);
             }
-            _descriptionScroll.RequestLayout();
+
+            _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
+            _localTagsAdapter = new SelectedTagsAdapter();
+            _localTagsAdapter.Click += LocalTagsAdapterClick;
+            _localTagsList.SetAdapter(_localTagsAdapter);
+            _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
+
+            _tagsList.SetLayoutManager(new LinearLayoutManager(this));
+            Presenter.SourceChanged += PresenterSourceChanged;
+            _tagsAdapter = new TagsAdapter(Presenter);
+            _tagsAdapter.Click += OnTagsAdapterClick;
+            _tagsList.SetAdapter(_tagsAdapter);
+
+            _tag.TextChanged += OnTagOnTextChanged;
+            _tag.KeyboardDownEvent += HideTagsList;
+            _tag.OkKeyEvent += HideTagsList;
+            _tag.FocusChange += OnTagOnFocusChange;
+
+            _topMarginTagsLayout.Click += OnTagsLayoutClick;
+            _backButton.Click += OnBack;
+            _rootLayout.Click += OnRootLayoutClick;
+
+            _timer = new Timer(OnTimer);
+
+            SearchTextChanged();
         }
 
-        public void OpenTags()
+        private void PhotoFrameOnClick(object sender, EventArgs e)
         {
-            var intent = new Intent(this, typeof(TagsActivity));
-            var b = new Bundle();
-            b.PutStringArray("TAGS", _tags);
-            intent.PutExtra("TAGS", b);
-            StartActivityForResult(intent, TagRequestCode);
-        }
-
-        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-        {
-            if (requestCode == TagRequestCode && resultCode == Result.Ok)
+            if (_btmp == null)
             {
-                var b = data.GetBundleExtra("TAGS");
-                _tags = b.GetStringArray("TAGS").Distinct().ToArray();
-                AddTags(_tags);
+                _btmp = BitmapFactory.DecodeFile(_path);
+                _shouldCompress = true;
             }
+            _btmp = BitmapUtils.RotateImage(_btmp, 90);
+            _photoFrame.SetImageBitmap(_btmp);
         }
-
-        protected override void OnPostCreate(Bundle savedInstanceState)
-        {
-            base.OnPostCreate(savedInstanceState);
-            AddTags(_tags);
-        }
-
 
         protected override void OnDestroy()
         {
@@ -151,99 +153,317 @@ namespace Steepshot.Activity
                 _btmp.Recycle();
                 _btmp = null;
             }
-            GC.Collect();
+            GC.Collect(0);
         }
 
-        private async void OnPostAsync()
+        private void PresenterSourceChanged(Status status)
         {
-            try
-            {
-                if (!AppSettings.Container.Resolve<IConnectionService>().IsConnectionAvailable())
-                    return;
+            if (IsFinishing || IsDestroyed)
+                return;
 
-                if (string.IsNullOrEmpty(_tbTitle.Text))
-                {
-                    Toast.MakeText(this, Localization.Errors.EmptyDescription, ToastLength.Long).Show();
-                    return;
-                }
-                var arrayToUpload = await CompressPhoto(_path);
-                if (arrayToUpload != null)
-                {
-                    var request = new Core.Models.Requests.UploadImageRequest(BasePresenter.User.UserInfo, _tbTitle.Text, arrayToUpload, _tags.ToArray())
-                    {
-                        Description = _tbDescription.Text
-                    };
-                    var resp = await _presenter.Upload(request);
+            RunOnUiThread(() =>
+            {
+                _tagsAdapter.NotifyDataSetChanged();
+            });
+        }
 
-                    if (resp.Errors.Count > 0)
-                    {
-                        if (!string.IsNullOrEmpty(resp.Errors[0]))
-                            Toast.MakeText(this, resp.Errors[0], ToastLength.Long).Show();
-                    }
-                    else
-                    {
-                        BasePresenter.ShouldUpdateProfile = true;
-                        Finish();
-                    }
-                }
-                else
-                {
-                    Toast.MakeText(this, Localization.Errors.PhotoCompressingError, ToastLength.Long).Show();
-                }
-            }
-            catch (Exception ex)
+
+        private void LocalTagsAdapterClick(string tag)
+        {
+            if (!_localTagsAdapter.Enabled)
+                return;
+
+            _localTagsAdapter.LocalTags.Remove(tag);
+            _localTagsAdapter.NotifyDataSetChanged();
+            if (_localTagsAdapter.LocalTags.Count() == 0)
+                _localTagsList.Visibility = ViewStates.Gone;
+        }
+
+        private void OnTagOnFocusChange(object sender, View.FocusChangeEventArgs e)
+        {
+            if (e.HasFocus)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                Window.SetSoftInputMode(SoftInput.AdjustResize);
+                AnimateTagsLayout(Resource.Id.toolbar);
             }
-            finally
+        }
+
+        private void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            var txt = e.Text.ToString();
+            if (!string.IsNullOrWhiteSpace(txt))
             {
-                if (_loadLayout != null)
+                if (txt.EndsWith(" "))
                 {
-                    _loadLayout.Visibility = ViewStates.Gone;
-                    _postButton.Enabled = true;
+                    _tag.Text = string.Empty;
+                    AddTag(txt);
                 }
             }
+            _timer.Change(500, Timeout.Infinite);
+        }
+
+        private void OnTagsAdapterClick(string tag)
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+                return;
+
+            AddTag(tag);
+            _tag.Text = string.Empty;
+        }
+
+        private async void OnPost(object sender, EventArgs e)
+        {
+            _postButton.Enabled = false;
+            _title.Enabled = false;
+            _description.Enabled = false;
+            _tag.Enabled = false;
+            _localTagsAdapter.Enabled = false;
+            _postButton.Text = string.Empty;
+            _loadingSpinner.Visibility = ViewStates.Visible;
+            await OnPostAsync();
+        }
+
+        private void OnBack(object sender, EventArgs e)
+        {
+            if (_tag.HasFocus)
+                HideTagsList();
+            else
+                OnBackPressed();
+        }
+
+        private void OnRootLayoutClick(object sender, EventArgs e)
+        {
+            HideKeyboard();
+        }
+
+        private void OnTagsLayoutClick(object sender, EventArgs e)
+        {
+            if (!_tag.Enabled)
+                return;
+            _tag.RequestFocus();
+            var imm = GetSystemService(InputMethodService) as InputMethodManager;
+            imm?.ShowSoftInput(_tag, ShowFlags.Implicit);
+        }
+
+        private void AnimateTagsLayout(int subject)
+        {
+            TransitionManager.BeginDelayedTransition(_rootLayout);
+            _tagsListLayout.Visibility = Resource.Id.toolbar == subject ? ViewStates.Visible : ViewStates.Gone;
+
+            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
+            _topMarginTagsLayout.SetPadding(0, topPadding, 0, 0);
+
+            var currentButtonLayoutParameters = _tagsLayout.LayoutParameters as RelativeLayout.LayoutParams;
+            if (currentButtonLayoutParameters != null)
+            {
+                currentButtonLayoutParameters.AddRule(LayoutRules.Below, subject);
+                _tagsLayout.LayoutParameters = currentButtonLayoutParameters;
+            }
+        }
+
+        private void AddTag(string tag)
+        {
+            tag = tag.Trim();
+            if (_localTagsAdapter.LocalTags.Count >= 19 || _localTagsAdapter.LocalTags.Any(t => t == tag))
+                return;
+            _localTagsAdapter.LocalTags.Add(tag);
+            RunOnUiThread(() =>
+            {
+                _localTagsAdapter.NotifyDataSetChanged();
+                _localTagsList.MoveToPosition(_localTagsAdapter.LocalTags.Count - 1);
+                if (_localTagsAdapter.LocalTags.Count() == 1)
+                    _localTagsList.Visibility = ViewStates.Visible;
+            });
+        }
+
+        private void OnTimer(object state)
+        {
+            RunOnUiThread(async () =>
+            {
+                await SearchTextChanged();
+            });
+        }
+
+        private async Task SearchTextChanged()
+        {
+            if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
+                return;
+
+            _previousQuery = _tag.Text;
+            _tagsList.ScrollToPosition(0);
+            Presenter.Clear();
+
+            List<string> errors = null;
+            if (_tag.Text.Length == 0)
+                errors = await Presenter.TryGetTopTags();
+            else if (_tag.Text.Length > 1)
+                errors = await Presenter.TryLoadNext(_tag.Text);
+
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            this.ShowAlert(errors);
+        }
+
+        private async Task OnPostAsync()
+        {
+            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+
+            if (!isConnected)
+            {
+                this.ShowAlert(Localization.Errors.InternetUnavailable);
+                OnUploadEnded();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_title.Text))
+            {
+                this.ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                OnUploadEnded();
+                return;
+            }
+
+            var photo = await CompressPhoto(_path);
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (photo == null)
+            {
+                SplashActivity.Cache.EvictAll();
+                photo = await CompressPhoto(_path);
+                if (IsFinishing || IsDestroyed)
+                    return;
+            }
+
+            if (photo == null)
+            {
+                this.ShowAlert(Localization.Errors.PhotoProcessingError);
+                OnUploadEnded();
+                return;
+            }
+
+            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
+            {
+                Description = _description.Text
+            };
+            var serverResp = await Presenter.TryUploadWithPrepare(_request);
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (serverResp != null && serverResp.Success)
+            {
+                _response = serverResp.Result;
+            }
+            else
+            {
+                this.ShowAlert(serverResp);
+                OnUploadEnded();
+                return;
+            }
+
+            TryUpload();
         }
 
         private Task<byte[]> CompressPhoto(string path)
         {
             return Task.Run(() =>
-              {
-                  try
-                  {
-                      if (_shouldCompress)
-                      {
-                          using (var stream = new MemoryStream())
-                          {
-                              if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
-                              {
-                                  var outbytes = stream.ToArray();
-                                  _btmp.Recycle();
-                                  return outbytes;
-                              }
-                          }
-                      }
-                      else
-                      {
-                          var photo = new Java.IO.File(path);
-                          var stream = new Java.IO.FileInputStream(photo);
-                          var outbytes = new byte[photo.Length()];
-                          stream.Read(outbytes);
-                          stream.Close();
-                          return outbytes;
-                      }
-                  }
-                  catch (Exception ex)
-                  {
-                      AppSettings.Reporter.SendCrash(ex);
-                  }
-                  return null;
-              });
+            {
+                try
+                {
+                    if (_shouldCompress)
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
+                            {
+                                return stream.ToArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var photo = new Java.IO.File(path);
+                        var stream = new FileInputStream(photo);
+                        var outbytes = new byte[photo.Length()];
+                        stream.Read(outbytes);
+                        stream.Close();
+                        return outbytes;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                return null;
+            });
         }
 
-        protected override void CreatePresenter()
+        private async void TryUpload()
         {
-            _presenter = new PostDescriptionPresenter();
+            if (_request == null || _response == null)
+            {
+                OnUploadEnded();
+                return;
+            }
+
+            var resp = await Presenter.TryUpload(_request, _response);
+            if (IsFinishing || IsDestroyed)
+                return;
+
+            if (resp != null && resp.Success)
+            {
+                OnUploadEnded();
+                BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+                this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
+                Finish();
+            }
+            else
+            {
+                var msg = Localization.Errors.Unknownerror;
+                if (resp != null && resp.Errors.Any())
+                    msg = resp.Errors[0];
+                this.ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
+            }
+        }
+
+        private void OnUploadEnded()
+        {
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
+
+            _loadingSpinner.Visibility = ViewStates.Gone;
+
+            _title.Enabled = true;
+            _description.Enabled = true;
+            _tag.Enabled = true;
+            _localTagsAdapter.Enabled = true;
+        }
+
+        private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
+        {
+            _request = null;
+            _response = null;
+            OnUploadEnded();
+        }
+
+        private void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
+        {
+            TryUpload();
+        }
+
+        private void HideTagsList()
+        {
+            var txt = _tag.Text = _tag.Text.Trim();
+            if (!string.IsNullOrEmpty(txt))
+            {
+                _tag.Text = string.Empty;
+                AddTag(txt);
+            }
+
+            Window.SetSoftInputMode(SoftInput.AdjustPan);
+            _tag.ClearFocus();
+            AnimateTagsLayout(Resource.Id.description_layout);
+            HideKeyboard();
         }
     }
 }

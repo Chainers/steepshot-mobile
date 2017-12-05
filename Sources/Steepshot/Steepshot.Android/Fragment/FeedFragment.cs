@@ -1,246 +1,227 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Android.Content;
 using Android.OS;
+using Android.Support.Design.Widget;
+using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
-using Android.Views.Animations;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core.Models.Requests;
+using Steepshot.Core;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Fragment
 {
-    public class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
+    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
     {
-        private FeedAdapter _feedAdapter;
+        public const string PostUrlExtraPath = "url";
+        public const string PostNetVotesExtraPath = "count";
+
+        private FeedAdapter<FeedPresenter> _adapter;
         private ScrollListener _scrollListner;
-        public static int SearchRequestCode = 1336;
-        public const string FollowingFragmentId = nameof(DropdownFragment);
-        public string CustomTag
-        {
-            get => _presenter.Tag;
-            set => _presenter.Tag = value;
-        }
-        private readonly bool _isFeed;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.feed_list)] RecyclerView _feedList;
-        [InjectView(Resource.Id.loading_spinner)] ProgressBar _bar;
-        [InjectView(Resource.Id.pop_up_arrow)] ImageView _arrow;
-        [InjectView(Resource.Id.btn_login)] Button _login;
-        [InjectView(Resource.Id.Title)] public TextView Title;
-        [InjectView(Resource.Id.feed_refresher)] SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.btn_search)] ImageButton _search;
+        [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [InjectView(Resource.Id.logo)] private ImageView _logo;
+        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
-        public FeedFragment(bool isFeed = false)
-        {
-            _isFeed = isFeed;
-        }
-
-        [InjectOnClick(Resource.Id.btn_search)]
-        public void OnSearch(object sender, EventArgs e)
-        {
-            ((BaseActivity)Activity).OpenNewContentFragment(new SearchFragment());
-        }
-
-        [InjectOnClick(Resource.Id.btn_login)]
-        public void OnLogin(object sender, EventArgs e)
-        {
-            OpenLogin();
-        }
-
-        [InjectOnClick(Resource.Id.Title)]
-        public void OnTitleClick(object sender, EventArgs e)
-        {
-            if (_isFeed)
-                return;
-            if (ChildFragmentManager.FindFragmentByTag(FollowingFragmentId) == null)
-                ShowDropdown();
-            else
-                HideDropdown();
-        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
-                V = inflater.Inflate(Resource.Layout.lyt_feed, null);
-                Cheeseknife.Inject(this, V);
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_feed, null);
+                Cheeseknife.Inject(this, InflatedView);
             }
-            return V;
+            ToggleTabBar();
+            return InflatedView;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
-            try
+            if (!IsInitialized)
             {
-                var s = Activity.Intent.GetStringExtra("SEARCH");
-                if (s != null && s != CustomTag && _bar != null)
-                {
-                    Title.Text = _presenter.Tag = CustomTag = s;
-                    _bar.Visibility = ViewStates.Visible;
-                    _scrollListner.ClearPosition();
-                    LoadPosts(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-            if (IsInitialized)
-                return;
-            base.OnViewCreated(view, savedInstanceState);
-            if (BasePresenter.User.IsAuthenticated)
-                _login.Visibility = ViewStates.Gone;
+                base.OnViewCreated(view, savedInstanceState);
 
-            if (_isFeed)
-            {
-                Title.Text = "Feed";
-                _arrow.Visibility = ViewStates.Gone;
-                _search.Visibility = ViewStates.Gone;
+                Presenter.SourceChanged += PresenterSourceChanged;
+                _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
+                _adapter.LikeAction += LikeAction;
+                _adapter.UserAction += UserAction;
+                _adapter.CommentAction += CommentAction;
+                _adapter.VotersClick += VotersAction;
+                _adapter.PhotoClick += PhotoClick;
+                _adapter.FlagAction += FlagAction;
+                _adapter.HideAction += HideAction;
+                _adapter.TagAction += TagAction;
+                _logo.Click += OnLogoClick;
+                _toolbar.OffsetChanged += OnToolbarOffsetChanged;
+
+                _scrollListner = new ScrollListener();
+                _scrollListner.ScrolledToBottom += LoadPosts;
+
+                _refresher.Refresh += OnRefresh;
+
+                _feedList.SetAdapter(_adapter);
+                _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
+                _feedList.AddOnScrollListener(_scrollListner);
+
+
+                _emptyQueryLabel.Typeface = Style.Light;
+                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+
+                LoadPosts();
             }
-            else
-                Title.Text = "Trending";
 
-            _feedAdapter = new FeedAdapter(Context, _presenter.Posts);
-            _feedList.SetAdapter(_feedAdapter);
-            _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
-            _scrollListner = new ScrollListener();
-            _scrollListner.ScrolledToBottom += () => LoadPosts();
-            _feedList.AddOnScrollListener(_scrollListner);
-            _feedAdapter.LikeAction += FeedAdapter_LikeAction;
-            _feedAdapter.UserAction += FeedAdapter_UserAction;
-            _feedAdapter.CommentAction += FeedAdapter_CommentAction;
-            _feedAdapter.VotersClick += FeedAdapter_VotersAction;
-            _feedAdapter.PhotoClick += PhotoClick;
-            LoadPosts();
-            _refresher.Refresh += delegate
-                {
-                    _scrollListner.ClearPosition();
-                    LoadPosts(true);
-                };
-        }
-
-        private async void LoadPosts(bool clearOld = false)
-        {
-            try
+            var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
+            if (!string.IsNullOrWhiteSpace(postUrl))
             {
-                List<string> errors;
-                if (string.IsNullOrEmpty(CustomTag))
-                    errors = await _presenter.GetTopPosts(clearOld);
-                else
-                    errors = await _presenter.GetSearchedPosts(clearOld);
-                if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
-
-                if (_bar != null)
-                {
-                    _bar.Visibility = ViewStates.Gone;
-                    _refresher.Refreshing = false;
-                }
-                _feedAdapter?.NotifyDataSetChanged();
-            }
-            catch (Exception)
-            {
-                //Catching rethrowed task canceled exception from presenter
+                var count = Activity.Intent.GetIntExtra(CommentsFragment.CountString, 0);
+                Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
+                Activity.Intent.RemoveExtra(CommentsFragment.CountString);
+                var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
+                post.Children += count;
+                _adapter.NotifyDataSetChanged();
             }
         }
 
-        public void OnSearchPosts(string title, PostType type)
+        private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
         {
-            Title.Text = title;
-            _bar.Visibility = ViewStates.Visible;
-            _presenter.PostType = type;
-            _presenter.Tag = null;
-            _scrollListner.ClearPosition();
-            LoadPosts(true);
-        }
-
-        public void PhotoClick(int position)
-        {
-            var photo = _presenter.Posts[position].Photos?.FirstOrDefault();
-            if (photo != null)
-            {
-                var intent = new Intent(Context, typeof(PostPreviewActivity));
-                intent.PutExtra("PhotoURL", photo);
-                StartActivity(intent);
-            }
-        }
-
-        void FeedAdapter_CommentAction(int position)
-        {
-            var intent = new Intent(Context, typeof(CommentsActivity));
-            intent.PutExtra("uid", _presenter.Posts[position].Url);
-            Context.StartActivity(intent);
-        }
-
-        void FeedAdapter_VotersAction(int position)
-        {
-            Activity.Intent.PutExtra("url", _presenter.Posts[position].Url);
-            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
-        }
-
-        void FeedAdapter_UserAction(int position)
-        {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Posts[position].Author));
-        }
-
-        private async void FeedAdapter_LikeAction(int position)
-        {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                var errors = await _presenter.Vote(position);
-                if (errors != null && errors.Count != 0)
-                    ShowAlert(errors);
-
-                _feedAdapter?.NotifyDataSetChanged();
-            }
-            else
-                OpenLogin();
-        }
-
-        public void ShowDropdown()
-        {
-            _arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate180));
-            ChildFragmentManager.BeginTransaction()
-                                .SetCustomAnimations(Resource.Animation.up_down, Resource.Animation.down_up, Resource.Animation.up_down, Resource.Animation.down_up)
-                                .Add(Resource.Id.fragment_container, new DropdownFragment(this), FollowingFragmentId)
-                                .Commit();
-        }
-
-        public void HideDropdown()
-        {
-            _arrow.StartAnimation(AnimationUtils.LoadAnimation(Context, Resource.Animation.rotate0));
-            ChildFragmentManager.BeginTransaction()
-                                .Remove(ChildFragmentManager.FindFragmentByTag(FollowingFragmentId))
-                                .Commit();
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new FeedPresenter(_isFeed);
-        }
-
-        private void OpenLogin()
-        {
-            var intent = new Intent(Activity, typeof(PreSignInActivity));
-            StartActivity(intent);
+            ViewCompat.SetElevation(_toolbar, BitmapUtils.DpToPixel(2, Resources));
         }
 
         public override void OnDetach()
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
+        }
+
+        private void OnLogoClick(object sender, EventArgs e)
+        {
+            _feedList.ScrollToPosition(0);
+        }
+
+        private void PresenterSourceChanged(Status status)
+        {
+            if (!IsInitialized)
+                return;
+
+            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+        }
+
+        private void OnRefresh(object sender, EventArgs e)
+        {
+            _scrollListner.ClearPosition();
+            Presenter.Clear();
+            LoadPosts();
+        }
+
+        private async void LoadPosts()
+        {
+            var errors = await Presenter.TryLoadNextTopPosts();
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors);
+
+            _bar.Visibility = ViewStates.Gone;
+            _refresher.Refreshing = false;
+
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+        }
+
+        private void PhotoClick(Post post)
+        {
+            if (post == null)
+                return;
+
+            var photo = post.Photos?.FirstOrDefault();
+            if (photo == null)
+                return;
+
+            var intent = new Intent(Context, typeof(PostPreviewActivity));
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
+            StartActivity(intent);
+        }
+
+        private void CommentAction(Post post)
+        {
+            if (post == null)
+                return;
+            
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
+        }
+
+        private void VotersAction(Post post, VotersType type)
+        {
+            if (post == null)
+                return;
+
+            var isLikers = type == VotersType.Likes;
+            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
+            Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
+            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+        }
+
+        private void UserAction(Post post)
+        {
+            if (post == null)
+                return;
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
+        }
+
+        private async void LikeAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryVote(post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private async void FlagAction(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+
+            var errors = await Presenter.TryFlag(post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors);
+        }
+
+        private void HideAction(Post post)
+        {
+            Presenter.RemovePost(post);
+        }
+
+        private void TagAction(string tag)
+        {
+            if (tag != null)
+            {
+                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+            }
+            else
+                _adapter.NotifyDataSetChanged();
         }
     }
 }

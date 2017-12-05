@@ -1,124 +1,156 @@
 using System;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
+using Steepshot.Core;
+using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Fragment
 {
-    public class FollowersFragment : BaseFragmentWithPresenter<FollowersPresenter>
+    public sealed class FollowersFragment : BaseFragmentWithPresenter<UserFriendPresenter>
     {
-        private FriendsType _friendsType;
-        private FollowersAdapter _followersAdapter;
+        public const string IsFollowersExtra = "isFollowers";
+        public const string UsernameExtra = "username";
+        public const string CountExtra = "count";
+
+        private FollowersAdapter _adapter;
         private string _username;
+        private bool _isFollowers;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.Title)] private TextView _viewTitle;
         [InjectView(Resource.Id.followers_list)] private RecyclerView _followersList;
+        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
+        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
-                V = inflater.Inflate(Resource.Layout.lyt_followers, null);
-                Cheeseknife.Inject(this, V);
+                InflatedView = inflater.Inflate(Resource.Layout.lyt_followers, null);
+                Cheeseknife.Inject(this, InflatedView);
             }
-            return V;
+            ToggleTabBar();
+            return InflatedView;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
                 return;
+
             base.OnViewCreated(view, savedInstanceState);
-            var isFollowers = Activity.Intent.GetBooleanExtra("isFollowers", false);
-            _username = Activity.Intent.GetStringExtra("username") ?? BasePresenter.User.Login;
-            _friendsType = isFollowers ? FriendsType.Followers : FriendsType.Following;
 
-            LoadItems();
+            _isFollowers = Activity.Intent.GetBooleanExtra(IsFollowersExtra, false);
+            Presenter.FollowType = _isFollowers ? FriendsType.Followers : FriendsType.Following;
 
-            _viewTitle.Text = isFollowers ? GetString(Resource.String.text_followers) : GetString(Resource.String.text_following);
+            Presenter.SourceChanged += PresenterSourceChanged;
 
-            _followersAdapter = new FollowersAdapter(Activity, _presenter.Users);
-            _followersList.SetAdapter(_followersAdapter);
-            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
+            var count = Activity.Intent.GetIntExtra(CountExtra, 0);
+            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
+            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? BasePresenter.User.Login;
+
+            _backButton.Visibility = ViewStates.Visible;
+            _backButton.Click += GoBackClick;
+            _switcher.Visibility = ViewStates.Gone;
+            _settings.Visibility = ViewStates.Gone;
+            _viewTitle.Text = Presenter.FollowType.GetDescription();
+
+            _viewTitle.Typeface = Style.Semibold;
+            _peopleCount.Typeface = Style.Regular;
+
+            _adapter = new FollowersAdapter(Activity, Presenter);
+            _adapter.FollowAction += Follow;
+            _adapter.UserAction += UserAction;
+
             var scrollListner = new ScrollListener();
             scrollListner.ScrolledToBottom += LoadItems;
+
+            _followersList.SetAdapter(_adapter);
+            _followersList.SetLayoutManager(new LinearLayoutManager(Activity));
             _followersList.AddOnScrollListener(scrollListner);
-            _followersAdapter.FollowAction += Follow;
-            _followersAdapter.UserAction += UserAction;
-        }
 
-        async void Follow(int position)
-        {
-            try
-            {
-                var response = await _presenter.Follow(_presenter.Users[position]);
-                if (response.Success)
-                {
-                    _presenter.Users[position].HasFollowed = !_presenter.Users[position].HasFollowed;
-                    _followersAdapter.NotifyDataSetChanged();
-                }
-                else
-                {
-                    Toast.MakeText(Activity, response.Errors[0], ToastLength.Short).Show();
-                    _followersAdapter.InverseFollow(position);
-                    _followersAdapter.NotifyDataSetChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-        }
+            _emptyQueryLabel.Typeface = Style.Light;
+            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
 
-        private void LoadItems()
-        {
-            _presenter.GetItems(_friendsType, _username).ContinueWith((e) =>
-            {
-                var errors = e.Result;
-                Activity.RunOnUiThread(() =>
-                {
-                    if (_bar != null)
-                        _bar.Visibility = ViewStates.Gone;
-                    if (errors != null && errors.Count > 0)
-                        Toast.MakeText(Context, errors[0], ToastLength.Long).Show();
-
-                    else
-                        _followersAdapter?.NotifyDataSetChanged();
-                });
-            });
-        }
-
-        private void UserAction(int position)
-        {
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(_presenter.Users[position].Author));
-        }
-
-        [InjectOnClick(Resource.Id.btn_back)]
-        public void GoBackClick(object sender, EventArgs e)
-        {
-            Activity.OnBackPressed();
-        }
-
-        protected override void CreatePresenter()
-        {
-            _presenter = new FollowersPresenter();
+            LoadItems();
         }
 
         public override void OnDetach()
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
+        }
+
+
+        public void GoBackClick(object sender, EventArgs e)
+        {
+            Activity.OnBackPressed();
+        }
+
+        private void PresenterSourceChanged(Status status)
+        {
+            if (!IsInitialized)
+                return;
+            if (!_isFollowers && _username == BasePresenter.User.Login)
+                _peopleCount.Text = $"{Presenter.FindAll(u => u.HasFollowed).Count:N0} {Localization.Texts.PeopleText}";
+            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            BasePresenter.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
+        }
+
+        private async void Follow(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var errors = await Presenter.TryFollow(userFriend);
+                if (!IsInitialized)
+                    return;
+
+                Context.ShowAlert(errors, ToastLength.Long);
+            }
+            else
+            {
+                var intent = new Intent(Activity, typeof(WelcomeActivity));
+                StartActivity(intent);
+            }
+        }
+
+        private async void LoadItems()
+        {
+            var errors = await Presenter.TryLoadNextUserFriends(_username);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(errors, ToastLength.Long);
+            _bar.Visibility = ViewStates.Gone;
+
+            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+        }
+
+        private void UserAction(UserFriend userFriend)
+        {
+            if (userFriend == null)
+                return;
+
+            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
@@ -9,125 +9,206 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
     public class FollowersAdapter : RecyclerView.Adapter
     {
-        private readonly List<UserFriend> _collection;
         private readonly Context _context;
-        public Action<int> FollowAction;
-        public Action<int> UserAction;
+        private readonly ListPresenter<UserFriend> _presenter;
+        public Action<UserFriend> FollowAction;
+        public Action<UserFriend> UserAction;
 
-        public FollowersAdapter(Context context, List<UserFriend> collection)
+        public override int ItemCount
+        {
+            get
+            {
+                var count = _presenter.Count;
+                return count == 0 || _presenter.IsLastReaded ? count : count + 1;
+            }
+        }
+
+        public FollowersAdapter(Context context, ListPresenter<UserFriend> presenter)
         {
             _context = context;
-            _collection = collection;
+            _presenter = presenter;
         }
 
-        public void Clear()
+        public override int GetItemViewType(int position)
         {
-            _collection.Clear();
-            NotifyDataSetChanged();
-        }
+            if (_presenter.Count == position)
+                return (int)ViewType.Loader;
 
-        public void InverseFollow(int pos)
-        {
-            _collection[pos].HasFollowed = !_collection[pos].HasFollowed;
+            return (int)ViewType.Cell;
         }
-
-        public UserFriend GetItem(int position)
-        {
-            return _collection[position];
-        }
-
-        public override int ItemCount => _collection.Count;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as FollowersViewHolder;
-            if (vh == null) return;
+            if (vh == null)
+                return;
 
-            var item = _collection[position];
-            vh.FriendAvatar.SetImageResource(0);
-            vh.FriendName.Text = item.Author;
-            vh.Reputation.Text = item.Reputation.ToString();
-            if (!string.IsNullOrEmpty(item.Avatar))
-                Picasso.With(_context).Load(item.Avatar).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-            else
-                Picasso.With(_context).Load(Resource.Drawable.ic_user_placeholder).NoFade().Resize(80, 0).Into(vh.FriendAvatar);
-            //vh.FriendAvatar.SetImageResource(Resource.Drawable.ic_user_placeholder);
+            var item = _presenter[position];
+            if (item == null)
+                return;
 
             vh.UpdateData(item);
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
-            var vh = new FollowersViewHolder(itemView, FollowAction, UserAction);
-            return vh;
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Loader:
+                    var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
+                    var loaderVh = new LoaderViewHolder(loaderView);
+                    return loaderVh;
+                default:
+                    var cellView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_followers_item, parent, false);
+                    var cellVh = new FollowersViewHolder(cellView, FollowAction, UserAction, _context);
+                    return cellVh;
+            }
         }
 
-        private class FollowersViewHolder : RecyclerView.ViewHolder
+        private class FollowersViewHolder : RecyclerView.ViewHolder, ITarget
         {
-            public CircleImageView FriendAvatar { get; }
-            public TextView FriendName { get; }
-            public TextView Reputation { get; }
-            private AppCompatButton FollowUnfollow { get; }
+            private readonly CircleImageView _friendAvatar;
+            private readonly TextView _friendName;
+            private readonly TextView _friendLogin;
+            private readonly Button _followButton;
+            private readonly ProgressBar _loader;
+            private readonly Action<UserFriend> _followAction;
+            private readonly Action<UserFriend> _userAction;
+            private readonly Context _context;
+            private UserFriend _userFriends;
 
-            private UserFriend _userFriendst;
-            private readonly Action<int> _followAction;
-            private readonly Action<int> _userAction;
-
-            public FollowersViewHolder(View itemView, Action<int> followAction, Action<int> userAction)
+            public FollowersViewHolder(View itemView, Action<UserFriend> followAction, Action<UserFriend> userAction, Context context)
                 : base(itemView)
             {
-                FriendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
-                FriendName = itemView.FindViewById<TextView>(Resource.Id.friend_name);
-                Reputation = itemView.FindViewById<TextView>(Resource.Id.reputation);
-                FollowUnfollow = itemView.FindViewById<AppCompatButton>(Resource.Id.btn_follow_unfollow);
+                _context = context;
+                _friendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
+                _friendLogin = itemView.FindViewById<TextView>(Resource.Id.username);
+                _friendName = itemView.FindViewById<TextView>(Resource.Id.name);
+                _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
+                _loader = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
+
+                _friendLogin.Typeface = Style.Semibold;
+                _friendName.Typeface = Style.Regular;
+
                 _followAction = followAction;
                 _userAction = userAction;
-                FollowUnfollow.Click += Follow_Click;
-                FriendName.Clickable = true;
-                FriendName.Click += User_Click;
-                FriendAvatar.Clickable = true;
-                FriendAvatar.Click += User_Click;
+                _followButton.Click += Follow_Click;
+                _friendName.Click += User_Click;
+                _friendLogin.Click += User_Click;
+                _friendAvatar.Click += User_Click;
             }
 
             private void User_Click(object sender, EventArgs e)
             {
-                _userAction?.Invoke(AdapterPosition);
+                _userAction?.Invoke(_userFriends);
             }
 
             void Follow_Click(object sender, EventArgs e)
             {
-                _followAction?.Invoke(AdapterPosition);
-                CheckFollow(this, !_userFriendst.HasFollowed);
+                if (_userFriends == null)
+                    return;
+                _followAction?.Invoke(_userFriends);
             }
 
-            private void CheckFollow(FollowersViewHolder vh, bool follow)
+            public void UpdateData(UserFriend userFriends)
             {
-                if (!follow)
+                _userFriends = userFriends;
+
+                if (string.IsNullOrEmpty(userFriends.Name))
+                    _friendName.Visibility = ViewStates.Gone;
+                else
                 {
-                    vh.FollowUnfollow.Text = Localization.Messages.Follow;
-                    vh.FollowUnfollow.SetTextColor(Color.ParseColor("#37b0e9"));
-                    vh.FollowUnfollow.SetTextColor(Color.LightGray);
-                    //vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.primary_order);
+                    _friendName.Visibility = ViewStates.Visible;
+                    _friendName.Text = userFriends.Name;
+                }
+
+                _friendLogin.Text = userFriends.Author;
+
+                if (!string.IsNullOrEmpty(_userFriends.Avatar))
+                    Picasso.With(_context).Load(_userFriends.Avatar)
+                       .Placeholder(Resource.Drawable.ic_holder)
+                       .NoFade()
+                       .Resize(300, 0)
+                       .Priority(Picasso.Priority.Normal)
+                       .Into(_friendAvatar, OnSuccess, OnError);
+                else
+                    Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_friendAvatar);
+
+                _followButton.Visibility = BasePresenter.User.Login == _friendLogin.Text
+                    ? ViewStates.Gone
+                    : ViewStates.Visible;
+
+                if (string.Equals(BasePresenter.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
+                {
+                    _followButton.Visibility = ViewStates.Gone;
                 }
                 else
                 {
-                    vh.FollowUnfollow.Text = Localization.Messages.Unfollow;
-                    vh.FollowUnfollow.SetTextColor(Color.LightGray);
-                    //  vh.FollowUnfollow.SetBackgroundResource(Resource.Drawable.gray_border);
+                    var background = new GradientDrawable();
+                    _followButton.Background = null;
+
+                    if (userFriends.FollowedChanging)
+                    {
+                        background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                        background.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                        background.SetStroke(0, Color.White);
+                        _followButton.Text = string.Empty;
+                        _followButton.SetTextColor(Color.White);
+                        _followButton.Enabled = false;
+                        _loader.Visibility = ViewStates.Visible;
+                    }
+                    else
+                    {
+                        if (userFriends.HasFollowed)
+                        {
+                            background.SetColors(new int[] { Color.White, Color.White });
+                            background.SetStroke(3, Style.R244G244B246);
+                            _followButton.Text = Localization.Messages.Unfollow;
+                            _followButton.SetTextColor(Style.R15G24B30);
+                        }
+                        else
+                        {
+                            background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
+                            background.SetOrientation(GradientDrawable.Orientation.LeftRight);
+                            background.SetStroke(0, Color.White);
+                            _followButton.Text = Localization.Messages.Follow;
+                            _followButton.SetTextColor(Color.White);
+                        }
+                        _followButton.Enabled = true;
+                        _loader.Visibility = ViewStates.Gone;
+                    }
+                    background.SetCornerRadius(100);
+                    _followButton.Background = background;
                 }
             }
 
-            public void UpdateData(UserFriend userFriendst)
+            private void OnSuccess()
             {
-                _userFriendst = userFriendst;
-                CheckFollow(this, _userFriendst.HasFollowed);
+            }
+
+            private void OnError()
+            {
+                Picasso.With(_context).Load(_userFriends.Avatar).NoFade().Into(this);
+            }
+
+            public void OnBitmapFailed(Drawable p0)
+            {
+            }
+
+            public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+            {
+                _friendAvatar.SetImageBitmap(p0);
+            }
+
+            public void OnPrepareLoad(Drawable p0)
+            {
             }
         }
     }

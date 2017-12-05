@@ -4,6 +4,6 @@
     {
         None,
         Steem,
-        Golos
+        Golos,
     }
 }

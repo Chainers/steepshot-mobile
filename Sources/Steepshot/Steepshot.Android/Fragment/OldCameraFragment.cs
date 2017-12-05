@@ -23,15 +23,16 @@ using Camera = Android.Hardware.Camera;
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
+    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
+        private const bool FullScreen = true;
+        private const int GalleryRequestCode = 228;
+
         private ISurfaceHolder _holder;
         private Camera _camera;
-        private int _cameraId = 0;
-        private int _currentRotation = 0;
-        private int _rotationOnShutter = 0;
-        private const bool _fullScreen = true;
-        private const int galleryRequestCode = 228;
+        private int _cameraId;
+        private int _currentRotation;
+        private int _rotationOnShutter;
         private CameraOrientationEventListener _orientationListner;
 
         [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
@@ -55,26 +56,18 @@ namespace Steepshot.Fragment
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
+
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
+
+            _flashButton.Click += FlashClick;
+            _shotButton.Click += TakePhotoClick;
+            _closeButton.Click += GoBack;
+            _galleryButton.Click += OpenGallery;
+            _revertButton.Click += SwitchCamera;
+
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
-            _orientationListner.OrientationChanged += (orientation) =>
-            {
-                var parameters = _camera?.GetParameters();
-                Camera.CameraInfo info = new Camera.CameraInfo();
-                Camera.GetCameraInfo(_cameraId, info);
-
-                orientation = (orientation + 45) / 90 * 90;
-                int rotation = 0;
-                if (info.Facing == Camera.CameraInfo.CameraFacingFront)
-                    rotation = (info.Orientation - orientation + 360) % 360;
-                else
-                    rotation = (info.Orientation + orientation) % 360;
-
-                _currentRotation = rotation;
-                parameters?.SetRotation(rotation);
-                _camera?.SetParameters(parameters);
-            };
+            _orientationListner.OrientationChanged += OnOrientationChanged;
             GetGalleryIcon();
         }
 
@@ -91,9 +84,10 @@ namespace Steepshot.Fragment
         public override void OnPause()
         {
             base.OnPause();
-            if (_camera != null)
-                _camera.Release();
+
+            _camera?.Release();
             _camera = null;
+
             _orientationListner.Disable();
 
             _holder.RemoveCallback(this);
@@ -109,45 +103,67 @@ namespace Steepshot.Fragment
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
-            if (resultCode == -1 && requestCode == galleryRequestCode)
+            if (resultCode == -1 && requestCode == GalleryRequestCode)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
                 StartActivity(i);
+                Activity.Finish();
             }
         }
 
-        [InjectOnClick(Resource.Id.flash_button)]
+
         private void FlashClick(object sender, EventArgs e)
         {
             var parameters = _camera.GetParameters();
-            if (parameters.SupportedFlashModes != null && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOff) && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOn))
+            if (parameters.SupportedFlashModes != null
+                && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOff)
+                && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOn))
             {
-                parameters.FlashMode = parameters.FlashMode != Camera.Parameters.FlashModeOff ? Camera.Parameters.FlashModeOff : Camera.Parameters.FlashModeOn;
+                var mode = parameters.FlashMode != Camera.Parameters.FlashModeOff ? Camera.Parameters.FlashModeOff : Camera.Parameters.FlashModeOn;
+                parameters.FlashMode = mode;
                 _camera.SetParameters(parameters);
+                _flashButton.SetImageResource(mode == Camera.Parameters.FlashModeOff ? Resource.Drawable.ic_flash_off : Resource.Drawable.ic_flash);
             }
         }
 
-        [InjectOnClick(Resource.Id.shot_button)]
         private void TakePhotoClick(object sender, EventArgs e)
         {
             _camera?.TakePicture(this, null, this);
         }
 
-        [InjectOnClick(Resource.Id.close_button)]
         private void GoBack(object sender, EventArgs e)
         {
             Activity.OnBackPressed();
         }
 
-        [InjectOnClick(Resource.Id.gallery_button)]
         private void OpenGallery(object sender, EventArgs e)
         {
-            Intent intent = new Intent();
+            var intent = new Intent();
             intent.SetAction(Intent.ActionGetContent);
             intent.SetType("image/*");
-            StartActivityForResult(intent, galleryRequestCode);
+            StartActivityForResult(intent, GalleryRequestCode);
         }
+
+        private void OnOrientationChanged(int orientation)
+        {
+            if (_camera == null)
+                return;
+
+            var parameters = _camera.GetParameters();
+            var info = new Camera.CameraInfo();
+            Camera.GetCameraInfo(_cameraId, info);
+
+            orientation = (orientation + 45) / 90 * 90;
+            var rotation = info.Facing == Camera.CameraInfo.CameraFacingFront
+                ? (info.Orientation - orientation + 360) % 360
+                : (info.Orientation + orientation) % 360;
+
+            _currentRotation = rotation;
+            parameters.SetRotation(rotation);
+            _camera.SetParameters(parameters);
+        }
+
 
         public void SurfaceChanged(ISurfaceHolder holder, [GeneratedEnum] Format format, int width, int height)
         {
@@ -166,17 +182,15 @@ namespace Steepshot.Fragment
             catch (Java.IO.IOException ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
             }
         }
 
         private void SetPreviewSize(bool fullScreen)
         {
-            Display display = Activity.WindowManager.DefaultDisplay;
-            bool widthIsMax = display.Width > display.Height;
-
             var parameters = _camera.GetParameters();
 
-            if (parameters.SupportedFlashModes == null || parameters.SupportedFlashModes.Count() == 1)
+            if (parameters.SupportedFlashModes == null || parameters.SupportedFlashModes.Count == 1)
                 _flashButton.Visibility = ViewStates.Gone;
             else
                 _flashButton.Visibility = ViewStates.Visible;
@@ -187,44 +201,48 @@ namespace Steepshot.Fragment
             _camera.SetParameters(parameters);
             var size = _camera.GetParameters().PreviewSize;
 
-            RectF rectDisplay = new RectF();
-            RectF rectPreview = new RectF();
+            var rectDisplay = new RectF();
+            var rectPreview = new RectF();
 
+            var display = Activity.WindowManager.DefaultDisplay;
             rectDisplay.Set(0, 0, display.Width, display.Height);
 
-            if (widthIsMax)
+            if (display.Width > display.Height)
                 rectPreview.Set(0, 0, size.Width, size.Height);
             else
                 rectPreview.Set(0, 0, size.Height, size.Width);
 
-            Matrix matrix = new Matrix();
-            if (!fullScreen)
-                matrix.SetRectToRect(rectPreview, rectDisplay, Matrix.ScaleToFit.Start);
-            else
+            var matrix = new Matrix();
+            if (fullScreen)
             {
                 matrix.SetRectToRect(rectDisplay, rectPreview, Matrix.ScaleToFit.Start);
                 matrix.Invert(matrix);
             }
+            else
+            {
+                matrix.SetRectToRect(rectPreview, rectDisplay, Matrix.ScaleToFit.Start);
+            }
+
             matrix.MapRect(rectPreview);
-            _sv.LayoutParameters.Height = (int)(rectPreview.Bottom);
-            _sv.LayoutParameters.Width = (int)(rectPreview.Right);
+            _sv.LayoutParameters.Height = (int)rectPreview.Bottom;
+            _sv.LayoutParameters.Width = (int)rectPreview.Right;
         }
 
         private Tuple<Camera.Size, Camera.Size> GetSizes(IList<Camera.Size> supportedPreviewSizes, IList<Camera.Size> supportedPictureSizes)
         {
-            var previewSizes = supportedPreviewSizes.OrderByDescending((arg) => arg.Width).ToList();
-            var pictureSizes = supportedPictureSizes.OrderByDescending((arg) => arg.Width).ToList();
+            var previewSizes = supportedPreviewSizes.OrderByDescending(arg => arg.Width).ToArray();
+            var pictureSizes = supportedPictureSizes.OrderByDescending(arg => arg.Width).ToArray();
 
             Tuple<Camera.Size, Camera.Size> rez = null;
-            int difference = int.MaxValue;
+            var difference = int.MaxValue;
 
             foreach (var previewSize in previewSizes)
             {
-                var previewCoeff = (double)previewSize.Height / (double)previewSize.Width;
+                var previewCoeff = (double)previewSize.Height / previewSize.Width;
 
                 foreach (var pictureSize in pictureSizes)
                 {
-                    var picCoeff = (double)pictureSize.Height / (double)pictureSize.Width;
+                    var picCoeff = (double)pictureSize.Height / pictureSize.Width;
                     if (Math.Abs(picCoeff - previewCoeff) < 0.001)
                     {
                         var t = Math.Abs(1600 - pictureSize.Width);
@@ -244,7 +262,7 @@ namespace Steepshot.Fragment
         private void SetCameraDisplayOrientation(int cameraId)
         {
             var rotation = Activity.WindowManager.DefaultDisplay.Rotation;
-            int degrees = 0;
+            var degrees = 0;
             switch (rotation)
             {
                 case SurfaceOrientation.Rotation0:
@@ -261,16 +279,16 @@ namespace Steepshot.Fragment
                     break;
             }
 
-            int result = 0;
-            Camera.CameraInfo info = new Camera.CameraInfo();
+            var result = 0;
+            var info = new Camera.CameraInfo();
             Camera.GetCameraInfo(cameraId, info);
             if (info.Facing == CameraFacing.Back)
             {
-                result = ((360 - degrees) + info.Orientation);
+                result = 360 - degrees + info.Orientation;
             }
             else if (info.Facing == CameraFacing.Front)
             {
-                result = ((360 - degrees) - info.Orientation);
+                result = 360 - degrees - info.Orientation;
                 result += 360;
             }
             result = result % 360;
@@ -313,30 +331,31 @@ namespace Steepshot.Fragment
                 if (!directory.Exists())
                     directory.Mkdirs();
 
-                var _photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
+                var photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
 
-                var stream = new Java.IO.FileOutputStream(_photoUri);
+                var stream = new Java.IO.FileOutputStream(photoUri);
                 stream.Write(data);
                 stream.Close();
 
-                ExifInterface exifInterface = new ExifInterface(_photoUri);
+                var exifInterface = new ExifInterface(photoUri);
                 var orientation = exifInterface.GetAttributeInt(ExifInterface.TagOrientation, 0);
 
                 if (orientation != 1 && orientation != 0)
                 {
                     var bitmap = BitmapFactory.DecodeByteArray(data, 0, data.Length);
                     bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);
-                    var rotationStream = new System.IO.FileStream(_photoUri, System.IO.FileMode.Create);
+                    var rotationStream = new System.IO.FileStream(photoUri, System.IO.FileMode.Create);
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, _photoUri);
-                i.PutExtra("SHOULD_COMPRESS", false);
+                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
+                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
 
                 Activity.RunOnUiThread(() =>
                 {
                     StartActivity(i);
+                    Activity.Finish();
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;
@@ -361,7 +380,6 @@ namespace Steepshot.Fragment
             _closeButton.Enabled = false;
         }
 
-        [InjectOnClick(Resource.Id.revert_button)]
         public void SwitchCamera(object sender, EventArgs e)
         {
             if (_camera != null)
@@ -377,18 +395,24 @@ namespace Steepshot.Fragment
 
         private void EnableCamera(int cameraToSwitch)
         {
-            _camera = Camera.Open(cameraToSwitch);
-            _cameraId = cameraToSwitch;
-            SetPreviewSize(_fullScreen);
-            SetCameraDisplayOrientation(_cameraId);
             try
             {
+                _camera = Camera.Open(cameraToSwitch);
+                _cameraId = cameraToSwitch;
+                SetPreviewSize(FullScreen);
+                SetCameraDisplayOrientation(_cameraId);
                 _camera.SetPreviewDisplay(_holder);
                 _camera.StartPreview();
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                if (ex.GetType() == typeof(Java.Lang.RuntimeException) && ex.Message == "Fail to connect to camera service")
+                    Activity.Finish();
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
+                }
             }
         }
 
@@ -401,19 +425,21 @@ namespace Steepshot.Fragment
                 MediaStore.Images.ImageColumns.DateTaken,
                 MediaStore.Images.ImageColumns.MimeType
             };
-            var cursor = Context.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, projection, null,
-                                                       null, MediaStore.Images.ImageColumns.DateTaken + " DESC");
+            var cursor = Context.ContentResolver
+                .Query(MediaStore.Images.Media.ExternalContentUri, projection, null, null, MediaStore.Images.ImageColumns.DateTaken + " DESC");
 
             if (cursor.MoveToFirst())
             {
-                String imageLocation = cursor.GetString(1);
+                var imageLocation = cursor.GetString(1);
                 var imageFile = new Java.IO.File(imageLocation);
                 if (imageFile.Exists())
                 {
-                    var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor;
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
-                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
-                    _galleryIcon.SetImageBitmap(bitmap);
+                    using (var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor)
+                    {
+                        var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
+                        bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
+                        _galleryIcon.SetImageBitmap(bitmap);
+                    }
                 }
             }
         }

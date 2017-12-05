@@ -1,5 +1,4 @@
-﻿using System;
-namespace Steepshot.Core.Services
+﻿namespace Steepshot.Core.Services
 {
     public interface IConnectionService
     {

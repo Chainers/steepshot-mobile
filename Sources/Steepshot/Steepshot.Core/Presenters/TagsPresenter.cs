@@ -1,22 +1,81 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public class TagsPresenter : BasePresenter
+    public class TagsPresenter : ListPresenter<SearchResult>
     {
-        public async Task<OperationResult<SearchResponse<SearchResult>>> SearchTags(string s)
+        private const int ItemsLimit = 40;
+
+        public async Task<List<string>> TryLoadNext(string s)
         {
-            var request = new SearchWithQueryRequest(s);
-            return await Api.SearchCategories(request);
+            return await RunAsSingleTask(LoadNext, s);
         }
 
-        public async Task<OperationResult<SearchResponse<SearchResult>>> GetTopTags()
+        private async Task<List<string>> LoadNext(CancellationToken ct, string s)
         {
-            var request = new OffsetLimitFields();
-            return await Api.GetCategories(request);
+            var request = new SearchWithQueryRequest(s)
+            {
+                Offset = OffsetUrl,
+                Limit = ItemsLimit
+            };
+
+            var response = await Api.SearchCategories(request, ct);
+
+            if (response.Success)
+            {
+                var tags = response.Result.Results;
+                if (tags.Count > 0)
+                {
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+
+                    OffsetUrl = tags.Last().Name;
+                }
+
+                if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                    IsLastReaded = true;
+                NotifySourceChanged();
+            }
+            return response.Errors;
+        }
+
+        public async Task<List<string>> TryGetTopTags()
+        {
+            return await RunAsSingleTask(GetTopTags);
+        }
+
+        private async Task<List<string>> GetTopTags(CancellationToken ct)
+        {
+            var request = new OffsetLimitFields()
+            {
+                Offset = OffsetUrl,
+                Limit = ItemsLimit
+            };
+
+            var response = await Api.GetCategories(request, ct);
+
+            if (response.Success)
+            {
+                var tags = response.Result.Results;
+                if (tags.Count > 0)
+                {
+                    lock (Items)
+                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+
+                    OffsetUrl = tags.Last().Name;
+                }
+
+                if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
+                    IsLastReaded = true;
+                NotifySourceChanged();
+            }
+            return response.Errors;
         }
     }
 }

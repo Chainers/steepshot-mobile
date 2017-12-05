@@ -1,35 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
 using Foundation;
-using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
-	public class UserSearchTableViewSource : UITableViewSource
-	{
-		public List<UserFriend> Users = new List<UserFriend>();
-		private const string CellIdentifier = nameof(UsersSearchViewCell);
-		public event RowSelectedHandler RowSelectedEvent;
+    public class UserSearchTableViewSource : UITableViewSource
+    {
+        private const string CellIdentifier = nameof(UsersSearchViewCell);
+        private readonly UserFriendPresenter _presenter;
+        public event RowSelectedHandler RowSelectedEvent;
 
-		public override nint RowsInSection(UITableView tableview, nint section)
-		{
-			return Users.Count;
-		}
+        public UserSearchTableViewSource(UserFriendPresenter presenter)
+        {
+            _presenter = presenter;
+        }
 
-		public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
-		{
-			var cell = (UsersSearchViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
-			cell.UpdateCell(Users[indexPath.Row]);
+        public override nint RowsInSection(UITableView tableview, nint section)
+        {
+            return _presenter.Count;
+        }
 
-			return cell;
-		}
+        public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
+        {
+            var cell = (UsersSearchViewCell)tableView.DequeueReusableCell(CellIdentifier, indexPath);
+            var user = _presenter[indexPath.Row]; //TODO:KOA: if null?
+            if (user != null)
+                cell.UpdateCell(user);
+            return cell;
+        }
 
-		public override void RowHighlighted(UITableView tableView, NSIndexPath rowIndexPath)
-		{
-			RowSelectedEvent(rowIndexPath.Row);
-		}
-	}
+        public override void RowHighlighted(UITableView tableView, NSIndexPath rowIndexPath)
+        {
+            if (RowSelectedEvent != null) RowSelectedEvent(rowIndexPath.Row);
+        }
+    }
 }

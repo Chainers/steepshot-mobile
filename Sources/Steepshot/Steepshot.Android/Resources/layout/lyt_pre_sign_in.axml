@@ -1,116 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
-    <LinearLayout
-        android:id="@+id/switch_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_vertical">
-        <ImageView
-            android:id="@+id/golos_logo"
-            android:src="@drawable/ic_golos_logo"
-            android:layout_width="20dp"
-            android:layout_height="20dp" />
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/chain_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
-        <ImageView
-            android:id="@+id/steem_logo"
-            android:src="@drawable/ic_steem_logo"
-            android:layout_width="20dp"
-            android:layout_height="20dp" />
-    </LinearLayout>
-    <TextView
-        android:id="@+id/login_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Log in with your Steem Account"
-        android:layout_marginTop="35dp"
-        android:layout_below="@+id/switch_view"
-        android:layout_centerHorizontal="true"
-        android:textSize="17sp"
-        android:textColor="@color/black" />
-    <ImageView
-        android:id="@+id/ic_logo"
-        android:src="@drawable/logo_login"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
-        android:layout_below="@+id/login_label"
-        android:layout_centerHorizontal="true" />
-<!--Username-->
-    <EditText
-        android:id="@+id/input_username"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:lines="1"
-        android:singleLine="true"
-        android:gravity="center"
-        android:layout_below="@+id/ic_logo"
-        android:inputType="textEmailAddress"
-        android:layout_marginTop="25dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"
-        android:background="@color/login_gray"
-        android:imeOptions="actionDone"
-        android:hint="@string/hint_username"
-        android:textColor="@color/black"
-        android:textColorHint="@color/color_hint" />
-<!--Login-->
+    android:background="@color/white"
+    android:clickable="true"
+    android:paddingTop="30dp">
+    <include
+        layout="@layout/top_panel" />
     <RelativeLayout
-        android:id="@+id/sign_in_cont"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/input_username"
-        android:background="@color/light_blue"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp">
-        <Button
-            android:text="next step"
-            android:textColor="@color/white"
-            android:textSize="@dimen/dp_button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_centerInParent="true">
+        <EditText
+            android:id="@+id/input_username"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textAllCaps="true"
+            android:layout_height="40dp"
+            android:maxLength="16"
             android:gravity="center"
+            android:inputType="textNoSuggestions"
+            android:textCursorDrawable="@drawable/ic_input"
             android:background="@android:color/transparent"
-            android:id="@+id/sign_in_btn" />
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:visibility="gone"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/color_primary"
-            android:layout_centerInParent="true" />
+            android:imeOptions="actionDone"
+            android:hint="Account name"
+            android:textSize="14sp"
+            android:textColor="@color/rgb15_24_30"
+            android:textColorHint="@color/rgb151_155_158" />
+        <View
+            android:id="@+id/devider_view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/input_username"
+            android:background="@color/rgb244_244_246" />
+        <RelativeLayout
+            android:id="@+id/sign_in_cont"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@+id/input_username_layout"
+            android:layout_marginTop="50dp">
+            <Button
+                android:id="@+id/pre_sign_in_btn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Next step"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:gravity="center"
+                android:background="@drawable/steem_login_border" />
+            <ProgressBar
+                android:id="@+id/loading_spinner"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:indeterminateTintMode="src_atop"
+                android:indeterminateTint="@color/white"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:elevation="10dp" />
+        </RelativeLayout>
     </RelativeLayout>
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/dev_switch"
-        android:layout_below="@+id/sign_in_cont"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:visibility="gone" />
-    <Button
-        android:id="@+id/reg_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create a new account"
-        android:textColor="@color/light_blue"
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/dp_button_text"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
 </RelativeLayout>

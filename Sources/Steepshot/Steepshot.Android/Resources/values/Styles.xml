@@ -2,5 +2,6 @@
 <resources>
   <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
     <item name="android:windowBackground">@drawable/splash</item>
+    <item name="colorAccent">@color/rgb231_72_0</item>
   </style>
 </resources>
