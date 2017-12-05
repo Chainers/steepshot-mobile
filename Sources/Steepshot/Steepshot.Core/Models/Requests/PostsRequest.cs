@@ -13,7 +13,7 @@ namespace Steepshot.Core.Models.Requests
         public UserPostsRequest(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
-                throw new UserException(Localization.Errors.EmptyUsernameField);
+                throw new UserException("username", Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }

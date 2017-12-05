@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 
 namespace Steepshot.Core.Tests.Presenters
@@ -10,8 +11,8 @@ namespace Steepshot.Core.Tests.Presenters
         [Test, Sequential]
         public async Task GetPostVotersTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName, [Values("@steepshot/steepshot-some-stats-and-explanations", "@joseph.kalu/4k-photo-test-2017-10-10-07-15-42")] string url)
         {
-            BasePresenter.SwitchChain(apiName);
-            var presenter = new UserFriendPresenter();
+            await BasePresenter.SwitchChain(apiName);
+            var presenter = new UserFriendPresenter() { VotersType = VotersType.All };
             Assert.IsTrue(presenter.Count == 0);
             var errors = await presenter.TryLoadNextPostVoters(url);
             Assert.IsTrue(errors == null || errors.Count == 0);
