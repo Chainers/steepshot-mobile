@@ -8,13 +8,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone" />
-    <ImageView
-        android:id="@+id/steepshot_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_logo_main"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp" />
     <TextView
         android:id="@+id/terms"
         android:layout_width="wrap_content"
@@ -68,6 +61,7 @@
             android:elevation="10dp" />
     </RelativeLayout>
     <RelativeLayout
+        android:id="@+id/steem_login_layout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginRight="14dp"
@@ -92,5 +86,17 @@
             android:layout_centerInParent="true"
             android:visibility="gone"
             android:elevation="10dp" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/steepshot_logo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/steem_login_layout">
+        <ImageView
+            android:id="@+id/steepshot_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_logo_main"
+            android:layout_centerInParent="true" />
     </RelativeLayout>
 </RelativeLayout>
