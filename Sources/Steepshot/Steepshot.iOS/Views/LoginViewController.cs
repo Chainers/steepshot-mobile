@@ -55,7 +55,10 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
             postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
 #if DEBUG
-            password.Text = DebugHelper.GetTestWif();
+            if (BasePresenter.Chain == KnownChains.Steem)
+                password.Text = DebugHelper.GetTestSteemWif();
+            else
+                password.Text = DebugHelper.GetTestGolosWif();
 #endif
             password.ShouldReturn += (textField) =>
             {

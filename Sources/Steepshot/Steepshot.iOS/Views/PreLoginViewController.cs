@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -46,7 +47,10 @@ namespace Steepshot.iOS.Views
             }
 
 #if DEBUG
-            loginText.Text = "joseph.kalu";
+            if (BasePresenter.Chain == KnownChains.Steem)
+                loginText.Text = DebugHelper.GetTestSteemLogin();
+            else
+                loginText.Text = DebugHelper.GetTestGolosLogin();
 #endif
 
             var tw = new UILabel(new CoreGraphics.CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
