@@ -13,13 +13,15 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Fragment
 {
     public class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
     {
-        public const string PostExtraPath = "uid";
-        public const int RequestCode = 124;
+        private const string PostUrlExtraPath = "url";
+        private const string PostNetVotesExtraPath = "count";
+
         public const string ResultString = "result";
         public const string CountString = "count";
 
@@ -43,7 +45,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.message)] private RelativeLayout _messagePanel;
         [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
-       
+
         public CommentsFragment()
         {
             //This is fix for crashing when app killed in background
@@ -90,6 +92,7 @@ namespace Steepshot.Fragment
             _adapter = new CommentAdapter(Context, Presenter);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
+            _adapter.VotersClick += VotersAction;
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
@@ -202,6 +205,18 @@ namespace Steepshot.Fragment
 
             if (BasePresenter.User.Login != post.Author)
                 ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
+        }
+
+        private void VotersAction(Post post, VotersType type)
+        {
+            if (post == null)
+                return;
+
+            var isLikers = type == VotersType.Likes;
+            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url.Substring(post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+            Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
+            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
         }
 
         private void ReplyAction(Post post)

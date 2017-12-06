@@ -10,6 +10,7 @@ using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -22,6 +23,7 @@ namespace Steepshot.Adapter
         private readonly Context _context;
         public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction;
         public Action RootClickAction;
+        public Action<Post, VotersType> VotersClick;
 
         public override int ItemCount => _presenter.Count;
 
@@ -44,7 +46,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
-            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, FlagAction, HideAction, ReplyAction, RootClickAction);
+            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction, HideAction, ReplyAction, RootClickAction);
             return vh;
         }
     }
@@ -66,6 +68,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
         private readonly Action<Post> _replyAction;
+        private readonly Action<Post, VotersType> _votersAction;
         private readonly Action _rootAction;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
@@ -75,7 +78,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -98,6 +101,7 @@ namespace Steepshot.Adapter
             _hideAction = hideAction;
             _replyAction = replyAction;
             _rootAction = rootClickAction;
+            _votersAction = votersAction;
 
             _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
@@ -106,6 +110,8 @@ namespace Steepshot.Adapter
             _more.Click += DoMoreAction;
             _reply.Click += ReplyAction;
             _rootView.Click += Root_Click;
+            _likes.Click += DoLikersAction;
+            _flags.Click += DoFlagersAction;
 
             _context = itemView.RootView.Context;
             _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
@@ -192,6 +198,16 @@ namespace Steepshot.Adapter
         private void ReplyAction(object sender, EventArgs e)
         {
             _replyAction?.Invoke(_post);
+        }
+
+        private void DoLikersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(_post, VotersType.Likes);
+        }
+
+        private void DoFlagersAction(object sender, EventArgs e)
+        {
+            _votersAction?.Invoke(_post, VotersType.Flags);
         }
 
         private void Like_Click(object sender, EventArgs e)
