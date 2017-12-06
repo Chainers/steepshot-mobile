@@ -1,6 +1,5 @@
-# SteepShot Android App 
-Community that rewards people for sharing their lifestyle and visual experience.
+# Steepshot mobile application
 
-http://bilvs3.axshare.com/
+## License
 
-pass: steep7788
+[MIT License](http://opensource.org/licenses/MIT)
