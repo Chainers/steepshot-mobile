@@ -40,11 +40,11 @@ namespace Steepshot.iOS.Views
         UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
 
-
+        /*
         public FeedViewController(bool isFeed = false)
         {
             _isHomeFeed = isFeed;
-        }
+        }*/
 
         protected override void CreatePresenter()
         {
@@ -134,8 +134,13 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource.GoToVoters += postUrl =>
             {
+                /*
                 var myViewController = new VotersViewController();
                 myViewController.PostUrl = postUrl;
+                NavigationController.PushViewController(myViewController, true);*/
+
+                var myViewController = new PreSearchViewController();
+                //yViewController.PostUrl = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
 
@@ -147,11 +152,7 @@ namespace Steepshot.iOS.Views
                 _navController.PushViewController(myViewController, true);
             };
 
-            if (!_isHomeFeed)
-            {
-                _dropdown = CreateDropDownList();
-            }
-            SetNavBar();
+            //SetNavBar();
             await GetPosts();
         }
 
@@ -171,8 +172,6 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (!_isHomeFeed && IsDropDownOpen)
-                ToogleDropDownList();
             base.ViewWillDisappear(animated);
         }
 
@@ -186,35 +185,6 @@ namespace Steepshot.iOS.Views
         void LoginTapped(object sender, EventArgs e)
         {
             _navController.PushViewController(new PreLoginViewController(), true);
-        }
-
-        void SearchTapped(object sender, EventArgs e)
-        {
-            var myViewController = new TagsSearchViewController();
-            _navController.PushViewController(myViewController, true);
-        }
-
-        private void ToogleDropDownList()
-        {
-            if (_dropdown.Frame.Y < 0)
-            {
-                UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseIn,
-                    () =>
-                    {
-                        _dropdown.Frame = new CGRect(_dropdown.Frame.X, 0, _dropdown.Frame.Width, _dropdown.Frame.Height);
-                        _arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(-180 * (Math.PI / 180)));
-                    }, null);
-            }
-            else
-            {
-                UIView.Animate(0.2,
-                    () =>
-                    {
-                        _dropdown.Frame = new CGRect(_dropdown.Frame.X, -_dropdown.Frame.Height, _dropdown.Frame.Width, _dropdown.Frame.Height);
-                        _arrow.Transform = CGAffineTransform.MakeRotation((nfloat)(0 * (Math.PI / 180)));
-                    }
-                );
-            }
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -332,8 +302,8 @@ namespace Steepshot.iOS.Views
             if (!_isHomeFeed)
             {
                 _tw.Text = Localization.Messages.Trending; // SET current post type
-                UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
-                titleView.AddGestureRecognizer(tapGesture);
+                //UITapGestureRecognizer tapGesture = new UITapGestureRecognizer(ToogleDropDownList);
+                //titleView.AddGestureRecognizer(tapGesture);
                 titleView.UserInteractionEnabled = true;
 
                 var arrowSize = 15;
@@ -342,8 +312,8 @@ namespace Steepshot.iOS.Views
                 titleView.Add(_arrow);
                 titleView.Frame = new CGRect(0, 0, _arrow.Frame.Right, barHeight);
 
-                var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("search"), UIBarButtonItemStyle.Plain, SearchTapped);
-                _navItem.SetRightBarButtonItem(rightBarButton, true);
+                //var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("search"), UIBarButtonItemStyle.Plain, SearchTapped);
+                //_navItem.SetRightBarButtonItem(rightBarButton, true);
             }
 
             _navItem.TitleView = titleView;
@@ -357,75 +327,6 @@ namespace Steepshot.iOS.Views
 
             NavigationController.NavigationBar.TintColor = UIColor.White;
             NavigationController.NavigationBar.BarTintColor = Helpers.Constants.NavBlue;
-        }
-
-        private UIView CreateDropDownList()
-        {
-            var view = new UIView();
-            view.BackgroundColor = UIColor.White;
-
-            var buttonColor = UIColor.FromRGB(66, 165, 245); // To constants
-
-            var newPhotosButton = new UIButton(new CGRect(0, 0, _navController.NavigationBar.Frame.Width, 50));
-            newPhotosButton.SetTitle(Localization.Messages.NewPhotos, UIControlState.Normal); //ToConstants name
-            newPhotosButton.BackgroundColor = buttonColor;
-            newPhotosButton.TouchDown += async (e, obj) =>
-               {
-                   if (_currentPostType == PostType.New && CurrentPostCategory != null)
-                       return;
-                   ToogleDropDownList();
-                   _presenter.Clear();
-                   feedCollection.ReloadData();
-                   _presenter.PostType = PostType.New;
-                   _tw.Text = newPhotosButton.TitleLabel.Text;
-                   CurrentPostCategory = _currentPostCategory = null;
-                   await RefreshTable();
-                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               };
-
-            var hotButton = new UIButton(new CGRect(0, newPhotosButton.Frame.Bottom + 1, _navController.NavigationBar.Frame.Width, 50));
-            hotButton.SetTitle(Localization.Messages.Hot, UIControlState.Normal); //ToConstants name
-            hotButton.BackgroundColor = buttonColor;
-
-            hotButton.TouchDown += async (e, obj) =>
-               {
-                   if (_currentPostType == PostType.Hot && CurrentPostCategory != null)
-                       return;
-                   ToogleDropDownList();
-                   _presenter.Clear();
-                   feedCollection.ReloadData();
-                   _presenter.PostType = PostType.Hot;
-                   _tw.Text = hotButton.TitleLabel.Text;
-                   CurrentPostCategory = _currentPostCategory = null;
-                   await RefreshTable();
-                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               };
-
-            var trendingButton = new UIButton(new CGRect(0, hotButton.Frame.Bottom + 1, NavigationController.NavigationBar.Frame.Width, 50));
-            trendingButton.SetTitle(Localization.Messages.Trending, UIControlState.Normal); //ToConstants name
-            trendingButton.BackgroundColor = buttonColor;
-
-            trendingButton.TouchDown += async (e, obj) =>
-               {
-                   if (_currentPostType == PostType.Top && CurrentPostCategory != null)
-                       return;
-                   ToogleDropDownList();
-                   _presenter.Clear();
-                   feedCollection.ReloadData();
-                   _presenter.PostType = PostType.Top;
-                   _tw.Text = trendingButton.TitleLabel.Text;
-                   CurrentPostCategory = _currentPostCategory = null;
-                   await RefreshTable();
-                   feedCollection.SetContentOffset(new CGPoint(0, 0), false);
-               };
-
-            view.Add(newPhotosButton);
-            view.Add(hotButton);
-            view.Add(trendingButton);
-            view.Frame = new CGRect(0, -trendingButton.Frame.Bottom, _navController.NavigationBar.Frame.Width, trendingButton.Frame.Bottom);
-
-            View.Add(view);
-            return view;
         }
     }
 

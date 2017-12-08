@@ -211,6 +211,7 @@
     <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
     <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
+    <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -332,6 +333,10 @@
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="ViewControllers\BaseViewControllerWithPresenter.cs" />
     <Compile Include="Helpers\PhotoHeight.cs" />
+    <Compile Include="Views\PreSearchViewController.cs" />
+    <Compile Include="Views\PreSearchViewController.designer.cs">
+      <DependentUpon>PreSearchViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -395,6 +400,9 @@
     <BundleResource Include="Resources\flag_active%402x.png" />
     <BundleResource Include="Resources\flag_active%403x.png" />
     <BundleResource Include="Debug.plist" />
+    <BundleResource Include="Resources\ic_search_small.png" />
+    <BundleResource Include="Resources\ic_search_small%402x.png" />
+    <BundleResource Include="Resources\ic_search_small%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

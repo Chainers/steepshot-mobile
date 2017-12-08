@@ -50,18 +50,18 @@ namespace Steepshot.iOS
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
+                //AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                AppSettings.Reporter.SendCrash(e.Exception);
+                //AppSettings.Reporter.SendCrash(e.Exception);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
             else
-                InitialViewController = new FeedViewController();
+                InitialViewController = new PreSearchViewController();
 
             var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;
