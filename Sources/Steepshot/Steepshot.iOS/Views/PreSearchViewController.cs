@@ -103,12 +103,8 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource.GoToVoters += postUrl =>
             {
-                
                 //var myViewController = new VotersViewController();
                 //myViewController.PostUrl = postUrl;
-                //NavigationController.PushViewController(myViewController, true);
-
-                var myViewController = new PreSearchViewController();
                 NavigationController.PushViewController(myViewController, true);
             };
 
@@ -151,6 +147,7 @@ namespace Steepshot.iOS.Views
                 _presenter.Tag = CurrentPostCategory;
                 errors = await _presenter.TryGetSearchedPosts();
             }
+
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
 
