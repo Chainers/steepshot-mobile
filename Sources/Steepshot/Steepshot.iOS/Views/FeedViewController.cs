@@ -134,13 +134,8 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource.GoToVoters += postUrl =>
             {
-                /*
                 var myViewController = new VotersViewController();
                 myViewController.PostUrl = postUrl;
-                NavigationController.PushViewController(myViewController, true);*/
-
-                var myViewController = new PreSearchViewController();
-                //yViewController.PostUrl = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
 

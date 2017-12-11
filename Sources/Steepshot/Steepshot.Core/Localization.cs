@@ -75,7 +75,7 @@ namespace Steepshot.Core
             public const string Forget = "Forget";
             public const string Voters = "Likes";
             public const string FlagVoters = "Flags";
-            public const string ViewComments = "View {0} comments";
+            public const string ViewComments = "See all {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";
             public const string Cancel = "Cancel";

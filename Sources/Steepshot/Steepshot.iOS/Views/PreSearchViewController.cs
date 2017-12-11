@@ -103,8 +103,8 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource.GoToVoters += postUrl =>
             {
-                //var myViewController = new VotersViewController();
-                //myViewController.PostUrl = postUrl;
+                var myViewController = new VotersViewController();
+                myViewController.PostUrl = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
 
@@ -116,8 +116,11 @@ namespace Steepshot.iOS.Views
                 _navController.PushViewController(myViewController, true);
             };
 
-            loginButton.Layer.CornerRadius = 20;
-            loginButton.Layer.BorderWidth = 0;
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                loginButton.Layer.CornerRadius = 20;
+                loginButton.Layer.BorderWidth = 0;
+            }
 
             NavigationController.SetNavigationBarHidden(true, false);
             GetPosts();

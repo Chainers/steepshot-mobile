@@ -403,6 +403,18 @@
     <BundleResource Include="Resources\ic_search_small.png" />
     <BundleResource Include="Resources\ic_search_small%402x.png" />
     <BundleResource Include="Resources\ic_search_small%403x.png" />
+    <BundleResource Include="Resources\ic_more.png" />
+    <BundleResource Include="Resources\ic_more%402x.png" />
+    <BundleResource Include="Resources\ic_more%403x.png" />
+    <BundleResource Include="Resources\ic_like.png" />
+    <BundleResource Include="Resources\ic_like%402x.png" />
+    <BundleResource Include="Resources\ic_like%403x.png" />
+    <BundleResource Include="Resources\ic_noavatar.png" />
+    <BundleResource Include="Resources\ic_noavatar%402x.png" />
+    <BundleResource Include="Resources\ic_noavatar%403x.png" />
+    <BundleResource Include="Resources\Fonts\OpenSans-Light.ttf" />
+    <BundleResource Include="Resources\Fonts\OpenSans-Regular.ttf" />
+    <BundleResource Include="Resources\Fonts\OpenSans-Semibold.ttf" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

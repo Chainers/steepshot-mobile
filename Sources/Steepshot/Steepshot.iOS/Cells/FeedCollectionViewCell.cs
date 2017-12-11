@@ -55,11 +55,16 @@ namespace Steepshot.iOS.Cells
             bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
 
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                     .Retry(2, 200)
-                                                     .DownSample(width: 20)
-                                                     .Into(avatarImage);
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+            {
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .Retry(2, 200)
+                                                         .DownSample(width: 100)
+                                                         .Into(avatarImage);
+            }
+            else
+                avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
             var photo = _currentPost.Photos?.FirstOrDefault();
             if (photo != null)
@@ -69,6 +74,42 @@ namespace Steepshot.iOS.Cells
                                                          .DownSample((int)UIScreen.MainScreen.Bounds.Width)
                                                          .Into(bodyImage);
 
+
+            if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
+            {
+                /*_scheduledWorkAvatar = */ ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .Retry(2, 200)
+                                                         .DownSample(width: 50)
+                                                        .Into(firstLiker);
+            }
+            else
+                firstLiker.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[1]))
+            {
+                /*_scheduledWorkAvatar = */
+                ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1], TimeSpan.FromDays(30))
+                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                             .Retry(2, 200)
+                             .DownSample(width: 50)
+                            .Into(secondLiker);
+            }
+            else
+                secondLiker.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[2]))
+            {
+                /*_scheduledWorkAvatar = */
+                ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2], TimeSpan.FromDays(30))
+                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                             .Retry(2, 200)
+                             .DownSample(width: 50)
+                            .Into(thirdLiker);
+            }
+            else
+                thirdLiker.Image = UIImage.FromBundle("ic_noavatar");
+
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
             rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
@@ -76,7 +117,7 @@ namespace Steepshot.iOS.Cells
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
-            commentText.AttributedText = comment;
+            commentText.Text = _currentPost.Title;
             var buttonTitle = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
@@ -92,7 +133,18 @@ namespace Steepshot.iOS.Cells
 
             if (!_isButtonBinded)
             {
+                cellText.Font = Helpers.Constants.Semibold14;
+                postTimeStamp.Font = Helpers.Constants.Regular12;
+                netVotes.Font = Helpers.Constants.Semibold14;
+                rewards.Font = Helpers.Constants.Semibold14;
+                commentText.Font = Helpers.Constants.Regular14;
+                viewCommentButton.Font = Helpers.Constants.Regular14;
+
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
+                firstLiker.Layer.CornerRadius = firstLiker.Frame.Size.Width / 2;
+                secondLiker.Layer.CornerRadius = secondLiker.Frame.Size.Width / 2;
+                thirdLiker.Layer.CornerRadius = thirdLiker.Frame.Size.Width / 2;
+
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
                     var photoUrl = _currentPost.Photos?.FirstOrDefault();

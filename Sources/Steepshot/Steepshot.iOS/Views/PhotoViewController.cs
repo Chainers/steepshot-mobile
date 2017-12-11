@@ -307,13 +307,13 @@ namespace Steepshot.iOS.Views
                 if (post != null)
                 {
                     var correction = PhotoHeight.Get(post.ImageSize);
-                    //54 - margins sum
+                    //30 - margins sum
                     CGRect textSize = new CGRect();
                     if (_commentString.Any())
-                        textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
+                        textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 30, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
 
-                    //165 => 485-320 cell height without image size
-                    var cellHeight = 165 + correction;
+                    //192 => 512-320 cell height without image size
+                    var cellHeight = 192 + correction;
                     return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
                 }
             }
