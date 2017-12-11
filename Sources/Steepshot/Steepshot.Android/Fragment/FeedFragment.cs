@@ -18,15 +18,17 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Interfaces;
 
 namespace Steepshot.Fragment
 {
-    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>
+    public sealed class FeedFragment : BaseFragmentWithPresenter<FeedPresenter>, ICanOpenPost
     {
         public const string PostUrlExtraPath = "url";
         public const string PostNetVotesExtraPath = "count";
 
         private FeedAdapter<FeedPresenter> _adapter;
+        private PostPagerAdapter<FeedPresenter> _postPagerAdapter;
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
@@ -36,6 +38,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.logo)] private ImageView _logo;
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
 
@@ -62,10 +65,22 @@ namespace Steepshot.Fragment
                 _adapter.UserAction += UserAction;
                 _adapter.CommentAction += CommentAction;
                 _adapter.VotersClick += VotersAction;
-                _adapter.PhotoClick += PhotoClick;
+                _adapter.PhotoClick += FeedPhotoClick;
                 _adapter.FlagAction += FlagAction;
                 _adapter.HideAction += HideAction;
                 _adapter.TagAction += TagAction;
+
+                _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
+                _postPagerAdapter.LikeAction += LikeAction;
+                _postPagerAdapter.UserAction += UserAction;
+                _postPagerAdapter.CommentAction += CommentAction;
+                _postPagerAdapter.VotersClick += VotersAction;
+                _postPagerAdapter.PhotoClick += PhotoClick;
+                _postPagerAdapter.FlagAction += FlagAction;
+                _postPagerAdapter.HideAction += HideAction;
+                _postPagerAdapter.TagAction += TagAction;
+                _postPagerAdapter.CloseAction += CloseAction;
+
                 _logo.Click += OnLogoClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
@@ -78,6 +93,13 @@ namespace Steepshot.Fragment
                 _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
                 _feedList.AddOnScrollListener(_scrollListner);
 
+                _postPager.SetClipToPadding(false);
+                var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
+                _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
+                _postPager.PageMargin = pagePadding / 2;
+                _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
+                _postPager.PageScrolled += PostPagerOnPageScrolled;
+                _postPager.Adapter = _postPagerAdapter;
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
@@ -94,6 +116,43 @@ namespace Steepshot.Fragment
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
+            }
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (_postPager.Visibility == ViewStates.Visible)
+                ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Invisible;
+        }
+
+        private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
+        {
+            if (pageScrolledEventArgs.Position == Presenter.Count)
+            {
+                LoadPosts();
+            }
+        }
+
+        private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
+        {
+            switch (pageScrollStateChangedEventArgs.State)
+            {
+                case 0:
+                    _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
+                    _postPagerAdapter.ShowHeaderButtons(_postPager.CurrentItem);
+                    _feedList.ScrollToPosition(_postPager.CurrentItem);
+                    if (_feedList.GetLayoutManager() is GridLayoutManager manager)
+                    {
+                        var positionToScroll = _postPager.CurrentItem + (_postPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
+                        _feedList.ScrollToPosition(positionToScroll < Presenter.Count
+                            ? positionToScroll
+                            : Presenter.Count);
+                    }
+                    break;
+                case 1:
+                    _postPagerAdapter.HideHeaderButtons();
+                    break;
             }
         }
 
@@ -118,7 +177,11 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
+            Activity.RunOnUiThread(() =>
+            {
+                _adapter.NotifyDataSetChanged();
+                _postPagerAdapter.NotifyDataSetChanged();
+            });
         }
 
         private void OnRefresh(object sender, EventArgs e)
@@ -156,11 +219,41 @@ namespace Steepshot.Fragment
             StartActivity(intent);
         }
 
+        private void FeedPhotoClick(Post post)
+        {
+            if (post == null)
+                return;
+
+            OpenPost(post);
+        }
+
+        public void OpenPost(Post post)
+        {
+            ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+            _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
+            _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
+            _postPager.Visibility = ViewStates.Visible;
+            _feedList.Visibility = ViewStates.Gone;
+        }
+
+        public bool ClosePost()
+        {
+            if (_postPager.Visibility == ViewStates.Visible)
+            {
+                ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Visible;
+                _feedList.ScrollToPosition(_postPager.CurrentItem);
+                _postPager.Visibility = ViewStates.Gone;
+                _feedList.Visibility = ViewStates.Visible;
+                return true;
+            }
+            return false;
+        }
+
         private void CommentAction(Post post)
         {
             if (post == null)
                 return;
-            
+
             ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
         }
 
@@ -222,6 +315,11 @@ namespace Steepshot.Fragment
             }
             else
                 _adapter.NotifyDataSetChanged();
+        }
+
+        private void CloseAction()
+        {
+            ClosePost();
         }
     }
 }

@@ -50,6 +50,10 @@ namespace Steepshot.Activity
 
         public override void OnBackPressed()
         {
+            CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
+            if (CurrentHostFragment?.ChildFragmentManager.Fragments[CurrentHostFragment.ChildFragmentManager.Fragments.Count - 1] is ICanOpenPost fragment)
+                if (fragment.ClosePost()) return;
+
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
                 MinimizeApp();
         }

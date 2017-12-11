@@ -62,28 +62,36 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/photo"
+        <android.support.v4.view.ViewPager
+            android:id="@+id/post_photos_pager"
+            android:background="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:scaleType="centerCrop" />
+            android:layout_height="wrap_content" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="59dp">
+        <LinearLayout
+            android:id="@+id/top_likers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true" />
         <TextView
             android:id="@+id/likes"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:text="789 like's"
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30"
             android:gravity="center"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp" />
+            android:paddingRight="15dp"
+            android:layout_toRightOf="@id/top_likers" />
         <TextView
             android:id="@+id/flags"
             android:layout_width="wrap_content"

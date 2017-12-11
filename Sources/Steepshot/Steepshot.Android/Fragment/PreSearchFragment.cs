@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.Transitions;
@@ -25,10 +26,11 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
+using Steepshot.Interfaces;
 
 namespace Steepshot.Fragment
 {
-    public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>
+    public sealed class PreSearchFragment : BaseFragmentWithPresenter<PreSearchPresenter>, ICanOpenPost
     {
         public const string IsGuestKey = "isGuest";
 
@@ -80,12 +82,35 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
         [InjectView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
         [InjectView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
+        [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
         private string CustomTag
         {
             get => Presenter.Tag;
             set => Presenter.Tag = value;
+        }
+
+        private PostPagerAdapter<PreSearchPresenter> _profilePagerAdapter;
+        private PostPagerAdapter<PreSearchPresenter> ProfilePagerAdapter
+        {
+            get
+            {
+                if (_profilePagerAdapter == null)
+                {
+                    _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(Context, Presenter);
+                    _profilePagerAdapter.LikeAction += LikeAction;
+                    _profilePagerAdapter.UserAction += UserAction;
+                    _profilePagerAdapter.CommentAction += CommentAction;
+                    _profilePagerAdapter.VotersClick += VotersAction;
+                    _profilePagerAdapter.PhotoClick += OnPhotoClick;
+                    _profilePagerAdapter.FlagAction += FlagAction;
+                    _profilePagerAdapter.HideAction += HideAction;
+                    _profilePagerAdapter.TagAction += TagAction;
+                    _profilePagerAdapter.CloseAction += CloseAction;
+                }
+                return _profilePagerAdapter;
+            }
         }
 
         private FeedAdapter<PreSearchPresenter> _profileFeedAdapter;
@@ -96,7 +121,7 @@ namespace Steepshot.Fragment
                 if (_profileFeedAdapter == null)
                 {
                     _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
-                    _profileFeedAdapter.PhotoClick += OnPhotoClick;
+                    _profileFeedAdapter.PhotoClick += FeedPhotoClick;
                     _profileFeedAdapter.LikeAction += LikeAction;
                     _profileFeedAdapter.UserAction += UserAction;
                     _profileFeedAdapter.CommentAction += CommentAction;
@@ -117,7 +142,7 @@ namespace Steepshot.Fragment
                 if (_profileGridAdapter == null)
                 {
                     _profileGridAdapter = new GridAdapter<PreSearchPresenter>(Context, Presenter);
-                    _profileGridAdapter.Click += OnPhotoClick;
+                    _profileGridAdapter.Click += FeedPhotoClick;
                 }
                 return _profileGridAdapter;
             }
@@ -225,6 +250,14 @@ namespace Steepshot.Fragment
                 SwitchListAdapter(_tabSettings.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
+                _postPager.SetClipToPadding(false);
+                var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
+                _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
+                _postPager.PageMargin = pagePadding / 2;
+                _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
+                _postPager.PageScrolled += PostPagerOnPageScrolled;
+                _postPager.Adapter = ProfilePagerAdapter;
+
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
 
@@ -257,6 +290,90 @@ namespace Steepshot.Fragment
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }
+        }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            if (_postPager.Visibility == ViewStates.Visible)
+                ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Invisible;
+        }
+
+        private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
+        {
+            if (pageScrolledEventArgs.Position == Presenter.Count)
+            {
+                LoadPosts(CustomTag, false);
+            }
+        }
+
+        private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
+        {
+            switch (pageScrollStateChangedEventArgs.State)
+            {
+                case 0:
+                    _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
+                    _profilePagerAdapter.ShowHeaderButtons(_postPager.CurrentItem);
+                    _postsList.ScrollToPosition(_postPager.CurrentItem);
+                    if (_postsList.GetLayoutManager() is GridLayoutManager manager)
+                    {
+                        var positionToScroll = _postPager.CurrentItem + (_postPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
+                        _postsList.ScrollToPosition(positionToScroll < Presenter.Count
+                            ? positionToScroll
+                            : Presenter.Count);
+                    }
+                    break;
+                case 1:
+                    _profilePagerAdapter.HideHeaderButtons();
+                    break;
+            }
+        }
+
+        private void FeedPhotoClick(Post post)
+        {
+            if (post == null)
+                return;
+
+            OpenPost(post);
+        }
+
+        public void OpenPost(Post post)
+        {
+            ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
+            _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
+            _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
+            _profilePagerAdapter.ShowHeaderButtons(_postPager.CurrentItem);
+            _postPager.Visibility = ViewStates.Visible;
+            _postsList.Visibility = ViewStates.Gone;
+        }
+
+        public bool ClosePost()
+        {
+            if (_postPager.Visibility == ViewStates.Visible)
+            {
+                ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Visible;
+                _postPager.Visibility = ViewStates.Gone;
+                _postsList.Visibility = ViewStates.Visible;
+                var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView;
+                if (seenItem != null)
+                    PulseGridItem(seenItem);
+                return true;
+            }
+            return false;
+        }
+
+        private void PulseGridItem(View view)
+        {
+            var imageView = (ImageView)view;
+            var animator = ValueAnimator.OfInt(20, 100);
+            animator.SetDuration(1000);
+            animator.Update += delegate (object sender, ValueAnimator.AnimatorUpdateEventArgs args)
+             {
+                 imageView.ClearColorFilter();
+                 imageView.SetColorFilter(Color.Argb((int)args.Animation.AnimatedValue, 255, 255, 255), PorterDuff.Mode.Multiply);
+             };
+            animator.AnimationEnd += (sender, args) => imageView.ClearColorFilter();
+            animator.Start();
         }
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)
@@ -313,8 +430,6 @@ namespace Steepshot.Fragment
         {
             lock (_switcher)
             {
-                _scrollListner.ClearPosition();
-                _postsList.ScrollToPosition(0);
                 if (isGridView)
                 {
                     _switcher.SetImageResource(Resource.Drawable.ic_grid_active);
@@ -330,6 +445,7 @@ namespace Steepshot.Fragment
                     _adapter = ProfileFeedAdapter;
                 }
                 _postsList.SetAdapter(_adapter);
+                _postsList.ScrollToPosition(_scrollListner.Position);
             }
         }
 
@@ -362,6 +478,7 @@ namespace Steepshot.Fragment
                         _feedSpanSizeLookup.LastItemNumber = Presenter.Count;
                     }
                     _adapter.NotifyDataSetChanged();
+                    ProfilePagerAdapter.NotifyDataSetChanged();
                 }
             });
         }
@@ -466,6 +583,11 @@ namespace Steepshot.Fragment
             Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
             Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
             ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+        }
+
+        private void CloseAction()
+        {
+            ClosePost();
         }
 
         private async Task LoadPosts(string tag, bool clearOld)
