@@ -255,7 +255,10 @@ namespace Steepshot.Fragment
         {
             if (pageScrolledEventArgs.Position == Presenter.Count)
             {
-                GetUserPosts();
+                if (!Presenter.IsLastReaded)
+                    GetUserPosts();
+                else
+                    _profilePagerAdapter.NotifyDataSetChanged();
             }
         }
 
@@ -306,7 +309,7 @@ namespace Steepshot.Fragment
                 ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Visible;
                 _postPager.Visibility = ViewStates.Gone;
                 _postsList.Visibility = ViewStates.Visible;
-                var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView;
+                var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem + 1)?.ItemView;
                 if (seenItem != null)
                     PulseGridItem(seenItem);
                 return true;

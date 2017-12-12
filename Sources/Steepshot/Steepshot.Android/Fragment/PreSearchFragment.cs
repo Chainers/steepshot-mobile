@@ -303,7 +303,10 @@ namespace Steepshot.Fragment
         {
             if (pageScrolledEventArgs.Position == Presenter.Count)
             {
-                LoadPosts(CustomTag, false);
+                if (!Presenter.IsLastReaded)
+                    LoadPosts(CustomTag, false);
+                else
+                    _profilePagerAdapter.NotifyDataSetChanged();
             }
         }
 

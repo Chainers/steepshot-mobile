@@ -130,7 +130,10 @@ namespace Steepshot.Fragment
         {
             if (pageScrolledEventArgs.Position == Presenter.Count)
             {
-                LoadPosts();
+                if (!Presenter.IsLastReaded)
+                    LoadPosts();
+                else
+                    _postPagerAdapter.NotifyDataSetChanged();
             }
         }
 

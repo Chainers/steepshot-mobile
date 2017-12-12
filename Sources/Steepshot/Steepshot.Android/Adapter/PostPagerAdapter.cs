@@ -17,6 +17,7 @@ namespace Steepshot.Adapter
         private readonly T Presenter;
         private readonly Context Context;
         private readonly List<PostViewHolder> _viewHolders;
+        private int _itemsCount;
         private View _loadingView;
         public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
         public Action<Post, VotersType> VotersClick;
@@ -30,6 +31,7 @@ namespace Steepshot.Adapter
             Presenter = presenter;
             _viewHolders = new List<PostViewHolder>(Presenter.Count);
             _viewHolders.AddRange(Enumerable.Repeat<PostViewHolder>(null, CachedPagesCount));
+            _itemsCount = 0;
         }
 
         public override Object InstantiateItem(ViewGroup container, int position)
@@ -68,8 +70,9 @@ namespace Steepshot.Adapter
             {
                 if (Presenter[CurrentItem] != null)
                     _viewHolders[CurrentItem % CachedPagesCount]?.UpdateData(Presenter[CurrentItem], Context);
+                _itemsCount = Presenter.IsLastReaded ? Presenter.Count : Presenter.Count + 1;
+                base.NotifyDataSetChanged();
             }
-            base.NotifyDataSetChanged();
         }
 
         public override bool IsViewFromObject(View view, Object @object)
@@ -93,7 +96,7 @@ namespace Steepshot.Adapter
             }
         }
 
-        public override int Count => Presenter.Count + 1;
+        public override int Count => _itemsCount;
 
         public void HideHeaderButtons()
         {
