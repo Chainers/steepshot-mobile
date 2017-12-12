@@ -9,11 +9,10 @@
     <PackageReference Include="Ditch.Core" Version="3.0.5" />
     <PackageReference Include="Ditch.Golos" Version="3.0.8" />
     <PackageReference Include="Ditch.Steem" Version="3.0.8" />
-    <PackageReference Include="FubarCoder.RestSharp.Portable.Core" Version="4.0.8" />
-    <PackageReference Include="FubarCoder.RestSharp.Portable.HttpClient" Version="4.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpRaven\SharpRavenPortable.csproj" />

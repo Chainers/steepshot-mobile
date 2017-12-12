@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
-using RestSharp.Portable;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -16,12 +16,13 @@ namespace Steepshot.Core.HttpClient
     public class BaseServerClient
     {
         public volatile bool EnableRead;
-        public ApiGateway Gateway;
+        public readonly ApiGateway Gateway;
 
         protected readonly JsonNetConverter JsonConverter;
 
         public BaseServerClient(JsonNetConverter converter)
         {
+            Gateway = new ApiGateway();
             JsonConverter = converter;
         }
 
@@ -38,11 +39,8 @@ namespace Steepshot.Core.HttpClient
             AddCensorParameters(parameters, request);
 
             var endpoint = $"user/{request.Username}/posts";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<Post>>(response);
         }
 
         public async Task<OperationResult<ListResponce<Post>>> GetUserRecentPosts(CensoredNamedRequestWithOffsetLimitFields request, CancellationToken ct)
@@ -56,10 +54,8 @@ namespace Steepshot.Core.HttpClient
             AddCensorParameters(parameters, request);
 
             var endpoint = "recent";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<Post>>(response);
         }
 
         public async Task<OperationResult<ListResponce<Post>>> GetPosts(PostsRequest request, CancellationToken ct)
@@ -73,11 +69,8 @@ namespace Steepshot.Core.HttpClient
             AddCensorParameters(parameters, request);
 
             var endpoint = $"posts/{request.Type.ToString().ToLowerInvariant()}";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<Post>>(response);
         }
 
         public async Task<OperationResult<ListResponce<Post>>> GetPostsByCategory(PostsByCategoryRequest request, CancellationToken ct)
@@ -91,11 +84,8 @@ namespace Steepshot.Core.HttpClient
             AddCensorParameters(parameters, request);
 
             var endpoint = $"posts/{request.Category}/{request.Type.ToString().ToLowerInvariant()}";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<Post>>(response);
         }
 
         public async Task<OperationResult<ListResponce<UserFriend>>> GetPostVoters(VotersRequest request, CancellationToken ct)
@@ -110,11 +100,8 @@ namespace Steepshot.Core.HttpClient
                 AddLoginParameter(parameters, request.Login);
 
             var endpoint = $"post/{request.Url}/voters";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<UserFriend>>(response);
         }
 
         public async Task<OperationResult<ListResponce<Post>>> GetComments(NamedInfoRequest request, CancellationToken ct)
@@ -127,11 +114,8 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, request.Login);
 
             var endpoint = $"post/{request.Url}/comments";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<Post>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<Post>>(response);
         }
 
         public async Task<OperationResult<UserProfileResponse>> GetUserProfile(UserProfileRequest request, CancellationToken ct)
@@ -145,11 +129,8 @@ namespace Steepshot.Core.HttpClient
             parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
 
             var endpoint = $"user/{request.Username}/info";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<UserProfileResponse>(response?.Content, errorResult);
+            return await CreateResult<UserProfileResponse>(response);
         }
 
         public async Task<OperationResult<ListResponce<UserFriend>>> GetUserFriends(UserFriendsRequest request, CancellationToken ct)
@@ -162,11 +143,8 @@ namespace Steepshot.Core.HttpClient
             AddLoginParameter(parameters, request.Login);
 
             var endpoint = $"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<UserFriend>>(response);
         }
 
         public async Task<OperationResult<Post>> GetPostInfo(NamedInfoRequest request, CancellationToken ct)
@@ -179,11 +157,8 @@ namespace Steepshot.Core.HttpClient
             AddCensorParameters(parameters, request);
 
             var endpoint = $"post/{request.Url}/info";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<Post>(response?.Content, errorResult);
+            return await CreateResult<Post>(response);
         }
 
         public async Task<OperationResult<ListResponce<UserFriend>>> SearchUser(SearchWithQueryRequest request, CancellationToken ct)
@@ -197,11 +172,8 @@ namespace Steepshot.Core.HttpClient
             parameters.Add("query", request.Query);
 
             var endpoint = "user/search";
-
             var response = await Gateway.Get(GatewayVersion.V1P1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<ListResponce<UserFriend>>(response?.Content, errorResult);
+            return await CreateResult<ListResponce<UserFriend>>(response);
         }
 
         public async Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationToken ct)
@@ -211,11 +183,8 @@ namespace Steepshot.Core.HttpClient
 
             var parameters = new Dictionary<string, object>();
             var endpoint = $"user/{request.Username}/exists";
-
             var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            return CreateResult<UserExistsResponse>(response?.Content, errorResult);
+            return await CreateResult<UserExistsResponse>(response);
         }
 
         public async Task<OperationResult<ListResponce<SearchResult>>> GetCategories(OffsetLimitFields request, CancellationToken ct)
@@ -226,11 +195,9 @@ namespace Steepshot.Core.HttpClient
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             var endpoint = "categories/top";
-
             var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
 
-            var result = CreateResult<ListResponce<SearchResult>>(response?.Content, errorResult);
+            var result = await CreateResult<ListResponce<SearchResult>>(response);
             if (result.Success)
             {
                 foreach (var category in result.Result.Results)
@@ -238,7 +205,6 @@ namespace Steepshot.Core.HttpClient
                     category.Name = Transliteration.ToRus(category.Name);
                 }
             }
-
             return result;
         }
 
@@ -258,11 +224,8 @@ namespace Steepshot.Core.HttpClient
             AddOffsetLimitParameters(parameters, request.Offset, request.Limit);
             parameters.Add("query", request.Query);
             var endpoint = "categories/search";
-
             var response = await Gateway.Get(GatewayVersion.V1, endpoint, parameters, ct);
-            var errorResult = CheckErrors(response);
-
-            var result = CreateResult<ListResponce<SearchResult>>(response?.Content, errorResult);
+            var result = await CreateResult<ListResponce<SearchResult>>(response);
 
             if (result.Success)
             {
@@ -298,19 +261,16 @@ namespace Steepshot.Core.HttpClient
         #endregion Get requests
 
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
+        public Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
-            return await Task.Run(async () =>
+            return Task.Run(async () =>
             {
                 Transliteration.PrepareTags(request.Tags);
-
                 var response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, ct);
-                var errorResult = CheckErrors(response);
-                return CreateResult<UploadResponse>(response?.Content, errorResult);
-
+                return await CreateResult<UploadResponse>(response);
             }, ct);
         }
 
@@ -341,10 +301,11 @@ namespace Steepshot.Core.HttpClient
             parameters.Add("show_low_rated", Convert.ToInt32(request.ShowLowRated));
         }
 
-        protected OperationResult CheckErrors(IRestResponse response)
+
+        protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response)
         {
-            var result = new OperationResult();
-            var content = response.Content;
+            var result = new OperationResult<T>();
+            var content = await response.Content.ReadAsStringAsync();
 
             // HTTP errors
             if (response.StatusCode == HttpStatusCode.BadRequest ||
@@ -359,7 +320,7 @@ namespace Steepshot.Core.HttpClient
             else if (response.StatusCode != HttpStatusCode.OK &&
                      response.StatusCode != HttpStatusCode.Created)
             {
-                result.Errors.Add(response.StatusDescription);
+                result.Errors.Add(Localization.Errors.StatusCodeToMessage(response.StatusCode));
             }
 
             if (!result.Success)
@@ -374,21 +335,9 @@ namespace Steepshot.Core.HttpClient
                     result.Errors.Add(Localization.Errors.ResponseContentContainsHtml + content);
                 }
             }
-
-            return result;
-        }
-
-        protected virtual OperationResult<T> CreateResult<T>(string json, OperationResult error)
-        {
-            var result = new OperationResult<T>();
-
-            if (error.Success)
-            {
-                result.Result = JsonConverter.Deserialize<T>(json);
-            }
             else
             {
-                result.Errors.AddRange(error.Errors);
+                result.Result = JsonConverter.Deserialize<T>(content);
             }
 
             return result;

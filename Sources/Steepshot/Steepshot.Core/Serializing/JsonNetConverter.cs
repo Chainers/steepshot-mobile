@@ -2,33 +2,18 @@
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using RestSharp.Portable;
 
 namespace Steepshot.Core.Serializing
 {
-    public sealed class JsonNetConverter : ISerializer
+    public sealed class JsonNetConverter
     {
         private static readonly Encoding Encoding = new UTF8Encoding(false);
         private readonly JsonSerializer _serializer;
 
-        public string ContentType { get; set; }
-
         public JsonNetConverter()
         {
-            ContentType = $"application/json; charset={Encoding.WebName}";
             _serializer = new JsonSerializer();
             Configure(_serializer);
-        }
-
-        byte[] ISerializer.Serialize(object obj)
-        {
-            var output = new MemoryStream();
-            using (var writer = new StreamWriter(output))
-            {
-                _serializer.Serialize(writer, obj);
-            }
-
-            return output.ToArray();
         }
 
         public string Serialize(object obj)

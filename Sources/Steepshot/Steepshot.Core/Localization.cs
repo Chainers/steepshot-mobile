@@ -1,4 +1,7 @@
-﻿namespace Steepshot.Core
+﻿using System;
+using System.Net;
+
+namespace Steepshot.Core
 {
     public class Localization
     {
@@ -47,6 +50,10 @@
                 return $"The server did not accept the request! Reason ({code}) {msg}";
             }
 
+            internal static string StatusCodeToMessage(HttpStatusCode statusCode)
+            {
+                return $"({statusCode}) {ServeNotRespond}";
+            }
         }
 
         public class Messages

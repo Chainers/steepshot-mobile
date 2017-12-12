@@ -7,7 +7,7 @@ namespace Steepshot.Core.Models.Requests
         public UserExistsRequests(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
-                throw new UserException(Localization.Errors.EmptyUsernameField);
+                throw new UserException("username", Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }
@@ -20,7 +20,7 @@ namespace Steepshot.Core.Models.Requests
         public UserProfileRequest(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
-                throw new UserException(Localization.Errors.EmptyUsernameField);
+                throw new UserException("username", Localization.Errors.EmptyUsernameField);
 
             Username = username;
         }
@@ -56,7 +56,7 @@ namespace Steepshot.Core.Models.Requests
         public UserFriendsRequest(string username, FriendsType type)
         {
             if (string.IsNullOrWhiteSpace(username))
-                throw new UserException(Localization.Errors.EmptyUsernameField);
+                throw new UserException("username", Localization.Errors.EmptyUsernameField);
 
             Username = username;
             Type = type;

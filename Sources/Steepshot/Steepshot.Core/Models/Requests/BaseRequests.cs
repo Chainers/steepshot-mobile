@@ -26,7 +26,7 @@ namespace Steepshot.Core.Models.Requests
         public NamedInfoRequest(string url)
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new UserException(Localization.Errors.EmptyUrlField);
+                throw new UserException("url", Localization.Errors.EmptyUrlField);
 
             Url = url;
         }
@@ -39,7 +39,7 @@ namespace Steepshot.Core.Models.Requests
         public InfoRequest(string url) : base()
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new UserException(Localization.Errors.EmptyUrlField);
+                throw new UserException("url", Localization.Errors.EmptyUrlField);
             Url = url;
         }
 

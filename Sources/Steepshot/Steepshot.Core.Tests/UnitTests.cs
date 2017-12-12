@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Tests
 {
@@ -13,9 +15,10 @@ namespace Steepshot.Core.Tests
         [Test]
         public void Vote_Empty_Identifier()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() =>
+            var user = Users.First().Value;
+            var ex = Assert.Throws<UserException>(() =>
             {
-                new VoteRequest(new UserInfo(), VoteType.Up, "");
+                new VoteRequest(user, VoteType.Up, string.Empty);
             });
             Assert.That(ex.ParamName, Is.EqualTo("identifier"));
         }
@@ -23,9 +26,10 @@ namespace Steepshot.Core.Tests
         [Test]
         public void Follow_Empty_Username()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() =>
+            var user = Users.First().Value;
+            var ex = Assert.Throws<UserException>(() =>
             {
-                new FollowRequest(new UserInfo(), FollowType.Follow, "");
+                new FollowRequest(user, FollowType.Follow, string.Empty);
             });
             Assert.That(ex.ParamName, Is.EqualTo("username"));
         }
@@ -33,9 +37,9 @@ namespace Steepshot.Core.Tests
         [Test]
         public void InfoRequest_Empty_Url()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() =>
+            var ex = Assert.Throws<UserException>(() =>
             {
-                new InfoRequest("");
+                new InfoRequest(string.Empty);
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -43,9 +47,10 @@ namespace Steepshot.Core.Tests
         [Test]
         public void CreateComment_Empty_Url()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() =>
+            var user = Users.First().Value;
+            var ex = Assert.Throws<UserException>(() =>
             {
-                new CommentRequest(new UserInfo(), "", "test", AppSettings.AppInfo);
+                new CommentRequest(user, string.Empty, "test", AppSettings.AppInfo);
             });
             Assert.That(ex.ParamName, Is.EqualTo("url"));
         }
@@ -53,13 +58,14 @@ namespace Steepshot.Core.Tests
         [Test]
         public void Upload_Base64_Equals_ByteArray()
         {
+            var user = Users.First().Value;
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());
 
             // Act
-            var requestArray = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var requestArray = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
             var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageRequest(new UserInfo(), "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var requestBase64 = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Assert
             Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
@@ -69,10 +75,11 @@ namespace Steepshot.Core.Tests
         [Test]
         public void Upload_Empty_Title()
         {
-            var ex = Assert.Throws<ArgumentNullException>(() =>
+            var user = Users.First().Value;
+            var ex = Assert.Throws<UserException>(() =>
             {
-                new UploadImageRequest(new UserInfo(), "", new byte[] { }, new[] { "cat1", "cat2", "cat3", "cat4" });
-                new InfoRequest("");
+                new UploadImageRequest(user, string.Empty, new byte[] { }, new[] { "cat1", "cat2", "cat3", "cat4" });
+                new InfoRequest(string.Empty);
             });
             Assert.That(ex.ParamName, Is.EqualTo("title"));
         }

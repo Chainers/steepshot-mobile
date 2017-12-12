@@ -22,7 +22,7 @@ namespace Steepshot.Core.Models.Requests
         public VoteRequest(UserInfo user, VoteType type, string identifier) : base(user)
         {
             if (string.IsNullOrWhiteSpace(identifier))
-                throw new UserException(Localization.Errors.EmptyUrlField);
+                throw new UserException("identifier", Localization.Errors.EmptyUrlField);
 
             Type = type;
             Identifier = identifier;
