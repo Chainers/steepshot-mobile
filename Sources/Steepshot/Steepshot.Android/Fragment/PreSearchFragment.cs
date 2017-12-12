@@ -369,7 +369,7 @@ namespace Steepshot.Fragment
         {
             var imageView = (ImageView)view;
             var animator = ValueAnimator.OfInt(20, 100);
-            animator.SetDuration(1000);
+            animator.SetDuration(500);
             animator.Update += delegate (object sender, ValueAnimator.AnimatorUpdateEventArgs args)
              {
                  imageView.ClearColorFilter();
