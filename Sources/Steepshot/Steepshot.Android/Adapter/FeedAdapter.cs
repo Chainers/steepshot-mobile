@@ -22,8 +22,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.View;
 using Refractored.Controls;
 using Steepshot.Core.Models.Requests;
-using Object = Java.Lang.Object;
-using Size = Steepshot.Core.Models.Size;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Adapter
 {
@@ -338,11 +337,7 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null,
-                    () =>
-                    {
-                        Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
-                    });
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
@@ -400,6 +395,11 @@ namespace Steepshot.Adapter
                     _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
                 }
             }
+        }
+
+        private void OnPicassoError()
+        {
+            Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
 
         private void UpdateText()
@@ -500,7 +500,7 @@ namespace Steepshot.Adapter
                 _photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
             }
 
-            public override Object InstantiateItem(ViewGroup container, int position)
+            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
             {
                 var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
                 var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
@@ -538,14 +538,14 @@ namespace Steepshot.Adapter
                 _photoAction?.Invoke(_post);
             }
 
-            public override void DestroyItem(ViewGroup container, int position, Object @object)
+            public override void DestroyItem(ViewGroup container, int position, Java.Lang.Object obj)
             {
-                container.RemoveView((View)@object);
+                container.RemoveView((View)obj);
             }
 
-            public override bool IsViewFromObject(View view, Object @object)
+            public override bool IsViewFromObject(View view, Java.Lang.Object obj)
             {
-                return view == @object;
+                return view == obj;
             }
 
             public override int Count => _photos.Length;
