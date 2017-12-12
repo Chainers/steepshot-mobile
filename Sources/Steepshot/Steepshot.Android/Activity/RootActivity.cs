@@ -1,3 +1,4 @@
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -11,6 +12,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
+using System.Linq;
 
 namespace Steepshot.Activity
 {
@@ -50,9 +52,19 @@ namespace Steepshot.Activity
 
         public override void OnBackPressed()
         {
+            CurrentHostFragment = _adapter.GetItem(_viewPager.CurrentItem) as HostFragment;
+            if (CurrentHostFragment != null)
+            {
+                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
+                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
+                    if (fragment.ClosePost())
+                        return;
+            }
+
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
                 MinimizeApp();
         }
+
 
         protected override void OnDestroy()
         {

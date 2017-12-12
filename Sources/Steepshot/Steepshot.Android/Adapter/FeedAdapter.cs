@@ -19,8 +19,10 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Collections.Generic;
 using Android.Support.Design.Widget;
-using Steepshot.Core.Models;
+using Android.Support.V4.View;
+using Refractored.Controls;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models;
 
 namespace Steepshot.Adapter
 {
@@ -80,7 +82,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class FeedViewHolder : RecyclerView.ViewHolder, ITarget
+    public class FeedViewHolder : RecyclerView.ViewHolder
     {
         private readonly Action<Post> _likeAction;
         private readonly Action<Post> _userAction;
@@ -90,7 +92,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
         private readonly Action<string> _tagAction;
-        private readonly ImageView _photo;
+        private readonly ViewPager _photosViewPager;
         private readonly ImageView _avatar;
         private readonly TextView _author;
         private readonly CustomTextView _title;
@@ -100,8 +102,9 @@ namespace Steepshot.Adapter
         private readonly TextView _flags;
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
-        private readonly ImageButton _more;
+        protected readonly ImageButton _more;
         private readonly LinearLayout _commentFooter;
+        private readonly LinearLayout _topLikers;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly BottomSheetDialog _moreActionsDialog;
@@ -117,17 +120,21 @@ namespace Steepshot.Adapter
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
         private const int _maxLines = 3;
+        protected PostPagerType PhotoPagerType;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
         {
+            _context = itemView.Context;
+            PhotoPagerType = PostPagerType.Feed;
+
             _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-            _photo = itemView.FindViewById<ImageView>(Resource.Id.photo);
+            _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
 
-            var parameters = _photo.LayoutParameters;
+            var parameters = _photosViewPager.LayoutParameters;
             parameters.Height = height;
 
-            _photo.LayoutParameters = parameters;
+            _photosViewPager.LayoutParameters = parameters;
 
             _title = itemView.FindViewById<CustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -138,6 +145,7 @@ namespace Steepshot.Adapter
             _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
+            _topLikers = itemView.FindViewById<LinearLayout>(Resource.Id.top_likers);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
@@ -147,7 +155,6 @@ namespace Steepshot.Adapter
             _title.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
 
-            _context = itemView.Context;
             _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
             _likeSetAnimation.AnimationStart += LikeAnimationStart;
             _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
@@ -173,8 +180,8 @@ namespace Steepshot.Adapter
             _cost.Click += DoUserAction;
             _commentSubtitle.Click += DoCommentAction;
             _likes.Click += DoLikersAction;
+            _topLikers.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
-            _photo.Click += DoPhotoAction;
             _more.Click += DoMoreAction;
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
@@ -303,11 +310,6 @@ namespace Steepshot.Adapter
             _votersAction?.Invoke(_post, VotersType.Flags);
         }
 
-        private void DoPhotoAction(object sender, EventArgs e)
-        {
-            _photoAction?.Invoke(_post);
-        }
-
         private void DoLikeAction(object sender, EventArgs e)
         {
             if (!BasePostPresenter.IsEnableVote)
@@ -335,19 +337,35 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
 
             if (!string.IsNullOrEmpty(_post.Avatar))
-                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, OnSuccess, OnErrorAvatar);
+                Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            _photo.SetImageResource(0);
-            _photoString = post.Photos?.FirstOrDefault();
-            if (_photoString != null)
+            var adapter = new PostPhotosPagerAdapter(PhotoPagerType, _context, _post, _photosViewPager.LayoutParameters, _photoAction);
+            _photosViewPager.Adapter = adapter;
+            adapter.NotifyDataSetChanged();
+
+            _topLikers.RemoveAllViews();
+            var topLikersSize = (int)BitmapUtils.DpToPixel(24, _context.Resources);
+            var topLikersMargin = (int)BitmapUtils.DpToPixel(6, _context.Resources);
+            for (int i = 0; i < _post.TopLikersAvatars.Length; i++)
             {
-                Picasso.With(_context).Load(_photoString).NoFade().Resize(context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal).Into(_photo, OnSuccess, OnError);
-                var parameters = _photo.LayoutParameters;
-                var size = new Size() { Height = post.ImageSize.Height / Style.Density, Width = post.ImageSize.Width / Style.Density };
-                parameters.Height = (int)((OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight)) * Style.Density);
-                _photo.LayoutParameters = parameters;
+                var topLikersAvatar = new CircleImageView(_context);
+                var layoutParams = new LinearLayout.LayoutParams(topLikersSize, topLikersSize);
+                if (i != 0)
+                    layoutParams.LeftMargin = -topLikersMargin;
+                _topLikers.AddView(topLikersAvatar, layoutParams);
+                var avatarUrl = _post.TopLikersAvatars[i];
+                if (!string.IsNullOrEmpty(avatarUrl))
+                    Picasso.With(_context).Load(avatarUrl).Placeholder(Resource.Drawable.ic_holder).Resize(240, 0).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
+                        () =>
+                        {
+                            Picasso.With(_context).Load(avatarUrl)
+                                .Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low)
+                                .Into(topLikersAvatar);
+                        });
+                else
+                    Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
             }
 
             UpdateText();
@@ -377,6 +395,11 @@ namespace Steepshot.Adapter
                     _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
                 }
             }
+        }
+
+        private void OnPicassoError()
+        {
+            Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
 
         private void UpdateText()
@@ -452,31 +475,80 @@ namespace Steepshot.Adapter
             builder.Dispose();
         }
 
-        public void OnBitmapFailed(Drawable p0)
+        protected enum PostPagerType
         {
+            Feed,
+            PostScreen
         }
 
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
-            _photo.SetImageBitmap(p0);
-        }
+            private readonly Context Context;
+            private readonly Post _post;
+            private readonly ViewGroup.LayoutParams _layoutParams;
+            private readonly Action<Post> _photoAction;
+            private readonly PostPagerType _type;
+            private readonly string[] _photos;
 
-        public void OnPrepareLoad(Drawable p0)
-        {
-        }
+            public PostPhotosPagerAdapter(PostPagerType type, Context context, Post post, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
+            {
+                _type = type;
+                Context = context;
+                _post = post;
+                _layoutParams = layoutParams;
+                _photoAction = photoAction;
+                _photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
+            }
 
-        private void OnSuccess()
-        {
-        }
+            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            {
+                var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
+                var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
+                photo.SetImageDrawable(null);
+                photo.SetScaleType(ImageView.ScaleType.CenterCrop);
+                photo.Click += PhotoOnClick;
+                photoCard.AddView(photo);
+                var photoString = _photos[position];
+                if (photoString != null)
+                {
+                    Picasso.With(Context).Load(photoString).NoFade()
+                        .Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.Normal)
+                        .Into(photo, null, () =>
+                         {
+                             Picasso.With(Context).Load(photoString).NoFade().Priority(Picasso.Priority.Normal).Into(photo);
+                         });
+                    if (_type == PostPagerType.PostScreen)
+                    {
+                        photoCard.Radius = (int)BitmapUtils.DpToPixel(7, Context.Resources);
+                    }
+                    var parameters = photoCard.LayoutParameters;
+                    var size = new Size { Height = _post.ImageSize.Height / Style.Density, Width = _post.ImageSize.Width / Style.Density };
+                    parameters.Height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+                    photoCard.LayoutParameters = parameters;
+                    parameters = photo.LayoutParameters;
+                    parameters.Height = photoCard.LayoutParameters.Height;
+                    photo.LayoutParameters = parameters;
+                }
+                container.AddView(photoCard);
+                return photoCard;
+            }
 
-        private void OnError()
-        {
-            Picasso.With(_context).Load(_photoString).NoFade().Into(this);
-        }
+            private void PhotoOnClick(object sender, EventArgs eventArgs)
+            {
+                _photoAction?.Invoke(_post);
+            }
 
-        private void OnErrorAvatar()
-        {
-            Picasso.With(_context).Load(_post.Avatar).NoFade().Into(this);
+            public override void DestroyItem(ViewGroup container, int position, Java.Lang.Object obj)
+            {
+                container.RemoveView((View)obj);
+            }
+
+            public override bool IsViewFromObject(View view, Java.Lang.Object obj)
+            {
+                return view == obj;
+            }
+
+            public override int Count => _photos.Length;
         }
     }
 }
