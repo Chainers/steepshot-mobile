@@ -10,6 +10,7 @@ using Steepshot.Utils;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using System.Linq;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Activity
 {
@@ -34,7 +35,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_pre_sign_in);
             Cheeseknife.Inject(this);
 #if DEBUG
-            var di = AssetsHelper.GetDebugInfo(Assets);
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             _username.Text = BasePresenter.Chain == KnownChains.Golos
                 ? di.GolosTestLogin
                 : di.SteemTestLogin;

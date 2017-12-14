@@ -61,18 +61,17 @@ namespace Steepshot.Base
                 var saverService = new SaverService();
                 var dataProvider = new DataProvider(saverService);
                 var appInfo = new AppInfo();
+                var assetsHelper = new AssetsHelper(assetManagerssets);
                 var connectionService = new ConnectionService();
+                builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
                 builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
                 builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
-//#if DEBUG
-//                builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
-//#else
-                var configInfo = AssetsHelper.GetConfigInfo(assetManagerssets);
-                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDSN);
+                builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
+                var configInfo = assetsHelper.GetConfigInfo();
+                var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
                 builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
-//#endif
                 AppSettings.Container = builder.Build();
             }
         }
