@@ -80,10 +80,12 @@
     <Compile Include="Adapter\FeedAdapter.cs" />
     <Compile Include="Adapter\FollowersAdapter.cs" />
     <Compile Include="Adapter\PagerAdapter.cs" />
+    <Compile Include="Adapter\PostPagerAdapter.cs" />
     <Compile Include="Adapter\SelectedTagsAdapter.cs" />
     <Compile Include="Adapter\TagsAdapter.cs" />
     <AndroidEnvironment Include="environment.txt" />
     <Compile Include="Fragment\CameraFragment.cs" />
+    <Compile Include="Interfaces\ICanOpenPost.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Base\BaseActivity.cs" />
@@ -195,6 +197,12 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_flash_off.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flash_off.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_off.png" />
+    <AndroidResource Include="Resources\layout\lyt_post_view_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -222,7 +230,9 @@
     <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
     <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
@@ -406,6 +416,9 @@
     <Reference Include="Xamarin.Android.Support.v7.AppCompat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.v7.AppCompat.26.1.0.1\lib\MonoAndroid80\Xamarin.Android.Support.v7.AppCompat.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Android.Support.v7.CardView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.Android.Support.v7.CardView.24.2.1\lib\MonoAndroid70\Xamarin.Android.Support.v7.CardView.dll</HintPath>
+    </Reference>
     <Reference Include="Xamarin.Android.Support.v7.RecyclerView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.Android.Support.v7.RecyclerView.26.1.0.1\lib\MonoAndroid80\Xamarin.Android.Support.v7.RecyclerView.dll</HintPath>
     </Reference>
@@ -526,6 +539,15 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\Config.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

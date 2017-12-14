@@ -38,6 +38,12 @@ namespace Steepshot.Core.Presenters
                 return Items.FirstOrDefault(func);
         }
 
+        public int IndexOf(Post post)
+        {
+            lock (Items)
+                return Items.IndexOf(post);
+        }
+
         protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
         {
             errors = null;
@@ -119,12 +125,12 @@ namespace Steepshot.Core.Presenters
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds)
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
-                
+
                 post.NetVotes = response.Result.NetVotes;
                 ChangeLike(post, wasFlaged);
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
-            else if(response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
+            else if (response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
             {
                 response.Errors.Clear();
                 ChangeLike(post, wasFlaged);
