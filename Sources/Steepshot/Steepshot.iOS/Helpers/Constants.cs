@@ -34,6 +34,10 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R231G72B0 = UIColor.FromRGB(231, 72, 0);
         public static readonly UIColor R204G204B204 = UIColor.FromRGB(204, 204, 204);
 
+        public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
+        public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);
+        public static readonly CGColor[] OrangeGradient = new CGColor[] { UIColor.FromRGB(255, 121, 4).CGColor, UIColor.FromRGB(255, 22, 5).CGColor };
+
         public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
         public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
 

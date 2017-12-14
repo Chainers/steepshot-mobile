@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreAnimation;
 using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
@@ -17,8 +18,14 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
+            var gradient = new CAGradientLayer();
+            gradient.Frame = steemLogin.Bounds;
+            gradient.StartPoint = Helpers.Constants.StartGradientPoint;
+            gradient.EndPoint = Helpers.Constants.EndGradientPoint;
+            gradient.Colors = Helpers.Constants.OrangeGradient;
+
             NavigationController.SetNavigationBarHidden(false, false);
-            steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
+            gradient.CornerRadius = steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
             steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Helpers.Constants.Semibold14;
             devSwitch.On = AppSettings.IsDev;
 
@@ -28,11 +35,12 @@ namespace Steepshot.iOS.Views
 
             newAccount.Layer.MasksToBounds = steemLogin.Layer.MasksToBounds = false;
             newAccount.Layer.ShadowOffset = steemLogin.Layer.ShadowOffset = new CGSize(0f, 10.0f);
-            steemLogin.Layer.ShadowOpacity = 0.3f;
-            steemLogin.Layer.ShadowColor = Helpers.Constants.R231G72B0.CGColor;
             newAccount.Layer.ShadowRadius = steemLogin.Layer.ShadowRadius = 12f;
+            steemLogin.Layer.ShadowOpacity = 0.5f;
+            steemLogin.Layer.ShadowColor = Helpers.Constants.R231G72B0.CGColor;
+            steemLogin.Layer.InsertSublayer(gradient, 0);
 
-            newAccount.Layer.ShadowOpacity = 0.5f;
+            newAccount.Layer.ShadowOpacity = 0.7f;
             newAccount.Layer.ShadowColor = Helpers.Constants.R204G204B204.CGColor;
 
             steemLogin.TouchDown += GoToPreLogin;
