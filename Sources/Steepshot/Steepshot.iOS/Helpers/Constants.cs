@@ -29,6 +29,11 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIFont Regular12 = UIFont.FromName("OpenSans", 12f);
         public static readonly UIFont Regular14 = UIFont.FromName("OpenSans", 14f);
 
+        public static readonly UIColor R15G24B30 = UIColor.FromRGB(15, 24, 30);
+        public static readonly UIColor R151G155B158 = UIColor.FromRGB(151, 155, 158);
+        public static readonly UIColor R231G72B0 = UIColor.FromRGB(231, 72, 0);
+        public static readonly UIColor R204G204B204 = UIColor.FromRGB(204, 204, 204);
+
         public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
         public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
 

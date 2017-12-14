@@ -122,6 +122,8 @@ namespace Steepshot.iOS.Views
                 loginButton.Layer.BorderWidth = 0;
             }
 
+            loginButton.TouchDown += LoginTapped;
+
             NavigationController.SetNavigationBarHidden(true, false);
             GetPosts();
         }
@@ -187,7 +189,7 @@ namespace Steepshot.iOS.Views
 
         void LoginTapped(object sender, EventArgs e)
         {
-            _navController.PushViewController(new PreLoginViewController(), true);
+            _navController.PushViewController(new WelcomeViewController(), true);
         }
 
         void SearchTapped(object sender, EventArgs e)

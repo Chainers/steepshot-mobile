@@ -159,6 +159,12 @@
     <Reference Include="ZXingNetMobile, Version=2.3.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ZXing.Net.Mobile.2.3.2\lib\Xamarin.iOS10\ZXingNetMobile.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.TTTAttributedLabel">
+      <HintPath>..\packages\Xamarin.TTTAttributedLabel.2.0.0.2\lib\Xamarin.iOS\Xamarin.TTTAttributedLabel.dll</HintPath>
+    </Reference>
+    <Reference Include="PureLayout.Net">
+      <HintPath>..\packages\PureLayout.Net.1.0.0\lib\xamarinios10\PureLayout.Net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -212,6 +218,7 @@
     <InterfaceDefinition Include="Views\TagsSearchViewController.xib" />
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
+    <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -337,6 +344,10 @@
     <Compile Include="Views\PreSearchViewController.designer.cs">
       <DependentUpon>PreSearchViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\WelcomeViewController.cs" />
+    <Compile Include="Views\WelcomeViewController.designer.cs">
+      <DependentUpon>WelcomeViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -415,6 +426,15 @@
     <BundleResource Include="Resources\Fonts\OpenSans-Light.ttf" />
     <BundleResource Include="Resources\Fonts\OpenSans-Regular.ttf" />
     <BundleResource Include="Resources\Fonts\OpenSans-Semibold.ttf" />
+    <BundleResource Include="Resources\ic_welcome_background.png" />
+    <BundleResource Include="Resources\ic_welcome_background%402x.png" />
+    <BundleResource Include="Resources\ic_welcome_background%403x.png" />
+    <BundleResource Include="Resources\ic_logo.png" />
+    <BundleResource Include="Resources\ic_logo%402x.png" />
+    <BundleResource Include="Resources\ic_logo%403x.png" />
+    <BundleResource Include="Resources\ic_back_arrow.png" />
+    <BundleResource Include="Resources\ic_back_arrow%402x.png" />
+    <BundleResource Include="Resources\ic_back_arrow%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
