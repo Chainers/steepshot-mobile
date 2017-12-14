@@ -1,6 +1,4 @@
 ﻿using System;
-using CoreAnimation;
-using CoreGraphics;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core;
@@ -9,6 +7,7 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
@@ -18,30 +17,16 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            var gradient = new CAGradientLayer();
-            gradient.Frame = steemLogin.Bounds;
-            gradient.StartPoint = Helpers.Constants.StartGradientPoint;
-            gradient.EndPoint = Helpers.Constants.EndGradientPoint;
-            gradient.Colors = Helpers.Constants.OrangeGradient;
-
             NavigationController.SetNavigationBarHidden(false, false);
-            gradient.CornerRadius = steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
-            steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Helpers.Constants.Semibold14;
+            steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
+            steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Constants.Semibold14;
             devSwitch.On = AppSettings.IsDev;
+            Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25);
+            Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25);
 
             var devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility);
             devTap.NumberOfTapsRequired = 5;
             logo.AddGestureRecognizer(devTap);
-
-            newAccount.Layer.MasksToBounds = steemLogin.Layer.MasksToBounds = false;
-            newAccount.Layer.ShadowOffset = steemLogin.Layer.ShadowOffset = new CGSize(0f, 10.0f);
-            newAccount.Layer.ShadowRadius = steemLogin.Layer.ShadowRadius = 12f;
-            steemLogin.Layer.ShadowOpacity = 0.5f;
-            steemLogin.Layer.ShadowColor = Helpers.Constants.R231G72B0.CGColor;
-            steemLogin.Layer.InsertSublayer(gradient, 0);
-
-            newAccount.Layer.ShadowOpacity = 0.7f;
-            newAccount.Layer.ShadowColor = Helpers.Constants.R204G204B204.CGColor;
 
             steemLogin.TouchDown += GoToPreLogin;
             newAccount.TouchDown += CreateAccount;
@@ -51,11 +36,17 @@ namespace Steepshot.iOS.Views
             SetAgreementDecoration();
         }
 
+        public override void ViewDidLayoutSubviews()
+        {
+            base.ViewDidLayoutSubviews();
+            Constants.CreateGradient(steemLogin);
+        }
+
         private void SetBackButtton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
         }
 
         private void CreateAccount(object sender, EventArgs e)
@@ -94,21 +85,21 @@ namespace Steepshot.iOS.Views
             var tsAttribute = new UIStringAttributes
             {
                 Link = new NSUrl(Pp),
-                Font = Helpers.Constants.Regular12,
-                ForegroundColor = Helpers.Constants.R15G24B30,
+                Font = Constants.Regular12,
+                ForegroundColor = Constants.R15G24B30,
             };
 
             var ppAttribute = new UIStringAttributes
             {
                 Link = new NSUrl(Tos),
-                Font = Helpers.Constants.Regular12,
-                ForegroundColor = Helpers.Constants.R15G24B30,
+                Font = Constants.Regular12,
+                ForegroundColor = Constants.R15G24B30,
             };
 
             var noLinkAttribute = new UIStringAttributes
             {
-                Font = Helpers.Constants.Regular12,
-                ForegroundColor = Helpers.Constants.R151G155B158,
+                Font = Constants.Regular12,
+                ForegroundColor = Constants.R151G155B158,
             };
 
             var attributedLabel = new TTTAttributedLabel();

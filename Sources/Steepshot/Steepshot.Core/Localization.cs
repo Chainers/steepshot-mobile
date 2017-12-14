@@ -86,7 +86,7 @@ namespace Steepshot.Core
             public const string NewPhotos = "NEW PHOTOS";
             public const string Hello = "Hello, ";
             public const string Profile = "PROFILE";
-            public const string AcceptToS = "Make sure you accept the terms of service and privacy policy";
+            public const string AcceptToS = "Please make sure you accept the terms of service and privacy policy";
             public const string ChoosePhoto = "CHOOSE PHOTO";
             public const string TypeTag = "Please type a tag";
             public const string TypeUsername = "Please type an username";

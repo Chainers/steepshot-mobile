@@ -212,7 +212,7 @@ namespace Steepshot.iOS.Views
                 if (post != null)
                 {
                     var at = new NSMutableAttributedString();
-                    at.Append(new NSAttributedString(post.Author, Helpers.Constants.NicknameAttribute));
+                    //at.Append(new NSAttributedString(post.Author, Helpers.Constants.NicknameAttribute));
                     at.Append(new NSAttributedString($" {post.Title}"));
                     _collectionViewSource.FeedStrings.Add(at);
                 }

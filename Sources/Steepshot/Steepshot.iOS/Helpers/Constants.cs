@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreAnimation;
 using CoreGraphics;
 using UIKit;
 
@@ -43,11 +44,26 @@ namespace Steepshot.iOS.Helpers
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
-
-        public static readonly UIStringAttributes NicknameAttribute = new UIStringAttributes
+        public static void CreateGradient (UIView view)
         {
-            Font = UIFont.BoldSystemFontOfSize(13)
-        };
+            var gradient = new CAGradientLayer();
+            gradient.Frame = view.Bounds;
+            gradient.StartPoint = StartGradientPoint;
+            gradient.EndPoint = EndGradientPoint;
+            gradient.Colors = OrangeGradient;
+            gradient.CornerRadius = 25;
+            view.Layer.InsertSublayer(gradient, 0);
+        }
+
+        public static void CreateShadow(UIButton view, UIColor color, float opacity, float cornerRadius)
+        {
+            view.Layer.CornerRadius = cornerRadius;
+            view.Layer.MasksToBounds = false;
+            view.Layer.ShadowOffset = new CGSize(0f, 10.0f);
+            view.Layer.ShadowRadius = 12f;
+            view.Layer.ShadowOpacity = opacity;
+            view.Layer.ShadowColor = color.CGColor;
+        }
     }
 
     public enum Networks
