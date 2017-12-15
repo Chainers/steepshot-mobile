@@ -324,7 +324,13 @@ namespace Steepshot.Adapter
         public void UpdateData(Post post, Context context)
         {
             _post = post;
-            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            if (post.NetLikes > 0)
+            {
+                _likes.Visibility = ViewStates.Visible;
+                _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            }
+            else
+                _likes.Visibility = ViewStates.Gone;
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
@@ -332,7 +338,13 @@ namespace Steepshot.Adapter
             }
             else
                 _flags.Visibility = ViewStates.Gone;
-            _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            if (post.TotalPayoutReward > 0)
+            {
+                _cost.Visibility = ViewStates.Visible;
+                _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            }
+            else
+                _cost.Visibility = ViewStates.Gone;
             _time.Text = post.Created.ToPostTime();
             _author.Text = post.Author;
 
