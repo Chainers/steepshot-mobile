@@ -20,7 +20,7 @@ namespace Steepshot.Core.Presenters
 
         protected BasePostPresenter()
         {
-            _censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords();
+            //_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords();
             IsEnableVote = true;
         }
 
