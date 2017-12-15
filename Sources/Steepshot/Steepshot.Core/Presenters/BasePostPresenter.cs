@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -13,9 +15,12 @@ namespace Steepshot.Core.Presenters
     {
         private const int VoteDelay = 3000;
         public static bool IsEnableVote { get; set; }
+        private static HashSet<string> _censoredWords;
+        private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         protected BasePostPresenter()
         {
+            _censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords();
             IsEnableVote = true;
         }
 
@@ -70,6 +75,8 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
+                            CensorPost(item);
+
                             Items.Add(item);
                             isAdded = true;
                         }
@@ -92,6 +99,27 @@ namespace Steepshot.Core.Presenters
             }
             errors = response.Errors;
             return false;
+        }
+
+        private void CensorPost(Post post)
+        {
+            post.Title = CensorText(post.Title);
+            post.Description = CensorText(post.Description);
+            post.Body = CensorText(post.Body);
+        }
+
+        private string CensorText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return text;
+
+            var matches = GetWords.Matches(text);
+            foreach (Match matche in matches)
+            {
+                if (_censoredWords.Contains(matche.Value.ToUpperInvariant()))
+                    text = text.Replace(matche.Value, "*censored*");
+            }
+            return text;
         }
 
         public async Task<List<string>> TryVote(Post post)

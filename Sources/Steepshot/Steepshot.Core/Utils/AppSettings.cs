@@ -23,6 +23,9 @@ namespace Steepshot.Core.Utils
         private static IDataProvider _dataProvider;
         public static IDataProvider DataProvider => _dataProvider ?? (_dataProvider = Container.Resolve<IDataProvider>());
 
+        private static IAssetsHelper _assetsesHelper;
+        public static IAssetsHelper AssetsesHelper => _assetsesHelper ?? (_assetsesHelper = Container.Resolve<IAssetsHelper>());
+
         public static bool IsDev
         {
             get => SaverService.Get<bool>("isdev");
