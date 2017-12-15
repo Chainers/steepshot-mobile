@@ -32,7 +32,7 @@ namespace Steepshot.iOS.Views
             newAccount.TouchDown += CreateAccount;
             devSwitch.ValueChanged += SwitchEnvironment;
 
-            SetBackButtton();
+            SetBackButton();
             SetAgreementDecoration();
         }
 
@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
             Constants.CreateGradient(steemLogin);
         }
 
-        private void SetBackButtton()
+        private void SetBackButton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);

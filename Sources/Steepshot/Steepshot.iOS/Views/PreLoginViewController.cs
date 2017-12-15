@@ -32,7 +32,7 @@ namespace Steepshot.iOS.Views
                 loginText.Text = DebugHelper.GetTestGolosLogin();
 #endif
             NavigationController.SetNavigationBarHidden(false, false);
-            SetBackButtton();
+            SetBackButton();
         }
 
         public override void ViewDidLayoutSubviews()
@@ -41,7 +41,7 @@ namespace Steepshot.iOS.Views
             Constants.CreateGradient(loginButton);
         }
 
-        private void SetBackButtton()
+        private void SetBackButton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);

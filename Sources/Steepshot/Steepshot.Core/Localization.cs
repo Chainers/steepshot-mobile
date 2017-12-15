@@ -23,6 +23,7 @@ namespace Steepshot.Core
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
+            public const string EmptyPosting = "Posting key cannot be empty";
             public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
