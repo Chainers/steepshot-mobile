@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/white"
     android:layout_height="wrap_content">
     <RelativeLayout
@@ -23,7 +22,6 @@
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/text_container"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -60,16 +58,19 @@
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
     <RelativeLayout
+        android:id="@+id/photos_container"
+        android:layout_below="@id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <android.support.v4.view.ViewPager
             android:id="@+id/post_photos_pager"
             android:background="@android:color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="250dp" />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/subtitle"
+        android:layout_below="@id/photos_container"
         android:layout_width="match_parent"
         android:layout_height="59dp">
         <LinearLayout
@@ -132,11 +133,14 @@
             android:text="$ 234.15" />
     </RelativeLayout>
     <View
+        android:id="@+id/comments_separator"
+        android:layout_below="@id/subtitle"
         android:layout_width="match_parent"
         android:layout_height="2px"
         android:background="@color/rgb244_244_246" />
     <LinearLayout
         android:id="@+id/comment_footer"
+        android:layout_below="@id/comments_separator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -166,7 +170,12 @@
             android:textColor="@color/rgb151_155_158" />
     </LinearLayout>
     <View
+        android:layout_below="@id/comment_footer"
         android:layout_width="match_parent"
         android:layout_height="2px"
         android:background="@color/rgb244_244_246" />
-</LinearLayout>
+    <include
+        layout="@layout/lyt_nsfw_mask"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</RelativeLayout>

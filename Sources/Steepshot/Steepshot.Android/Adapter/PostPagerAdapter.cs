@@ -120,8 +120,13 @@ namespace Steepshot.Adapter
 
             _closeAction = closeAction;
             _closeButton = itemView.FindViewById<ImageButton>(Resource.Id.close);
-            _closeButton.Alpha = _more.Alpha = 0.0f;
             _closeButton.Click += CloseButtonOnClick;
+        }
+
+        protected override void SetNsfwMaskLayout()
+        {
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
         }
 
         private void CloseButtonOnClick(object sender, EventArgs eventArgs)

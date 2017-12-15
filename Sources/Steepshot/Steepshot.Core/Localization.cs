@@ -93,6 +93,15 @@ namespace Steepshot.Core
             public const string YourAccountName = "Your account name";
             public const string NextStep = "Next step";
             public const string Account = "account";
+            public const string NSFWShow = "Show";
+            public const string NSFW = "NSFW";
+            public const string NSFWContent = "NSFW content";
+            public const string NSFWContentExplanation = "This content is for adults only. Not recommended for children or sensitive individuals.";
+            public const string LowRated = "Low rated";
+            public const string LowRatedContent = "Low rated content";
+            public const string LowRatedContentExplanation = "This content is hidden due to low ratings";
+            public const string FlagMessage = "You sent a complaint to this post.";
+            public const string FlagSubMessage = "";
 
             public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Service</a> & <a href=\"{Constants.Pp}\">Privacy policy</a>";
             public const string PostDelay = "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain";

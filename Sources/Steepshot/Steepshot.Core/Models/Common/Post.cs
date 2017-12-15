@@ -56,6 +56,8 @@ namespace Steepshot.Core.Models.Common
         public int Depth { get; set; }
         public string[] Resteemed { get; set; }
         public string[] TopLikersAvatars { get; set; }
+        public bool IsLowRated { get; set; }
+        public bool IsNsfw { get; set; }
 
         //system
         [JsonIgnore]
@@ -64,5 +66,7 @@ namespace Steepshot.Core.Models.Common
         public bool FlagChanging { get; set; }
         [JsonIgnore]
         public bool IsExpanded { get; set; }
+        [JsonIgnore]
+        public bool FlagNotificationWasShown { get; set; } = true;
     }
 }

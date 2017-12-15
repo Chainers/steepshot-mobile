@@ -153,6 +153,7 @@ namespace Steepshot.Core.Presenters
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
 
+            post.FlagNotificationWasShown = post.Flag;
             post.FlagChanging = true;
             IsEnableVote = false;
             NotifySourceChanged();

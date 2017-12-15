@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nsfw_mask"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:background="@color/white_transparent_nsfw">
+    <ImageButton
+        android:id="@+id/mask_close"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:src="@drawable/ic_close_nsfw_mask"
+        android:visibility="gone" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+        <TextView
+            android:id="@+id/mask_message"
+            android:layout_width="345dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:textSize="27sp" />
+        <TextView
+            android:id="@+id/mask_submessage"
+            android:layout_width="322dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mask_message"
+            android:textColor="@color/black"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="22dp"
+            android:gravity="center"
+            android:textSize="14sp" />
+        <Button
+            android:id="@+id/nsfw_mask_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/transparent_rounded_border"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textAllCaps="false"
+            android:layout_below="@id/mask_submessage"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="58dp" />
+    </RelativeLayout>
+</RelativeLayout>
