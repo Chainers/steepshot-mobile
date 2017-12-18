@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -68,7 +67,7 @@ namespace Steepshot.Activity
             _signInBtn.Typeface = Style.Semibold;
             _buttonScanDefaultView.Typeface = Style.Semibold;
 #if DEBUG
-            var di = AssetsHelper.GetDebugInfo(Assets);
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             _password.Text = BasePresenter.Chain == KnownChains.Golos
                 ? di.GolosTestWif
                 : di.SteemTestWif;
