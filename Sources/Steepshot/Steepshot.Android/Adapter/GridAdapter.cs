@@ -112,7 +112,7 @@ namespace Steepshot.Adapter
 
             if (_post.IsNsfw || _post.IsLowRated)
             {
-                _nsfwMaskMessage.Text = _post.IsNsfw ? Localization.Messages.NSFW : Localization.Messages.LowRated;
+                _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRated : Localization.Messages.NSFW;
                 _nsfwMask.Visibility = ViewStates.Visible;
             }
         }

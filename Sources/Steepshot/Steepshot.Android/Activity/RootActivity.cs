@@ -1,4 +1,3 @@
-using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -12,7 +11,6 @@ using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
-using System.Linq;
 
 namespace Steepshot.Activity
 {

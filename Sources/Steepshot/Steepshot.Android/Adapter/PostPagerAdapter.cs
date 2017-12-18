@@ -7,6 +7,7 @@ using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Utils;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -121,6 +122,13 @@ namespace Steepshot.Adapter
             _closeAction = closeAction;
             _closeButton = itemView.FindViewById<ImageButton>(Resource.Id.close);
             _closeButton.Click += CloseButtonOnClick;
+            _nsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
+        }
+
+        private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)
+        {
+            if (_nsfwMask.Height < BitmapUtils.DpToPixel(200, _context.Resources))
+                _nsfwMaskSubMessage.Visibility = ViewStates.Gone;
         }
 
         protected override void SetNsfwMaskLayout()

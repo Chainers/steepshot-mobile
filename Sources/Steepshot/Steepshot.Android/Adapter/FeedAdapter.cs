@@ -106,13 +106,13 @@ namespace Steepshot.Adapter
         private readonly LinearLayout _topLikers;
         protected readonly RelativeLayout _nsfwMask;
         private readonly TextView _nsfwMaskMessage;
-        private readonly TextView _nsfwMaskSubMessage;
+        protected readonly TextView _nsfwMaskSubMessage;
         private readonly ImageButton _nsfwMaskCloseButton;
         private readonly Button _nsfwMaskActionButton;
         private readonly Animation _likeSetAnimation;
         private readonly Animation _likeWaitAnimation;
         private readonly BottomSheetDialog _moreActionsDialog;
-        private readonly Context _context;
+        protected readonly Context _context;
 
         private readonly List<CustomClickableSpan> _tags;
 
@@ -130,7 +130,7 @@ namespace Steepshot.Adapter
             _context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
 
-            _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
+            _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
             _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
 
@@ -436,11 +436,11 @@ namespace Steepshot.Adapter
                 _nsfwMaskSubMessage.Text = Localization.Messages.FlagSubMessage;
                 _nsfwMaskActionButton.Text = Localization.Texts.UnFlagPost;
             }
-            else if (_post.IsNsfw || _post.IsLowRated)
+            else if (_post.IsLowRated || _post.IsNsfw)
             {
                 _nsfwMask.Visibility = ViewStates.Visible;
-                _nsfwMaskMessage.Text = _post.IsNsfw ? Localization.Messages.NSFWContent : Localization.Messages.LowRatedContent;
-                _nsfwMaskSubMessage.Text = _post.IsNsfw ? Localization.Messages.NSFWContentExplanation : Localization.Messages.LowRatedContentExplanation;
+                _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRatedContent : Localization.Messages.NSFWContent;
+                _nsfwMaskSubMessage.Text = _post.IsLowRated ? Localization.Messages.LowRatedContentExplanation : Localization.Messages.NSFWContentExplanation;
                 _nsfwMaskActionButton.Text = Localization.Messages.NSFWShow;
             }
         }
