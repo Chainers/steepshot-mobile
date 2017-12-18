@@ -1,5 +1,4 @@
 ﻿using System;
-using Foundation;
 using Steepshot.Core.Models.Common;
 using UIKit;
 
@@ -11,6 +10,6 @@ namespace Steepshot.iOS.Cells
         {
         }
         public string Author;
-        public abstract void UpdateCell(Post post, NSMutableAttributedString comment = null);
+        public abstract void UpdateCell(Post post);
     }
 }

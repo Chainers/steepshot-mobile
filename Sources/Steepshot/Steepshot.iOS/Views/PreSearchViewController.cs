@@ -7,6 +7,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -35,14 +36,15 @@ namespace Steepshot.iOS.Views
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             //TODO:KOA: rewrite as function
 
-            _gridDelegate = new CollectionViewFlowDelegate(scrolled: async () =>
+
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView/*, scrolled: async () =>
             {
                 var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
                 if (_presenter.Count <= _lastRow && !_presenter.IsLastReaded && !_isFeedRefreshing)
                     await GetPosts();
 
                 _lastRow = newlastRow;
-            }, commentString: _collectionViewSource.FeedStrings, presenter: _presenter);
+            }*/, presenter: _presenter);
 
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
@@ -127,7 +129,21 @@ namespace Steepshot.iOS.Views
             NavigationController.SetNavigationBarHidden(true, false);
             GetPosts();
         }
+        /*
+        public override async void ViewWillAppear(bool animated)
+        {
+            if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
+            {
+                _currentPostCategory = CurrentPostCategory;
+                _presenter.Clear();
+                _collectionViewSource.FeedStrings.Clear();
+                _tw.Text = CurrentPostCategory;
+                await GetPosts();
+            }
 
+            base.ViewWillAppear(animated);
+        }
+*/
         protected override void CreatePresenter()
         {
             _presenter = new PreSearchPresenter();
@@ -156,19 +172,6 @@ namespace Steepshot.iOS.Views
             if (errors != null && errors.Count != 0)
                 ShowAlert(errors);
 
-            //TODO:KOA: ... doesn't look good
-            for (var i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
-            {
-                var post = _presenter[i];
-                if (post != null)
-                {
-                    var at = new NSMutableAttributedString();
-                    //at.Append(new NSAttributedString(post.Author, Helpers.Constants.NicknameAttribute));
-                    at.Append(new NSAttributedString($" {post.Title}"));
-                    _collectionViewSource.FeedStrings.Add(at);
-                }
-            }
-
             if (_refreshControl.Refreshing)
             {
                 _refreshControl.EndRefreshing();
@@ -182,7 +185,7 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshTable()
         {
-            _collectionViewSource.FeedStrings.Clear();
+            //_collectionViewSource.FeedStrings.Clear();
             _presenter.Clear();
             await GetPosts(false, true);
         }

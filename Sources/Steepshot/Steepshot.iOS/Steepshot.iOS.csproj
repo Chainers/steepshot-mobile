@@ -348,6 +348,7 @@
     <Compile Include="Views\WelcomeViewController.designer.cs">
       <DependentUpon>WelcomeViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -438,6 +439,9 @@
     <BundleResource Include="Resources\ic_splash_logo.png" />
     <BundleResource Include="Resources\ic_splash_logo%402x.png" />
     <BundleResource Include="Resources\ic_splash_logo%403x.png" />
+    <BundleResource Include="Resources\ic_feed_logo.png" />
+    <BundleResource Include="Resources\ic_feed_logo%402x.png" />
+    <BundleResource Include="Resources\ic_feed_logo%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

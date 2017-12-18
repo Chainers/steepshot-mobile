@@ -32,7 +32,7 @@ namespace Steepshot.iOS.Cells
             Asset = asset;
         }
 
-        public override void UpdateCell(Post post, NSMutableAttributedString comment)
+        public override void UpdateCell(Post post)
         {
             var photoUrl = post.Photos?.FirstOrDefault();
             ImageUrl = photoUrl;

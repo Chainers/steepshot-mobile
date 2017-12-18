@@ -21,6 +21,7 @@ namespace Steepshot.Core.Presenters
         protected BasePostPresenter()
         {
             //_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords();
+            _censoredWords = new HashSet<string>();
             IsEnableVote = true;
         }
 

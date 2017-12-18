@@ -4,6 +4,7 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -28,6 +29,8 @@ namespace Steepshot.iOS.Cells
             Nib = UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle);
         }
 
+        public event Action<ActionType, Post> CellAction;
+
         private bool _isButtonBinded;
         public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
         public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
@@ -37,6 +40,7 @@ namespace Steepshot.iOS.Cells
         public event ImagePreviewHandler ImagePreview;
         private Post _currentPost;
 
+        public bool IsCellActionSet => CellAction != null;
         public bool IsVotedSet => Voted != null;
         public bool IsFlaggedSet => Flagged != null;
         public bool IsGoToProfileSet => GoToProfile != null;
@@ -46,7 +50,7 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork _scheduledWorkBody;
 
-        public override void UpdateCell(Post post, NSMutableAttributedString comment)
+        public override void UpdateCell(Post post)
         {
             _currentPost = post;
             avatarImage.Image = null;
@@ -149,21 +153,24 @@ namespace Steepshot.iOS.Cells
                 {
                     var photoUrl = _currentPost.Photos?.FirstOrDefault();
                     if (photoUrl != null)
-                        ImagePreview(bodyImage.Image, photoUrl);
+                        CellAction?.Invoke(ActionType.Preview, _currentPost);
                 });
                 bodyImage.AddGestureRecognizer(tap);
 
                 UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 UITapGestureRecognizer textTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 avatarImage.AddGestureRecognizer(imageTap);
                 cellText.AddGestureRecognizer(textTap);
@@ -171,18 +178,25 @@ namespace Steepshot.iOS.Cells
 
                 UITapGestureRecognizer commentTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToComments(_currentPost.Url);
+                    CellAction?.Invoke(ActionType.Comments, _currentPost);
+                    //GoToComments(_currentPost.Url);
                 });
                 commentView.AddGestureRecognizer(commentTap);
 
                 UITapGestureRecognizer netVotesTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToVoters(_currentPost.Url);
+                    CellAction?.Invoke(ActionType.Voters, _currentPost);
+                    //GoToVoters(_currentPost.Url);
                 });
                 netVotes.AddGestureRecognizer(netVotesTap);
 
                 flagButton.TouchDown += FlagButton_TouchDown;
-                likeButton.TouchDown += LikeTap;
+                //likeButton.TouchDown += LikeTap;
+                likeButton.TouchDown += (object sender, EventArgs e) => 
+                {
+                    CellAction?.Invoke(ActionType.Like, _currentPost);
+                };
+
                 _isButtonBinded = true;
             }
         }

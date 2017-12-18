@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -68,12 +69,13 @@ namespace Steepshot.iOS.Views
             //collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
             collectionView.Source = _collectionViewSource;
 
-            _gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView
+                /*(indexPath) =>
             {
                 var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
                 PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
-            },
-            () =>
+            },*/
+            /*scrolled: () =>
             {
                 if (collectionView.IndexPathsForVisibleItems.Count() != 0)
                 {
@@ -83,7 +85,7 @@ namespace Steepshot.iOS.Views
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }, _collectionViewSource.FeedStrings, _presenter);
+            }*/,presenter: _presenter);
 
             collectionView.Delegate = _gridDelegate;
 
@@ -175,7 +177,6 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshPage()
         {
-            _collectionViewSource.FeedStrings.Clear();
             GetUserInfo();
             await GetUserPosts(true);
         }
@@ -306,25 +307,12 @@ namespace Steepshot.iOS.Views
                 ShowAlert(errors);
             else
             {
-                for (int i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
-                {
-                    var post = _presenter[i];
-                    if (post != null)
-                    {
-                        var at = new NSMutableAttributedString();
-                        //at.Append(new NSAttributedString(post.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                        at.Append(new NSAttributedString($" {post.Title}"));
-                        _collectionViewSource.FeedStrings.Add(at);
-                    }
-                }
-
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
 
                 _isPostsLoading = false;
             }
         }
-
 
         private async Task Vote(bool vote, Post post, Action<Post, OperationResult<VoteResponse>> success)
         {
