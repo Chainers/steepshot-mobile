@@ -268,7 +268,7 @@ namespace Steepshot.Core.HttpClient
 
             return Task.Run(async () =>
             {
-                Transliteration.PrepareTags(request.Tags);
+                OperationHelper.PrepareTags(request.Tags);
                 var response = await Gateway.Upload(GatewayVersion.V1, "post/prepare", request, ct);
                 return await CreateResult<UploadResponse>(response);
             }, ct);

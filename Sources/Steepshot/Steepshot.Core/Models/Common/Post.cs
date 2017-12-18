@@ -44,11 +44,11 @@ namespace Steepshot.Core.Models.Common
         public int NetFlags { get; set; }
         public int Children { get; set; }
         public DateTime Created { get; set; }
-        public Money CuratorPayoutValue { get; set; }
-        public Money TotalPayoutValue { get; set; }
-        public Money PendingPayoutValue { get; set; }
+        public Asset CuratorPayoutValue { get; set; }
+        public Asset TotalPayoutValue { get; set; }
+        public Asset PendingPayoutValue { get; set; }
         public double MaxAcceptedPayout { get; set; }
-        public Money TotalPayoutReward { get; set; }
+        public Asset TotalPayoutReward { get; set; }
         public bool Vote { get; set; }
         public bool Flag { get; set; }
         public string[] Tags { get; set; }

@@ -5,17 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
 using Ditch.Steem;
-using Ditch.Steem.Operations.Get;
-using Ditch.Steem.Operations.Post;
+using Ditch.Steem.Operations;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Steem.Operations.Enums.FollowType;
-using DitchBeneficiary = Ditch.Steem.Operations.Post.Beneficiary;
+using DitchFollowType = Ditch.Steem.Enums.FollowType;
+using DitchBeneficiary = Ditch.Steem.Operations.Beneficiary;
 using Ditch.Core;
-using Newtonsoft.Json;
-using System.Globalization;
+using Ditch.Steem.Objects;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -96,7 +94,7 @@ namespace Steepshot.Core.HttpClient
                     var content = _operationManager.GetContent(author, permlink, ct);
                     if (!content.IsError)
                     {
-                        //Convert Money type to double
+                        //Convert Asset type to double
                         result.Result = new VoteResponse(true)
                         {
                             NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue,
@@ -247,7 +245,7 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<ImageUploadResponse>(Localization.Errors.WrongPrivateKey);
 
-                Transliteration.PrepareTags(request.Tags);
+                OperationHelper.PrepareTags(request.Tags);
 
                 var meta = uploadResponse.Meta.ToString();
                 if (!string.IsNullOrWhiteSpace(meta))

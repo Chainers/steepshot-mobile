@@ -5,7 +5,7 @@ namespace Steepshot.Core.Models.Responses
 {
     public class VoteResponse : VoidResponse
     {
-        public Money NewTotalPayoutReward { get; set; }
+        public Asset NewTotalPayoutReward { get; set; }
 
         public int NetVotes { get; set; }
 

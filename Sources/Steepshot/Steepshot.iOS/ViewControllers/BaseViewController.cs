@@ -159,7 +159,7 @@ namespace Steepshot.iOS.ViewControllers
         }
 
 
-        public static string ToFormatedCurrencyString(Money value, string postfix = null)
+        public static string ToFormatedCurrencyString(Asset value, string postfix = null)
         {
             var dVal = value.ToDouble();
             if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
