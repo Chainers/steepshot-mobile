@@ -20,6 +20,7 @@ using Steepshot.Utils;
 using System.Collections.Generic;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
+using Ditch.Core.Helpers;
 using Refractored.Controls;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
@@ -422,12 +423,12 @@ namespace Steepshot.Adapter
                 if (_textViewWidth == 0)
                     return;
 
-                var titleWithTags = new StringBuilder(_post.Title);
+                var titleWithTags = new StringBuilder(_post.Title.CensorText());
 
                 foreach (var item in _post.Tags)
                 {
                     if (item != tagToExclude)
-                        titleWithTags.AppendFormat(_tagFormat, item);
+                        titleWithTags.AppendFormat(_tagFormat, item.TagToRu());
                 }
 
                 var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
@@ -441,14 +442,14 @@ namespace Steepshot.Adapter
             var builder = new SpannableStringBuilder();
             if (_post.Title.Length > textMaxLength)
             {
-                var title = new SpannableString(_post.Title.Substring(0, textMaxLength));
+                var title = new SpannableString(_post.Title.CensorText().Substring(0, textMaxLength));
                 title.SetSpan(null, 0, title.Length(), 0);
                 builder.Append(title);
                 title.Dispose();
             }
             else
             {
-                var title = new SpannableString(_post.Title);
+                var title = new SpannableString(_post.Title.CensorText());
                 title.SetSpan(null, 0, title.Length(), 0);
                 builder.Append(title);
                 title.Dispose();
@@ -458,7 +459,7 @@ namespace Steepshot.Adapter
 
                 foreach (var tag in tags)
                 {
-                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= string.Format(_tagFormat, tag).Length)
+                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= _tagFormat.Length - 3 + tag.Length)
                     {
                         if (j >= _tags.Count)
                         {
@@ -467,8 +468,8 @@ namespace Steepshot.Adapter
                             _tags.Add(ccs);
                         }
 
-                        _tags[j].Tag = tag;
-                        var spannableString = new SpannableString(string.Format(_tagFormat, tag));
+                        _tags[j].Tag = tag.TagToRu();
+                        var spannableString = new SpannableString(string.Format(_tagFormat, _tags[j].Tag));
                         spannableString.SetSpan(_tags[j], 0, spannableString.Length(), SpanTypes.ExclusiveExclusive);
                         spannableString.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, spannableString.Length(), 0);
                         builder.Append(spannableString);

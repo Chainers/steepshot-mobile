@@ -313,7 +313,7 @@ namespace Steepshot.iOS.Views
                     {
                         var at = new NSMutableAttributedString();
                         at.Append(new NSAttributedString(post.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                        at.Append(new NSAttributedString($" {post.Title}"));
+                        at.Append(new NSAttributedString($" {post.Title.CensorText()}"));
                         _collectionViewSource.FeedStrings.Add(at);
                     }
                 }

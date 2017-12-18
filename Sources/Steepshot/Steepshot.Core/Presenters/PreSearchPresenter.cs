@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Ditch.Core.Helpers;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -31,7 +33,7 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            
+
             List<string> errors;
             OperationResult<ListResponce<Post>> response;
             do
@@ -52,7 +54,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> GetSearchedPosts(CancellationToken ct)
         {
-            var request = new PostsByCategoryRequest(PostType, Tag)
+            var request = new PostsByCategoryRequest(PostType, Tag.TagToEn())
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -60,7 +62,7 @@ namespace Steepshot.Core.Presenters
                 ShowNsfw = User.IsNsfw,
                 ShowLowRated = User.IsLowRated
             };
-            
+
             List<string> errors;
             OperationResult<ListResponce<Post>> response;
             bool isNeedRepeat;

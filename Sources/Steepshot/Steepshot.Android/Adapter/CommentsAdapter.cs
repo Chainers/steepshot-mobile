@@ -229,7 +229,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            _comment.Text = post.Body;
+            _comment.Text = post.Body.CensorText();
 
             if (_post.Author == BasePresenter.User.Login)
                 _more.Visibility = ViewStates.Gone;
