@@ -89,6 +89,7 @@
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
     <MtouchProfiling>false</MtouchProfiling>
+    <IOSDebugOverWiFi>false</IOSDebugOverWiFi>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
@@ -349,6 +350,7 @@
       <DependentUpon>WelcomeViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
+    <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -442,6 +444,12 @@
     <BundleResource Include="Resources\ic_feed_logo.png" />
     <BundleResource Include="Resources\ic_feed_logo%402x.png" />
     <BundleResource Include="Resources\ic_feed_logo%403x.png" />
+    <BundleResource Include="Resources\ic_send_comment.png" />
+    <BundleResource Include="Resources\ic_send_comment%402x.png" />
+    <BundleResource Include="Resources\ic_send_comment%403x.png" />
+    <BundleResource Include="Resources\ic_like_active.png" />
+    <BundleResource Include="Resources\ic_like_active%402x.png" />
+    <BundleResource Include="Resources\ic_like_active%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

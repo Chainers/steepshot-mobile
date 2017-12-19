@@ -46,12 +46,12 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
-            _collectionViewSource.Voted += (vote, post, success) => Vote(vote, post, success);
+            /*_collectionViewSource.Voted += (vote, post, success) => Vote(vote, post, success);
             _collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
             _collectionViewSource.GoToComments += (postUrl) =>
             {
                 var myViewController = new CommentsViewController();
-                myViewController.PostUrl = postUrl;
+                //myViewController.PostUrl = postUrl;
                 _navController.PushViewController(myViewController, true);
             };
             _collectionViewSource.GoToVoters += (postUrl) =>
@@ -61,6 +61,17 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
+*/
+            _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) => 
+            {
+                if(arg1 == Core.Models.ActionType.Comments)
+                {
+                    var myViewController = new CommentsViewController();
+                    myViewController.Post = arg2;
+                    myViewController.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController, true);
+                }
+            };
 
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
@@ -321,7 +332,6 @@ namespace Steepshot.iOS.Views
                 LoginTapped();
                 return;
             }
-
 
             if (post == null)
                 return;

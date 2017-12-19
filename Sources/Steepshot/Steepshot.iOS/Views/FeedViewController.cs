@@ -107,13 +107,13 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
-                    myViewController4.PostUrl = post.Url;
+                    myViewController4.Post = post;
                     _navController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
                     break;
-                case ActionType.Flag:
+                case ActionType.More:
                     Flag(post);
                     break;
                 default:

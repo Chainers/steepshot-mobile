@@ -12,12 +12,6 @@ namespace Steepshot.iOS.ViewSources
 {
     public class ProfileCollectionViewSource : UICollectionViewSource
     {
-        public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
-        public event HeaderTappedHandler GoToProfile;
-        public event HeaderTappedHandler GoToComments;
-        public event HeaderTappedHandler GoToVoters;
-        public event ImagePreviewHandler ImagePreview;
         public bool IsGrid = true;
         private readonly BasePostPresenter _presenter;
 

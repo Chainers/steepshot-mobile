@@ -46,14 +46,14 @@ namespace Steepshot.iOS.ViewControllers
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
         }
-
+        /*
         public override void ViewWillAppear(bool animated)
         {
             if (TabBarController != null)
                 TabBarController.TabBar.Hidden = false;
 
             base.ViewWillAppear(animated);
-        }
+        }*/
 
         public override void ViewDidAppear(bool animated)
         {

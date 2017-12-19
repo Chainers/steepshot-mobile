@@ -3,10 +3,11 @@
     public enum ActionType
     {
         Like,
-        Flag,
+        More,
         Profile,
         Comments,
         Voters,
-        Preview
+        Preview,
+        Reply
     }
 }

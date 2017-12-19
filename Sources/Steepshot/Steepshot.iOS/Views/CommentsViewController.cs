@@ -3,10 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -15,69 +17,163 @@ namespace Steepshot.iOS.Views
 {
     public partial class CommentsViewController : BaseViewControllerWithPresenter<CommentsPresenter>
     {
+        private CommentsTextViewDelegate _commentsTextViewDelegate;
+        private CommentsTableViewSource _tableSource;
+        public Post Post;
+
         protected override void CreatePresenter()
         {
             _presenter = new CommentsPresenter();
+            _presenter.SourceChanged += SourceChanged;
         }
-
-        private readonly CommentsTableViewSource _tableSource = new CommentsTableViewSource();
-        public string PostUrl;
-        private bool _navigationBarHidden;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
             NavigationController.SetNavigationBarHidden(false, false);
 
+            commentTextView.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
+            commentTextView.Layer.BorderWidth = 1f;
+            commentTextView.Layer.CornerRadius = 20f;
+            commentTextView.TextContainerInset = new UIEdgeInsets(10, 20, 10, 15);
+            commentTextView.Font = Helpers.Constants.Regular14;
+            _commentsTextViewDelegate = new CommentsTextViewDelegate();
+            commentTextView.Delegate = _commentsTextViewDelegate;
+
+            sendButton.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
+            sendButton.Layer.BorderWidth = 1f;
+            sendButton.Layer.CornerRadius = sendButton.Frame.Width / 2;
+            sendButton.TouchDown += CreateComment;
+
+            _tableSource = new CommentsTableViewSource(_presenter);
+            _tableSource.CellAction += CellAction;
+
             commentsTable.Source = _tableSource;
             commentsTable.LayoutMargins = UIEdgeInsets.Zero;
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
             commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
-            Activeview = commentTextView;
-            _tableSource.Voted += OnTableSourceOnVoted;
-            _tableSource.Flaged += OnTableSourceOnFlaged;
-
-            _tableSource.GoToProfile += (username) =>
-            {
-                var myViewController = new ProfileViewController();
-                myViewController.Username = username;
-                NavigationController.PushViewController(myViewController, true);
-            };
-
             commentsTable.RowHeight = UITableView.AutomaticDimension;
             commentsTable.EstimatedRowHeight = 150f;
-            commentTextView.Delegate = new TextViewDelegate();
 
-            sendButton.TouchDown += (sender, e) =>
-            {
-                CreateComment();
-            };
+            Offset = 0;
+            Activeview = bottomView;
 
+            if (Post.Children == 0)
+                OpenKeyboard();
+
+            SetPlaceholder();
+            SetBackButton();
             GetComments();
         }
 
-        private async void OnTableSourceOnFlaged(bool vote, Post url, Action<Post, VoteResponse> action)
+        public override void ViewWillLayoutSubviews()
         {
-            await Flag(vote, url, action);
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                tableBottomToSuperview.Active = true;
+                tableBottomToCommentView.Active = false;
+            }
         }
 
-        private async void OnTableSourceOnVoted(bool vote, Post url, Action<Post, VoteResponse> action)
+        private void SetPlaceholder()
         {
-            await Vote(vote, url, action);
+            var placeholderLabel = new UILabel();
+            placeholderLabel.Text = Localization.Texts.PutYourComment;
+            placeholderLabel.SizeToFit();
+            placeholderLabel.Font = Helpers.Constants.Regular14;
+            placeholderLabel.TextColor = Helpers.Constants.R151G155B158;
+            placeholderLabel.Hidden = false;
+
+            var labelX = commentTextView.TextContainerInset.Left;
+            var labelY = commentTextView.TextContainerInset.Top;
+            var labelWidth = placeholderLabel.Frame.Width;
+            var labelHeight = placeholderLabel.Frame.Height;
+
+            placeholderLabel.Frame = new CGRect(labelX, labelY, labelWidth, labelHeight);
+
+            commentTextView.AddSubview(placeholderLabel);
+            _commentsTextViewDelegate.Placeholder = placeholderLabel;
         }
 
-        public override void ViewWillAppear(bool animated)
+        private void SetBackButton()
         {
-            _navigationBarHidden = NavigationController.NavigationBarHidden;
-            NavigationController.SetNavigationBarHidden(false, true);
-            base.ViewWillAppear(animated);
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+
+            NavigationItem.Title = Localization.Messages.Comments;
         }
 
-        public override void ViewWillDisappear(bool animated)
+        private void CellAction(ActionType type, Post post)
         {
-            if (IsMovingFromParentViewController)
-                NavigationController.SetNavigationBarHidden(_navigationBarHidden, true);
-            base.ViewWillDisappear(animated);
+            switch (type)
+            {
+                case ActionType.Profile:
+                    if (post.Author == BasePresenter.User.Login)
+                        return;
+                    var myViewController = new ProfileViewController();
+                    myViewController.Username = post.Author;
+                    NavigationController.PushViewController(myViewController, true);
+                    break;
+                case ActionType.Preview:
+                    var myViewController2 = new ImagePreviewViewController();
+                    //TODO: pass image
+                    myViewController2.ImageForPreview = null;
+                    myViewController2.ImageUrl = post.Body;
+                    NavigationController.PushViewController(myViewController2, true);
+                    break;
+                case ActionType.Voters:
+                    var myViewController3 = new VotersViewController();
+                    myViewController3.PostUrl = post.Url;
+                    NavigationController.PushViewController(myViewController3, true);
+                    break;
+                case ActionType.Like:
+                    Vote(post);
+                    break;
+                case ActionType.More:
+                    Flag(post);
+                    break;
+                case ActionType.Reply:
+                    Reply(post);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void Flag(Post post)
+        {
+            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Texts.FlagComment, UIAlertActionStyle.Default, obj => FlagComment(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Texts.HideComment, UIAlertActionStyle.Default, obj => HideAction(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, null));
+            PresentViewController(actionSheetAlert, true, null);
+        }
+
+        private void Reply(Post post)
+        {
+            if (post == null)
+                return;
+            if (!commentTextView.Text.StartsWith($"@{post.Author}"))
+            {
+                commentTextView.Text = $"@{post.Author} {commentTextView.Text}";
+            }
+            OpenKeyboard();
+        }
+
+        private void SourceChanged(Status status)
+        {
+            commentsTable.ReloadData();
+        }
+
+        private void HideAction(Post post)
+        {
+            _presenter.RemovePost(post);
+        }
+
+        private void OpenKeyboard()
+        {
+            commentTextView.BecomeFirstResponder();
         }
 
         public async Task GetComments()
@@ -85,24 +181,14 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
 
             _presenter.Clear();
-            var errors = await _presenter.TryLoadNextComments(PostUrl);
+            var errors = await _presenter.TryLoadNextComments(Post.Url);
             if (errors == null)
                 return;
-            if (errors.Any())
-                ShowAlert(errors);
-            else
-            {
-                commentsTable.ReloadData();
-                //TODO:KOA: WTF?
-                commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
-                await Task.Delay(TimeSpan.FromMilliseconds(10));
-                commentsTable.SetContentOffset(new CGPoint(0, commentsTable.ContentSize.Height - commentsTable.Frame.Height), false);
-            }
-
+            ShowAlert(errors);
             progressBar.StopAnimating();
         }
 
-        private async Task Vote(bool vote, Post post, Action<Post, VoteResponse> action)
+        private async Task Vote(Post post)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -116,14 +202,9 @@ namespace Steepshot.iOS.Views
 
             if (errors.Any())
                 ShowAlert(errors);
-            else
-            {
-                //TODO:KOA: NOTWORK
-                //action.Invoke(postUrl, errors);
-            }
         }
 
-        public async Task Flag(bool vote, Post post, Action<Post, VoteResponse> action)
+        public async Task FlagComment(Post post)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -137,49 +218,50 @@ namespace Steepshot.iOS.Views
 
             if (errors.Any())
                 ShowAlert(errors);
-            else
-            {
-                //TODO:KOA: NOTWORK
-                //action.Invoke(postUrl, flagResponse.Result);
-            }
         }
 
-        private async Task CreateComment()
+        private async void CreateComment(object sender, EventArgs e)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
             }
-            var response = await _presenter.TryCreateComment(commentTextView.Text, PostUrl);
+
+            commentTextView.UserInteractionEnabled = false;
+            sendButton.Hidden = true;
+            sendProgressBar.StartAnimating();
+
+            var response = await _presenter.TryCreateComment(commentTextView.Text, Post.Url);
             if (response.Success)
             {
                 commentTextView.Text = string.Empty;
-                await GetComments();
+                _commentsTextViewDelegate.Placeholder.Hidden = false;
+                commentTextView.ResignFirstResponder();
+
+                var errors = await _presenter.TryLoadNextComments(Post.Url);
+
+                ShowAlert(errors);
+
+                commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
+                Post.Children++;
             }
+            else
+                ShowAlert(response.Errors);
+
+            commentTextView.UserInteractionEnabled = true;
+            sendButton.Hidden = false;
+            sendProgressBar.StopAnimating();
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
         }
 
         void LoginTapped()
         {
             NavigationController.PushViewController(new PreLoginViewController(), true);
-        }
-
-        protected override void CalculateBottom()
-        {
-            Bottom = (Activeview.Frame.Y + bottomView.Frame.Y + Activeview.Frame.Height + Offset);
-        }
-
-        class TextViewDelegate : UITextViewDelegate
-        {
-            public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
-            {
-                if (text == "\n")
-                {
-                    textView.ResignFirstResponder();
-                    return false;
-                }
-                return true;
-            }
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
@@ -56,10 +57,10 @@ namespace Steepshot.iOS.Views
             collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
 
-            _collectionViewSource.Voted += async (vote, post, action) =>
-            {
+            //_collectionViewSource.Voted += async (vote, post, action) =>
+            //{
                 //await Vote(post);
-            };
+            //};
             //_collectionViewSource.Flagged += Flagged;
 
             _refreshControl = new UIRefreshControl();
@@ -87,6 +88,9 @@ namespace Steepshot.iOS.Views
                 }
             }
 
+            _collectionViewSource.CellAction += CellAction;
+
+            /*
             _collectionViewSource.GoToProfile += username =>
             {
                 if (username == BasePresenter.User.Login)
@@ -117,9 +121,10 @@ namespace Steepshot.iOS.Views
                 myViewController.ImageUrl = url;
                 _navController.PushViewController(myViewController, true);
             };
-
+*/
             if (!BasePresenter.User.IsAuthenticated)
             {
+                loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 20;
                 loginButton.Layer.BorderWidth = 0;
             }
@@ -148,6 +153,46 @@ namespace Steepshot.iOS.Views
         {
             _presenter = new PreSearchPresenter();
             _presenter.SourceChanged += SourceChanged;
+        }
+
+        private void CellAction(ActionType type, Post post)
+        {
+            switch (type)
+            {
+                case ActionType.Profile:
+                    if (post.Author == BasePresenter.User.Login)
+                        return;
+                    var myViewController = new ProfileViewController();
+                    myViewController.Username = post.Author;
+                    NavigationController.PushViewController(myViewController, true);
+                    break;
+                case ActionType.Preview:
+                    var myViewController2 = new ImagePreviewViewController();
+                    //TODO: pass image
+                    myViewController2.ImageForPreview = null;
+                    myViewController2.ImageUrl = post.Body;
+                    NavigationController.PushViewController(myViewController2, true);
+                    break;
+                case ActionType.Voters:
+                    var myViewController3 = new VotersViewController();
+                    myViewController3.PostUrl = post.Url;
+                    NavigationController.PushViewController(myViewController3, true);
+                    break;
+                case ActionType.Comments:
+                    var myViewController4 = new CommentsViewController();
+                    myViewController4.Post = post;
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    _navController.PushViewController(myViewController4, true);
+                    break;
+                case ActionType.Like:
+                    //Vote(post);
+                    break;
+                case ActionType.More:
+                    //Flag(post);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)

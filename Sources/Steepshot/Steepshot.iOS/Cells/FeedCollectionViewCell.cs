@@ -59,22 +59,17 @@ namespace Steepshot.iOS.Cells
             bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
 
-            if (!string.IsNullOrEmpty(_currentPost.Avatar))
-            {
-                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .Retry(2, 200)
-                                                         .DownSample(width: 100)
-                                                         .Into(avatarImage);
-            }
-            else
-                avatarImage.Image = UIImage.FromBundle("ic_noavatar");
-
+            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                     .DownSample(200)
+                                                     .LoadingPlaceholder("ic_noavatar.png")
+                                                     .ErrorPlaceholder("ic_noavatar.png")
+                                                     .Into(avatarImage);
+            
             var photo = _currentPost.Photos?.FirstOrDefault();
             if (photo != null)
                 _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
                                                          .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .Retry(2, 200)
                                                          .DownSample((int)UIScreen.MainScreen.Bounds.Width)
                                                          .Into(bodyImage);
 
@@ -148,6 +143,11 @@ namespace Steepshot.iOS.Cells
                 firstLiker.Layer.CornerRadius = firstLiker.Frame.Size.Width / 2;
                 secondLiker.Layer.CornerRadius = secondLiker.Frame.Size.Width / 2;
                 thirdLiker.Layer.CornerRadius = thirdLiker.Frame.Size.Width / 2;
+
+                viewCommentButton.TouchDown += (sender, e) => 
+                {
+                    CellAction?.Invoke(ActionType.Comments, _currentPost);
+                };
 
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {

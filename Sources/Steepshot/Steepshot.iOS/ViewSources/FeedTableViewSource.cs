@@ -1,17 +1,23 @@
 ﻿using Foundation;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
 namespace Steepshot.iOS.ViewSources
 {
     
-	public class FeedTableViewSource : BaseTableSource<Post>
+    public class FeedTableViewSource : BaseTableSource<FeedPresenter>
     {
 		string _cellIdentifier = nameof(FeedTableViewCell);
-		//public event VoteEventHandler<VoteResponse> Voted;
-		//public event VoteEventHandler<FlagResponse> Flagged;
-		public event HeaderTappedHandler GoToProfile;
+
+        public FeedTableViewSource(BasePostPresenter presenter) : base(presenter)
+        {
+        }
+
+        //public event VoteEventHandler<VoteResponse> Voted;
+        //public event VoteEventHandler<FlagResponse> Flagged;
+        public event HeaderTappedHandler GoToProfile;
 		public event HeaderTappedHandler GoToComments;
 		public event ImagePreviewHandler ImagePreview;
 
@@ -56,7 +62,7 @@ namespace Steepshot.iOS.ViewSources
                         ImagePreview(image, url);
 				};
 			}
-			cell.UpdateCell(TableItems[indexPath.Row]);
+            cell.UpdateCell(_presenter[indexPath.Row]);
             return cell;
         }  
     }
