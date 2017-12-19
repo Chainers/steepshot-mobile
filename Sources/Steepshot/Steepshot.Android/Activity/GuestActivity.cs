@@ -22,6 +22,14 @@ namespace Steepshot.Activity
 
         public override void OnBackPressed()
         {
+            if (CurrentHostFragment != null)
+            {
+                var fragments = CurrentHostFragment.ChildFragmentManager.Fragments;
+                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
+                    if (fragment.ClosePost())
+                        return;
+            }
+
             if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
                 MinimizeApp();
         }
