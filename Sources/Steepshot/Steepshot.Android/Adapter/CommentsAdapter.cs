@@ -9,6 +9,7 @@ using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -229,7 +230,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            _comment.Text = post.Body;
+            _comment.Text = post.Body.CensorText();
 
             if (_post.Author == BasePresenter.User.Login)
                 _more.Visibility = ViewStates.Gone;

@@ -1,5 +1,6 @@
 using Steepshot.Core.Authority;
 using Steepshot.Core.Exceptions;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Models.Requests
@@ -16,6 +17,7 @@ namespace Steepshot.Core.Models.Requests
             Url = url;
             Body = body;
             AppVersion = $"v{appInfo.GetAppVersion()} b{appInfo.GetBuildVersion()} t";
+            IsNeedRewards = user.IsNeedRewards;
         }
 
         public string Url { get; }
@@ -23,5 +25,9 @@ namespace Steepshot.Core.Models.Requests
         public string Body { get; }
 
         public string AppVersion { get; }
+
+        public bool IsNeedRewards { get; }
+
+        public Beneficiary[] Beneficiaries { get; internal set; }
     }
 }

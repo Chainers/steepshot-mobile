@@ -7,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
+using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -62,8 +63,7 @@ namespace Steepshot.Adapter
                     var loaderVh = new LoaderViewHolder(loaderView);
                     return loaderVh;
                 default:
-                    var view = new ImageView(Context);
-                    view.SetScaleType(ImageView.ScaleType.CenterCrop);
+                    var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_grid_item, parent, false);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }
@@ -74,6 +74,8 @@ namespace Steepshot.Adapter
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
+        private readonly RelativeLayout _nsfwMask;
+        private readonly TextView _nsfwMaskMessage;
         private Post _post;
         private Context _context;
         private string _photoString;
@@ -82,7 +84,12 @@ namespace Steepshot.Adapter
         public ImageViewHolder(View itemView, Action<Post> click) : base(itemView)
         {
             _click = click;
-            _photo = (ImageView)itemView;
+            _photo = itemView.FindViewById<ImageView>(Resource.Id.grid_item_photo);
+            _nsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.grid_item_nsfw);
+            _nsfwMaskMessage = itemView.FindViewById<TextView>(Resource.Id.grid_item_nsfw_message);
+
+            _nsfwMaskMessage.Typeface = Style.Light;
+
             _photo.Clickable = true;
             _photo.Click += OnClick;
         }
@@ -97,9 +104,16 @@ namespace Steepshot.Adapter
             _post = post;
             _context = context;
             _photoString = post.Photos?.FirstOrDefault();
+
             if (_photoString != null)
             {
                 Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Into(_photo, OnSuccess, OnError);
+            }
+
+            if (_post.IsNsfw || _post.IsLowRated)
+            {
+                _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRated : Localization.Messages.NSFW;
+                _nsfwMask.Visibility = ViewStates.Visible;
             }
         }
 

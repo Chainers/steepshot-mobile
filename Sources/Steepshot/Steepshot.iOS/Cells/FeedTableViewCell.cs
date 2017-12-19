@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -90,7 +92,7 @@ namespace Steepshot.iOS.Cells
             NSMutableAttributedString at = new NSMutableAttributedString();
             at.Append(new NSAttributedString(post.Author, nicknameAttribute));
             at.Append(new NSAttributedString(" "));
-            at.Append(new NSAttributedString(post.Title));
+            at.Append(new NSAttributedString(post.Title.CensorText()));
             commentText.AttributedText = at;
             var buttonTitle = post.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, post.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);

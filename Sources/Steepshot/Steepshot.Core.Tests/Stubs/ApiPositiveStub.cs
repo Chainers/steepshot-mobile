@@ -255,7 +255,7 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
         {
-            return new OperationResult<VoteResponse> { Result = new VoteResponse(true) { NetVotes = request.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = new Money(10000, 1, "GBG") } };
+            return new OperationResult<VoteResponse> { Result = new VoteResponse(true) { NetVotes = request.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = new Asset(10000, 1, "GBG") } };
         }
 
         public async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 
@@ -19,7 +20,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<List<string>> LoadNext(CancellationToken ct, string s)
         {
-            var request = new SearchWithQueryRequest(s)
+            var request = new SearchWithQueryRequest(s.TagToEn())
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit

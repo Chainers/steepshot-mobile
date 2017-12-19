@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
@@ -10,6 +11,7 @@ namespace Steepshot.Core.HttpClient
 {
     public class SteepshotApiClient : ISteepshotApiClient
     {
+        private Dictionary<string, Beneficiary[]> _beneficiariesCash;
         private readonly BaseServerClient _serverServerClient;
         private readonly JsonNetConverter _converter;
 
@@ -20,6 +22,7 @@ namespace Steepshot.Core.HttpClient
         {
             _converter = new JsonNetConverter();
             _serverServerClient = new BaseServerClient(_converter);
+            _beneficiariesCash = new Dictionary<string, Beneficiary[]>();
         }
 
         public void InitConnector(KnownChains chain, bool isDev, CancellationToken token)
@@ -89,6 +92,18 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct)
         {
+            var bKey = $"{_ditchClient.GetType()}{request.IsNeedRewards}";
+            if (_beneficiariesCash.ContainsKey(bKey))
+            {
+                request.Beneficiaries = _beneficiariesCash[bKey];
+            }
+            else
+            {
+                var beneficiaries = await _serverServerClient.GetBeneficiaries(request.IsNeedRewards, ct);
+                if (beneficiaries.Success)
+                    _beneficiariesCash[bKey] = request.Beneficiaries = beneficiaries.Result.Beneficiaries;
+            }
+
             var result = await _ditchClient.CreateComment(request, ct);
             _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, ct);//.Wait(5000);
             return result;
