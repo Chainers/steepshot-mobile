@@ -181,15 +181,32 @@ namespace Steepshot.Core.HttpClient
                 if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
                     return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
 
-                var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var replyOperation = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+                BaseOperation[] ops;
+                if (request.Beneficiaries != null && request.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
+                {
+                    var beneficiaries = request.Beneficiaries
+                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
+                        .ToArray();
+                    ops = new BaseOperation[]
+                    {
+                        replyOperation,
+                        new BeneficiariesOperation(request.Login, replyOperation.Permlink, _operationManager.SbdSymbol, beneficiaries)
+                    };
+                }
+                else
+                {
+                    ops = new BaseOperation[] { replyOperation };
+                }
+
+                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
 
                 var result = new OperationResult<CommentResponse>();
                 if (!resp.IsError)
                 {
                     result.Result = new CommentResponse(true);
-                    result.Result.Permlink = op.Permlink;
+                    result.Result.Permlink = replyOperation.Permlink;
                 }
                 else
                     OnError(resp, result);
@@ -215,8 +232,7 @@ namespace Steepshot.Core.HttpClient
                 if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
                     return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
 
-                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty,
-                    request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
                 // var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);

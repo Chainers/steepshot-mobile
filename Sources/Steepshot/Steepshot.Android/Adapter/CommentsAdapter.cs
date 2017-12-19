@@ -9,6 +9,7 @@ using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;

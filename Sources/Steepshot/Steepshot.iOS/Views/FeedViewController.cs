@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;

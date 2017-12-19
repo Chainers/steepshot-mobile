@@ -6,6 +6,7 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;

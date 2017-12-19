@@ -1,11 +1,10 @@
-﻿using Ditch.Core.Helpers;
-using Steepshot.Core.Models.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
+using Ditch.Core.Helpers;
+using Steepshot.Core.Utils;
 
-namespace Steepshot.Core.Utils
+namespace Steepshot.Core.Extensions
 {
     public static class Extensions
     {
@@ -55,7 +54,6 @@ namespace Steepshot.Core.Utils
         {
             if (string.IsNullOrWhiteSpace(text))
                 return text;
-
             return Transliteration.ToRus(text);
         }
 

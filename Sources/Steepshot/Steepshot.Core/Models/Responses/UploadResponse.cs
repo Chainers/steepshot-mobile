@@ -35,13 +35,19 @@ namespace Steepshot.Core.Models.Responses
     //        ]
     //    }
     //}
-    public class UploadResponse
+
+
+
+    public class BeneficiariesResponse
+    {
+        public Beneficiary[] Beneficiaries { get; set; }
+    }
+
+    public class UploadResponse : BeneficiariesResponse
     {
         public ImageUploadResponse Payload { get; set; }
 
         public object Meta { get; set; }
-
-        public Beneficiary[] Beneficiaries { get; set; }
     }
     
     public class Beneficiary
