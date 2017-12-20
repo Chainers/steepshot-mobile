@@ -119,7 +119,7 @@ namespace Steepshot.Adapter
 
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
-        private const int _maxLines = 3;
+        private const int _maxLines = 5;
         protected PostPagerType PhotoPagerType;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
@@ -423,6 +423,11 @@ namespace Steepshot.Adapter
                     return;
 
                 var titleWithTags = new StringBuilder(_post.Title);
+                if (!string.IsNullOrEmpty(_post.Description))
+                {
+                    titleWithTags.Append(Environment.NewLine + Environment.NewLine);
+                    titleWithTags.Append(Html.FromHtml(_post.Description));
+                }
 
                 foreach (var item in _post.Tags)
                 {
@@ -439,19 +444,30 @@ namespace Steepshot.Adapter
             }
 
             var builder = new SpannableStringBuilder();
-            if (_post.Title.Length > textMaxLength)
+            if (_post.Title.Length + _post.Description.Length > textMaxLength)
             {
-                var title = new SpannableString(_post.Title.Substring(0, textMaxLength));
-                title.SetSpan(null, 0, title.Length(), 0);
-                builder.Append(title);
-                title.Dispose();
+                var titleAndDescription = new SpannableString(_post.Title);
+                builder.Append(titleAndDescription);
+                if (!string.IsNullOrEmpty(_post.Description))
+                {
+                    builder.Append(Environment.NewLine + Environment.NewLine);
+                    titleAndDescription = new SpannableString(Html.FromHtml(_post.Description).ToString()
+                        .Substring(0, textMaxLength - _post.Title.Length));
+                    builder.Append(titleAndDescription);
+                }
+                titleAndDescription.Dispose();
             }
             else
             {
-                var title = new SpannableString(_post.Title);
-                title.SetSpan(null, 0, title.Length(), 0);
-                builder.Append(title);
-                title.Dispose();
+                var titleAndDescription = new SpannableString(_post.Title);
+                builder.Append(titleAndDescription);
+                if (!string.IsNullOrEmpty(_post.Description))
+                {
+                    titleAndDescription = new SpannableString(Html.FromHtml(_post.Description));
+                    builder.Append(Environment.NewLine + Environment.NewLine);
+                    builder.Append(titleAndDescription);
+                }
+                titleAndDescription.Dispose();
 
                 var j = 0;
                 var tags = _post.Tags.Distinct();

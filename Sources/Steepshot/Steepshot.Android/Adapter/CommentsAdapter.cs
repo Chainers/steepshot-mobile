@@ -21,21 +21,23 @@ namespace Steepshot.Adapter
     {
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
+        private readonly Post _post;
         public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction;
         public Action RootClickAction;
         public Action<Post, VotersType> VotersClick;
 
-        public override int ItemCount => _presenter.Count;
+        public override int ItemCount => _presenter.Count + 1;
 
-        public CommentAdapter(Context context, CommentsPresenter presenter)
+        public CommentAdapter(Context context, CommentsPresenter presenter, Post post)
         {
             _context = context;
             _presenter = presenter;
+            _post = post;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var post = _presenter[position];
+            var post = position == 0 ? _post : _presenter[position - 1];
             if (post == null)
                 return;
 
@@ -300,4 +302,6 @@ namespace Steepshot.Adapter
         {
         }
     }
+
+
 }
