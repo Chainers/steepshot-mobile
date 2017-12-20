@@ -26,9 +26,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.")
-                        || response.Errors.Contains("Invalid posting key.")
-                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
+            Assert.That(response.Error.Message.Contains("Invalid private posting key.")
+                        || response.Error.Message.Contains("Invalid posting key.")
+                        || response.Error.Message.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test]
@@ -44,9 +44,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.")
-                        || response.Errors.Contains("Invalid posting key.")
-                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
+            Assert.That(response.Error.Message.Contains("Invalid private posting key.")
+                        || response.Error.Message.Contains("Invalid posting key.")
+                        || response.Error.Message.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test]
@@ -62,9 +62,9 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Invalid private posting key.")
-                        || response.Errors.Contains("Invalid posting key.")
-                        || response.Errors.Contains(Localization.Errors.WrongPrivateKey));
+            Assert.That(response.Error.Message.Contains("Invalid private posting key.")
+                        || response.Error.Message.Contains("Invalid posting key.")
+                        || response.Error.Message.Contains(Localization.Errors.WrongPrivateKey));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Cannot get posts for this username"));
+            Assert.That(response.Error.Message.Contains("Cannot get posts for this username"));
         }
 
         [Test, Sequential]
@@ -332,7 +332,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Not Found"));
+            Assert.That(response.Error.Message.Contains("Not Found"));
         }
 
         [Test]
@@ -360,7 +360,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Not Found"));
+            Assert.That(response.Error.Message.Contains("Not Found"));
         }
 
         [Test]
@@ -456,12 +456,12 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
-                        || response2.Errors.Contains("Cannot vote again on a comment after payout.")
-                        || response2.Errors.Contains("Duplicate transaction check failed")
-                        || response2.Errors.Contains("Vote weight cannot be 0.")
-                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Error.Message.Contains("Cannot vote again on a comment after payout.")
+                        || response2.Error.Message.Contains("Duplicate transaction check failed")
+                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
         }
 
         [Test]
@@ -484,11 +484,11 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
-                        || response2.Errors.Contains("Duplicate transaction check failed")
-                        || response2.Errors.Contains("Vote weight cannot be 0.")
-                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Error.Message.Contains("Duplicate transaction check failed")
+                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
         }
 
         [Test]
@@ -502,7 +502,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
         }
 
         [Test]
@@ -516,7 +516,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
         }
 
         [Test]
@@ -530,7 +530,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
         }
 
         [Test]
@@ -544,7 +544,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
         }
 
         [Test]
@@ -566,11 +566,11 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
-                        || response2.Errors.Contains("Duplicate transaction check failed")
-                        || response2.Errors.Contains("Vote weight cannot be 0.")
-                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Error.Message.Contains("Duplicate transaction check failed")
+                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
         }
 
         [Test]
@@ -593,11 +593,11 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response2);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You have already voted in a similar way.")
-                        || response2.Errors.Contains("Can only vote once every 3 seconds.")
-                        || response2.Errors.Contains("Duplicate transaction check failed")
-                        || response2.Errors.Contains("Vote weight cannot be 0.")
-                        || response2.Errors.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
+                        || response2.Error.Message.Contains("Duplicate transaction check failed")
+                        || response2.Error.Message.Contains("Vote weight cannot be 0.")
+                        || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
         }
 
         [Test]
@@ -611,7 +611,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test]
@@ -625,7 +625,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test]
@@ -639,7 +639,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test]
@@ -653,7 +653,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Incorrect identifier"), string.Join(Environment.NewLine, response.Errors));
+            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test, Sequential]
@@ -736,7 +736,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Wrong identifier."));
+            Assert.That(response.Error.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -750,7 +750,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Wrong identifier."));
+            Assert.That(response.Error.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -773,7 +773,7 @@ namespace Steepshot.Core.Tests
             // Assert
             AssertResult(response1);
             AssertResult(response2);
-            Assert.That(response2.Errors.Contains("You may only comment once every 20 seconds.") || response2.Errors.Contains("Duplicate transaction check failed"), string.Join(Environment.NewLine, response2.Errors));
+            Assert.That(response2.Error.Message.Contains("You may only comment once every 20 seconds.") || response2.Error.Message.Contains("Duplicate transaction check failed"), response2.Error.Message);
         }
 
         [Test]
@@ -895,7 +895,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Query should have at least 2 characters"));
+            Assert.That(response.Error.Message.Contains("Query should have at least 2 characters"));
         }
 
         [Test]
@@ -909,7 +909,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("This field may not be blank."));
+            Assert.That(response.Error.Message.Contains("This field may not be blank."));
         }
 
         [Test]
@@ -944,7 +944,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Category used for offset was not found"));
+            Assert.That(response.Error.Message.Contains("Category used for offset was not found"));
         }
 
         [Test]
@@ -1008,7 +1008,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("User not found"));
+            Assert.That(response.Error.Message.Contains("User not found"));
         }
 
         [Test, Sequential]
@@ -1224,7 +1224,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Wrong identifier."));
+            Assert.That(response.Error.Message.Contains("Wrong identifier."));
         }
 
         [Test]
@@ -1237,13 +1237,13 @@ namespace Steepshot.Core.Tests
             var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
+            Assert.That(response.Error.Message.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
 
             //var response = Api[apiName].Upload(request, CancellationToken.None).Result;
 
             //// Assert
             //AssertResult(response);
-            //Assert.That(response.Errors.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
+            //Assert.That(response.Error.Message.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
         }
 
         [Test]
@@ -1256,13 +1256,13 @@ namespace Steepshot.Core.Tests
             // Act
             var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
             AssertResult(response);
-            Assert.That(response.Errors.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
+            Assert.That(response.Error.Message.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
 
             //var response = Api[apiName].Upload(request, CancellationToken.None).Result;
 
             //// Assert
             //AssertResult(response);
-            //Assert.That(response.Errors.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
+            //Assert.That(response.Error.Message.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
         }
 
         [Test]
@@ -1306,7 +1306,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Query should have at least 3 characters"));
+            Assert.That(response.Error.Message.Contains("Query should have at least 3 characters"));
         }
 
         [Test]
@@ -1320,7 +1320,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("This field may not be blank."));
+            Assert.That(response.Error.Message.Contains("This field may not be blank."));
         }
 
         [Test]
@@ -1355,7 +1355,7 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Errors.Contains("Username used for offset was not found"));
+            Assert.That(response.Error.Message.Contains("Username used for offset was not found"));
         }
 
         [Test]
