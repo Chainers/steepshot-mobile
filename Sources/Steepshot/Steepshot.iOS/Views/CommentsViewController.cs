@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -181,10 +182,10 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
 
             _presenter.Clear();
-            var errors = await _presenter.TryLoadNextComments(Post.Url);
-            if (errors == null)
+            var error = await _presenter.TryLoadNextComments(Post.Url);
+            if (error is TaskCanceledError)
                 return;
-            ShowAlert(errors);
+            ShowAlert(error);
             progressBar.StopAnimating();
         }
 
@@ -196,12 +197,8 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var errors = await _presenter.TryVote(post);
-            if (errors == null)
-                return;
-
-            if (errors.Any())
-                ShowAlert(errors);
+            var error = await _presenter.TryVote(post);
+            ShowAlert(error);
         }
 
         public async Task FlagComment(Post post)
@@ -212,12 +209,8 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
-            var errors = await _presenter.TryFlag(post);
-            if (errors == null)
-                return;
-
-            if (errors.Any())
-                ShowAlert(errors);
+            var error = await _presenter.TryFlag(post);
+            ShowAlert(error);
         }
 
         private async void CreateComment(object sender, EventArgs e)
@@ -239,15 +232,15 @@ namespace Steepshot.iOS.Views
                 _commentsTextViewDelegate.Placeholder.Hidden = false;
                 commentTextView.ResignFirstResponder();
 
-                var errors = await _presenter.TryLoadNextComments(Post.Url);
+                var error = await _presenter.TryLoadNextComments(Post.Url);
 
-                ShowAlert(errors);
+                ShowAlert(error);
 
                 commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
                 Post.Children++;
             }
             else
-                ShowAlert(response.Errors);
+                ShowAlert(response.Error);
 
             commentTextView.UserInteractionEnabled = true;
             sendButton.Hidden = false;

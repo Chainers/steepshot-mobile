@@ -79,10 +79,9 @@ namespace Steepshot.iOS.Views
                 return;
 
             progressBar.StartAnimating();
-            await _presenter.TryLoadNextUserFriends(_username).ContinueWith((errors) =>
+            await _presenter.TryLoadNextUserFriends(_username).ContinueWith((error) =>
             {
-                var errorsList = errors.Result;
-                ShowAlert(errorsList);
+                ShowAlert(error.Result);
                 InvokeOnMainThread(() =>
                 {
                     followTableView.ReloadData();
@@ -98,14 +97,9 @@ namespace Steepshot.iOS.Views
             var user = _presenter.FirstOrDefault(fgh => fgh.Author == author);
             if (user != null)
             {
-                var errors = await _presenter.TryFollow(user);
-                if (errors != null)
-                {
-                    if (!errors.Any())
-                        success = true;
-                    else
-                        ShowAlert(errors);
-                }
+                var error = await _presenter.TryFollow(user);
+                ShowAlert(error);
+                success = error == null;
             }
             callback(author, success);
         }

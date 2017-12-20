@@ -6,6 +6,7 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -62,9 +63,9 @@ namespace Steepshot.iOS.Views
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
 */
-            _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) => 
+            _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) =>
             {
-                if(arg1 == Core.Models.ActionType.Comments)
+                if (arg1 == Core.Models.ActionType.Comments)
                 {
                     var myViewController = new CommentsViewController();
                     myViewController.Post = arg2;
@@ -81,11 +82,11 @@ namespace Steepshot.iOS.Views
             collectionView.Source = _collectionViewSource;
 
             _gridDelegate = new CollectionViewFlowDelegate(collectionView
-                /*(indexPath) =>
-            {
-                var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
-                PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
-            },*/
+            /*(indexPath) =>
+        {
+            var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
+            PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
+        },*/
             /*scrolled: () =>
             {
                 if (collectionView.IndexPathsForVisibleItems.Count() != 0)
@@ -96,7 +97,7 @@ namespace Steepshot.iOS.Views
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }*/,presenter: _presenter);
+            }*/, presenter: _presenter);
 
             collectionView.Delegate = _gridDelegate;
 
@@ -205,10 +206,10 @@ namespace Steepshot.iOS.Views
             errorMessage.Hidden = true;
             try
             {
-                var errors = await _presenter.TryGetUserInfo(Username);
+                var error = await _presenter.TryGetUserInfo(Username);
                 _refreshControl.EndRefreshing();
 
-                if (errors != null && !errors.Any())
+                if (error == null)
                 {
                     _userData = _presenter.UserProfileResponse;
                     _profileHeader.Username.Text = !string.IsNullOrEmpty(_userData.Name) ? _userData.Name : _userData.Username;
@@ -310,18 +311,18 @@ namespace Steepshot.iOS.Views
             if (needRefresh)
                 _presenter.Clear();
 
-            var errors = await _presenter.TryLoadNextPosts();
-            if (errors == null)
-                return;
+            var error = await _presenter.TryLoadNextPosts();
 
-            if (errors.Any())
-                ShowAlert(errors);
-            else
+            if (error == null)
             {
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
 
                 _isPostsLoading = false;
+            }
+            else
+            {
+                ShowAlert(error);
             }
         }
 
@@ -336,11 +337,11 @@ namespace Steepshot.iOS.Views
             if (post == null)
                 return;
 
-            var errors = await _presenter.TryVote(post);
-            if (errors == null)
+            var error = await _presenter.TryVote(post);
+            if (error is TaskCanceledError)
                 return;
 
-            ShowAlert(errors);
+            ShowAlert(error);
             collectionView.ReloadData();
             collectionView.CollectionViewLayout.InvalidateLayout();
         }
@@ -385,22 +386,24 @@ namespace Steepshot.iOS.Views
             if (post == null)
                 return;
 
-            var errors = await _presenter.TryFlag(post);
-            ShowAlert(errors);
+            var error = await _presenter.TryFlag(post);
+            ShowAlert(error);
             collectionView.ReloadData();
             collectionView.CollectionViewLayout.InvalidateLayout();
         }
 
         private async Task Follow()
         {
-            var errors = await _presenter.TryFollow();
+            var error = await _presenter.TryFollow();
 
-            if (errors != null && !errors.Any())
+            if (error == null)
             {
                 ToogleFollowButton();
             }
             else
-                ShowAlert(errors);
+            {
+                ShowAlert(error);
+            }
         }
 
         void LoginTapped()

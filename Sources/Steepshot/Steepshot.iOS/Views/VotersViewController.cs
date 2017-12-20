@@ -55,12 +55,12 @@ namespace Steepshot.iOS.Views
 
             progressBar.StartAnimating();
 
-            var errors = await _presenter.TryLoadNextPostVoters(PostUrl);
+            var error = await _presenter.TryLoadNextPostVoters(PostUrl);
 
-            if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
-            else
+            if (error == null)
                 votersTable.ReloadData();
+            else
+                ShowAlert(error);
 
             progressBar.StopAnimating();
         }

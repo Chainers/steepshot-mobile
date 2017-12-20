@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
@@ -49,7 +50,7 @@ namespace Steepshot.iOS.Views
 
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
-            
+
             _collectionViewSource.IsGrid = false;
             _gridDelegate.IsGrid = false;
             collectionView.Source = _collectionViewSource;
@@ -59,7 +60,7 @@ namespace Steepshot.iOS.Views
 
             //_collectionViewSource.Voted += async (vote, post, action) =>
             //{
-                //await Vote(post);
+            //await Vote(post);
             //};
             //_collectionViewSource.Flagged += Flagged;
 
@@ -201,21 +202,20 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StartAnimating();
             noFeedLabel.Hidden = true;
 
-            List<string> errors;
+            ErrorBase error;
             if (CurrentPostCategory == null)
             {
                 if (clearOld)
                     _presenter.Clear();
-                errors = await _presenter.TryLoadNextTopPosts();
+                error = await _presenter.TryLoadNextTopPosts();
             }
             else
             {
                 _presenter.Tag = CurrentPostCategory;
-                errors = await _presenter.TryGetSearchedPosts();
+                error = await _presenter.TryGetSearchedPosts();
             }
 
-            if (errors != null && errors.Count != 0)
-                ShowAlert(errors);
+            ShowAlert(error);
 
             if (_refreshControl.Refreshing)
             {
@@ -248,7 +248,7 @@ namespace Steepshot.iOS.Views
 
         private void SwitchButtonClick()
         {
-            
+
         }
 
         private void SourceChanged(Status status)

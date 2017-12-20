@@ -8,6 +8,7 @@ using Ditch.Core;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
@@ -143,18 +144,18 @@ namespace Steepshot.iOS.ViewControllers
             alert.Show();
         }
 
-        protected void ShowAlert(ICollection<string> messages)
+        protected void ShowAlert(ErrorBase error)
         {
-            if (messages == null || !messages.Any())
+            if (error == null)
                 return;
-            ShowAlert(messages.First());
+            ShowAlert(error.Message);
         }
 
         protected void ShowAlert(OperationResult result)
         {
             if (result == null)
                 return;
-            ShowAlert(result.Errors);
+            ShowAlert(result.Error);
         }
 
         public static string ToFormatedCurrencyString(Asset value, string postfix = null)
