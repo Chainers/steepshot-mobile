@@ -21,6 +21,7 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Errors;
 using Steepshot.Interfaces;
 
 namespace Steepshot.Fragment
@@ -382,11 +383,11 @@ namespace Steepshot.Fragment
             if (isRefresh)
                 Presenter.Clear();
 
-            var errors = await Presenter.TryLoadNextPosts();
+            var error = await Presenter.TryLoadNextPosts();
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
             _listSpinner.Visibility = ViewStates.Gone;
         }
 
@@ -452,17 +453,17 @@ namespace Steepshot.Fragment
         {
             do
             {
-                var errors = await Presenter.TryGetUserInfo(_profileId);
+                var error = await Presenter.TryGetUserInfo(_profileId);
                 if (!IsInitialized)
                     return;
 
-                if (errors != null && !errors.Any())
+                if (error == null || error is TaskCanceledError)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     break;
                 }
 
-                Context.ShowAlert(errors);
+                Context.ShowAlert(error);
                 await Task.Delay(5000);
                 if (!IsInitialized)
                     return;
@@ -480,11 +481,11 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryFollow();
+                var error = await Presenter.TryFollow();
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(errors, ToastLength.Long);
+                Context.ShowAlert(error, ToastLength.Long);
             }
             else
             {
@@ -560,11 +561,11 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryVote(post);
+                var error = await Presenter.TryVote(post);
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(errors);
+                Context.ShowAlert(error);
             }
             else
                 OpenLogin();
@@ -575,11 +576,11 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            var errors = await Presenter.TryFlag(post);
+            var error = await Presenter.TryFlag(post);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
         }
 
         private void HideAction(Post post)

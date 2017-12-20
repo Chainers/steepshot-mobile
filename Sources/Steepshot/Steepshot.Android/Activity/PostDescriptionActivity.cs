@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -26,6 +25,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Activity
 {
@@ -293,16 +293,16 @@ namespace Steepshot.Activity
             _tagsList.ScrollToPosition(0);
             Presenter.Clear();
 
-            List<string> errors = null;
+            ErrorBase error = null;
             if (_tag.Text.Length == 0)
-                errors = await Presenter.TryGetTopTags();
+                error = await Presenter.TryGetTopTags();
             else if (_tag.Text.Length > 1)
-                errors = await Presenter.TryLoadNext(_tag.Text);
+                error = await Presenter.TryLoadNext(_tag.Text);
 
             if (IsFinishing || IsDestroyed)
                 return;
 
-            this.ShowAlert(errors);
+            this.ShowAlert(error);
         }
 
         private async Task OnPostAsync()
@@ -410,7 +410,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (resp != null && resp.Success)
+            if (resp.Success)
             {
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
@@ -419,10 +419,10 @@ namespace Steepshot.Activity
             }
             else
             {
-                var msg = Localization.Errors.Unknownerror;
-                if (resp != null && resp.Errors.Any())
-                    msg = resp.Errors[0];
-                this.ShowInteractiveMessage(msg, TryAgainAction, ForgetAction);
+                if (resp.Error is TaskCanceledError)
+                    return;
+
+                this.ShowInteractiveMessage(resp.Error.Message, TryAgainAction, ForgetAction);
             }
         }
 

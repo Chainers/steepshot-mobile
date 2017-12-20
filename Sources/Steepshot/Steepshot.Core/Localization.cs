@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace Steepshot.Core
 {
@@ -16,7 +15,7 @@ namespace Steepshot.Core
             public const string ServeNotRespond = "The server does not respond to the request. Check your internet connection and try again.";
             public const string ServeUnexpectedError = "An unexpected error occurred. Check the Internet or try restarting the application.";
             public const string EmptyCommentField = "Comment may not be blank!";
-            public const string Unknownerror = "Unknown error. Try again";
+            public const string UnknownError = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title required";
             public const string EmptyPhotoField = "Photo cannot be empty";
@@ -52,7 +51,13 @@ namespace Steepshot.Core
 
             internal static string StatusCodeToMessage(HttpStatusCode statusCode)
             {
-                return $"({statusCode}) {ServeNotRespond}";
+                switch (statusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                    case HttpStatusCode.Forbidden:
+                    default:
+                        return $"({statusCode}) {ServeNotRespond}";
+                }
             }
         }
 

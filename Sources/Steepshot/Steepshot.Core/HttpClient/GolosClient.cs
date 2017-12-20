@@ -15,6 +15,7 @@ using DitchBeneficiary = Ditch.Golos.Operations.Beneficiary;
 using Ditch.Core;
 using Ditch.Golos.Operations;
 using Ditch.Golos.Objects;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -69,16 +70,16 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoteResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoteResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 string author;
                 string permlink;
                 if (!TryCastUrlToAuthorAndPermlink(request.Identifier, out author, out permlink))
-                    return new OperationResult<VoteResponse>(Localization.Errors.IncorrectIdentifier);
+                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
                 short weigth = 0;
                 if (request.Type == VoteType.Up)
@@ -118,11 +119,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 var op = request.Type == FollowType.Follow
                     ? new FollowOperation(request.Login, request.Username, DitchFollowType.Blog, request.Login)
@@ -145,11 +146,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
@@ -170,16 +171,16 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<CommentResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 string author;
                 string permlink;
                 if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
-                    return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
                 var replyOperation = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
@@ -219,18 +220,18 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<CommentResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<CommentResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 string author;
                 string commentPermlink;
                 string parentAuthor;
                 string parentPermlink;
                 if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
-                    return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
+                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
                 var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
                 // var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
@@ -256,11 +257,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<ImageUploadResponse>(Localization.Errors.EnableConnectToBlockchain);
+                    return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(request.PostingKey);
                 if (keys == null)
-                    return new OperationResult<ImageUploadResponse>(Localization.Errors.WrongPrivateKey);
+                    return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 OperationHelper.PrepareTags(request.Tags);
 
@@ -302,24 +303,58 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
+        public override async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+
+                var keys = ToKeyArr(request.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
+
+                if (!TryCastUrlToAuthorAndPermlink(request.Url, out string author, out string permlink) ||
+                    !string.Equals(author, request.Login))
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
+
+                var op = new DeleteCommentOperation(author, permlink);
+                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+
+                var result = new OperationResult<VoidResponse>();
+                if (!resp.IsError)
+                    result.Result = new VoidResponse(true);
+                else
+                    OnError(resp, result);
+                return result;
+            }, ct);
+        }
+
         #endregion Post requests
 
         #region Get
 
-        public override OperationResult<string> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<string>(Localization.Errors.EnableConnectToBlockchain);
+                return new OperationResult<string>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(request.PostingKey);
             if (keys == null)
-                return new OperationResult<string>(Localization.Errors.WrongPrivateKey);
+                return new OperationResult<string>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-
-            var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
-            var properties = new DynamicGlobalPropertyObject { HeadBlockId = Hex.ToString(_operationManager.ChainId), Time = DateTime.Now, HeadBlockNumber = 0 };
-            var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
-            return new OperationResult<string>() { Result = JsonConverter.Serialize(tr) };
+            return await Task.Run(() =>
+            {
+                var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
+                var properties = new DynamicGlobalPropertyObject
+                {
+                    HeadBlockId = Hex.ToString(_operationManager.ChainId),
+                    Time = DateTime.Now,
+                    HeadBlockNumber = 0
+                };
+                var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
+                return new OperationResult<string>() { Result = JsonConverter.Serialize(tr) };
+            }, ct);
         }
 
         #endregion

@@ -117,5 +117,8 @@ namespace Steepshot.Core.HttpClient
         ///     1) GET GET https://steepshot.org/api/v1/user/pussyhunter123/exists HTTP/1.1
         /// </summary>
         Task<OperationResult<UserExistsResponse>> UserExistsCheck(UserExistsRequests request, CancellationToken ct);
+
+
+        Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct);
     }
 }

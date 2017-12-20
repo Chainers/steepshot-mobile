@@ -14,8 +14,8 @@ namespace Steepshot.Core.Tests.Presenters
             await BasePresenter.SwitchChain(apiName);
             var presenter = new UserFriendPresenter() { VotersType = VotersType.All };
             Assert.IsTrue(presenter.Count == 0);
-            var errors = await presenter.TryLoadNextPostVoters(url);
-            Assert.IsTrue(errors == null || errors.Count == 0);
+            var error = await presenter.TryLoadNextPostVoters(url);
+            Assert.IsTrue(error == null);
             Assert.IsTrue(presenter.Count > 0);
         }
     }

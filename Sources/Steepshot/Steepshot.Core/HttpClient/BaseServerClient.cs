@@ -10,6 +10,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -238,7 +239,7 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task Trace(string endpoint, string login, List<string> resultErrors, string target, CancellationToken ct)
+        public async Task Trace(string endpoint, string login, ErrorBase resultErrors, string target, CancellationToken ct)
         {
             if (!EnableRead)
                 return;
@@ -247,7 +248,7 @@ namespace Steepshot.Core.HttpClient
             {
                 var parameters = new Dictionary<string, object>();
                 AddLoginParameter(parameters, login);
-                parameters.Add("error", resultErrors == null ? string.Empty : string.Join(Environment.NewLine, resultErrors));
+                parameters.Add("error", resultErrors == null ? string.Empty : resultErrors.Message);
                 if (!string.IsNullOrEmpty(target))
                     parameters.Add("target", target);
                 await Gateway.Post(GatewayVersion.V1, $@"log/{endpoint}", parameters, ct);
@@ -326,20 +327,10 @@ namespace Steepshot.Core.HttpClient
             var result = new OperationResult<T>();
             var content = await response.Content.ReadAsStringAsync();
 
-            // HTTP errors
-            if (response.StatusCode == HttpStatusCode.BadRequest ||
-                response.StatusCode == HttpStatusCode.Forbidden)
+            // HTTP error
+            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
             {
-                var dic = JsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                foreach (var kvp in dic)
-                {
-                    result.Errors.AddRange(kvp.Value);
-                }
-            }
-            else if (response.StatusCode != HttpStatusCode.OK &&
-                     response.StatusCode != HttpStatusCode.Created)
-            {
-                result.Errors.Add(Localization.Errors.StatusCodeToMessage(response.StatusCode));
+                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
             }
 
             if (!result.Success)
@@ -347,11 +338,11 @@ namespace Steepshot.Core.HttpClient
                 // Checking content
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    result.Errors.Add(Localization.Errors.EmptyResponseContent);
+                    result.Error = new ServerError(Localization.Errors.EmptyResponseContent);
                 }
                 else if (new Regex(@"<[^>]+>").IsMatch(content))
                 {
-                    result.Errors.Add(Localization.Errors.ResponseContentContainsHtml + content);
+                    result.Error = new ServerError(Localization.Errors.ResponseContentContainsHtml + content);
                 }
             }
             else

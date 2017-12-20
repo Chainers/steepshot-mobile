@@ -98,7 +98,7 @@ namespace Steepshot.Core
 
                 if (!postsResp.Success)
                 {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                     return;
                 }
                 if (postsResp.Result.Results.Count == 0)
@@ -119,7 +119,7 @@ namespace Steepshot.Core
 
             if (!rez.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, rez.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
                 return;
             }
 
@@ -132,7 +132,7 @@ namespace Steepshot.Core
 
             if (!verifyPostresp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, verifyPostresp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Error.Message}");
                 return;
             }
             if (verifyPostresp.Result.Results.Count != 1)
@@ -161,7 +161,7 @@ namespace Steepshot.Core
 
             if (!postsResp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -178,7 +178,7 @@ namespace Steepshot.Core
 
             if (!rez.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, rez.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
                 return;
             }
 
@@ -188,7 +188,7 @@ namespace Steepshot.Core
             var verifyResp = _api.GetUserFriends(userFriendsReq, CancellationToken.None).Result;
             if (!verifyResp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, verifyResp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyResp.Error.Message}");
                 return;
             }
             if (verifyResp.Result.Results.Count != 1)
@@ -208,7 +208,7 @@ namespace Steepshot.Core
             var response = _api.LoginWithPostingKey(request, CancellationToken.None).Result;
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return;
             }
             sb.AppendLine("pass.");
@@ -227,7 +227,7 @@ namespace Steepshot.Core
 
             if (!postsResp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -243,7 +243,7 @@ namespace Steepshot.Core
 
             if (!rez.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, rez.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {rez.Error.Message}");
                 return;
             }
 
@@ -255,7 +255,7 @@ namespace Steepshot.Core
 
             if (!verifyPostresp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, verifyPostresp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {verifyPostresp.Error.Message}");
                 return;
             }
             if (verifyPostresp.Result.Results.Count != 1)
@@ -277,13 +277,13 @@ namespace Steepshot.Core
             var serverResp = _api.UploadWithPrepare(request, CancellationToken.None).Result;
             if (!serverResp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, serverResp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {serverResp.Error.Message}");
                 return;
             }
             var response = _api.Upload(request, serverResp.Result, CancellationToken.None).Result;
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return;
             }
             sb.AppendLine("pass.");
@@ -441,7 +441,7 @@ namespace Steepshot.Core
             var response = _api.GetUserProfile(request, CancellationToken.None).Result;
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return;
             }
 
@@ -496,7 +496,7 @@ namespace Steepshot.Core
 
             if (!postsResp.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                 return;
             }
             if (postsResp.Result.Results.Count == 0)
@@ -512,7 +512,7 @@ namespace Steepshot.Core
             var response = _api.GetPostInfo(request, CancellationToken.None).Result;
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                 return;
             }
 
@@ -550,7 +550,7 @@ namespace Steepshot.Core
             var response = _api.UserExistsCheck(request, CancellationToken.None).Result;
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return;
             }
 
@@ -611,7 +611,7 @@ namespace Steepshot.Core
         {
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return true;
             }
             if (count != limit)
@@ -626,7 +626,7 @@ namespace Steepshot.Core
         {
             if (!response.Success)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, response.Errors)}");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");
                 return true;
             }
             var rez = response.Result;
@@ -686,7 +686,7 @@ namespace Steepshot.Core
 
                 if (!postsResp.Success)
                 {
-                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {string.Join(Environment.NewLine, postsResp.Errors)}");
+                    sb.AppendLine($"fail. Reason:{Environment.NewLine} {postsResp.Error.Message}");
                     return null;
                 }
                 if (postsResp.Result.Results.Count == 0)

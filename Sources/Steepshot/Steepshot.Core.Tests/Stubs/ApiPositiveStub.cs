@@ -402,5 +402,10 @@ namespace Steepshot.Core.Tests.Stubs
         {
             return new OperationResult<UserExistsResponse> { Result = new UserExistsResponse { Exists = true, Username = request.Username } };
         }
+
+        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct)
+        {
+            return new OperationResult<VoidResponse>() { Result = new VoidResponse(true) };
+        }
     }
 }

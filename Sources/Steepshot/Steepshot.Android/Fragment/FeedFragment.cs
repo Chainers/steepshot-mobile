@@ -197,11 +197,11 @@ namespace Steepshot.Fragment
 
         private async void LoadPosts()
         {
-            var errors = await Presenter.TryLoadNextTopPosts();
+            var error = await Presenter.TryLoadNextTopPosts();
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
@@ -288,11 +288,11 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            var errors = await Presenter.TryVote(post);
+            var error = await Presenter.TryVote(post);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
         }
 
         private async void FlagAction(Post post)
@@ -300,11 +300,11 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            var errors = await Presenter.TryFlag(post);
+            var error = await Presenter.TryFlag(post);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
         }
 
         private void HideAction(Post post)

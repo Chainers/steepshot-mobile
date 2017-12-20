@@ -27,6 +27,7 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
 using Steepshot.Interfaces;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Fragment
 {
@@ -523,11 +524,11 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryVote(post);
+                var error = await Presenter.TryVote(post);
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(errors);
+                Context.ShowAlert(error);
             }
             else
             {
@@ -540,11 +541,11 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 return;
 
-            var errors = await Presenter.TryFlag(post);
+            var error = await Presenter.TryFlag(post);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
         }
 
         private void HideAction(Post post)
@@ -609,18 +610,21 @@ namespace Steepshot.Fragment
                 Presenter.Clear();
             }
 
-            List<string> errors;
+            ErrorBase error;
             if (string.IsNullOrEmpty(tag))
-                errors = await Presenter.TryLoadNextTopPosts();
+                error = await Presenter.TryLoadNextTopPosts();
             else
-                errors = await Presenter.TryGetSearchedPosts();
+                error = await Presenter.TryGetSearchedPosts();
 
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            if (error is TaskCanceledError)
+                return;
 
-            if (errors != null)
+            Context.ShowAlert(error);
+
+            if (error != null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
