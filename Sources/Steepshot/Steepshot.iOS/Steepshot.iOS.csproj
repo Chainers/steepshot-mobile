@@ -106,15 +106,6 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.0.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.0.5\lib\netstandard2.0\Ditch.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Golos, Version=3.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.0.8\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Steem, Version=3.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.0.8\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
-    </Reference>
     <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.2.25\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
     </Reference>
@@ -165,6 +156,15 @@
     </Reference>
     <Reference Include="PureLayout.Net">
       <HintPath>..\packages\PureLayout.Net.1.0.0\lib\xamarinios10\PureLayout.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Core">
+      <HintPath>..\packages\Ditch.Core.3.0.6\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Steem">
+      <HintPath>..\packages\Ditch.Steem.3.0.9\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Golos">
+      <HintPath>..\packages\Ditch.Golos.3.0.9\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

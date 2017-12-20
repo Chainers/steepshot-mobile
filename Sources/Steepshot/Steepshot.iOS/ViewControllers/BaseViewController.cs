@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CoreGraphics;
-using Ditch;
 using Ditch.Core;
 using Foundation;
 using Steepshot.Core;
@@ -157,7 +156,6 @@ namespace Steepshot.iOS.ViewControllers
                 return;
             ShowAlert(result.Errors);
         }
-
 
         public static string ToFormatedCurrencyString(Asset value, string postfix = null)
         {

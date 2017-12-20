@@ -4,7 +4,7 @@ using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.ViewControllers;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core;
 using Steepshot.Core.Models;
