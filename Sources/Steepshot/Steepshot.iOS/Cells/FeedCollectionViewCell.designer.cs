@@ -34,6 +34,9 @@ namespace Steepshot.iOS.Cells
 		UIKit.NSLayoutConstraint contentViewWidth { get; set; }
 
 		[Outlet]
+		UIKit.UIImageView firstLiker { get; set; }
+
+		[Outlet]
 		UIKit.UIButton flagButton { get; set; }
 
 		[Outlet]
@@ -53,6 +56,12 @@ namespace Steepshot.iOS.Cells
 
 		[Outlet]
 		UIKit.UILabel rewards { get; set; }
+
+		[Outlet]
+		UIKit.UIImageView secondLiker { get; set; }
+
+		[Outlet]
+		UIKit.UIImageView thirdLiker { get; set; }
 
 		[Outlet]
 		UIKit.UIButton viewCommentButton { get; set; }
@@ -99,6 +108,11 @@ namespace Steepshot.iOS.Cells
 				flagButton = null;
 			}
 
+			if (imageHeight != null) {
+				imageHeight.Dispose ();
+				imageHeight = null;
+			}
+
 			if (imageWidth != null) {
 				imageWidth.Dispose ();
 				imageWidth = null;
@@ -129,9 +143,19 @@ namespace Steepshot.iOS.Cells
 				viewCommentButton = null;
 			}
 
-			if (imageHeight != null) {
-				imageHeight.Dispose ();
-				imageHeight = null;
+			if (firstLiker != null) {
+				firstLiker.Dispose ();
+				firstLiker = null;
+			}
+
+			if (secondLiker != null) {
+				secondLiker.Dispose ();
+				secondLiker = null;
+			}
+
+			if (thirdLiker != null) {
+				thirdLiker.Dispose ();
+				thirdLiker = null;
 			}
 		}
 	}

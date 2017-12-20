@@ -6,6 +6,7 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
@@ -29,34 +30,38 @@ namespace Steepshot.iOS
         public static UIStoryboard Storyboard = UIStoryboard.FromName("Main", null);
         public static UIViewController InitialViewController;
 
-
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             var builder = new ContainerBuilder();
+            var saverService = new SaverService();
+            var dataProvider = new DataProvider(saverService);
+            var appInfo = new AppInfo();
+            var connectionService = new ConnectionService();
+            var ravenClientDSN = DebugHelper.GetRavenClientDSN();
+            var reporterService = new ReporterService(appInfo, ravenClientDSN);
 
-            builder.RegisterInstance(new AppInfo()).As<IAppInfo>().SingleInstance();
-            builder.RegisterType<Core.Authority.DataProvider>().As<IDataProvider>().SingleInstance();
-            builder.RegisterInstance(new SaverService()).As<ISaverService>().SingleInstance();
-            builder.RegisterInstance(new ConnectionService()).As<IConnectionService>().SingleInstance();
-            builder.RegisterType<ReporterService>().As<IReporterService>().SingleInstance();
+            builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
+            builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
+            builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
+            builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
+            builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
 
             AppSettings.Container = builder.Build();
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
+                //AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                AppSettings.Reporter.SendCrash(e.Exception);
+                //AppSettings.Reporter.SendCrash(e.Exception);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
-
             else
-                InitialViewController = new FeedViewController();
+                InitialViewController = new PreSearchViewController();
 
             var navController = new UINavigationController(InitialViewController);
             Window.RootViewController = navController;

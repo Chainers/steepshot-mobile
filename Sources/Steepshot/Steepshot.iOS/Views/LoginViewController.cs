@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core;
@@ -8,6 +7,7 @@ using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
@@ -24,85 +24,99 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            if ((float)UIScreen.MainScreen.Bounds.Height < 500)
-            {
-                topMargin.Constant = 5;
-                bottomMargin.Constant = 5;
-                photoMargin.Constant = 5;
-                photoBottomMargin.Constant = 5;
-            }
-            if ((float)UIScreen.MainScreen.Bounds.Height == 568)
-            {
-                topMargin.Constant = 15;
-                bottomMargin.Constant = 15;
-            }
-            loginButton.TouchDown += (object sender, EventArgs e) => Login();
+
+            Constants.CreateShadow(loginButton, Constants.R231G72B0, 0.5f, 25);
             avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
-            eyeButton.TouchDown += (sender, e) =>
-            {
-                password.SecureTextEntry = !password.SecureTextEntry;
-            };
+
+            var eyeButton = new UIButton(new CGRect(0, 0, 25, password.Frame.Height));
+            eyeButton.SetImage(UIImage.FromBundle("eye"), UIControlState.Normal);
+            password.RightView = eyeButton;
+            password.RightViewMode = UITextFieldViewMode.Always;
+
+            qrButton.Layer.CornerRadius = 25;
+            qrButton.Layer.BorderWidth = 1f;
+            qrButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
+
             ImageService.Instance.LoadUrl(AvatarLink, TimeSpan.FromDays(30))
                                              .Retry(2, 200)
-                                             .FadeAnimation(false, false, 0)
-                                             .DownSample(width: (int)avatar.Frame.Width)
+                                             .FadeAnimation(false, true)
+                                             .DownSample(width: 300)
                                              .Into(avatar);
 
-            loginTitle.Text = Localization.Messages.Hello + Username;
-            loginTitle.Font = Steepshot.iOS.Helpers.Constants.Bold225;
-            postingLabel.Font = Steepshot.iOS.Helpers.Constants.Bold175;
-            password.Font = Steepshot.iOS.Helpers.Constants.Bold135;
-            loginButton.Font = Steepshot.iOS.Helpers.Constants.Heavy115;
-            postingKeyButton.Font = Steepshot.iOS.Helpers.Constants.Bold15;
+            password.Font = Constants.Regular14;
+            loginButton.Font = Constants.Semibold14;
+            qrButton.Font = Constants.Semibold14;
 #if DEBUG
-            password.Text = DebugHelper.GetTestWif();
+            if (BasePresenter.Chain == KnownChains.Steem)
+                password.Text = DebugHelper.GetTestSteemWif();
+            else
+                password.Text = DebugHelper.GetTestGolosWif();
 #endif
-            password.ShouldReturn += (textField) =>
-            {
-                password.ResignFirstResponder();
-                return true;
-            };
-            password.RightView = new UIView(new CGRect(0, 0, eyeButton.Frame.Width + 10, 0));
-            password.RightViewMode = UITextFieldViewMode.Always;
-            var tw = new UILabel(new CGRect(0, 0, 120, NavigationController.NavigationBar.Frame.Height));
-            tw.TextColor = UIColor.White;
-            tw.Text = Localization.Messages.Profile;
-            tw.BackgroundColor = UIColor.Clear;
-            tw.TextAlignment = UITextAlignment.Center;
-            tw.Font = Steepshot.iOS.Helpers.Constants.Heavy165;
-            NavigationItem.TitleView = tw;
+            loginButton.TouchDown += Login;
+            eyeButton.TouchDown += EyeButtonTouch;
+            password.ShouldReturn += PasswordShouldReturn;
+            password.ShouldChangeCharacters += ShouldCharactersChange;
+            qrButton.TouchDown += QrTouch;
 
-            qrButton.Font = Steepshot.iOS.Helpers.Constants.Bold135;
-            //qrButton.ImageEdgeInsets = new UIEdgeInsets(5, 5, -5, -5);
-            qrButton.TouchDown += async (sender, e) =>
-            {
-                var scanner = new ZXing.Mobile.MobileBarcodeScanner();
-                var result = await scanner.Scan();
-
-                if (result != null)
-                    password.Text = result.Text;
-            };
-            tosButton.TouchDown += (sender, e) =>
-            {
-                UIApplication.SharedApplication.OpenUrl(new Uri(Tos));
-            };
-            ppButton.TouchDown += (sender, e) =>
-            {
-                UIApplication.SharedApplication.OpenUrl(new Uri(Pp));
-            };
+            SetBackButton();
         }
 
-        private async Task Login()
+        public override void ViewDidLayoutSubviews()
         {
-            if (!tosSwitch.On)
+            base.ViewDidLayoutSubviews();
+            Constants.CreateGradient(loginButton);
+        }
+
+        private void SetBackButton()
+        {
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+
+            NavigationItem.Title = Localization.Texts.PasswordViewTitleText;
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
+
+        private void EyeButtonTouch(object sender, EventArgs e)
+        {
+            password.SecureTextEntry = !password.SecureTextEntry;
+        }
+
+        private bool ShouldCharactersChange(UITextField textField, Foundation.NSRange range, string replacementString)
+        {
+            if (textField.Text.Length + replacementString.Length > 51 || replacementString == " ")
+                return false;
+            return true;
+        }
+
+        private async void QrTouch(object sender, EventArgs e)
+        {
+            var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+            var result = await scanner.Scan();
+
+            if (result != null)
+                password.Text = result.Text;
+        }
+
+        private bool PasswordShouldReturn(UITextField textField)
+        {
+            password.ResignFirstResponder();
+            return true;
+        }
+
+        private async void Login(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(password.Text))
             {
-                ShowAlert(Localization.Messages.AcceptToS);
+                ShowAlert(Localization.Errors.EmptyPosting);
                 return;
             }
-
             activityIndicator.StartAnimating();
             loginButton.Enabled = false;
-            tosSwitch.Enabled = false;
             var titleColor = loginButton.TitleColor(UIControlState.Disabled);
             loginButton.SetTitleColor(UIColor.Clear, UIControlState.Disabled);
             try
@@ -121,9 +135,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PopViewController(true);
                 }
                 else
-                {
                     ShowAlert(response);
-                }
             }
             catch (ArgumentNullException)
             {
@@ -136,7 +148,6 @@ namespace Steepshot.iOS.Views
             finally
             {
                 loginButton.Enabled = true;
-                tosSwitch.Enabled = true;
                 loginButton.SetTitleColor(titleColor, UIControlState.Disabled);
                 activityIndicator.StopAnimating();
             }
