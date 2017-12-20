@@ -49,13 +49,13 @@ namespace Steepshot.iOS.Views
                 if (!_presenter.IsLastReaded)
                     GetItems();
             };
-
+            /*
             _tableSource.GoToProfile += (username) =>
             {
                 var myViewController = new ProfileViewController();
                 myViewController.Username = username;
                 NavigationController.PushViewController(myViewController, true);
-            };
+            };*/
 
             GetItems();
         }

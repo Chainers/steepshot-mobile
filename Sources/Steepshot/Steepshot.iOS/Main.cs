@@ -17,7 +17,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
+                //AppSettings.Reporter.SendCrash(ex);
             }
         }
     }

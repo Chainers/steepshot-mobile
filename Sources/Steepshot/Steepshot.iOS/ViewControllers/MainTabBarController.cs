@@ -9,11 +9,11 @@ namespace Steepshot.iOS.ViewControllers
         {
             TabBar.Translucent = false;
 
-            var feedTab = new UINavigationController(new FeedViewController(true));
+            var feedTab = new UINavigationController(new FeedViewController());
             feedTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("home"), UIImage.FromBundle("home"));
             feedTab.NavigationBar.Translucent = false;
 
-            var browseTab = new UINavigationController(new FeedViewController());
+            var browseTab = new UINavigationController(new PreSearchViewController());
             browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), UIImage.FromBundle("browse"));
             browseTab.NavigationBar.Translucent = false;
 

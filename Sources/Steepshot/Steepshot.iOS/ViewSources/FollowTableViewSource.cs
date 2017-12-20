@@ -10,7 +10,7 @@ namespace Steepshot.iOS.ViewSources
     {
         string _cellIdentifier = nameof(FollowViewCell);
         public event FollowEventHandler Follow;
-        public event HeaderTappedHandler GoToProfile;
+        //public event HeaderTappedHandler GoToProfile;
 
         public FollowTableViewSource(UserFriendPresenter presenter) : base(presenter) { }
 
@@ -24,13 +24,15 @@ namespace Steepshot.iOS.ViewSources
                     Follow?.Invoke(followType, authorName, success);
                 };
             }
+            /*
             if (!cell.IsGoToProfileSet)
             {
+                
                 cell.GoToProfile += (username) =>
                 {
                     GoToProfile?.Invoke(username);
                 };
-            }
+            }*/
             var user = Presenter[indexPath.Row];
             if (user != null)
                 cell.UpdateCell(user);

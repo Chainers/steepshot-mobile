@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Foundation;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -11,19 +12,13 @@ namespace Steepshot.iOS.ViewSources
 {
     public class ProfileCollectionViewSource : UICollectionViewSource
     {
-        public readonly List<NSMutableAttributedString> FeedStrings;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
-        public event HeaderTappedHandler GoToProfile;
-        public event HeaderTappedHandler GoToComments;
-        public event HeaderTappedHandler GoToVoters;
-        public event ImagePreviewHandler ImagePreview;
         public bool IsGrid = true;
         private readonly BasePostPresenter _presenter;
 
+        public event Action<ActionType, Post> CellAction;
+
         public ProfileCollectionViewSource(BasePostPresenter presenter)
         {
-            FeedStrings = new List<NSMutableAttributedString>();
             _presenter = presenter;
         }
         
@@ -40,54 +35,15 @@ namespace Steepshot.iOS.ViewSources
             else
             {
                 cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(FeedCollectionViewCell), indexPath);
-                if (!((FeedCollectionViewCell)cell).IsVotedSet)
-                {
-                    ((FeedCollectionViewCell)cell).Voted += (vote, url, action) =>
-                    {
-                        Voted?.Invoke(vote, url, action);
-                    };
-                }
-                if (!((FeedCollectionViewCell)cell).IsFlaggedSet)
-                {
-                    ((FeedCollectionViewCell)cell).Flagged += (vote, url, action) =>
-                    {
-                        Flagged?.Invoke(vote, url, action);
-                    };
-                }
-                if (!((FeedCollectionViewCell)cell).IsGoToProfileSet)
-                {
-                    ((FeedCollectionViewCell)cell).GoToProfile += (username) =>
-                    {
-                        GoToProfile?.Invoke(username);
-                    };
-                }
-                if (!((FeedCollectionViewCell)cell).IsGoToCommentsSet)
-                {
-                    ((FeedCollectionViewCell)cell).GoToComments += (postUrl) =>
-                    {
-                        GoToComments?.Invoke(postUrl);
-                    };
-                }
-                if (!((FeedCollectionViewCell)cell).IsGoToVotersSet)
-                {
-                    ((FeedCollectionViewCell)cell).GoToVoters += (postUrl) =>
-                    {
-                        GoToVoters?.Invoke(postUrl);
-                    };
-                }
-                if (!((FeedCollectionViewCell)cell).IsImagePreviewSet)
-                {
-                    ((FeedCollectionViewCell)cell).ImagePreview += (image, url) =>
-                    {
-                        ImagePreview?.Invoke(image, url);
-                    };
-                }
+
+                if (!((FeedCollectionViewCell)cell).IsCellActionSet)
+                    ((FeedCollectionViewCell)cell).CellAction += CellAction;
             }
             try
             {
                 var post = _presenter[(int)indexPath.Item];
                 if (post != null)
-                    cell.UpdateCell(post, FeedStrings[(int)indexPath.Item]);
+                    cell.UpdateCell(post);
             }
             catch (Exception ex)
             {

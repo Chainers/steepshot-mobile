@@ -2,13 +2,13 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
+using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core;
+using Steepshot.Core.Models;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Cells
 {
@@ -17,16 +17,11 @@ namespace Steepshot.iOS.Cells
         protected CommentTableViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString(nameof(CommentTableViewCell));
         public static readonly UINib Nib;
-        private bool _isButtonBinded;
-        public event VoteEventHandler<VoteResponse> Voted;
-        public event VoteEventHandler<VoteResponse> Flaged;
-        public event HeaderTappedHandler GoToProfile;
+        public bool IsCellActionSet => CellAction != null;
+        public event Action<ActionType, Post> CellAction;
+        private bool _isInitialized;
         private Post _currentPost;
         private IScheduledWork _scheduledWorkAvatar;
-
-        public bool IsVotedSet => Voted != null;
-        public bool IsFlagedSet => Flaged != null;
-        public bool IsGoToProfileSet => GoToProfile != null;
 
         static CommentTableViewCell()
         {
@@ -35,7 +30,56 @@ namespace Steepshot.iOS.Cells
 
         public override void LayoutSubviews()
         {
-            avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
+            if (!_isInitialized)
+            {
+                avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
+
+                var tap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                });
+                var costTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                });
+                var replyTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Reply, _currentPost);
+                });
+                replyButton.AddGestureRecognizer(replyTap);
+                avatar.AddGestureRecognizer(tap);
+                costLabel.AddGestureRecognizer(costTap);
+
+                commentText.Font = Helpers.Constants.Regular14;
+                loginLabel.Font = Helpers.Constants.Semibold14;
+                likeLabel.Font = Helpers.Constants.Regular12;
+                costLabel.Font = Helpers.Constants.Regular12;
+                replyButton.Font = Helpers.Constants.Regular12;
+                timestamp.Font = Helpers.Constants.Regular12;
+
+                likeButton.TouchDown += LikeTap;
+                otherActionButton.TouchDown += MoreTap;
+                _isInitialized = true;
+                if (!BasePresenter.User.IsAuthenticated)
+                {
+                    replyButton.Hidden = true;
+                    replyHiddenConstraint.Active = true;
+                    replyVisibleConstraint.Active = false;
+                }
+            }
+            if (_currentPost.NetFlags > 0)
+            {
+                flagLabel.Hidden = false;
+                flagVisibleConstraint.Active = true;
+                flagHiddenConstraint.Active = false;
+                flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+            }
+            else
+            {
+                flagVisibleConstraint.Active = false;
+                flagHiddenConstraint.Active = true;
+                flagLabel.Hidden = true;
+            }
             base.LayoutSubviews();
         }
 
@@ -43,70 +87,34 @@ namespace Steepshot.iOS.Cells
         {
             _currentPost = post;
 
-            avatar.Image = null;
             _scheduledWorkAvatar?.Cancel();
             _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                                                             .Retry(2, 200)
-                                                                             .FadeAnimation(false, false, 0)
-                                                                             .DownSample(width: (int)avatar.Frame.Width)
-                                                                             .Into(avatar);
-            commentText.Text = _currentPost.Body.CensorText();
+                                               .LoadingPlaceholder("ic_noavatar.png")
+                                               .ErrorPlaceholder("ic_noavatar.png")
+                                               .FadeAnimation(false, false, 0)
+                                               .DownSample(200)
+                                               .Into(avatar);
+            
+            commentText.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
             costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            costLabel.Hidden = true; //!BasePresenter.User.IsNeedRewards;
+            //costLabel.Hidden = true; //!BasePresenter.User.IsNeedRewards;
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
-            flagButton.Selected = _currentPost.Flag;
-            flagButton.Enabled = true;
+            timestamp.Text = _currentPost.Created.ToPostTime();
 
-            if (!_isButtonBinded)
-            {
-                UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-                {
-                    GoToProfile(_currentPost.Author);
-                });
-                UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
-                {
-                    GoToProfile(_currentPost.Author);
-                });
-                avatar.AddGestureRecognizer(tap);
-                costLabel.AddGestureRecognizer(moneyTap);
-
-                likeButton.TouchDown += LikeTap;
-                flagButton.TouchDown += FlagTap;
-                _isButtonBinded = true;
-            }
+            likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
         }
 
         private void LikeTap(object sender, EventArgs e)
         {
-            likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost, VotedAction);
+            CellAction?.Invoke(ActionType.Like, _currentPost);
         }
 
-        private void VotedAction(Post post, VoteResponse voteResponse)
+        private void MoreTap(object sender, EventArgs e)
         {
-            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
-            {
-                likeButton.Selected = voteResponse.IsSuccess;
-                likeButton.Enabled = true;
-            }
-        }
-
-        private void FlagTap(object sender, EventArgs e)
-        {
-            flagButton.Enabled = false;
-            Flaged(!flagButton.Selected, _currentPost, FlagedAction);
-        }
-
-        private void FlagedAction(Post post, VoteResponse voteResponse)
-        {
-            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
-            {
-                flagButton.Selected = voteResponse.IsSuccess;
-                flagButton.Enabled = true;
-            }
+            CellAction?.Invoke(ActionType.More, _currentPost);
         }
     }
 }

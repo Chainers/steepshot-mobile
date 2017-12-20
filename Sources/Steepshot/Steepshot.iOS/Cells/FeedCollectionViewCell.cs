@@ -4,11 +4,11 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Extensions;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Extensions;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -29,25 +29,28 @@ namespace Steepshot.iOS.Cells
             Nib = UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle);
         }
 
+        public event Action<ActionType, Post> CellAction;
+
         private bool _isButtonBinded;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
-        public event HeaderTappedHandler GoToProfile;
-        public event HeaderTappedHandler GoToComments;
-        public event HeaderTappedHandler GoToVoters;
-        public event ImagePreviewHandler ImagePreview;
+        //public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
+        //public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
+        //public event HeaderTappedHandler GoToProfile;
+        //public event HeaderTappedHandler GoToComments;
+        //public event HeaderTappedHandler GoToVoters;
+        //public event ImagePreviewHandler ImagePreview;
         private Post _currentPost;
 
-        public bool IsVotedSet => Voted != null;
-        public bool IsFlaggedSet => Flagged != null;
-        public bool IsGoToProfileSet => GoToProfile != null;
-        public bool IsGoToCommentsSet => GoToComments != null;
-        public bool IsGoToVotersSet => GoToVoters != null;
-        public bool IsImagePreviewSet => ImagePreview != null;
+        public bool IsCellActionSet => CellAction != null;
+        ///public bool IsVotedSet => Voted != null;
+        //public bool IsFlaggedSet => Flagged != null;
+        //public bool IsGoToProfileSet => GoToProfile != null;
+        //public bool IsGoToCommentsSet => GoToComments != null;
+        //public bool IsGoToVotersSet => GoToVoters != null;
+        //public bool IsImagePreviewSet => ImagePreview != null;
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork _scheduledWorkBody;
 
-        public override void UpdateCell(Post post, NSMutableAttributedString comment)
+        public override void UpdateCell(Post post)
         {
             _currentPost = post;
             avatarImage.Image = null;
@@ -58,17 +61,53 @@ namespace Steepshot.iOS.Cells
 
             _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
                                                      .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                     .Retry(2, 200)
-                                                     .DownSample(width: 20)
+                                                     .DownSample(200)
+                                                     .LoadingPlaceholder("ic_noavatar.png")
+                                                     .ErrorPlaceholder("ic_noavatar.png")
                                                      .Into(avatarImage);
-
+            
             var photo = _currentPost.Photos?.FirstOrDefault();
             if (photo != null)
                 _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
                                                          .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .Retry(2, 200)
                                                          .DownSample((int)UIScreen.MainScreen.Bounds.Width)
                                                          .Into(bodyImage);
+
+
+            if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
+            {
+                /*_scheduledWorkAvatar = */ ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .Retry(2, 200)
+                                                         .DownSample(width: 50)
+                                                        .Into(firstLiker);
+            }
+            else
+                firstLiker.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[1]))
+            {
+                /*_scheduledWorkAvatar = */
+                ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1], TimeSpan.FromDays(30))
+                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                             .Retry(2, 200)
+                             .DownSample(width: 50)
+                            .Into(secondLiker);
+            }
+            else
+                secondLiker.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[2]))
+            {
+                /*_scheduledWorkAvatar = */
+                ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2], TimeSpan.FromDays(30))
+                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                             .Retry(2, 200)
+                             .DownSample(width: 50)
+                            .Into(thirdLiker);
+            }
+            else
+                thirdLiker.Image = UIImage.FromBundle("ic_noavatar");
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
@@ -77,7 +116,7 @@ namespace Steepshot.iOS.Cells
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
-            commentText.AttributedText = comment;
+            commentText.Text = _currentPost.Title;
             var buttonTitle = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             viewCommentButton.SetTitle(buttonTitle, UIControlState.Normal);
             likeButton.Enabled = true;
@@ -93,26 +132,45 @@ namespace Steepshot.iOS.Cells
 
             if (!_isButtonBinded)
             {
+                cellText.Font = Helpers.Constants.Semibold14;
+                postTimeStamp.Font = Helpers.Constants.Regular12;
+                netVotes.Font = Helpers.Constants.Semibold14;
+                rewards.Font = Helpers.Constants.Semibold14;
+                commentText.Font = Helpers.Constants.Regular14;
+                viewCommentButton.Font = Helpers.Constants.Regular14;
+
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
+                firstLiker.Layer.CornerRadius = firstLiker.Frame.Size.Width / 2;
+                secondLiker.Layer.CornerRadius = secondLiker.Frame.Size.Width / 2;
+                thirdLiker.Layer.CornerRadius = thirdLiker.Frame.Size.Width / 2;
+
+                viewCommentButton.TouchDown += (sender, e) => 
+                {
+                    CellAction?.Invoke(ActionType.Comments, _currentPost);
+                };
+
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
                     var photoUrl = _currentPost.Photos?.FirstOrDefault();
                     if (photoUrl != null)
-                        ImagePreview(bodyImage.Image, photoUrl);
+                        CellAction?.Invoke(ActionType.Preview, _currentPost);
                 });
                 bodyImage.AddGestureRecognizer(tap);
 
                 UITapGestureRecognizer imageTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 UITapGestureRecognizer textTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 UITapGestureRecognizer moneyTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile(_currentPost.Author);
+                    CellAction?.Invoke(ActionType.Profile, _currentPost);
+                    //GoToProfile(_currentPost.Author);
                 });
                 avatarImage.AddGestureRecognizer(imageTap);
                 cellText.AddGestureRecognizer(textTap);
@@ -120,18 +178,25 @@ namespace Steepshot.iOS.Cells
 
                 UITapGestureRecognizer commentTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToComments(_currentPost.Url);
+                    CellAction?.Invoke(ActionType.Comments, _currentPost);
+                    //GoToComments(_currentPost.Url);
                 });
                 commentView.AddGestureRecognizer(commentTap);
 
                 UITapGestureRecognizer netVotesTap = new UITapGestureRecognizer(() =>
                 {
-                    GoToVoters(_currentPost.Url);
+                    CellAction?.Invoke(ActionType.Voters, _currentPost);
+                    //GoToVoters(_currentPost.Url);
                 });
                 netVotes.AddGestureRecognizer(netVotesTap);
 
                 flagButton.TouchDown += FlagButton_TouchDown;
-                likeButton.TouchDown += LikeTap;
+                //likeButton.TouchDown += LikeTap;
+                likeButton.TouchDown += (object sender, EventArgs e) => 
+                {
+                    CellAction?.Invoke(ActionType.Like, _currentPost);
+                };
+
                 _isButtonBinded = true;
             }
         }
@@ -139,7 +204,7 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost, VotedAction);
+            //Voted(!likeButton.Selected, _currentPost, VotedAction);
         }
 
         private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)
@@ -157,7 +222,7 @@ namespace Steepshot.iOS.Cells
         private void FlagButton_TouchDown(object sender, EventArgs e)
         {
             flagButton.Enabled = false;
-            Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
+            //Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
         }
 
         private void FlaggedAction(Post post, OperationResult<VoteResponse> result)

@@ -6,13 +6,13 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -46,12 +46,12 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
-            _collectionViewSource.Voted += (vote, post, success) => Vote(vote, post, success);
+            /*_collectionViewSource.Voted += (vote, post, success) => Vote(vote, post, success);
             _collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
             _collectionViewSource.GoToComments += (postUrl) =>
             {
                 var myViewController = new CommentsViewController();
-                myViewController.PostUrl = postUrl;
+                //myViewController.PostUrl = postUrl;
                 _navController.PushViewController(myViewController, true);
             };
             _collectionViewSource.GoToVoters += (postUrl) =>
@@ -61,6 +61,17 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
+*/
+            _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) => 
+            {
+                if(arg1 == Core.Models.ActionType.Comments)
+                {
+                    var myViewController = new CommentsViewController();
+                    myViewController.Post = arg2;
+                    myViewController.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController, true);
+                }
+            };
 
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
@@ -69,12 +80,13 @@ namespace Steepshot.iOS.Views
             //collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
             collectionView.Source = _collectionViewSource;
 
-            _gridDelegate = new CollectionViewFlowDelegate((indexPath) =>
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView
+                /*(indexPath) =>
             {
                 var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
                 PreviewPhoto(collectionCell.Image, collectionCell.ImageUrl);
-            },
-            () =>
+            },*/
+            /*scrolled: () =>
             {
                 if (collectionView.IndexPathsForVisibleItems.Count() != 0)
                 {
@@ -84,7 +96,7 @@ namespace Steepshot.iOS.Views
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }, _collectionViewSource.FeedStrings, _presenter);
+            }*/,presenter: _presenter);
 
             collectionView.Delegate = _gridDelegate;
 
@@ -176,7 +188,6 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshPage()
         {
-            _collectionViewSource.FeedStrings.Clear();
             GetUserInfo();
             await GetUserPosts(true);
         }
@@ -307,25 +318,12 @@ namespace Steepshot.iOS.Views
                 ShowAlert(errors);
             else
             {
-                for (int i = _collectionViewSource.FeedStrings.Count; i < _presenter.Count; i++)
-                {
-                    var post = _presenter[i];
-                    if (post != null)
-                    {
-                        var at = new NSMutableAttributedString();
-                        at.Append(new NSAttributedString(post.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                        at.Append(new NSAttributedString($" {post.Title.CensorText()}"));
-                        _collectionViewSource.FeedStrings.Add(at);
-                    }
-                }
-
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
 
                 _isPostsLoading = false;
             }
         }
-
 
         private async Task Vote(bool vote, Post post, Action<Post, OperationResult<VoteResponse>> success)
         {
@@ -334,7 +332,6 @@ namespace Steepshot.iOS.Views
                 LoginTapped();
                 return;
             }
-
 
             if (post == null)
                 return;
