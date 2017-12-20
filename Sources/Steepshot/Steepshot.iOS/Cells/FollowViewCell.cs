@@ -20,10 +20,10 @@ namespace Steepshot.iOS.Cells
         public static readonly UINib Nib;
         private bool _isButtonBinded;
         public event FollowEventHandler Follow;
-        public event HeaderTappedHandler GoToProfile;
+        //public event HeaderTappedHandler GoToProfile;
         private UserFriend _currentUser;
         public bool IsFollowSet => Follow != null;
-        public bool IsGoToProfileSet => GoToProfile != null;
+        //public bool IsGoToProfileSet => GoToProfile != null;
         private IScheduledWork _scheduledWorkAvatar;
 
         static FollowViewCell()
@@ -63,7 +63,7 @@ namespace Steepshot.iOS.Cells
             {
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
-                    GoToProfile?.Invoke(_currentUser.Author);
+                    //GoToProfile?.Invoke(_currentUser.Author);
                 });
                 avatar.AddGestureRecognizer(tap);
             }

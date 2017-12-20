@@ -9,7 +9,7 @@ namespace Steepshot.Core.Extensions
     public static class Extensions
     {
         private static HashSet<string> _censoredWords = new HashSet<string>();
-        private static HashSet<string> CensoredWords => _censoredWords; //?? (_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords());
+        private static HashSet<string> CensoredWords => _censoredWords ?? (_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords());
         private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         public static string ToPostTime(this DateTime date)

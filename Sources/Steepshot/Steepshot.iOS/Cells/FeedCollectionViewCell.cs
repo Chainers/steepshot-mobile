@@ -32,21 +32,21 @@ namespace Steepshot.iOS.Cells
         public event Action<ActionType, Post> CellAction;
 
         private bool _isButtonBinded;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
-        public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
-        public event HeaderTappedHandler GoToProfile;
-        public event HeaderTappedHandler GoToComments;
-        public event HeaderTappedHandler GoToVoters;
-        public event ImagePreviewHandler ImagePreview;
+        //public event VoteEventHandler<OperationResult<VoteResponse>> Voted;
+        //public event VoteEventHandler<OperationResult<VoteResponse>> Flagged;
+        //public event HeaderTappedHandler GoToProfile;
+        //public event HeaderTappedHandler GoToComments;
+        //public event HeaderTappedHandler GoToVoters;
+        //public event ImagePreviewHandler ImagePreview;
         private Post _currentPost;
 
         public bool IsCellActionSet => CellAction != null;
-        public bool IsVotedSet => Voted != null;
-        public bool IsFlaggedSet => Flagged != null;
-        public bool IsGoToProfileSet => GoToProfile != null;
-        public bool IsGoToCommentsSet => GoToComments != null;
-        public bool IsGoToVotersSet => GoToVoters != null;
-        public bool IsImagePreviewSet => ImagePreview != null;
+        ///public bool IsVotedSet => Voted != null;
+        //public bool IsFlaggedSet => Flagged != null;
+        //public bool IsGoToProfileSet => GoToProfile != null;
+        //public bool IsGoToCommentsSet => GoToComments != null;
+        //public bool IsGoToVotersSet => GoToVoters != null;
+        //public bool IsImagePreviewSet => ImagePreview != null;
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork _scheduledWorkBody;
 
@@ -204,7 +204,7 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             likeButton.Enabled = false;
-            Voted(!likeButton.Selected, _currentPost, VotedAction);
+            //Voted(!likeButton.Selected, _currentPost, VotedAction);
         }
 
         private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)
@@ -222,7 +222,7 @@ namespace Steepshot.iOS.Cells
         private void FlagButton_TouchDown(object sender, EventArgs e)
         {
             flagButton.Enabled = false;
-            Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
+            //Flagged?.Invoke(!flagButton.Selected, _currentPost, FlaggedAction);
         }
 
         private void FlaggedAction(Post post, OperationResult<VoteResponse> result)
