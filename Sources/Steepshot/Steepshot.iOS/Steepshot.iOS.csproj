@@ -345,6 +345,7 @@
     </Compile>
     <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
     <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
+    <Compile Include="Cells\LoaderCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

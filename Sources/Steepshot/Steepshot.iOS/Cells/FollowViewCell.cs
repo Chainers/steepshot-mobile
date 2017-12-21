@@ -70,12 +70,17 @@ namespace Steepshot.iOS.Cells
         {
             _currentUser = user;
             _scheduledWorkAvatar?.Cancel();
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
-                                               .FadeAnimation(false, false, 0)
-                                               .LoadingPlaceholder("ic_noavatar.png")
-                                               .ErrorPlaceholder("ic_noavatar.png")
-                                               .DownSample(200)
-                                               .Into(avatar);
+            if (!string.IsNullOrEmpty(_currentUser.Avatar))
+            {
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
+                                                   .FadeAnimation(false, false, 0)
+                                                   .LoadingPlaceholder("ic_noavatar.png")
+                                                   .ErrorPlaceholder("ic_noavatar.png")
+                                                   .DownSample(200)
+                                                   .Into(avatar);
+            }
+            else
+                avatar.Image = UIImage.FromBundle("ic_noavatar");
 
             userName.Text = _currentUser.Author;
             name.Text = _currentUser.Name;
@@ -97,7 +102,6 @@ namespace Steepshot.iOS.Cells
                 followButton.Enabled = false;
                 followButton.Layer.BorderWidth = 0;
                 Constants.CreateGradient(followButton, _cornerRadius);
-                Constants.CreateShadow(followButton, Constants.R231G72B0, 0.5f, _cornerRadius, 5, 5);
                 progressBar.StartAnimating();
             }
             else
@@ -109,13 +113,11 @@ namespace Steepshot.iOS.Cells
                 {
                     Constants.RemoveGradient(followButton);
                     followButton.Layer.BorderWidth = 1;
-                    Constants.CreateShadow(followButton, Constants.R204G204B204, 0.8f, _cornerRadius, 7, 7);
                 }
                 else
                 {
                     followButton.Layer.BorderWidth = 0;
                     Constants.CreateGradient(followButton, _cornerRadius);
-                    Constants.CreateShadow(followButton, Constants.R231G72B0, 0.5f, _cornerRadius, 5, 5);
                 }
             }
         }

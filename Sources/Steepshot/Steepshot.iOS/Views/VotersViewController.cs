@@ -40,11 +40,13 @@ namespace Steepshot.iOS.Views
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
             votersTable.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
+            votersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
             tableSource.ScrolledToBottom += GetItems;
             tableSource.CellAction += CellAction;
 
             SetBackButton();
+            progressBar.StartAnimating();
             GetItems();
         }
 
@@ -98,7 +100,6 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            progressBar.StartAnimating();
             var errors = await _presenter.TryLoadNextPostVoters(_post.Url);
             ShowAlert(errors);
             progressBar.StopAnimating();

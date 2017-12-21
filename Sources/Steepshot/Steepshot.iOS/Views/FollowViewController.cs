@@ -40,11 +40,13 @@ namespace Steepshot.iOS.Views
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
+            followTableView.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
             tableSource.ScrolledToBottom += GetItems;
             tableSource.CellAction += CellAction;
 
             SetBackButton();
+            progressBar.StartAnimating();
             GetItems();
         }
 
@@ -98,10 +100,6 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            if (progressBar.IsAnimating)
-                return;
-
-            progressBar.StartAnimating();
             var errors = await _presenter.TryLoadNextUserFriends(_user.Username);
             ShowAlert(errors);
             progressBar.StopAnimating();
