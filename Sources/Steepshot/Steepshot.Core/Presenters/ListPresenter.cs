@@ -14,7 +14,7 @@ namespace Steepshot.Core.Presenters
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
 
-        protected const int ServerMaxCount = 20;
+        protected const int ServerMaxCount = 40;
         protected readonly List<T> Items;
         protected string OffsetUrl = string.Empty;
 

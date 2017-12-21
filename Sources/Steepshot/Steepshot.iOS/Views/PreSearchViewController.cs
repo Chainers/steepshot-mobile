@@ -81,12 +81,6 @@ namespace Steepshot.iOS.Views
                 TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
                 TabBarController.NavigationController.NavigationBar.BarTintColor = Helpers.Constants.NavBlue;
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-                TabBarController.TabBar.TintColor = Helpers.Constants.NavBlue;
-
-                foreach (var controler in TabBarController.ViewControllers)
-                {
-                    controler.TabBarItem.ImageInsets = new UIEdgeInsets(5, 0, -5, 0);
-                }
             }
 
             _collectionViewSource.CellAction += CellAction;

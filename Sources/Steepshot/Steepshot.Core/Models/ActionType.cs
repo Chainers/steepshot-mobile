@@ -8,6 +8,7 @@
         Comments,
         Voters,
         Preview,
-        Reply
+        Reply,
+        Follow,
     }
 }

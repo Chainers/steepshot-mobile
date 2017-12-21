@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CoreAnimation;
 using CoreGraphics;
 using UIKit;
@@ -45,23 +46,38 @@ namespace Steepshot.iOS.Helpers
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);
 
-        public static void CreateGradient (UIView view)
+        public static void CreateGradient (UIView view, nfloat cornerRadius)
         {
             var gradient = new CAGradientLayer();
             gradient.Frame = view.Bounds;
             gradient.StartPoint = StartGradientPoint;
             gradient.EndPoint = EndGradientPoint;
             gradient.Colors = OrangeGradient;
-            gradient.CornerRadius = 25;
+            gradient.CornerRadius = cornerRadius;
             view.Layer.InsertSublayer(gradient, 0);
         }
 
-        public static void CreateShadow(UIButton view, UIColor color, float opacity, float cornerRadius)
+        public static void RemoveGradient(UIView view)
+        {
+            if (view.Layer.Sublayers != null)
+            {
+                var newLayers = new List<CALayer>();
+                foreach (var item in view.Layer.Sublayers)
+                {
+                    if (item is CAGradientLayer)
+                        continue;
+                    newLayers.Add(item);
+                }
+                view.Layer.Sublayers = newLayers.ToArray();
+            }
+        }
+
+        public static void CreateShadow(UIButton view, UIColor color, float opacity, nfloat cornerRadius, nfloat shadowHeight, nfloat shadowRadius)
         {
             view.Layer.CornerRadius = cornerRadius;
             view.Layer.MasksToBounds = false;
-            view.Layer.ShadowOffset = new CGSize(0f, 10.0f);
-            view.Layer.ShadowRadius = 12f;
+            view.Layer.ShadowOffset = new CGSize(0f, shadowHeight);
+            view.Layer.ShadowRadius = shadowRadius;
             view.Layer.ShadowOpacity = opacity;
             view.Layer.ShadowColor = color.CGColor;
         }
