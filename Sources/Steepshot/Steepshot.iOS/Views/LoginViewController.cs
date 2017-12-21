@@ -25,7 +25,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            Constants.CreateShadow(loginButton, Constants.R231G72B0, 0.5f, 25);
+            Constants.CreateShadow(loginButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
             avatar.Layer.CornerRadius = avatar.Frame.Height / 2;
 
             var eyeButton = new UIButton(new CGRect(0, 0, 25, password.Frame.Height));
@@ -64,7 +64,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLayoutSubviews()
         {
             base.ViewDidLayoutSubviews();
-            Constants.CreateGradient(loginButton);
+            Constants.CreateGradient(loginButton, 25);
         }
 
         private void SetBackButton()

@@ -1,27 +1,30 @@
 ﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
+using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.iOS.Views
 {
     public partial class FollowViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
         private readonly FriendsType _friendsType;
-        private readonly string _username;
+        private readonly VotersType _votersType;
+        private readonly UserProfileResponse _user;
         private FollowTableViewSource _tableSource;
 
-
-        public FollowViewController(FriendsType friendsType, string username)
+        public FollowViewController(FriendsType friendsType, UserProfileResponse user)
         {
             _friendsType = friendsType;
-            _username = username;
+            _user = user;
         }
 
         protected override void CreatePresenter()
@@ -33,75 +36,86 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            _tableSource = new FollowTableViewSource(_presenter);
+            _presenter.SourceChanged += SourceChanged;
+            _tableSource = new FollowTableViewSource(_presenter, followTableView);
             followTableView.Source = _tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
 
-            _tableSource.Follow += (vote, url, action) =>
-            {
-                Follow(vote, url, action);
-            };
+            _tableSource.ScrolledToBottom += GetItems;
+            _tableSource.CellAction += CellAction;
 
-            _tableSource.ScrolledToBottom += () =>
-            {
-                if (!_presenter.IsLastReaded)
-                    GetItems();
-            };
-            /*
-            _tableSource.GoToProfile += (username) =>
-            {
-                var myViewController = new ProfileViewController();
-                myViewController.Username = username;
-                NavigationController.PushViewController(myViewController, true);
-            };*/
-
+            SetBackButton();
             GetItems();
         }
 
-        public override void ViewWillAppear(bool animated)
+        private void SetBackButton()
         {
-            NavigationController.SetNavigationBarHidden(false, true);
-            base.ViewWillAppear(animated);
+            var count = _friendsType == FriendsType.Followers ? _user.FollowersCount : _user.FollowingCount;
+            var peopleLabel = new UILabel()
+            {
+                Text = $"{count:N0} {Localization.Texts.PeopleText}",
+                Font = Helpers.Constants.Regular14,
+                TextColor = Helpers.Constants.R15G24B30,
+            };
+            peopleLabel.SizeToFit();
+
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            var rightBarButton = new UIBarButtonItem(peopleLabel);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationItem.RightBarButtonItem = rightBarButton;
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationItem.Title = _presenter.FollowType.GetDescription();
         }
 
-        public override void ViewWillDisappear(bool animated)
+        private void GoBack(object sender, EventArgs e)
         {
-            if (_username == BasePresenter.User.Login)
-                NavigationController.SetNavigationBarHidden(true, true);
-            base.ViewWillDisappear(animated);
+            NavigationController.PopViewController(true);
         }
 
-        public async Task GetItems()
+        private void CellAction(ActionType type, UserFriend user)
+        {
+            switch (type)
+            {
+                case ActionType.Profile:
+                    if (user.Author == BasePresenter.User.Login)
+                        return;
+                    var myViewController = new ProfileViewController();
+                    myViewController.Username = user.Author;
+                    NavigationController.PushViewController(myViewController, true);
+                    break;
+                case ActionType.Follow:
+                    Follow(user);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SourceChanged(Status status)
+        {
+            followTableView.ReloadData();
+        }
+
+        public async void GetItems()
         {
             if (progressBar.IsAnimating)
                 return;
 
             progressBar.StartAnimating();
-            await _presenter.TryLoadNextUserFriends(_username).ContinueWith((error) =>
-            {
-                ShowAlert(error.Result);
-                InvokeOnMainThread(() =>
-                {
-                    followTableView.ReloadData();
-                    progressBar.StopAnimating();
-                });
-            });
+            var errors = await _presenter.TryLoadNextUserFriends(_user.Username);
+            ShowAlert(errors);
+            progressBar.StopAnimating();
         }
 
-
-        private async Task Follow(FollowType followType, string author, Action<string, bool?> callback)
+        private async void Follow(UserFriend user)
         {
-            var success = false;
-            var user = _presenter.FirstOrDefault(fgh => fgh.Author == author);
             if (user != null)
             {
-                var error = await _presenter.TryFollow(user);
-                ShowAlert(error);
-                success = error == null;
+                var errors = await _presenter.TryFollow(user);
+                ShowAlert(errors);
             }
-            callback(author, success);
         }
     }
 }

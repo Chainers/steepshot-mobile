@@ -166,13 +166,13 @@ namespace Steepshot.iOS.Views
 
             _profileHeader.FollowingButton.TouchDown += (sender, e) =>
             {
-                var myViewController = new FollowViewController(FriendsType.Following, Username);
+                var myViewController = new FollowViewController(FriendsType.Following, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
 
             _profileHeader.FollowersButton.TouchDown += (sender, e) =>
             {
-                var myViewController = new FollowViewController(FriendsType.Followers, Username);
+                var myViewController = new FollowViewController(FriendsType.Followers, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
         }
@@ -185,6 +185,12 @@ namespace Steepshot.iOS.Views
                 RefreshPage();
                 ShouldProfileUpdate = false;
             }
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(false, false);
+            base.ViewWillDisappear(animated);
         }
 
         private async Task RefreshPage()

@@ -11,7 +11,7 @@ namespace Steepshot.iOS.ViewSources
         private const string CellIdentifier = nameof(UsersSearchViewCell);
         public event RowSelectedHandler RowSelectedEvent;
 
-        public VotersTableViewSource(UserFriendPresenter presenter) : base(presenter) { }
+        public VotersTableViewSource(UserFriendPresenter presenter, UITableView table) : base(presenter, table) { }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {

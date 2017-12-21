@@ -1,4 +1,6 @@
-﻿using Foundation;
+﻿using System;
+using Foundation;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
@@ -9,30 +11,16 @@ namespace Steepshot.iOS.ViewSources
     public class FollowTableViewSource : BaseUiTableViewSource<UserFriend>
     {
         string _cellIdentifier = nameof(FollowViewCell);
-        public event FollowEventHandler Follow;
-        //public event HeaderTappedHandler GoToProfile;
+        public Action<ActionType, UserFriend> CellAction;
 
-        public FollowTableViewSource(UserFriendPresenter presenter) : base(presenter) { }
+        public FollowTableViewSource(UserFriendPresenter presenter, UITableView table) : base(presenter, table) { }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var cell = (FollowViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
-            if (!cell.IsFollowSet)
-            {
-                cell.Follow += (followType, authorName, success) =>
-                {
-                    Follow?.Invoke(followType, authorName, success);
-                };
-            }
-            /*
-            if (!cell.IsGoToProfileSet)
-            {
-                
-                cell.GoToProfile += (username) =>
-                {
-                    GoToProfile?.Invoke(username);
-                };
-            }*/
+            if (!cell.IsCellActionSet)
+                cell.CellAction += CellAction;
+
             var user = Presenter[indexPath.Row];
             if (user != null)
                 cell.UpdateCell(user);
