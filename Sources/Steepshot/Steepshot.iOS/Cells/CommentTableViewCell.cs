@@ -2,9 +2,11 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -48,7 +50,7 @@ namespace Steepshot.iOS.Cells
                                                                              .FadeAnimation(false, false, 0)
                                                                              .DownSample(width: (int)avatar.Frame.Width)
                                                                              .Into(avatar);
-            commentText.Text = _currentPost.Body;
+            commentText.Text = _currentPost.Body.CensorText();
             loginLabel.Text = _currentPost.Author;
             likeLabel.Text = _currentPost.NetVotes.ToString();
             costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);

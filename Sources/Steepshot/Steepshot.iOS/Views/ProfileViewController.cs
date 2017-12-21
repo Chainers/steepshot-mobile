@@ -6,6 +6,7 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -313,7 +314,7 @@ namespace Steepshot.iOS.Views
                     {
                         var at = new NSMutableAttributedString();
                         at.Append(new NSAttributedString(post.Author, Steepshot.iOS.Helpers.Constants.NicknameAttribute));
-                        at.Append(new NSAttributedString($" {post.Title}"));
+                        at.Append(new NSAttributedString($" {post.Title.CensorText()}"));
                         _collectionViewSource.FeedStrings.Add(at);
                     }
                 }

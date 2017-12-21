@@ -4,11 +4,14 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
+using Android.Text.Method;
 using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
+using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -25,6 +28,7 @@ namespace Steepshot.Adapter
         public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction;
         public Action RootClickAction;
         public Action<Post, VotersType> VotersClick;
+        public Action<string> TagAction;
 
         public override int ItemCount => _presenter.Count + 1;
 
@@ -40,16 +44,112 @@ namespace Steepshot.Adapter
             var post = position == 0 ? _post : _presenter[position - 1];
             if (post == null)
                 return;
+            if (position == 0)
+                (holder as PostDescriptionViewHolder)?.UpdateData(post, _context);
+            else
+                (holder as CommentViewHolder)?.UpdateData(post, _context);
+        }
 
-            var vh = (CommentViewHolder)holder;
-            vh.UpdateData(post, _context);
+        public override int GetItemViewType(int position)
+        {
+            return position == 0 ? (int)ViewType.Post : (int)ViewType.Comment;
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_comment_item, parent, false);
-            var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction, HideAction, ReplyAction, RootClickAction);
-            return vh;
+            switch ((ViewType)viewType)
+            {
+                case ViewType.Post:
+                    {
+                        var itemView = LayoutInflater.From(parent.Context)
+                            .Inflate(Resource.Layout.lyt_description_item, parent, false);
+                        var vh = new PostDescriptionViewHolder(itemView, UserAction, TagAction);
+                        return vh;
+                    }
+                default:
+                    {
+                        var itemView = LayoutInflater.From(parent.Context)
+                            .Inflate(Resource.Layout.lyt_comment_item, parent, false);
+                        var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction,
+                            HideAction, ReplyAction, RootClickAction);
+                        return vh;
+                    }
+            }
+        }
+    }
+
+    public class PostDescriptionViewHolder : RecyclerView.ViewHolder
+    {
+        private readonly Action<string> _tagAction;
+        private readonly Action<Post> _userAction;
+        private readonly PostCustomTextView _title;
+        private readonly ImageView _avatar;
+        private readonly TextView _time;
+        private readonly TextView _author;
+
+        private Post _post;
+        private Context _context;
+        private const string _tagFormat = " #{0}";
+        private const string tagToExclude = "steepshot";
+        private const int _maxLines = 5;
+        public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<string> tagAction) : base(itemView)
+        {
+            _context = itemView.Context;
+            _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
+            _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
+            _time = itemView.FindViewById<TextView>(Resource.Id.time);
+            _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
+
+            _author.Typeface = Style.Semibold;
+            _time.Typeface = Style.Regular;
+            _title.Typeface = Style.Regular;
+
+            _userAction = userAction;
+            _tagAction = tagAction;
+
+            _avatar.Click += AvatarOnClick;
+            _title.MovementMethod = new LinkMovementMethod();
+            _title.SetHighlightColor(Color.Transparent);
+            _title.Click += TitleOnClick;
+            _title.TagAction = tagAction;
+            if (_title.OnMeasureInvoked == null)
+            {
+                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
+            }
+        }
+
+        private void AvatarOnClick(object sender, EventArgs eventArgs)
+        {
+            _userAction?.Invoke(_post);
+        }
+
+        private void TitleOnClick(object sender, EventArgs eventArgs)
+        {
+            _post.IsExpanded = true;
+            _tagAction?.Invoke(null);
+        }
+
+        private void OnTitleOnMeasureInvoked()
+        {
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+        }
+
+        public void UpdateData(Post post, Context context)
+        {
+            _post = post;
+            if (!string.IsNullOrEmpty(_post.Avatar))
+                Picasso.With(context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).Resize(300, 0).Priority(Picasso.Priority.Low).Into(_avatar, null, OnPicassoError);
+            else
+                Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
+
+            _author.Text = post.Author;
+            _time.Text = post.Created.ToPostTime();
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+        }
+
+        private void OnPicassoError()
+        {
+            Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
     }
 
@@ -231,7 +331,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _author.Text = post.Author;
-            _comment.Text = post.Body;
+            _comment.Text = post.Body.CensorText();
 
             if (_post.Author == BasePresenter.User.Login)
                 _more.Visibility = ViewStates.Gone;

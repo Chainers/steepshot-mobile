@@ -99,6 +99,7 @@ namespace Steepshot.Fragment
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
             _adapter.RootClickAction += HideKeyboard;
+            _adapter.TagAction += TagAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
@@ -140,6 +141,17 @@ namespace Steepshot.Fragment
         private void OnRootClick(object sender, EventArgs e)
         {
             HideKeyboard();
+        }
+
+        private void TagAction(string tag)
+        {
+            if (tag != null)
+            {
+                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+            }
+            else
+                _adapter.NotifyDataSetChanged();
         }
 
         private async void OnPost(object sender, EventArgs e)

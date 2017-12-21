@@ -127,7 +127,7 @@
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
     <Compile Include="Utils\CustomClickableSpan.cs" />
-    <Compile Include="Utils\CustomTextView.cs" />
+    <Compile Include="Utils\PostCustomTextView.cs" />
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
   </ItemGroup>
@@ -203,6 +203,15 @@
     <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_grid_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_description_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -227,9 +236,13 @@
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_comment_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_feed.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
@@ -314,14 +327,14 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core, Version=3.0.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.0.5\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    <Reference Include="Ditch.Core, Version=3.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.0.6\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.0.8\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=3.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.0.9\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=3.0.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.0.8\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=3.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.3.0.9\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
@@ -550,6 +563,16 @@
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\transparent_rounded_border.xml" />
     <AndroidAsset Include="Assets\CensoredWords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

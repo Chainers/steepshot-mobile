@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 using Ditch.Core.Helpers;
 using Ditch.Golos;
 using Ditch.Golos.Helpers;
-using Ditch.Golos.Operations.Get;
-using Ditch.Golos.Operations.Post;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Golos.Operations.Enums.FollowType;
-using DitchBeneficiary = Ditch.Golos.Operations.Post.Beneficiary;
+using DitchFollowType = Ditch.Golos.Enums.FollowType;
+using DitchBeneficiary = Ditch.Golos.Operations.Beneficiary;
 using Ditch.Core;
+using Ditch.Golos.Operations;
+using Ditch.Golos.Objects;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -96,7 +96,7 @@ namespace Steepshot.Core.HttpClient
                     var content = _operationManager.GetContent(author, permlink, ct);
                     if (!content.IsError)
                     {
-                        //Convert Money type to double
+                        //Convert Asset type to double
                         result.Result = new VoteResponse(true)
                         {
                             NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue,
@@ -181,16 +181,32 @@ namespace Steepshot.Core.HttpClient
                 if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
                     return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
 
-                var op = new ReplyOperation(author, permlink, request.Login, request.Body,
-                    $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var replyOperation = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+                BaseOperation[] ops;
+                if (request.Beneficiaries != null && request.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
+                {
+                    var beneficiaries = request.Beneficiaries
+                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
+                        .ToArray();
+                    ops = new BaseOperation[]
+                    {
+                        replyOperation,
+                        new BeneficiariesOperation(request.Login, replyOperation.Permlink, _operationManager.SbdSymbol, beneficiaries)
+                    };
+                }
+                else
+                {
+                    ops = new BaseOperation[] { replyOperation };
+                }
+
+                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
 
                 var result = new OperationResult<CommentResponse>();
                 if (!resp.IsError)
                 {
                     result.Result = new CommentResponse(true);
-                    result.Result.Permlink = op.Permlink;
+                    result.Result.Permlink = replyOperation.Permlink;
                 }
                 else
                     OnError(resp, result);
@@ -216,8 +232,7 @@ namespace Steepshot.Core.HttpClient
                 if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
                     return new OperationResult<CommentResponse>(Localization.Errors.IncorrectIdentifier);
 
-                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty,
-                    request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
                 // var op = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
 
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
@@ -247,7 +262,7 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<ImageUploadResponse>(Localization.Errors.WrongPrivateKey);
 
-                Transliteration.PrepareTags(request.Tags);
+                OperationHelper.PrepareTags(request.Tags);
 
                 var meta = uploadResponse.Meta.ToString();
                 if (!string.IsNullOrWhiteSpace(meta))

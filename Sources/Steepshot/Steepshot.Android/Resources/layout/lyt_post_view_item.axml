@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/white"
     android:layout_height="wrap_content">
     <RelativeLayout
@@ -23,7 +22,6 @@
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/text_container"
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -70,6 +68,7 @@
     </RelativeLayout>
     <ScrollView
         android:scrollbars="none"
+        android:layout_below="@id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <RelativeLayout
@@ -85,6 +84,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="250dp" />
             </RelativeLayout>
+            <include
+                layout="@layout/lyt_nsfw_mask"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
             <RelativeLayout
                 android:id="@+id/subtitle"
                 android:layout_below="@id/photo_container"
@@ -106,21 +109,28 @@
                     android:textSize="14sp"
                     android:textColor="@color/rgb15_24_30"
                     android:gravity="center"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:layout_toRightOf="@id/top_likers" />
                 <TextView
                     android:id="@+id/flags"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_centerVertical="true"
-                    android:text="789 flags"
+                    android:text="789"
                     android:textSize="14sp"
                     android:textColor="@color/rgb15_24_30"
                     android:gravity="center"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:layout_toRightOf="@id/likes" />
+                <ImageView
+                    android:id="@+id/flagIcon"
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_flag_active"
+                    android:layout_toRightOf="@id/flags" />
                 <ImageButton
                     android:id="@+id/btn_like"
                     android:background="@android:color/transparent"
@@ -149,19 +159,20 @@
                     android:text="$ 234.15" />
             </RelativeLayout>
             <View
+                android:id="@+id/comments_separator"
                 android:layout_below="@id/subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="2px"
                 android:background="@color/rgb244_244_246" />
             <LinearLayout
                 android:id="@+id/comment_footer"
-                android:layout_below="@id/subtitle"
+                android:layout_below="@id/comments_separator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingRight="15dp"
                 android:minHeight="70dp">
-                <Steepshot.Utils.CustomTextView
+                <Steepshot.Utils.PostCustomTextView
                     android:id="@+id/first_comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -185,9 +196,10 @@
                     android:textColor="@color/rgb151_155_158" />
             </LinearLayout>
             <View
+                android:layout_below="@id/comment_footer"
                 android:layout_width="match_parent"
                 android:layout_height="2px"
                 android:background="@color/rgb244_244_246" />
         </RelativeLayout>
     </ScrollView>
-</LinearLayout>
+</RelativeLayout>

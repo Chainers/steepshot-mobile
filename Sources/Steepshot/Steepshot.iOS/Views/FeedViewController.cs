@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -248,7 +250,7 @@ namespace Steepshot.iOS.Views
                 {
                     var at = new NSMutableAttributedString();
                     at.Append(new NSAttributedString(post.Author, Helpers.Constants.NicknameAttribute));
-                    at.Append(new NSAttributedString($" {post.Title}"));
+                    at.Append(new NSAttributedString($" {post.Title.CensorText()}"));
                     _collectionViewSource.FeedStrings.Add(at);
                 }
             }

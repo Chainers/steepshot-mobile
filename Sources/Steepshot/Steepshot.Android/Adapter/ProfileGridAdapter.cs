@@ -57,8 +57,7 @@ namespace Steepshot.Adapter
                     var loaderVh = new LoaderViewHolder(loaderView);
                     return loaderVh;
                 default:
-                    var view = new ImageView(Context);
-                    view.SetScaleType(ImageView.ScaleType.CenterCrop);
+                    var view = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_grid_item, parent, false);
                     view.LayoutParameters = new ViewGroup.LayoutParams(CellSize, CellSize);
                     return new ImageViewHolder(view, Click);
             }
