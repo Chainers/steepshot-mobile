@@ -102,13 +102,14 @@
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30"
             android:gravity="center"
+            android:layout_marginLeft="2dp"
             android:paddingLeft="5dp"
-            android:paddingRight="5dp"
             android:layout_toRightOf="@id/likes" />
         <ImageView
             android:id="@+id/flagIcon"
-            android:layout_width="11dp"
-            android:layout_height="11dp"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginLeft="2dp"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_flag_active"
             android:layout_toRightOf="@id/flags" />

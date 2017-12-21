@@ -103,6 +103,7 @@ namespace Steepshot.Fragment
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
+            _comments.Visibility = ViewStates.Visible;
             if (!BasePresenter.User.IsAuthenticated)
                 _messagePanel.Visibility = ViewStates.Gone;
 
@@ -121,7 +122,6 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
-                _comments.Visibility = ViewStates.Visible;
                 _adapter.NotifyDataSetChanged();
             });
         }

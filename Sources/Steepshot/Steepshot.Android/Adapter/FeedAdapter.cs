@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Text.Method;
 using Android.Views;
@@ -387,7 +388,7 @@ namespace Steepshot.Adapter
             var topLikersMargin = (int)BitmapUtils.DpToPixel(6, _context.Resources);
             for (int i = 0; i < _post.TopLikersAvatars.Length; i++)
             {
-                var topLikersAvatar = new CircleImageView(_context) { BorderColor = Color.White, BorderWidth = 3 };
+                var topLikersAvatar = new CircleImageView(_context) { BorderColor = Color.White, BorderWidth = 3, Background = new ColorDrawable(Color.White) };
                 var layoutParams = new LinearLayout.LayoutParams(topLikersSize, topLikersSize);
                 if (i != 0)
                     layoutParams.LeftMargin = -topLikersMargin;
