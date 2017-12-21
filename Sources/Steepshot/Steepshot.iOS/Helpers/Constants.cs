@@ -61,15 +61,14 @@ namespace Steepshot.iOS.Helpers
         {
             if (view.Layer.Sublayers != null)
             {
-               var g = new List<CALayer>();
-
+                var newLayers = new List<CALayer>();
                 foreach (var item in view.Layer.Sublayers)
                 {
                     if (item is CAGradientLayer)
                         continue;
-                    g.Add(item);
+                    newLayers.Add(item);
                 }
-                view.Layer.Sublayers = g.ToArray();
+                view.Layer.Sublayers = newLayers.ToArray();
             }
         }
 
