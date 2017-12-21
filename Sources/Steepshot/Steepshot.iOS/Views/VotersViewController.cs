@@ -20,7 +20,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
-            var tableSource = new VotersTableViewSource(_presenter);
+            var tableSource = new VotersTableViewSource(_presenter, votersTable);
             votersTable.Source = tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;

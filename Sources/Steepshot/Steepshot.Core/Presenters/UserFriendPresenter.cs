@@ -26,7 +26,6 @@ namespace Steepshot.Core.Presenters
                 return Items.FindAll(match);
         }
 
-
         public async Task<List<string>> TryLoadNextPostVoters(string url)
         {
             if (IsLastReaded)

@@ -21,8 +21,8 @@ namespace Steepshot.iOS.Views
             steemLogin.Layer.CornerRadius = newAccount.Layer.CornerRadius = 25;
             steemLogin.TitleLabel.Font = newAccount.TitleLabel.Font = Constants.Semibold14;
             devSwitch.On = AppSettings.IsDev;
-            Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25);
-            Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25);
+            Constants.CreateShadow(steemLogin, Constants.R231G72B0, 0.5f, 25, 10, 12);
+            Constants.CreateShadow(newAccount, Constants.R204G204B204, 0.7f, 25, 10, 12);
 
             var devTap = new UITapGestureRecognizer(ToggleDevSwitchVisibility);
             devTap.NumberOfTapsRequired = 5;
@@ -39,13 +39,13 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLayoutSubviews()
         {
             base.ViewDidLayoutSubviews();
-            Constants.CreateGradient(steemLogin);
+            Constants.CreateGradient(steemLogin, 25);
         }
 
         private void SetBackButton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-            NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
         }
 

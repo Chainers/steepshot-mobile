@@ -2,7 +2,7 @@
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Steepshot.Core;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -18,13 +18,12 @@ namespace Steepshot.iOS.Cells
         protected FollowViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString(nameof(FollowViewCell));
         public static readonly UINib Nib;
-        private bool _isButtonBinded;
-        public event FollowEventHandler Follow;
-        //public event HeaderTappedHandler GoToProfile;
+        public bool IsCellActionSet => CellAction != null;
+        public Action<ActionType, UserFriend> CellAction;
+        private bool _isInitialized;
         private UserFriend _currentUser;
-        public bool IsFollowSet => Follow != null;
-        //public bool IsGoToProfileSet => GoToProfile != null;
         private IScheduledWork _scheduledWorkAvatar;
+        private nfloat _cornerRadius = 20;
 
         static FollowViewCell()
         {
@@ -33,61 +32,97 @@ namespace Steepshot.iOS.Cells
 
         public override void LayoutSubviews()
         {
-            avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
-            followButton.Layer.CornerRadius = 5;
-            followButton.Layer.BorderWidth = 2;
-            followButton.Layer.BorderColor = Constants.Blue.CGColor;
-            followButton.ContentEdgeInsets = new UIEdgeInsets(10, 10, 10, 10);
-            followButton.Hidden = !BasePresenter.User.IsAuthenticated || _currentUser.Author == BasePresenter.User.Login;
+            if (!_isInitialized)
+            {
+                avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
+                followButton.Layer.CornerRadius = _cornerRadius;
+                followButton.Layer.BorderColor = Constants.R244G244B246.CGColor;
+
+                var tap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Profile, _currentUser);
+                });
+                profileTapZone.AddGestureRecognizer(tap);
+                followButton.TouchDown += FollowTap;
+
+                followButton.Font = Constants.Semibold14;
+                userName.Font = Constants.Semibold14;
+                name.Font = Constants.Regular12;
+
+                _isInitialized = true;
+            }
+            if(string.IsNullOrEmpty(_currentUser.Name))
+            {
+                nameHiddenConstraint.Active = true;
+                nameVisibleConstraint.Active = false;
+            }
+            else
+            {
+                nameHiddenConstraint.Active = false;
+                nameVisibleConstraint.Active = true;
+            }
+            DecorateFollowButton();
+
             base.LayoutSubviews();
         }
 
         public void UpdateCell(UserFriend user)
         {
             _currentUser = user;
-            avatar.Image = null;
             _scheduledWorkAvatar?.Cancel();
             _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentUser.Avatar, TimeSpan.FromDays(30))
-                                                                                         .Retry(2, 200)
-                                                                                         .FadeAnimation(false, false, 0)
-                                                                                         .DownSample(width: (int)avatar.Frame.Width)
-                                                                                         .Into(avatar);
+                                               .FadeAnimation(false, false, 0)
+                                               .LoadingPlaceholder("ic_noavatar.png")
+                                               .ErrorPlaceholder("ic_noavatar.png")
+                                               .DownSample(200)
+                                               .Into(avatar);
 
             userName.Text = _currentUser.Author;
-            followButton.SetTitle(_currentUser.HasFollowed ? Localization.Messages.Unfollow : Localization.Messages.Follow, UIControlState.Normal);
+            name.Text = _currentUser.Name;
 
-            followButton.Enabled = true;
             progressBar.StopAnimating();
+        }
 
-            if (!_isButtonBinded)
+        private void DecorateFollowButton()
+        {
+            if(!BasePresenter.User.IsAuthenticated || _currentUser.Author == BasePresenter.User.Login)
             {
-                UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-                {
-                    //GoToProfile?.Invoke(_currentUser.Author);
-                });
-                avatar.AddGestureRecognizer(tap);
+                followButton.Hidden = true;
+                return;
             }
 
-            if (!_isButtonBinded)
+            if (_currentUser.FollowedChanging)
             {
-                followButton.TouchDown += (sender, e) =>
-                {
-                    followButton.Enabled = false;
-                    progressBar.StartAnimating();
-                    Follow?.Invoke(_currentUser.HasFollowed ? FollowType.UnFollow : FollowType.Follow, _currentUser.Author,
-                        (author, success) =>
-                        {
-                            if (author == _currentUser.Author && success != null)
-                            {
-                                followButton.SetTitle((bool)success ? Localization.Messages.Unfollow : Localization.Messages.Follow,
-                                    UIControlState.Normal);
-                                followButton.Enabled = true;
-                                progressBar.StopAnimating();
-                            }
-                        });
-                };
-                _isButtonBinded = true;
+                followButton.Selected = false;
+                followButton.Enabled = false;
+                followButton.Layer.BorderWidth = 0;
+                Constants.CreateGradient(followButton, _cornerRadius);
+                Constants.CreateShadow(followButton, Constants.R231G72B0, 0.5f, _cornerRadius, 5, 5);
+                progressBar.StartAnimating();
             }
+            else
+            {
+                followButton.Enabled = true;
+                followButton.Selected = _currentUser.HasFollowed;
+                progressBar.StopAnimating();
+                if (_currentUser.HasFollowed)
+                {
+                    Constants.RemoveGradient(followButton);
+                    followButton.Layer.BorderWidth = 1;
+                    Constants.CreateShadow(followButton, Constants.R204G204B204, 0.8f, _cornerRadius, 7, 7);
+                }
+                else
+                {
+                    followButton.Layer.BorderWidth = 0;
+                    Constants.CreateGradient(followButton, _cornerRadius);
+                    Constants.CreateShadow(followButton, Constants.R231G72B0, 0.5f, _cornerRadius, 5, 5);
+                }
+            }
+        }
+
+        private void FollowTap(object sender, EventArgs e)
+        {
+            CellAction?.Invoke(ActionType.Follow, _currentUser);
         }
     }
 }
