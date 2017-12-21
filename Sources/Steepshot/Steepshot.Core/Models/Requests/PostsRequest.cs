@@ -1,4 +1,4 @@
-﻿using Steepshot.Core.Exceptions;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -12,12 +12,10 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserPostsRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new UserException("username", Localization.Errors.EmptyUsernameField);
-
             Username = username;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Username { get; }
     }
 
@@ -35,6 +33,7 @@ namespace Steepshot.Core.Models.Requests
             Type = type;
         }
 
+        [Required()]
         public PostType Type { get; }
     }
 
@@ -45,6 +44,7 @@ namespace Steepshot.Core.Models.Requests
             Category = category;
         }
 
+        [Required()]
         public string Category { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
@@ -13,7 +14,9 @@ namespace Steepshot.Core.Tests
     public class IntegrationTests : BaseTests
     {
         [Test]
-        public void Login_With_Posting_Key_Invalid_Credentials([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Login_With_Posting_Key_Invalid_Credentials(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -22,7 +25,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[apiName].LoginWithPostingKey(request, CancellationToken.None).Result;
+            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -32,7 +35,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Login_With_Posting_Key_Wrong_PostingKey([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Login_With_Posting_Key_Wrong_PostingKey(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -40,7 +45,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[apiName].LoginWithPostingKey(request, CancellationToken.None).Result;
+            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -50,7 +55,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Login_With_Posting_Key_Wrong_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Login_With_Posting_Key_Wrong_Username(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -58,7 +65,7 @@ namespace Steepshot.Core.Tests
             var request = new AuthorizedRequest(user);
 
             // Act
-            var response = Api[apiName].LoginWithPostingKey(request, CancellationToken.None).Result;
+            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -68,7 +75,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserPosts([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserPosts(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -76,7 +85,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[apiName].GetUserPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -103,24 +112,26 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserPosts_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserPosts_Invalid_Username(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserPostsRequest(user.Login + "x");
 
             // Act
-            var response = Api[apiName].GetUserPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
             Assert.That(response.Error.Message.Contains("Cannot get posts for this username"));
         }
 
-        [Test, Sequential]
-        public void UserPosts_Offset_Limit(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string offset)
+        [Test]
+        [TestCase(KnownChains.Steem, "/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38")]
+        [TestCase(KnownChains.Golos, "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")]
+        public async Task UserPosts_Offset_Limit(KnownChains apiName, string offset)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -131,7 +142,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
 
             // Act
-            var response = Api[apiName].GetUserPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -141,7 +152,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserPosts_With_User_Some_Votes_True([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserPosts_With_User_Some_Votes_True(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -149,7 +162,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[apiName].GetUserPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -157,14 +170,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserPosts_Without_User_All_Votes_False([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserPosts_Without_User_All_Votes_False(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserPostsRequest(user.Login);
 
             // Act
-            var response = Api[apiName].GetUserPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -172,7 +187,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserRecentPosts([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserRecentPosts(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -182,7 +199,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[apiName].GetUserRecentPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -192,7 +209,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserRecentPosts_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserRecentPosts_Offset_Limit(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -200,11 +219,12 @@ namespace Steepshot.Core.Tests
             {
                 Login = user.Login
             };
-            request.Offset = Api[apiName].GetUserRecentPosts(request, CancellationToken.None).Result.Result.Results.First().Url;
+            var posts = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
+            request.Offset = posts.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api[apiName].GetUserRecentPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserRecentPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -216,13 +236,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_Top([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_Top(KnownChains apiName)
         {
             // Arrange
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -230,29 +252,34 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_Top_Limit_Default([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_Top_Limit_Default(KnownChains apiName)
         {
             // Arrange
             const int defaultLimit = 20;
             var request = new PostsRequest(PostType.Top);
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
         }
 
         [Test]
-        public void Posts_Hot_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_Hot_Offset_Limit(KnownChains apiName)
         {
             // Arrange
             var request = new PostsRequest(PostType.Hot);
-            request.Offset = Api[apiName].GetPosts(request, CancellationToken.None).Result.Result.Results.First().Url;
+            var posts = await Api[apiName].GetPosts(request, CancellationToken.None);
+            request.Offset = posts.Result.Results.First().Url;
             request.Limit = 3;
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -261,14 +288,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_Top_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_Top_With_User(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new PostsRequest(PostType.Top) { Login = user.Login };
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -276,13 +305,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_Hot([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_Hot(KnownChains apiName)
         {
             // Arrange
             var request = new PostsRequest(PostType.Hot);
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -290,13 +321,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_New([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_New(KnownChains apiName)
         {
             // Arrange
             var request = new PostsRequest(PostType.New);
 
             // Act
-            var response = Api[apiName].GetPosts(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPosts(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -304,14 +337,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category(KnownChains apiName)
         {
             var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -322,27 +357,31 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category_Invalid_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_Invalid_Name(KnownChains apiName)
         {
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Not Found"));
+            Assert.IsTrue(response.Error.Message.Contains("Not Found"), response.Error?.Message);
         }
 
         [Test]
-        public void Posts_By_Category_Not_Existing_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_Not_Existing_Name(KnownChains apiName)
         {
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, "qweqweqweqewqwqweqe");
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -350,28 +389,32 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category_Empty_Name([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_Empty_Name(KnownChains apiName)
         {
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, "");
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Not Found"));
+            Assert.That(response.Error.Message.Contains("The Category field is required."));
         }
 
         [Test]
-        public void Posts_By_Category_Hot([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_Hot(KnownChains apiName)
         {
             var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Hot, category);
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -382,14 +425,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category_New([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_New(KnownChains apiName)
         {
             var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.New, category);
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -400,16 +445,19 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_Offset_Limit(KnownChains apiName)
         {
             var category = "steepshot";
             // Arrange
             var request = new PostsByCategoryRequest(PostType.Top, category);
-            request.Offset = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result.Result.Results.First().Url;
+            var posts = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
+            request.Offset = posts.Result.Results.First().Url;
             request.Limit = 5;
 
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -420,7 +468,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Posts_By_Category_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Posts_By_Category_With_User(KnownChains apiName)
         {
             var category = "steepshot";
             // Arrange
@@ -429,7 +479,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[apiName].GetPostsByCategory(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -437,26 +487,31 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Up_Already_Voted([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Up_Already_Voted(KnownChains apiName)
         {
             // Load last post
             UserInfo user = Users[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var lastPost = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
+            var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            Assert.IsTrue(posts.Success);
+            var lastPost = posts.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Up, lastPost.Url);
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
             Thread.Sleep(2000);
-            var response2 = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response2);
             Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("You`ve already liked this post a few times. Please try another one.")
                         || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
                         || response2.Error.Message.Contains("Cannot vote again on a comment after payout.")
                         || response2.Error.Message.Contains("Duplicate transaction check failed")
@@ -465,26 +520,30 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Down_Already_Voted([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Down_Already_Voted(KnownChains apiName)
         {
             // Load last post
             UserInfo user = Users[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
+            var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            var lastPost = posts.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Down, lastPost.Url);
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
             Thread.Sleep(2000);
-            var response2 = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response2);
             Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
+                        || response2.Error.Message.Contains("You`ve already liked this post a few times. Please try another one.")
                         || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
                         || response2.Error.Message.Contains("Duplicate transaction check failed")
                         || response2.Error.Message.Contains("Vote weight cannot be 0.")
@@ -492,13 +551,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Invalid_Identifier1([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Invalid_Identifier1(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -506,13 +567,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Invalid_Identifier2([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Invalid_Identifier2(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -520,13 +583,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Invalid_Identifier3([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Invalid_Identifier3(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -534,13 +599,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Vote_Invalid_Identifier4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Vote_Invalid_Identifier4(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/@qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -548,21 +615,24 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Up_Already_Flagged([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Up_Already_Flagged(KnownChains apiName)
         {
             // Load last post
             UserInfo user = Users[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
+            var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            var lastPost = posts.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Flag, lastPost.Url);
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
-            var response2 = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
+            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response2);
@@ -574,21 +644,24 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Down_Already_Flagged([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Down_Already_Flagged(KnownChains apiName)
         {
             // Load last post
             UserInfo user = Users[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var lastPost = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result.Result.Results.First();
+            var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            var lastPost = posts.Result.Results.First();
 
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Down, lastPost.Url);
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
-            var response2 = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
+            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response2);
@@ -601,13 +674,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Invalid_Identifier1([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Invalid_Identifier1(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -615,13 +690,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Invalid_Identifier2([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Invalid_Identifier2(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -629,13 +706,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Invalid_Identifier3([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Invalid_Identifier3(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -643,29 +722,31 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Flag_Invalid_Identifier4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Flag_Invalid_Identifier4(KnownChains apiName)
         {
             // Arrange
             var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/@qwe");
 
             // Act
-            var response = Api[apiName].Vote(request, CancellationToken.None).Result;
+            var response = await Api[apiName].Vote(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
             Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
-        [Test, Sequential]
-        public void Comments(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/cat636281384922864910")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "@joseph.kalu/cat636203355240074655")]
+        [TestCase(KnownChains.Golos, "@joseph.kalu/cat636281384922864910")]
+        public async Task Comments(KnownChains apiName, string url)
         {
             // Arrange
             var request = new NamedInfoRequest(url);
 
             // Act
-            var response = Api[apiName].GetComments(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -692,33 +773,33 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Depth, Is.Not.Zero);
         }
 
-        [Test, Sequential]
-        public void Comments_With_User_Check_True_Votes(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/egregious-2017-10-16-10-48-02")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "@steepshot/finally-arrived-steepshot-goes-to-beta-meet-the-updated-open-source-android-app")]
+        [TestCase(KnownChains.Golos, "@steepshot/dolgozhdannaya-beta-steepshot-dlya-android-polnostyu-obnovlennoe-prilozhenie-s-otkrytym-iskhodnym-kodom")]
+        public async Task Comments_With_User_Check_True_Votes(KnownChains apiName, string url)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new NamedInfoRequest(url) { Login = user.Login };
 
             // Act
-            var response = Api[apiName].GetComments(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
             Assert.That(response.Result.Results.Where(x => x.Vote).Any, Is.True);
         }
 
-        [Test, Sequential]
-        public void Comments_Without_User_Check_False_Votes(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("@dollarvigilante/could-ethereum-be-made-obsolete-by-the-new-decentralized-smart-contract-platform-eos", "@siberianshamen/chto-takoe-golos")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "@dollarvigilante/could-ethereum-be-made-obsolete-by-the-new-decentralized-smart-contract-platform-eos")]
+        [TestCase(KnownChains.Golos, "@siberianshamen/chto-takoe-golos")]
+        public async Task Comments_Without_User_Check_False_Votes(KnownChains apiName, string url)
         {
             // Arrange
             var request = new NamedInfoRequest(url);
 
             // Act
-            var response = Api[apiName].GetComments(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -726,13 +807,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Comments_Invalid_Url([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Comments_Invalid_Url(KnownChains apiName)
         {
             // Arrange
             var request = new NamedInfoRequest("qwe");
 
             // Act
-            var response = Api[apiName].GetComments(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -740,13 +823,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Comments_Invalid_Url_But_Valid_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Comments_Invalid_Url_But_Valid_User(KnownChains apiName)
         {
             // Arrange
             var request = new NamedInfoRequest("@asduj/qweqweqweqw");
 
             // Act
-            var response = Api[apiName].GetComments(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetComments(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -754,21 +839,23 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void CreateComment_20_Seconds_Delay([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task CreateComment_20_Seconds_Delay(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
-            const string body = "Ллойс!";
+            var body = $"Test comment {DateTime.Now:G}";
             var createCommentRequest = new CommentRequest(Users[apiName], lastPost.Url, body, AppSettings.AppInfo);
 
             // Act
-            var response1 = Api[apiName].CreateComment(createCommentRequest, CancellationToken.None).Result;
-            var response2 = Api[apiName].CreateComment(createCommentRequest, CancellationToken.None).Result;
+            var response1 = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
+            var response2 = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
 
             // Assert
             AssertResult(response1);
@@ -777,37 +864,40 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void EditCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task EditCommentTest(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
-            var api = Api[apiName];
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var userPostsResponse = api.GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
 
             var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
             Assert.IsNotNull(post);
             var namedRequest = new NamedInfoRequest(post.Url);
-            var comments = api.GetComments(namedRequest, CancellationToken.None).Result;
+            var comments = await Api[apiName].GetComments(namedRequest, CancellationToken.None);
             var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
             Assert.IsNotNull(comment);
 
             var editCommentRequest = new CommentRequest(user, comment.Url, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
 
-            var result = Api[apiName].EditComment(editCommentRequest, CancellationToken.None).Result;
+            var result = await Api[apiName].EditComment(editCommentRequest, CancellationToken.None);
             AssertResult(result);
         }
 
         [Test]
-        public void Categories([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories(KnownChains apiName)
         {
             // Arrange
             var request = new OffsetLimitFields();
 
             // Act
-            var response = Api[apiName].GetCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -817,7 +907,9 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Offset_Limit(KnownChains apiName)
         {
             // Arrange
             const int limit = 5;
@@ -828,7 +920,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[apiName].GetCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -839,13 +931,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
             var request = new OffsetLimitFields() { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[apiName].GetCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -855,13 +949,15 @@ namespace Steepshot.Core.Tests
 
 
         [Test]
-        public void Categories_Search([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("ru");
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -871,13 +967,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Search_Invalid_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_Invalid_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -885,13 +983,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Search_Short_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_Short_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("f");
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -899,21 +999,25 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Search_Empty_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_Empty_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("This field may not be blank."));
+            Assert.That(response.Error.Message.Contains("The Query field is required."), response.Error.Message);
         }
 
         [Test]
-        public void Categories_Search_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_Offset_Limit(KnownChains apiName)
         {
             // Arrange
             const int limit = 5;
@@ -924,7 +1028,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -934,13 +1038,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Search_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("life") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -948,13 +1054,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Categories_Search_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Categories_Search_With_User(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("lif");
 
             // Act
-            var response = Api[apiName].SearchCategories(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -963,16 +1071,16 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results.First().Name, Is.Not.Empty);
         }
 
-        [Test, Sequential]
-        public void UserProfile(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("thecryptofiend", "phoenix")] string user)
+        [Test]
+        [TestCase(KnownChains.Steem, "thecryptofiend")]
+        [TestCase(KnownChains.Golos, "phoenix")]
+        public async Task UserProfile(KnownChains apiName, string user)
         {
             // Arrange
             var request = new UserProfileRequest(user);
 
             // Act
-            var response = Api[apiName].GetUserProfile(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -998,29 +1106,31 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserProfile_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserProfile_Invalid_Username(KnownChains apiName)
         {
             // Arrange
             var request = new UserProfileRequest("qweqweqwe");
 
             // Act
-            var response = Api[apiName].GetUserProfile(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
             Assert.That(response.Error.Message.Contains("User not found"));
         }
 
-        [Test, Sequential]
-        public void UserProfile_With_User(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("thecryptofiend", "phoenix")] string user)
+        [Test]
+        [TestCase(KnownChains.Steem, "thecryptofiend")]
+        [TestCase(KnownChains.Golos, "phoenix")]
+        public async Task UserProfile_With_User(KnownChains apiName, string user)
         {
             // Arrange
             var request = new UserProfileRequest(user) { Login = user };
 
             // Act
-            var response = Api[apiName].GetUserProfile(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1046,14 +1156,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserFriends_Following([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserFriends_Following(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserFriendsRequest(user.Login, FriendsType.Following);
 
             // Act
-            var response = Api[apiName].GetUserFriends(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1067,14 +1179,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserFriends_Followers([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserFriends_Followers(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
 
             // Act
-            var response = Api[apiName].GetUserFriends(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1088,14 +1202,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserFriends_Followers_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserFriends_Followers_Invalid_Username(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserFriendsRequest(user.Login + "x", FriendsType.Followers);
 
             // Act
-            var response = Api[apiName].GetUserFriends(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1103,10 +1219,10 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Results, Is.Empty);
         }
 
-        [Test, Sequential]
-        public void UserFriends_Followers_Offset_Limit(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("vowestdream", "pmartynov")] string offset)
+        [Test]
+        [TestCase(KnownChains.Steem, "vowestdream")]
+        [TestCase(KnownChains.Golos, "pmartynov")]
+        public async Task UserFriends_Followers_Offset_Limit(KnownChains apiName, string offset)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -1115,7 +1231,7 @@ namespace Steepshot.Core.Tests
             request.Limit = 1;
 
             // Act
-            var response = Api[apiName].GetUserFriends(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1126,14 +1242,16 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void UserFriends_Followers_With_User([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UserFriends_Followers_With_User(KnownChains apiName)
         {
             // Arrange
             UserInfo user = Users[apiName];
             var request = new UserFriendsRequest(user.Login, FriendsType.Followers) { Login = user.Login };
 
             // Act
-            var response = Api[apiName].GetUserFriends(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1142,17 +1260,17 @@ namespace Steepshot.Core.Tests
             Assert.That(someResponsesAreHasFollowTrue, Is.True);
         }
 
-        [Test, Sequential]
-        public void GetPostInfo(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38", "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "/steepshot/@joseph.kalu/cat636416737569422613-2017-09-22-10-42-38")]
+        [TestCase(KnownChains.Golos, "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")]
+        public async Task GetPostInfo(KnownChains apiName, string url)
         {
             // Arrange
             var request = new NamedInfoRequest(url);
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[apiName].GetPostInfo(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1177,10 +1295,10 @@ namespace Steepshot.Core.Tests
             Assert.That(response.Result.Depth, Is.Not.Null);
         }
 
-        [Test, Sequential]
-        public void GetPostInfo_With_User(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("spam/@joseph.kalu/test-post-127", "@joseph.kalu/cat636281384922864910")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "spam/@joseph.kalu/test-post-127")]
+        [TestCase(KnownChains.Golos, "@joseph.kalu/cat636281384922864910")]
+        public async Task GetPostInfo_With_User(KnownChains apiName, string url)
         {
             // Arrange
             UserInfo user = Users[apiName];
@@ -1188,7 +1306,7 @@ namespace Steepshot.Core.Tests
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
-            var response = Api[apiName].GetPostInfo(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1214,13 +1332,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void GetPostInfo_Invalid_Url([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task GetPostInfo_Invalid_Url(KnownChains apiName)
         {
             // Arrange
             var request = new NamedInfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
             // Act
-            var response = Api[apiName].GetPostInfo(request, CancellationToken.None).Result;
+            var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1228,51 +1348,52 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Upload_Empty_Photo([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Upload_Empty_Photo(KnownChains apiName)
         {
             // Arrange
             var request = new UploadImageRequest(Users[apiName], "title", new byte[0], new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Act
-            var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
+            var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
             // Assert
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
-
-            //var response = Api[apiName].Upload(request, CancellationToken.None).Result;
-
-            //// Assert
-            //AssertResult(response);
-            //Assert.That(response.Error.Message.Contains("Upload a valid image. The file you uploaded was either not an image or a corrupted image."));
+            Assert.IsTrue(string.Equals(response.Error.Message, Localization.Errors.EmptyPhotoField));
         }
 
         [Test]
-        public void Upload_Tags_Greater_Than_4([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task Upload_Tags_Greater_Than_4(KnownChains apiName)
         {
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());
-            var request = new UploadImageRequest(Users[apiName], "cat", file, new[] { "cat1", "cat2", "cat3", "cat4", "cat5" });
+            var tags = new string[UploadImageRequest.TagLimit + 1];
+            for (int i = 0; i < tags.Length; i++)
+            {
+                tags[i] = "cat" + i;
+            }
+            var request = new UploadImageRequest(Users[apiName], "cat", file, tags);
 
             // Act
-            var response = Api[apiName].UploadWithPrepare(request, CancellationToken.None).Result;
+            var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
+            Assert.IsTrue(response.Error.Message.Equals(Localization.Errors.TagLimitError));
+            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(UploadImageRequest.TagLimit.ToString()));
 
-            //var response = Api[apiName].Upload(request, CancellationToken.None).Result;
-
-            //// Assert
-            //AssertResult(response);
-            //Assert.That(response.Error.Message.Contains("The number of tags should not be more than 4. Please remove a couple of tags and try again."));
         }
 
         [Test]
-        public void User_Search([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("aar");
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1282,13 +1403,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Search_Invalid_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search_Invalid_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1296,13 +1419,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Search_Short_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search_Short_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("fo");
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1310,21 +1435,25 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Search_Empty_Query([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search_Empty_Query(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest(" ");
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Error.Message.Contains("This field may not be blank."));
+            Assert.That(response.Error.Message.Contains("The Query field is required."));
         }
 
         [Test]
-        public void User_Search_Offset_Limit([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search_Offset_Limit(KnownChains apiName)
         {
             // Arrange
             const int limit = 3;
@@ -1335,7 +1464,7 @@ namespace Steepshot.Core.Tests
             };
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1345,13 +1474,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Search_Offset_Not_Exisiting([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Search_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
             var request = new SearchWithQueryRequest("aar") { Offset = "qweqweqwe" };
 
             // Act
-            var response = Api[apiName].SearchUser(request, CancellationToken.None).Result;
+            var response = await Api[apiName].SearchUser(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1359,13 +1490,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Exists_Check_Valid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Exists_Check_Valid_Username(KnownChains apiName)
         {
             // Arrange
             var request = new UserExistsRequests("pmartynov");
 
             // Act
-            var response = Api[apiName].UserExistsCheck(request, CancellationToken.None).Result;
+            var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
@@ -1373,13 +1506,15 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void User_Exists_Check_Invalid_Username([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task User_Exists_Check_Invalid_Username(KnownChains apiName)
         {
             // Arrange
             var request = new UserExistsRequests("pmartynov123");
 
             // Act
-            var response = Api[apiName].UserExistsCheck(request, CancellationToken.None).Result;
+            var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);

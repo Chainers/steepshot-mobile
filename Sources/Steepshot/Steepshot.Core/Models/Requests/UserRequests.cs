@@ -1,4 +1,4 @@
-﻿using Steepshot.Core.Exceptions;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -6,12 +6,10 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserExistsRequests(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new UserException("username", Localization.Errors.EmptyUsernameField);
-
             Username = username;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Username { get; }
     }
 
@@ -19,14 +17,14 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserProfileRequest(string username)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new UserException("username", Localization.Errors.EmptyUsernameField);
-
             Username = username;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Username { get; }
+
         public bool ShowNsfw { get; set; }
+
         public bool ShowLowRated { get; set; }
     }
 
@@ -55,14 +53,14 @@ namespace Steepshot.Core.Models.Requests
     {
         public UserFriendsRequest(string username, FriendsType type)
         {
-            if (string.IsNullOrWhiteSpace(username))
-                throw new UserException("username", Localization.Errors.EmptyUsernameField);
-
             Username = username;
             Type = type;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Username { get; }
+
+        [Required()]
         public FriendsType Type { get; }
     }
 
@@ -73,6 +71,7 @@ namespace Steepshot.Core.Models.Requests
             Type = type;
         }
 
+        [Required()]
         public VotersType Type { get; }
     }
 }

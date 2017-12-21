@@ -2,16 +2,18 @@
 using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
+using System.Threading.Tasks;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
     [TestFixture]
     public class BaseClientTest : BaseTests
     {
-        [Test, Sequential]
-        public void GetPostVotersTest(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("@steepshot/steepshot-some-stats-and-explanations", "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")] string url)
+
+        [Test]
+        [TestCase(KnownChains.Steem, "@steepshot/steepshot-some-stats-and-explanations")]
+        [TestCase(KnownChains.Golos, "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")]
+        public async Task GetPostVotersTest(KnownChains apiName, string url)
         {
             var count = 40;
             var request = new VotersRequest(url, VotersType.All)
@@ -20,18 +22,15 @@ namespace Steepshot.Core.Tests.HttpClient
                 Offset = string.Empty,
 
             };
-            var task = Api[apiName].GetPostVoters(request, CancellationToken.None);
-            task.Wait();
-            var responce = task.Result;
+            var responce = await Api[apiName].GetPostVoters(request, CancellationToken.None);
             Assert.IsTrue(responce.Success);
-            var result = responce.Result;
-            Assert.IsTrue(result.Results.Count == count);
+            Assert.IsTrue(responce.Result.Count == count);
         }
 
-        [Test, Sequential]
-        public void GetPostVotersCancelTestTest(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("@steepshot/steepshot-some-stats-and-explanations", "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")] string url)
+        [Test]
+        [TestCase(KnownChains.Steem, "@steepshot/steepshot-some-stats-and-explanations")]
+        [TestCase(KnownChains.Golos, "@steepshot/steepshot-nekotorye-statisticheskie-dannye-i-otvety-na-voprosy")]
+        public async Task GetPostVotersCancelTestTest(KnownChains apiName, string url)
         {
             try
             {
@@ -43,12 +42,9 @@ namespace Steepshot.Core.Tests.HttpClient
                 };
 
                 var token = new CancellationTokenSource(50);
-                var task = Api[apiName].GetPostVoters(request, token.Token);
-                task.Wait(token.Token);
-                var responce = task.Result;
+                var responce = await Api[apiName].GetPostVoters(request, token.Token);
                 Assert.IsTrue(responce.Success);
-                var result = responce.Result;
-                Assert.IsTrue(result.Results.Count == count);
+                Assert.IsTrue(responce.Result.Count == count);
             }
             catch (OperationCanceledException)
             {

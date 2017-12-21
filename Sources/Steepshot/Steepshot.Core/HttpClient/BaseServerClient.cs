@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
+using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -328,22 +330,57 @@ namespace Steepshot.Core.HttpClient
             var content = await response.Content.ReadAsStringAsync();
 
             // HTTP error
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+            if (response.StatusCode == HttpStatusCode.InternalServerError ||
+                response.StatusCode != HttpStatusCode.OK &&
+                response.StatusCode != HttpStatusCode.Created)
             {
-                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
-            }
-
-            if (!result.Success)
-            {
-                // Checking content
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    result.Error = new ServerError(Localization.Errors.EmptyResponseContent);
+                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.EmptyResponseContent);
+                    return result;
                 }
-                else if (new Regex(@"<[^>]+>").IsMatch(content))
+                if (new Regex(@"<[^>]+>").IsMatch(content))
                 {
-                    result.Error = new ServerError(Localization.Errors.ResponseContentContainsHtml + content);
+                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.ResponseContentContainsHtml + content);
+                    return result;
                 }
+                if (content.Contains("non_field_errors"))
+                {
+                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
+                    result.Error = new ServerError((int)response.StatusCode, string.Join(Environment.NewLine, value.NonFieldErrors));
+                    return result;
+                }
+                if (content.StartsWith(@"{""error"":"))
+                {
+                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
+                    result.Error = new ServerError((int)response.StatusCode, value.Error);
+                    return result;
+                }
+                if (content.StartsWith(@"{""detail"":"))
+                {
+                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
+                    result.Error = new ServerError((int)response.StatusCode, value.Detail);
+                }
+                else if (content.StartsWith(@"{""status"":"))
+                {
+                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
+                    result.Error = new ServerError((int)response.StatusCode, value.Status);
+                }
+                try
+                {
+                    var values = JsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
+                    var msg = values.First().Value.FirstOrDefault();
+                    result.Error = new HttpError((int)response.StatusCode, msg);
+                    return result;
+
+                }
+                catch
+                {
+                    //todonothing
+                }
+
+                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
+                return result;
             }
             else
             {
@@ -351,6 +388,21 @@ namespace Steepshot.Core.HttpClient
             }
 
             return result;
+        }
+
+        public class ErrorResponce
+        {
+            [JsonProperty("detail")]
+            public string Detail { get; set; }
+
+            [JsonProperty("status")]
+            public string Status { get; set; }
+
+            [JsonProperty("error")]
+            public string Error { get; set; }
+
+            [JsonProperty("non_field_errors")]
+            public string[] NonFieldErrors { get; set; }
         }
     }
 }

@@ -1,5 +1,5 @@
+using System.ComponentModel.DataAnnotations;
 using Steepshot.Core.Authority;
-using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Services;
 
@@ -9,19 +9,16 @@ namespace Steepshot.Core.Models.Requests
     {
         public CommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
         {
-            if (string.IsNullOrWhiteSpace(url))
-                throw new UserException("url", Localization.Errors.EmptyUrlField);
-            if (string.IsNullOrWhiteSpace(body))
-                throw new UserException("body", Localization.Errors.EmptyCommentField);
-
             Url = url;
             Body = body;
             AppVersion = $"v{appInfo.GetAppVersion()} b{appInfo.GetBuildVersion()} t";
             IsNeedRewards = user.IsNeedRewards;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string Url { get; }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyCommentField)]
         public string Body { get; }
 
         public string AppVersion { get; }

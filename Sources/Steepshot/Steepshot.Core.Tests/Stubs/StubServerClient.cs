@@ -8,7 +8,6 @@ using Newtonsoft.Json.Linq;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Serializing;
-using Steepshot.Core.Models.Responses;
 using System.Threading.Tasks;
 using System.Net.Http;
 using NUnit.Framework;

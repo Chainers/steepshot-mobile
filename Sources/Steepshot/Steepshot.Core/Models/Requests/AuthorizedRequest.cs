@@ -1,23 +1,19 @@
-﻿using Steepshot.Core.Authority;
-using Steepshot.Core.Exceptions;
+﻿using System.ComponentModel.DataAnnotations;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
     public class AuthorizedRequest
     {
+        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Login { get; set; }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyPosting)]
         public string PostingKey { get; set; }
 
 
         public AuthorizedRequest(string login, string postingKey)
         {
-            if (string.IsNullOrEmpty(login))
-                throw new SecurityException("login", "The user is not authorized!");
-
-            if (string.IsNullOrEmpty(postingKey))
-                throw new SecurityException("postingKey", "The user is not authorized!");
-
             Login = login;
             PostingKey = postingKey;
         }

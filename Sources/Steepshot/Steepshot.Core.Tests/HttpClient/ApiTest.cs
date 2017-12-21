@@ -5,6 +5,7 @@ using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -12,19 +13,22 @@ namespace Steepshot.Core.Tests.HttpClient
     public class ApiTest : BaseTests
     {
         [Test]
-        public void LoginWithPostingKeyTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task LoginWithPostingKeyTest(KnownChains apiName)
         {
-            var api = Api[apiName];
             var user = Users[apiName];
             var request = new AuthorizedRequest(user);
-            var response = api.LoginWithPostingKey(request, CancellationToken.None).Result;
+            var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
             AssertResult(response);
             Assert.That(response.Success, Is.True);
             Assert.That(response.Result.IsSuccess, Is.True);
         }
 
         [Test]
-        public void UploadWithPrepareTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UploadWithPrepareTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -32,9 +36,9 @@ namespace Steepshot.Core.Tests.HttpClient
             var file = File.ReadAllBytes(GetTestImagePath());
             user.IsNeedRewards = false;
             var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
-            var servResp = Api[apiName].UploadWithPrepare(createPostRequest, CancellationToken.None).Result;
+            var servResp = await Api[apiName].UploadWithPrepare(createPostRequest, CancellationToken.None);
             AssertResult(servResp);
-            var createPostResponse = Api[apiName].Upload(createPostRequest, servResp.Result, CancellationToken.None).Result;
+            var createPostResponse = await Api[apiName].Upload(createPostRequest, servResp.Result, CancellationToken.None);
 
             AssertResult(createPostResponse);
             Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
@@ -48,7 +52,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(lastPost);
@@ -56,7 +60,9 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test]
-        public void CreateCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task CreateCommentTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
@@ -64,7 +70,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var userPostsRequest = new UserPostsRequest(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First();
 
@@ -73,7 +79,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Thread.Sleep(TimeSpan.FromSeconds(20));
             const string body = "Ллойс!";
             var createCommentRequest = new CommentRequest(user, lastPost.Url, body, AppSettings.AppInfo);
-            var createCommentResponse = Api[apiName].CreateComment(createCommentRequest, CancellationToken.None).Result;
+            var createCommentResponse = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
@@ -82,25 +88,27 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Load comments for this post and check them
             var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
-            var commentsResponse = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
+            var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
             Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentResponse.Result.Permlink)));
         }
 
         [Test]
-        public void VotePostTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task VotePostTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
             // Load last created post
             var userPostsRequest = new PostsRequest(PostType.New) { Login = user.Login };
-            var userPostsResponse = Api[apiName].GetPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
             // 4) Vote up
             var voteUpRequest = new VoteRequest(user, VoteType.Up, lastPost.Url);
-            var voteUpResponse = Api[apiName].Vote(voteUpRequest, CancellationToken.None).Result;
+            var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -110,7 +118,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             userPostsRequest.Offset = lastPost.Url;
-            var userPostsResponse2 = Api[apiName].GetPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse2 = await Api[apiName].GetPosts(userPostsRequest, CancellationToken.None);
             // Check if last post was voted
             AssertResult(userPostsResponse2);
             var post = userPostsResponse2.Result.Results.FirstOrDefault(i => i.Url.EndsWith(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -120,7 +128,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // 3) Vote down
             var voteDownRequest = new VoteRequest(user, VoteType.Down, lastPost.Url);
-            var voteDownResponse = Api[apiName].Vote(voteDownRequest, CancellationToken.None).Result;
+            var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -129,7 +137,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
-            var userPostsResponse3 = Api[apiName].GetPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse3 = await Api[apiName].GetPosts(userPostsRequest, CancellationToken.None);
             // Check if last post was voted
             AssertResult(userPostsResponse3);
             post = userPostsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(lastPost.Url, StringComparison.OrdinalIgnoreCase));
@@ -139,23 +147,25 @@ namespace Steepshot.Core.Tests.HttpClient
         }
 
         [Test]
-        public void VoteCommentTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task VoteCommentTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
             // Load last created post
             var userPostsRequest = new UserPostsRequest(user.Login) { ShowLowRated = true, ShowNsfw = true };
-            var userPostsResponse = Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None).Result;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => i.Children > 0);
             // Load comments for this post and check them
             var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
-            var commentsResponse = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
+            var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
 
             // 5) Vote up comment
             var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
             var voteUpCommentRequest = new VoteRequest(user, VoteType.Up, commentUrl);
-            var voteUpCommentResponse = Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None).Result;
+            var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
             Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -164,7 +174,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             getCommentsRequest.Login = user.Login;
-            var commentsResponse2 = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
+            var commentsResponse2 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse2);
             var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
@@ -173,7 +183,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
             // 6) Vote down comment
             var voteDownCommentRequest = new VoteRequest(user, VoteType.Down, commentUrl);
-            var voteDownCommentResponse = Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None).Result;
+            var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
             Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
@@ -182,7 +192,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
             getCommentsRequest.Login = user.Login;
-            var commentsResponse3 = Api[apiName].GetComments(getCommentsRequest, CancellationToken.None).Result;
+            var commentsResponse3 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse3);
             comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
@@ -190,22 +200,22 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.That(comm.Vote, Is.False);
         }
 
-        [Test, Sequential]
-        public void FollowTest(
-            [Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName,
-            [Values("asduj", "pmartynov")] string followUser)
+        [Test]
+        [TestCase(KnownChains.Steem, "asduj")]
+        [TestCase(KnownChains.Golos, "pmartynov")]
+        public async Task FollowTest(KnownChains apiName, string followUser)
         {
             var user = Users[apiName];
 
             // 7) Follow
             var followRequest = new FollowRequest(user, FollowType.Follow, followUser);
-            var followResponse = Api[apiName].Follow(followRequest, CancellationToken.None).Result;
+            var followResponse = await Api[apiName].Follow(followRequest, CancellationToken.None);
             AssertResult(followResponse);
             Assert.IsTrue(followResponse.Result.IsSuccess);
 
             // 8) UnFollow
             var unfollowRequest = new FollowRequest(user, FollowType.UnFollow, followUser);
-            var unfollowResponse = Api[apiName].Follow(unfollowRequest, CancellationToken.None).Result;
+            var unfollowResponse = await Api[apiName].Follow(unfollowRequest, CancellationToken.None);
             AssertResult(unfollowResponse);
             Assert.IsTrue(unfollowResponse.Result.IsSuccess);
         }
