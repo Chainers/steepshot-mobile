@@ -624,7 +624,7 @@ namespace Steepshot.Fragment
 
             Context.ShowAlert(error);
 
-            if (error != null)
+            if (error == null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;
