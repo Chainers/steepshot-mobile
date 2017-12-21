@@ -18,7 +18,7 @@ namespace Steepshot.iOS.Cells
         public static readonly NSString Key = new NSString(nameof(CommentTableViewCell));
         public static readonly UINib Nib;
         public bool IsCellActionSet => CellAction != null;
-        public event Action<ActionType, Post> CellAction;
+        public Action<ActionType, Post> CellAction;
         private bool _isInitialized;
         private Post _currentPost;
         private IScheduledWork _scheduledWorkAvatar;

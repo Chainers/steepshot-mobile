@@ -8,22 +8,19 @@ namespace Steepshot.iOS.ViewControllers
         public MainTabBarController()
         {
             TabBar.Translucent = false;
+            TabBar.TintColor = Helpers.Constants.R231G72B0;
 
             var feedTab = new UINavigationController(new FeedViewController());
-            feedTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("home"), UIImage.FromBundle("home"));
-            feedTab.NavigationBar.Translucent = false;
+            feedTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_home"), UIImage.FromBundle("ic_home"));
 
             var browseTab = new UINavigationController(new PreSearchViewController());
             browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), UIImage.FromBundle("browse"));
-            browseTab.NavigationBar.Translucent = false;
 
             var photoTab = new UINavigationController(new PhotoViewController());
             photoTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("camera"), UIImage.FromBundle("camera"));
-            photoTab.NavigationBar.Translucent = false;
 
             var profileTab = new UINavigationController(new ProfileViewController());
             profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("profile"), UIImage.FromBundle("profile"));
-            profileTab.NavigationBar.Translucent = false;
 
             ViewControllers = new UIViewController[] {
                 feedTab,
@@ -31,6 +28,14 @@ namespace Steepshot.iOS.ViewControllers
                 photoTab,
                 profileTab
             };
+
+            var insets = new UIEdgeInsets(5, 0, -5, 0);
+
+            foreach (UINavigationController item in ViewControllers)
+            {
+                item.NavigationBar.Translucent = false;
+                item.TabBarItem.ImageInsets = insets;
+            }
         }
 
         public override void ViewWillAppear(bool animated)

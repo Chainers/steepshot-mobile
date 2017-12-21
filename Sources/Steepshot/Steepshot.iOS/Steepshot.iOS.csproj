@@ -444,6 +444,9 @@
     <BundleResource Include="Resources\ic_like_active.png" />
     <BundleResource Include="Resources\ic_like_active%402x.png" />
     <BundleResource Include="Resources\ic_like_active%403x.png" />
+    <BundleResource Include="Resources\ic_home.png" />
+    <BundleResource Include="Resources\ic_home%402x.png" />
+    <BundleResource Include="Resources\ic_home%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
