@@ -169,9 +169,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
-                    var myViewController3 = new VotersViewController();
-                    myViewController3.PostUrl = post.Url;
-                    NavigationController.PushViewController(myViewController3, true);
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();

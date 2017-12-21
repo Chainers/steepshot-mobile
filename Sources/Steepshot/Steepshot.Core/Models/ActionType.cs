@@ -7,6 +7,7 @@
         Profile,
         Comments,
         Voters,
+        Flagers,
         Preview,
         Reply,
         Follow,

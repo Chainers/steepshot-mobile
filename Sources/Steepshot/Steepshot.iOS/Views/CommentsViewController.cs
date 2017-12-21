@@ -7,6 +7,7 @@ using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -124,9 +125,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
-                    var myViewController3 = new VotersViewController();
-                    myViewController3.PostUrl = post.Url;
-                    NavigationController.PushViewController(myViewController3, true);
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
                 case ActionType.Like:
                     Vote(post);
