@@ -74,7 +74,7 @@ namespace Steepshot.Core.Tests
         public void UploadImageRequest_Empty_Title()
         {
             var user = Users.First().Value;
-            var request = new UploadImageRequest(user, string.Empty, new byte[] { }, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var request = new UploadImageRequest(user, string.Empty, new byte[] { 0 }, new[] { "cat1", "cat2", "cat3", "cat4" });
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
-using Newtonsoft.Json;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -18,6 +16,10 @@ namespace Steepshot.Core.HttpClient
 {
     public class BaseServerClient
     {
+        private readonly Regex _errorJson = new Regex("(?<=^{\"[a-z_0-9]*\":\\[\").*(?=\"]}$)");
+        private readonly Regex _errorJson2 = new Regex("(?<=^{\"[a-z_0-9]*\":\").*(?=\"}$)");
+        private readonly Regex _errorHtml = new Regex(@"<[^>]+>");
+
         public volatile bool EnableRead;
         public readonly ApiGateway Gateway;
 
@@ -339,44 +341,24 @@ namespace Steepshot.Core.HttpClient
                     result.Error = new ServerError((int)response.StatusCode, Localization.Errors.EmptyResponseContent);
                     return result;
                 }
-                if (new Regex(@"<[^>]+>").IsMatch(content))
+                if (_errorHtml.IsMatch(content))
                 {
                     result.Error = new ServerError((int)response.StatusCode, Localization.Errors.ResponseContentContainsHtml + content);
                     return result;
                 }
-                if (content.Contains("non_field_errors"))
+                var match = _errorJson.Match(content);
+                if (match.Success)
                 {
-                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
-                    result.Error = new ServerError((int)response.StatusCode, string.Join(Environment.NewLine, value.NonFieldErrors));
+                    var txt = match.Value.Replace("\",\"", Environment.NewLine);
+                    result.Error = new ServerError((int)response.StatusCode, txt);
                     return result;
                 }
-                if (content.StartsWith(@"{""error"":"))
-                {
-                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
-                    result.Error = new ServerError((int)response.StatusCode, value.Error);
-                    return result;
-                }
-                if (content.StartsWith(@"{""detail"":"))
-                {
-                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
-                    result.Error = new ServerError((int)response.StatusCode, value.Detail);
-                }
-                else if (content.StartsWith(@"{""status"":"))
-                {
-                    var value = JsonConverter.Deserialize<ErrorResponce>(content);
-                    result.Error = new ServerError((int)response.StatusCode, value.Status);
-                }
-                try
-                {
-                    var values = JsonConverter.Deserialize<Dictionary<string, List<string>>>(content);
-                    var msg = values.First().Value.FirstOrDefault();
-                    result.Error = new HttpError((int)response.StatusCode, msg);
-                    return result;
 
-                }
-                catch
+                match = _errorJson2.Match(content);
+                if (match.Success)
                 {
-                    //todonothing
+                    result.Error = new ServerError((int)response.StatusCode, match.Value);
+                    return result;
                 }
 
                 result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
@@ -388,21 +370,6 @@ namespace Steepshot.Core.HttpClient
             }
 
             return result;
-        }
-
-        public class ErrorResponce
-        {
-            [JsonProperty("detail")]
-            public string Detail { get; set; }
-
-            [JsonProperty("status")]
-            public string Status { get; set; }
-
-            [JsonProperty("error")]
-            public string Error { get; set; }
-
-            [JsonProperty("non_field_errors")]
-            public string[] NonFieldErrors { get; set; }
         }
     }
 }

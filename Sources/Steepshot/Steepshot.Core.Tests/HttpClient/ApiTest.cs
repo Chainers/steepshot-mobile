@@ -77,8 +77,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            const string body = "Ллойс!";
-            var createCommentRequest = new CommentRequest(user, lastPost.Url, body, AppSettings.AppInfo);
+            var createCommentRequest = new CommentRequest(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
             var createCommentResponse = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
