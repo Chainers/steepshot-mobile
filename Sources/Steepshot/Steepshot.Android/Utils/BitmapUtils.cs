@@ -1,7 +1,6 @@
 ﻿using Android.Content.Res;
 using Android.Graphics;
 using Android.Media;
-using Android.Util;
 using Java.IO;
 using Orientation = Android.Media.Orientation;
 

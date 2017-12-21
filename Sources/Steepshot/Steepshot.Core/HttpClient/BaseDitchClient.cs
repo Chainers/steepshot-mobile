@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
@@ -44,8 +45,9 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
 
-        public abstract OperationResult<string> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct);
 
+        public abstract Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
 
@@ -115,17 +117,18 @@ namespace Steepshot.Core.HttpClient
                     {
                         case (int)ErrorCodes.ConnectionTimeoutError:
                             {
-                                operationResult.Errors.Add(Localization.Errors.EnableConnectToServer);
+
+                                operationResult.Error = new HttpError(Localization.Errors.EnableConnectToServer);
                                 break;
                             }
                         case (int)ErrorCodes.ResponseTimeoutError:
                             {
-                                operationResult.Errors.Add(Localization.Errors.ServeNotRespond);
+                                operationResult.Error = new HttpError(Localization.Errors.ServeNotRespond);
                                 break;
                             }
                         default:
                             {
-                                operationResult.Errors.Add(Localization.Errors.ServeUnexpectedError);
+                                operationResult.Error = new HttpError(Localization.Errors.ServeUnexpectedError);
                                 break;
                             }
                     }
@@ -143,13 +146,13 @@ namespace Steepshot.Core.HttpClient
                                 {
                                     if (typedError.Data.Stack[0].Format.Contains("STEEMIT_MAX_VOTE_CHANGES"))
                                     {
-                                        operationResult.Errors.Add(Localization.Errors.MaxVoteChanges);
+                                        operationResult.Error = new BlockchainError(Localization.Errors.MaxVoteChanges);
                                         break;
                                     }
                                     var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
                                     if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
                                     {
-                                        operationResult.Errors.Add(match.Value);
+                                        operationResult.Error = new BlockchainError(match.Value);
                                         break;
                                     }
                                 }
@@ -157,7 +160,7 @@ namespace Steepshot.Core.HttpClient
                             }
                         case 13: //unknown key
                             {
-                                operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
                                 break;
                             }
                         //case 3000000: "transaction exception"
@@ -171,22 +174,21 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (t.Name == "LoginResponse")
                                 {
-                                    operationResult.Errors.Add(Localization.Errors.WrongPrivateKey);
+                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
                                     break;
                                 }
                                 goto default;
                             }
                         default:
                             {
-                                operationResult.Errors.Add(
-                                    Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
+                                operationResult.Error = new BlockchainError(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
                                 break;
                             }
                     }
                 }
                 else
                 {
-                    operationResult.Errors.Add(response.GetErrorMessage());
+                    operationResult.Error = new ServerError(response.GetErrorMessage());
                 }
             }
         }

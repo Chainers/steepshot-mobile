@@ -92,12 +92,8 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                var errors = await _presenter.TrySearchCategories(query, _searchType);
-                if (errors == null)
-                    return;
-                if (errors.Any())
-                    ShowAlert(errors);
-                else
+                var error = await _presenter.TrySearchCategories(query, _searchType);
+                if (error == null)
                 {
                     bool shouldHide;
                     if (_searchType == SearchType.Tags)
@@ -124,6 +120,10 @@ namespace Steepshot.iOS.Views
                         else
                             tagsTable.Hidden = false;
                     }
+                }
+                else
+                {
+                    ShowAlert(error);
                 }
                 activityIndicator.StopAnimating();
             }

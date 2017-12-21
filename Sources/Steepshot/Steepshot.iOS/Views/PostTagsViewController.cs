@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Foundation;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
@@ -63,12 +64,13 @@ namespace Steepshot.iOS.Views
             };
 
             Activeview = searchText;
-            
-            var errors = await _presenter.TryGetTopTags();
-            if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
-            else
+
+            var error = await _presenter.TryGetTopTags();
+
+            if (error == null)
                 tagsTable.ReloadData();
+
+            ShowAlert(error);
         }
 
         private void TableTagSelected(int row)
@@ -96,20 +98,19 @@ namespace Steepshot.iOS.Views
                 return;
 
             _presenter.Clear();
-            List<string> errors;
+            ErrorBase error;
             if (string.IsNullOrEmpty(query))
             {
-                errors = await _presenter.TryGetTopTags();
+                error = await _presenter.TryGetTopTags();
             }
             else
             {
-                errors = await _presenter.TryLoadNext(query);
+                error = await _presenter.TryLoadNext(query);
             }
 
-            if (errors != null && errors.Count > 0)
-                ShowAlert(errors);
-            else
+            if (error == null)
                 tagsTable.ReloadData();
+            ShowAlert(error);
         }
 
         private void AddTags(object sender, EventArgs e)

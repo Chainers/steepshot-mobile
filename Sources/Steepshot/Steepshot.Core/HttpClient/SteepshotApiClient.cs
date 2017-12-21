@@ -72,21 +72,21 @@ namespace Steepshot.Core.HttpClient
         public async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.LoginWithPostingKey(request, ct);
-            _serverServerClient.Trace("login-with-posting", request.Login, result.Errors, string.Empty, ct);//.Wait(5000);
+            _serverServerClient.Trace("login-with-posting", request.Login, result.Error, string.Empty, ct);//.Wait(5000);
             return result;
         }
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.Vote(request, ct);
-            _serverServerClient.Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Errors, request.Identifier, ct);//.Wait(5000);
+            _serverServerClient.Trace($"post/{request.Identifier}/{request.Type.GetDescription()}", request.Login, result.Error, request.Identifier, ct);//.Wait(5000);
             return result;
         }
 
         public async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.Follow(request, ct);
-            _serverServerClient.Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Errors, request.Username, ct);//.Wait(5000);
+            _serverServerClient.Trace($"user/{request.Username}/{request.Type.ToString().ToLowerInvariant()}", request.Login, result.Error, request.Username, ct);//.Wait(5000);
             return result;
         }
 
@@ -105,34 +105,44 @@ namespace Steepshot.Core.HttpClient
             }
 
             var result = await _ditchClient.CreateComment(request, ct);
-            _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, ct);//.Wait(5000);
+            _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, result.Error, request.Url, ct);//.Wait(5000);
             return result;
         }
 
         public async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
         {
             var result = await _ditchClient.EditComment(request, ct);
-            _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, result.Errors, request.Url, ct);//.Wait(5000);
+            _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, result.Error, request.Url, ct);//.Wait(5000);
             return result;
         }
 
         public async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
         {
             var result = await _ditchClient.Upload(request, uploadResponse, ct);
-            _serverServerClient.Trace("post", request.Login, result.Errors, uploadResponse.Payload.Permlink, ct);//.Wait(5000);
+            _serverServerClient.Trace("post", request.Login, result.Error, uploadResponse.Payload.Permlink, ct);//.Wait(5000);
             return result;
         }
 
         public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageRequest request, CancellationToken ct)
         {
-            var responce = _ditchClient.GetVerifyTransaction(request, ct);
+            var responce = await _ditchClient.GetVerifyTransaction(request, ct);
 
             if (!responce.Success)
-                return new OperationResult<UploadResponse>(responce.Errors);
+                return new OperationResult<UploadResponse>(responce.Error);
 
             request.VerifyTransaction = responce.Result;
             return await _serverServerClient.UploadWithPrepare(request, ct);
         }
+
+        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct)
+        {
+            var responce = await _ditchClient.DeletePostOrComment(request, ct);
+            // if (responce.Success)
+            return responce;
+
+        }
+
+
 
         public async Task<OperationResult<ListResponce<Post>>> GetUserPosts(UserPostsRequest request, CancellationToken ct)
         {

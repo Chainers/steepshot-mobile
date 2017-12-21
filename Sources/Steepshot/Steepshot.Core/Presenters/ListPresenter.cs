@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
@@ -53,11 +54,11 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        protected async Task<List<string>> RunAsSingleTask(Func<CancellationToken, Task<List<string>>> func, bool cancelPrevTask = true)
+        protected async Task<ErrorBase> RunAsSingleTask(Func<CancellationToken, Task<ErrorBase>> func, bool cancelPrevTask = true)
         {
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new List<string> { Localization.Errors.InternetUnavailable };
+                return new ApplicationError(Localization.Errors.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -67,7 +68,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return null;
+                        return new TaskCanceledError();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -78,15 +79,16 @@ namespace Steepshot.Core.Presenters
             }
             catch (OperationCanceledException)
             {
-                // to do nothing
+                return new TaskCanceledError();
             }
             catch (ApplicationExceptionBase ex)
             {
-                return new List<string> { ex.Message };
+                return new ApplicationError(ex.Message);
             }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                return new ApplicationError(Localization.Errors.UnknownError);
             }
             finally
             {
@@ -99,14 +101,13 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
-            return null;
         }
 
-        protected async Task<List<string>> RunAsSingleTask<T1>(Func<CancellationToken, T1, Task<List<string>>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<ErrorBase> RunAsSingleTask<T1>(Func<CancellationToken, T1, Task<ErrorBase>> func, T1 param1, bool cancelPrevTask = true)
         {
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new List<string> { Localization.Errors.InternetUnavailable };
+                return new ApplicationError(Localization.Errors.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -116,7 +117,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return null;
+                        return new TaskCanceledError();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -127,15 +128,16 @@ namespace Steepshot.Core.Presenters
             }
             catch (OperationCanceledException)
             {
-                // to do nothing
+                return new TaskCanceledError();
             }
             catch (ApplicationExceptionBase ex)
             {
-                return new List<string> { ex.Message };
+                return new ApplicationError(ex.Message);
             }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                return new ApplicationError(Localization.Errors.UnknownError);
             }
             finally
             {
@@ -148,7 +150,6 @@ namespace Steepshot.Core.Presenters
                     }
                 }
             }
-            return null;
         }
 
         public void LoadCancel()

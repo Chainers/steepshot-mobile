@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Views;
-using Android.Views.InputMethods;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
@@ -17,8 +15,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Android.Support.Design.Widget;
-using Steepshot.Activity;
 
 namespace Steepshot.Fragment
 {
@@ -187,11 +183,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var errors = await Presenter.UserFriendPresenter.TryFollow(userFriend);
+            var error = await Presenter.UserFriendPresenter.TryFollow(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
         }
 
         private void OnTimer(object state)
@@ -240,11 +236,11 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var errors = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
+            var error = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();
-            Context.ShowAlert(errors, ToastLength.Short);
+            Context.ShowAlert(error, ToastLength.Short);
         }
 
         private void CheckQueryIsEmpty()

@@ -132,10 +132,8 @@ namespace Steepshot.iOS.Views
                 _presenter.Clear();
                 _gridDelegate.ClearPosition();
             }
-            var errors = await _presenter.TryLoadNextTopPosts();
-
-            if (errors != null && errors.Count != 0)
-                ShowAlert(errors);
+            var error = await _presenter.TryLoadNextTopPosts();
+            ShowAlert(error);
 
             if (_refreshControl.Refreshing)
             {
@@ -153,8 +151,8 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(Post post)
         {
-            var errors = await _presenter.TryVote(post);
-            ShowAlert(errors);
+            var error = await _presenter.TryVote(post);
+            ShowAlert(error);
         }
 
         private void Flag(Post post)
@@ -179,8 +177,8 @@ namespace Steepshot.iOS.Views
             if (post == null)
                 return;
 
-            var errors = await _presenter.TryFlag(post);
-            ShowAlert(errors);
+            var error = await _presenter.TryFlag(post);
+            ShowAlert(error);
         }
 
         private void SetNavBar()

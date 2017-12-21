@@ -19,7 +19,6 @@ using Steepshot.Utils;
 using System.Collections.Generic;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
-using Ditch.Core.Helpers;
 using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;

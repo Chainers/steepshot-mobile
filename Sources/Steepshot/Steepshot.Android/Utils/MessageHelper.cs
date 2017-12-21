@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.Widget;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Utils
 {
@@ -15,18 +15,18 @@ namespace Steepshot.Utils
             Show(context, message);
         }
 
-        public static void ShowAlert(this Context context, List<string> messages)
+        public static void ShowAlert(this Context context, ErrorBase error)
         {
-            if (messages == null || messages.Count == 0)
+            if (error == null)
                 return;
-            Show(context, messages[0]);
+            Show(context, error.Message);
         }
 
         public static void ShowAlert(this Context context, OperationResult response)
         {
             if (response == null)
                 return;
-            ShowAlert(context, response.Errors);
+            ShowAlert(context, response.Error);
         }
 
         public static void ShowAlert(this Context context, string message, ToastLength length)
@@ -34,18 +34,18 @@ namespace Steepshot.Utils
             Toast.MakeText(context, message, length).Show();
         }
 
-        public static void ShowAlert(this Context context, List<string> messages, ToastLength length)
+        public static void ShowAlert(this Context context, ErrorBase error, ToastLength length)
         {
-            if (messages == null || messages.Count == 0)
+            if (error == null)
                 return;
-            Toast.MakeText(context, messages[0], length).Show();
+            Toast.MakeText(context, error.Message, length).Show();
         }
 
         public static void ShowAlert(this Context context, OperationResult response, ToastLength length)
         {
             if (response == null)
                 return;
-            ShowAlert(context, response.Errors, length);
+            ShowAlert(context, response.Error, length);
         }
 
         private static void Show(this Context context, string text)

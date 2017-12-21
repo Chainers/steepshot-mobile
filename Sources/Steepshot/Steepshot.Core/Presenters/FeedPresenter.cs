@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -11,7 +9,7 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 20;
 
-        public async Task<List<string>> TryLoadNextTopPosts()
+        public async Task<ErrorBase> TryLoadNextTopPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -19,7 +17,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextTopPosts);
         }
 
-        private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
+        private async Task<ErrorBase> LoadNextTopPosts(CancellationToken ct)
         {
             var request = new CensoredNamedRequestWithOffsetLimitFields
             {
@@ -30,16 +28,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
 
-            List<string> errors;
-            OperationResult<ListResponce<Post>> response;
+            ErrorBase error;
             bool isNeedRepeat;
             do
             {
-                response = await Api.GetUserRecentPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+                var response = await Api.GetUserRecentPosts(request, ct);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
             } while (isNeedRepeat);
 
-            return errors;
+            return error;
         }
     }
 }

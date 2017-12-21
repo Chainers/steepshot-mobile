@@ -1,38 +1,29 @@
-using System.Collections.Generic;
-using System.Linq;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Models.Common
 {
     public class OperationResult
     {
-        public bool Success => !Errors.Any();
-        public List<string> Errors { get; set; }
+        public bool Success => Error == null;
+        public ErrorBase Error { get; set; }
 
         public OperationResult()
         {
-            Errors = new List<string>();
         }
 
-        public OperationResult(List<string> errors)
+        public OperationResult(ErrorBase error)
         {
-            Errors = errors ?? new List<string>();
-        }
-
-        public OperationResult(string error)
-        {
-            Errors = new List<string> { error };
+            Error = error;
         }
     }
 
     public class OperationResult<T> : OperationResult
     {
         public T Result { get; set; }
-
-
+        
         public OperationResult() { }
 
-        public OperationResult(List<string> errors) : base(errors) { }
+        public OperationResult(ErrorBase error) : base(error) { }
 
-        public OperationResult(string error) : base(error) { }
     }
 }
