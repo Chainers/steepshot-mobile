@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -16,7 +16,7 @@ namespace Steepshot.Core.Presenters
         public UserProfileResponse UserProfileResponse { get; private set; }
 
 
-        public async Task<List<string>> TryLoadNextPosts()
+        public async Task<ErrorBase> TryLoadNextPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -24,7 +24,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextPosts);
         }
 
-        private async Task<List<string>> LoadNextPosts(CancellationToken ct)
+        private async Task<ErrorBase> LoadNextPosts(CancellationToken ct)
         {
             var request = new UserPostsRequest(UserName)
             {
@@ -35,25 +35,24 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
 
-            List<string> errors;
+            ErrorBase error;
             bool isNeedRepeat;
-            OperationResult<ListResponce<Post>> response;
             do
             {
-                response = await Api.GetUserPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+                var response = await Api.GetUserPosts(request, ct);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
             } while (isNeedRepeat);
 
-            return errors;
+            return error;
         }
 
 
-        public async Task<List<string>> TryGetUserInfo(string user)
+        public async Task<ErrorBase> TryGetUserInfo(string user)
         {
             return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private async Task<List<string>> GetUserInfo(CancellationToken ct, string user)
+        private async Task<ErrorBase> GetUserInfo(CancellationToken ct, string user)
         {
             var req = new UserProfileRequest(user)
             {
@@ -62,18 +61,16 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
             var response = await Api.GetUserProfile(req, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
                 UserProfileResponse = response.Result;
                 NotifySourceChanged();
             }
-            return response.Errors;
+            return response.Error;
         }
 
-        public async Task<List<string>> TryFollow()
+        public async Task<ErrorBase> TryFollow()
         {
             if (UserProfileResponse.FollowedChanging)
                 return null;
@@ -81,23 +78,21 @@ namespace Steepshot.Core.Presenters
             UserProfileResponse.FollowedChanging = true;
             NotifySourceChanged();
 
-            var errors = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
+            var error = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
             UserProfileResponse.FollowedChanging = false;
             NotifySourceChanged();
-            return errors;
+            return error;
         }
 
-        private async Task<List<string>> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
+        private async Task<ErrorBase> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
         {
             var request = new FollowRequest(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
                 userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
 
-            return response.Errors;
+            return response.Error;
         }
     }
 }

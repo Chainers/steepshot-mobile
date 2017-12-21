@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -44,9 +44,9 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out List<string> errors, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, bool isNeedClearItems = false)
         {
-            errors = null;
+            error = null;
             if (response == null)
                 return false;
 
@@ -90,11 +90,10 @@ namespace Steepshot.Core.Presenters
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
             }
-            errors = response.Errors;
+            error = response.Error;
             return false;
         }
-
-        public async Task<List<string>> TryVote(Post post)
+        public async Task<ErrorBase> TryVote(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
@@ -103,22 +102,20 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged();
 
-            var errors = await TryRunTask(Vote, OnDisposeCts.Token, post);
+            var error = await TryRunTask(Vote, OnDisposeCts.Token, post);
 
             post.VoteChanging = false;
             IsEnableVote = true;
             NotifySourceChanged();
 
-            return errors;
+            return error;
         }
 
-        private async Task<List<string>> Vote(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Vote(CancellationToken ct, Post post)
         {
             var wasFlaged = post.Flag;
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
@@ -130,13 +127,14 @@ namespace Steepshot.Core.Presenters
                 ChangeLike(post, wasFlaged);
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
-            else if (response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
+            else if (response.Error is BlockchainError
+                && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
-                response.Errors.Clear();
+                response.Error = null;
                 ChangeLike(post, wasFlaged);
             }
 
-            return response.Errors;
+            return response.Error;
         }
 
         private void ChangeLike(Post post, bool wasFlaged)
@@ -148,7 +146,7 @@ namespace Steepshot.Core.Presenters
                 post.NetFlags--;
         }
 
-        public async Task<List<string>> TryFlag(Post post)
+        public async Task<ErrorBase> TryFlag(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
                 return null;
@@ -158,22 +156,20 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = false;
             NotifySourceChanged();
 
-            var errors = await TryRunTask(Flag, OnDisposeCts.Token, post);
+            var error = await TryRunTask(Flag, OnDisposeCts.Token, post);
 
             post.FlagChanging = false;
             IsEnableVote = true;
             NotifySourceChanged();
 
-            return errors;
+            return error;
         }
 
-        private async Task<List<string>> Flag(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Flag(CancellationToken ct, Post post)
         {
             var wasVote = post.Vote;
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
@@ -184,12 +180,13 @@ namespace Steepshot.Core.Presenters
                 if (VoteDelay > td.Milliseconds)
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
             }
-            else if (response.Errors.Contains(Localization.Errors.VotedInASimilarWay))
+            else if (response.Error is BlockchainError
+                     && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
-                response.Errors.Clear();
+                response.Error = null;
                 ChangeFlag(post, wasVote);
             }
-            return response.Errors;
+            return response.Error;
         }
 
         private void ChangeFlag(Post post, bool wasVote)

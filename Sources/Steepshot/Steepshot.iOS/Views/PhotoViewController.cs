@@ -78,7 +78,7 @@ namespace Steepshot.iOS.Views
             {
                 _source = new PhotoCollectionViewSource();
                 photoCollection.DataSource = _source;
-                photoCollection.Delegate = new CollectionViewFlowDelegate(PhotoPicked);
+                //photoCollection.Delegate = new CollectionViewFlowDelegate(photoCollection, PhotoPicked);
                 photoCollection.ReloadData();
             }
         }
@@ -267,57 +267,6 @@ namespace Steepshot.iOS.Views
             var descriptionViewController = new DescriptionViewController();
             descriptionViewController.ImageAsset = image;
             TabBarController.NavigationController.PushViewController(descriptionViewController, true);
-        }
-    }
-
-    public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
-    {
-        Action _scrolledAction;
-        Action<NSIndexPath> _cellClick;
-        public bool IsGrid = true;
-        List<NSMutableAttributedString> _commentString;
-        BasePostPresenter presenter;
-
-        public CollectionViewFlowDelegate(Action<NSIndexPath> cellClick = null, Action scrolled = null, List<NSMutableAttributedString> commentString = null, BasePostPresenter presenter = null)
-        {
-            _scrolledAction = scrolled;
-            _cellClick = cellClick;
-            _commentString = commentString;
-            this.presenter = presenter;
-        }
-
-        public override void Scrolled(UIScrollView scrollView)
-        {
-            _scrolledAction?.Invoke();
-        }
-
-        public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
-        {
-            if (!IsGrid)
-                return;
-
-            _cellClick?.Invoke(indexPath);
-        }
-
-        public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
-        {
-            if (!IsGrid)
-            {
-                var post = presenter[indexPath.Row];
-                if (post != null)
-                {
-                    var correction = PhotoHeight.Get(post.ImageSize);
-                    //54 - margins sum
-                    CGRect textSize = new CGRect();
-                    if (_commentString.Any())
-                        textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 54, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
-
-                    //165 => 485-320 cell height without image size
-                    var cellHeight = 165 + correction;
-                    return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
-                }
-            }
-            return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
         }
     }
 }

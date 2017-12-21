@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace Steepshot.Core
 {
@@ -16,13 +15,14 @@ namespace Steepshot.Core
             public const string ServeNotRespond = "The server does not respond to the request. Check your internet connection and try again.";
             public const string ServeUnexpectedError = "An unexpected error occurred. Check the Internet or try restarting the application.";
             public const string EmptyCommentField = "Comment may not be blank!";
-            public const string Unknownerror = "Unknown error. Try again";
+            public const string UnknownError = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title required";
             public const string EmptyPhotoField = "Photo cannot be empty";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
+            public const string EmptyPosting = "Posting key cannot be empty";
             public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
@@ -52,7 +52,13 @@ namespace Steepshot.Core
 
             internal static string StatusCodeToMessage(HttpStatusCode statusCode)
             {
-                return $"({statusCode}) {ServeNotRespond}";
+                switch (statusCode)
+                {
+                    case HttpStatusCode.BadRequest:
+                    case HttpStatusCode.Forbidden:
+                    default:
+                        return $"({statusCode}) {ServeNotRespond}";
+                }
             }
         }
 
@@ -75,7 +81,7 @@ namespace Steepshot.Core
             public const string Forget = "Forget";
             public const string Voters = "Likes";
             public const string FlagVoters = "Flags";
-            public const string ViewComments = "View {0} comments";
+            public const string ViewComments = "See all {0} comments";
             public const string FlagPhoto = "Flag photo";
             public const string HidePhoto = "Hide photo";
             public const string Cancel = "Cancel";
@@ -86,7 +92,7 @@ namespace Steepshot.Core
             public const string NewPhotos = "NEW PHOTOS";
             public const string Hello = "Hello, ";
             public const string Profile = "PROFILE";
-            public const string AcceptToS = "Make sure you accept the terms of service and privacy policy";
+            public const string AcceptToS = "Please make sure you accept the terms of service and privacy policy";
             public const string ChoosePhoto = "CHOOSE PHOTO";
             public const string TypeTag = "Please type a tag";
             public const string TypeUsername = "Please type an username";
@@ -159,16 +165,18 @@ namespace Steepshot.Core
             public const string CreateFirstPostText = "Create first photo";
             public const string EmptyQuery = "It's very strange, but we do not have anything yet for this query. Try to look for something else ...";
             public const string Copied = "Copied to clipboard";
-            public static readonly string PostLink = "https://alpha.steepshot.io/post{0}";
+            public const string PostLink = "https://alpha.steepshot.io/post{0}";
             public const string ShowMoreString = " Show more...";
             public const string SignIn = "Sign in";
             public const string FlagPost = "Flag post";
             public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
+            public const string HideComment = "Hide comment";
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";
+            public const string PutYourComment = "Put your comment here...";
         }
     }
 }

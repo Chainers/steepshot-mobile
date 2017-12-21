@@ -113,11 +113,11 @@ namespace Steepshot.Fragment
 
         private async void LoadNext()
         {
-            var errors = await Presenter.TryLoadNextPostVoters(_url);
+            var error = await Presenter.TryLoadNextPostVoters(_url);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors);
+            Context.ShowAlert(error);
             _bar.Visibility = ViewStates.Gone;
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
@@ -139,11 +139,11 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var errors = await Presenter.TryFollow(userFriend);
+            var error = await Presenter.TryFollow(userFriend);
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors, ToastLength.Short);
+            Context.ShowAlert(error, ToastLength.Short);
         }
     }
 }

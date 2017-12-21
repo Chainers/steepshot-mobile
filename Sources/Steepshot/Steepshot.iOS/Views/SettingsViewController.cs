@@ -58,7 +58,7 @@ namespace Steepshot.iOS.Views
             addAccountButton.TouchDown += (sender, e) =>
             {
                 var myViewController = new PreLoginViewController();
-                myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+                //myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
                 NavigationController.PushViewController(myViewController, true);
             };
 

@@ -175,12 +175,12 @@ namespace Steepshot.Fragment
                 _textInput.Text = string.Empty;
                 _textInput.ClearFocus();
 
-                var errors = await Presenter.TryLoadNextComments(_uid);
+                var error = await Presenter.TryLoadNextComments(_uid);
 
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(error, ToastLength.Short);
                 _comments.MoveToPosition(Presenter.Count - 1);
 
                 _counter++;
@@ -202,12 +202,12 @@ namespace Steepshot.Fragment
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            var errors = await Presenter.TryLoadNextComments(postUrl);
+            var error = await Presenter.TryLoadNextComments(postUrl);
 
             if (!IsInitialized)
                 return;
 
-            Context.ShowAlert(errors, ToastLength.Short);
+            Context.ShowAlert(error, ToastLength.Short);
 
             _spinner.Visibility = ViewStates.Gone;
         }
@@ -249,11 +249,11 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryVote(post);
+                var error = await Presenter.TryVote(post);
 
                 if (!IsInitialized)
                     return;
-                Context.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(error, ToastLength.Short);
             }
             else
             {
@@ -266,11 +266,11 @@ namespace Steepshot.Fragment
         {
             if (BasePresenter.User.IsAuthenticated)
             {
-                var errors = await Presenter.TryFlag(post);
+                var error = await Presenter.TryFlag(post);
 
                 if (!IsInitialized)
                     return;
-                Context.ShowAlert(errors, ToastLength.Short);
+                Context.ShowAlert(error, ToastLength.Short);
             }
             else
             {

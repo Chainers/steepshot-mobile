@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CoreGraphics;
-using Ditch;
 using Ditch.Core;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
@@ -46,14 +46,14 @@ namespace Steepshot.iOS.ViewControllers
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
         }
-
+        /*
         public override void ViewWillAppear(bool animated)
         {
             if (TabBarController != null)
                 TabBarController.TabBar.Hidden = false;
 
             base.ViewWillAppear(animated);
-        }
+        }*/
 
         public override void ViewDidAppear(bool animated)
         {
@@ -144,20 +144,19 @@ namespace Steepshot.iOS.ViewControllers
             alert.Show();
         }
 
-        protected void ShowAlert(ICollection<string> messages)
+        protected void ShowAlert(ErrorBase error)
         {
-            if (messages == null || !messages.Any())
+            if (error == null)
                 return;
-            ShowAlert(messages.First());
+            ShowAlert(error.Message);
         }
 
         protected void ShowAlert(OperationResult result)
         {
             if (result == null)
                 return;
-            ShowAlert(result.Errors);
+            ShowAlert(result.Error);
         }
-
 
         public static string ToFormatedCurrencyString(Asset value, string postfix = null)
         {

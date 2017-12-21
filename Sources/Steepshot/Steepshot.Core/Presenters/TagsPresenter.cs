@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -13,12 +13,12 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 40;
 
-        public async Task<List<string>> TryLoadNext(string s)
+        public async Task<ErrorBase> TryLoadNext(string s)
         {
             return await RunAsSingleTask(LoadNext, s);
         }
 
-        private async Task<List<string>> LoadNext(CancellationToken ct, string s)
+        private async Task<ErrorBase> LoadNext(CancellationToken ct, string s)
         {
             var request = new SearchWithQueryRequest(s.TagToEn())
             {
@@ -34,7 +34,7 @@ namespace Steepshot.Core.Presenters
                 if (tags.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+                        Items.AddRange(Items.Count == 0 ? tags : tags.Skip(1));
 
                     OffsetUrl = tags.Last().Name;
                 }
@@ -43,15 +43,15 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged();
             }
-            return response.Errors;
+            return response.Error;
         }
 
-        public async Task<List<string>> TryGetTopTags()
+        public async Task<ErrorBase> TryGetTopTags()
         {
             return await RunAsSingleTask(GetTopTags);
         }
 
-        private async Task<List<string>> GetTopTags(CancellationToken ct)
+        private async Task<ErrorBase> GetTopTags(CancellationToken ct)
         {
             var request = new OffsetLimitFields()
             {
@@ -67,7 +67,7 @@ namespace Steepshot.Core.Presenters
                 if (tags.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? tags : tags.Skip(1));
+                        Items.AddRange(Items.Count == 0 ? tags : tags.Skip(1));
 
                     OffsetUrl = tags.Last().Name;
                 }
@@ -76,7 +76,7 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged();
             }
-            return response.Errors;
+            return response.Error;
         }
     }
 }

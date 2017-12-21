@@ -46,8 +46,8 @@ namespace Steepshot.Core.Tests
                 ShowLowRated = true
             };
 
-            var errors = await Gateway[apiName].GetUserPosts(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetUserPosts(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
@@ -61,8 +61,8 @@ namespace Steepshot.Core.Tests
                 ShowNsfw = true
             };
 
-            var errors = await Gateway[apiName].GetUserRecentPosts(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetUserRecentPosts(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
@@ -70,8 +70,8 @@ namespace Steepshot.Core.Tests
         {
             var request = new PostsRequest(PostType.Top);
 
-            var errors = await Gateway[apiName].GetPosts(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetPosts(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test, Sequential]
@@ -80,8 +80,8 @@ namespace Steepshot.Core.Tests
             [Values("food", "ru--golos")] string category)
         {
             var request = new PostsByCategoryRequest(PostType.Top, category);
-            var errors = await Gateway[apiName].GetPostsByCategory(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetPostsByCategory(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test, Sequential]
@@ -96,8 +96,8 @@ namespace Steepshot.Core.Tests
 
             };
 
-            var errors = await Gateway[apiName].GetPostVoters(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetPostVoters(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test, Sequential]
@@ -106,8 +106,8 @@ namespace Steepshot.Core.Tests
             [Values("@joseph.kalu/cat636203355240074655", "@joseph.kalu/cat636281384922864910")] string url)
         {
             var request = new NamedInfoRequest(url);
-            var errors = await Gateway[apiName].GetComments(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetComments(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
@@ -115,8 +115,8 @@ namespace Steepshot.Core.Tests
         {
             var user = Users[apiName];
             var request = new UserProfileRequest(user.Login);
-            var errors = await Gateway[apiName].GetUserProfile(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetUserProfile(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
 
@@ -125,8 +125,8 @@ namespace Steepshot.Core.Tests
         {
             var user = Users[apiName];
             var request = new UserFriendsRequest(user.Login, FriendsType.Following);
-            var errors = await Gateway[apiName].GetUserFriends(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetUserFriends(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test, Sequential]
@@ -139,16 +139,16 @@ namespace Steepshot.Core.Tests
                 ShowNsfw = true,
                 ShowLowRated = true
             };
-            var errors = await Gateway[apiName].GetPostInfo(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetPostInfo(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
         public async Task SearchUserTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var request = new SearchWithQueryRequest("aar");
-            var errors = await Gateway[apiName].SearchUser(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].SearchUser(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
@@ -156,24 +156,24 @@ namespace Steepshot.Core.Tests
         {
             var user = Users[apiName];
             var request = new UserExistsRequests(user.Login);
-            var errors = await Gateway[apiName].UserExistsCheck(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].UserExistsCheck(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
         public async Task GetCategoriesTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var request = new OffsetLimitFields();
-            var errors = await Gateway[apiName].GetCategories(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].GetCategories(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
 
         [Test]
         public async Task SearchCategoriesTest([Values(KnownChains.Steem, KnownChains.Golos)] KnownChains apiName)
         {
             var request = new SearchWithQueryRequest("ru");
-            var errors = await Gateway[apiName].SearchCategories(request, CancellationToken.None);
-            Assert.IsTrue(errors.Success, string.Join(Environment.NewLine, errors.Errors));
+            var result = await Gateway[apiName].SearchCategories(request, CancellationToken.None);
+            Assert.IsTrue(result.Success, result.Error.Message);
         }
     }
 }

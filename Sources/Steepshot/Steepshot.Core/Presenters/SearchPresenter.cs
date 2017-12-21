@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Steepshot.Core.Errors;
+using System;
 using System.Threading.Tasks;
 
 namespace Steepshot.Core.Presenters
@@ -17,7 +17,7 @@ namespace Steepshot.Core.Presenters
             TagsPresenter = new TagsPresenter();
         }
 
-        public async Task<List<string>> TrySearchCategories(string query, SearchType searchType)
+        public async Task<ErrorBase> TrySearchCategories(string query, SearchType searchType)
         {
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
             {
@@ -26,7 +26,7 @@ namespace Steepshot.Core.Presenters
                 else
                     UserFriendPresenter.NotifySourceChanged();
 
-                return new List<string>();
+                return null;
             }
 
             if (string.IsNullOrEmpty(query))

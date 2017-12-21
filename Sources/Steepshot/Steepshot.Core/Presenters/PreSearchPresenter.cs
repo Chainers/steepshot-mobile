@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Ditch.Core.Helpers;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -16,7 +14,7 @@ namespace Steepshot.Core.Presenters
         private const int ItemsLimit = 18;
         public string Tag;
 
-        public async Task<List<string>> TryLoadNextTopPosts()
+        public async Task<ErrorBase> TryLoadNextTopPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -24,7 +22,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextTopPosts);
         }
 
-        private async Task<List<string>> LoadNextTopPosts(CancellationToken ct)
+        private async Task<ErrorBase> LoadNextTopPosts(CancellationToken ct)
         {
             var request = new PostsRequest(PostType)
             {
@@ -35,17 +33,17 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
 
-            List<string> errors;
+            ErrorBase error;
             OperationResult<ListResponce<Post>> response;
             do
             {
                 response = await Api.GetPosts(request, ct);
-            } while (ResponseProcessing(response, ItemsLimit, out errors));
+            } while (ResponseProcessing(response, ItemsLimit, out error));
 
-            return errors;
+            return error;
         }
 
-        public async Task<List<string>> TryGetSearchedPosts()
+        public async Task<ErrorBase> TryGetSearchedPosts()
         {
             if (IsLastReaded)
                 return null;
@@ -53,7 +51,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(GetSearchedPosts);
         }
 
-        private async Task<List<string>> GetSearchedPosts(CancellationToken ct)
+        private async Task<ErrorBase> GetSearchedPosts(CancellationToken ct)
         {
             var request = new PostsByCategoryRequest(PostType, Tag.TagToEn())
             {
@@ -64,16 +62,15 @@ namespace Steepshot.Core.Presenters
                 ShowLowRated = User.IsLowRated
             };
 
-            List<string> errors;
-            OperationResult<ListResponce<Post>> response;
+            ErrorBase error;
             bool isNeedRepeat;
             do
             {
-                response = await Api.GetPostsByCategory(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out errors);
+                var response = await Api.GetPostsByCategory(request, ct);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
             } while (isNeedRepeat);
 
-            return errors;
+            return error;
         }
     }
 }

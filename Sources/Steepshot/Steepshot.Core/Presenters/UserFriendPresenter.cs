@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
@@ -27,14 +28,14 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<List<string>> TryLoadNextPostVoters(string url)
+        public async Task<ErrorBase> TryLoadNextPostVoters(string url)
         {
             if (IsLastReaded)
                 return null;
             return await RunAsSingleTask(LoadNextPostVoters, url);
         }
 
-        private async Task<List<string>> LoadNextPostVoters(CancellationToken ct, string url)
+        private async Task<ErrorBase> LoadNextPostVoters(CancellationToken ct, string url)
         {
             if (!VotersType.HasValue)
                 return null;
@@ -47,8 +48,6 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetPostVoters(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
@@ -56,7 +55,7 @@ namespace Steepshot.Core.Presenters
                 if (voters.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? voters : voters.Skip(1));
+                        Items.AddRange(Items.Count == 0 ? voters : voters.Skip(1));
 
                     OffsetUrl = voters.Last().Author;
                 }
@@ -65,18 +64,18 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged();
             }
-            return response.Errors;
+            return response.Error;
         }
 
 
-        public async Task<List<string>> TryLoadNextUserFriends(string username)
+        public async Task<ErrorBase> TryLoadNextUserFriends(string username)
         {
             if (IsLastReaded)
                 return null;
             return await RunAsSingleTask(LoadNextUserFriends, username);
         }
 
-        private async Task<List<string>> LoadNextUserFriends(CancellationToken ct, string username)
+        private async Task<ErrorBase> LoadNextUserFriends(CancellationToken ct, string username)
         {
             if (!FollowType.HasValue)
                 return null;
@@ -89,8 +88,6 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.GetUserFriends(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
@@ -98,7 +95,7 @@ namespace Steepshot.Core.Presenters
                 if (result.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
+                        Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -108,16 +105,16 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged();
             }
 
-            return response.Errors;
+            return response.Error;
         }
 
 
-        public async Task<List<string>> TryLoadNextSearchUser(string query)
+        public async Task<ErrorBase> TryLoadNextSearchUser(string query)
         {
             return await RunAsSingleTask(LoadNextSearchUser, query);
         }
 
-        private async Task<List<string>> LoadNextSearchUser(CancellationToken ct, string query)
+        private async Task<ErrorBase> LoadNextSearchUser(CancellationToken ct, string query)
         {
             var request = new SearchWithQueryRequest(query)
             {
@@ -127,8 +124,6 @@ namespace Steepshot.Core.Presenters
             };
 
             var response = await Api.SearchUser(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
             {
@@ -136,7 +131,7 @@ namespace Steepshot.Core.Presenters
                 if (result.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(string.IsNullOrEmpty(OffsetUrl) ? result : result.Skip(1));
+                        Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -145,30 +140,28 @@ namespace Steepshot.Core.Presenters
                     IsLastReaded = true;
                 NotifySourceChanged();
             }
-            return response.Errors;
+            return response.Error;
         }
 
-        public async Task<List<string>> TryFollow(UserFriend item)
+        public async Task<ErrorBase> TryFollow(UserFriend item)
         {
             item.FollowedChanging = true;
             NotifySourceChanged();
-            var errors = await TryRunTask(Follow, OnDisposeCts.Token, item);
+            var error = await TryRunTask(Follow, OnDisposeCts.Token, item);
             item.FollowedChanging = false;
             NotifySourceChanged();
-            return errors;
+            return error;
         }
 
-        private async Task<List<string>> Follow(CancellationToken ct, UserFriend item)
+        private async Task<ErrorBase> Follow(CancellationToken ct, UserFriend item)
         {
             var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
-            if (response == null)
-                return null;
 
             if (response.Success)
                 item.HasFollowed = !item.HasFollowed;
 
-            return response.Errors;
+            return response.Error;
         }
     }
 }

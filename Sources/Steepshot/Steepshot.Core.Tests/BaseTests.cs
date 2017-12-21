@@ -64,17 +64,14 @@ namespace Steepshot.Core.Tests
             if (response.Success)
             {
                 Assert.NotNull(response.Result, "Response is success, but result is NULL");
-                Assert.IsEmpty(response.Errors, "Response is success, but errors array is NOT empty");
+                Assert.IsNull(response.Error, "Response is success, but errors array is NOT empty");
             }
             else
             {
                 Assert.IsNull(response.Result, "Response is failed, but result is NOT null");
-                Assert.IsNotEmpty(response.Errors, "Response is failed, but errors array is EMPTY");
+                Assert.IsNotNull(response.Error, "Response is failed, but errors array is EMPTY");
 
-                foreach (var error in response.Errors)
-                {
-                    Console.WriteLine(error);
-                }
+                Console.WriteLine(response.Error.Message);
             }
         }
     }
