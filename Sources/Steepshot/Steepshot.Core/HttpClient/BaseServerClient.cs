@@ -16,6 +16,10 @@ namespace Steepshot.Core.HttpClient
 {
     public class BaseServerClient
     {
+        private readonly Regex _errorJson = new Regex("(?<=^{\"[a-z_0-9]*\":\\[\").*(?=\"]}$)");
+        private readonly Regex _errorJson2 = new Regex("(?<=^{\"[a-z_0-9]*\":\").*(?=\"}$)");
+        private readonly Regex _errorHtml = new Regex(@"<[^>]+>");
+
         public volatile bool EnableRead;
         public readonly ApiGateway Gateway;
 
@@ -328,22 +332,37 @@ namespace Steepshot.Core.HttpClient
             var content = await response.Content.ReadAsStringAsync();
 
             // HTTP error
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+            if (response.StatusCode == HttpStatusCode.InternalServerError ||
+                response.StatusCode != HttpStatusCode.OK &&
+                response.StatusCode != HttpStatusCode.Created)
             {
-                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
-            }
-
-            if (!result.Success)
-            {
-                // Checking content
                 if (string.IsNullOrWhiteSpace(content))
                 {
-                    result.Error = new ServerError(Localization.Errors.EmptyResponseContent);
+                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.EmptyResponseContent);
+                    return result;
                 }
-                else if (new Regex(@"<[^>]+>").IsMatch(content))
+                if (_errorHtml.IsMatch(content))
                 {
-                    result.Error = new ServerError(Localization.Errors.ResponseContentContainsHtml + content);
+                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.ResponseContentContainsHtml + content);
+                    return result;
                 }
+                var match = _errorJson.Match(content);
+                if (match.Success)
+                {
+                    var txt = match.Value.Replace("\",\"", Environment.NewLine);
+                    result.Error = new ServerError((int)response.StatusCode, txt);
+                    return result;
+                }
+
+                match = _errorJson2.Match(content);
+                if (match.Success)
+                {
+                    result.Error = new ServerError((int)response.StatusCode, match.Value);
+                    return result;
+                }
+
+                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
+                return result;
             }
             else
             {

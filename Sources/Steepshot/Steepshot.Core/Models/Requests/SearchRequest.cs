@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Core.Models.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Steepshot.Core.Models.Requests
 {
     public class SearchWithQueryRequest : OffsetLimitFields
     {
@@ -7,6 +9,7 @@
             Query = query;
         }
 
+        [Required]
         public string Query { get; set; }
 
         public string Login { get; set; }

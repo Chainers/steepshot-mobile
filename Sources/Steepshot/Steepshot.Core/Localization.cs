@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Steepshot.Core
 {
@@ -37,6 +38,7 @@ namespace Steepshot.Core
             public const string UnexpectedError = "An unexpected error occurred.";
             public const string CameraSettingError = "Camera Setting error.";
             public const string VotedInASimilarWay = "You have already voted in a similar way.";
+            public const string TagLimitError = "The number of tags should not be more than 20. Please remove a couple of tags and try again.";
 
 
             /// <summary>

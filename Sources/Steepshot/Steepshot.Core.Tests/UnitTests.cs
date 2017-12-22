@@ -2,10 +2,8 @@
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Exceptions;
 
 namespace Steepshot.Core.Tests
 {
@@ -16,43 +14,43 @@ namespace Steepshot.Core.Tests
         public void Vote_Empty_Identifier()
         {
             var user = Users.First().Value;
-            var ex = Assert.Throws<UserException>(() =>
-            {
-                new VoteRequest(user, VoteType.Up, string.Empty);
-            });
-            Assert.That(ex.ParamName, Is.EqualTo("identifier"));
+            var request = new VoteRequest(user, VoteType.Up, string.Empty);
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
 
         [Test]
         public void Follow_Empty_Username()
         {
             var user = Users.First().Value;
-            var ex = Assert.Throws<UserException>(() =>
-            {
-                new FollowRequest(user, FollowType.Follow, string.Empty);
-            });
-            Assert.That(ex.ParamName, Is.EqualTo("username"));
+
+            var request = new FollowRequest(user, FollowType.Follow, string.Empty);
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUsernameField);
         }
 
         [Test]
         public void InfoRequest_Empty_Url()
         {
-            var ex = Assert.Throws<UserException>(() =>
-            {
-                new InfoRequest(string.Empty);
-            });
-            Assert.That(ex.ParamName, Is.EqualTo("url"));
+            var request = new InfoRequest(string.Empty);
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
 
         [Test]
         public void CreateComment_Empty_Url()
         {
             var user = Users.First().Value;
-            var ex = Assert.Throws<UserException>(() =>
-            {
-                new CommentRequest(user, string.Empty, "test", AppSettings.AppInfo);
-            });
-            Assert.That(ex.ParamName, Is.EqualTo("url"));
+            var request = new CommentRequest(user, string.Empty, "test", AppSettings.AppInfo);
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
 
         [Test]
@@ -73,15 +71,24 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Upload_Empty_Title()
+        public void UploadImageRequest_Empty_Title()
         {
             var user = Users.First().Value;
-            var ex = Assert.Throws<UserException>(() =>
-            {
-                new UploadImageRequest(user, string.Empty, new byte[] { }, new[] { "cat1", "cat2", "cat3", "cat4" });
-                new InfoRequest(string.Empty);
-            });
-            Assert.That(ex.ParamName, Is.EqualTo("title"));
+            var request = new UploadImageRequest(user, string.Empty, new byte[] { 0 }, new[] { "cat1", "cat2", "cat3", "cat4" });
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyTitleField);
+        }
+
+        [Test]
+        public void InfoRequest_Empty_Title()
+        {
+            var request = new InfoRequest(string.Empty);
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
     }
 }

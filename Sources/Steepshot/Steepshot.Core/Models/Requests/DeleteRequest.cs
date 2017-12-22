@@ -1,4 +1,6 @@
-﻿namespace Steepshot.Core.Models.Requests
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Steepshot.Core.Models.Requests
 {
     public class DeleteRequest : AuthorizedRequest
     {
@@ -7,6 +9,7 @@
             Url = url;
         }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string Url { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
+using System.ComponentModel.DataAnnotations;
 
 namespace Steepshot.Core.Tests
 {
@@ -73,6 +74,14 @@ namespace Steepshot.Core.Tests
 
                 Console.WriteLine(response.Error.Message);
             }
+        }
+
+        public List<ValidationResult> Validate<T>(T request)
+        {
+            var results = new List<ValidationResult>();
+            var context = new ValidationContext(request);
+            Validator.TryValidateObject(request, context, results, true);
+            return results;
         }
     }
 }
