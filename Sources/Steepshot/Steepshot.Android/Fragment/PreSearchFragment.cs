@@ -583,7 +583,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
         }
 
         private void VotersAction(Post post, VotersType type)
@@ -624,7 +624,7 @@ namespace Steepshot.Fragment
 
             Context.ShowAlert(error);
 
-            if (error != null)
+            if (error == null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;

@@ -137,6 +137,12 @@ namespace Steepshot.Adapter
             ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
         }
 
+        protected override void OnTitleOnClick(object sender, EventArgs e)
+        {
+            base.OnTitleOnClick(sender, e);
+            UpdateData(_post, _context);
+        }
+
         private void CloseButtonOnClick(object sender, EventArgs eventArgs)
         {
             _closeAction?.Invoke();

@@ -93,7 +93,6 @@ namespace Steepshot.Core.Presenters
             error = response.Error;
             return false;
         }
-
         public async Task<ErrorBase> TryVote(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
@@ -117,7 +116,7 @@ namespace Steepshot.Core.Presenters
             var wasFlaged = post.Flag;
             var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
-          
+
             if (response.Success)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
@@ -171,7 +170,7 @@ namespace Steepshot.Core.Presenters
             var wasVote = post.Vote;
             var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
-          
+
             if (response.Success)
             {
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;

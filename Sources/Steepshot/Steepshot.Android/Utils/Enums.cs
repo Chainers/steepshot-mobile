@@ -4,6 +4,8 @@
     {
         Header,
         Cell,
-        Loader
+        Loader,
+        Comment,
+        Post
     }
 }

@@ -171,7 +171,7 @@ namespace Steepshot.Core
             public const string ShowMoreString = " Show more...";
             public const string SignIn = "Sign in";
             public const string FlagPost = "Flag post";
-            public const string UnFlagPost = "Unflag post";
+            public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
             public const string UnFlagComment = "Unflag comment";
