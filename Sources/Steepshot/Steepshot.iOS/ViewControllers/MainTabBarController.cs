@@ -11,16 +11,18 @@ namespace Steepshot.iOS.ViewControllers
             TabBar.TintColor = Helpers.Constants.R231G72B0;
 
             var feedTab = new UINavigationController(new FeedViewController());
-            feedTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_home"), UIImage.FromBundle("ic_home"));
+            feedTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_home"), 0);
 
             var browseTab = new UINavigationController(new PreSearchViewController());
-            browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), UIImage.FromBundle("browse"));
+            browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), 1);
 
-            var photoTab = new UINavigationController(new PhotoViewController());
-            photoTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("camera"), UIImage.FromBundle("camera"));
+            var photoTab = new UIViewController();
+            photoTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_create"), 2);
+            //photoTab.TabBarItem.
+
 
             var profileTab = new UINavigationController(new ProfileViewController());
-            profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("profile"), UIImage.FromBundle("profile"));
+            profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("profile"), 3);
 
             ViewControllers = new UIViewController[] {
                 feedTab,
@@ -31,11 +33,22 @@ namespace Steepshot.iOS.ViewControllers
 
             var insets = new UIEdgeInsets(5, 0, -5, 0);
 
-            foreach (UINavigationController item in ViewControllers)
+            foreach (UIViewController item in ViewControllers)
             {
-                item.NavigationBar.Translucent = false;
+                if (item is UINavigationController navController)
+                    navController.NavigationBar.Translucent = false;
                 item.TabBarItem.ImageInsets = insets;
             }
+        }
+
+        public override void ItemSelected(UITabBar tabbar, UITabBarItem item)
+        {
+            if(item.Tag == 2)
+            {
+                return;
+            }
+            NavigationController.PushViewController(new PhotoViewController(), true);
+            base.ItemSelected(tabbar, item);
         }
 
         public override void ViewWillAppear(bool animated)

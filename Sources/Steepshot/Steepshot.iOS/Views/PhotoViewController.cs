@@ -28,13 +28,13 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
-            photoCollection.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
+            //photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
+            //photoCollection.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
 
             photoButton.TouchDown += PhotoButton_TouchDown;
-            swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+            //swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             //TODO:KOA: await o.O
-            RequestPhotoAuth();
+            //RequestPhotoAuth();
             AuthorizeCameraUse();
         }
 
@@ -128,9 +128,11 @@ namespace Steepshot.iOS.Views
             }
         }
 
+
         private void SetNavBar()
         {
-            NavigationController.SetNavigationBarHidden(false, false);
+            NavigationController.SetNavigationBarHidden(true, true);
+            /*
             var barHeight = NavigationController.NavigationBar.Frame.Height;
 
             var tw = new UILabel(new CGRect(0, 0, 120, barHeight));
@@ -146,7 +148,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
 
             NavigationController.NavigationBar.TintColor = UIColor.White;
-            NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
+            NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants*/
         }
 
         public void SetupLiveCameraStream()

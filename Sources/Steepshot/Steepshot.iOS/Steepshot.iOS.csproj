@@ -451,6 +451,9 @@
     <BundleResource Include="Resources\ic_settings.png" />
     <BundleResource Include="Resources\ic_settings%402x.png" />
     <BundleResource Include="Resources\ic_settings%403x.png" />
+    <BundleResource Include="Resources\ic_create.png" />
+    <BundleResource Include="Resources\ic_create%402x.png" />
+    <BundleResource Include="Resources\ic_create%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
