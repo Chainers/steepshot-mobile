@@ -109,8 +109,33 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
+            SetBackButton();
+
             GetUserInfo();
             GetUserPosts();
+        }
+
+        private void SetBackButton()
+        {
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            if (Username == BasePresenter.User.Login)
+            {
+                NavigationItem.Title = "My Profile";
+                var rightBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
+                var rightBarButton2 = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
+                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { rightBarButton, rightBarButton2 };
+            }
+            else
+            {
+                NavigationItem.Title = Username;
+                var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+                NavigationItem.LeftBarButtonItem = leftBarButton;
+            }
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
         }
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
@@ -119,6 +144,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.EndRefreshing();
         }
 
+        /*
         public override void ViewWillAppear(bool animated)
         {
             if (Username == BasePresenter.User.Login)
@@ -132,7 +158,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.SetNavigationBarHidden(false, false);
             }
             base.ViewWillAppear(animated);
-        }
+        }*/
 
         private void ProfileHeaderLoaded()
         {
@@ -186,12 +212,12 @@ namespace Steepshot.iOS.Views
                 ShouldProfileUpdate = false;
             }
         }
-
+        /*
         public override void ViewWillDisappear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(false, false);
             base.ViewWillDisappear(animated);
-        }
+        }*/
 
         private async Task RefreshPage()
         {
@@ -306,6 +332,12 @@ namespace Steepshot.iOS.Views
             {
                 loading.StopAnimating();
             }
+        }
+
+        private void GoToSettings(object sender, EventArgs e)
+        {
+            var myViewController = new SettingsViewController();
+            TabBarController.NavigationController.PushViewController(myViewController, true);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)
