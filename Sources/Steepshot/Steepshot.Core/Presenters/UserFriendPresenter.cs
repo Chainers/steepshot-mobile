@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
 
                 if (voters.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryLoadNextPostVoters), true);
             }
             return response.Error;
         }
@@ -101,7 +101,7 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryLoadNextUserFriends), true);
             }
 
             return response.Error;
@@ -137,7 +137,7 @@ namespace Steepshot.Core.Presenters
 
                 if (result.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryLoadNextSearchUser), true);
             }
             return response.Error;
         }
@@ -145,10 +145,10 @@ namespace Steepshot.Core.Presenters
         public async Task<ErrorBase> TryFollow(UserFriend item)
         {
             item.FollowedChanging = true;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFollow), true);
             var error = await TryRunTask(Follow, OnDisposeCts.Token, item);
             item.FollowedChanging = false;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFollow), true);
             return error;
         }
 

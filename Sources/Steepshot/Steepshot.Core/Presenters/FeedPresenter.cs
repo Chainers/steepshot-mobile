@@ -33,7 +33,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await Api.GetUserRecentPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts));
             } while (isNeedRepeat);
 
             return error;

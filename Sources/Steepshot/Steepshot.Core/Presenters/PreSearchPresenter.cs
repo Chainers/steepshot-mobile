@@ -38,7 +38,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 response = await Api.GetPosts(request, ct);
-            } while (ResponseProcessing(response, ItemsLimit, out error));
+            } while (ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts)));
 
             return error;
         }
@@ -67,7 +67,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await Api.GetPostsByCategory(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryGetSearchedPosts));
             } while (isNeedRepeat);
 
             return error;

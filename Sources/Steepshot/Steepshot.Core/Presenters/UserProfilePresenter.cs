@@ -39,7 +39,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await Api.GetUserPosts(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextPosts));
             } while (isNeedRepeat);
 
             return error;
@@ -64,7 +64,7 @@ namespace Steepshot.Core.Presenters
             if (response.Success)
             {
                 UserProfileResponse = response.Result;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryGetUserInfo), true);
             }
             return response.Error;
         }
@@ -75,11 +75,11 @@ namespace Steepshot.Core.Presenters
                 return null;
 
             UserProfileResponse.FollowedChanging = true;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFollow), true);
 
             var error = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
             UserProfileResponse.FollowedChanging = false;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFollow), true);
             return error;
         }
 

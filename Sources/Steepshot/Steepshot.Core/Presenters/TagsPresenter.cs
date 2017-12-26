@@ -41,7 +41,7 @@ namespace Steepshot.Core.Presenters
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryLoadNext), true);
             }
             return response.Error;
         }
@@ -74,7 +74,7 @@ namespace Steepshot.Core.Presenters
 
                 if (tags.Count < Math.Min(ServerMaxCount, ItemsLimit))
                     IsLastReaded = true;
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(TryGetTopTags), true);
             }
             return response.Error;
         }

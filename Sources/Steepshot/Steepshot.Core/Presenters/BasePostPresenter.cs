@@ -29,7 +29,7 @@ namespace Steepshot.Core.Presenters
 
             lock (Items)
                 Items.Remove(post);
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(RemovePost), true);
         }
 
         public Post FirstOrDefault(Func<Post, bool> func)
@@ -44,7 +44,7 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
         {
             error = null;
             if (response == null)
@@ -85,7 +85,7 @@ namespace Steepshot.Core.Presenters
                         return true;
                     }
 
-                    NotifySourceChanged(isAdded);
+                    NotifySourceChanged(sender, isAdded);
                 }
                 if (results.Count < Math.Min(ServerMaxCount, itemsLimit))
                     IsLastReaded = true;
@@ -93,6 +93,7 @@ namespace Steepshot.Core.Presenters
             error = response.Error;
             return false;
         }
+
         public async Task<ErrorBase> TryVote(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
@@ -100,13 +101,13 @@ namespace Steepshot.Core.Presenters
 
             post.VoteChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryVote), true);
 
             var error = await TryRunTask(Vote, OnDisposeCts.Token, post);
 
             post.VoteChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryVote), true);
 
             return error;
         }
@@ -154,13 +155,13 @@ namespace Steepshot.Core.Presenters
             post.FlagNotificationWasShown = post.Flag;
             post.FlagChanging = true;
             IsEnableVote = false;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFlag), true);
 
             var error = await TryRunTask(Flag, OnDisposeCts.Token, post);
 
             post.FlagChanging = false;
             IsEnableVote = true;
-            NotifySourceChanged();
+            NotifySourceChanged(nameof(TryFlag), true);
 
             return error;
         }

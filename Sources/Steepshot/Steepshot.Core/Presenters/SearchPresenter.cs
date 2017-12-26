@@ -22,9 +22,9 @@ namespace Steepshot.Core.Presenters
             if (!string.IsNullOrEmpty(query) && (query.Length == 1 || (query.Length == 2 && searchType == SearchType.People)) || string.IsNullOrEmpty(query) && searchType == SearchType.People)
             {
                 if (searchType == SearchType.Tags)
-                    TagsPresenter.NotifySourceChanged();
+                    TagsPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
                 else
-                    UserFriendPresenter.NotifySourceChanged();
+                    UserFriendPresenter.NotifySourceChanged(nameof(TrySearchCategories), true);
 
                 return null;
             }

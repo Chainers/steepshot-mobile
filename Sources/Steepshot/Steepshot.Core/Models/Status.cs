@@ -4,8 +4,11 @@
     {
         public bool IsChanged { get; }
 
-        public Status(bool isChanged)
+        public string Sender { get; }
+
+        public Status(string sender, bool isChanged)
         {
+            Sender = sender;
             IsChanged = isChanged;
         }
     }
