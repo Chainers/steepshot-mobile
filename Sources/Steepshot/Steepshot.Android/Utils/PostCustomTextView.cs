@@ -60,16 +60,23 @@ namespace Steepshot.Utils
         public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines)
         {
             var textMaxLength = int.MaxValue;
+            var censorTitle = post.Title.CensorText();
+            var censorDescription = post.Description.CensorText();
+            var censorDescriptionHtml = Html.FromHtml(censorDescription);
+            var censorDescriptionWithoutHtml = string.IsNullOrEmpty(post.Description)
+                ? string.Empty
+                : censorDescriptionHtml.ToString();
+
             if (!post.IsExpanded)
             {
                 if (MeasuredWidth == 0)
                     return;
 
-                var titleWithTags = new StringBuilder(post.Title.CensorText());
-                if (!string.IsNullOrEmpty(post.Description))
+                var titleWithTags = new StringBuilder(censorTitle);
+                if (!string.IsNullOrEmpty(censorDescriptionWithoutHtml))
                 {
                     titleWithTags.Append(Environment.NewLine + Environment.NewLine);
-                    titleWithTags.Append(Html.FromHtml(post.Description.CensorText()));
+                    titleWithTags.Append(censorDescriptionWithoutHtml);
                 }
 
                 foreach (var item in post.Tags)
@@ -87,64 +94,61 @@ namespace Steepshot.Utils
             }
 
             var builder = new SpannableStringBuilder();
-            if (post.Title.Length + post.Description.Length > textMaxLength)
+            var buf = new SpannableString(censorTitle);
+            builder.Append(buf);
+
+            if (!string.IsNullOrEmpty(censorDescriptionWithoutHtml))
             {
-                var titleAndDescription = new SpannableString(post.Title);
-                builder.Append(titleAndDescription);
-                if (!string.IsNullOrEmpty(post.Description))
+                var subStrLenght = textMaxLength - censorTitle.Length - Environment.NewLine.Length * 2;
+                if (subStrLenght > 0)
                 {
                     builder.Append(Environment.NewLine + Environment.NewLine);
-                    var subStrLenght = textMaxLength - post.Title.Length - Environment.NewLine.Length * 2;
-                    titleAndDescription = new SpannableString(Html.FromHtml(post.Description.CensorText()).ToString()
-                        .Substring(0, subStrLenght > 0 ? subStrLenght : 0));
-                    builder.Append(titleAndDescription);
+
+                    var outText = censorDescriptionWithoutHtml;
+                    if (outText.Length > subStrLenght)
+                        outText = outText.Remove(subStrLenght);
+
+                    buf = new SpannableString(outText);
+                    builder.Append(buf);
                 }
-                titleAndDescription.Dispose();
             }
-            else
+
+            var j = 0;
+            var tags = post.Tags.Distinct();
+
+            foreach (var tag in tags)
             {
-                var titleAndDescription = new SpannableString(post.Title);
-                builder.Append(titleAndDescription);
-                if (!string.IsNullOrEmpty(post.Description))
-                {
-                    titleAndDescription = new SpannableString(Html.FromHtml(post.Description.CensorText()));
-                    builder.Append(Environment.NewLine + Environment.NewLine);
-                    builder.Append(titleAndDescription);
-                }
-                titleAndDescription.Dispose();
+                var translitTaf = tag.TagToRu();
+                var formatedTag = string.Format(tagFormat, translitTaf);
+                if (formatedTag.Length > textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length)
+                    break;
 
-                var j = 0;
-                var tags = post.Tags.Distinct();
-
-                foreach (var tag in tags)
+                if (!string.Equals(tag, tagToExclude, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= tagFormat.Length - 3 + tag.Length)
+                    if (j >= _tags.Count)
                     {
-                        if (j >= _tags.Count)
-                        {
-                            var ccs = new CustomClickableSpan();
-                            ccs.SpanClicked += TagAction;
-                            _tags.Add(ccs);
-                        }
-
-                        _tags[j].Tag = tag.TagToRu();
-                        var spannableString = new SpannableString(string.Format(tagFormat, _tags[j].Tag));
-                        spannableString.SetSpan(_tags[j], 0, spannableString.Length(), SpanTypes.ExclusiveExclusive);
-                        spannableString.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, spannableString.Length(), 0);
-                        builder.Append(spannableString);
-                        spannableString.Dispose();
-                        j++;
+                        var ccs = new CustomClickableSpan();
+                        ccs.SpanClicked += TagAction;
+                        _tags.Add(ccs);
                     }
+
+                    _tags[j].Tag = translitTaf;
+                    buf = new SpannableString(formatedTag);
+                    buf.SetSpan(_tags[j], 0, buf.Length(), SpanTypes.ExclusiveExclusive);
+                    buf.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, buf.Length(), 0);
+                    builder.Append(buf);
+                    j++;
                 }
             }
+
             if (textMaxLength != int.MaxValue)
             {
                 var tag = new SpannableString(Localization.Texts.ShowMoreString);
                 tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
                 builder.Append(tag);
             }
+
             SetText(builder, BufferType.Spannable);
-            builder.Dispose();
         }
     }
 }
