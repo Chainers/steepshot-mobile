@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
-using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.Transitions;
@@ -364,28 +363,13 @@ namespace Steepshot.Fragment
                 if (_postsList.GetAdapter() == ProfileGridAdapter)
                 {
                     var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView
-                        .FindViewById(Resource.Id.grid_item_photo);
+                        .FindViewById(Resource.Id.grid_item_photo) as ImageView;
                     if (seenItem != null)
-                        PulseGridItem(seenItem);
+                        AnimationHelper.PulseGridItem(seenItem);
                 }
                 return true;
             }
             return false;
-        }
-
-        private void PulseGridItem(View view)
-        {
-            var imageView = (ImageView)view;
-            var animator = ValueAnimator.OfInt(20, 100);
-            animator.SetDuration(300);
-            animator.RepeatCount = 2;
-            animator.Update += delegate (object sender, ValueAnimator.AnimatorUpdateEventArgs args)
-             {
-                 imageView.ClearColorFilter();
-                 imageView.SetColorFilter(Color.Argb((int)args.Animation.AnimatedValue, 255, 255, 255), PorterDuff.Mode.Multiply);
-             };
-            animator.AnimationEnd += (sender, args) => imageView.ClearColorFilter();
-            animator.Start();
         }
 
         private void OnToolbarOffsetChanged(object sender, AppBarLayout.OffsetChangedEventArgs e)

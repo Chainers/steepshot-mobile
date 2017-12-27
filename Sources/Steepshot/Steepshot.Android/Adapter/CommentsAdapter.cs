@@ -6,7 +6,6 @@ using Android.Support.Design.Widget;
 using Android.Support.V7.Widget;
 using Android.Text.Method;
 using Android.Views;
-using Android.Views.Animations;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
@@ -15,7 +14,6 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using System.Threading.Tasks;
 
