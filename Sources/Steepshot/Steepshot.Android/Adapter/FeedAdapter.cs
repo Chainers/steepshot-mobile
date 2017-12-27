@@ -20,6 +20,7 @@ using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
+using System.Collections.Generic;
 
 namespace Steepshot.Adapter
 {
@@ -134,6 +135,7 @@ namespace Steepshot.Adapter
             parameters.Height = height;
 
             _photosViewPager.LayoutParameters = parameters;
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, photoAction);
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -293,7 +295,7 @@ namespace Steepshot.Adapter
         private void DoShareAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            var clipboard = (Android.Content.ClipboardManager)_context.GetSystemService(Context.ClipboardService);
+            var clipboard = (ClipboardManager)_context.GetSystemService(Context.ClipboardService);
             var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(Localization.Texts.PostLink, _post.Url));
             clipboard.PrimaryClip = clip;
             _context.ShowAlert(Localization.Texts.Copied, ToastLength.Short);
@@ -379,9 +381,7 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            var adapter = new PostPhotosPagerAdapter(PhotoPagerType, _context, _post, _photosViewPager.LayoutParameters, _photoAction);
-            _photosViewPager.Adapter = adapter;
-            adapter.NotifyDataSetChanged();
+            ((PostPhotosPagerAdapter)_photosViewPager.Adapter).UpdateData(PhotoPagerType, _post);
 
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, _context.Resources);
@@ -477,54 +477,74 @@ namespace Steepshot.Adapter
 
         class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
+            private const int CachedPagesCount = 5;
+            private List<CardView> _photoHolders;
             private readonly Context Context;
-            private readonly Post _post;
             private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
-            private readonly PostPagerType _type;
-            private readonly string[] _photos;
+            private PostPagerType _type;
+            private Post _post;
+            private string _photo;
 
-            public PostPhotosPagerAdapter(PostPagerType type, Context context, Post post, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
+            public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
             {
-                _type = type;
                 Context = context;
-                _post = post;
                 _layoutParams = layoutParams;
                 _photoAction = photoAction;
-                _photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
+                _photoHolders = new List<CardView>(Enumerable.Repeat<CardView>(null, CachedPagesCount));
             }
 
-            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            public void UpdateData(PostPagerType type, Post post)
             {
-                var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
-                var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
-                photo.SetImageDrawable(null);
-                photo.SetScaleType(ImageView.ScaleType.CenterCrop);
-                photo.Click += PhotoOnClick;
-                photoCard.AddView(photo);
-                var photoString = _photos[position];
-                if (photoString != null)
+                _type = type;
+                _post = post;
+                //_photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
+                _photo = _post.Photos[0];
+                NotifyDataSetChanged();
+                var cardView = _photoHolders[0];
+                if (cardView != null)
+                    LoadPhoto(_post.Photos[0], cardView);
+            }
+
+            private void LoadPhoto(string path, CardView photoCard)
+            {
+                if (path != null)
                 {
-                    Picasso.With(Context).Load(photoString).NoFade()
+                    var photo = (ImageView)photoCard.GetChildAt(0);
+                    Picasso.With(Context).Load(path).NoFade()
                         .Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
-                         {
-                             Picasso.With(Context).Load(photoString).NoFade().Priority(Picasso.Priority.High).Into(photo);
-                         });
+                        {
+                            Picasso.With(Context).Load(path).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                        });
                     if (_type == PostPagerType.PostScreen)
                     {
                         photoCard.Radius = (int)BitmapUtils.DpToPixel(7, Context.Resources);
                     }
-                    var parameters = photoCard.LayoutParameters;
                     var size = new Size { Height = _post.ImageSize.Height / Style.Density, Width = _post.ImageSize.Width / Style.Density };
-                    parameters.Height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
-                    photoCard.LayoutParameters = parameters;
-                    parameters = photo.LayoutParameters;
-                    parameters.Height = photoCard.LayoutParameters.Height;
-                    photo.LayoutParameters = parameters;
+                    var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+                    photoCard.LayoutParameters.Height = height;
+                    ((View)photoCard.Parent).LayoutParameters.Height = height;
+                    photo.LayoutParameters.Height = height;
                 }
-                container.AddView(photoCard);
-                return photoCard;
+            }
+
+            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            {
+                var reusePosition = position % CachedPagesCount;
+                if (_photoHolders[reusePosition] == null)
+                {
+                    var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
+                    var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
+                    photo.SetImageDrawable(null);
+                    photo.SetScaleType(ImageView.ScaleType.CenterCrop);
+                    photo.Click += PhotoOnClick;
+                    photoCard.AddView(photo);
+                    _photoHolders[reusePosition] = photoCard;
+                    container.AddView(photoCard);
+                    LoadPhoto(_photo, photoCard);
+                }
+                return _photoHolders[reusePosition];
             }
 
             private void PhotoOnClick(object sender, EventArgs eventArgs)
@@ -542,7 +562,7 @@ namespace Steepshot.Adapter
                 return view == obj;
             }
 
-            public override int Count => _photos.Length;
+            public override int Count => _photo == null ? 0 : 1;
         }
     }
 }
