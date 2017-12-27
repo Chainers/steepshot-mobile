@@ -50,7 +50,7 @@ namespace Steepshot.Core.Presenters
             IsLastReaded = false;
             OffsetUrl = string.Empty;
             if (isNotify)
-                NotifySourceChanged();
+                NotifySourceChanged(nameof(Clear), true);
         }
 
 
@@ -161,14 +161,9 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        internal void NotifySourceChanged()
+        internal void NotifySourceChanged(string sender, bool isChanged)
         {
-            SourceChanged?.Invoke(new Status(true));
-        }
-
-        internal void NotifySourceChanged(bool isChanged)
-        {
-            SourceChanged?.Invoke(new Status(isChanged));
+            SourceChanged?.Invoke(new Status(sender, true));
         }
     }
 }

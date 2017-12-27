@@ -98,6 +98,7 @@ namespace Steepshot.Adapter
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
         private string _userAvatar;
+        private UserProfileResponse _profile;
 
         public HeaderViewHolder(View itemView, Context context, Action followersAction, Action followingAction, Action balanceAction, Action followAction) : base(itemView)
         {
@@ -159,12 +160,14 @@ namespace Steepshot.Adapter
 
         private void OnFollowersBtnOnClick(object sender, EventArgs e)
         {
-            _followersAction?.Invoke();
+            if (_profile.FollowersCount > 0)
+                _followersAction?.Invoke();
         }
 
         private void OnFollowingBtnOnClick(object sender, EventArgs e)
         {
-            _followingAction?.Invoke();
+            if (_profile.FollowingCount > 0)
+                _followingAction?.Invoke();
         }
 
         public void UpdateHeader(UserProfileResponse profile)
@@ -172,6 +175,7 @@ namespace Steepshot.Adapter
             if (profile == null)
                 return;
 
+            _profile = profile;
             _userAvatar = profile.ProfileImage;
             if (!string.IsNullOrEmpty(_userAvatar))
             {

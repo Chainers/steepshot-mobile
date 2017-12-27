@@ -343,7 +343,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 if (_errorHtml.IsMatch(content))
                 {
-                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.ResponseContentContainsHtml + content);
+                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.HttpErrorCodeToMessage(response.StatusCode, content));
                     return result;
                 }
                 var match = _errorJson.Match(content);
@@ -361,7 +361,7 @@ namespace Steepshot.Core.HttpClient
                     return result;
                 }
 
-                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.StatusCodeToMessage(response.StatusCode));
+                result.Error = new HttpError((int)response.StatusCode, Localization.Errors.UnexpectedError);
                 return result;
             }
             else

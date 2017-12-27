@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
-using System.Text;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
-using Android.Text;
 using Android.Text.Method;
-using Android.Text.Style;
 using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
@@ -16,13 +14,13 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using System.Collections.Generic;
 using Android.Support.Design.Widget;
 using Android.Support.V4.View;
 using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
+using System.Collections.Generic;
 
 namespace Steepshot.Adapter
 {
@@ -95,11 +93,12 @@ namespace Steepshot.Adapter
         private readonly ViewPager _photosViewPager;
         private readonly ImageView _avatar;
         private readonly TextView _author;
-        private readonly CustomTextView _title;
+        private readonly PostCustomTextView _title;
         private readonly TextView _commentSubtitle;
         private readonly TextView _time;
         private readonly TextView _likes;
         private readonly TextView _flags;
+        private readonly ImageView _flagsIcon;
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
         protected readonly ImageButton _more;
@@ -115,15 +114,12 @@ namespace Steepshot.Adapter
         private readonly BottomSheetDialog _moreActionsDialog;
         protected readonly Context _context;
 
-        private readonly List<CustomClickableSpan> _tags;
-
-        private Post _post;
+        protected Post _post;
         public const string ClipboardTitle = "Steepshot's post link";
-        private int _textViewWidth;
 
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
-        private const int _maxLines = 3;
+        private const int _maxLines = 5;
         protected PostPagerType PhotoPagerType;
 
         public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
@@ -139,12 +135,14 @@ namespace Steepshot.Adapter
             parameters.Height = height;
 
             _photosViewPager.LayoutParameters = parameters;
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, photoAction);
 
-            _title = itemView.FindViewById<CustomTextView>(Resource.Id.first_comment);
+            _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
             _flags = itemView.FindViewById<TextView>(Resource.Id.flags);
+            _flagsIcon = itemView.FindViewById<ImageView>(Resource.Id.flagIcon);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
             _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
@@ -193,14 +191,14 @@ namespace Steepshot.Adapter
             _likes.Click += DoLikersAction;
             _topLikers.Click += DoLikersAction;
             _flags.Click += DoFlagersAction;
+            _flagsIcon.Click += DoFlagersAction;
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
             _more.Click += DoMoreAction;
             _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
-            _tags = new List<CustomClickableSpan>();
-
             _title.Click += OnTitleOnClick;
+            _title.TagAction += _tagAction;
 
             if (_title.OnMeasureInvoked == null)
             {
@@ -210,9 +208,13 @@ namespace Steepshot.Adapter
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
         {
-            if (_post.Flag)
+            if (!_post.FlagNotificationWasShown)
+            {
+                _post.FlagNotificationWasShown = true;
                 _flagAction?.Invoke(_post);
+            }
             _nsfwMask.Visibility = ViewStates.Gone;
+            _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
         private void NsfwMaskCloseButtonOnClick(object sender, EventArgs eventArgs)
@@ -222,13 +224,12 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
-        private void OnTitleOnMeasureInvoked(int width, int he)
+        private void OnTitleOnMeasureInvoked()
         {
-            _textViewWidth = width;
-            UpdateText();
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
         }
 
-        private void OnTitleOnClick(object sender, EventArgs e)
+        protected virtual void OnTitleOnClick(object sender, EventArgs e)
         {
             _post.IsExpanded = true;
             _tagAction?.Invoke(null);
@@ -294,7 +295,7 @@ namespace Steepshot.Adapter
         private void DoShareAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            var clipboard = (Android.Content.ClipboardManager)_context.GetSystemService(Context.ClipboardService);
+            var clipboard = (ClipboardManager)_context.GetSystemService(Context.ClipboardService);
             var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(Localization.Texts.PostLink, _post.Url));
             clipboard.PrimaryClip = clip;
             _context.ShowAlert(Localization.Texts.Copied, ToastLength.Short);
@@ -360,11 +361,11 @@ namespace Steepshot.Adapter
                 _likes.Visibility = ViewStates.Gone;
             if (post.NetFlags > 0)
             {
-                _flags.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Visible;
+                _flags.Text = $"{post.NetFlags}";
             }
             else
-                _flags.Visibility = ViewStates.Gone;
+                _flags.Visibility = _flagsIcon.Visibility = ViewStates.Gone;
             if (post.TotalPayoutReward > 0)
             {
                 _cost.Visibility = ViewStates.Visible;
@@ -380,16 +381,14 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            var adapter = new PostPhotosPagerAdapter(PhotoPagerType, _context, _post, _photosViewPager.LayoutParameters, _photoAction);
-            _photosViewPager.Adapter = adapter;
-            adapter.NotifyDataSetChanged();
+            ((PostPhotosPagerAdapter)_photosViewPager.Adapter).UpdateData(PhotoPagerType, _post);
 
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, _context.Resources);
             var topLikersMargin = (int)BitmapUtils.DpToPixel(6, _context.Resources);
             for (int i = 0; i < _post.TopLikersAvatars.Length; i++)
             {
-                var topLikersAvatar = new CircleImageView(_context);
+                var topLikersAvatar = new CircleImageView(_context) { BorderColor = Color.White, BorderWidth = 3, FillColor = Color.White };
                 var layoutParams = new LinearLayout.LayoutParams(topLikersSize, topLikersSize);
                 if (i != 0)
                     layoutParams.LeftMargin = -topLikersMargin;
@@ -407,7 +406,7 @@ namespace Steepshot.Adapter
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
             }
 
-            UpdateText();
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
 
             _commentSubtitle.Text = post.Children > 0
                 ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
@@ -456,6 +455,8 @@ namespace Steepshot.Adapter
                 _nsfwMaskSubMessage.Text = _post.IsLowRated ? Localization.Messages.LowRatedContentExplanation : Localization.Messages.NSFWContentExplanation;
                 _nsfwMaskActionButton.Text = Localization.Messages.NSFWShow;
             }
+            else
+                _nsfwMask.Visibility = _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
         protected virtual void SetNsfwMaskLayout()
@@ -468,79 +469,6 @@ namespace Steepshot.Adapter
             Picasso.With(_context).Load(_post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
 
-        private void UpdateText()
-        {
-            var textMaxLength = int.MaxValue;
-            if (!_post.IsExpanded)
-            {
-                if (_textViewWidth == 0)
-                    return;
-
-                var titleWithTags = new StringBuilder(_post.Title.CensorText());
-
-                foreach (var item in _post.Tags)
-                {
-                    if (item != tagToExclude)
-                        titleWithTags.AppendFormat(_tagFormat, item.TagToRu());
-                }
-
-                var layout = new StaticLayout(titleWithTags.ToString(), _title.Paint, _textViewWidth, Layout.Alignment.AlignNormal, 1, 1, true);
-                var nLines = layout.LineCount;
-                if (nLines > _maxLines)
-                {
-                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - Localization.Texts.ShowMoreString.Length;
-                }
-            }
-
-            var builder = new SpannableStringBuilder();
-            if (_post.Title.Length > textMaxLength)
-            {
-                var title = new SpannableString(_post.Title.CensorText().Substring(0, textMaxLength));
-                title.SetSpan(null, 0, title.Length(), 0);
-                builder.Append(title);
-                title.Dispose();
-            }
-            else
-            {
-                var title = new SpannableString(_post.Title.CensorText());
-                title.SetSpan(null, 0, title.Length(), 0);
-                builder.Append(title);
-                title.Dispose();
-
-                var j = 0;
-                var tags = _post.Tags.Distinct();
-
-                foreach (var tag in tags)
-                {
-                    if (tag != tagToExclude && textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length >= _tagFormat.Length - 3 + tag.Length)
-                    {
-                        if (j >= _tags.Count)
-                        {
-                            var ccs = new CustomClickableSpan();
-                            ccs.SpanClicked += _tagAction;
-                            _tags.Add(ccs);
-                        }
-
-                        _tags[j].Tag = tag.TagToRu();
-                        var spannableString = new SpannableString(string.Format(_tagFormat, _tags[j].Tag));
-                        spannableString.SetSpan(_tags[j], 0, spannableString.Length(), SpanTypes.ExclusiveExclusive);
-                        spannableString.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, spannableString.Length(), 0);
-                        builder.Append(spannableString);
-                        spannableString.Dispose();
-                        j++;
-                    }
-                }
-            }
-            if (textMaxLength != int.MaxValue)
-            {
-                var tag = new SpannableString(Localization.Texts.ShowMoreString);
-                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
-                builder.Append(tag);
-            }
-            _title.SetText(builder, TextView.BufferType.Spannable);
-            builder.Dispose();
-        }
-
         protected enum PostPagerType
         {
             Feed,
@@ -549,54 +477,74 @@ namespace Steepshot.Adapter
 
         class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
+            private const int CachedPagesCount = 5;
+            private List<CardView> _photoHolders;
             private readonly Context Context;
-            private readonly Post _post;
             private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
-            private readonly PostPagerType _type;
-            private readonly string[] _photos;
+            private PostPagerType _type;
+            private Post _post;
+            private string _photo;
 
-            public PostPhotosPagerAdapter(PostPagerType type, Context context, Post post, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
+            public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
             {
-                _type = type;
                 Context = context;
-                _post = post;
                 _layoutParams = layoutParams;
                 _photoAction = photoAction;
-                _photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
+                _photoHolders = new List<CardView>(Enumerable.Repeat<CardView>(null, CachedPagesCount));
             }
 
-            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            public void UpdateData(PostPagerType type, Post post)
             {
-                var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
-                var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
-                photo.SetImageDrawable(null);
-                photo.SetScaleType(ImageView.ScaleType.CenterCrop);
-                photo.Click += PhotoOnClick;
-                photoCard.AddView(photo);
-                var photoString = _photos[position];
-                if (photoString != null)
+                _type = type;
+                _post = post;
+                //_photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
+                _photo = _post.Photos[0];
+                NotifyDataSetChanged();
+                var cardView = _photoHolders[0];
+                if (cardView != null)
+                    LoadPhoto(_post.Photos[0], cardView);
+            }
+
+            private void LoadPhoto(string path, CardView photoCard)
+            {
+                if (path != null)
                 {
-                    Picasso.With(Context).Load(photoString).NoFade()
+                    var photo = (ImageView)photoCard.GetChildAt(0);
+                    Picasso.With(Context).Load(path).NoFade()
                         .Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
-                         {
-                             Picasso.With(Context).Load(photoString).NoFade().Priority(Picasso.Priority.High).Into(photo);
-                         });
+                        {
+                            Picasso.With(Context).Load(path).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                        });
                     if (_type == PostPagerType.PostScreen)
                     {
                         photoCard.Radius = (int)BitmapUtils.DpToPixel(7, Context.Resources);
                     }
-                    var parameters = photoCard.LayoutParameters;
                     var size = new Size { Height = _post.ImageSize.Height / Style.Density, Width = _post.ImageSize.Width / Style.Density };
-                    parameters.Height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
-                    photoCard.LayoutParameters = parameters;
-                    parameters = photo.LayoutParameters;
-                    parameters.Height = photoCard.LayoutParameters.Height;
-                    photo.LayoutParameters = parameters;
+                    var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
+                    photoCard.LayoutParameters.Height = height;
+                    ((View)photoCard.Parent).LayoutParameters.Height = height;
+                    photo.LayoutParameters.Height = height;
                 }
-                container.AddView(photoCard);
-                return photoCard;
+            }
+
+            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            {
+                var reusePosition = position % CachedPagesCount;
+                if (_photoHolders[reusePosition] == null)
+                {
+                    var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
+                    var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
+                    photo.SetImageDrawable(null);
+                    photo.SetScaleType(ImageView.ScaleType.CenterCrop);
+                    photo.Click += PhotoOnClick;
+                    photoCard.AddView(photo);
+                    _photoHolders[reusePosition] = photoCard;
+                    container.AddView(photoCard);
+                    LoadPhoto(_photo, photoCard);
+                }
+                return _photoHolders[reusePosition];
             }
 
             private void PhotoOnClick(object sender, EventArgs eventArgs)
@@ -614,7 +562,7 @@ namespace Steepshot.Adapter
                 return view == obj;
             }
 
-            public override int Count => _photos.Length;
+            public override int Count => _photo == null ? 0 : 1;
         }
     }
 }

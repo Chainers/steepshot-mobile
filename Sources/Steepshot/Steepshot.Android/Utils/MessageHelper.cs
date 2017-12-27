@@ -31,6 +31,9 @@ namespace Steepshot.Utils
 
         public static void ShowAlert(this Context context, string message, ToastLength length)
         {
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
             Toast.MakeText(context, message, length).Show();
         }
 
@@ -38,7 +41,7 @@ namespace Steepshot.Utils
         {
             if (error == null)
                 return;
-            Toast.MakeText(context, error.Message, length).Show();
+            ShowAlert(context, error.Message, length);
         }
 
         public static void ShowAlert(this Context context, OperationResult response, ToastLength length)

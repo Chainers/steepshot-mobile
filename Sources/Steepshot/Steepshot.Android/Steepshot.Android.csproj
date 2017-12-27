@@ -127,7 +127,7 @@
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
     <Compile Include="Utils\CustomClickableSpan.cs" />
-    <Compile Include="Utils\CustomTextView.cs" />
+    <Compile Include="Utils\PostCustomTextView.cs" />
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
   </ItemGroup>
@@ -209,6 +209,9 @@
     <AndroidResource Include="Resources\layout\lyt_grid_item.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_description_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -233,9 +236,13 @@
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_comment_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_feed.axml">
       <SubType>Designer</SubType>
     </AndroidResource>

@@ -30,7 +30,7 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await Api.GetComments(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, isNeedClearItems);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextComments), isNeedClearItems);
                 isNeedClearItems = false;
             } while (isNeedRepeat);
 

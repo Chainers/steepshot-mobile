@@ -25,6 +25,7 @@ namespace Steepshot.Fragment
         public const string ResultString = "result";
         public const string CountString = "count";
 
+        private Post _post;
         private CommentAdapter _adapter;
         private string _uid;
         private bool _openKeyboard;
@@ -35,7 +36,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.comments_list)] private RecyclerView _comments;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
         [InjectView(Resource.Id.text_input)] private EditText _textInput;
-        [InjectView(Resource.Id.btn_post)] private RelativeLayout _post;
+        [InjectView(Resource.Id.btn_post)] private RelativeLayout _postBtn;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
         [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
         [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
@@ -51,9 +52,10 @@ namespace Steepshot.Fragment
             //This is fix for crashing when app killed in background
         }
 
-        public CommentsFragment(string uid, bool openKeyboard)
+        public CommentsFragment(Post post, bool openKeyboard)
         {
-            _uid = uid;
+            _post = post;
+            _uid = post.Url;
             _openKeyboard = openKeyboard;
         }
 
@@ -83,13 +85,13 @@ namespace Steepshot.Fragment
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = Localization.Messages.Comments;
 
-            _post.Click += OnPost;
+            _postBtn.Click += OnPost;
             _rootLayout.Click += OnRootClick;
 
             _manager = new LinearLayoutManager(Context, LinearLayoutManager.Vertical, false);
 
             Presenter.SourceChanged += PresenterSourceChanged;
-            _adapter = new CommentAdapter(Context, Presenter);
+            _adapter = new CommentAdapter(Context, Presenter, _post);
             _adapter.LikeAction += LikeAction;
             _adapter.UserAction += UserAction;
             _adapter.VotersClick += VotersAction;
@@ -97,9 +99,11 @@ namespace Steepshot.Fragment
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
             _adapter.RootClickAction += HideKeyboard;
+            _adapter.TagAction += TagAction;
 
             _comments.SetLayoutManager(_manager);
             _comments.SetAdapter(_adapter);
+            _comments.Visibility = ViewStates.Visible;
             if (!BasePresenter.User.IsAuthenticated)
                 _messagePanel.Visibility = ViewStates.Gone;
 
@@ -118,7 +122,6 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
-                _comments.Visibility = ViewStates.Visible;
                 _adapter.NotifyDataSetChanged();
             });
         }
@@ -140,13 +143,24 @@ namespace Steepshot.Fragment
             HideKeyboard();
         }
 
+        private void TagAction(string tag)
+        {
+            if (tag != null)
+            {
+                Activity.Intent.PutExtra(SearchFragment.SearchExtra, tag);
+                ((BaseActivity)Activity).OpenNewContentFragment(new PreSearchFragment());
+            }
+            else
+                _adapter.NotifyDataSetChanged();
+        }
+
         private async void OnPost(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(_textInput.Text))
                 return;
 
             _sendSpinner.Visibility = ViewStates.Visible;
-            _post.Enabled = false;
+            _postBtn.Enabled = false;
             _postImage.Visibility = ViewStates.Invisible;
 
             HideKeyboard();
@@ -180,7 +194,7 @@ namespace Steepshot.Fragment
             }
 
             _sendSpinner.Visibility = ViewStates.Invisible;
-            _post.Enabled = true;
+            _postBtn.Enabled = true;
             _postImage.Visibility = ViewStates.Visible;
         }
 

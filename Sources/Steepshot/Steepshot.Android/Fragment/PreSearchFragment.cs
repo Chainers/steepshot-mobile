@@ -363,7 +363,7 @@ namespace Steepshot.Fragment
                 _postsList.Visibility = ViewStates.Visible;
                 if (_postsList.GetAdapter() == ProfileGridAdapter)
                 {
-                    var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem + 1)?.ItemView
+                    var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView
                         .FindViewById(Resource.Id.grid_item_photo);
                     if (seenItem != null)
                         PulseGridItem(seenItem);
@@ -583,7 +583,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
         }
 
         private void VotersAction(Post post, VotersType type)
@@ -624,7 +624,7 @@ namespace Steepshot.Fragment
 
             Context.ShowAlert(error);
 
-            if (error != null)
+            if (error == null)
             {
                 _refresher.Refreshing = false;
                 _spinner.Visibility = ViewStates.Gone;

@@ -52,14 +52,24 @@ namespace Steepshot.Core
                 return $"The server did not accept the request! Reason ({code}) {msg}";
             }
 
-            internal static string StatusCodeToMessage(HttpStatusCode statusCode)
+            internal static string HttpErrorCodeToMessage(HttpStatusCode statusCode, string content)
             {
                 switch (statusCode)
                 {
                     case HttpStatusCode.BadRequest:
+                        return $"{statusCode} BadRequest. (The server cannot or will not process the request due to an apparent client error.)";
                     case HttpStatusCode.Forbidden:
+                        return $"{statusCode} Forbidden. (The request was valid, but the server is refusing action. Try to log in.) ";
+                    case HttpStatusCode.NotFound:
+                        return $"{statusCode} NotFound. (The requested resource could not be found but may be available in the future.) ";
+                    case HttpStatusCode.InternalServerError:
+                        return $"{statusCode} InternalServerError. (A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.) ";
+                    case HttpStatusCode.BadGateway:
+                        return $"{statusCode} BadGateway. (The server was acting as a gateway or proxy and received an invalid response from the upstream server) ";
+                    case HttpStatusCode.GatewayTimeout:
+                        return $"{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.) ";
                     default:
-                        return $"({statusCode}) {ServeNotRespond}";
+                        return $"({statusCode}) Some error on server side.";
                 }
             }
         }
@@ -171,7 +181,7 @@ namespace Steepshot.Core
             public const string ShowMoreString = " Show more...";
             public const string SignIn = "Sign in";
             public const string FlagPost = "Flag post";
-            public const string UnFlagPost = "Unflag post";
+            public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
             public const string UnFlagComment = "Unflag comment";

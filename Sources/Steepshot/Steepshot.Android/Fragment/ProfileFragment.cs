@@ -359,6 +359,14 @@ namespace Steepshot.Fragment
 
             Activity.RunOnUiThread(() =>
             {
+                if (status.Sender == nameof(UserProfilePresenter.TryFollow) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfo))
+                {
+                    _firstPostButton.Visibility =
+                        _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                            ? ViewStates.Visible
+                            : ViewStates.Gone;
+                }
+
                 _profileSpanSizeLookup.LastItemNumber = Presenter.Count;
                 _adapter.NotifyDataSetChanged();
                 ProfilePagerAdapter.NotifyDataSetChanged();
@@ -534,7 +542,7 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post.Url, post.Children == 0));
+            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
         }
 
         private void VotersAction(Post post, VotersType type)
