@@ -2,11 +2,9 @@ using System;
 using System.Linq;
 using Android.Content;
 using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.Support.V7.Widget;
 using Android.Text.Method;
 using Android.Views;
-using Android.Views.Animations;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core;
@@ -20,6 +18,7 @@ using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Steepshot.Adapter
@@ -109,10 +108,9 @@ namespace Steepshot.Adapter
         protected readonly TextView _nsfwMaskSubMessage;
         private readonly ImageButton _nsfwMaskCloseButton;
         private readonly Button _nsfwMaskActionButton;
-        private readonly Animation _likeSetAnimation;
-        private readonly Animation _likeWaitAnimation;
         private readonly BottomSheetDialog _moreActionsDialog;
         protected readonly Context _context;
+        private bool isAnimationRuning = false;
 
         protected Post _post;
         public const string ClipboardTitle = "Steepshot's post link";
@@ -163,11 +161,6 @@ namespace Steepshot.Adapter
             _commentSubtitle.Typeface = Style.Regular;
             _nsfwMaskMessage.Typeface = Style.Light;
             _nsfwMaskSubMessage.Typeface = Style.Light;
-
-            _likeSetAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_set);
-            _likeSetAnimation.AnimationStart += LikeAnimationStart;
-            _likeSetAnimation.AnimationEnd += LikeAnimationEnd;
-            _likeWaitAnimation = AnimationUtils.LoadAnimation(_context, Resource.Animation.like_wait);
 
             _moreActionsDialog = new BottomSheetDialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
@@ -308,14 +301,47 @@ namespace Steepshot.Adapter
             _moreActionsDialog.Dismiss();
         }
 
-        private void LikeAnimationStart(object sender, Animation.AnimationStartEventArgs e)
+        private async Task LikeSet(bool isFlag)
         {
-            _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
-        }
+            try
+            {
+                isAnimationRuning = true;
+                _likeOrFlag.ScaleX = 0.7f;
+                _likeOrFlag.ScaleY = 0.7f;
 
-        private void LikeAnimationEnd(object sender, Animation.AnimationEndEventArgs e)
-        {
-            _likeOrFlag.StartAnimation(_likeWaitAnimation);
+                if (isFlag)
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
+                else
+                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_new_like_filled);
+
+                var tick = 0;
+                do
+                {
+                    if (!isAnimationRuning)
+                        return;
+
+                    tick++;
+
+                    var mod = tick % 6;
+                    if (mod != 5)
+                    {
+                        _likeOrFlag.ScaleX += 0.05f;
+                        _likeOrFlag.ScaleY += 0.05f;
+                    }
+                    else
+                    {
+                        _likeOrFlag.ScaleX = 0.7f;
+                        _likeOrFlag.ScaleY = 0.7f;
+                    }
+
+                    await Task.Delay(100);
+
+                } while (true);
+            }
+            catch
+            {
+                //todo nothing
+            }
         }
 
         private void DoUserAction(object sender, EventArgs e)
@@ -412,15 +438,21 @@ namespace Steepshot.Adapter
                 ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
                 : context.GetString(Resource.String.first_title_comment);
 
-            _likeOrFlag.ClearAnimation();
+            if (isAnimationRuning && !post.VoteChanging)
+            {
+                isAnimationRuning = false;
+                _likeOrFlag.ScaleX = 1f;
+                _likeOrFlag.ScaleY = 1f;
+            }
             if (!BasePostPresenter.IsEnableVote)
             {
-                if (post.VoteChanging)
-                    _likeOrFlag.StartAnimation(_likeSetAnimation);
+                if (post.VoteChanging && !isAnimationRuning)
+                {
+                    LikeSet(false);
+                }
                 else if (post.FlagChanging)
                 {
-                    _likeOrFlag.SetImageResource(Resource.Drawable.ic_flag_active);
-                    _likeOrFlag.StartAnimation(_likeWaitAnimation);
+                    LikeSet(true);
                 }
             }
             else

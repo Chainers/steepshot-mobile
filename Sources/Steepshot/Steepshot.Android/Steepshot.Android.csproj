@@ -180,8 +180,6 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_new_like_filled.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_new_like_filled.png" />
-    <AndroidResource Include="Resources\Anim\like_set.xml" />
-    <AndroidResource Include="Resources\Anim\like_unset.xml" />
     <AndroidResource Include="Resources\layout\lyt_account_item.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_checked.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_checked.png" />
@@ -189,7 +187,6 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_unchecked.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_unchecked.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_unchecked.png" />
-    <AndroidResource Include="Resources\Anim\like_wait.xml" />
     <AndroidResource Include="Resources\layout\lyt_feed_popup.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_rotate.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_rotate.png" />
