@@ -1,4 +1,5 @@
-﻿using Steepshot.iOS.Views;
+﻿using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Views;
 using UIKit;
 
 namespace Steepshot.iOS.ViewControllers
@@ -16,9 +17,13 @@ namespace Steepshot.iOS.ViewControllers
             var browseTab = new UINavigationController(new PreSearchViewController());
             browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("browse"), 1);
 
-            var photoTab = new UIViewController();
-            photoTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_create"), 2);
-            //photoTab.TabBarItem.
+            var lol = UIImage.FromBundle("ic_create");
+            lol.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+
+            var photoTab = new UIViewController() { };
+            photoTab.TabBarItem = new UITabBarItem(null, lol, lol);
+
+            photoTab.TabBarItem.Tag = 2;
 
 
             var profileTab = new UINavigationController(new ProfileViewController());
@@ -39,22 +44,22 @@ namespace Steepshot.iOS.ViewControllers
                     navController.NavigationBar.Translucent = false;
                 item.TabBarItem.ImageInsets = insets;
             }
-        }
 
-        public override void ItemSelected(UITabBar tabbar, UITabBarItem item)
-        {
-            if(item.Tag == 2)
-            {
-                return;
-            }
-            NavigationController.PushViewController(new PhotoViewController(), true);
-            base.ItemSelected(tabbar, item);
+            photoTab.TabBarItem.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+            photoTab.TabBarItem.SelectedImage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
         }
 
         public override void ViewWillAppear(bool animated)
         {
+            Delegate = new TabBarDelegate(NavigationController);
             NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(false, true);
+            base.ViewWillDisappear(animated);
         }
     }
 }

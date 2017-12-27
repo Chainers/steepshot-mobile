@@ -346,6 +346,7 @@
     <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
     <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
     <Compile Include="Cells\LoaderCell.cs" />
+    <Compile Include="Helpers\TabBarDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -454,6 +455,18 @@
     <BundleResource Include="Resources\ic_create.png" />
     <BundleResource Include="Resources\ic_create%402x.png" />
     <BundleResource Include="Resources\ic_create%403x.png" />
+    <BundleResource Include="Resources\ic_сamera_shot.png" />
+    <BundleResource Include="Resources\ic_сamera_shot%402x.png" />
+    <BundleResource Include="Resources\ic_сamera_shot%403x.png" />
+    <BundleResource Include="Resources\ic_revert.png" />
+    <BundleResource Include="Resources\ic_revert%402x.png" />
+    <BundleResource Include="Resources\ic_revert%403x.png" />
+    <BundleResource Include="Resources\ic_white_close.png" />
+    <BundleResource Include="Resources\ic_white_close%402x.png" />
+    <BundleResource Include="Resources\ic_white_close%403x.png" />
+    <BundleResource Include="Resources\ic_flash.png" />
+    <BundleResource Include="Resources\ic_flash%402x.png" />
+    <BundleResource Include="Resources\ic_flash%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
