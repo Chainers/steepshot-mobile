@@ -219,7 +219,7 @@ namespace Steepshot.Adapter
 
         private void OnTitleOnMeasureInvoked()
         {
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
         }
 
         protected virtual void OnTitleOnClick(object sender, EventArgs e)
@@ -432,7 +432,7 @@ namespace Steepshot.Adapter
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
             }
 
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
             _commentSubtitle.Text = post.Children > 0
                 ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)

@@ -298,27 +298,32 @@ namespace Steepshot.Fragment
                 else
                     _profilePagerAdapter.NotifyDataSetChanged();
             }
+            if (pageScrolledEventArgs.PositionOffset > 0.5 && pageScrolledEventArgs.PositionOffset < 1)
+            {
+                if (1 - pageScrolledEventArgs.PositionOffset > pageScrolledEventArgs.PositionOffset - 0.5)
+                    _profilePagerAdapter.PrepareLeft();
+            }
+            else if (pageScrolledEventArgs.PositionOffset < 0.5 && pageScrolledEventArgs.PositionOffset > 0)
+            {
+                if (0.5 - pageScrolledEventArgs.PositionOffset < pageScrolledEventArgs.PositionOffset)
+                    _profilePagerAdapter.PrepareRight();
+            }
         }
 
         private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
         {
-            switch (pageScrollStateChangedEventArgs.State)
+            if (pageScrollStateChangedEventArgs.State == 0)
             {
-                case 0:
-                    _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
-                    _profilePagerAdapter.ShowHeaderButtons(_postPager.CurrentItem);
-                    _postsList.ScrollToPosition(_postPager.CurrentItem);
-                    if (_postsList.GetLayoutManager() is GridLayoutManager manager)
-                    {
-                        var positionToScroll = _postPager.CurrentItem + (_postPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
-                        _postsList.ScrollToPosition(positionToScroll < Presenter.Count
-                            ? positionToScroll
-                            : Presenter.Count);
-                    }
-                    break;
-                case 1:
-                    _profilePagerAdapter.HideHeaderButtons();
-                    break;
+                _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
+                _profilePagerAdapter.PrepareMiddle();
+                _postsList.ScrollToPosition(_postPager.CurrentItem);
+                if (_postsList.GetLayoutManager() is GridLayoutManager manager)
+                {
+                    var positionToScroll = _postPager.CurrentItem + (_postPager.CurrentItem - manager.FindFirstVisibleItemPosition()) / 2;
+                    _postsList.ScrollToPosition(positionToScroll < Presenter.Count
+                        ? positionToScroll
+                        : Presenter.Count);
+                }
             }
         }
 
@@ -333,10 +338,9 @@ namespace Steepshot.Fragment
         public void OpenPost(Post post)
         {
             if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Visible;
+                activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
-            _profilePagerAdapter.ShowHeaderButtons(_postPager.CurrentItem);
             _postPager.Visibility = ViewStates.Visible;
             _postsList.Visibility = ViewStates.Gone;
         }
