@@ -57,7 +57,7 @@ namespace Steepshot.Utils
             base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
         }
 
-        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines)
+        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
         {
             var textMaxLength = int.MaxValue;
             var censorTitle = post.Title.CensorText();
@@ -67,7 +67,7 @@ namespace Steepshot.Utils
                 ? string.Empty
                 : censorDescriptionHtml.ToString();
 
-            if (!post.IsExpanded)
+            if (!isExpanded)
             {
                 if (MeasuredWidth == 0)
                     return;

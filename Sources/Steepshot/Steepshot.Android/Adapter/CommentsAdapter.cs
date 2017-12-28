@@ -90,7 +90,7 @@ namespace Steepshot.Adapter
         private Context _context;
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
-        private const int _maxLines = 5;
+        private const int _maxLines = 7;
         public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<string> tagAction) : base(itemView)
         {
             _context = itemView.Context;
@@ -130,7 +130,7 @@ namespace Steepshot.Adapter
 
         private void OnTitleOnMeasureInvoked()
         {
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
         }
 
         public void UpdateData(Post post, Context context)
@@ -143,7 +143,7 @@ namespace Steepshot.Adapter
 
             _author.Text = post.Author;
             _time.Text = post.Created.ToPostTime();
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines);
+            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
         }
 
         private void OnPicassoError()
