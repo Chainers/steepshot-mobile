@@ -177,8 +177,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
+                if (ct.IsCancellationRequested)
+                {
+                    return new OperationResult<TResult>(new TaskCanceledError());
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
+                }
             }
         }
 
@@ -202,8 +209,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
+                if (ct.IsCancellationRequested)
+                {
+                    return new OperationResult<TResult>(new TaskCanceledError());
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError)); ;
+                }
             }
         }
 
@@ -227,8 +241,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
+                if (ct.IsCancellationRequested)
+                {
+                    return new OperationResult<TResult>(new TaskCanceledError());
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
+                }
             }
         }
 
@@ -253,8 +274,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new ApplicationError(Localization.Errors.UnknownError);
+                if (ct.IsCancellationRequested)
+                {
+                    return new TaskCanceledError();
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new ApplicationError(Localization.Errors.UnknownError);
+                }
             }
         }
 
@@ -278,8 +306,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new ApplicationError(Localization.Errors.UnknownError);
+                if (ct.IsCancellationRequested)
+                {
+                    return new TaskCanceledError();
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new ApplicationError(Localization.Errors.UnknownError);
+                }
             }
         }
 
@@ -303,8 +338,15 @@ namespace Steepshot.Core.Presenters
             }
             catch (Exception ex)
             {
-                AppSettings.Reporter.SendCrash(ex);
-                return new ApplicationError(Localization.Errors.UnknownError);
+                if (ct.IsCancellationRequested)
+                {
+                    return new TaskCanceledError();
+                }
+                else
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                    return new ApplicationError(Localization.Errors.UnknownError);
+                }
             }
         }
 

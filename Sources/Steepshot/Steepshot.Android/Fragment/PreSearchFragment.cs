@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Animation;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.Transitions;
-using Android.Support.V4.Content;
 using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -37,12 +36,6 @@ namespace Steepshot.Fragment
         private bool _isGuest;
         private TabSettings _tabSettings;
 
-        //ValueAnimator disposing issue probably fixed with static modificator
-        private static ValueAnimator _fontGrowingAnimation;
-        private static ValueAnimator _fontReductionAnimation;
-        private static ValueAnimator _grayToBlackAnimation;
-        private static ValueAnimator _blackToGrayAnimation;
-
         private ScrollListener _scrollListner;
         private LinearLayoutManager _linearLayoutManager;
         private GridLayoutManager _gridLayoutManager;
@@ -50,9 +43,6 @@ namespace Steepshot.Fragment
         private FeedSpanSizeLookup _feedSpanSizeLookup;
 
         private List<Button> _buttonsList;
-        private const int AnimationDuration = 300;
-        private const int MinFontSize = 14;
-        private const int MaxFontSize = 20;
         private int _bottomPadding;
         private bool _isActivated;
         private bool _isNeedToLoadPosts;
@@ -217,7 +207,6 @@ namespace Steepshot.Fragment
 
                 Presenter.SourceChanged += PresenterSourceChanged;
 
-                SetAnimation();
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
                 _currentButton = _hotButton;
@@ -679,59 +668,38 @@ namespace Steepshot.Fragment
             return false;
         }
 
-        private void SetAnimation()
+        private async Task ButtonSwitchAnimation()
         {
-            _fontGrowingAnimation = ValueAnimator.OfFloat(MinFontSize, MaxFontSize);
-            _fontGrowingAnimation.SetDuration(AnimationDuration);
+            const int loop = 3;
+            const int minFontSize = 14;
+            const int maxFontSize = 20;
+            const int minR = 15, minG = 24, minB = 30;
+            const int maxR = 151, maxG = 155, maxB = 158;
 
-            _fontReductionAnimation = ValueAnimator.OfFloat(MaxFontSize, MinFontSize);
-            _fontReductionAnimation.SetDuration(AnimationDuration);
+            var fontSizeDelta = (maxFontSize - minFontSize) / (loop - 1);
+            var deltaR = (maxR - minR) / (loop - 1);
+            var deltaG = (maxG - minG) / (loop - 1);
+            var deltaB = (maxB - minB) / (loop - 1);
 
-            _fontGrowingAnimation.Update += OnFontGrowingAnimationOnUpdate;
-            _fontReductionAnimation.Update += OnFontReductionAnimationOnUpdate;
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
+            for (int i = 0; i < loop; i++)
             {
-                _grayToBlackAnimation = ValueAnimator.OfArgb(Resource.Color.rgb151_155_158, Resource.Color.rgb15_24_30);
-                _grayToBlackAnimation.SetDuration(AnimationDuration);
+                //fontGrowingAnimation
+                _activeButton.SetTextSize(ComplexUnitType.Sp, minFontSize + fontSizeDelta * i);
 
-                _blackToGrayAnimation = ValueAnimator.OfArgb(Resource.Color.rgb15_24_30, Resource.Color.rgb151_155_158);
-                _blackToGrayAnimation.SetDuration(AnimationDuration);
+                //fontReductionAnimation
+                _currentButton.SetTextSize(ComplexUnitType.Sp, maxFontSize - fontSizeDelta * i);
 
-                _grayToBlackAnimation.Update += OnGrayToBlackAnimationOnUpdate;
-                _blackToGrayAnimation.Update += OnBlackToGrayAnimationOnUpdate;
-                _blackToGrayAnimation.AnimationEnd += OnAnimationEnd;
+                //grayToBlackAnimation
+                _activeButton.SetTextColor(Color.Rgb(maxR - deltaR * i, maxG - deltaG * i, maxB - deltaB * i));
+
+                //blackToGrayAnimation
+                _currentButton.SetTextColor(Color.Rgb(minR + deltaR * i, minG + deltaG * i, minB + deltaB * i));
+
+                await Task.Delay(100);
             }
-            else
-                _fontReductionAnimation.AnimationEnd += OnAnimationEnd;
         }
 
-        private void OnAnimationEnd(object sender, EventArgs e)
-        {
-            _currentButton = _activeButton;
-            _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
-        }
-
-        private void OnBlackToGrayAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
-        {
-            _currentButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-        }
-
-        private void OnGrayToBlackAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
-        {
-            _activeButton.SetTextColor(BitmapUtils.GetColorFromInteger(ContextCompat.GetColor(Activity, (int)e.Animation.AnimatedValue)));
-        }
-
-        private void OnFontReductionAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
-        {
-            _currentButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-        }
-
-        private void OnFontGrowingAnimationOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs e)
-        {
-            _activeButton.SetTextSize(ComplexUnitType.Sp, (float)e.Animation.AnimatedValue);
-        }
-
-        private void AnimatedButtonSwitch()
+        private async Task AnimatedButtonSwitch()
         {
             _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = false;
             TransitionManager.BeginDelayedTransition(_searchTypeLayout);
@@ -752,18 +720,10 @@ namespace Steepshot.Fragment
             currentButtonLayoutParameters.AddRule(LayoutRules.RightOf, lastButton.Id);
             _currentButton.LayoutParameters = currentButtonLayoutParameters;
 
-            _fontGrowingAnimation.Start();
-            _fontReductionAnimation.Start();
-            if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
-            {
-                _grayToBlackAnimation.Start();
-                _blackToGrayAnimation.Start();
-            }
-            else
-            {
-                _currentButton.SetTextColor(Style.R151G155B158);
-                _activeButton.SetTextColor(Style.R15G24B30);
-            }
+            await ButtonSwitchAnimation();
+
+            _currentButton = _activeButton;
+            _hotButton.Enabled = _newButton.Enabled = _trendingButton.Enabled = true;
         }
     }
 }

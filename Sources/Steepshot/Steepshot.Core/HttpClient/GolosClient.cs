@@ -270,7 +270,7 @@ namespace Steepshot.Core.HttpClient
                     meta = meta.Replace(Environment.NewLine, string.Empty);
 
                 var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
-                var post = new PostOperation(category, request.Login, request.Title, uploadResponse.Payload.Body, meta);
+                var post = new PostOperation(category, request.Login, request.PostUrl, request.Title, uploadResponse.Payload.Body, meta);
                 BaseOperation[] ops;
                 if (uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
                 {

@@ -50,6 +50,7 @@ namespace Steepshot.Core.HttpClient
             var multiContent = new MultipartFormDataContent();
             multiContent.Add(new ByteArrayContent(request.Photo), "photo", fTitle);
             multiContent.Add(new StringContent(request.Title), "title");
+            multiContent.Add(new StringContent($"@{request.Login}/{request.PostUrl}"), "post_permlink");
             if (!string.IsNullOrWhiteSpace(request.Description))
                 multiContent.Add(new StringContent(request.Description), "description");
             if (!string.IsNullOrWhiteSpace(request.Login))

@@ -163,7 +163,10 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<UploadResponse>(responce.Error);
 
             request.VerifyTransaction = responce.Result;
-            return await _serverServerClient.UploadWithPrepare(request, ct);
+            var response = await _serverServerClient.UploadWithPrepare(request, ct);
+
+            response.Result.PostUrl = request.PostUrl;
+            return response;
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct)
@@ -175,7 +178,6 @@ namespace Steepshot.Core.HttpClient
             var responce = await _ditchClient.DeletePostOrComment(request, ct);
             // if (responce.Success)
             return responce;
-
         }
 
 
