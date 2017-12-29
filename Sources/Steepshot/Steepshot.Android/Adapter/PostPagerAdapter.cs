@@ -163,7 +163,7 @@ namespace Steepshot.Adapter
         protected override void SetNsfwMaskLayout()
         {
             ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
-            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.post_footer);
         }
 
         protected override void OnTitleOnClick(object sender, EventArgs e)

@@ -136,16 +136,16 @@ namespace Steepshot.Fragment
                 else
                     _postPagerAdapter.NotifyDataSetChanged();
             }
-            if (pageScrolledEventArgs.PositionOffset > 0.5 && pageScrolledEventArgs.PositionOffset < 1)
-            {
-                if (1 - pageScrolledEventArgs.PositionOffset > pageScrolledEventArgs.PositionOffset - 0.5)
-                    _postPagerAdapter.PrepareLeft();
-            }
-            else if (pageScrolledEventArgs.PositionOffset < 0.5 && pageScrolledEventArgs.PositionOffset > 0)
-            {
-                if (0.5 - pageScrolledEventArgs.PositionOffset < pageScrolledEventArgs.PositionOffset)
-                    _postPagerAdapter.PrepareRight();
-            }
+            //if (pageScrolledEventArgs.PositionOffset > 0.5 && pageScrolledEventArgs.PositionOffset < 1)
+            //{
+            //    if (1 - pageScrolledEventArgs.PositionOffset > pageScrolledEventArgs.PositionOffset - 0.5)
+            //        _postPagerAdapter.PrepareLeft();
+            //}
+            //else if (pageScrolledEventArgs.PositionOffset < 0.5 && pageScrolledEventArgs.PositionOffset > 0)
+            //{
+            //    if (0.5 - pageScrolledEventArgs.PositionOffset < pageScrolledEventArgs.PositionOffset)
+            //        _postPagerAdapter.PrepareRight();
+            //}
         }
 
         private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
@@ -153,7 +153,7 @@ namespace Steepshot.Fragment
             if (pageScrollStateChangedEventArgs.State == 0)
             {
                 _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
-                _postPagerAdapter.PrepareMiddle();
+                //_postPagerAdapter.PrepareMiddle();
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 if (_feedList.GetLayoutManager() is GridLayoutManager manager)
                 {
