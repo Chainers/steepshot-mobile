@@ -33,6 +33,7 @@ namespace Steepshot.Fragment
         private int _cameraId;
         private int _currentRotation;
         private int _rotationOnShutter;
+        private float _dist;
         private CameraOrientationEventListener _orientationListner;
 
         [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
@@ -65,10 +66,58 @@ namespace Steepshot.Fragment
             _closeButton.Click += GoBack;
             _galleryButton.Click += OpenGallery;
             _revertButton.Click += SwitchCamera;
+            _sv.Touch += SvOnTouch;
 
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
             _orientationListner.OrientationChanged += OnOrientationChanged;
             GetGalleryIcon();
+        }
+
+        private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            Camera.Parameters cameraParams = _camera.GetParameters();
+            var action = touchEventArgs.Event.Action;
+
+            if (touchEventArgs.Event.PointerCount > 1)
+            {
+                if (action == MotionEventActions.PointerDown)
+                {
+                    _dist = GetFingerSpacing(touchEventArgs.Event);
+                }
+                else if (action == MotionEventActions.Move && cameraParams.IsZoomSupported)
+                {
+                    _camera.CancelAutoFocus();
+                    HandleZoom(touchEventArgs.Event, cameraParams);
+                }
+            }
+            touchEventArgs.Handled = true;
+        }
+
+        private void HandleZoom(MotionEvent e, Camera.Parameters p)
+        {
+            int maxZoom = p.MaxZoom;
+            int zoom = p.Zoom;
+            float newDist = GetFingerSpacing(e);
+            if (newDist > _dist)
+            {
+                if (zoom < maxZoom)
+                    zoom++;
+            }
+            else if (newDist < _dist)
+            {
+                if (zoom > 0)
+                    zoom--;
+            }
+            _dist = newDist;
+            p.Zoom = zoom;
+            _camera.SetParameters(p);
+        }
+
+        private float GetFingerSpacing(MotionEvent e)
+        {
+            float x = e.GetX(0) - e.GetX(1);
+            float y = e.GetY(0) - e.GetY(1);
+            return (float)Math.Sqrt(x * x + y * y);
         }
 
         public override void OnResume()
