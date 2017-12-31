@@ -165,7 +165,8 @@ namespace Steepshot.Core.HttpClient
             request.VerifyTransaction = responce.Result;
             var response = await _serverServerClient.UploadWithPrepare(request, ct);
 
-            response.Result.PostUrl = request.PostUrl;
+            if (response.Success)
+                response.Result.PostUrl = request.PostUrl;
             return response;
         }
 
