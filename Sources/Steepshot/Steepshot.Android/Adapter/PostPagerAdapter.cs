@@ -61,7 +61,6 @@ namespace Steepshot.Adapter
             else
                 vh = _viewHolders[reusePosition];
             vh.UpdateData(Presenter[position], Context);
-            container.Invalidate();
             return vh.ItemView;
         }
 
@@ -93,21 +92,45 @@ namespace Steepshot.Adapter
             if (@object == _loadingView)
             {
                 container.RemoveView(_loadingView);
-                container.Invalidate();
             }
         }
 
         public override int Count => _itemsCount;
 
-        public void HideHeaderButtons()
+        public void PrepareLeft()
         {
-            _viewHolders.ForEach(vh => vh?.HideHeaderButtons());
+            var index = (CurrentItem - 1) % CachedPagesCount;
+            if (index >= 0)
+                _viewHolders[index].ShowHeaderAndFooter();
+            index = CurrentItem % CachedPagesCount;
+            _viewHolders[index].HideHeaderAndFooter();
+            index = (CurrentItem - 2) % CachedPagesCount;
+            if (index >= 0)
+                _viewHolders[index].HideHeaderAndFooter();
         }
 
-        public void ShowHeaderButtons(int position)
+        public void PrepareRight()
         {
-            var reusePosition = position % CachedPagesCount;
-            _viewHolders[reusePosition]?.ShowHeaderButtons();
+            var index = (CurrentItem + 1) % CachedPagesCount;
+            if (index < Presenter.Count)
+                _viewHolders[index].ShowHeaderAndFooter();
+            index = CurrentItem % CachedPagesCount;
+            _viewHolders[index].HideHeaderAndFooter();
+            index = (CurrentItem + 2) % CachedPagesCount;
+            if (index < Presenter.Count)
+                _viewHolders[index].HideHeaderAndFooter();
+        }
+
+        public void PrepareMiddle()
+        {
+            var index = CurrentItem % CachedPagesCount;
+            _viewHolders[index].ShowHeaderAndFooter();
+            index = (CurrentItem + 1) % CachedPagesCount;
+            if (index < Presenter.Count)
+                _viewHolders[index].HideHeaderAndFooter();
+            index = (CurrentItem - 1) % CachedPagesCount;
+            if (index >= 0)
+                _viewHolders[index].HideHeaderAndFooter();
         }
     }
 
@@ -115,6 +138,8 @@ namespace Steepshot.Adapter
     {
         private readonly Action _closeAction;
         private readonly ImageButton _closeButton;
+        private readonly RelativeLayout _postHeader;
+        private readonly RelativeLayout _postFooter;
         public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;
@@ -122,6 +147,10 @@ namespace Steepshot.Adapter
             _closeAction = closeAction;
             _closeButton = itemView.FindViewById<ImageButton>(Resource.Id.close);
             _closeButton.Click += CloseButtonOnClick;
+
+            _postHeader = itemView.FindViewById<RelativeLayout>(Resource.Id.title);
+            _postFooter = itemView.FindViewById<RelativeLayout>(Resource.Id.post_footer);
+
             _nsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
         }
 
@@ -134,7 +163,7 @@ namespace Steepshot.Adapter
         protected override void SetNsfwMaskLayout()
         {
             ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
-            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.post_footer);
         }
 
         protected override void OnTitleOnClick(object sender, EventArgs e)
@@ -148,16 +177,16 @@ namespace Steepshot.Adapter
             _closeAction?.Invoke();
         }
 
-        public void HideHeaderButtons()
+        public void HideHeaderAndFooter()
         {
-            _closeButton.Alpha = 0;
-            _more.Alpha = 0;
+            _postHeader.Visibility = ViewStates.Invisible;
+            _postFooter.Visibility = ViewStates.Invisible;
         }
 
-        public void ShowHeaderButtons()
+        public void ShowHeaderAndFooter()
         {
-            _closeButton.Alpha = 100;
-            _more.Alpha = 100;
+            _postHeader.Visibility = ViewStates.Visible;
+            _postFooter.Visibility = ViewStates.Visible;
         }
     }
 }

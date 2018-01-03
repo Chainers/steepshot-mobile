@@ -3,33 +3,19 @@ using Steepshot.Core.Authority;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Ditch.Core.Helpers;
 
 namespace Steepshot.Core.Models.Requests
 {
     public class UploadImageRequest : AuthorizedRequest
     {
         public const int TagLimit = 20;
-
-        private UploadImageRequest(UserInfo user, string title, IList<string> tags) : base(user)
-        {
-            Title = title;
-            Tags = tags.Any() ? tags.Select(i => i.ToLower()).Distinct().ToArray() : new string[0];
-            IsNeedRewards = user.IsNeedRewards;
-        }
-
-        public UploadImageRequest(UserInfo user, string title, byte[] photo, IList<string> tags) : this(user, title, tags)
-        {
-            Photo = photo;
-        }
-
-        public UploadImageRequest(UserInfo user, string title, string photo, IList<string> tags) : this(user, title, tags)
-        {
-            Photo = Convert.FromBase64String(photo);
-        }
-
-
+        
         [Required(ErrorMessage = Localization.Errors.EmptyTitleField)]
         public string Title { get; }
+
+        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
+        public string PostUrl { get; }
 
         [Required(ErrorMessage = Localization.Errors.EmptyPhotoField)]
         [MinLength(1, ErrorMessage = Localization.Errors.EmptyPhotoField)]
@@ -43,5 +29,26 @@ namespace Steepshot.Core.Models.Requests
         public bool IsNeedRewards { get; }
 
         public string VerifyTransaction { get; set; }
+        
+
+
+        private UploadImageRequest(UserInfo user, string title, IList<string> tags) : base(user)
+        {
+            Title = title;
+            Tags = tags.Any() ? tags.Select(i => i.ToLower()).Distinct().ToArray() : new string[0];
+            IsNeedRewards = user.IsNeedRewards;
+            PostUrl = OperationHelper.TitleToPermlink(title);
+        }
+
+        public UploadImageRequest(UserInfo user, string title, byte[] photo, IList<string> tags) : this(user, title, tags)
+        {
+            Photo = photo;
+        }
+
+        public UploadImageRequest(UserInfo user, string title, string photo, IList<string> tags) : this(user, title, tags)
+        {
+            Photo = Convert.FromBase64String(photo);
+        }
+
     }
 }
