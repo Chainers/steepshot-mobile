@@ -1,5 +1,6 @@
 ﻿using System;
 using Foundation;
+using Steepshot.Core.Models;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
@@ -11,6 +12,8 @@ namespace Steepshot.iOS.Cells
         public static readonly UINib Nib;
 
         private bool _isInitialized;
+        public Action<ActionType, string> CellAction;
+        public bool IsCellActionSet => CellAction != null;
 
         static LocalTagCollectionViewCell()
         {
@@ -26,11 +29,19 @@ namespace Steepshot.iOS.Cells
         {
             if (!_isInitialized)
             {
+                var tap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Tap, tagText.Text);
+                });
+
                 hashTag.Font = tagText.Font = Constants.Semibold14;
 
                 rootView.Layer.CornerRadius = 20;
                 rootView.Layer.BorderColor = Constants.R244G244B246.CGColor;
                 rootView.Layer.BorderWidth = 1;
+
+                rootView.AddGestureRecognizer(tap);
+
                 _isInitialized = true;
             }
             base.LayoutSubviews();

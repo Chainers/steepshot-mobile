@@ -10,7 +10,7 @@ namespace Steepshot.iOS.ViewSources
 {
     public class CommentsTableViewSource : BaseTableSource<CommentsPresenter>
     {
-        string _cellIdentifier = nameof(CommentTableViewCell);
+        private readonly string _cellIdentifier = nameof(CommentTableViewCell);
         public event Action<ActionType, Post> CellAction;
 
         public CommentsTableViewSource(BasePostPresenter presenter) : base(presenter)

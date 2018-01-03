@@ -32,7 +32,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            NavigationController.SetNavigationBarHidden(false, false);
+            //NavigationController.SetNavigationBarHidden(false, false);
 
             commentTextView.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
             commentTextView.Layer.BorderWidth = 1f;

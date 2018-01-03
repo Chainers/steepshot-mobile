@@ -11,5 +11,6 @@
         Preview,
         Reply,
         Follow,
+        Tap,
     }
 }

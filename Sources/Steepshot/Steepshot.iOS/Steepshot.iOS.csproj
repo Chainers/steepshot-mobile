@@ -220,6 +220,7 @@
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
     <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -353,6 +354,11 @@
     <Compile Include="Cells\LocalTagCollectionViewCell.designer.cs">
       <DependentUpon>LocalTagCollectionViewCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cells\TagTableViewCell.cs" />
+    <Compile Include="Cells\TagTableViewCell.designer.cs">
+      <DependentUpon>TagTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\TagsTableViewSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

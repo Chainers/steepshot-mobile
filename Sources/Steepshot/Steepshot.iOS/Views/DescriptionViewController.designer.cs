@@ -16,16 +16,37 @@ namespace Steepshot.iOS.Views
 		UIKit.UITextView descriptionTextField { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint localTagsHeight { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint localTagsTopSpace { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView photoView { get; set; }
 
 		[Outlet]
 		UIKit.UIButton postPhotoButton { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint tagDefault { get; set; }
+
+		[Outlet]
 		UIKit.UITextField tagField { get; set; }
 
 		[Outlet]
 		UIKit.UICollectionView tagsCollectionView { get; set; }
+
+		[Outlet]
+		UIKit.UITableView tagsTableView { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint tagToTop { get; set; }
+
+		[Outlet]
+		UIKit.UIView titleBottomView { get; set; }
+
+		[Outlet]
+		UIKit.UIImageView titleEditImage { get; set; }
 
 		[Outlet]
 		[GeneratedCode ("iOS Designer", "1.0")]
@@ -48,9 +69,34 @@ namespace Steepshot.iOS.Views
 				postPhotoButton = null;
 			}
 
+			if (tagDefault != null) {
+				tagDefault.Dispose ();
+				tagDefault = null;
+			}
+
+			if (tagField != null) {
+				tagField.Dispose ();
+				tagField = null;
+			}
+
 			if (tagsCollectionView != null) {
 				tagsCollectionView.Dispose ();
 				tagsCollectionView = null;
+			}
+
+			if (tagsTableView != null) {
+				tagsTableView.Dispose ();
+				tagsTableView = null;
+			}
+
+			if (tagToTop != null) {
+				tagToTop.Dispose ();
+				tagToTop = null;
+			}
+
+			if (titleEditImage != null) {
+				titleEditImage.Dispose ();
+				titleEditImage = null;
 			}
 
 			if (titleTextField != null) {
@@ -58,9 +104,19 @@ namespace Steepshot.iOS.Views
 				titleTextField = null;
 			}
 
-			if (tagField != null) {
-				tagField.Dispose ();
-				tagField = null;
+			if (titleBottomView != null) {
+				titleBottomView.Dispose ();
+				titleBottomView = null;
+			}
+
+			if (localTagsHeight != null) {
+				localTagsHeight.Dispose ();
+				localTagsHeight = null;
+			}
+
+			if (localTagsTopSpace != null) {
+				localTagsTopSpace.Dispose ();
+				localTagsTopSpace = null;
 			}
 		}
 	}
