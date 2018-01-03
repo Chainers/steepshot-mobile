@@ -10,131 +10,123 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
+using System.Threading.Tasks;
+using Steepshot.Core;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
-        }
         public UIImage ImageAsset;
-
-        private TagsCollectionViewSource _collectionviewSource;
+        private LocalTagsCollectionViewSource _collectionviewSource;
 
         public override void ViewDidLoad()
         {
-            SetNavBar();
             base.ViewDidLoad();
-            SwitchDescription();
-            photoView.Image = NormalizeImage(ImageAsset);
-            postPhotoButton.TouchDown += (sender, e) => PostPhoto();
-            Activeview = descriptionTextField;
-            //Collection view initialization
-            tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
-            tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
-            // research flow layout
-            /*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+
+            postPhotoButton.Layer.CornerRadius = 25;
+            Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+
+            postPhotoButton.TitleLabel.Font = Constants.Semibold14;
+            tagField.Font = titleTextField.Font = descriptionTextField.Font = Constants.Regular14;
+
+            //titleTextField.ContentMode = UIViewContentMode.Center;
+            //titleTextField.TextAlignment = UITextAlignment.Center;
+
+            //descriptionTextField.TextAlignment = UITextAlignment.Center;
+
+            tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
+            tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
+
+            tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(100, 50),
-                
-            }, false);*/
+                EstimatedItemSize = new CGSize(20, 45),
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                SectionInset = new UIEdgeInsets(0,15,0,0),
+            }, false);
+
+            _collectionviewSource = new LocalTagsCollectionViewSource();
+            tagsCollectionView.Source = _collectionviewSource;
+
+            tagField.EditingChanged += (object sender, EventArgs e) =>
+            {
+                var txt = ((UITextField)sender).Text;
+                if (!string.IsNullOrWhiteSpace(txt))
+                {
+                    if (txt.EndsWith(" "))
+                    {
+                        ((UITextField)sender).Text = string.Empty;
+                        AddTag(txt);
+                    }
+                }
+                //_timer.Change(500, Timeout.Infinite);
+            };
+
+            /*
             _collectionviewSource = new TagsCollectionViewSource((sender, e) =>
             {
                 var myViewController = new PostTagsViewController();
                 NavigationController.PushViewController(myViewController, true);
-            });
-            _collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
-            _collectionviewSource.RowSelectedEvent += CollectionTagSelected;
-            tagsCollectionView.Source = _collectionviewSource;
+            });*/
+            //_collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
+            //_collectionviewSource.RowSelectedEvent += CollectionTagSelected;
+            //tagsCollectionView.Source = _collectionviewSource;
 
-            UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-                {
-                    descriptionTextField.ResignFirstResponder();
-                    titleTextField.ResignFirstResponder();
-                });
+            var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
-            titleTextField.Layer.BorderWidth = descriptionTextField.Layer.BorderWidth = 1;
-            titleTextField.Layer.BorderColor = descriptionTextField.Layer.BorderColor = UIColor.Black.CGColor;
-        }
 
-        private void SetNavBar()
-        {
-            NavigationController.SetNavigationBarHidden(false, false);
-            var barHeight = NavigationController.NavigationBar.Frame.Height;
 
-            var tw = new UILabel(new CGRect(0, 0, 120, barHeight));
-            tw.TextColor = UIColor.White;
-            tw.BackgroundColor = UIColor.Clear;
-            tw.TextAlignment = UITextAlignment.Center;
-            tw.Font = UIFont.SystemFontOfSize(17);
+            //postPhotoButton.TouchDown += (sender, e) => PostPhoto();
 
-            NavigationItem.TitleView = tw;
-
-            var button = new UIButton();
-            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            postPhotoButton.TouchDown += (sender, e) => 
             {
-                button.WidthAnchor.ConstraintEqualTo(32).Active = true;
-                button.HeightAnchor.ConstraintEqualTo(32).Active = true;
-            }
-            else
-            {
-                button.Frame = new CGRect(0, 0, 32, 32);
-            }
-            button.Layer.BorderColor = UIColor.White.CGColor;
-            button.Layer.BorderWidth = 2.0f;
-            button.Layer.CornerRadius = 16;
-            button.SetTitle("+", UIControlState.Normal);
-            button.TitleLabel.Font = UIFont.SystemFontOfSize(25);
-            button.TitleEdgeInsets = new UIEdgeInsets(0, 0, 4, 0);
-            button.TouchUpInside += AddDescriptionButtonClick;
-            var rightBarButton = new UIBarButtonItem();
-            rightBarButton.CustomView = button;
-            NavigationItem.SetRightBarButtonItem(rightBarButton, true);
+                tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
+            };
+            Activeview = descriptionTextField;
 
-            NavigationController.NavigationBar.TintColor = UIColor.White;
-            NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
+
+            SetBackButton();
         }
 
-        void SwitchDescription()
+        private void AddTag(string txt)
         {
-            descriptionLabel.Hidden = !descriptionLabel.Hidden;
-            descriptionTextField.Hidden = !descriptionTextField.Hidden;
-            tagsCollectionVerticalSpacing.Active = !descriptionTextField.Hidden;
-            tagsCollectionVerticalSpacingHidden.Active = descriptionTextField.Hidden;
-            tagsCollectionView.SetNeedsLayout();
+            _collectionviewSource.LocalTags.Add(txt);
+            tagsCollectionView.ReloadData();
+            tagsCollectionView.CollectionViewLayout.InvalidateLayout();
         }
 
-        void AddDescriptionButtonClick(object sender, EventArgs e)
+        public override void ViewDidLayoutSubviews()
         {
-            SwitchDescription();
+            Constants.CreateGradient(postPhotoButton, 25);
         }
 
-        public override void ViewWillAppear(bool animated)
+        private void SetBackButton()
         {
-            if (NavigationController != null)
-                NavigationController.NavigationBarHidden = false;
-            base.ViewWillAppear(animated);
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+
+            NavigationItem.Title = Localization.Messages.PostSettings;
+            NavigationController.NavigationBar.Translucent = false;
         }
 
-        public override void ViewDidAppear(bool animated)
+        private void RemoveFocusFromTextFields()
+        {
+            descriptionTextField.ResignFirstResponder();
+            titleTextField.ResignFirstResponder();
+            tagField.ResignFirstResponder();
+        }
+
+        public override async void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-
-            _collectionviewSource.TagsCollection.Clear();
-            _collectionviewSource.TagsCollection.Add("");
-            _collectionviewSource.TagsCollection.AddRange(TagsList);
-            tagsCollectionView.ReloadData();
-            tagsCollectionView.LayoutIfNeeded();
-            collectionHeight.Constant = tagsCollectionView.ContentSize.Height;
+            photoView.Image = await NormalizeImage(ImageAsset);
         }
 
-        public override void ViewDidDisappear(bool animated)
+        protected override void CreatePresenter()
         {
-            if (IsMovingFromParentViewController)
-                TagsList.Clear();
-            base.ViewDidDisappear(animated);
+            _presenter = new PostDescriptionPresenter();
         }
 
         private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
@@ -154,23 +146,25 @@ namespace Steepshot.iOS.Views
             return new CGSize(width * inSampleSize, height * inSampleSize);
         }
 
-        private UIImage NormalizeImage(UIImage sourceImage)
+        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
         {
-            var imgSize = sourceImage.Size;
-            var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
-            UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
+            return await Task.Run(() => {
+                var imgSize = sourceImage.Size;
+                var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
+                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
-            var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
-            sourceImage.Draw(drawRect);
-            var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
+                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
+                sourceImage.Draw(drawRect);
+                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+                UIGraphics.EndImageContext();
 
-            return modifiedImage;
+                return modifiedImage;
+            });
         }
 
         private async void PostPhoto()
         {
-            loadingView.Hidden = false;
+            //loadingView.Hidden = false;
             postPhotoButton.Enabled = false;
 
             try
@@ -213,21 +207,27 @@ namespace Steepshot.iOS.Views
             }
             finally
             {
-                loadingView.Hidden = true;
+                //loadingView.Hidden = true;
                 postPhotoButton.Enabled = true;
             }
         }
 
         void CollectionTagSelected(int row)
         {
-            _collectionviewSource.TagsCollection.RemoveAt(row);
+            //_collectionviewSource.TagsCollection.RemoveAt(row);
             TagsList.RemoveAt(row - 1);
             tagsCollectionView.ReloadData();
         }
 
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
+
+        /*
         protected override void CalculateBottom()
         {
             Bottom = Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset;
-        }
+        }*/
     }
 }

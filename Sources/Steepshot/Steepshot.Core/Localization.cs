@@ -78,6 +78,7 @@ namespace Steepshot.Core
         {
             public const string PostFirstComment = "Post your first comment";
             public const string Comments = "Comments";
+            public const string PostSettings = "Post settings";
             public const string RapidPosting = "You post so fast. Try it later";
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";

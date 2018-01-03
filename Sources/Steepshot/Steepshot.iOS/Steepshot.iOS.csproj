@@ -161,10 +161,10 @@
       <HintPath>..\packages\WebP.Touch.1.0.7\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading">
-      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.1\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.2\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading.Platform">
-      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.1\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.2\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +219,7 @@
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
+    <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -347,6 +348,11 @@
     <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
     <Compile Include="Cells\LoaderCell.cs" />
     <Compile Include="Helpers\TabBarDelegate.cs" />
+    <Compile Include="ViewSources\LocalTagsCollectionViewSource.cs" />
+    <Compile Include="Cells\LocalTagCollectionViewCell.cs" />
+    <Compile Include="Cells\LocalTagCollectionViewCell.designer.cs">
+      <DependentUpon>LocalTagCollectionViewCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -467,6 +473,12 @@
     <BundleResource Include="Resources\ic_flash.png" />
     <BundleResource Include="Resources\ic_flash%402x.png" />
     <BundleResource Include="Resources\ic_flash%403x.png" />
+    <BundleResource Include="Resources\ic_edit.png" />
+    <BundleResource Include="Resources\ic_edit%402x.png" />
+    <BundleResource Include="Resources\ic_edit%403x.png" />
+    <BundleResource Include="Resources\ic_close_black.png" />
+    <BundleResource Include="Resources\ic_close_black%402x.png" />
+    <BundleResource Include="Resources\ic_close_black%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

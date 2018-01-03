@@ -110,6 +110,7 @@ namespace Steepshot.iOS.Cells
             timestamp.Text = _currentPost.Created.ToPostTime();
 
             likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            LayoutIfNeeded();
         }
 
         private void LikeTap(object sender, EventArgs e)
