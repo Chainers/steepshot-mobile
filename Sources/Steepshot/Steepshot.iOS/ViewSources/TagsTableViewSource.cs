@@ -1,5 +1,7 @@
 ﻿using System;
 using Foundation;
+using Steepshot.Core.Models;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using UIKit;
 
@@ -8,22 +10,28 @@ namespace Steepshot.iOS.ViewSources
     public class TagsTableViewSource : UITableViewSource
     {
         private readonly string _cellIdentifier = nameof(TagTableViewCell);
+        private PostDescriptionPresenter _presenter;
+        public Action<ActionType, string> CellAction;
+
+        public TagsTableViewSource(PostDescriptionPresenter presenter)
+        {
+            _presenter = presenter;
+        }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var cell = (TagTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
-            /*
+
             if (!cell.IsCellActionSet)
                 cell.CellAction += CellAction;
 
-            cell.UpdateCell(_presenter[indexPath.Row]);*/
+            cell.UpdateCell(_presenter[indexPath.Row].Name);
             return cell;
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return 20;
-            //throw new NotImplementedException();
+            return _presenter.Count;
         }
     }
 }

@@ -16,6 +16,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UITextView descriptionTextField { get; set; }
 
 		[Outlet]
+		UIKit.UIActivityIndicatorView loadingView { get; set; }
+
+		[Outlet]
 		UIKit.NSLayoutConstraint localTagsHeight { get; set; }
 
 		[Outlet]
@@ -59,6 +62,16 @@ namespace Steepshot.iOS.Views
 				descriptionTextField = null;
 			}
 
+			if (localTagsHeight != null) {
+				localTagsHeight.Dispose ();
+				localTagsHeight = null;
+			}
+
+			if (localTagsTopSpace != null) {
+				localTagsTopSpace.Dispose ();
+				localTagsTopSpace = null;
+			}
+
 			if (photoView != null) {
 				photoView.Dispose ();
 				photoView = null;
@@ -94,6 +107,11 @@ namespace Steepshot.iOS.Views
 				tagToTop = null;
 			}
 
+			if (titleBottomView != null) {
+				titleBottomView.Dispose ();
+				titleBottomView = null;
+			}
+
 			if (titleEditImage != null) {
 				titleEditImage.Dispose ();
 				titleEditImage = null;
@@ -104,19 +122,9 @@ namespace Steepshot.iOS.Views
 				titleTextField = null;
 			}
 
-			if (titleBottomView != null) {
-				titleBottomView.Dispose ();
-				titleBottomView = null;
-			}
-
-			if (localTagsHeight != null) {
-				localTagsHeight.Dispose ();
-				localTagsHeight = null;
-			}
-
-			if (localTagsTopSpace != null) {
-				localTagsTopSpace.Dispose ();
-				localTagsTopSpace = null;
+			if (loadingView != null) {
+				loadingView.Dispose ();
+				loadingView = null;
 			}
 		}
 	}

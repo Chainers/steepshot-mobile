@@ -359,6 +359,7 @@
       <DependentUpon>TagTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewSources\TagsTableViewSource.cs" />
+    <Compile Include="Helpers\TagFieldDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

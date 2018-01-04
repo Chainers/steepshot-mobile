@@ -12,6 +12,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DescriptionViewController">
             <connections>
                 <outlet property="descriptionTextField" destination="mJ7-To-Cxd" id="dQx-ga-0Fy"/>
+                <outlet property="loadingView" destination="PhZ-Zq-Dkp" id="VTk-Em-qqP"/>
                 <outlet property="localTagsHeight" destination="rM4-JI-tzH" id="LzZ-bS-8t0"/>
                 <outlet property="localTagsTopSpace" destination="M8H-Wo-Cxw" id="nEi-oi-UXd"/>
                 <outlet property="photoView" destination="4Me-Am-cdD" id="CEd-pJ-6vM"/>
@@ -68,6 +69,7 @@
                     <state key="normal" title="Publish Photo">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
+                    <state key="disabled" title=" "/>
                 </button>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_edit.png" translatesAutoresizingMaskIntoConstraints="NO" id="R7y-GW-YYt">
                     <rect key="frame" x="115" y="60" width="10" height="10"/>
@@ -133,10 +135,14 @@
                     </collectionViewFlowLayout>
                     <cells/>
                 </collectionView>
-                <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="caq-5E-ePd">
+                <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="caq-5E-ePd">
                     <rect key="frame" x="15" y="278.66666666666674" width="384" height="457.33333333333326"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 </tableView>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="PhZ-Zq-Dkp">
+                    <rect key="frame" x="197" y="686" width="20" height="20"/>
+                    <color key="color" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </activityIndicatorView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
@@ -157,6 +163,7 @@
                 <constraint firstItem="R7y-GW-YYt" firstAttribute="centerY" secondItem="4Me-Am-cdD" secondAttribute="centerY" id="MWX-Gu-ot2"/>
                 <constraint firstItem="0dL-i4-M5d" firstAttribute="trailing" secondItem="mJ7-To-Cxd" secondAttribute="trailing" id="NsX-6f-38h"/>
                 <constraint firstItem="6Uh-cH-VZV" firstAttribute="leading" secondItem="4Me-Am-cdD" secondAttribute="leading" id="OjR-8c-e8C"/>
+                <constraint firstItem="PhZ-Zq-Dkp" firstAttribute="centerY" secondItem="gTQ-T8-gEh" secondAttribute="centerY" id="Pxn-aM-Gkf"/>
                 <constraint firstItem="Vn2-c7-Ffn" firstAttribute="top" secondItem="0dL-i4-M5d" secondAttribute="bottom" id="QfM-1F-DYJ"/>
                 <constraint firstItem="4Me-Am-cdD" firstAttribute="leading" secondItem="6vd-wC-9gE" secondAttribute="leading" constant="15" id="STo-jG-EpT"/>
                 <constraint firstItem="caq-5E-ePd" firstAttribute="top" secondItem="eT3-ad-bI7" secondAttribute="bottom" constant="15" id="Xir-uX-uCT"/>
@@ -169,6 +176,7 @@
                 <constraint firstAttribute="trailing" secondItem="mJ7-To-Cxd" secondAttribute="trailing" constant="14" id="eMi-TE-YS3"/>
                 <constraint firstItem="OPW-ek-Kcg" firstAttribute="centerY" secondItem="4Me-Am-cdD" secondAttribute="centerY" id="eXj-8W-YvO"/>
                 <constraint firstItem="gTQ-T8-gEh" firstAttribute="leading" secondItem="6vd-wC-9gE" secondAttribute="leading" constant="15" id="f13-Je-Qbs"/>
+                <constraint firstItem="PhZ-Zq-Dkp" firstAttribute="centerX" secondItem="gTQ-T8-gEh" secondAttribute="centerX" id="hCr-ul-WPR"/>
                 <constraint firstItem="4Me-Am-cdD" firstAttribute="top" secondItem="6vd-wC-9gE" secondAttribute="top" constant="25" id="iPN-c0-87o"/>
                 <constraint firstItem="mJ7-To-Cxd" firstAttribute="top" secondItem="SqR-lg-5Bx" secondAttribute="bottom" constant="5" id="iPk-ps-YHD"/>
                 <constraint firstItem="mJ7-To-Cxd" firstAttribute="leading" secondItem="6Uh-cH-VZV" secondAttribute="trailing" constant="5" id="jNT-Np-Ra4"/>

@@ -19,24 +19,12 @@ namespace Steepshot.iOS.ViewSources
         public override UICollectionViewCell GetCell(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
         {
             var tagCell = (LocalTagCollectionViewCell)collectionView.DequeueReusableCell(nameof(LocalTagCollectionViewCell), indexPath);
-            if(!tagCell.IsCellActionSet)
+            if (!tagCell.IsCellActionSet)
             {
                 tagCell.CellAction = CellAction;
             }
             tagCell.RefreshCell(LocalTags[indexPath.Row]);
             return tagCell;
         }
-
-        /*
-        public override void ItemSelected(UICollectionView collectionView, Foundation.NSIndexPath indexPath)
-        {
-            //base.ItemSelected(collectionView, indexPath);
-        }*/
     }
-
-    /*
-    public class GG : UICollectionViewFlowLayout
-    {
-         
-    }*/
 }

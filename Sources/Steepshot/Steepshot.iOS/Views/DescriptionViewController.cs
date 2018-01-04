@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -14,6 +12,13 @@ using System.Threading.Tasks;
 using Steepshot.Core;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Models;
+using System.Threading;
+using Steepshot.Core.Errors;
+using Steepshot.iOS.Helpers;
+using System.Runtime.InteropServices;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using System.Collections.Generic;
 
 namespace Steepshot.iOS.Views
 {
@@ -22,25 +27,20 @@ namespace Steepshot.iOS.Views
         public UIImage ImageAsset;
         private TagsTableViewSource _tableSource;
         private LocalTagsCollectionViewSource _collectionviewSource;
+        private Timer _timer;
+        private string _previousQuery;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
+            Activeview = descriptionTextField;
             postPhotoButton.Layer.CornerRadius = 25;
-            Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
-
             postPhotoButton.TitleLabel.Font = Constants.Semibold14;
             tagField.Font = titleTextField.Font = descriptionTextField.Font = Constants.Regular14;
 
-            //titleTextField.ContentMode = UIViewContentMode.Center;
-            //titleTextField.TextAlignment = UITextAlignment.Center;
-
-            //descriptionTextField.TextAlignment = UITextAlignment.Center;
-
-            _tableSource = new TagsTableViewSource();
-            //_tableSource.CellAction += CellAction;
-
+            _tableSource = new TagsTableViewSource(_presenter);
+            _tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
@@ -50,7 +50,6 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
 
-
             tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
                 EstimatedItemSize = new CGSize(20, 45),
@@ -59,85 +58,48 @@ namespace Steepshot.iOS.Views
             }, false);
 
             _collectionviewSource = new LocalTagsCollectionViewSource();
+            _collectionviewSource.CellAction += CollectionCellAction;
             tagsCollectionView.Source = _collectionviewSource;
 
-            _collectionviewSource.CellAction += (ActionType arg1, string arg2) => 
-            {
-                RemoveTag(arg2);
-            };
-
-            tagField.EditingChanged += (object sender, EventArgs e) =>
-            {
-                var txt = ((UITextField)sender).Text;
-                if (!string.IsNullOrWhiteSpace(txt))
-                {
-                    if (txt.EndsWith(" "))
-                    {
-                        ((UITextField)sender).Text = string.Empty;
-                        AddTag(txt);
-                    }
-                }
-                //_timer.Change(500, Timeout.Infinite);
-            };
-
-            tagField.EditingDidBegin += (object sender, EventArgs e) =>
-            {
-                View.LayoutIfNeeded();
-                UIView.Animate(0.2, () =>
-                {
-                    tagDefault.Active = false;
-                    tagToTop.Active = true;
-
-                    photoView.Hidden = true;
-                    titleEditImage.Hidden = true;
-                    titleTextField.Hidden = true;
-                    tagsTableView.Hidden = false;
-                    titleBottomView.Hidden = true;
-
-                    View.LayoutIfNeeded();
-                });
-            };
-
-            tagField.EditingDidEnd += (object sender, EventArgs e) =>
-            {
-                View.LayoutIfNeeded();
-                UIView.Animate(0.2, () =>
-                {
-                    tagDefault.Active = true;
-                    tagToTop.Active = false;
-
-                    photoView.Hidden = false;
-                    titleEditImage.Hidden = false;
-                    titleTextField.Hidden = false;
-                    tagsTableView.Hidden = true;
-                    titleBottomView.Hidden = false;
-
-                    View.LayoutIfNeeded();
-                });
-            };
-
-            /*
-            _collectionviewSource = new TagsCollectionViewSource((sender, e) =>
-            {
-                var myViewController = new PostTagsViewController();
-                NavigationController.PushViewController(myViewController, true);
-            });*/
-            //_collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
-            //_collectionviewSource.RowSelectedEvent += CollectionTagSelected;
-            //tagsCollectionView.Source = _collectionviewSource;
+            tagField.Delegate = new TagFieldDelegate(DoneTapped);
+            tagField.EditingChanged += EditingDidChange;
+            tagField.EditingDidBegin += EditingDidBegin;
+            tagField.EditingDidEnd += EditingDidEnd;
 
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            //postPhotoButton.TouchDown += (sender, e) => PostPhoto();
+            postPhotoButton.TouchDown += PostPhoto;
 
-            postPhotoButton.TouchDown += (sender, e) =>
-            {
-                
-            };
-            Activeview = descriptionTextField;
+            _presenter.SourceChanged += SourceChanged;
+            _timer = new Timer(OnTimer);
 
             SetBackButton();
+            SearchTextChanged();
+        }
+
+        private void EditingDidBegin(object sender, EventArgs e)
+        {
+            AnimateView(true);
+        }
+
+        private void EditingDidChange(object sender, EventArgs e)
+        {
+            var txt = ((UITextField)sender).Text;
+            if (!string.IsNullOrWhiteSpace(txt))
+            {
+                if (txt.EndsWith(" "))
+                {
+                    ((UITextField)sender).Text = string.Empty;
+                    AddTag(txt);
+                }
+            }
+            _timer.Change(500, Timeout.Infinite);
+        }
+
+        private void EditingDidEnd(object sender, EventArgs e)
+        {
+            AnimateView(false);
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
@@ -146,20 +108,81 @@ namespace Steepshot.iOS.Views
             base.KeyBoardUpNotification(notification);
         }
 
+        private void OnTimer(object state)
+        {
+            InvokeOnMainThread(() =>
+            {
+                SearchTextChanged();
+            });
+        }
+
+        private void CollectionCellAction(ActionType type, string tag)
+        {
+            RemoveTag(tag);
+        }
+
+        private void TableCellAction(ActionType type, string tag)
+        {
+            AddTag(tag);
+        }
+
+        private async void SearchTextChanged()
+        {
+            if (_previousQuery == tagField.Text || tagField.Text.Length == 1)
+                return;
+
+            _previousQuery = tagField.Text;
+            _presenter.Clear();
+
+            ErrorBase error = null;
+            if (tagField.Text.Length == 0)
+                error = await _presenter.TryGetTopTags();
+            else if (tagField.Text.Length > 1)
+                error = await _presenter.TryLoadNext(tagField.Text);
+
+            ShowAlert(error);
+        }
+
+        private void SourceChanged(Status obj)
+        {
+            tagsTableView.ReloadData();
+        }
+
+        private void AnimateView(bool tagsOpened)
+        {
+            View.LayoutIfNeeded();
+            UIView.Animate(0.2, () =>
+            {
+                tagDefault.Active = !tagsOpened;
+                tagToTop.Active = tagsOpened;
+
+                photoView.Hidden = tagsOpened;
+                titleEditImage.Hidden = tagsOpened;
+                titleTextField.Hidden = tagsOpened;
+                tagsTableView.Hidden = !tagsOpened;
+                titleBottomView.Hidden = tagsOpened;
+
+                View.LayoutIfNeeded();
+            });
+        }
+
         private void AddTag(string txt)
         {
-            localTagsHeight.Constant = 50;
-            localTagsTopSpace.Constant = 15;
+            if (!_collectionviewSource.LocalTags.Contains(txt))
+            {
+                localTagsHeight.Constant = 50;
+                localTagsTopSpace.Constant = 15;
+                _collectionviewSource.LocalTags.Add(txt);
+                tagsCollectionView.ReloadData();
+            }
 
-            _collectionviewSource.LocalTags.Add(txt);
-            tagsCollectionView.ReloadData();
             //tagsCollectionView.CollectionViewLayout.InvalidateLayout();
 
             //await Task.Delay(100);
 
             //InvokeOnMainThread(() => {
-                //tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
-           // });
+            //tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
+            // });
         }
 
         private void RemoveTag(string tag)
@@ -173,21 +196,10 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        /*
-        private void RemoveTag(string txt)
-        {
-           
-            localTagsHeight.Constant = 50;
-            localTagsTopSpace.Constant = 15;
-
-            _collectionviewSource.LocalTags.Add(txt);
-            tagsCollectionView.ReloadData();
-            tagsCollectionView.CollectionViewLayout.InvalidateLayout();
-        }*/
-
         public override void ViewDidLayoutSubviews()
         {
             Constants.CreateGradient(postPhotoButton, 25);
+            Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
         }
 
         private void SetBackButton()
@@ -200,6 +212,16 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.Translucent = false;
         }
 
+        private void DoneTapped()
+        {
+            if (!string.IsNullOrEmpty(tagField.Text))
+            {
+                AddTag(tagField.Text);
+                tagField.Text = string.Empty;
+            }
+            RemoveFocusFromTextFields();
+        }
+
         private void RemoveFocusFromTextFields()
         {
             descriptionTextField.ResignFirstResponder();
@@ -210,7 +232,7 @@ namespace Steepshot.iOS.Views
         public override async void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-            photoView.Image = await NormalizeImage(ImageAsset);
+            ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
         }
 
         protected override void CreatePresenter()
@@ -252,71 +274,151 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        private async void PostPhoto()
+        private async void PostPhoto(object sender, EventArgs e)
         {
-            //loadingView.Hidden = false;
-            postPhotoButton.Enabled = false;
+            ToggleAvailability(false);
+            await Task.Run(() =>
+            {
+                try
+                {
+                    string title = null;
+                    string description = null;
+                    IList<string> tags = null;
 
+                    InvokeOnMainThread(() =>
+                    {
+                        title = titleTextField.Text;
+                        description = descriptionTextField.Text;
+                        tags = _collectionviewSource.LocalTags;
+
+                        //loadingView.StartAnimating();
+                        //postPhotoButton.Enabled = false;
+                    });
+
+                    var mre = new ManualResetEvent(false);
+
+                    byte[] photo = CompressPhoto();
+
+                    if (photo != null)
+                    {
+                        var request = new UploadImageRequest(BasePresenter.User.UserInfo, title, photo, tags)
+                        {
+                            Description = description
+                        };
+                        bool shouldReturn = false;
+                        bool photoUploadRetry = false;
+                        OperationResult<UploadResponse> photoUploadResponse;
+                        do
+                        {
+                            photoUploadRetry = false;
+                            photoUploadResponse = UploadPhoto(request).Result;
+                            if (!(photoUploadResponse != null && photoUploadResponse.Success))
+                            {
+                                InvokeOnMainThread(() =>
+                                {
+                                    ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
+                                    {
+                                        shouldReturn = true;
+                                        mre.Set();
+                                    }, (arg) =>
+                                    {
+                                        photoUploadRetry = true;
+                                        mre.Set();
+                                    });
+                                });
+
+                                mre.Reset();
+                                mre.WaitOne();
+                            }
+                        } while (photoUploadRetry);
+
+                        if (shouldReturn)
+                            return;
+
+                        bool pushToBlockchainRetry = false;
+                        do
+                        {
+                            pushToBlockchainRetry = false;
+                            OperationResult<ImageUploadResponse> response = PushToBlockchain(request, photoUploadResponse).Result;
+                            if (!(response != null && response.Success))
+                            {
+                                InvokeOnMainThread(() =>
+                                {
+                                    ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
+                                    {
+                                        mre.Set();
+                                    }, (arg) =>
+                                    {
+                                        photoUploadRetry = true;
+                                        mre.Set();
+                                    });
+                                });
+
+                                mre.Reset();
+                                mre.WaitOne();
+                            }
+                        } while (pushToBlockchainRetry);
+                    }
+                }
+                finally
+                {
+                    InvokeOnMainThread(() =>
+                    {
+                        ToggleAvailability(true);
+                        //loadingView.StopAnimating();
+                        //postPhotoButton.Enabled = true;
+                    });
+                }
+            });
+        }
+
+        private byte[] CompressPhoto()
+        {
             try
             {
                 byte[] photoByteArray;
-                using (NSData imageData = photoView.Image.AsJPEG(0.9f))
+                using (var imageData = ImageAsset.AsJPEG(0.9f))
                 {
                     photoByteArray = new Byte[imageData.Length];
                     Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
                 }
-
-                var request = new UploadImageRequest(BasePresenter.User.UserInfo, titleTextField.Text, photoByteArray, TagsList.ToArray())
-                {
-                    Description = descriptionTextField.Text
-                };
-                var serverResult = await _presenter.TryUploadWithPrepare(request);
-                if (!serverResult.Success)
-                {
-                    ShowAlert(serverResult);
-                }
-                else
-                {
-                    var result = await _presenter.TryUpload(request, serverResult.Result);
-
-                    if (result != null && result.Success)
-                    {
-                        TagsList.Clear();
-                        ShouldProfileUpdate = true;
-                        NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-                        ShowAlert(result);
-                    }
-                }
+                return photoByteArray;
             }
             catch (Exception ex)
             {
+                ShowAlert("Image compressing error!");
                 AppSettings.Reporter.SendCrash(ex);
             }
-            finally
-            {
-                //loadingView.Hidden = true;
-                postPhotoButton.Enabled = true;
-            }
+            return null;
+        }
+
+        private async Task<OperationResult<UploadResponse>> UploadPhoto(UploadImageRequest request)
+        {
+            return await _presenter.TryUploadWithPrepare(request);
+        }
+
+        private async Task<OperationResult<ImageUploadResponse>> PushToBlockchain(UploadImageRequest request,OperationResult<UploadResponse> response)
+        {
+            return await _presenter.TryUpload(request, response.Result);
+        }
+
+        private void ToggleAvailability(bool enabled)
+        {
+            if (enabled)
+                loadingView.StopAnimating();
+            else
+                loadingView.StartAnimating();
+            
+            postPhotoButton.Enabled = enabled;
+            titleTextField.UserInteractionEnabled = enabled;
+            descriptionTextField.UserInteractionEnabled = enabled;
+            tagField.Enabled = enabled;
+            tagsCollectionView.UserInteractionEnabled = enabled;
         }
 
         private void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(true);
         }
-
-        /*
-        protected override void CalculateBottom()
-        {
-            Bottom = Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset;
-        }*/
     }
-
-    /*
-    public class Del : UICollectionViewDelegate
-    {
-        override DidSelec
-    }*/
 }

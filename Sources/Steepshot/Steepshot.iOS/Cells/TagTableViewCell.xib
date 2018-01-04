@@ -40,6 +40,10 @@
                     <constraint firstItem="H31-Li-AKF" firstAttribute="top" secondItem="YTl-1W-gDM" secondAttribute="top" constant="20" id="xvA-Js-BVM"/>
                 </constraints>
             </tableViewCellContentView>
+            <connections>
+                <outlet property="hashLabel" destination="H31-Li-AKF" id="WfI-hs-LSf"/>
+                <outlet property="tagLabel" destination="cbH-Dy-QAn" id="Wz8-dq-4vU"/>
+            </connections>
             <point key="canvasLocation" x="51" y="82.5"/>
         </tableViewCell>
     </objects>
