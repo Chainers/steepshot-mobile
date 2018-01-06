@@ -13,22 +13,22 @@ namespace Steepshot.iOS.Views
 	partial class SettingsViewController
 	{
 		[Outlet]
+		UIKit.UITableView accountsTable { get; set; }
+
+		[Outlet]
 		UIKit.UIButton addAccountButton { get; set; }
 
 		[Outlet]
-		UIKit.UIButton golosButton { get; set; }
+		UIKit.UIButton guideButton { get; set; }
 
 		[Outlet]
-		UIKit.UILabel golosLabel { get; set; }
-
-		[Outlet]
-		UIKit.UIView golosView { get; set; }
-
-		[Outlet]
-		UIKit.NSLayoutConstraint golosViewHeight { get; set; }
+		UIKit.UILabel lowRatedLabel { get; set; }
 
 		[Outlet]
 		UIKit.UISwitch lowRatedSwitch { get; set; }
+
+		[Outlet]
+		UIKit.UILabel nsfwLabel { get; set; }
 
 		[Outlet]
 		UIKit.UISwitch nsfwSwitch { get; set; }
@@ -37,16 +37,10 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton reportButton { get; set; }
 
 		[Outlet]
-		UIKit.UIButton steemButton { get; set; }
+		UIKit.UIScrollView rootScrollView { get; set; }
 
 		[Outlet]
-		UIKit.UILabel steemLabel { get; set; }
-
-		[Outlet]
-		UIKit.UIView steemView { get; set; }
-
-		[Outlet]
-		UIKit.NSLayoutConstraint steemViewHeight { get; set; }
+		UIKit.NSLayoutConstraint tableHeight { get; set; }
 
 		[Outlet]
 		UIKit.UIButton termsButton { get; set; }
@@ -56,34 +50,29 @@ namespace Steepshot.iOS.Views
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (accountsTable != null) {
+				accountsTable.Dispose ();
+				accountsTable = null;
+			}
+
 			if (addAccountButton != null) {
 				addAccountButton.Dispose ();
 				addAccountButton = null;
 			}
 
-			if (golosButton != null) {
-				golosButton.Dispose ();
-				golosButton = null;
-			}
-
-			if (golosLabel != null) {
-				golosLabel.Dispose ();
-				golosLabel = null;
-			}
-
-			if (golosView != null) {
-				golosView.Dispose ();
-				golosView = null;
-			}
-
-			if (golosViewHeight != null) {
-				golosViewHeight.Dispose ();
-				golosViewHeight = null;
+			if (lowRatedLabel != null) {
+				lowRatedLabel.Dispose ();
+				lowRatedLabel = null;
 			}
 
 			if (lowRatedSwitch != null) {
 				lowRatedSwitch.Dispose ();
 				lowRatedSwitch = null;
+			}
+
+			if (nsfwLabel != null) {
+				nsfwLabel.Dispose ();
+				nsfwLabel = null;
 			}
 
 			if (nsfwSwitch != null) {
@@ -96,24 +85,14 @@ namespace Steepshot.iOS.Views
 				reportButton = null;
 			}
 
-			if (steemButton != null) {
-				steemButton.Dispose ();
-				steemButton = null;
+			if (rootScrollView != null) {
+				rootScrollView.Dispose ();
+				rootScrollView = null;
 			}
 
-			if (steemLabel != null) {
-				steemLabel.Dispose ();
-				steemLabel = null;
-			}
-
-			if (steemView != null) {
-				steemView.Dispose ();
-				steemView = null;
-			}
-
-			if (steemViewHeight != null) {
-				steemViewHeight.Dispose ();
-				steemViewHeight = null;
+			if (tableHeight != null) {
+				tableHeight.Dispose ();
+				tableHeight = null;
 			}
 
 			if (termsButton != null) {
@@ -124,6 +103,11 @@ namespace Steepshot.iOS.Views
 			if (versionLabel != null) {
 				versionLabel.Dispose ();
 				versionLabel = null;
+			}
+
+			if (guideButton != null) {
+				guideButton.Dispose ();
+				guideButton = null;
 			}
 		}
 	}

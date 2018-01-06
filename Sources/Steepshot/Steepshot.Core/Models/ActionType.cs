@@ -12,5 +12,7 @@
         Reply,
         Follow,
         Tap,
+        Delete,
+        Edit,
     }
 }
