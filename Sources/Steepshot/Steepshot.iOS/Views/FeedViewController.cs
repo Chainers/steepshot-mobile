@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models;
@@ -31,8 +32,10 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            var offset = feedCollection.ContentOffset;
             feedCollection.ReloadData();
-            flowLayout.InvalidateLayout();
+            feedCollection.LayoutIfNeeded();
+            feedCollection.SetContentOffset(offset, false);
         }
 
         public override void ViewDidLoad()
@@ -57,7 +60,7 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
-            //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
+            flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1);
 
             if (TabBarController != null)
             {
@@ -178,7 +181,14 @@ namespace Steepshot.iOS.Views
 
         private void SetNavBar()
         {
-            _navItem.LeftBarButtonItem = new UIBarButtonItem(new UIImageView(UIImage.FromBundle("ic_feed_logo")));
+            var logo = new UIImageView(UIImage.FromBundle("ic_feed_logo"));
+            logo.UserInteractionEnabled = true;
+            _navItem.LeftBarButtonItem = new UIBarButtonItem(logo);
+
+            UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+            {
+            });
+            logo.AddGestureRecognizer(tap);
         }
     }
 }

@@ -40,12 +40,13 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+            /*
             if (TabBarController != null)
                 TabBarController.NavigationController.NavigationBarHidden = true;
             if (Username != BasePresenter.User.Login)
                 topViewHeight.Constant = 0;
-
-            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+*/
+            //_navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             /*_collectionViewSource.Voted += (vote, post, success) => Vote(vote, post, success);
             _collectionViewSource.Flagged += (vote, url, action) => Flagged(vote, url, action);
@@ -63,6 +64,14 @@ namespace Steepshot.iOS.Views
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
 */
+            _presenter.SourceChanged += (Core.Models.Status obj) => 
+            {
+                collectionView.ReloadData();
+                var t = collectionView.ContentOffset;
+                var y = collectionView.ContentSize;
+            };
+
+            /*
             _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) =>
             {
                 if (arg1 == Core.Models.ActionType.Comments)
@@ -72,16 +81,16 @@ namespace Steepshot.iOS.Views
                     myViewController.HidesBottomBarWhenPushed = true;
                     NavigationController.PushViewController(myViewController, true);
                 }
-            };
+            };*/
 
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-            //collectioViewFlowLayout.EstimatedItemSize = Constants.CellSize;
+
             collectionView.Source = _collectionViewSource;
 
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView
+            //_gridDelegate = new CollectionViewFlowDelegate(collectionView
             /*(indexPath) =>
         {
             var collectionCell = (PhotoCollectionViewCell)collectionView.CellForItem(indexPath);
@@ -97,13 +106,21 @@ namespace Steepshot.iOS.Views
                         GetUserPosts();
                     _lastRow = newlastRow;
                 }
-            }*/, presenter: _presenter);
+            }*///, presenter: _presenter);
 
-            collectionView.Delegate = _gridDelegate;
+            collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            {
+                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1000),
+                //ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                //SectionInset = new UIEdgeInsets(0, 15, 0, 0),
+            }, false);
+
+            //_gridDelegate.IsGrid = false;
+            //collectionView.Delegate = _gridDelegate;
 
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
-            collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
-            collectionView.AddSubview(_profileHeader.View);
+            //collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
+            //collectionView.AddSubview(_profileHeader.View);
 
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
@@ -111,7 +128,7 @@ namespace Steepshot.iOS.Views
 
             SetBackButton();
 
-            GetUserInfo();
+            //GetUserInfo();
             GetUserPosts();
         }
 
@@ -221,7 +238,7 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshPage()
         {
-            GetUserInfo();
+            //GetUserInfo();
             await GetUserPosts(true);
         }
 
@@ -353,8 +370,8 @@ namespace Steepshot.iOS.Views
 
             if (error == null)
             {
-                collectionView.ReloadData();
-                collectionView.CollectionViewLayout.InvalidateLayout();
+                //collectionView.ReloadData();
+                //collectionView.CollectionViewLayout.InvalidateLayout();
 
                 _isPostsLoading = false;
             }
@@ -362,6 +379,9 @@ namespace Steepshot.iOS.Views
             {
                 ShowAlert(error);
             }
+
+            loading.StopAnimating();
+            collectionView.Hidden = false;
         }
 
         private async Task Vote(bool vote, Post post, Action<Post, OperationResult<VoteResponse>> success)

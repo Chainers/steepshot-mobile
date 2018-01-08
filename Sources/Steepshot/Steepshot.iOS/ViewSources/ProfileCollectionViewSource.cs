@@ -12,7 +12,7 @@ namespace Steepshot.iOS.ViewSources
 {
     public class ProfileCollectionViewSource : UICollectionViewSource
     {
-        public bool IsGrid = true;
+        public bool IsGrid = false;
         private readonly BasePostPresenter _presenter;
 
         public event Action<ActionType, Post> CellAction;

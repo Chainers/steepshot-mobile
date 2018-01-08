@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Cells
 	partial class FeedCollectionViewCell
 	{
 		[Outlet]
+		UIKit.UIStackView actionStackView { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView avatarImage { get; set; }
 
 		[Outlet]
@@ -64,6 +67,9 @@ namespace Steepshot.iOS.Cells
 		UIKit.UIImageView thirdLiker { get; set; }
 
 		[Outlet]
+		UIKit.UIStackView topLikers { get; set; }
+
+		[Outlet]
 		UIKit.UIButton viewCommentButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -103,6 +109,11 @@ namespace Steepshot.iOS.Cells
 				contentViewWidth = null;
 			}
 
+			if (firstLiker != null) {
+				firstLiker.Dispose ();
+				firstLiker = null;
+			}
+
 			if (flagButton != null) {
 				flagButton.Dispose ();
 				flagButton = null;
@@ -138,16 +149,6 @@ namespace Steepshot.iOS.Cells
 				rewards = null;
 			}
 
-			if (viewCommentButton != null) {
-				viewCommentButton.Dispose ();
-				viewCommentButton = null;
-			}
-
-			if (firstLiker != null) {
-				firstLiker.Dispose ();
-				firstLiker = null;
-			}
-
 			if (secondLiker != null) {
 				secondLiker.Dispose ();
 				secondLiker = null;
@@ -156,6 +157,21 @@ namespace Steepshot.iOS.Cells
 			if (thirdLiker != null) {
 				thirdLiker.Dispose ();
 				thirdLiker = null;
+			}
+
+			if (viewCommentButton != null) {
+				viewCommentButton.Dispose ();
+				viewCommentButton = null;
+			}
+
+			if (topLikers != null) {
+				topLikers.Dispose ();
+				topLikers = null;
+			}
+
+			if (actionStackView != null) {
+				actionStackView.Dispose ();
+				actionStackView = null;
 			}
 		}
 	}

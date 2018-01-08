@@ -50,6 +50,13 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWorkAvatar;
         private IScheduledWork _scheduledWorkBody;
 
+        /*
+        public override void LayoutSubviews()
+        {
+            base.LayoutSubviews();
+            CellAction.Invoke(ActionType.Tap, null);
+        }*/
+
         public override void UpdateCell(Post post)
         {
             _currentPost = post;
@@ -73,41 +80,55 @@ namespace Steepshot.iOS.Cells
                                                          .DownSample((int)UIScreen.MainScreen.Bounds.Width)
                                                          .Into(bodyImage);
 
-
+            topLikers.Hidden = true;
             if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
+                topLikers.Hidden = false;
+                firstLiker.Hidden = false;
                 /*_scheduledWorkAvatar = */ ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[0], TimeSpan.FromDays(30))
                                                          .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .Retry(2, 200)
-                                                         .DownSample(width: 50)
-                                                        .Into(firstLiker);
+                                                         .LoadingPlaceholder("ic_noavatar.png")
+                                                         .ErrorPlaceholder("ic_noavatar.png")
+                                                         .DownSample(width: 100)
+                                                         .Into(firstLiker);
             }
             else
-                firstLiker.Image = UIImage.FromBundle("ic_noavatar");
+                firstLiker.Hidden = true;
+                //firstLiker.Image = UIImage.FromBundle("ic_noavatar");
 
             if (_currentPost.TopLikersAvatars.Count() >= 2 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[1]))
             {
+                secondLiker.Hidden = false;
                 /*_scheduledWorkAvatar = */
                 ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[1], TimeSpan.FromDays(30))
                              .WithCache(FFImageLoading.Cache.CacheType.All)
-                             .Retry(2, 200)
-                             .DownSample(width: 50)
+                            .LoadingPlaceholder("ic_noavatar.png")
+                             .ErrorPlaceholder("ic_noavatar.png")
+                             .DownSample(width: 100)
                             .Into(secondLiker);
             }
             else
-                secondLiker.Image = UIImage.FromBundle("ic_noavatar");
+                secondLiker.Hidden = true;
+                //secondLiker.Image = UIImage.FromBundle("ic_noavatar");
 
             if (_currentPost.TopLikersAvatars.Count() >= 3 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[2]))
             {
+                thirdLiker.Hidden = false;
                 /*_scheduledWorkAvatar = */
                 ImageService.Instance.LoadUrl(_currentPost.TopLikersAvatars[2], TimeSpan.FromDays(30))
                              .WithCache(FFImageLoading.Cache.CacheType.All)
-                             .Retry(2, 200)
-                             .DownSample(width: 50)
+                            .LoadingPlaceholder("ic_noavatar.png")
+                            .ErrorPlaceholder("ic_noavatar.png")
+                            .DownSample(width: 100)
                             .Into(thirdLiker);
             }
             else
-                thirdLiker.Image = UIImage.FromBundle("ic_noavatar");
+                thirdLiker.Hidden = true;
+                //thirdLiker.Image = UIImage.FromBundle("ic_noavatar");
+
+            //topLikers.LayoutIfNeeded();
+
+            //var t = topLikers.Frame.Width;
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
@@ -123,12 +144,13 @@ namespace Steepshot.iOS.Cells
             flagButton.Enabled = true;
             postTimeStamp.Text = _currentPost.Created.ToPostTime();
 
-            imageWidth.Constant = UIScreen.MainScreen.Bounds.Width;
             imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
-            if (_currentPost.ImageSize.Width != 0)
-                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            else
-                bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
+            contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
+            //ContentView
+            //if (_currentPost.ImageSize.Width != 0)
+                //bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+            //else
+                //bodyImage.ContentMode = UIViewContentMode.ScaleAspectFit;
 
             if (!_isButtonBinded)
             {
@@ -199,6 +221,7 @@ namespace Steepshot.iOS.Cells
 
                 _isButtonBinded = true;
             }
+            //LayoutIfNeeded();
         }
 
         private void LikeTap(object sender, EventArgs e)
