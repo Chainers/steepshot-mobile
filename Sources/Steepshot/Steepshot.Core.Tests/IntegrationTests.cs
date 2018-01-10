@@ -1365,7 +1365,7 @@ namespace Steepshot.Core.Tests
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task Upload_Tags_Greater_Than_4(KnownChains apiName)
+        public async Task Upload_Tags_Greater_Than_Max(KnownChains apiName)
         {
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());

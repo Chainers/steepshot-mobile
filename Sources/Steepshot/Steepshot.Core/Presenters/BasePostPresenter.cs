@@ -70,8 +70,11 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            Items.Add(item);
-                            isAdded = true;
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url)))
+                            {
+                                Items.Add(item);
+                                isAdded = true;
+                            }
                         }
                     }
 
