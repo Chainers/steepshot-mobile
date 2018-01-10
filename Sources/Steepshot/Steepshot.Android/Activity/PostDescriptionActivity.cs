@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -16,6 +17,7 @@ using Android.Views.InputMethods;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Java.IO;
+using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -26,6 +28,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Activity
 {
@@ -34,9 +37,11 @@ namespace Steepshot.Activity
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
+        public const string EditPost = "EditPost";
 
         private string _path;
         private bool _shouldCompress;
+        private EditPost _editpost;
         private Timer _timer;
         private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
@@ -76,42 +81,56 @@ namespace Steepshot.Activity
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
             _postButton.Text = Localization.Texts.PublishButtonText;
-            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
-            _path = Intent.GetStringExtra(PhotoExtraPath);
-            var photoUri = Android.Net.Uri.Parse(_path);
-
-            _postButton.Enabled = true;
-            if (_shouldCompress)
-            {
-                FileDescriptor fileDescriptor = null;
-                try
-                {
-                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
-                    _photoFrame.SetImageBitmap(_btmp);
-                }
-                catch (Exception ex)
-                {
-                    _postButton.Enabled = false;
-                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
-                    AppSettings.Reporter.SendCrash(ex);
-                }
-                finally
-                {
-                    fileDescriptor?.Dispose();
-                }
-            }
-            else
-            {
-                _photoFrame.SetImageURI(photoUri);
-            }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
             _localTagsAdapter = new SelectedTagsAdapter();
             _localTagsAdapter.Click += LocalTagsAdapterClick;
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
+
+            var editPostByteArr = Intent.GetByteArrayExtra(EditPost);
+            if (editPostByteArr != null)
+            {
+                using (var memoryStream = new MemoryStream(editPostByteArr))
+                {
+                    var formatter = new BinaryFormatter();
+                    _editpost = formatter.Deserialize(memoryStream) as EditPost;
+                    SetEditPost(_editpost);
+                }
+            }
+            else
+            {
+                _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+                _path = Intent.GetStringExtra(PhotoExtraPath);
+                var photoUri = Android.Net.Uri.Parse(_path);
+
+                _postButton.Enabled = true;
+                if (_shouldCompress)
+                {
+                    FileDescriptor fileDescriptor = null;
+                    try
+                    {
+                        fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                        _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                        _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
+                        _photoFrame.SetImageBitmap(_btmp);
+                    }
+                    catch (Exception ex)
+                    {
+                        _postButton.Enabled = false;
+                        this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                        AppSettings.Reporter.SendCrash(ex);
+                    }
+                    finally
+                    {
+                        fileDescriptor?.Dispose();
+                    }
+                }
+                else
+                {
+                    _photoFrame.SetImageURI(photoUri);
+                }
+            }
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
             Presenter.SourceChanged += PresenterSourceChanged;
@@ -131,6 +150,19 @@ namespace Steepshot.Activity
             _timer = new Timer(OnTimer);
 
             SearchTextChanged();
+        }
+
+        private void SetEditPost(EditPost editPost)
+        {
+            _title.Text = editPost.Title;
+            _title.SetSelection(editPost.Title.Length);
+            _description.Text = editPost.Description;
+            _description.SetSelection(editPost.Description.Length);
+            foreach (var editPostTag in editPost.Tags)
+            {
+                AddTag(editPostTag);
+            }
+            Picasso.With(this).Load(editPost.Photos[0]).Into(_photoFrame);
         }
 
         private void PhotoFrameOnClick(object sender, EventArgs e)
@@ -323,42 +355,45 @@ namespace Steepshot.Activity
                 return;
             }
 
-            var photo = await CompressPhoto(_path);
-            if (IsFinishing || IsDestroyed)
-                return;
-
-            if (photo == null)
+            if (_editpost == null)
             {
-                SplashActivity.Cache.EvictAll();
-                photo = await CompressPhoto(_path);
+                var photo = await CompressPhoto(_path);
                 if (IsFinishing || IsDestroyed)
                     return;
-            }
 
-            if (photo == null)
-            {
-                this.ShowAlert(Localization.Errors.PhotoProcessingError);
-                OnUploadEnded();
-                return;
-            }
+                if (photo == null)
+                {
+                    SplashActivity.Cache.EvictAll();
+                    photo = await CompressPhoto(_path);
+                    if (IsFinishing || IsDestroyed)
+                        return;
+                }
 
-            _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
-            {
-                Description = _description.Text
-            };
-            var serverResp = await Presenter.TryUploadWithPrepare(_request);
-            if (IsFinishing || IsDestroyed)
-                return;
+                if (photo == null)
+                {
+                    this.ShowAlert(Localization.Errors.PhotoProcessingError);
+                    OnUploadEnded();
+                    return;
+                }
 
-            if (serverResp != null && serverResp.Success)
-            {
-                _response = serverResp.Result;
-            }
-            else
-            {
-                this.ShowAlert(serverResp);
-                OnUploadEnded();
-                return;
+                _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
+                {
+                    Description = _description.Text
+                };
+                var serverResp = await Presenter.TryUploadWithPrepare(_request);
+                if (IsFinishing || IsDestroyed)
+                    return;
+
+                if (serverResp != null && serverResp.Success)
+                {
+                    _response = serverResp.Result;
+                }
+                else
+                {
+                    this.ShowAlert(serverResp);
+                    OnUploadEnded();
+                    return;
+                }
             }
 
             TryUpload();
@@ -400,7 +435,7 @@ namespace Steepshot.Activity
 
         private async void TryUpload()
         {
-            if (_request == null || _response == null)
+            if (_request == null || _editpost == null && _response == null)
             {
                 OnUploadEnded();
                 return;

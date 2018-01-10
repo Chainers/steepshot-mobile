@@ -6,6 +6,8 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -17,6 +19,55 @@ namespace Steepshot.Core.Presenters
         protected BasePostPresenter()
         {
             IsEnableVote = true;
+        }
+
+        public async Task<ErrorBase> TryDeletePost(Post post)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeletePost(CancellationToken ct, Post post)
+        {
+            var request = new DeleteRequest(User.Login, User.UserInfo.PostingKey, post.Url);
+            var response = await Api.DeletePostOrComment(request, ct);
+            if (response.Success)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
+        public async Task<ErrorBase> TryEditComment(Post post, string body)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(EditComment, OnDisposeCts.Token, post, body);
+
+            NotifySourceChanged(nameof(TryEditComment), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> EditComment(CancellationToken ct, Post post, string body)
+        {
+            var request = new CommentRequest(User.UserInfo, post.Url, body, AppSettings.AppInfo);
+            var response = await Api.EditComment(request, ct);
+            if (response.Success)
+            {
+                post.Body = body;
+            }
+            return response.Error;
         }
 
         public void RemovePost(Post post)

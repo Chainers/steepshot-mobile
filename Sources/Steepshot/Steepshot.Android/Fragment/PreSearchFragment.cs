@@ -96,6 +96,7 @@ namespace Steepshot.Fragment
                     _profilePagerAdapter.PhotoClick += OnPhotoClick;
                     _profilePagerAdapter.FlagAction += FlagAction;
                     _profilePagerAdapter.HideAction += HideAction;
+                    _profilePagerAdapter.DeleteAction += DeleteAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
@@ -118,6 +119,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.VotersClick += VotersAction;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.DeleteAction += DeleteAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
@@ -577,6 +579,15 @@ namespace Steepshot.Fragment
         private void CloseAction()
         {
             ClosePost();
+        }
+
+        private async void DeleteAction(Post post)
+        {
+            var error = await Presenter.TryDeletePost(post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(error);
         }
 
         private async Task LoadPosts(string tag, bool clearOld)

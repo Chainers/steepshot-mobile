@@ -4,9 +4,9 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:padding="10dp">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:orientation="vertical"
-        android:layout_width="match_parent"    
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/popup_background">
         <Button
@@ -17,7 +17,7 @@
             android:gravity="center"
             android:textSize="20sp"
             android:textAllCaps="false"
-            android:background="@drawable/popup_background"/>
+            android:background="@drawable/popup_background" />
         <View
             android:layout_width="match_parent"
             android:layout_height="2px"
@@ -33,7 +33,39 @@
             android:textSize="20sp"
             android:textAllCaps="false"
             android:visibility="gone"
-            android:background="@drawable/popup_background"/>
+            android:background="@drawable/popup_background" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:id="@+id/editpost"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:text="Edit post"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:background="@drawable/popup_background" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/rgb244_244_246" />
+        <Button
+            android:id="@+id/deletepost"
+            android:layout_width="fill_parent"
+            android:layout_height="65dp"
+            android:text="Delete post"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            android:background="@drawable/popup_background" />
         <View
             android:layout_width="match_parent"
             android:layout_height="2px"
@@ -49,7 +81,7 @@
             android:textSize="20sp"
             android:textAllCaps="false"
             android:visibility="gone"
-            android:background="@drawable/popup_background"/>
+            android:background="@drawable/popup_background" />
     </LinearLayout>
     <Button
         android:id="@+id/cancel"
@@ -60,5 +92,5 @@
         android:layout_marginTop="10dp"
         android:textSize="20sp"
         android:textAllCaps="false"
-        android:background="@drawable/popup_background"/>
+        android:background="@drawable/popup_background" />
 </LinearLayout>

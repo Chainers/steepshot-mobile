@@ -177,6 +177,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             var responce = await _ditchClient.DeletePostOrComment(request, ct);
+            _serverServerClient.Trace($"post/{request.Url}/comment", request.Login, responce.Error, request.Url, ct);//.Wait(5000);
             // if (responce.Success)
             return responce;
         }

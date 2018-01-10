@@ -20,7 +20,7 @@ namespace Steepshot.Adapter
         private readonly List<PostViewHolder> _viewHolders;
         private int _itemsCount;
         private View _loadingView;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, EditAction, DeleteAction;
         public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
         public Action CloseAction;
@@ -54,7 +54,7 @@ namespace Steepshot.Adapter
                 var itemView = LayoutInflater.From(Context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
                 vh = new PostViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick,
-                    FlagAction, HideAction, TagAction, CloseAction, Context.Resources.DisplayMetrics.WidthPixels);
+                    FlagAction, HideAction, EditAction, DeleteAction, TagAction, CloseAction, Context.Resources.DisplayMetrics.WidthPixels);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -140,7 +140,7 @@ namespace Steepshot.Adapter
         private readonly ImageButton _closeButton;
         private readonly RelativeLayout _postHeader;
         private readonly RelativeLayout _postFooter;
-        public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, tagAction, height)
+        public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> editAction, Action<Post> deleteAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, editAction, deleteAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;
 

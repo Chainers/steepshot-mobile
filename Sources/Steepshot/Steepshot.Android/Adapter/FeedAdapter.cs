@@ -27,7 +27,7 @@ namespace Steepshot.Adapter
     {
         protected readonly T Presenter;
         protected readonly Context Context;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, EditAction, DeleteAction;
         public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
 
@@ -73,7 +73,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, EditAction, DeleteAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -88,6 +88,8 @@ namespace Steepshot.Adapter
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
+        private readonly Action<Post> _editAction;
+        private readonly Action<Post> _deleteAction;
         private readonly Action<string> _tagAction;
         private readonly ViewPager _photosViewPager;
         private readonly ImageView _avatar;
@@ -120,7 +122,7 @@ namespace Steepshot.Adapter
         private const int _maxLines = 5;
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> editAction, Action<Post> deleteAction, Action<string> tagAction, int height) : base(itemView)
         {
             _context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
@@ -174,6 +176,8 @@ namespace Steepshot.Adapter
             _votersAction = votersAction;
             _flagAction = flagAction;
             _hideAction = hideAction;
+            _editAction = editAction;
+            _deleteAction = deleteAction;
             _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
@@ -237,16 +241,31 @@ namespace Steepshot.Adapter
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
                 flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
                 flag.Typeface = Style.Semibold;
+
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = Localization.Texts.HidePost;
                 hide.Typeface = Style.Semibold;
                 hide.Visibility = ViewStates.Visible;
+
+                var edit = dialogView.FindViewById<Button>(Resource.Id.editpost);
+                edit.Text = Localization.Texts.EditPost;
+                edit.Typeface = Style.Semibold;
+
+                var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
+                delete.Text = Localization.Texts.DeletePost;
+                delete.Typeface = Style.Semibold;
+
                 if (_post.Author == BasePresenter.User.Login)
+                {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
+                    edit.Visibility = delete.Visibility = ViewStates.Visible;
+                }
+
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
                 copylink.Text = Localization.Texts.CopyLink;
                 copylink.Typeface = Style.Semibold;
                 copylink.Visibility = ViewStates.Visible;
+
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
                 cancel.Text = Localization.Texts.Cancel;
                 cancel.Typeface = Style.Semibold;
@@ -256,6 +275,12 @@ namespace Steepshot.Adapter
 
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
+
+                edit.Click -= EditOnClick;
+                edit.Click += EditOnClick;
+
+                delete.Click -= DeleteOnClick;
+                delete.Click += DeleteOnClick;
 
                 copylink.Click -= DoShareAction;
                 copylink.Click += DoShareAction;
@@ -268,6 +293,18 @@ namespace Steepshot.Adapter
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
+        }
+
+        private void EditOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            _editAction.Invoke(_post);
+        }
+
+        private void DeleteOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            _deleteAction?.Invoke(_post);
         }
 
         private void DoFlagAction(object sender, EventArgs e)

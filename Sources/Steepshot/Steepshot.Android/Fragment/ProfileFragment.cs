@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
@@ -66,6 +68,8 @@ namespace Steepshot.Fragment
                     _profilePagerAdapter.PhotoClick += OnPhotoClick;
                     _profilePagerAdapter.FlagAction += FlagAction;
                     _profilePagerAdapter.HideAction += HideAction;
+                    _profilePagerAdapter.EditAction += EditAction;
+                    _profilePagerAdapter.DeleteAction += DeleteAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
@@ -91,6 +95,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.FollowAction += OnFollowClick;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.DeleteAction += DeleteAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
@@ -581,6 +586,27 @@ namespace Steepshot.Fragment
         private void HideAction(Post post)
         {
             Presenter.RemovePost(post);
+        }
+
+        private void EditAction(Post post)
+        {
+            var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, new EditPost(post));
+                intent.PutExtra("EditPost", memoryStream.ToArray());
+            }
+            Activity.StartActivity(intent);
+        }
+
+        private async void DeleteAction(Post post)
+        {
+            var error = await Presenter.TryDeletePost(post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(error);
         }
 
         private void TagAction(string tag)

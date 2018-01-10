@@ -184,8 +184,12 @@ namespace Steepshot.Core
             public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
+            public const string EditComment = "Edit comment";
+            public const string DeleteComment = "Delete comment";
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
+            public const string EditPost = "Edit post";
+            public const string DeletePost = "Delete post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";
             public const string PutYourComment = "Put your comment here...";
