@@ -1,9 +1,11 @@
 ﻿using System;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -138,12 +140,19 @@ namespace Steepshot.Fragment
         {
             if (userFriend == null)
                 return;
+            if (BasePresenter.User.IsAuthenticated)
+            {
+                var error = await Presenter.TryFollow(userFriend);
+                if (!IsInitialized)
+                    return;
 
-            var error = await Presenter.TryFollow(userFriend);
-            if (!IsInitialized)
-                return;
-
-            Context.ShowAlert(error, ToastLength.Short);
+                Context.ShowAlert(error, ToastLength.Short);
+            }
+            else
+            {
+                var intent = new Intent(Activity, typeof(WelcomeActivity));
+                StartActivity(intent);
+            }
         }
     }
 }
