@@ -68,6 +68,10 @@
             android:layout_width="match_parent"
             android:layout_height="250dp" />
     </RelativeLayout>
+    <include
+        layout="@layout/lyt_nsfw_mask"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
     <RelativeLayout
         android:id="@+id/subtitle"
         android:layout_below="@id/photos_container"
@@ -182,8 +186,4 @@
         android:layout_width="match_parent"
         android:layout_height="2px"
         android:background="@color/rgb244_244_246" />
-    <include
-        layout="@layout/lyt_nsfw_mask"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
 </RelativeLayout>

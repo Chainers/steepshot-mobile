@@ -242,6 +242,7 @@ namespace Steepshot.Fragment
                 activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
+            _postPagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _feedList.Visibility = ViewStates.Gone;
         }
@@ -255,6 +256,7 @@ namespace Steepshot.Fragment
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 _postPager.Visibility = ViewStates.Gone;
                 _feedList.Visibility = ViewStates.Visible;
+                _feedList.GetAdapter().NotifyDataSetChanged();
                 return true;
             }
             return false;
