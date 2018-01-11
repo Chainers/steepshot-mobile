@@ -38,12 +38,14 @@ namespace Steepshot.Activity
         private string _path;
         private bool _shouldCompress;
         private Timer _timer;
+        private System.Timers.Timer _postingTimer;
         private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
         private UploadImageRequest _request;
         private UploadResponse _response;
         private string _previousQuery;
+        private DateTime _postingAllowTime;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.title)] private EditText _title;
@@ -129,6 +131,14 @@ namespace Steepshot.Activity
             _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
+            _postingAllowTime = BasePresenter.User.UserInfo.LastPostTime + TimeSpan.FromMinutes(5);
+            if (_postingAllowTime > DateTime.Now)
+            {
+                _postButton.Enabled = false;
+                _postingTimer = new System.Timers.Timer(1000);
+                _postingTimer.Elapsed += OnPostingTimer;
+                _postingTimer.Start();
+            }
 
             SearchTextChanged();
         }
@@ -284,6 +294,26 @@ namespace Steepshot.Activity
             });
         }
 
+        private void OnPostingTimer(object sender, System.Timers.ElapsedEventArgs e)
+        {
+
+            var time = _postingAllowTime - DateTime.Now;
+            if (time.TotalSeconds < 0 || IsDestroyed)
+            {
+                if (!IsDestroyed)
+                {
+                    _postButton.Text = Localization.Texts.PublishButtonText;
+                    _postButton.Enabled = true;
+                }
+                _postingTimer.Stop();
+                _postingTimer = null;
+            }
+            else
+            {
+                _postButton.Text = time.ToString("mm\\:ss");
+            }
+        }
+
         private async Task SearchTextChanged()
         {
             if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
@@ -412,6 +442,7 @@ namespace Steepshot.Activity
 
             if (resp.Success)
             {
+                BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
