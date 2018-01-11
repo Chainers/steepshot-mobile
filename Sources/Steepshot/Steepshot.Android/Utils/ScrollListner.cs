@@ -16,15 +16,16 @@ namespace Steepshot.Utils
 
         public override void OnScrolled(RecyclerView recyclerView, int dx, int dy)
         {
-            _pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
-            if (_pos > _prevPos && _pos != _prevPos)
+            _pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindFirstVisibleItemPosition();
+            var lastPos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
+            if (lastPos > _prevPos && lastPos != _prevPos)
             {
-                if (_pos == recyclerView.GetAdapter().ItemCount - 1)
+                if (lastPos == recyclerView.GetAdapter().ItemCount - 1)
                 {
-                    if (_pos < (recyclerView.GetAdapter()).ItemCount)
+                    if (lastPos < recyclerView.GetAdapter().ItemCount)
                     {
                         ScrolledToBottom?.Invoke();
-                        _prevPos = _pos;
+                        _prevPos = lastPos;
                     }
                 }
             }

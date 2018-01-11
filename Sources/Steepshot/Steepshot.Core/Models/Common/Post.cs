@@ -67,5 +67,7 @@ namespace Steepshot.Core.Models.Common
         public bool IsExpanded { get; set; }
         [JsonIgnore]
         public bool FlagNotificationWasShown { get; set; } = true;
+        [JsonIgnore]
+        public bool ShowMask { get; set; } = true;
     }
 }
