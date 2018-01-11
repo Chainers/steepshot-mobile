@@ -8,6 +8,7 @@ using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -63,9 +64,9 @@ namespace Steepshot.iOS.Views
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
 */
-            _collectionViewSource.CellAction += (Core.Models.ActionType arg1, Post arg2) =>
+            _collectionViewSource.CellAction += (ActionType arg1, Post arg2) =>
             {
-                if (arg1 == Core.Models.ActionType.Comments)
+                if (arg1 == ActionType.Comments)
                 {
                     var myViewController = new CommentsViewController();
                     myViewController.Post = arg2;

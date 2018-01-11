@@ -26,6 +26,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
 using Steepshot.Interfaces;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Fragment
 {

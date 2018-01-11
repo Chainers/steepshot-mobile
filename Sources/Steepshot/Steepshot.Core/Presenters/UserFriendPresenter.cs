@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -39,7 +40,7 @@ namespace Steepshot.Core.Presenters
             if (!VotersType.HasValue)
                 return null;
 
-            var request = new VotersRequest(url, VotersType.Value)
+            var request = new VotersModel(url, VotersType.Value)
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit,
@@ -48,7 +49,7 @@ namespace Steepshot.Core.Presenters
 
             var response = await Api.GetPostVoters(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var voters = response.Result.Results;
                 if (voters.Count > 0)
@@ -79,7 +80,7 @@ namespace Steepshot.Core.Presenters
             if (!FollowType.HasValue)
                 return null;
 
-            var request = new UserFriendsRequest(username, FollowType.Value)
+            var request = new UserFriendsModel(username, FollowType.Value)
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
@@ -88,7 +89,7 @@ namespace Steepshot.Core.Presenters
 
             var response = await Api.GetUserFriends(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var result = response.Result.Results;
                 if (result.Count > 0)
@@ -115,7 +116,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextSearchUser(CancellationToken ct, string query)
         {
-            var request = new SearchWithQueryRequest(query)
+            var request = new SearchWithQueryModel(query)
             {
                 Limit = ItemsLimit,
                 Offset = OffsetUrl,
@@ -124,7 +125,7 @@ namespace Steepshot.Core.Presenters
 
             var response = await Api.SearchUser(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var result = response.Result.Results;
                 if (result.Count > 0)
@@ -154,10 +155,10 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> Follow(CancellationToken ct, UserFriend item)
         {
-            var request = new FollowRequest(User.UserInfo, item.HasFollowed ? Models.Requests.FollowType.UnFollow : Models.Requests.FollowType.Follow, item.Author);
+            var request = new FollowModel(User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
                 item.HasFollowed = !item.HasFollowed;
 
             return response.Error;

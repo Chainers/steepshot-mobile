@@ -10,6 +10,7 @@ using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.iOS.Views

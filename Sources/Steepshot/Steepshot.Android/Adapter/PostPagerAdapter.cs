@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Views;
 using Android.Widget;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;

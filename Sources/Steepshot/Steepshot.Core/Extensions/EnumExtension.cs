@@ -9,7 +9,7 @@ namespace Steepshot.Core.Extensions
     {
         public static string GetDescription(this Enum value)
         {
-            DisplayAttribute attribute = value.GetType()
+            var attribute = value.GetType()
                 .GetRuntimeField(value.ToString())
                 .GetCustomAttributes(typeof(DisplayAttribute), false)
                 .SingleOrDefault() as DisplayAttribute;

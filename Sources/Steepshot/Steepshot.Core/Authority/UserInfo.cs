@@ -1,6 +1,7 @@
 ﻿using Steepshot.Core.Models.Requests;
 using System;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Authority
 {

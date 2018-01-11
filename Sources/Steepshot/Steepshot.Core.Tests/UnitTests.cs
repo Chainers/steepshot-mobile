@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
@@ -14,7 +15,7 @@ namespace Steepshot.Core.Tests
         public void Vote_Empty_Identifier()
         {
             var user = Users.First().Value;
-            var request = new VoteRequest(user, VoteType.Up, string.Empty);
+            var request = new VoteModel(user, VoteType.Up, string.Empty);
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
             Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
@@ -25,7 +26,7 @@ namespace Steepshot.Core.Tests
         {
             var user = Users.First().Value;
 
-            var request = new FollowRequest(user, FollowType.Follow, string.Empty);
+            var request = new FollowModel(user, FollowType.Follow, string.Empty);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
@@ -35,7 +36,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void InfoRequest_Empty_Url()
         {
-            var request = new InfoRequest(string.Empty);
+            var request = new InfoModel(string.Empty);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
@@ -46,7 +47,7 @@ namespace Steepshot.Core.Tests
         public void CreateComment_Empty_Url()
         {
             var user = Users.First().Value;
-            var request = new CommentRequest(user, string.Empty, "test", AppSettings.AppInfo);
+            var request = new CommentModel(user, string.Empty, "test", AppSettings.AppInfo);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
@@ -61,9 +62,9 @@ namespace Steepshot.Core.Tests
             var file = File.ReadAllBytes(GetTestImagePath());
 
             // Act
-            var requestArray = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var requestArray = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
             var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var requestBase64 = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Assert
             Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
@@ -74,7 +75,7 @@ namespace Steepshot.Core.Tests
         public void UploadImageRequest_Empty_Title()
         {
             var user = Users.First().Value;
-            var request = new UploadImageRequest(user, string.Empty, new byte[] { 0 }, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var request = new UploadImageModel(user, string.Empty, new byte[] { 0 }, new[] { "cat1", "cat2", "cat3", "cat4" });
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
@@ -84,7 +85,7 @@ namespace Steepshot.Core.Tests
         [Test]
         public void InfoRequest_Empty_Title()
         {
-            var request = new InfoRequest(string.Empty);
+            var request = new InfoModel(string.Empty);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);

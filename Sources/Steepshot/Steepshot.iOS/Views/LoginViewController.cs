@@ -125,7 +125,7 @@ namespace Steepshot.iOS.Views
                 if (response == null) // cancelled
                     return;
 
-                if (response != null && response.Success)
+                if (response != null && response.IsSuccess)
                 {
                     BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain, false);
 

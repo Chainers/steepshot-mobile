@@ -50,7 +50,7 @@ namespace Steepshot.Core.Tests.Stubs
 
         public void Update(UserInfo currentUser)
         {
-            for (int i = 0; i < _set.Count; i++)
+            for (var i = 0; i < _set.Count; i++)
             {
                 var itm = _set[i];
                 if (itm.Login == currentUser.Login && itm.Chain == currentUser.Chain)

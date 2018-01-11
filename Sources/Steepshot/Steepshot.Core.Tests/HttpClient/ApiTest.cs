@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -18,10 +19,10 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task LoginWithPostingKeyTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new AuthorizedRequest(user);
+            var request = new AuthorizedModel(user);
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
             AssertResult(response);
-            Assert.That(response.Success, Is.True);
+            Assert.That(response.IsSuccess, Is.True);
             Assert.That(response.Result.IsSuccess, Is.True);
         }
 
@@ -35,10 +36,10 @@ namespace Steepshot.Core.Tests.HttpClient
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
             user.IsNeedRewards = false;
-            var createPostRequest = new UploadImageRequest(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var createPostRequest = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
             var servResp = await Api[apiName].UploadWithPrepare(createPostRequest, CancellationToken.None);
             AssertResult(servResp);
-            var createPostResponse = await Api[apiName].Upload(createPostRequest, servResp.Result, CancellationToken.None);
+            var createPostResponse = await Api[apiName].CreatePost(createPostRequest, servResp.Result, CancellationToken.None);
 
             AssertResult(createPostResponse);
             Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
@@ -49,7 +50,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             // Load last created post
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
@@ -67,7 +68,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
 
             // Load last created post
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
@@ -77,7 +78,7 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentRequest = new CommentRequest(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentRequest = new CommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
             var createCommentResponse = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
@@ -86,7 +87,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             // Load comments for this post and check them
-            var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
+            var getCommentsRequest = new NamedInfoModel(lastPost.Url);
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
             Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentResponse.Result.Permlink)));
@@ -100,13 +101,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
 
             // Load last created post
-            var userPostsRequest = new PostsRequest(PostType.New) { Login = user.Login };
+            var userPostsRequest = new PostsModel(PostType.New) { Login = user.Login };
             var userPostsResponse = await Api[apiName].GetPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
             // 4) Vote up
-            var voteUpRequest = new VoteRequest(user, VoteType.Up, lastPost.Url);
+            var voteUpRequest = new VoteModel(user, VoteType.Up, lastPost.Url);
             var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
@@ -126,7 +127,7 @@ namespace Steepshot.Core.Tests.HttpClient
             //Assert.That(post.Vote, Is.True);
 
             // 3) Vote down
-            var voteDownRequest = new VoteRequest(user, VoteType.Down, lastPost.Url);
+            var voteDownRequest = new VoteModel(user, VoteType.Down, lastPost.Url);
             var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
@@ -153,17 +154,17 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
 
             // Load last created post
-            var userPostsRequest = new UserPostsRequest(user.Login) { ShowLowRated = true, ShowNsfw = true };
+            var userPostsRequest = new UserPostsModel(user.Login) { ShowLowRated = true, ShowNsfw = true };
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             AssertResult(userPostsResponse);
             var lastPost = userPostsResponse.Result.Results.First(i => i.Children > 0);
             // Load comments for this post and check them
-            var getCommentsRequest = new NamedInfoRequest(lastPost.Url);
+            var getCommentsRequest = new NamedInfoModel(lastPost.Url);
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
 
             // 5) Vote up comment
             var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var voteUpCommentRequest = new VoteRequest(user, VoteType.Up, commentUrl);
+            var voteUpCommentRequest = new VoteModel(user, VoteType.Up, commentUrl);
             var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
@@ -181,7 +182,7 @@ namespace Steepshot.Core.Tests.HttpClient
             Assert.That(comm.Vote, Is.True);
 
             // 6) Vote down comment
-            var voteDownCommentRequest = new VoteRequest(user, VoteType.Down, commentUrl);
+            var voteDownCommentRequest = new VoteModel(user, VoteType.Down, commentUrl);
             var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
@@ -207,13 +208,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var user = Users[apiName];
 
             // 7) Follow
-            var followRequest = new FollowRequest(user, FollowType.Follow, followUser);
+            var followRequest = new FollowModel(user, FollowType.Follow, followUser);
             var followResponse = await Api[apiName].Follow(followRequest, CancellationToken.None);
             AssertResult(followResponse);
             Assert.IsTrue(followResponse.Result.IsSuccess);
 
             // 8) UnFollow
-            var unfollowRequest = new FollowRequest(user, FollowType.UnFollow, followUser);
+            var unfollowRequest = new FollowModel(user, FollowType.UnFollow, followUser);
             var unfollowResponse = await Api[apiName].Follow(unfollowRequest, CancellationToken.None);
             AssertResult(unfollowResponse);
             Assert.IsTrue(unfollowResponse.Result.IsSuccess);

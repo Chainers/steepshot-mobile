@@ -9,6 +9,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -209,7 +210,7 @@ namespace Steepshot.iOS.Cells
 
         private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)
         {
-            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase) && operationResult.Success)
+            if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase) && operationResult.IsSuccess)
             {
                 likeButton.Selected = operationResult.Result.IsSuccess;
                 flagButton.Selected = _currentPost.Flag;
@@ -227,7 +228,7 @@ namespace Steepshot.iOS.Cells
 
         private void FlaggedAction(Post post, OperationResult<VoteResponse> result)
         {
-            if (result.Success && string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
+            if (result.IsSuccess && string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
                 flagButton.Selected = result.Result.IsSuccess;
                 likeButton.Selected = _currentPost.Vote;

@@ -4,7 +4,8 @@ namespace Steepshot.Core.Models.Common
 {
     public class OperationResult
     {
-        public bool Success => Error == null;
+        public bool IsSuccess => Error == null;
+
         public ErrorBase Error { get; set; }
 
         public OperationResult()

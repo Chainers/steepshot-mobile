@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Presenters
+﻿namespace Steepshot.Core.Models.Enums
 {
     public enum SearchType
     {

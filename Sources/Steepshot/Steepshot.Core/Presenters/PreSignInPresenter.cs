@@ -15,7 +15,7 @@ namespace Steepshot.Core.Presenters
 
         private Task<OperationResult<UserProfileResponse>> GetAccountInfo(CancellationToken ct, string login)
         {
-            var req = new UserProfileRequest(login);
+            var req = new UserProfileModel(login);
             return Api.GetUserProfile(req, ct);
         }
     }

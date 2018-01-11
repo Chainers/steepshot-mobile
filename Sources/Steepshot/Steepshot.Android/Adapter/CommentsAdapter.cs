@@ -16,6 +16,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
 {

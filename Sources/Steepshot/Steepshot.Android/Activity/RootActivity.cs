@@ -6,6 +6,7 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;

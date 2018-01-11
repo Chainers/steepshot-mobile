@@ -68,7 +68,7 @@ namespace Steepshot.Fragment
             _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
             Presenter.SourceChanged += PresenterSourceChanged;
             Presenter.VotersType =
-                _isLikers ? Core.Models.Requests.VotersType.Likes : Core.Models.Requests.VotersType.Flags;
+                _isLikers ? Core.Models.Enums.VotersType.Likes : Core.Models.Enums.VotersType.Flags;
             _adapter = new FollowersAdapter(Activity, Presenter);
             _adapter.UserAction += OnClick;
             _adapter.FollowAction += OnFollow;

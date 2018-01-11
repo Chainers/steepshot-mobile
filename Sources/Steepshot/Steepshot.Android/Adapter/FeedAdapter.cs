@@ -20,6 +20,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
 {

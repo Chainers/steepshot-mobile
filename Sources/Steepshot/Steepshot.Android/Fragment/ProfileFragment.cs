@@ -20,6 +20,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 
 namespace Steepshot.Fragment

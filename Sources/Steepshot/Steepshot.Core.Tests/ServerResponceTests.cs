@@ -6,19 +6,20 @@ using NUnit.Framework;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Serializing;
 using Steepshot.Core.Tests.Stubs;
 
 namespace Steepshot.Core.Tests
 {
     [TestFixture]
-    public class ServerResponceTests
+    public class ServerResponseTests
     {
         private const bool IsDev = false;
         private static readonly Dictionary<KnownChains, UserInfo> Users;
         private static readonly Dictionary<KnownChains, BaseServerClient> Gateway;
 
-        static ServerResponceTests()
+        static ServerResponseTests()
         {
             var converter = new JsonNetConverter();
             Gateway = new Dictionary<KnownChains, BaseServerClient>
@@ -41,14 +42,14 @@ namespace Steepshot.Core.Tests
         {
             var user = Users[apiName];
 
-            var request = new UserPostsRequest(user.Login)
+            var request = new UserPostsModel(user.Login)
             {
                 ShowNsfw = true,
                 ShowLowRated = true
             };
 
             var result = await Gateway[apiName].GetUserPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace Steepshot.Core.Tests
         public async Task GetUserRecentPostsTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new CensoredNamedRequestWithOffsetLimitFields
+            var request = new CensoredNamedRequestWithOffsetLimitModel
             {
                 Login = user.Login,
                 ShowLowRated = true,
@@ -65,7 +66,7 @@ namespace Steepshot.Core.Tests
             };
 
             var result = await Gateway[apiName].GetUserRecentPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -73,10 +74,10 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task GetPostsTest(KnownChains apiName)
         {
-            var request = new PostsRequest(PostType.Top);
+            var request = new PostsModel(PostType.Top);
 
             var result = await Gateway[apiName].GetPosts(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -84,9 +85,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos, "ru--golos")]
         public async Task GetPostsByCategoryTest(KnownChains apiName, string category)
         {
-            var request = new PostsByCategoryRequest(PostType.Top, category);
+            var request = new PostsByCategoryModel(PostType.Top, category);
             var result = await Gateway[apiName].GetPostsByCategory(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -94,7 +95,7 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos, "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")]
         public async Task GetPostVotersTest(KnownChains apiName, string url)
         {
-            var request = new VotersRequest(url, VotersType.All)
+            var request = new VotersModel(url, VotersType.All)
             {
                 Limit = 40,
                 Offset = string.Empty,
@@ -102,7 +103,7 @@ namespace Steepshot.Core.Tests
             };
 
             var result = await Gateway[apiName].GetPostVoters(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -110,9 +111,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos, "@joseph.kalu/cat636281384922864910")]
         public async Task GetCommentsTest(KnownChains apiName, string url)
         {
-            var request = new NamedInfoRequest(url);
+            var request = new NamedInfoModel(url);
             var result = await Gateway[apiName].GetComments(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -121,9 +122,9 @@ namespace Steepshot.Core.Tests
         public async Task GetUserProfileTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new UserProfileRequest(user.Login);
+            var request = new UserProfileModel(user.Login);
             var result = await Gateway[apiName].GetUserProfile(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
 
@@ -133,9 +134,9 @@ namespace Steepshot.Core.Tests
         public async Task GetUserFriendsTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login, FriendsType.Following);
+            var request = new UserFriendsModel(user.Login, FriendsType.Following);
             var result = await Gateway[apiName].GetUserFriends(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -143,13 +144,13 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos, "/steepshot/@joseph.kalu/cat636416737747907631-2017-09-22-10-42-56")]
         public async Task GetPostInfoTest(KnownChains apiName, [Values()] string url)
         {
-            var request = new NamedInfoRequest(url)
+            var request = new NamedInfoModel(url)
             {
                 ShowNsfw = true,
                 ShowLowRated = true
             };
             var result = await Gateway[apiName].GetPostInfo(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -157,9 +158,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task SearchUserTest(KnownChains apiName)
         {
-            var request = new SearchWithQueryRequest("aar");
+            var request = new SearchWithQueryModel("aar");
             var result = await Gateway[apiName].SearchUser(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -168,9 +169,9 @@ namespace Steepshot.Core.Tests
         public async Task UserExistsCheckTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var request = new UserExistsRequests(user.Login);
+            var request = new UserExistsModel(user.Login);
             var result = await Gateway[apiName].UserExistsCheck(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -178,9 +179,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task GetCategoriesTest(KnownChains apiName)
         {
-            var request = new OffsetLimitFields();
+            var request = new OffsetLimitModel();
             var result = await Gateway[apiName].GetCategories(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
 
         [Test]
@@ -188,9 +189,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task SearchCategoriesTest(KnownChains apiName)
         {
-            var request = new SearchWithQueryRequest("ru");
+            var request = new SearchWithQueryModel("ru");
             var result = await Gateway[apiName].SearchCategories(request, CancellationToken.None);
-            Assert.IsTrue(result.Success, result.Error?.Message);
+            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
         }
     }
 }

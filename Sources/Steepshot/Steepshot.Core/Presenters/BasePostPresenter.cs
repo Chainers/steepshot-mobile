@@ -6,6 +6,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -44,13 +45,13 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
         {
             error = null;
             if (response == null)
                 return false;
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var results = response.Result.Results;
                 if (results.Count > 0)
@@ -118,10 +119,10 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(CancellationToken ct, Post post)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds)
@@ -172,10 +173,10 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Flag(CancellationToken ct, Post post)
         {
             var wasVote = post.Vote;
-            var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Foundation;
 using Steepshot.Core;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
