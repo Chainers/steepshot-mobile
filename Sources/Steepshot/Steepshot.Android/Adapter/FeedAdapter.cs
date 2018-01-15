@@ -429,9 +429,7 @@ namespace Steepshot.Adapter
                     Picasso.With(_context).Load(avatarUrl).Placeholder(Resource.Drawable.ic_holder).Resize(240, 0).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                         () =>
                         {
-                            Picasso.With(_context).Load(avatarUrl)
-                                .Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low)
-                                .Into(topLikersAvatar);
+                            Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
                         });
                 else
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
