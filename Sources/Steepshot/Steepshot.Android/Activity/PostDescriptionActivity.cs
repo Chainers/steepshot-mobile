@@ -77,36 +77,7 @@ namespace Steepshot.Activity
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
             _postButton.Text = Localization.Texts.PublishButtonText;
-            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
-            _path = Intent.GetStringExtra(PhotoExtraPath);
-            var photoUri = Android.Net.Uri.Parse(_path);
-
             _postButton.Enabled = true;
-            if (_shouldCompress)
-            {
-                FileDescriptor fileDescriptor = null;
-                try
-                {
-                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
-                    _photoFrame.SetImageBitmap(_btmp);
-                }
-                catch (Exception ex)
-                {
-                    _postButton.Enabled = false;
-                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
-                    AppSettings.Reporter.SendCrash(ex);
-                }
-                finally
-                {
-                    fileDescriptor?.Dispose();
-                }
-            }
-            else
-            {
-                _photoFrame.SetImageURI(photoUri);
-            }
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
             _localTagsAdapter = new SelectedTagsAdapter();
@@ -131,7 +102,41 @@ namespace Steepshot.Activity
 
             _timer = new Timer(OnTimer);
 
+            _path = Intent.GetStringExtra(PhotoExtraPath);
+
+            InitPhoto(_path);
             SearchTextChanged();
+        }
+
+        private void InitPhoto(string path)
+        {
+            var photoUri = Android.Net.Uri.Parse(path);
+            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+            if (_shouldCompress)
+            {
+                FileDescriptor fileDescriptor = null;
+                try
+                {
+                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, path);
+                    _photoFrame.SetImageBitmap(_btmp);
+                }
+                catch (Exception ex)
+                {
+                    _postButton.Enabled = false;
+                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                finally
+                {
+                    fileDescriptor?.Dispose();
+                }
+            }
+            else
+            {
+                _photoFrame.SetImageURI(photoUri);
+            }
         }
 
         private void PhotoFrameOnClick(object sender, EventArgs e)
@@ -176,7 +181,7 @@ namespace Steepshot.Activity
 
             _localTagsAdapter.LocalTags.Remove(tag);
             _localTagsAdapter.NotifyDataSetChanged();
-            if (_localTagsAdapter.LocalTags.Count() == 0)
+            if (!_localTagsAdapter.LocalTags.Any())
                 _localTagsList.Visibility = ViewStates.Gone;
         }
 

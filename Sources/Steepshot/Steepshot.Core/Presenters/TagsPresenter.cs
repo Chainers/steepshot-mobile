@@ -18,7 +18,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNext, s);
         }
 
-        private async Task<ErrorBase> LoadNext(CancellationToken ct, string s)
+        private async Task<ErrorBase> LoadNext(string s, CancellationToken ct)
         {
             var request = new SearchWithQueryModel(s.TagToEn())
             {

@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextPostVoters, url);
         }
 
-        private async Task<ErrorBase> LoadNextPostVoters(CancellationToken ct, string url)
+        private async Task<ErrorBase> LoadNextPostVoters(string url, CancellationToken ct)
         {
             if (!VotersType.HasValue)
                 return null;
@@ -75,7 +75,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextUserFriends, username);
         }
 
-        private async Task<ErrorBase> LoadNextUserFriends(CancellationToken ct, string username)
+        private async Task<ErrorBase> LoadNextUserFriends(string username, CancellationToken ct)
         {
             if (!FollowType.HasValue)
                 return null;
@@ -114,7 +114,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextSearchUser, query);
         }
 
-        private async Task<ErrorBase> LoadNextSearchUser(CancellationToken ct, string query)
+        private async Task<ErrorBase> LoadNextSearchUser(string query, CancellationToken ct)
         {
             var request = new SearchWithQueryModel(query)
             {
@@ -153,7 +153,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Follow(CancellationToken ct, UserFriend item)
+        private async Task<ErrorBase> Follow(UserFriend item, CancellationToken ct)
         {
             var request = new FollowModel(User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
