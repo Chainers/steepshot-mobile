@@ -28,11 +28,12 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
+    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
+        WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
@@ -46,7 +47,7 @@ namespace Steepshot.Activity
         private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
-        private UploadImageRequest _request;
+        private UploadImageModel _model;
         private UploadResponse _response;
         private string _previousQuery;
 
@@ -54,16 +55,26 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.title)] private EditText _title;
         [InjectView(Resource.Id.description)] private EditText _description;
         [InjectView(Resource.Id.btn_post)] private Button _postButton;
-        [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
+
+        [InjectView(Resource.Id.local_tags_list)]
+        private RecyclerView _localTagsList;
+
         [InjectView(Resource.Id.tags_list)] private RecyclerView _tagsList;
         [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
         [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
         [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
         [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
         [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
-        [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
-        [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+
+        [InjectView(Resource.Id.tags_list_layout)]
+        private LinearLayout _tagsListLayout;
+
+        [InjectView(Resource.Id.top_margin_tags_layout)]
+        private LinearLayout _topMarginTagsLayout;
+
+        [InjectView(Resource.Id.loading_spinner)]
+        private ProgressBar _loadingSpinner;
+
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
@@ -86,7 +97,9 @@ namespace Steepshot.Activity
             _localTagsAdapter = new SelectedTagsAdapter();
             _localTagsAdapter.Click += LocalTagsAdapterClick;
             _localTagsList.SetAdapter(_localTagsAdapter);
-            _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
+            _localTagsList.AddItemDecoration(
+                new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15,
+                    Resources.DisplayMetrics)));
 
             var editPostByteArr = Intent.GetByteArrayExtra(EditPost);
             if (editPostByteArr != null)
@@ -162,6 +175,7 @@ namespace Steepshot.Activity
             {
                 AddTag(editPostTag);
             }
+
             Picasso.With(this).Load(editPost.Photos[0]).Into(_photoFrame);
         }
 
@@ -172,6 +186,7 @@ namespace Steepshot.Activity
                 _btmp = BitmapFactory.DecodeFile(_path);
                 _shouldCompress = true;
             }
+
             _btmp = BitmapUtils.RotateImage(_btmp, 90);
             _photoFrame.SetImageBitmap(_btmp);
         }
@@ -185,6 +200,7 @@ namespace Steepshot.Activity
                 _btmp.Recycle();
                 _btmp = null;
             }
+
             GC.Collect(0);
         }
 
@@ -193,10 +209,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            RunOnUiThread(() =>
-            {
-                _tagsAdapter.NotifyDataSetChanged();
-            });
+            RunOnUiThread(() => { _tagsAdapter.NotifyDataSetChanged(); });
         }
 
 
@@ -231,6 +244,7 @@ namespace Steepshot.Activity
                     AddTag(txt);
                 }
             }
+
             _timer.Change(500, Timeout.Infinite);
         }
 
@@ -282,7 +296,8 @@ namespace Steepshot.Activity
             TransitionManager.BeginDelayedTransition(_rootLayout);
             _tagsListLayout.Visibility = Resource.Id.toolbar == subject ? ViewStates.Visible : ViewStates.Gone;
 
-            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
+            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip,
+                Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
             _topMarginTagsLayout.SetPadding(0, topPadding, 0, 0);
 
             var currentButtonLayoutParameters = _tagsLayout.LayoutParameters as RelativeLayout.LayoutParams;
@@ -296,7 +311,7 @@ namespace Steepshot.Activity
         private void AddTag(string tag)
         {
             tag = tag.Trim();
-            if (_localTagsAdapter.LocalTags.Count >= 19 || _localTagsAdapter.LocalTags.Any(t => t == tag))
+            if (_localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
             _localTagsAdapter.LocalTags.Add(tag);
             RunOnUiThread(() =>
@@ -310,10 +325,7 @@ namespace Steepshot.Activity
 
         private void OnTimer(object state)
         {
-            RunOnUiThread(async () =>
-            {
-                await SearchTextChanged();
-            });
+            RunOnUiThread(async () => { await SearchTextChanged(); });
         }
 
         private async Task SearchTextChanged()
@@ -376,15 +388,16 @@ namespace Steepshot.Activity
                     return;
                 }
 
-                _request = new UploadImageRequest(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
+                _model = new UploadImageModel(BasePresenter.User.UserInfo, _title.Text, photo,
+                    _localTagsAdapter.LocalTags)
                 {
                     Description = _description.Text
                 };
-                var serverResp = await Presenter.TryUploadWithPrepare(_request);
+                var serverResp = await Presenter.TryUploadWithPrepare(_model);
                 if (IsFinishing || IsDestroyed)
                     return;
 
-                if (serverResp != null && serverResp.Success)
+                if (serverResp != null && serverResp.IsSuccess)
                 {
                     _response = serverResp.Result;
                 }
@@ -394,9 +407,9 @@ namespace Steepshot.Activity
                     OnUploadEnded();
                     return;
                 }
-            }
 
-            TryUpload();
+                TryUpload();
+            }
         }
 
         private Task<byte[]> CompressPhoto(string path)
@@ -429,23 +442,24 @@ namespace Steepshot.Activity
                 {
                     AppSettings.Reporter.SendCrash(ex);
                 }
+
                 return null;
             });
         }
 
         private async void TryUpload()
         {
-            if (_request == null || _editpost == null && _response == null)
+            if (_model == null || _response == null)
             {
                 OnUploadEnded();
                 return;
             }
 
-            var resp = await Presenter.TryUpload(_request, _response);
+            var resp = await Presenter.TryCreatePost(_model, _response);
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (resp.Success)
+            if (resp.IsSuccess)
             {
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
@@ -476,7 +490,7 @@ namespace Steepshot.Activity
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            _request = null;
+            _model = null;
             _response = null;
             OnUploadEnded();
         }

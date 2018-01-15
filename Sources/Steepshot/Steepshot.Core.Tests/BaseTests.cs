@@ -62,7 +62,7 @@ namespace Steepshot.Core.Tests
         {
             Assert.NotNull(response, "Response is null");
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 Assert.NotNull(response.Result, "Response is success, but result is NULL");
                 Assert.IsNull(response.Error, "Response is success, but errors array is NOT empty");

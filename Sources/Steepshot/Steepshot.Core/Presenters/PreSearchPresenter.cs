@@ -5,6 +5,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -24,7 +25,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextTopPosts(CancellationToken ct)
         {
-            var request = new PostsRequest(PostType)
+            var request = new PostsModel(PostType)
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
@@ -34,7 +35,7 @@ namespace Steepshot.Core.Presenters
             };
 
             ErrorBase error;
-            OperationResult<ListResponce<Post>> response;
+            OperationResult<ListResponse<Post>> response;
             do
             {
                 response = await Api.GetPosts(request, ct);
@@ -53,7 +54,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> GetSearchedPosts(CancellationToken ct)
         {
-            var request = new PostsByCategoryRequest(PostType, Tag.TagToEn())
+            var request = new PostsByCategoryModel(PostType, Tag.TagToEn())
             {
                 Login = User.Login,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,

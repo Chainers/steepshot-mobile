@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Foundation;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;

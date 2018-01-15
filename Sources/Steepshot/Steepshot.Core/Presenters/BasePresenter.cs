@@ -11,6 +11,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
 
@@ -215,7 +216,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError)); ;
                 }
             }
@@ -247,7 +248,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1, param2);
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
                 }
             }
@@ -312,7 +313,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }
@@ -344,7 +345,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1, param2);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }

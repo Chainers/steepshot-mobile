@@ -149,7 +149,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }

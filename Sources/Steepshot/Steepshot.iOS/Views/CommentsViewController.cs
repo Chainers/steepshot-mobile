@@ -7,6 +7,7 @@ using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -226,7 +227,7 @@ namespace Steepshot.iOS.Views
             sendProgressBar.StartAnimating();
 
             var response = await _presenter.TryCreateComment(commentTextView.Text, Post.Url);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 commentTextView.Text = string.Empty;
                 _commentsTextViewDelegate.Placeholder.Hidden = false;

@@ -13,7 +13,7 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
-using Android.Views.InputMethods;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Fragment
@@ -189,13 +189,12 @@ namespace Steepshot.Fragment
             }
             else
             {
-
                 var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
 
                 if (!IsInitialized)
                     return;
 
-                if (resp != null && resp.Success)
+                if (resp != null && resp.IsSuccess)
                 {
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();

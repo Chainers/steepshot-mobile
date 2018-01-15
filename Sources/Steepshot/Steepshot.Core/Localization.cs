@@ -39,6 +39,7 @@ namespace Steepshot.Core
             public const string CameraSettingError = "Camera Setting error.";
             public const string VotedInASimilarWay = "You have already voted in a similar way.";
             public const string TagLimitError = "The number of tags should not be more than 20. Please remove a couple of tags and try again.";
+            public const string UnsupportedMime = "Unsupported file type";
 
 
             /// <summary>

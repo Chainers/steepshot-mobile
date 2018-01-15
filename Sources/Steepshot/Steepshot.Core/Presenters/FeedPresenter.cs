@@ -19,7 +19,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextTopPosts(CancellationToken ct)
         {
-            var request = new CensoredNamedRequestWithOffsetLimitFields
+            var request = new CensoredNamedRequestWithOffsetLimitModel
             {
                 Login = User.Login,
                 Limit = ItemsLimit,

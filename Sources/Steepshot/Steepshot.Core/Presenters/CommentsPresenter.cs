@@ -19,7 +19,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextComments(CancellationToken ct, string postUrl)
         {
-            var request = new NamedInfoRequest(postUrl)
+            var request = new NamedInfoModel(postUrl)
             {
                 Login = User.Login
             };
@@ -44,7 +44,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<OperationResult<CommentResponse>> CreateComment(CancellationToken ct, string comment, string url)
         {
-            var reqv = new CommentRequest(User.UserInfo, url, comment, AppSettings.AppInfo);
+            var reqv = new CommentModel(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv, ct);
         }
     }

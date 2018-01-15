@@ -22,7 +22,7 @@ namespace Steepshot.Core.Authority
 
         public void Delete(UserInfo userInfo)
         {
-            for (int i = 0; i < _set.Count; i++)
+            for (var i = 0; i < _set.Count; i++)
             {
                 if (_set[i].Id == userInfo.Id)
                 {
@@ -48,7 +48,7 @@ namespace Steepshot.Core.Authority
 
         public void Update(UserInfo userInfo)
         {
-            for (int i = 0; i < _set.Count; i++)
+            for (var i = 0; i < _set.Count; i++)
             {
                 if (_set[i].Id == userInfo.Id)
                 {

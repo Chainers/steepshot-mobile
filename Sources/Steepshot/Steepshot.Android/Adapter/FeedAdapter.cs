@@ -20,6 +20,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
 {
@@ -209,6 +210,10 @@ namespace Steepshot.Adapter
             {
                 _post.FlagNotificationWasShown = true;
                 _flagAction?.Invoke(_post);
+            }
+            else
+            {
+                _post.ShowMask = false;
             }
             _nsfwMask.Visibility = ViewStates.Gone;
             _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
@@ -461,9 +466,7 @@ namespace Steepshot.Adapter
                     Picasso.With(_context).Load(avatarUrl).Placeholder(Resource.Drawable.ic_holder).Resize(240, 0).Priority(Picasso.Priority.Low).Into(topLikersAvatar, null,
                         () =>
                         {
-                            Picasso.With(_context).Load(avatarUrl)
-                                .Placeholder(Resource.Drawable.ic_holder).Priority(Picasso.Priority.Low)
-                                .Into(topLikersAvatar);
+                            Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
                         });
                 else
                     Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(topLikersAvatar);
@@ -506,7 +509,6 @@ namespace Steepshot.Adapter
                 }
             }
 
-            ItemView.Measure(_context.Resources.DisplayMetrics.WidthPixels, _context.Resources.DisplayMetrics.WidthPixels);
             SetNsfwMaskLayout();
 
             if (_post.Flag && !_post.FlagNotificationWasShown)
@@ -517,7 +519,7 @@ namespace Steepshot.Adapter
                 _nsfwMaskSubMessage.Text = Localization.Messages.FlagSubMessage;
                 _nsfwMaskActionButton.Text = Localization.Texts.UnFlagPost;
             }
-            else if (_post.IsLowRated || _post.IsNsfw)
+            else if (_post.ShowMask && (_post.IsLowRated || _post.IsNsfw))
             {
                 _nsfwMask.Visibility = ViewStates.Visible;
                 _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRatedContent : Localization.Messages.NSFWContent;
@@ -530,7 +532,8 @@ namespace Steepshot.Adapter
 
         protected virtual void SetNsfwMaskLayout()
         {
-            _nsfwMask.LayoutParameters.Height = ItemView.MeasuredHeight;
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Below, Resource.Id.title);
+            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.subtitle);
         }
 
         private void OnPicassoError()

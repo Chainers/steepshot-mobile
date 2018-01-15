@@ -3,6 +3,7 @@ using System.Threading;
 using NUnit.Framework;
 using Steepshot.Core.Models.Requests;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -16,14 +17,14 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task GetPostVotersTest(KnownChains apiName, string url)
         {
             var count = 40;
-            var request = new VotersRequest(url, VotersType.All)
+            var request = new VotersModel(url, VotersType.All)
             {
                 Limit = count,
                 Offset = string.Empty,
 
             };
             var responce = await Api[apiName].GetPostVoters(request, CancellationToken.None);
-            Assert.IsTrue(responce.Success);
+            Assert.IsTrue(responce.IsSuccess);
             Assert.IsTrue(responce.Result.Count == count);
         }
 
@@ -35,7 +36,7 @@ namespace Steepshot.Core.Tests.HttpClient
             try
             {
                 var count = 40;
-                var request = new VotersRequest(url, VotersType.All)
+                var request = new VotersModel(url, VotersType.All)
                 {
                     Limit = count,
                     Offset = string.Empty
@@ -43,7 +44,7 @@ namespace Steepshot.Core.Tests.HttpClient
 
                 var token = new CancellationTokenSource(50);
                 var responce = await Api[apiName].GetPostVoters(request, token.Token);
-                Assert.IsTrue(responce.Success);
+                Assert.IsTrue(responce.IsSuccess);
                 Assert.IsTrue(responce.Result.Count == count);
             }
             catch (OperationCanceledException)

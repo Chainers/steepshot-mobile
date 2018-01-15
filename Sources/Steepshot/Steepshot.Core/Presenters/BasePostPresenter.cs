@@ -6,8 +6,8 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -35,9 +35,9 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> DeletePost(CancellationToken ct, Post post)
         {
-            var request = new DeleteRequest(User.Login, User.UserInfo.PostingKey, post.Url);
+            var request = new DeleteModel(User.Login, User.UserInfo.PostingKey, post.Url);
             var response = await Api.DeletePostOrComment(request, ct);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 lock (Items)
                 {
@@ -61,9 +61,9 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> EditComment(CancellationToken ct, Post post, string body)
         {
-            var request = new CommentRequest(User.UserInfo, post.Url, body, AppSettings.AppInfo);
+            var request = new CommentModel(User.UserInfo, post.Url, body, AppSettings.AppInfo);
             var response = await Api.EditComment(request, ct);
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 post.Body = body;
             }
@@ -95,13 +95,13 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
         {
             error = null;
             if (response == null)
                 return false;
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var results = response.Result.Results;
                 if (results.Count > 0)
@@ -121,8 +121,11 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            Items.Add(item);
-                            isAdded = true;
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url)))
+                            {
+                                Items.Add(item);
+                                isAdded = true;
+                            }
                         }
                     }
 
@@ -166,10 +169,10 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(CancellationToken ct, Post post)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds)
@@ -220,10 +223,10 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Flag(CancellationToken ct, Post post)
         {
             var wasVote = post.Vote;
-            var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;

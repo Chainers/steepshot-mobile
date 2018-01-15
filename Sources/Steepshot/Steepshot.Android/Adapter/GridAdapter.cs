@@ -110,11 +110,13 @@ namespace Steepshot.Adapter
                 Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Into(_photo, OnSuccess, OnError);
             }
 
-            if (_post.IsNsfw || _post.IsLowRated)
+            if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated))
             {
                 _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRated : Localization.Messages.NSFW;
                 _nsfwMask.Visibility = ViewStates.Visible;
             }
+            else
+                _nsfwMask.Visibility = ViewStates.Gone;
         }
 
         public void OnBitmapFailed(Drawable p0)

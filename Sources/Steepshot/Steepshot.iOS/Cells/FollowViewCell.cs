@@ -4,6 +4,7 @@ using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using UIKit;

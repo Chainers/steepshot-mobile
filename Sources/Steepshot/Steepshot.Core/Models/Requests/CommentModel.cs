@@ -1,13 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Models.Requests
 {
-    public class CommentRequest : AuthorizedRequest
+    [JsonObject(MemberSerialization.OptIn)]
+    public class CommentModel : AuthorizedModel
     {
-        public CommentRequest(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
+        public CommentModel(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
         {
             Url = url;
             Body = body;

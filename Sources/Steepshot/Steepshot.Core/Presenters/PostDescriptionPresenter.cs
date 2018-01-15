@@ -8,25 +8,25 @@ namespace Steepshot.Core.Presenters
 {
     public class PostDescriptionPresenter : TagsPresenter
     {
-        public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageRequest request)
+        public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageModel model)
         {
-            return await TryRunTask<UploadImageRequest, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, request);
+            return await TryRunTask<UploadImageModel, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageRequest request)
+        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageModel model)
         {
-            return await Api.UploadWithPrepare(request, ct);
+            return await Api.UploadWithPrepare(model, ct);
         }
 
 
-        public async Task<OperationResult<ImageUploadResponse>> TryUpload(UploadImageRequest request, UploadResponse uploadResponse)
+        public async Task<OperationResult<ImageUploadResponse>> TryCreatePost(UploadImageModel model, UploadResponse uploadResponse)
         {
-            return await TryRunTask<UploadImageRequest, UploadResponse, ImageUploadResponse>(Upload, OnDisposeCts.Token, request, uploadResponse);
+            return await TryRunTask<UploadImageModel, UploadResponse, ImageUploadResponse>(CreatePost, OnDisposeCts.Token, model, uploadResponse);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> Upload(CancellationToken ct, UploadImageRequest request, UploadResponse uploadResponse)
+        private async Task<OperationResult<ImageUploadResponse>> CreatePost(CancellationToken ct, UploadImageModel model, UploadResponse uploadResponse)
         {
-            return await Api.Upload(request, uploadResponse, ct);
+            return await Api.CreatePost(model, uploadResponse, ct);
         }
     }
 }

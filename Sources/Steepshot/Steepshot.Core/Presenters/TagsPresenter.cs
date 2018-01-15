@@ -20,7 +20,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNext(CancellationToken ct, string s)
         {
-            var request = new SearchWithQueryRequest(s.TagToEn())
+            var request = new SearchWithQueryModel(s.TagToEn())
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
@@ -28,7 +28,7 @@ namespace Steepshot.Core.Presenters
 
             var response = await Api.SearchCategories(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
@@ -53,7 +53,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> GetTopTags(CancellationToken ct)
         {
-            var request = new OffsetLimitFields()
+            var request = new OffsetLimitModel()
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
 
             var response = await Api.GetCategories(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var tags = response.Result.Results;
                 if (tags.Count > 0)
