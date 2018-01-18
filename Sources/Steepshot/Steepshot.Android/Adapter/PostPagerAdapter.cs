@@ -23,7 +23,7 @@ namespace Steepshot.Adapter
         private readonly List<PostViewHolder> _viewHolders;
         private int _itemsCount;
         private View _loadingView;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, DeleteAction;
         public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
         public Action CloseAction;
@@ -60,7 +60,7 @@ namespace Steepshot.Adapter
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
                 vh = new PostViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick,
-                    FlagAction, HideAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
+                    FlagAction, HideAction, DeleteAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -147,7 +147,7 @@ namespace Steepshot.Adapter
     {
         private readonly Action _closeAction;
 
-        public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, tagAction, height)
+        public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> deleteAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, deleteAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;
             _closeAction = closeAction;

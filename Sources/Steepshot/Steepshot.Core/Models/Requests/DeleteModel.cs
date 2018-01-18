@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Authority;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class DeleteModel : AuthorizedModel
     {
-        public DeleteModel(string login, string postingKey, string url) : base(login, postingKey)
+        public DeleteModel(UserInfo user, string url) : base(user)
         {
             Url = url;
         }

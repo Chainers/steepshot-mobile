@@ -16,10 +16,11 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.View;
 using Refractored.Controls;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Android.App;
+using Android.Graphics.Drawables;
 using Android.OS;
 using Steepshot.Core.Models.Enums;
 
@@ -29,7 +30,7 @@ namespace Steepshot.Adapter
     {
         protected readonly T Presenter;
         protected readonly Context Context;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction;
+        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, DeleteAction;
         public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
 
@@ -75,7 +76,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, DeleteAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -90,6 +91,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
+        private readonly Action<Post> _deleteAction;
         private readonly Action<string> _tagAction;
         private readonly ViewPager _photosViewPager;
         private readonly ImageView _avatar;
@@ -122,7 +124,7 @@ namespace Steepshot.Adapter
         private const int _maxLines = 5;
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<string> tagAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> deleteAction, Action<string> tagAction, int height) : base(itemView)
         {
             _context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
@@ -176,6 +178,7 @@ namespace Steepshot.Adapter
             _votersAction = votersAction;
             _flagAction = flagAction;
             _hideAction = hideAction;
+            _deleteAction = deleteAction;
             _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
@@ -243,16 +246,27 @@ namespace Steepshot.Adapter
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
                 flag.Text = _post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
                 flag.Typeface = Style.Semibold;
+
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
                 hide.Text = Localization.Texts.HidePost;
                 hide.Typeface = Style.Semibold;
                 hide.Visibility = ViewStates.Visible;
+
+                var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
+                delete.Text = Localization.Texts.DeletePost;
+                delete.Typeface = Style.Semibold;
+
                 if (_post.Author == BasePresenter.User.Login)
+                {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
+                    delete.Visibility = ViewStates.Visible;
+                }
+
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
                 copylink.Text = Localization.Texts.CopyLink;
                 copylink.Typeface = Style.Semibold;
                 copylink.Visibility = ViewStates.Visible;
+
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
                 cancel.Text = Localization.Texts.Cancel;
                 cancel.Typeface = Style.Semibold;
@@ -262,6 +276,9 @@ namespace Steepshot.Adapter
 
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
+
+                delete.Click -= DeleteOnClick;
+                delete.Click += DeleteOnClick;
 
                 copylink.Click -= DoShareAction;
                 copylink.Click += DoShareAction;
@@ -274,6 +291,40 @@ namespace Steepshot.Adapter
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
+        }
+
+        private void DeleteOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(_context);
+            var alert = alertBuilder.Create();
+            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
+            var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
+
+            var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
+            alertTitle.Text = Localization.Messages.DeleteAlertTitle;
+            alertTitle.Typeface = Style.Semibold;
+
+            var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
+            alertMessage.Text = Localization.Messages.DeleteAlertMessage;
+            alertMessage.Typeface = Style.Light;
+
+            var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
+            alertCancel.Text = Localization.Texts.Cancel;
+            alertCancel.Click += (o, args) => alert.Cancel();
+
+            var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
+            alertDelete.Text = Localization.Texts.Delete;
+            alertDelete.Click += (o, args) =>
+            {
+                _deleteAction?.Invoke(_post);
+                alert.Cancel();
+            };
+
+            alert.SetCancelable(true);
+            alert.SetView(alertView);
+            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
+            alert.Show();
         }
 
         private void DoFlagAction(object sender, EventArgs e)

@@ -20,6 +20,32 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = true;
         }
 
+        public async Task<ErrorBase> TryDeletePost(Post post)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
+        {
+            var request = new DeleteModel(User.UserInfo, post.Url);
+            var response = await Api.DeletePostOrComment(request, ct);
+            if (response.IsSuccess)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
         public void RemovePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
@@ -132,7 +158,7 @@ namespace Steepshot.Core.Presenters
                 ChangeLike(post, wasFlaged);
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
-            else if (response.Error is BlockchainError
+            else if (response.Error is BlockchainError 
                 && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
                 response.Error = null;
