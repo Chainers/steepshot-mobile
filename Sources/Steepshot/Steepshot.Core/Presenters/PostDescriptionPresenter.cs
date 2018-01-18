@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
+using System.IO;
 
 namespace Steepshot.Core.Presenters
 {
@@ -13,7 +14,7 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask<UploadImageModel, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(CancellationToken ct, UploadImageModel model)
+        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
         {
             return await Api.UploadWithPrepare(model, ct);
         }
@@ -24,9 +25,19 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask<UploadImageModel, UploadResponse, ImageUploadResponse>(CreatePost, OnDisposeCts.Token, model, uploadResponse);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> CreatePost(CancellationToken ct, UploadImageModel model, UploadResponse uploadResponse)
+        private async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
         {
             return await Api.CreatePost(model, uploadResponse, ct);
+        }
+
+        public async Task<OperationResult<NsfwRate>> TryNsfwCheck(Stream stream)
+        {
+            return await TryRunTask<Stream, NsfwRate>(NsfwCheck, OnDisposeCts.Token, stream);
+        }
+
+        private async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
+        {
+            return await Api.NsfwCheck(stream, token);
         }
     }
 }

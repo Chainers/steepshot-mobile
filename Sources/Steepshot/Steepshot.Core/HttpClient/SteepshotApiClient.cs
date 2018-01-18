@@ -12,7 +12,7 @@ using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient
 {
-    public class SteepshotApiClient : BaseServerClient, ISteepshotApiClient
+    public class SteepshotApiClient : BaseServerClient
     {
         private readonly Dictionary<string, Beneficiary[]> _beneficiariesCash;
         private readonly object _synk;

@@ -17,7 +17,7 @@ namespace Steepshot.Core.Presenters
             return await RunAsSingleTask(LoadNextComments, postUrl);
         }
 
-        private async Task<ErrorBase> LoadNextComments(CancellationToken ct, string postUrl)
+        private async Task<ErrorBase> LoadNextComments(string postUrl, CancellationToken ct)
         {
             var request = new NamedInfoModel(postUrl)
             {
@@ -42,7 +42,7 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask<string, string, CommentResponse>(CreateComment, OnDisposeCts.Token, comment, url);
         }
 
-        private async Task<OperationResult<CommentResponse>> CreateComment(CancellationToken ct, string comment, string url)
+        private async Task<OperationResult<CommentResponse>> CreateComment(string comment, string url, CancellationToken ct)
         {
             var reqv = new CommentModel(User.UserInfo, url, comment, AppSettings.AppInfo);
             return await Api.CreateComment(reqv, ct);

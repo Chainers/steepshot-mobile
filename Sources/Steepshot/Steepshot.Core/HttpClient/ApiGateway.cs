@@ -10,11 +10,15 @@ using Steepshot.Core.Errors;
 using System.Text.RegularExpressions;
 using Steepshot.Core.Models.Common;
 using System.Net;
+using Steepshot.Core.Models.Responses;
+using System.IO;
 
 namespace Steepshot.Core.HttpClient
 {
     public class ApiGateway
     {
+        private const string NsfwCheckerUrl = "https://nsfwchecker.com/api/nsfw_recognizer";
+        private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
         private readonly Regex _errorJson = new Regex("(?<=^{\"[a-z_0-9]*\":\\[\").*(?=\"]}$)");
         private readonly Regex _errorJson2 = new Regex("(?<=^{\"[a-z_0-9]*\":\").*(?=\"}$)");
         private readonly Regex _errorHtml = new Regex(@"<[^>]+>");
@@ -76,6 +80,20 @@ namespace Steepshot.Core.HttpClient
 
             var response = await _client.PostAsync(url, multiContent, token);
             return await CreateResult<T>(response, token);
+        }
+
+        public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
+        {
+            var multiContent = new MultipartFormDataContent { { new StreamContent(stream), "image", "nsfw" } };
+            var response = await _client.PostAsync(NsfwCheckerUrl, multiContent, token);
+            return await CreateResult<NsfwRate>(response, token);
+        }
+
+        public async Task<OperationResult<NsfwRate>> NsfwCheck(string url, CancellationToken token)
+        {
+            var multiContent = new MultipartFormDataContent { { new StringContent(url), "url" } };
+            var response = await _client.PostAsync(NsfwUrlCheckerUrl, multiContent, token);
+            return await CreateResult<NsfwRate>(response, token);
         }
 
         private string GetUrl(GatewayVersion version, string endpoint, Dictionary<string, object> parameters = null)

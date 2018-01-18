@@ -13,7 +13,7 @@ using Steepshot.Core.Serializing;
 
 namespace Steepshot.Core.Tests.Stubs
 {
-    public class ApiPositiveStub : ISteepshotApiClient
+    public class ApiPositiveStub : SteepshotApiClient
     {
         private JsonNetConverter Converter;
         private string GetUserRecentPostsJson1;

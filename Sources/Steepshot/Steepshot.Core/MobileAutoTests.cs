@@ -15,13 +15,13 @@ namespace Steepshot.Core
 {
     public class MobileAutoTests
     {
-        private readonly ISteepshotApiClient _api;
+        private readonly SteepshotApiClient _api;
         private readonly UserInfo _user;
         private readonly IAppInfo _appInfo;
         public event Action<string> StepFinished;
         private readonly StringBuilder _log = new StringBuilder();
 
-        public MobileAutoTests(ISteepshotApiClient api, UserInfo user, IAppInfo appInfo)
+        public MobileAutoTests(SteepshotApiClient api, UserInfo user, IAppInfo appInfo)
         {
             _api = api;
             _user = user;

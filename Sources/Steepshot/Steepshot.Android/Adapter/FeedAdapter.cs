@@ -637,7 +637,9 @@ namespace Steepshot.Adapter
                 var reusePosition = position % CachedPagesCount;
                 if (_photoHolders[reusePosition] == null)
                 {
-                    var photoCard = new CardView(Context) { LayoutParameters = _layoutParams, Elevation = 0 };
+                    var photoCard = new CardView(Context) { LayoutParameters = _layoutParams };
+                    if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
+                        photoCard.Elevation = 0;
                     var photo = new ImageView(Context) { LayoutParameters = _layoutParams };
                     photo.SetImageDrawable(null);
                     photo.SetScaleType(ImageView.ScaleType.CenterCrop);

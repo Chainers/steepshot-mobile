@@ -52,7 +52,7 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private async Task<ErrorBase> GetUserInfo(CancellationToken ct, string user)
+        private async Task<ErrorBase> GetUserInfo(string user, CancellationToken ct)
         {
             var req = new UserProfileModel(user)
             {
@@ -84,7 +84,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
+        private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var request = new FollowModel(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);

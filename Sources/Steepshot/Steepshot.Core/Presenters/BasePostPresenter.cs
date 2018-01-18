@@ -33,7 +33,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> DeletePost(CancellationToken ct, Post post)
+        private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(User.Login, User.UserInfo.PostingKey, post.Url);
             var response = await Api.DeletePostOrComment(request, ct);
@@ -59,7 +59,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> EditComment(CancellationToken ct, Post post, string body)
+        private async Task<ErrorBase> EditComment(Post post, string body, CancellationToken ct)
         {
             var request = new CommentModel(User.UserInfo, post.Url, body, AppSettings.AppInfo);
             var response = await Api.EditComment(request, ct);
@@ -166,7 +166,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Vote(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
             var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
@@ -220,7 +220,7 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Flag(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
             var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);

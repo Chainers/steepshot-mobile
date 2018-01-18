@@ -32,8 +32,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
-        WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
+    [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
@@ -55,26 +54,16 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.title)] private EditText _title;
         [InjectView(Resource.Id.description)] private EditText _description;
         [InjectView(Resource.Id.btn_post)] private Button _postButton;
-
-        [InjectView(Resource.Id.local_tags_list)]
-        private RecyclerView _localTagsList;
-
+        [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
         [InjectView(Resource.Id.tags_list)] private RecyclerView _tagsList;
         [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
         [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
         [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
         [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
         [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
-
-        [InjectView(Resource.Id.tags_list_layout)]
-        private LinearLayout _tagsListLayout;
-
-        [InjectView(Resource.Id.top_margin_tags_layout)]
-        private LinearLayout _topMarginTagsLayout;
-
-        [InjectView(Resource.Id.loading_spinner)]
-        private ProgressBar _loadingSpinner;
-
+        [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
+        [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
+        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
 #pragma warning restore 0649
 
@@ -92,14 +81,13 @@ namespace Steepshot.Activity
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
             _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Enabled = true;
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
             _localTagsAdapter = new SelectedTagsAdapter();
             _localTagsAdapter.Click += LocalTagsAdapterClick;
             _localTagsList.SetAdapter(_localTagsAdapter);
-            _localTagsList.AddItemDecoration(
-                new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15,
-                    Resources.DisplayMetrics)));
+            _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
             var editPostByteArr = Intent.GetByteArrayExtra(EditPost);
             if (editPostByteArr != null)
@@ -115,34 +103,7 @@ namespace Steepshot.Activity
             {
                 _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
                 _path = Intent.GetStringExtra(PhotoExtraPath);
-                var photoUri = Android.Net.Uri.Parse(_path);
-
-                _postButton.Enabled = true;
-                if (_shouldCompress)
-                {
-                    FileDescriptor fileDescriptor = null;
-                    try
-                    {
-                        fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                        _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                        _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, _path);
-                        _photoFrame.SetImageBitmap(_btmp);
-                    }
-                    catch (Exception ex)
-                    {
-                        _postButton.Enabled = false;
-                        this.ShowAlert(Localization.Errors.UnknownCriticalError);
-                        AppSettings.Reporter.SendCrash(ex);
-                    }
-                    finally
-                    {
-                        fileDescriptor?.Dispose();
-                    }
-                }
-                else
-                {
-                    _photoFrame.SetImageURI(photoUri);
-                }
+                InitPhoto(_path);
             }
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
@@ -162,6 +123,9 @@ namespace Steepshot.Activity
 
             _timer = new Timer(OnTimer);
 
+            _path = Intent.GetStringExtra(PhotoExtraPath);
+
+            InitPhoto(_path);
             SearchTextChanged();
         }
 
@@ -179,6 +143,37 @@ namespace Steepshot.Activity
             Picasso.With(this).Load(editPost.Photos[0]).Into(_photoFrame);
         }
 
+        private void InitPhoto(string path)
+        {
+            var photoUri = Android.Net.Uri.Parse(path);
+            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+            if (_shouldCompress)
+            {
+                FileDescriptor fileDescriptor = null;
+                try
+                {
+                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, path);
+                    _photoFrame.SetImageBitmap(_btmp);
+                }
+                catch (Exception ex)
+                {
+                    _postButton.Enabled = false;
+                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                    AppSettings.Reporter.SendCrash(ex);
+                }
+                finally
+                {
+                    fileDescriptor?.Dispose();
+                }
+            }
+            else
+            {
+                _photoFrame.SetImageURI(photoUri);
+            }
+        }
+
         private void PhotoFrameOnClick(object sender, EventArgs e)
         {
             if (_btmp == null)
@@ -186,7 +181,6 @@ namespace Steepshot.Activity
                 _btmp = BitmapFactory.DecodeFile(_path);
                 _shouldCompress = true;
             }
-
             _btmp = BitmapUtils.RotateImage(_btmp, 90);
             _photoFrame.SetImageBitmap(_btmp);
         }
@@ -200,7 +194,6 @@ namespace Steepshot.Activity
                 _btmp.Recycle();
                 _btmp = null;
             }
-
             GC.Collect(0);
         }
 
@@ -209,7 +202,10 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            RunOnUiThread(() => { _tagsAdapter.NotifyDataSetChanged(); });
+            RunOnUiThread(() =>
+            {
+                _tagsAdapter.NotifyDataSetChanged();
+            });
         }
 
 
@@ -220,7 +216,7 @@ namespace Steepshot.Activity
 
             _localTagsAdapter.LocalTags.Remove(tag);
             _localTagsAdapter.NotifyDataSetChanged();
-            if (_localTagsAdapter.LocalTags.Count() == 0)
+            if (!_localTagsAdapter.LocalTags.Any())
                 _localTagsList.Visibility = ViewStates.Gone;
         }
 
@@ -244,7 +240,6 @@ namespace Steepshot.Activity
                     AddTag(txt);
                 }
             }
-
             _timer.Change(500, Timeout.Infinite);
         }
 
@@ -296,8 +291,7 @@ namespace Steepshot.Activity
             TransitionManager.BeginDelayedTransition(_rootLayout);
             _tagsListLayout.Visibility = Resource.Id.toolbar == subject ? ViewStates.Visible : ViewStates.Gone;
 
-            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip,
-                Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
+            var topPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, Resource.Id.toolbar == subject ? 5 : 45, Resources.DisplayMetrics);
             _topMarginTagsLayout.SetPadding(0, topPadding, 0, 0);
 
             var currentButtonLayoutParameters = _tagsLayout.LayoutParameters as RelativeLayout.LayoutParams;
@@ -325,7 +319,10 @@ namespace Steepshot.Activity
 
         private void OnTimer(object state)
         {
-            RunOnUiThread(async () => { await SearchTextChanged(); });
+            RunOnUiThread(async () =>
+            {
+                await SearchTextChanged();
+            });
         }
 
         private async Task SearchTextChanged()
@@ -388,8 +385,7 @@ namespace Steepshot.Activity
                     return;
                 }
 
-                _model = new UploadImageModel(BasePresenter.User.UserInfo, _title.Text, photo,
-                    _localTagsAdapter.LocalTags)
+                _model = new UploadImageModel(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
                 {
                     Description = _description.Text
                 };
@@ -442,7 +438,6 @@ namespace Steepshot.Activity
                 {
                     AppSettings.Reporter.SendCrash(ex);
                 }
-
                 return null;
             });
         }
