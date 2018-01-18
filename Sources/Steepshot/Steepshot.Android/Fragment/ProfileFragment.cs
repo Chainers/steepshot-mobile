@@ -17,7 +17,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
@@ -220,6 +219,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
+                _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
 
                 _refresher.Refresh += RefresherRefresh;
                 _settings.Click += OnSettingsClick;
@@ -261,16 +261,6 @@ namespace Steepshot.Fragment
                 else
                     _profilePagerAdapter.NotifyDataSetChanged();
             }
-            //if (pageScrolledEventArgs.PositionOffset > 0.5 && pageScrolledEventArgs.PositionOffset < 1)
-            //{
-            //    if (1 - pageScrolledEventArgs.PositionOffset > pageScrolledEventArgs.PositionOffset - 0.5)
-            //        _profilePagerAdapter.PrepareLeft();
-            //}
-            //else if (pageScrolledEventArgs.PositionOffset < 0.5 && pageScrolledEventArgs.PositionOffset > 0)
-            //{
-            //    if (0.5 - pageScrolledEventArgs.PositionOffset < pageScrolledEventArgs.PositionOffset)
-            //        _profilePagerAdapter.PrepareRight();
-            //}
         }
 
         private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
@@ -278,7 +268,6 @@ namespace Steepshot.Fragment
             if (pageScrollStateChangedEventArgs.State == 0)
             {
                 _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
-                //_profilePagerAdapter.PrepareMiddle();
                 _postsList.ScrollToPosition(_postPager.CurrentItem + 1);
                 if (_postsList.GetLayoutManager() is GridLayoutManager manager)
                 {
