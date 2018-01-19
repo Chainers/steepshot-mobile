@@ -386,9 +386,6 @@ namespace Steepshot.Adapter
             _author.Text = post.Author;
             _comment.Text = post.Body.CensorText();
 
-            if (_post.Author == BasePresenter.User.Login)
-                _more.Visibility = ViewStates.Gone;
-
             if (!string.IsNullOrEmpty(_post.Avatar))
                 Picasso.With(_context).Load(_post.Avatar)
                        .Placeholder(Resource.Drawable.ic_holder)
