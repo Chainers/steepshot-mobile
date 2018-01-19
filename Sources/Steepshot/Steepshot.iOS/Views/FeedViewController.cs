@@ -166,7 +166,7 @@ namespace Steepshot.iOS.Views
             BasePresenter.User.PostBlackList.Add(post.Url);
             BasePresenter.User.Save();
 
-            _presenter.RemovePost(post);
+            _presenter.HidePost(post);
         }
 
         private async Task FlagPhoto(Post post)

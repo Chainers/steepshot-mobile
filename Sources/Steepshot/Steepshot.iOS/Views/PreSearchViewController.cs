@@ -99,14 +99,14 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.GoToComments += postUrl =>
             {
                 var myViewController = new CommentsViewController();
-                myViewController.PostUrl = postUrl;
+                myViewController.Permlink = postUrl;
                 _navController.PushViewController(myViewController, true);
             };
 
             _collectionViewSource.GoToVoters += postUrl =>
             {
                 var myViewController = new VotersViewController();
-                myViewController.PostUrl = postUrl;
+                myViewController.Permlink = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
 

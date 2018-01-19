@@ -6,7 +6,6 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Utils;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
@@ -35,7 +34,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
-            var request = new DeleteModel(User.Login, User.UserInfo.PostingKey, post.Url);
+            var request = new DeleteModel(User.UserInfo, post);
             var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
@@ -47,30 +46,51 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public async Task<ErrorBase> TryEditComment(Post post, string body)
+        public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
         {
-            if (post == null)
+            if (post == null || parentPost == null)
                 return null;
 
-            var error = await TryRunTask(EditComment, OnDisposeCts.Token, post, body);
+            var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
+        {
+            var request = new DeleteModel(User.UserInfo, post, parentPost);
+            var response = await Api.DeletePostOrComment(request, ct);
+            if (response.IsSuccess)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
+        public async Task<ErrorBase> TryEditComment(EditCommentModel model)
+        {
+            if (model == null)
+                return null;
+
+            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model);
 
             NotifySourceChanged(nameof(TryEditComment), true);
 
             return error;
         }
 
-        private async Task<ErrorBase> EditComment(Post post, string body, CancellationToken ct)
+        private async Task<ErrorBase> EditComment(EditCommentModel model, CancellationToken ct)
         {
-            var request = new CommentModel(User.UserInfo, post.Url, body, AppSettings.AppInfo);
-            var response = await Api.EditComment(request, ct);
-            if (response.IsSuccess)
-            {
-                post.Body = body;
-            }
+            var response = await Api.EditComment(model, ct);
             return response.Error;
         }
 
-        public void RemovePost(Post post)
+        public void HidePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
             {
@@ -80,7 +100,7 @@ namespace Steepshot.Core.Presenters
 
             lock (Items)
                 Items.Remove(post);
-            NotifySourceChanged(nameof(RemovePost), true);
+            NotifySourceChanged(nameof(HidePost), true);
         }
 
         public Post FirstOrDefault(Func<Post, bool> func)
@@ -106,22 +126,18 @@ namespace Steepshot.Core.Presenters
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    var last = results.Last().Url;
                     var isAdded = false;
                     lock (Items)
                     {
                         if (isNeedClearItems)
                             Clear(false);
 
-                        for (var i = 0; i < results.Count; i++)
+                        foreach (var item in results)
                         {
-                            var item = results[i];
-                            if (i == 0 && !string.IsNullOrEmpty(OffsetUrl))
-                                continue;
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
                             {
                                 Items.Add(item);
                                 isAdded = true;
@@ -131,11 +147,11 @@ namespace Steepshot.Core.Presenters
 
                     if (isAdded)
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                     }
-                    else if (OffsetUrl != last)
+                    else if (!string.Equals(OffsetUrl, response.Result.Offset, StringComparison.OrdinalIgnoreCase))
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                         return true;
                     }
 

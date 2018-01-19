@@ -13,8 +13,10 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
+using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -179,7 +181,8 @@ namespace Steepshot.Fragment
 
             if (_commentEditBlock.Visibility == ViewStates.Visible)
             {
-                var error = await Presenter.TryEditComment(_editComment, _textInput.Text);
+                var editCommentModel = new EditCommentModel(BasePresenter.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var error = await Presenter.TryEditComment(editCommentModel);
 
                 if (!IsInitialized)
                     return;
@@ -306,7 +309,7 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            Presenter.RemovePost(post);
+            Presenter.HidePost(post);
         }
 
         private void HideKeyboard()
@@ -338,7 +341,7 @@ namespace Steepshot.Fragment
 
         private async void DeleteAction(Post post)
         {
-            var error = await Presenter.TryDeletePost(post);
+            var error = await Presenter.TryDeleteComment(post, _post);
             if (!IsInitialized)
                 return;
 

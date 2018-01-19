@@ -1,32 +1,46 @@
-using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class CommentModel : AuthorizedModel
     {
-        public CommentModel(UserInfo user, string url, string body, IAppInfo appInfo) : base(user)
-        {
-            Url = url;
-            Body = body;
-            AppVersion = $"v{appInfo.GetAppVersion()} b{appInfo.GetBuildVersion()} t";
-            IsNeedRewards = user.IsNeedRewards;
-        }
+        [JsonProperty]
+        public string ParentAuthor { get; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
-        public string Url { get; }
+        [JsonProperty]
+        public string ParentPermlink { get; set; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyCommentField)]
+        [JsonProperty]
+        public string Author { get; set; }
+
+        [JsonProperty]
+        public string Permlink { get; set; }
+
+        [JsonProperty]
+        public string Title { get; }
+
+        [JsonProperty]
         public string Body { get; }
 
-        public string AppVersion { get; }
+        [JsonProperty]
+        public string JsonMetadata { get; set; }
 
-        public bool IsNeedRewards { get; }
-
+        [JsonProperty]
         public Beneficiary[] Beneficiaries { get; internal set; }
+
+
+        public CommentModel(string login, string postingKey, string parentAuthor, string parentPermlink, string author, string permlink, string title, string body, string jsonMetadata)
+            : base(login, postingKey)
+        {
+            ParentAuthor = parentAuthor;
+            ParentPermlink = parentPermlink;
+            Author = author;
+            Permlink = permlink;
+            Title = title;
+            Body = body;
+            JsonMetadata = jsonMetadata;
+        }
     }
 }

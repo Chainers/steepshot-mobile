@@ -66,6 +66,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils\EditPost.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Utils\AssetsHelper.cs" />
     <Compile Include="Utils\CameraPreview.cs" />
     <Compile Include="Utils\CustomViewPager.cs" />
-    <Compile Include="Utils\EditPost.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\MessageHelper.cs" />
     <Compile Include="Utils\ScaleImageView.cs" />
@@ -200,21 +200,11 @@
     <AndroidResource Include="Resources\layout\lyt_post_view_item.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_grid_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_description_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml" />
+    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml" />
+    <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -342,7 +332,6 @@
     <Reference Include="FastAndroidCamera, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FastAndroidCamera.2.0.0\lib\MonoAndroid403\FastAndroidCamera.dll</HintPath>
     </Reference>
-    <Reference Include="Java.Interop" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

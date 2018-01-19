@@ -578,7 +578,7 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            Presenter.RemovePost(post);
+            Presenter.HidePost(post);
         }
 
         private void EditAction(Post post)

@@ -17,4 +17,9 @@
   <ItemGroup>
     <ProjectReference Include="..\SharpRaven\SharpRavenPortable.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Security">
+      <HintPath>..\..\..\..\..\..\ProgramFiles\vs2017\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\Xamarin.iOS\v1.0\Mono.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>
