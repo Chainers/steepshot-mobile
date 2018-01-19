@@ -7,12 +7,6 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class UserFriendsModel
     {
-        public UserFriendsModel(string username, FriendsType type)
-        {
-            Username = username;
-            Type = type;
-        }
-
         public string Login { get; set; }
 
         [JsonProperty]
@@ -21,12 +15,19 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public int Limit { get; set; }
 
-        [JsonProperty()]
+        [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Username { get; }
 
-        [JsonProperty()]
-        [Required()]
+        [JsonProperty]
+        [Required]
         public FriendsType Type { get; }
+
+
+        public UserFriendsModel(string username, FriendsType type)
+        {
+            Username = username;
+            Type = type;
+        }
     }
 }

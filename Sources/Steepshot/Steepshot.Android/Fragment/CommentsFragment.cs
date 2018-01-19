@@ -99,6 +99,7 @@ namespace Steepshot.Fragment
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
+            _adapter.DeleteAction += DeleteAction;
             _adapter.RootClickAction += HideKeyboard;
             _adapter.TagAction += TagAction;
 
@@ -282,7 +283,7 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            Presenter.RemovePost(post);
+            Presenter.HidePost(post);
         }
 
         private void HideKeyboard()
@@ -292,8 +293,17 @@ namespace Steepshot.Fragment
 
         private void OpenKeyboard()
         {
-            _textInput.RequestFocus();
-            ((BaseActivity)Activity).OpenKeyboard(_textInput);
+            _textInput?.RequestFocus();
+            _textInput?.Post(() => ((BaseActivity)Activity).OpenKeyboard(_textInput));
+        }
+
+        private async void DeleteAction(Post post)
+        {
+            var error = await Presenter.TryDeleteComment(post, _post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(error);
         }
     }
 }

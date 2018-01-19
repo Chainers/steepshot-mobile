@@ -36,6 +36,7 @@ namespace Steepshot.Core.Models.Requests
         {
             Title = title;
             Tags = tags.Any() ? tags.Select(i => i.ToLower()).Distinct().ToArray() : new string[0];
+            OperationHelper.PrepareTags(Tags);
             IsNeedRewards = user.IsNeedRewards;
             PostUrl = OperationHelper.TitleToPermlink(title);
         }

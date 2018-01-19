@@ -20,7 +20,59 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = true;
         }
 
-        public void RemovePost(Post post)
+        public async Task<ErrorBase> TryDeletePost(Post post)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
+        {
+            var request = new DeleteModel(User.UserInfo, post);
+            var response = await Api.DeletePost(request, ct);
+            if (response.IsSuccess)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
+        public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
+        {
+            var request = new DeleteModel(User.UserInfo, post, parentPost);
+            var response = await Api.DeleteComment(request, ct);
+            if (response.IsSuccess)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
+        public void HidePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
             {
@@ -30,7 +82,7 @@ namespace Steepshot.Core.Presenters
 
             lock (Items)
                 Items.Remove(post);
-            NotifySourceChanged(nameof(RemovePost), true);
+            NotifySourceChanged(nameof(HidePost), true);
         }
 
         public Post FirstOrDefault(Func<Post, bool> func)

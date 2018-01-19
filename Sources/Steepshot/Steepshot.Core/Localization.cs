@@ -121,6 +121,8 @@ namespace Steepshot.Core
             public const string LowRatedContentExplanation = "This content is hidden due to low ratings";
             public const string FlagMessage = "You sent a complaint to this post.";
             public const string FlagSubMessage = "";
+            public const string DeleteAlertTitle = "Are you sure you want to delete this post?";
+            public const string DeleteAlertMessage = "This action can not be undone.";
 
             public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Service</a> & <a href=\"{Constants.Pp}\">Privacy policy</a>";
             public const string PostDelay = "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain";
@@ -185,10 +187,13 @@ namespace Steepshot.Core
             public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
+            public const string DeleteComment = "Delete comment";
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
+            public const string DeletePost = "Delete post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";
+            public const string Delete = "Delete";
             public const string PutYourComment = "Put your comment here...";
         }
     }
