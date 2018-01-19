@@ -66,9 +66,10 @@ namespace Steepshot.iOS.Views
 */
             _presenter.SourceChanged += (Core.Models.Status obj) => 
             {
+                var offset = collectionView.ContentOffset;
                 collectionView.ReloadData();
-                var t = collectionView.ContentOffset;
-                var y = collectionView.ContentSize;
+                collectionView.LayoutIfNeeded();
+                collectionView.SetContentOffset(offset, false);
             };
 
             /*
@@ -110,7 +111,11 @@ namespace Steepshot.iOS.Views
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1000),
+                //EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1),
+                EstimatedItemSize = Helpers.Constants.CellSize,
+                MinimumLineSpacing = 1,
+                MinimumInteritemSpacing = 1,
+
                 //ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 //SectionInset = new UIEdgeInsets(0, 15, 0, 0),
             }, false);
