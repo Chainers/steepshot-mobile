@@ -147,10 +147,10 @@ namespace Steepshot.Core.HttpClient
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
 
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostUrl, model.Title, uploadResponse.Payload.Body, meta);
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, uploadResponse.Payload.Body, meta);
             var result = await _ditchClient.Create(commentModel, ct);
 
-            Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);
+            Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
             return result;
         }
 
@@ -166,11 +166,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<UploadResponse>(trxResp.Error);
 
             model.VerifyTransaction = trxResp.Result;
-            var response = await Upload(model, ct);
-
-            if (response.IsSuccess)
-                response.Result.PostUrl = model.PostUrl;
-            return response;
+            return await Upload(model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePost(DeleteModel model, CancellationToken ct)

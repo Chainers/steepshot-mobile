@@ -274,15 +274,15 @@ namespace Steepshot.Core.Tests.Stubs
             return new OperationResult<ListResponse<Post>> { Result = rez };
         }
 
-        public async Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateComment(CreateCommentModel model, CancellationToken ct)
         {
-            return new OperationResult<CommentResponse> { Result = new CommentResponse(true) };
+            return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
         }
 
-        public async Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct)
-        {
-            return new OperationResult<CommentResponse> { Result = new CommentResponse(true) };
-        }
+        //public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
+        //{
+        //    return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
+        //}
 
         public async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
         {
