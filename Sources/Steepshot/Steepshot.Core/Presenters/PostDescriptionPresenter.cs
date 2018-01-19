@@ -20,12 +20,12 @@ namespace Steepshot.Core.Presenters
         }
 
 
-        public async Task<OperationResult<ImageUploadResponse>> TryCreatePost(UploadImageModel model, UploadResponse uploadResponse)
+        public async Task<OperationResult<VoidResponse>> TryCreatePost(UploadImageModel model, UploadResponse uploadResponse)
         {
-            return await TryRunTask<UploadImageModel, UploadResponse, ImageUploadResponse>(CreatePost, OnDisposeCts.Token, model, uploadResponse);
+            return await TryRunTask<UploadImageModel, UploadResponse, VoidResponse>(CreatePost, OnDisposeCts.Token, model, uploadResponse);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        private async Task<OperationResult<VoidResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
         {
             return await Api.CreatePost(model, uploadResponse, ct);
         }

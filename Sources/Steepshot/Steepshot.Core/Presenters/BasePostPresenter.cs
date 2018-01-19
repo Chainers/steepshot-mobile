@@ -34,8 +34,8 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
-            var request = new DeleteModel(User.UserInfo, post.Url);
-            var response = await Api.DeletePostOrComment(request, ct);
+            var request = new DeleteModel(User.UserInfo, post);
+            var response = await Api.DeletePost(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -46,7 +46,33 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public void RemovePost(Post post)
+        public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
+        {
+            if (post == null)
+                return null;
+
+            var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
+
+            NotifySourceChanged(nameof(TryDeletePost), true);
+
+            return error;
+        }
+
+        private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
+        {
+            var request = new DeleteModel(User.UserInfo, post, parentPost);
+            var response = await Api.DeleteComment(request, ct);
+            if (response.IsSuccess)
+            {
+                lock (Items)
+                {
+                    Items.Remove(post);
+                }
+            }
+            return response.Error;
+        }
+
+        public void HidePost(Post post)
         {
             if (!User.PostBlackList.Contains(post.Url))
             {
@@ -56,7 +82,7 @@ namespace Steepshot.Core.Presenters
 
             lock (Items)
                 Items.Remove(post);
-            NotifySourceChanged(nameof(RemovePost), true);
+            NotifySourceChanged(nameof(HidePost), true);
         }
 
         public Post FirstOrDefault(Func<Post, bool> func)
@@ -158,7 +184,7 @@ namespace Steepshot.Core.Presenters
                 ChangeLike(post, wasFlaged);
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
-            else if (response.Error is BlockchainError 
+            else if (response.Error is BlockchainError
                 && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
                 response.Error = null;

@@ -10,6 +10,8 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
+using Ditch.Core.Helpers;
 
 namespace Steepshot.Core
 {
@@ -238,9 +240,17 @@ namespace Steepshot.Core
             }
 
             var testPost = postsResp.Result.Results.First();
-            var req = new CommentModel(_user, testPost.Url, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
+            var req = new CreateCommentModel(_user, testPost.Url, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
             var rez = _api.CreateComment(req, CancellationToken.None)
                 .Result;
+
+            if (!UrlHelper.TryCastUrlToAuthorAndPermlink(testPost.Url, out var parentAuthor, out var parentPermlink))
+            {
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} url to permlink cast.");
+                return;
+            }
+
+            var permlink = OperationHelper.CreateReplyPermlink(_user.Login, parentAuthor, parentPermlink);
 
             if (!rez.IsSuccess)
             {
@@ -250,7 +260,7 @@ namespace Steepshot.Core
 
             Task.Delay(10000);
 
-            var getComm = new NamedInfoModel(testPost.Url) { Offset = rez.Result.Permlink, Limit = 1 };
+            var getComm = new NamedInfoModel(testPost.Url) { Offset = permlink, Limit = 1 };
             var verifyPostresp = _api.GetComments(getComm, CancellationToken.None)
                 .Result;
 
@@ -261,7 +271,7 @@ namespace Steepshot.Core
             }
             if (verifyPostresp.Result.Results.Count != 1)
             {
-                sb.AppendLine($"fail. Reason:{Environment.NewLine} Comment ({rez.Result.Permlink}) not found!");
+                sb.AppendLine($"fail. Reason:{Environment.NewLine} Comment ({permlink}) not found!");
                 return;
             }
 

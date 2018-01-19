@@ -13,10 +13,10 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public int Limit { get; set; }
 
-        [JsonProperty()]
+        [JsonProperty]
         public bool ShowNsfw { get; set; }
 
-        [JsonProperty()]
+        [JsonProperty]
         public bool ShowLowRated { get; set; }
     }
 }

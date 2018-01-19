@@ -283,7 +283,7 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            Presenter.RemovePost(post);
+            Presenter.HidePost(post);
         }
 
         private void HideKeyboard()
@@ -299,7 +299,7 @@ namespace Steepshot.Fragment
 
         private async void DeleteAction(Post post)
         {
-            var error = await Presenter.TryDeletePost(post);
+            var error = await Presenter.TryDeleteComment(post, _post);
             if (!IsInitialized)
                 return;
 
