@@ -108,22 +108,18 @@ namespace Steepshot.Core.Presenters
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    var last = results.Last().Url;
                     var isAdded = false;
                     lock (Items)
                     {
                         if (isNeedClearItems)
                             Clear(false);
 
-                        for (var i = 0; i < results.Count; i++)
+                        foreach (var item in results)
                         {
-                            var item = results[i];
-                            if (i == 0 && !string.IsNullOrEmpty(OffsetUrl))
-                                continue;
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
                             {
                                 Items.Add(item);
                                 isAdded = true;
@@ -133,11 +129,11 @@ namespace Steepshot.Core.Presenters
 
                     if (isAdded)
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                     }
-                    else if (OffsetUrl != last)
+                    else if (!string.Equals(OffsetUrl, response.Result.Offset, StringComparison.OrdinalIgnoreCase))
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                         return true;
                     }
 
