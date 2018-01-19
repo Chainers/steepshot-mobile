@@ -7,6 +7,8 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Authority;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
 {
@@ -72,21 +74,26 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-        public async Task<ErrorBase> TryEditComment(EditCommentModel model)
+        public async Task<ErrorBase> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
         {
-            if (model == null)
+            if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
                 return null;
 
-            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model);
+
+            var model = new EditCommentModel(userInfo, parentPost, post, body, appInfo);
+
+            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
 
             NotifySourceChanged(nameof(TryEditComment), true);
 
             return error;
         }
 
-        private async Task<ErrorBase> EditComment(EditCommentModel model, CancellationToken ct)
+        private async Task<ErrorBase> EditComment(EditCommentModel model, Post post, CancellationToken ct)
         {
             var response = await Api.EditComment(model, ct);
+            if (response.IsSuccess)
+                post.Body = model.Body;
             return response.Error;
         }
 

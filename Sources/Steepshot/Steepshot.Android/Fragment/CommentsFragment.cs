@@ -181,8 +181,7 @@ namespace Steepshot.Fragment
 
             if (_commentEditBlock.Visibility == ViewStates.Visible)
             {
-                var editCommentModel = new EditCommentModel(BasePresenter.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
-                var error = await Presenter.TryEditComment(editCommentModel);
+                var error = await Presenter.TryEditComment(BasePresenter.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
