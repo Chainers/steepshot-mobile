@@ -35,6 +35,7 @@ namespace Steepshot.Activity
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
+        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
 
         private string _path;
         private bool _shouldCompress;
@@ -105,7 +106,24 @@ namespace Steepshot.Activity
             _path = Intent.GetStringExtra(PhotoExtraPath);
 
             InitPhoto(_path);
+            SetPostingTimer();
             SearchTextChanged();
+        }
+
+        private async void SetPostingTimer()
+        {
+            var timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+            _postButton.Enabled = false;
+            while (timepassed < PostingLimit)
+            {
+                _postButton.Text = (PostingLimit - timepassed).ToString("mm\\:ss");
+                await Task.Delay(1000);
+                if (IsDestroyed)
+                    return;
+                timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+            }
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
         }
 
         private void InitPhoto(string path)
@@ -418,6 +436,7 @@ namespace Steepshot.Activity
 
             if (resp.IsSuccess)
             {
+                BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);

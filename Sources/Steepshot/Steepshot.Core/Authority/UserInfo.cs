@@ -32,6 +32,7 @@ namespace Steepshot.Core.Authority
         public Navigation Navigation { get; set; } = new Navigation();
 
         public int SelectedTab { get; set; } = 0;
+        public DateTime LastPostTime { get; set; }
     }
 
     public class Navigation
