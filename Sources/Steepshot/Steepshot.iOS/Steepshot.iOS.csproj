@@ -501,6 +501,12 @@
     <BundleResource Include="Resources\ic_deactivated.png" />
     <BundleResource Include="Resources\ic_deactivated%402x.png" />
     <BundleResource Include="Resources\ic_deactivated%403x.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive%402x.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive%403x.png" />
+    <BundleResource Include="Resources\ic_balance.png" />
+    <BundleResource Include="Resources\ic_balance%402x.png" />
+    <BundleResource Include="Resources\ic_balance%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

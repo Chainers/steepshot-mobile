@@ -28,6 +28,7 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIFont Heavy135 = UIFont.FromName("Lato-Heavy", 13.5f);
 
         public static readonly UIFont Semibold14 = UIFont.FromName("OpenSans-Semibold", 14f);
+        public static readonly UIFont Semibold20 = UIFont.FromName("OpenSans-Semibold", 20f);
         public static readonly UIFont Regular12 = UIFont.FromName("OpenSans", 12f);
         public static readonly UIFont Regular14 = UIFont.FromName("OpenSans", 14f);
 
