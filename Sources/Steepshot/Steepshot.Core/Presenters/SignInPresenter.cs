@@ -13,9 +13,9 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask<string, string, VoidResponse>(SignIn, OnDisposeCts.Token, login, postingKey);
         }
 
-        private Task<OperationResult<VoidResponse>> SignIn(CancellationToken ct, string login, string postingKey)
+        private Task<OperationResult<VoidResponse>> SignIn(string login, string postingKey, CancellationToken ct)
         {
-            var request = new AuthorizedRequest(login, postingKey);
+            var request = new AuthorizedModel(login, postingKey);
             return Api.LoginWithPostingKey(request, ct);
         }
     }

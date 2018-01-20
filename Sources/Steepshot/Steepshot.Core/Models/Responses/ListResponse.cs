@@ -2,7 +2,7 @@
 
 namespace Steepshot.Core.Models.Responses
 {
-    public class ListResponce<T>
+    public class ListResponse<T>
     {
         public List<T> Results { get; set; }
 

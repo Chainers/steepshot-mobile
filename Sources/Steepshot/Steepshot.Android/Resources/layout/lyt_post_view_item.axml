@@ -8,24 +8,19 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_feed_item_header_height"
         android:background="@android:color/white">
-        <LinearLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <refractored.controls.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp">
-            <refractored.controls.CircleImageView
-                android:id="@+id/profile_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_holder" />
-        </LinearLayout>
-        <RelativeLayout
+            android:src="@drawable/ic_holder" />
+        <LinearLayout
             android:id="@+id/text_container"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toRightOf="@id/profile_image"
             android:layout_centerVertical="true">
             <TextView
                 android:id="@+id/author_name"
@@ -40,13 +35,12 @@
                 android:id="@+id/time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/author_name"
                 android:layout_marginTop="-3dp"
                 android:textSize="12sp"
                 android:textColor="@color/rgb151_155_158"
                 android:maxLines="1"
                 android:text="34 min ago" />
-        </RelativeLayout>
+        </LinearLayout>
         <ImageButton
             android:id="@+id/close"
             android:layout_width="40dp"
@@ -74,132 +68,123 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <RelativeLayout
-                android:id="@+id/photo_container"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/post_photos_pager"
+                android:background="@android:color/white"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/post_photos_pager"
-                    android:background="@android:color/white"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp" />
-            </RelativeLayout>
+                android:layout_height="250dp" />
             <include
                 layout="@layout/lyt_nsfw_mask"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
             <RelativeLayout
-                android:id="@+id/post_footer"
-                android:layout_below="@id/photo_container"
+                android:id="@+id/subtitle"
+                android:layout_below="@id/post_photos_pager"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <RelativeLayout
-                    android:id="@+id/subtitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="59dp">
-                    <LinearLayout
-                        android:id="@+id/top_likers"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:orientation="horizontal"
-                        android:layout_alignParentLeft="true" />
-                    <TextView
-                        android:id="@+id/likes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:text="789 like's"
-                        android:textSize="14sp"
-                        android:textColor="@color/rgb15_24_30"
-                        android:gravity="center"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:layout_toRightOf="@id/top_likers" />
-                    <TextView
-                        android:id="@+id/flags"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:text="789"
-                        android:textSize="14sp"
-                        android:textColor="@color/rgb15_24_30"
-                        android:layout_marginLeft="5dp"
-                        android:gravity="center"
-                        android:layout_toRightOf="@id/likes" />
-                    <ImageView
-                        android:id="@+id/flagIcon"
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
-                        android:layout_marginLeft="2dp"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/ic_flag_active"
-                        android:layout_toRightOf="@id/flags" />
-                    <ImageButton
-                        android:id="@+id/btn_like"
-                        android:background="@android:color/transparent"
-                        android:layout_width="70dp"
-                        android:layout_height="match_parent"
-                        android:scaleType="center"
-                        android:src="@drawable/ic_new_like"
-                        android:layout_centerVertical="true"
-                        android:layout_alignParentRight="true" />
-                    <View
-                        android:id="@+id/like_separator"
-                        android:layout_width="2px"
-                        android:layout_height="30dp"
-                        android:layout_toLeftOf="@id/btn_like"
-                        android:layout_centerVertical="true"
-                        android:background="@color/rgb244_244_246" />
-                    <TextView
-                        android:id="@+id/cost"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@id/like_separator"
-                        android:textColor="@color/rgb15_24_30"
-                        android:textSize="14sp"
-                        android:layout_marginRight="18dp"
-                        android:layout_centerVertical="true"
-                        android:text="$ 234.15" />
-                </RelativeLayout>
+                android:layout_height="59dp">
+                <LinearLayout
+                    android:id="@+id/top_likers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    android:layout_alignParentLeft="true" />
+                <TextView
+                    android:id="@+id/likes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:text="789 like's"
+                    android:textSize="14sp"
+                    android:textColor="@color/rgb15_24_30"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:layout_toRightOf="@id/top_likers" />
+                <TextView
+                    android:id="@+id/flags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:text="789"
+                    android:textSize="14sp"
+                    android:textColor="@color/rgb15_24_30"
+                    android:layout_marginLeft="5dp"
+                    android:gravity="center"
+                    android:layout_toRightOf="@id/likes" />
+                <ImageView
+                    android:id="@+id/flagIcon"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_flag_active"
+                    android:layout_toRightOf="@id/flags" />
+                <ImageButton
+                    android:id="@+id/btn_like"
+                    android:background="@android:color/transparent"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_new_like"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true" />
+                <View
+                    android:id="@+id/like_separator"
+                    android:layout_width="2px"
+                    android:layout_height="30dp"
+                    android:layout_toLeftOf="@id/btn_like"
+                    android:layout_centerVertical="true"
+                    android:background="@color/rgb244_244_246" />
+                <TextView
+                    android:id="@+id/cost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/like_separator"
+                    android:textColor="@color/rgb15_24_30"
+                    android:textSize="14sp"
+                    android:layout_marginRight="18dp"
+                    android:layout_centerVertical="true"
+                    android:text="$ 234.15" />
                 <View
                     android:id="@+id/comments_separator"
                     android:layout_below="@id/subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="2px"
+                    android:layout_alignParentBottom="true"
                     android:background="@color/rgb244_244_246" />
-                <LinearLayout
-                    android:id="@+id/comment_footer"
-                    android:layout_below="@id/comments_separator"
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/comment_footer"
+                android:layout_below="@id/subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingRight="15dp"
+                android:minHeight="70dp">
+                <Steepshot.Utils.PostCustomTextView
+                    android:id="@+id/first_comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:text="                                                                                                                                                          "
+                    android:clickable="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:textColor="@color/rgb15_24_30"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/comment_subtitle"
+                    android:text="@string/view_n_comments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="14dp"
+                    android:paddingLeft="15dp"
                     android:paddingRight="15dp"
-                    android:minHeight="70dp">
-                    <Steepshot.Utils.PostCustomTextView
-                        android:id="@+id/first_comment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="                                                                                                                                                          "
-                        android:clickable="true"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginLeft="15dp"
-                        android:textColor="@color/rgb15_24_30"
-                        android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/comment_subtitle"
-                        android:text="@string/view_n_comments"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:clickable="true"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="14dp"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
-                        android:textColor="@color/rgb151_155_158" />
-                </LinearLayout>
-            </RelativeLayout>
+                    android:textColor="@color/rgb151_155_158" />
+            </LinearLayout>
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

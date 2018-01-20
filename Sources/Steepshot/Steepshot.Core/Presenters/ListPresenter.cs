@@ -110,7 +110,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected async Task<ErrorBase> RunAsSingleTask<T1>(Func<CancellationToken, T1, Task<ErrorBase>> func, T1 param1, bool cancelPrevTask = true)
+        protected async Task<ErrorBase> RunAsSingleTask<T1>(Func<T1, CancellationToken, Task<ErrorBase>> func, T1 param1, bool cancelPrevTask = true)
         {
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
@@ -131,7 +131,7 @@ namespace Steepshot.Core.Presenters
             }
             try
             {
-                return await func(ts, param1);
+                return await func(param1, ts);
             }
             catch (OperationCanceledException)
             {
@@ -149,7 +149,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }

@@ -91,7 +91,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (response != null && response.Success)
+            if (response != null && response.IsSuccess)
             {
                 var intent = new Intent(this, typeof(SignInActivity));
                 intent.PutExtra(SignInActivity.LoginExtraPath, login);

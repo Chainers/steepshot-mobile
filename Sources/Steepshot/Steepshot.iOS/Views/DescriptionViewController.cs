@@ -301,7 +301,7 @@ namespace Steepshot.iOS.Views
 
                     if (photo != null)
                     {
-                        var request = new UploadImageRequest(BasePresenter.User.UserInfo, title, photo, tags)
+                        var request = new UploadImageModel(BasePresenter.User.UserInfo, title, photo, tags)
                         {
                             Description = description
                         };
@@ -312,7 +312,7 @@ namespace Steepshot.iOS.Views
                         {
                             photoUploadRetry = false;
                             photoUploadResponse = UploadPhoto(request).Result;
-                            if (!(photoUploadResponse != null && photoUploadResponse.Success))
+                            if (!(photoUploadResponse != null && photoUploadResponse.IsSuccess))
                             {
                                 InvokeOnMainThread(() =>
                                 {
@@ -392,14 +392,14 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private async Task<OperationResult<UploadResponse>> UploadPhoto(UploadImageRequest request)
+        private async Task<OperationResult<UploadResponse>> UploadPhoto(UploadImageModel request)
         {
             return await _presenter.TryUploadWithPrepare(request);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> PushToBlockchain(UploadImageRequest request,OperationResult<UploadResponse> response)
+        private async Task<OperationResult<ImageUploadResponse>> PushToBlockchain(UploadImageModel request, OperationResult<UploadResponse> response)
         {
-            return await _presenter.TryUpload(request, response.Result);
+            return await _presenter.TryCreatePost(request, response.Result);
         }
 
         private void ToggleAvailability(bool enabled)
@@ -408,7 +408,7 @@ namespace Steepshot.iOS.Views
                 loadingView.StopAnimating();
             else
                 loadingView.StartAnimating();
-            
+
             postPhotoButton.Enabled = enabled;
             titleTextField.UserInteractionEnabled = enabled;
             descriptionTextField.UserInteractionEnabled = enabled;

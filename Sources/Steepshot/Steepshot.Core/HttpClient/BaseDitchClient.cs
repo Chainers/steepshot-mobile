@@ -33,21 +33,21 @@ namespace Steepshot.Core.HttpClient
         }
 
 
-        public abstract Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct);
+        public abstract Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct);
 
-        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
 

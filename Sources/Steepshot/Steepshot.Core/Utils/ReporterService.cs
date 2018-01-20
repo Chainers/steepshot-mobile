@@ -3,6 +3,8 @@ using SharpRaven;
 using SharpRaven.Data;
 using Steepshot.Core.Services;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Serializing;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Utils
 {
@@ -33,12 +35,38 @@ namespace Steepshot.Core.Utils
             _dsn = dsn;
         }
 
-        public void SendCrash(Exception ex)
+        public void SendCrash(Exception ex, string message)
         {
-            RavenClient?.Capture(CreateSentryEvent(ex));
+            var sentryEvent = CreateSentryEvent(ex, message);
+            RavenClient?.Capture(sentryEvent);
         }
 
-        private SentryEvent CreateSentryEvent(Exception ex)
+        public void SendCrash(Exception ex)
+        {
+            SendCrash(ex, string.Empty);
+        }
+
+        public void SendCrash(Exception ex, object param1)
+        {
+            var msg = string.Empty;
+            if (param1 != null)
+                msg = JsonConvert.SerializeObject(param1);
+
+            SendCrash(ex, msg);
+        }
+
+        public void SendCrash(Exception ex, object param1, object param2)
+        {
+            var msg = string.Empty;
+            if (param1 != null)
+                msg = JsonConvert.SerializeObject(param1);
+            if (param2 != null)
+                msg += Environment.NewLine + JsonConvert.SerializeObject(param2);
+
+            SendCrash(ex, msg);
+        }
+
+        private SentryEvent CreateSentryEvent(Exception ex, string message)
         {
             var sentryEvent = new SentryEvent(ex);
             sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
@@ -47,6 +75,7 @@ namespace Steepshot.Core.Utils
             sentryEvent.Tags.Add("AppBuild", _appInfoService.GetBuildVersion());
             sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
             sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
+            sentryEvent.Message = message;
             return sentryEvent;
         }
     }

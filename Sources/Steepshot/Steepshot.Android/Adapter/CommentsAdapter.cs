@@ -12,10 +12,10 @@ using Square.Picasso;
 using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
 {
@@ -180,7 +180,7 @@ namespace Steepshot.Adapter
 
         public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action rootClickAction) : base(itemView)
         {
-            _avatar = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.avatar);
+            _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
             _comment = itemView.FindViewById<TextView>(Resource.Id.comment_text);
             _likes = itemView.FindViewById<TextView>(Resource.Id.likes);
@@ -403,7 +403,13 @@ namespace Steepshot.Adapter
                 }
             }
 
-            _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            if (post.NetLikes > 0)
+            {
+                _likes.Visibility = ViewStates.Visible;
+                _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            }
+            else
+                _likes.Visibility = ViewStates.Gone;
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
@@ -411,7 +417,13 @@ namespace Steepshot.Adapter
             }
             else
                 _flags.Visibility = ViewStates.Gone;
-            _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            if (post.TotalPayoutReward > 0)
+            {
+                _cost.Visibility = ViewStates.Visible;
+                _cost.Text = BasePresenter.ToFormatedCurrencyString(post.TotalPayoutReward);
+            }
+            else
+                _cost.Visibility = ViewStates.Gone;
             _time.Text = post.Created.ToPostTime();
         }
 

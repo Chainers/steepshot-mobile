@@ -17,6 +17,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Interfaces;
 
@@ -100,6 +101,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = _postPagerAdapter;
+                _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
@@ -136,16 +138,6 @@ namespace Steepshot.Fragment
                 else
                     _postPagerAdapter.NotifyDataSetChanged();
             }
-            //if (pageScrolledEventArgs.PositionOffset > 0.5 && pageScrolledEventArgs.PositionOffset < 1)
-            //{
-            //    if (1 - pageScrolledEventArgs.PositionOffset > pageScrolledEventArgs.PositionOffset - 0.5)
-            //        _postPagerAdapter.PrepareLeft();
-            //}
-            //else if (pageScrolledEventArgs.PositionOffset < 0.5 && pageScrolledEventArgs.PositionOffset > 0)
-            //{
-            //    if (0.5 - pageScrolledEventArgs.PositionOffset < pageScrolledEventArgs.PositionOffset)
-            //        _postPagerAdapter.PrepareRight();
-            //}
         }
 
         private void PostPagerOnPageScrollStateChanged(object sender, ViewPager.PageScrollStateChangedEventArgs pageScrollStateChangedEventArgs)
@@ -153,7 +145,6 @@ namespace Steepshot.Fragment
             if (pageScrollStateChangedEventArgs.State == 0)
             {
                 _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
-                //_postPagerAdapter.PrepareMiddle();
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 if (_feedList.GetLayoutManager() is GridLayoutManager manager)
                 {
@@ -242,6 +233,7 @@ namespace Steepshot.Fragment
                 activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
+            _postPagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _feedList.Visibility = ViewStates.Gone;
         }
@@ -255,6 +247,7 @@ namespace Steepshot.Fragment
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 _postPager.Visibility = ViewStates.Gone;
                 _feedList.Visibility = ViewStates.Visible;
+                _feedList.GetAdapter().NotifyDataSetChanged();
                 return true;
             }
             return false;

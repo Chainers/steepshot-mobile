@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -25,7 +26,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadNextPosts(CancellationToken ct)
         {
-            var request = new UserPostsRequest(UserName)
+            var request = new UserPostsModel(UserName)
             {
                 Login = User.Login,
                 Offset = OffsetUrl,
@@ -51,9 +52,9 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask(GetUserInfo, OnDisposeCts.Token, user);
         }
 
-        private async Task<ErrorBase> GetUserInfo(CancellationToken ct, string user)
+        private async Task<ErrorBase> GetUserInfo(string user, CancellationToken ct)
         {
-            var req = new UserProfileRequest(user)
+            var req = new UserProfileModel(user)
             {
                 Login = User.Login,
                 ShowNsfw = User.IsNsfw,
@@ -61,7 +62,7 @@ namespace Steepshot.Core.Presenters
             };
             var response = await Api.GetUserProfile(req, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 UserProfileResponse = response.Result;
                 NotifySourceChanged(nameof(TryGetUserInfo), true);
@@ -83,12 +84,12 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Follow(CancellationToken ct, UserProfileResponse userProfileResponse)
+        private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
-            var request = new FollowRequest(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var request = new FollowModel(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
                 userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
 
             return response.Error;

@@ -1,6 +1,7 @@
 ﻿using Steepshot.Core.Models.Requests;
 using System;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Authority
 {
@@ -31,6 +32,7 @@ namespace Steepshot.Core.Authority
         public Navigation Navigation { get; set; } = new Navigation();
 
         public int SelectedTab { get; set; } = 0;
+        public DateTime LastPostTime { get; set; }
     }
 
     public class Navigation

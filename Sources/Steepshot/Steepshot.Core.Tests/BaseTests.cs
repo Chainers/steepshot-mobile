@@ -19,7 +19,7 @@ namespace Steepshot.Core.Tests
     {
         private const bool IsDev = false;
         protected static readonly Dictionary<KnownChains, UserInfo> Users;
-        protected static readonly Dictionary<KnownChains, ISteepshotApiClient> Api;
+        protected static readonly Dictionary<KnownChains, SteepshotApiClient> Api;
 
         static BaseTests()
         {
@@ -41,7 +41,7 @@ namespace Steepshot.Core.Tests
                 {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
             };
 
-            Api = new Dictionary<KnownChains, ISteepshotApiClient>
+            Api = new Dictionary<KnownChains, SteepshotApiClient>
             {
                 {KnownChains.Steem, new SteepshotApiClient()},
                 {KnownChains.Golos, new SteepshotApiClient()},
@@ -62,7 +62,7 @@ namespace Steepshot.Core.Tests
         {
             Assert.NotNull(response, "Response is null");
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 Assert.NotNull(response.Result, "Response is success, but result is NULL");
                 Assert.IsNull(response.Error, "Response is success, but errors array is NOT empty");

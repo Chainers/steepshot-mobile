@@ -13,9 +13,9 @@ namespace Steepshot.Core.Presenters
             return await TryRunTask<string, UserProfileResponse>(GetAccountInfo, OnDisposeCts.Token, login);
         }
 
-        private Task<OperationResult<UserProfileResponse>> GetAccountInfo(CancellationToken ct, string login)
+        private Task<OperationResult<UserProfileResponse>> GetAccountInfo(string login, CancellationToken ct)
         {
-            var req = new UserProfileRequest(login);
+            var req = new UserProfileModel(login);
             return Api.GetUserProfile(req, ct);
         }
     }

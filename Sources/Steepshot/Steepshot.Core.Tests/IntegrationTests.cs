@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Steepshot.Core.Authority;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
@@ -19,10 +19,10 @@ namespace Steepshot.Core.Tests
         public async Task Login_With_Posting_Key_Invalid_Credentials(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
+            var user = Users[apiName];
             user.Login += "x";
             user.PostingKey += "x";
-            var request = new AuthorizedRequest(user);
+            var request = new AuthorizedModel(user);
 
             // Act
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
@@ -40,9 +40,9 @@ namespace Steepshot.Core.Tests
         public async Task Login_With_Posting_Key_Wrong_PostingKey(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
+            var user = Users[apiName];
             user.PostingKey += "x";
-            var request = new AuthorizedRequest(user);
+            var request = new AuthorizedModel(user);
 
             // Act
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
@@ -60,9 +60,9 @@ namespace Steepshot.Core.Tests
         public async Task Login_With_Posting_Key_Wrong_Username(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
+            var user = Users[apiName];
             user.Login += "x";
-            var request = new AuthorizedRequest(user);
+            var request = new AuthorizedModel(user);
 
             // Act
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
@@ -80,8 +80,8 @@ namespace Steepshot.Core.Tests
         public async Task UserPosts(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var request = new UserPostsModel(user.Login);
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
@@ -117,8 +117,8 @@ namespace Steepshot.Core.Tests
         public async Task UserPosts_Invalid_Username(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserPostsRequest(user.Login + "x");
+            var user = Users[apiName];
+            var request = new UserPostsModel(user.Login + "x");
 
             // Act
             var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
@@ -134,8 +134,8 @@ namespace Steepshot.Core.Tests
         public async Task UserPosts_Offset_Limit(KnownChains apiName, string offset)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var request = new UserPostsModel(user.Login);
             request.Offset = offset;
             request.Limit = 3;
             request.ShowLowRated = true;
@@ -157,8 +157,8 @@ namespace Steepshot.Core.Tests
         public async Task UserPosts_With_User_Some_Votes_True(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserPostsRequest(user.Login) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new UserPostsModel(user.Login) { Login = user.Login };
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
@@ -175,8 +175,8 @@ namespace Steepshot.Core.Tests
         public async Task UserPosts_Without_User_All_Votes_False(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var request = new UserPostsModel(user.Login);
 
             // Act
             var response = await Api[apiName].GetUserPosts(request, CancellationToken.None);
@@ -192,8 +192,8 @@ namespace Steepshot.Core.Tests
         public async Task UserRecentPosts(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new CensoredNamedRequestWithOffsetLimitFields
+            var user = Users[apiName];
+            var request = new CensoredNamedRequestWithOffsetLimitModel
             {
                 Login = user.Login
             };
@@ -214,8 +214,8 @@ namespace Steepshot.Core.Tests
         public async Task UserRecentPosts_Offset_Limit(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new CensoredNamedRequestWithOffsetLimitFields
+            var user = Users[apiName];
+            var request = new CensoredNamedRequestWithOffsetLimitModel
             {
                 Login = user.Login
             };
@@ -241,7 +241,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Top(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsRequest(PostType.Top);
+            var request = new PostsModel(PostType.Top);
 
             // Act
             var response = await Api[apiName].GetPosts(request, CancellationToken.None);
@@ -258,7 +258,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             const int defaultLimit = 20;
-            var request = new PostsRequest(PostType.Top);
+            var request = new PostsModel(PostType.Top);
 
             // Act
             var response = await Api[apiName].GetPosts(request, CancellationToken.None);
@@ -273,7 +273,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Hot_Offset_Limit(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsRequest(PostType.Hot);
+            var request = new PostsModel(PostType.Hot);
             var posts = await Api[apiName].GetPosts(request, CancellationToken.None);
             request.Offset = posts.Result.Results.First().Url;
             request.Limit = 3;
@@ -293,8 +293,8 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Top_With_User(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new PostsRequest(PostType.Top) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new PostsModel(PostType.Top) { Login = user.Login };
 
             // Act
             var response = await Api[apiName].GetPosts(request, CancellationToken.None);
@@ -310,7 +310,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_Hot(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsRequest(PostType.Hot);
+            var request = new PostsModel(PostType.Hot);
 
             // Act
             var response = await Api[apiName].GetPosts(request, CancellationToken.None);
@@ -326,7 +326,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_New(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsRequest(PostType.New);
+            var request = new PostsModel(PostType.New);
 
             // Act
             var response = await Api[apiName].GetPosts(request, CancellationToken.None);
@@ -343,7 +343,7 @@ namespace Steepshot.Core.Tests
         {
             var category = "steepshot";
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, category);
+            var request = new PostsByCategoryModel(PostType.Top, category);
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -362,14 +362,14 @@ namespace Steepshot.Core.Tests
         public async Task Posts_By_Category_Invalid_Name(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
+            var request = new PostsByCategoryModel(PostType.Top, "asdas&^@dsad__sa@@d sd222f_f");
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.IsTrue(response.Error.Message.Contains("Not Found"), response.Error?.Message);
+            Assert.IsTrue(response.Error.Code == 404);
         }
 
         [Test]
@@ -378,7 +378,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_By_Category_Not_Existing_Name(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, "qweqweqweqewqwqweqe");
+            var request = new PostsByCategoryModel(PostType.Top, "qweqweqweqewqwqweqe");
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -394,7 +394,7 @@ namespace Steepshot.Core.Tests
         public async Task Posts_By_Category_Empty_Name(KnownChains apiName)
         {
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, "");
+            var request = new PostsByCategoryModel(PostType.Top, "");
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -411,7 +411,7 @@ namespace Steepshot.Core.Tests
         {
             var category = "steepshot";
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Hot, category);
+            var request = new PostsByCategoryModel(PostType.Hot, category);
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -431,7 +431,7 @@ namespace Steepshot.Core.Tests
         {
             var category = "steepshot";
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.New, category);
+            var request = new PostsByCategoryModel(PostType.New, category);
 
             // Act
             var response = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
@@ -451,7 +451,7 @@ namespace Steepshot.Core.Tests
         {
             var category = "steepshot";
             // Arrange
-            var request = new PostsByCategoryRequest(PostType.Top, category);
+            var request = new PostsByCategoryModel(PostType.Top, category);
             var posts = await Api[apiName].GetPostsByCategory(request, CancellationToken.None);
             request.Offset = posts.Result.Results.First().Url;
             request.Limit = 5;
@@ -474,8 +474,8 @@ namespace Steepshot.Core.Tests
         {
             var category = "steepshot";
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new PostsByCategoryRequest(PostType.Top, category) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new PostsByCategoryModel(PostType.Top, category) { Login = user.Login };
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
@@ -492,16 +492,16 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Up_Already_Voted(KnownChains apiName)
         {
             // Load last post
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
             var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
-            Assert.IsTrue(posts.Success);
+            Assert.IsTrue(posts.IsSuccess);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Up, lastPost.Url);
+            var request = new VoteModel(Users[apiName], VoteType.Up, lastPost.Url);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -525,15 +525,15 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Down_Already_Voted(KnownChains apiName)
         {
             // Load last post
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
             var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -556,7 +556,7 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Invalid_Identifier1(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -572,7 +572,7 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Invalid_Identifier2(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -588,7 +588,7 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Invalid_Identifier3(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -604,7 +604,7 @@ namespace Steepshot.Core.Tests
         public async Task Vote_Invalid_Identifier4(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Up, "qwe/@qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/@qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -620,15 +620,15 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Up_Already_Flagged(KnownChains apiName)
         {
             // Load last post
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
             var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Flag, lastPost.Url);
+            var request = new VoteModel(Users[apiName], VoteType.Flag, lastPost.Url);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -649,15 +649,15 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Down_Already_Flagged(KnownChains apiName)
         {
             // Load last post
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowNsfw = true;
             userPostsRequest.ShowLowRated = true;
             var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -679,7 +679,7 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Invalid_Identifier1(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -695,7 +695,7 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Invalid_Identifier2(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -711,7 +711,7 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Invalid_Identifier3(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -727,7 +727,7 @@ namespace Steepshot.Core.Tests
         public async Task Flag_Invalid_Identifier4(KnownChains apiName)
         {
             // Arrange
-            var request = new VoteRequest(Users[apiName], VoteType.Flag, "qwe/@qwe");
+            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/@qwe");
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -743,7 +743,7 @@ namespace Steepshot.Core.Tests
         public async Task Comments(KnownChains apiName, string url)
         {
             // Arrange
-            var request = new NamedInfoRequest(url);
+            var request = new NamedInfoModel(url);
 
             // Act
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
@@ -779,8 +779,8 @@ namespace Steepshot.Core.Tests
         public async Task Comments_With_User_Check_True_Votes(KnownChains apiName, string url)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new NamedInfoRequest(url) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new NamedInfoModel(url) { Login = user.Login };
 
             // Act
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
@@ -796,7 +796,7 @@ namespace Steepshot.Core.Tests
         public async Task Comments_Without_User_Check_False_Votes(KnownChains apiName, string url)
         {
             // Arrange
-            var request = new NamedInfoRequest(url);
+            var request = new NamedInfoModel(url);
 
             // Act
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
@@ -812,7 +812,7 @@ namespace Steepshot.Core.Tests
         public async Task Comments_Invalid_Url(KnownChains apiName)
         {
             // Arrange
-            var request = new NamedInfoRequest("qwe");
+            var request = new NamedInfoModel("qwe");
 
             // Act
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
@@ -828,7 +828,7 @@ namespace Steepshot.Core.Tests
         public async Task Comments_Invalid_Url_But_Valid_User(KnownChains apiName)
         {
             // Arrange
-            var request = new NamedInfoRequest("@asduj/qweqweqweqw");
+            var request = new NamedInfoModel("@asduj/qweqweqweqw");
 
             // Act
             var response = await Api[apiName].GetComments(request, CancellationToken.None);
@@ -844,14 +844,14 @@ namespace Steepshot.Core.Tests
         public async Task CreateComment_20_Seconds_Delay(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
             var body = $"Test comment {DateTime.Now:G}";
-            var createCommentRequest = new CommentRequest(Users[apiName], lastPost.Url, body, AppSettings.AppInfo);
+            var createCommentRequest = new CommentModel(Users[apiName], lastPost.Url, body, AppSettings.AppInfo);
 
             // Act
             var response1 = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
@@ -869,20 +869,20 @@ namespace Steepshot.Core.Tests
         public async Task EditCommentTest(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var userPostsRequest = new UserPostsRequest(user.Login);
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
 
             var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
             Assert.IsNotNull(post);
-            var namedRequest = new NamedInfoRequest(post.Url);
+            var namedRequest = new NamedInfoModel(post.Url);
             var comments = await Api[apiName].GetComments(namedRequest, CancellationToken.None);
             var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
             Assert.IsNotNull(comment);
 
-            var editCommentRequest = new CommentRequest(user, comment.Url, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
+            var editCommentRequest = new CommentModel(user, comment.Url, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
 
             var result = await Api[apiName].EditComment(editCommentRequest, CancellationToken.None);
             AssertResult(result);
@@ -894,7 +894,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories(KnownChains apiName)
         {
             // Arrange
-            var request = new OffsetLimitFields();
+            var request = new OffsetLimitModel();
 
             // Act
             var response = await Api[apiName].GetCategories(request, CancellationToken.None);
@@ -913,7 +913,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new OffsetLimitFields()
+            var request = new OffsetLimitModel()
             {
                 Offset = "food",
                 Limit = limit
@@ -936,7 +936,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
-            var request = new OffsetLimitFields() { Offset = "qweqweqwe" };
+            var request = new OffsetLimitModel() { Offset = "qweqweqwe" };
 
             // Act
             var response = await Api[apiName].GetCategories(request, CancellationToken.None);
@@ -954,7 +954,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("ru");
+            var request = new SearchWithQueryModel("ru");
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -972,7 +972,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search_Invalid_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchWithQueryModel("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -988,7 +988,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search_Short_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("f");
+            var request = new SearchWithQueryModel("f");
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -1004,7 +1004,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search_Empty_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest(" ");
+            var request = new SearchWithQueryModel(" ");
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -1021,7 +1021,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             const int limit = 5;
-            var request = new SearchWithQueryRequest("bit")
+            var request = new SearchWithQueryModel("bit")
             {
                 Offset = "bitcoin",
                 Limit = limit
@@ -1043,7 +1043,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("life") { Offset = "qweqweqwe" };
+            var request = new SearchWithQueryModel("life") { Offset = "qweqweqwe" };
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -1059,7 +1059,7 @@ namespace Steepshot.Core.Tests
         public async Task Categories_Search_With_User(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("lif");
+            var request = new SearchWithQueryModel("lif");
 
             // Act
             var response = await Api[apiName].SearchCategories(request, CancellationToken.None);
@@ -1077,7 +1077,7 @@ namespace Steepshot.Core.Tests
         public async Task UserProfile(KnownChains apiName, string user)
         {
             // Arrange
-            var request = new UserProfileRequest(user);
+            var request = new UserProfileModel(user);
 
             // Act
             var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
@@ -1111,7 +1111,7 @@ namespace Steepshot.Core.Tests
         public async Task UserProfile_Invalid_Username(KnownChains apiName)
         {
             // Arrange
-            var request = new UserProfileRequest("qweqweqwe");
+            var request = new UserProfileModel("qweqweqwe");
 
             // Act
             var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
@@ -1127,7 +1127,7 @@ namespace Steepshot.Core.Tests
         public async Task UserProfile_With_User(KnownChains apiName, string user)
         {
             // Arrange
-            var request = new UserProfileRequest(user) { Login = user };
+            var request = new UserProfileModel(user) { Login = user };
 
             // Act
             var response = await Api[apiName].GetUserProfile(request, CancellationToken.None);
@@ -1161,8 +1161,8 @@ namespace Steepshot.Core.Tests
         public async Task UserFriends_Following(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login, FriendsType.Following);
+            var user = Users[apiName];
+            var request = new UserFriendsModel(user.Login, FriendsType.Following);
 
             // Act
             var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
@@ -1184,8 +1184,8 @@ namespace Steepshot.Core.Tests
         public async Task UserFriends_Followers(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
+            var user = Users[apiName];
+            var request = new UserFriendsModel(user.Login, FriendsType.Followers);
 
             // Act
             var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
@@ -1207,16 +1207,15 @@ namespace Steepshot.Core.Tests
         public async Task UserFriends_Followers_Invalid_Username(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login + "x", FriendsType.Followers);
+            var user = Users[apiName];
+            var request = new UserFriendsModel(user.Login + "x", FriendsType.Followers);
 
             // Act
             var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Results.Any());
-            Assert.That(response.Result.Results, Is.Empty);
+            Assert.That(response.Error.Code == 404);
         }
 
         [Test]
@@ -1225,8 +1224,8 @@ namespace Steepshot.Core.Tests
         public async Task UserFriends_Followers_Offset_Limit(KnownChains apiName, string offset)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login, FriendsType.Followers);
+            var user = Users[apiName];
+            var request = new UserFriendsModel(user.Login, FriendsType.Followers);
             request.Offset = offset;
             request.Limit = 1;
 
@@ -1235,7 +1234,6 @@ namespace Steepshot.Core.Tests
 
             // Assert
             AssertResult(response);
-            Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results, Is.Not.Empty);
             Assert.That(response.Result.Results.First().Author, Is.EqualTo(offset));
             Assert.That(response.Result.Results.Count == 1);
@@ -1247,8 +1245,8 @@ namespace Steepshot.Core.Tests
         public async Task UserFriends_Followers_With_User(KnownChains apiName)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new UserFriendsRequest(user.Login, FriendsType.Followers) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new UserFriendsModel(user.Login, FriendsType.Followers) { Login = user.Login };
 
             // Act
             var response = await Api[apiName].GetUserFriends(request, CancellationToken.None);
@@ -1266,7 +1264,7 @@ namespace Steepshot.Core.Tests
         public async Task GetPostInfo(KnownChains apiName, string url)
         {
             // Arrange
-            var request = new NamedInfoRequest(url);
+            var request = new NamedInfoModel(url);
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
@@ -1301,8 +1299,8 @@ namespace Steepshot.Core.Tests
         public async Task GetPostInfo_With_User(KnownChains apiName, string url)
         {
             // Arrange
-            UserInfo user = Users[apiName];
-            var request = new NamedInfoRequest(url) { Login = user.Login };
+            var user = Users[apiName];
+            var request = new NamedInfoModel(url) { Login = user.Login };
             request.ShowNsfw = true;
             request.ShowLowRated = true;
             // Act
@@ -1337,7 +1335,7 @@ namespace Steepshot.Core.Tests
         public async Task GetPostInfo_Invalid_Url(KnownChains apiName)
         {
             // Arrange
-            var request = new NamedInfoRequest("spam/@joseph.kalu/qweqeqwqweqweqwe");
+            var request = new NamedInfoModel("spam/@joseph.kalu/qweqeqwqweqweqwe");
 
             // Act
             var response = await Api[apiName].GetPostInfo(request, CancellationToken.None);
@@ -1353,7 +1351,7 @@ namespace Steepshot.Core.Tests
         public async Task Upload_Empty_Photo(KnownChains apiName)
         {
             // Arrange
-            var request = new UploadImageRequest(Users[apiName], "title", new byte[0], new[] { "cat1", "cat2", "cat3", "cat4" });
+            var request = new UploadImageModel(Users[apiName], "title", new byte[0], new[] { "cat1", "cat2", "cat3", "cat4" });
 
             // Act
             var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
@@ -1365,22 +1363,22 @@ namespace Steepshot.Core.Tests
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task Upload_Tags_Greater_Than_4(KnownChains apiName)
+        public async Task Upload_Tags_Greater_Than_Max(KnownChains apiName)
         {
             // Arrange
             var file = File.ReadAllBytes(GetTestImagePath());
-            var tags = new string[UploadImageRequest.TagLimit + 1];
-            for (int i = 0; i < tags.Length; i++)
+            var tags = new string[UploadImageModel.TagLimit + 1];
+            for (var i = 0; i < tags.Length; i++)
             {
                 tags[i] = "cat" + i;
             }
-            var request = new UploadImageRequest(Users[apiName], "cat", file, tags);
+            var request = new UploadImageModel(Users[apiName], "cat", file, tags);
 
             // Act
             var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
             AssertResult(response);
             Assert.IsTrue(response.Error.Message.Equals(Localization.Errors.TagLimitError));
-            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(UploadImageRequest.TagLimit.ToString()));
+            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(UploadImageModel.TagLimit.ToString()));
 
         }
 
@@ -1390,7 +1388,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("aar");
+            var request = new SearchWithQueryModel("aar");
 
             // Act
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
@@ -1408,7 +1406,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search_Invalid_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("qwerqwerqwerqwerqwerqwerqwerqwer");
+            var request = new SearchWithQueryModel("qwerqwerqwerqwerqwerqwerqwerqwer");
 
             // Act
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
@@ -1424,7 +1422,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search_Short_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("fo");
+            var request = new SearchWithQueryModel("fo");
 
             // Act
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
@@ -1440,7 +1438,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search_Empty_Query(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest(" ");
+            var request = new SearchWithQueryModel(" ");
 
             // Act
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
@@ -1457,7 +1455,7 @@ namespace Steepshot.Core.Tests
         {
             // Arrange
             const int limit = 3;
-            var request = new SearchWithQueryRequest("bit")
+            var request = new SearchWithQueryModel("bit")
             {
                 Offset = "abit",
                 Limit = limit
@@ -1479,7 +1477,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Search_Offset_Not_Exisiting(KnownChains apiName)
         {
             // Arrange
-            var request = new SearchWithQueryRequest("aar") { Offset = "qweqweqwe" };
+            var request = new SearchWithQueryModel("aar") { Offset = "qweqweqwe" };
 
             // Act
             var response = await Api[apiName].SearchUser(request, CancellationToken.None);
@@ -1495,7 +1493,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Exists_Check_Valid_Username(KnownChains apiName)
         {
             // Arrange
-            var request = new UserExistsRequests("pmartynov");
+            var request = new UserExistsModel("pmartynov");
 
             // Act
             var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
@@ -1511,7 +1509,7 @@ namespace Steepshot.Core.Tests
         public async Task User_Exists_Check_Invalid_Username(KnownChains apiName)
         {
             // Arrange
-            var request = new UserExistsRequests("pmartynov123");
+            var request = new UserExistsModel("pmartynov123");
 
             // Act
             var response = await Api[apiName].UserExistsCheck(request, CancellationToken.None);
@@ -1528,7 +1526,7 @@ namespace Steepshot.Core.Tests
             // Act
             var ex = Assert.Throws<AggregateException>(() =>
             {
-                var request = new SearchWithQueryRequest("aar");
+                var request = new SearchWithQueryModel("aar");
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
                 var operationResult = Api[KnownChains.Steem].SearchUser(request, cts.Token).Result;
             });

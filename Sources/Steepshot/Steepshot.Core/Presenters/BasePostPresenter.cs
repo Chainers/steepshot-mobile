@@ -6,6 +6,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
@@ -44,44 +45,43 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponce<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
         {
             error = null;
             if (response == null)
                 return false;
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var results = response.Result.Results;
                 if (results.Count > 0)
                 {
-                    var last = results.Last().Url;
                     var isAdded = false;
                     lock (Items)
                     {
                         if (isNeedClearItems)
                             Clear(false);
 
-                        for (var i = 0; i < results.Count; i++)
+                        foreach (var item in results)
                         {
-                            var item = results[i];
-                            if (i == 0 && !string.IsNullOrEmpty(OffsetUrl))
-                                continue;
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            Items.Add(item);
-                            isAdded = true;
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                Items.Add(item);
+                                isAdded = true;
+                            }
                         }
                     }
 
                     if (isAdded)
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                     }
-                    else if (OffsetUrl != last)
+                    else if (!string.Equals(OffsetUrl, response.Result.Offset, StringComparison.OrdinalIgnoreCase))
                     {
-                        OffsetUrl = last;
+                        OffsetUrl = response.Result.Offset;
                         return true;
                     }
 
@@ -112,13 +112,13 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Vote(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteRequest(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 var td = DateTime.Now - response.Result.VoteTime;
                 if (VoteDelay > td.Milliseconds)
@@ -166,13 +166,13 @@ namespace Steepshot.Core.Presenters
             return error;
         }
 
-        private async Task<ErrorBase> Flag(CancellationToken ct, Post post)
+        private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
-            var request = new VoteRequest(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
             var response = await Api.Vote(request, ct);
 
-            if (response.Success)
+            if (response.IsSuccess)
             {
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
                 post.NetVotes = response.Result.NetVotes;

@@ -1,6 +1,7 @@
 ﻿using Steepshot.Core.Errors;
 using System;
 using System.Threading.Tasks;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {

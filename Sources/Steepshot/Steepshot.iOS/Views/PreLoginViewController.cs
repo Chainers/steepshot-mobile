@@ -73,7 +73,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
 
             var response = await _presenter.TryGetAccountInfo(loginText.Text);
-            if (response != null && response.Success)
+            if (response != null && response.IsSuccess)
             {
                 var myViewController = new LoginViewController
                 {

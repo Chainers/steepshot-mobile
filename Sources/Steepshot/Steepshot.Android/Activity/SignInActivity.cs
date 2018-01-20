@@ -156,7 +156,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (response != null && response.Success)
+            if (response != null && response.IsSuccess)
             {
                 BasePresenter.User.AddAndSwitchUser(login, pass, BasePresenter.Chain, true);
                 var intent = new Intent(this, typeof(RootActivity));

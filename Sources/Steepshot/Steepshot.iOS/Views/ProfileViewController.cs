@@ -9,6 +9,7 @@ using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;

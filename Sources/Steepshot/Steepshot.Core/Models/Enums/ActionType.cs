@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Models
+﻿namespace Steepshot.Core.Models.Enums
 {
     public enum ActionType
     {

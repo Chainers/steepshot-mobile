@@ -11,7 +11,7 @@ using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
@@ -20,7 +20,7 @@ namespace Steepshot.Core.Presenters
     {
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
-        protected static readonly ISteepshotApiClient Api;
+        protected static readonly SteepshotApiClient Api;
 
         private static readonly object CtsSync = new object();
         private static CancellationTokenSource _reconecTokenSource;
@@ -189,7 +189,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected static async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<CancellationToken, T1, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
+        protected static async Task<OperationResult<TResult>> TryRunTask<T1, TResult>(Func<T1, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -197,7 +197,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.InternetUnavailable));
 
-                return await func(ct, param1);
+                return await func(param1, ct);
             }
             catch (OperationCanceledException)
             {
@@ -215,13 +215,13 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError)); ;
                 }
             }
         }
 
-        protected static async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<CancellationToken, T1, T2, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<OperationResult<TResult>> TryRunTask<T1, T2, TResult>(Func<T1, T2, CancellationToken, Task<OperationResult<TResult>>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
@@ -229,7 +229,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.InternetUnavailable));
 
-                return await func(ct, param1, param2);
+                return await func(param1, param2, ct);
             }
             catch (OperationCanceledException)
             {
@@ -247,7 +247,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1, param2);
                     return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
                 }
             }
@@ -286,7 +286,7 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        protected static async Task<ErrorBase> TryRunTask<T1>(Func<CancellationToken, T1, Task<ErrorBase>> func, CancellationToken ct, T1 param1)
+        protected static async Task<ErrorBase> TryRunTask<T1>(Func<T1, CancellationToken, Task<ErrorBase>> func, CancellationToken ct, T1 param1)
         {
             try
             {
@@ -294,7 +294,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ApplicationError(Localization.Errors.InternetUnavailable);
 
-                return await func(ct, param1);
+                return await func(param1, ct);
             }
             catch (OperationCanceledException)
             {
@@ -312,13 +312,13 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }
         }
 
-        protected static async Task<ErrorBase> TryRunTask<T1, T2>(Func<CancellationToken, T1, T2, Task<ErrorBase>> func, CancellationToken ct, T1 param1, T2 param2)
+        protected static async Task<ErrorBase> TryRunTask<T1, T2>(Func<T1, T2, CancellationToken, Task<ErrorBase>> func, CancellationToken ct, T1 param1, T2 param2)
         {
             try
             {
@@ -326,7 +326,7 @@ namespace Steepshot.Core.Presenters
                 if (!available)
                     return new ApplicationError(Localization.Errors.InternetUnavailable);
 
-                return await func(ct, param1, param2);
+                return await func(param1, param2, ct);
             }
             catch (OperationCanceledException)
             {
@@ -344,7 +344,7 @@ namespace Steepshot.Core.Presenters
                 }
                 else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    AppSettings.Reporter.SendCrash(ex, param1, param2);
                     return new ApplicationError(Localization.Errors.UnknownError);
                 }
             }

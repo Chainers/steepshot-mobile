@@ -15,6 +15,7 @@ using DitchBeneficiary = Ditch.Steem.Operations.Beneficiary;
 using Ditch.Core;
 using Ditch.Steem.Objects;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -63,29 +64,29 @@ namespace Steepshot.Core.HttpClient
 
         #region Post requests
 
-        public override async Task<OperationResult<VoteResponse>> Vote(VoteRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 string author;
                 string permlink;
-                if (!TryCastUrlToAuthorAndPermlink(request.Identifier, out author, out permlink))
+                if (!TryCastUrlToAuthorAndPermlink(model.Identifier, out author, out permlink))
                     return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
                 short weigth = 0;
-                if (request.Type == VoteType.Up)
+                if (model.Type == VoteType.Up)
                     weigth = 10000;
-                if (request.Type == VoteType.Flag)
+                if (model.Type == VoteType.Flag)
                     weigth = -10000;
 
-                var op = new VoteOperation(request.Login, author, permlink, weigth);
+                var op = new VoteOperation(model.Login, author, permlink, weigth);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
                 var result = new OperationResult<VoteResponse>();
@@ -112,20 +113,20 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<VoidResponse>> Follow(FollowRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-                var op = request.Type == FollowType.Follow
-                    ? new FollowOperation(request.Login, request.Username, DitchFollowType.Blog, request.Login)
-                    : new UnfollowOperation(request.Login, request.Username, request.Login);
+                var op = model.Type == FollowType.Follow
+                    ? new FollowOperation(model.Login, model.Username, DitchFollowType.Blog, model.Login)
+                    : new UnfollowOperation(model.Login, model.Username, model.Login);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();
@@ -139,18 +140,18 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-                var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
+                var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();
@@ -164,33 +165,33 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<CommentResponse>> CreateComment(CommentRequest request, CancellationToken ct)
+        public override async Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
                 string author;
                 string permlink;
-                if (!TryCastUrlToAuthorAndPermlink(request.Url, out author, out permlink))
+                if (!TryCastUrlToAuthorAndPermlink(model.Url, out author, out permlink))
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
-                var replyOperation = new ReplyOperation(author, permlink, request.Login, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var replyOperation = new ReplyOperation(author, permlink, model.Login, model.Body, $"{{\"app\": \"steepshot/{model.AppVersion}\"}}");
                 BaseOperation[] ops;
-                if (request.Beneficiaries != null && request.Beneficiaries.Any())
+                if (model.Beneficiaries != null && model.Beneficiaries.Any())
                 {
-                    var beneficiaries = request.Beneficiaries
+                    var beneficiaries = model.Beneficiaries
                         .Select(i => new DitchBeneficiary(i.Account, i.Weight))
                         .ToArray();
                     ops = new BaseOperation[]
                     {
                         replyOperation,
-                        new BeneficiariesOperation(request.Login, replyOperation.Permlink, _operationManager.SbdSymbol,beneficiaries)
+                        new BeneficiariesOperation(model.Login, replyOperation.Permlink, _operationManager.SbdSymbol,beneficiaries)
                     };
                 }
                 else
@@ -213,14 +214,14 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<CommentResponse>> EditComment(CommentRequest request, CancellationToken ct)
+        public override async Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
@@ -228,10 +229,10 @@ namespace Steepshot.Core.HttpClient
                 string commentPermlink;
                 string parentAuthor;
                 string parentPermlink;
-                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(request.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, request.Login))
+                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(model.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, model.Login))
                     return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
-                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, request.Body, $"{{\"app\": \"steepshot/{request.AppVersion}\"}}");
+                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, model.Body, $"{{\"app\": \"steepshot/{model.AppVersion}\"}}");
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
                 var result = new OperationResult<CommentResponse>();
@@ -248,25 +249,25 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<ImageUploadResponse>> Upload(UploadImageRequest request, UploadResponse uploadResponse, CancellationToken ct)
+        public override async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-                OperationHelper.PrepareTags(request.Tags);
+                OperationHelper.PrepareTags(model.Tags);
 
                 var meta = uploadResponse.Meta.ToString();
                 if (!string.IsNullOrWhiteSpace(meta))
                     meta = meta.Replace(Environment.NewLine, string.Empty);
 
-                var category = request.Tags.Length > 0 ? request.Tags[0] : "steepshot";
-                var post = new PostOperation(category, request.Login, request.PostUrl, request.Title, uploadResponse.Payload.Body, meta);
+                var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
+                var post = new PostOperation(category, model.Login, model.PostUrl, model.Title, uploadResponse.Payload.Body, meta);
                 BaseOperation[] ops;
                 if (uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any())
                 {
@@ -276,7 +277,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         post,
-                        new BeneficiariesOperation(request.Login, post.Permlink, _operationManager.SbdSymbol,beneficiaries)
+                        new BeneficiariesOperation(model.Login, post.Permlink, _operationManager.SbdSymbol,beneficiaries)
                     };
                 }
                 else
@@ -299,19 +300,19 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteRequest request, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-                var keys = ToKeyArr(request.PostingKey);
+                var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-                if (!TryCastUrlToAuthorAndPermlink(request.Url, out string author, out string permlink) ||
-                    !string.Equals(author, request.Login))
+                if (!TryCastUrlToAuthorAndPermlink(model.Url, out var author, out var permlink) ||
+                    !string.Equals(author, model.Login))
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
 
                 var op = new DeleteCommentOperation(author, permlink);
@@ -331,18 +332,18 @@ namespace Steepshot.Core.HttpClient
 
         #region Get
 
-        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadImageRequest request, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
                 return new OperationResult<string>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
 
-            var keys = ToKeyArr(request.PostingKey);
+            var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
                 return new OperationResult<string>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
             return await Task.Run(() =>
             {
-                var op = new FollowOperation(request.Login, "steepshot", DitchFollowType.Blog, request.Login);
+                var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
                 var properties = new DynamicGlobalPropertyApiObj
                 {
                     HeadBlockId = Hex.ToString(_operationManager.ChainId),
