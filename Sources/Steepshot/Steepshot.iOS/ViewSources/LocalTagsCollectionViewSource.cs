@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Cells;
 using UIKit;
 

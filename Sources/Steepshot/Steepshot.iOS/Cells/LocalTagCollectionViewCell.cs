@@ -1,6 +1,7 @@
 ﻿using System;
 using Foundation;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Helpers;
 using UIKit;
 

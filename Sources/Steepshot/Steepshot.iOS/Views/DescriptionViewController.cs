@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.iOS.Views
 {
@@ -340,7 +341,7 @@ namespace Steepshot.iOS.Views
                         {
                             pushToBlockchainRetry = false;
                             OperationResult<ImageUploadResponse> response = PushToBlockchain(request, photoUploadResponse).Result;
-                            if (!(response != null && response.Success))
+                            if (!(response != null && response.IsSuccess))
                             {
                                 InvokeOnMainThread(() =>
                                 {

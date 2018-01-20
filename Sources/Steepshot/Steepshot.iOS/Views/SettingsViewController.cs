@@ -6,6 +6,7 @@ using PureLayout.Net;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
