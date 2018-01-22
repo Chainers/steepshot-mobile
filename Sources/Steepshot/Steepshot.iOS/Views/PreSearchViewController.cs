@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -24,11 +23,10 @@ namespace Steepshot.iOS.Views
 
         private ProfileCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
-        private int _lastRow;
 
-        UINavigationController _navController;
-        UINavigationItem _navItem;
-        UIRefreshControl _refreshControl;
+        private UINavigationController _navController;
+        private UINavigationItem _navItem;
+        private UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
 
         public override void ViewDidLoad()
@@ -37,33 +35,21 @@ namespace Steepshot.iOS.Views
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
-            //TODO:KOA: rewrite as function
 
-
-            _gridDelegate = new CollectionViewFlowDelegate(collectionView/*, scrolled: async () =>
-            {
-                var newlastRow = collectionView.IndexPathsForVisibleItems.Max(c => c.Row) + 2;
-                if (_presenter.Count <= _lastRow && !_presenter.IsLastReaded && !_isFeedRefreshing)
-                    await GetPosts();
-
-                _lastRow = newlastRow;
-            }*/, presenter: _presenter);
+            _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
+            _gridDelegate.IsGrid = false;
+            _gridDelegate.ScrolledToBottom += ScrolledToBottom;
 
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
 
             _collectionViewSource.IsGrid = false;
-            _gridDelegate.IsGrid = false;
             collectionView.Source = _collectionViewSource;
+            collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
+            collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-            //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
-
-            //_collectionViewSource.Voted += async (vote, post, action) =>
-            //{
-            //await Vote(post);
-            //};
-            //_collectionViewSource.Flagged += Flagged;
 
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += async (sender, e) =>
@@ -75,49 +61,18 @@ namespace Steepshot.iOS.Views
                 _refreshControl.EndRefreshing();
             };
             collectionView.Add(_refreshControl);
-            collectionView.Delegate = _gridDelegate;
-
-            if (TabBarController != null)
-            {
-                TabBarController.NavigationController.NavigationBar.TintColor = UIColor.White;
-                TabBarController.NavigationController.NavigationBar.BarTintColor = Helpers.Constants.NavBlue;
-                TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-            }
 
             _collectionViewSource.CellAction += CellAction;
 
-            /*
-            _collectionViewSource.GoToProfile += username =>
+            collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                if (username == BasePresenter.User.Login)
-                    return;
-                var myViewController = new ProfileViewController();
-                myViewController.Username = username;
-                NavigationController.PushViewController(myViewController, true);
-            };
+                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1),
+                MinimumLineSpacing = 1,
+                MinimumInteritemSpacing = 1,
+            }, false);
 
-            _collectionViewSource.GoToComments += postUrl =>
-            {
-                var myViewController = new CommentsViewController();
-                myViewController.PostUrl = postUrl;
-                _navController.PushViewController(myViewController, true);
-            };
+            collectionView.Delegate = _gridDelegate;
 
-            _collectionViewSource.GoToVoters += postUrl =>
-            {
-                var myViewController = new VotersViewController();
-                myViewController.PostUrl = postUrl;
-                NavigationController.PushViewController(myViewController, true);
-            };
-
-            _collectionViewSource.ImagePreview += (image, url) =>
-            {
-                var myViewController = new ImagePreviewViewController();
-                myViewController.ImageForPreview = image;
-                myViewController.ImageUrl = url;
-                _navController.PushViewController(myViewController, true);
-            };
-*/
             if (!BasePresenter.User.IsAuthenticated)
             {
                 loginButton.Hidden = false;
@@ -127,12 +82,38 @@ namespace Steepshot.iOS.Views
 
             loginButton.TouchDown += LoginTapped;
 
-            NavigationController.SetNavigationBarHidden(true, false);
+            hotButton.TouchDown += (object sender, EventArgs e) => 
+            {
+                SwitchSearchType(PostType.Hot);
+            };
+
+            topButton.TouchDown += (object sender, EventArgs e) =>
+            {
+                SwitchSearchType(PostType.Top);
+            };
+
+            newButton.TouchDown += (object sender, EventArgs e) =>
+            {
+                SwitchSearchType(PostType.New);
+            };
+
+            var searchTap = new UITapGestureRecognizer(SearchTapped);
+            searchButton.AddGestureRecognizer(searchTap);
+
             GetPosts();
         }
-        /*
-        public override async void ViewWillAppear(bool animated)
+
+        public override void ViewWillDisappear(bool animated)
         {
+            NavigationController.SetNavigationBarHidden(false, false);
+            base.ViewWillDisappear(animated);
+        }
+
+
+        public override void ViewWillAppear(bool animated)
+        {
+            NavigationController.SetNavigationBarHidden(true, false);
+            /*
             if (CurrentPostCategory != _currentPostCategory && !_isHomeFeed)
             {
                 _currentPostCategory = CurrentPostCategory;
@@ -140,15 +121,28 @@ namespace Steepshot.iOS.Views
                 _collectionViewSource.FeedStrings.Clear();
                 _tw.Text = CurrentPostCategory;
                 await GetPosts();
-            }
+            }*/
 
             base.ViewWillAppear(animated);
         }
-*/
+
         protected override void CreatePresenter()
         {
             _presenter = new PreSearchPresenter();
             _presenter.SourceChanged += SourceChanged;
+        }
+
+        private async void SwitchSearchType(PostType postType)
+        {
+            if (postType == _presenter.PostType)
+                return;
+            _presenter.PostType = postType;
+            await GetPosts(true, true);
+        }
+
+        private async void ScrolledToBottom()
+        {
+            await GetPosts();
         }
 
         private void CellAction(ActionType type, Post post)
@@ -167,7 +161,7 @@ namespace Steepshot.iOS.Views
                     //TODO: pass image
                     myViewController2.ImageForPreview = null;
                     myViewController2.ImageUrl = post.Body;
-                    NavigationController.PushViewController(myViewController2, true);
+                    _navController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -175,18 +169,78 @@ namespace Steepshot.iOS.Views
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    myViewController4.HidesBottomBarWhenPushed = true;
                     _navController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
-                    //Vote(post);
+                    Vote(post);
                     break;
                 case ActionType.More:
-                    //Flag(post);
+                    Flagged(post);
                     break;
                 default:
                     break;
             }
+        }
+
+        private async Task Vote(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped(null, null);
+                return;
+            }
+
+            if (post == null)
+                return;
+
+            var error = await _presenter.TryVote(post);
+            if (error is TaskCanceledError)
+                return;
+
+            ShowAlert(error);
+        }
+
+        private void Flagged(Post post)
+        {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped(null, null);
+                return;
+            }
+            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+            actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+            PresentViewController(actionSheetAlert, true, null);
+        }
+
+        private void HidePhoto(Post post)
+        {
+            try
+            {
+                if (post == null || BasePresenter.User.PostBlackList.Contains(post.Url))
+                    return;
+
+                BasePresenter.User.PostBlackList.Add(post.Url);
+                BasePresenter.User.Save();
+
+                _presenter.RemovePost(post);
+                collectionView.ReloadData();
+                collectionView.CollectionViewLayout.InvalidateLayout();
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+            }
+        }
+
+        private async Task FlagPhoto(Post post)
+        {
+            if (post == null)
+                return;
+
+            var error = await _presenter.TryFlag(post);
+            ShowAlert(error);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -195,11 +249,15 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StartAnimating();
             noFeedLabel.Hidden = true;
 
+            if (clearOld)
+            {
+                _gridDelegate.ClearPosition();
+                _presenter.Clear();
+            }
+
             ErrorBase error;
             if (CurrentPostCategory == null)
             {
-                if (clearOld)
-                    _presenter.Clear();
                 error = await _presenter.TryLoadNextTopPosts();
             }
             else
@@ -223,7 +281,6 @@ namespace Steepshot.iOS.Views
 
         private async Task RefreshTable()
         {
-            //_collectionViewSource.FeedStrings.Clear();
             _presenter.Clear();
             await GetPosts(false, true);
         }
@@ -233,7 +290,7 @@ namespace Steepshot.iOS.Views
             _navController.PushViewController(new WelcomeViewController(), true);
         }
 
-        void SearchTapped(object sender, EventArgs e)
+        void SearchTapped()
         {
             var myViewController = new TagsSearchViewController();
             _navController.PushViewController(myViewController, true);
@@ -246,8 +303,10 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
+            var offset = collectionView.ContentOffset;
             collectionView.ReloadData();
-            //flowLayout.InvalidateLayout();
+            collectionView.LayoutIfNeeded();
+            collectionView.SetContentOffset(offset, false);
         }
     }
 }

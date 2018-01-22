@@ -25,6 +25,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton loginButton { get; set; }
 
 		[Outlet]
+		UIKit.UIButton newButton { get; set; }
+
+		[Outlet]
 		UIKit.UILabel noFeedLabel { get; set; }
 
 		[Outlet]
@@ -35,6 +38,11 @@ namespace Steepshot.iOS.Views
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (collectionView != null) {
 				collectionView.Dispose ();
 				collectionView = null;
@@ -43,6 +51,16 @@ namespace Steepshot.iOS.Views
 			if (hotButton != null) {
 				hotButton.Dispose ();
 				hotButton = null;
+			}
+
+			if (loginButton != null) {
+				loginButton.Dispose ();
+				loginButton = null;
+			}
+
+			if (noFeedLabel != null) {
+				noFeedLabel.Dispose ();
+				noFeedLabel = null;
 			}
 
 			if (searchButton != null) {
@@ -55,19 +73,9 @@ namespace Steepshot.iOS.Views
 				topButton = null;
 			}
 
-			if (noFeedLabel != null) {
-				noFeedLabel.Dispose ();
-				noFeedLabel = null;
-			}
-
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
-			}
-
-			if (loginButton != null) {
-				loginButton.Dispose ();
-				loginButton = null;
+			if (newButton != null) {
+				newButton.Dispose ();
+				newButton = null;
 			}
 		}
 	}

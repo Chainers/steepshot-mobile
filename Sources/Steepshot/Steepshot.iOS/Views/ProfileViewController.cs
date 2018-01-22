@@ -48,7 +48,7 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
 
-            _presenter.SourceChanged += (Core.Models.Status obj) =>
+            _presenter.SourceChanged += (Status obj) =>
             {
                 var offset = collectionView.ContentOffset;
                 collectionView.ReloadData();
@@ -411,8 +411,6 @@ namespace Steepshot.iOS.Views
                 return;
 
             ShowAlert(error);
-            //collectionView.ReloadData();
-            //collectionView.CollectionViewLayout.InvalidateLayout();
         }
 
         private void Flagged(Post post)
@@ -456,8 +454,6 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
-            //collectionView.ReloadData();
-            //collectionView.CollectionViewLayout.InvalidateLayout();
         }
 
         private async Task Follow()
