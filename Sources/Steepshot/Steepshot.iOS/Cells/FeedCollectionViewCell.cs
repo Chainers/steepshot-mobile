@@ -13,6 +13,8 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
+using Xamarin.TTTAttributedLabel;
+using PureLayout.Net;
 
 namespace Steepshot.iOS.Cells
 {
@@ -42,6 +44,8 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWorkfirst;
         private IScheduledWork _scheduledWorksecond;
         private IScheduledWork _scheduledWorkthird;
+
+        private TTTAttributedLabel attributedLabel;
 
         public override void UpdateCell(Post post)
         {
@@ -120,7 +124,6 @@ namespace Steepshot.iOS.Cells
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
             likeButton.Selected = _currentPost.Vote;
             flagButton.Selected = _currentPost.Flag;
-            commentText.Text = _currentPost.Title;
             viewCommentText.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             likeButton.Enabled = true;
             flagButton.Enabled = true;
@@ -129,20 +132,35 @@ namespace Steepshot.iOS.Cells
             imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
             contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
            
-
             if (!_isButtonBinded)
             {
                 cellText.Font = Helpers.Constants.Semibold14;
                 postTimeStamp.Font = Helpers.Constants.Regular12;
                 netVotes.Font = Helpers.Constants.Semibold14;
                 rewards.Font = Helpers.Constants.Semibold14;
-                commentText.Font = Helpers.Constants.Regular14;
                 viewCommentText.Font = Helpers.Constants.Regular14;
-
+                
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
                 firstLiker.Layer.CornerRadius = firstLiker.Frame.Size.Width / 2;
                 secondLiker.Layer.CornerRadius = secondLiker.Frame.Size.Width / 2;
                 thirdLiker.Layer.CornerRadius = thirdLiker.Frame.Size.Width / 2;
+
+                attributedLabel = new TTTAttributedLabel();
+                attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
+                var prop = new NSDictionary();
+                attributedLabel.LinkAttributes = prop;
+                attributedLabel.ActiveLinkAttributes = prop;
+
+                commentView.AddSubview(attributedLabel);
+                attributedLabel.Font = Helpers.Constants.Regular14;
+                attributedLabel.Lines = 0;
+                attributedLabel.UserInteractionEnabled = true;
+                attributedLabel.Enabled = true;
+                attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+                attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
+                attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
+                viewCommentText.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, attributedLabel, 5f);
+                attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate();
 
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
@@ -172,7 +190,7 @@ namespace Steepshot.iOS.Cells
                 {
                     CellAction?.Invoke(ActionType.Comments, _currentPost);
                 });
-                commentView.AddGestureRecognizer(commentTap);
+                viewCommentText.AddGestureRecognizer(commentTap);
 
                 UITapGestureRecognizer netVotesTap = new UITapGestureRecognizer(() =>
                 {
@@ -185,6 +203,34 @@ namespace Steepshot.iOS.Cells
 
                 _isButtonBinded = true;
             }
+
+            var noLinkAttribute = new UIStringAttributes
+            {
+                Font = Helpers.Constants.Regular14,
+                ForegroundColor = Helpers.Constants.R15G24B30,
+            };
+
+            var at = new NSMutableAttributedString();
+
+            at.Append(new NSAttributedString(_currentPost.Title, noLinkAttribute));
+            if (!string.IsNullOrEmpty(_currentPost.Description))
+            {
+                at.Append(new NSAttributedString(Environment.NewLine));
+                at.Append(new NSAttributedString(Environment.NewLine));
+                at.Append(new NSAttributedString(_currentPost.Description, noLinkAttribute));
+            }
+
+            foreach (var tag in _currentPost.Tags)
+            {
+                var linkAttribute = new UIStringAttributes
+                {
+                    Link = new NSUrl(tag),
+                    Font = Helpers.Constants.Regular14,
+                    ForegroundColor = Helpers.Constants.R231G72B0,
+                };
+                at.Append(new NSAttributedString($" #{tag}", linkAttribute));
+            }
+            attributedLabel.SetText(at);
         }
 
         private void LikeTap(object sender, EventArgs e)
@@ -220,6 +266,14 @@ namespace Steepshot.iOS.Cells
             }
             flagButton.Selected = _currentPost.Flag;
             flagButton.Enabled = true;
+        }
+    }
+
+    public class TTTAttributedLabelFeedDelegate : TTTAttributedLabelDelegate
+    {
+        public override void DidSelectLinkWithURL(TTTAttributedLabel label, NSUrl url)
+        {
+            // Navigate to presearch
         }
     }
 }

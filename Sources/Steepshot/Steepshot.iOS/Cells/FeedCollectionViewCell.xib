@@ -74,17 +74,10 @@
                             <view contentMode="scaleToFill" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="tca-gS-OKk">
                                 <rect key="frame" x="0.0" y="450" width="320" height="81"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="248" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" text="" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="100" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RJj-FH-H4A">
-                                        <rect key="frame" x="15" y="15" width="290" height="26"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                        <size key="shadowOffset" width="0.0" height="0.0"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ViewComments" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GuA-8P-KwY">
-                                        <rect key="frame" x="15" y="51" width="290" height="20"/>
+                                    <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ViewComments" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GuA-8P-KwY">
+                                        <rect key="frame" x="15" y="46" width="290" height="30"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="20" id="EVx-ld-q3K"/>
+                                            <constraint firstAttribute="height" constant="30" id="EVx-ld-q3K"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" red="0.59215686270000001" green="0.60784313729999995" blue="0.61960784310000006" alpha="1" colorSpace="calibratedRGB"/>
@@ -93,13 +86,9 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="GuA-8P-KwY" firstAttribute="top" secondItem="RJj-FH-H4A" secondAttribute="bottom" constant="10" id="3gu-7a-AsM"/>
-                                    <constraint firstItem="RJj-FH-H4A" firstAttribute="leading" secondItem="tca-gS-OKk" secondAttribute="leading" constant="15" id="EUU-Kk-J3G"/>
-                                    <constraint firstItem="RJj-FH-H4A" firstAttribute="top" secondItem="tca-gS-OKk" secondAttribute="top" constant="15" id="caM-Xm-Ptn"/>
                                     <constraint firstAttribute="trailing" secondItem="GuA-8P-KwY" secondAttribute="trailing" constant="15" id="get-7V-n9F"/>
-                                    <constraint firstAttribute="bottom" secondItem="GuA-8P-KwY" secondAttribute="bottom" constant="10" id="itG-rg-ZDR"/>
+                                    <constraint firstAttribute="bottom" secondItem="GuA-8P-KwY" secondAttribute="bottom" constant="5" id="itG-rg-ZDR"/>
                                     <constraint firstItem="GuA-8P-KwY" firstAttribute="leading" secondItem="tca-gS-OKk" secondAttribute="leading" constant="15" id="lVe-Sl-7Us"/>
-                                    <constraint firstAttribute="trailing" secondItem="RJj-FH-H4A" secondAttribute="trailing" constant="15" id="nHe-7o-g51"/>
                                 </constraints>
                             </view>
                             <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="CZd-21-mbX">
@@ -232,7 +221,6 @@
                 <outlet property="avatarImage" destination="7uU-79-DPn" id="fAS-md-JCd"/>
                 <outlet property="bodyImage" destination="CZd-21-mbX" id="1a9-wL-AtM"/>
                 <outlet property="cellText" destination="Kkv-xH-c8d" id="kfV-CL-OlL"/>
-                <outlet property="commentText" destination="RJj-FH-H4A" id="h9v-fz-E74"/>
                 <outlet property="commentView" destination="tca-gS-OKk" id="tkq-gm-FHV"/>
                 <outlet property="contentView" destination="FaT-0u-dfJ" id="EHy-8I-Yjw"/>
                 <outlet property="contentViewWidth" destination="8df-aR-zAy" id="vVu-tz-ZP4"/>
