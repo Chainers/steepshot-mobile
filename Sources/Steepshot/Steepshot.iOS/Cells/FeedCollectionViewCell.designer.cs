@@ -70,10 +70,15 @@ namespace Steepshot.iOS.Cells
 		UIKit.UIStackView topLikers { get; set; }
 
 		[Outlet]
-		UIKit.UIButton viewCommentButton { get; set; }
+		UIKit.UILabel viewCommentText { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (actionStackView != null) {
+				actionStackView.Dispose ();
+				actionStackView = null;
+			}
+
 			if (avatarImage != null) {
 				avatarImage.Dispose ();
 				avatarImage = null;
@@ -159,19 +164,14 @@ namespace Steepshot.iOS.Cells
 				thirdLiker = null;
 			}
 
-			if (viewCommentButton != null) {
-				viewCommentButton.Dispose ();
-				viewCommentButton = null;
-			}
-
 			if (topLikers != null) {
 				topLikers.Dispose ();
 				topLikers = null;
 			}
 
-			if (actionStackView != null) {
-				actionStackView.Dispose ();
-				actionStackView = null;
+			if (viewCommentText != null) {
+				viewCommentText.Dispose ();
+				viewCommentText = null;
 			}
 		}
 	}

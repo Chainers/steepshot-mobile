@@ -366,6 +366,7 @@
     <Compile Include="Cells\AccountTableViewCell.designer.cs">
       <DependentUpon>AccountTableViewCell.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cells\LoaderCollectionCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
