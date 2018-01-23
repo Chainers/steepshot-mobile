@@ -4,7 +4,6 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
@@ -15,6 +14,7 @@ using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
+using System.Diagnostics;
 
 namespace Steepshot.iOS.Cells
 {
@@ -33,6 +33,7 @@ namespace Steepshot.iOS.Cells
         }
 
         public event Action<ActionType, Post> CellAction;
+        public event Action<string> TagAction;
 
         private bool _isButtonBinded;
         private Post _currentPost;
@@ -56,19 +57,27 @@ namespace Steepshot.iOS.Cells
             bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
 
+            var photo = _currentPost.Photos?.FirstOrDefault();
+            if (photo != null)
+                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Helpers.Constants.ImageCacheDuration)
+                                                         //.Retry(5)
+                                                         .FadeAnimation(false)
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                                         .WithPriority(LoadingPriority.Highest)
+                                                         .Into(bodyImage);
+            
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
             _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
                                                      .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                     .FadeAnimation(false)
                                                      .DownSample(200)
                                                      .LoadingPlaceholder("ic_noavatar.png")
                                                      .ErrorPlaceholder("ic_noavatar.png")
+                                                     .WithPriority(LoadingPriority.Normal)
                                                      .Into(avatarImage);
-            
-            var photo = _currentPost.Photos?.FirstOrDefault();
-            if (photo != null)
-                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Steepshot.iOS.Helpers.Constants.ImageCacheDuration)
-                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                         .Into(bodyImage);
+            else
+                avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
             topLikers.Hidden = true;
             if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
@@ -82,6 +91,7 @@ namespace Steepshot.iOS.Cells
                                                          .LoadingPlaceholder("ic_noavatar.png")
                                                          .ErrorPlaceholder("ic_noavatar.png")
                                                          .DownSample(width: 100)
+                                                         .WithPriority(LoadingPriority.Lowest)
                                                          .Into(firstLiker);
             }
             else
@@ -96,6 +106,7 @@ namespace Steepshot.iOS.Cells
                              .WithCache(FFImageLoading.Cache.CacheType.All)
                              .LoadingPlaceholder("ic_noavatar.png")
                              .ErrorPlaceholder("ic_noavatar.png")
+                             .WithPriority(LoadingPriority.Lowest)
                              .DownSample(width: 100)
                              .Into(secondLiker);
             }
@@ -111,6 +122,7 @@ namespace Steepshot.iOS.Cells
                             .WithCache(FFImageLoading.Cache.CacheType.All)
                             .LoadingPlaceholder("ic_noavatar.png")
                             .ErrorPlaceholder("ic_noavatar.png")
+                            .WithPriority(LoadingPriority.Lowest)
                             .DownSample(width: 100)
                             .Into(thirdLiker);
             }
@@ -160,7 +172,7 @@ namespace Steepshot.iOS.Cells
                 attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
                 attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
                 viewCommentText.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, attributedLabel, 5f);
-                attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate();
+                attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(TagAction);
 
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
@@ -202,6 +214,8 @@ namespace Steepshot.iOS.Cells
                 likeButton.TouchDown += LikeTap;
 
                 _isButtonBinded = true;
+
+                Debug.WriteLine("Cell created");
             }
 
             var noLinkAttribute = new UIStringAttributes
@@ -222,6 +236,8 @@ namespace Steepshot.iOS.Cells
 
             foreach (var tag in _currentPost.Tags)
             {
+                if (tag == "steepshot")
+                    continue;
                 var linkAttribute = new UIStringAttributes
                 {
                     Link = new NSUrl(tag),
@@ -271,9 +287,16 @@ namespace Steepshot.iOS.Cells
 
     public class TTTAttributedLabelFeedDelegate : TTTAttributedLabelDelegate
     {
+        private Action<string> _tagAction;
+
+        public TTTAttributedLabelFeedDelegate(Action<string> tagAction)
+        {
+            _tagAction = tagAction;
+        }
+
         public override void DidSelectLinkWithURL(TTTAttributedLabel label, NSUrl url)
         {
-            // Navigate to presearch
+            _tagAction?.Invoke(url.Description);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Steepshot.iOS.ViewSources
         private readonly BasePostPresenter _presenter;
 
         public event Action<ActionType, Post> CellAction;
+        public event Action<string> TagAction;
 
         public ProfileCollectionViewSource(BasePostPresenter presenter)
         {
@@ -44,7 +45,10 @@ namespace Steepshot.iOS.ViewSources
                     cell = (FeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(FeedCollectionViewCell), indexPath);
 
                     if (!((FeedCollectionViewCell)cell).IsCellActionSet)
+                    {
                         ((FeedCollectionViewCell)cell).CellAction += CellAction;
+                        ((FeedCollectionViewCell)cell).TagAction += TagAction;
+                    }
                 }
                 try
                 {

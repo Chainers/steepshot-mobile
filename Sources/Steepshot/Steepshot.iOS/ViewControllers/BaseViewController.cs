@@ -34,8 +34,6 @@ namespace Steepshot.iOS.ViewControllers
 
         public static bool ShouldProfileUpdate { get; set; }
 
-        public static string CurrentPostCategory { get; set; }
-
         static BaseViewController()
         {
             BasePresenter.User = new User();

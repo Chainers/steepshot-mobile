@@ -48,13 +48,7 @@ namespace Steepshot.iOS.Views
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
 
-            _presenter.SourceChanged += (Status obj) =>
-            {
-                var offset = collectionView.ContentOffset;
-                collectionView.ReloadData();
-                collectionView.LayoutIfNeeded();
-                collectionView.SetContentOffset(offset, false);
-            };
+            _presenter.SourceChanged += SourceChanged;
 
             _collectionViewSource.CellAction += CellAction;
 
@@ -67,9 +61,9 @@ namespace Steepshot.iOS.Views
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1),
-                MinimumLineSpacing = 1,
-                MinimumInteritemSpacing = 1,
+                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
+                MinimumLineSpacing = 0,
+                MinimumInteritemSpacing = 0,
             }, false);
 
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
@@ -360,9 +354,26 @@ namespace Steepshot.iOS.Views
         {
             _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
+            {
                 switchButton.TintColor = Helpers.Constants.R231G72B0;
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                {
+                    EstimatedItemSize = Helpers.Constants.CellSize,
+                    MinimumLineSpacing = 1,
+                    MinimumInteritemSpacing = 1,
+                }, false);
+            }
             else
+            {
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                {
+                    EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
+                    MinimumLineSpacing = 0,
+                    MinimumInteritemSpacing = 0,
+                }, false);
+
                 switchButton.TintColor = Helpers.Constants.R151G155B158;
+            }
 
             collectionView.ReloadData();
             collectionView.SetContentOffset(new CGPoint(0, 0), false);

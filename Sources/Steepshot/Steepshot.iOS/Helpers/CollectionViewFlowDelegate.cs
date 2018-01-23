@@ -15,6 +15,8 @@ namespace Steepshot.iOS.Helpers
         private UICollectionView _collection;
         private int _prevPos;
 
+        public int Position => _prevPos;
+
         public void ClearPosition()
         {
             _prevPos = 0;

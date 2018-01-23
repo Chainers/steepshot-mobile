@@ -139,7 +139,7 @@ namespace Steepshot.iOS.Views
             if (_searchType == SearchType.Tags)
             {
                 var tag = _presenter.TagsPresenter[row]; //TODO:KOA: if null?
-                CurrentPostCategory = tag?.Name;
+                //CurrentPostCategory = tag?.Name;
                 NavigationController.PopViewController(true);
             }
             else
