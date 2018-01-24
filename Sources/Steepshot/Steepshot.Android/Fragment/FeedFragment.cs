@@ -79,6 +79,7 @@ namespace Steepshot.Fragment
                 _postPagerAdapter.PhotoClick += PhotoClick;
                 _postPagerAdapter.FlagAction += FlagAction;
                 _postPagerAdapter.HideAction += HideAction;
+                _postPagerAdapter.DeleteAction += DeleteAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
 
@@ -307,7 +308,16 @@ namespace Steepshot.Fragment
 
         private void HideAction(Post post)
         {
-            Presenter.RemovePost(post);
+            Presenter.HidePost(post);
+        }
+
+        private async void DeleteAction(Post post)
+        {
+            var error = await Presenter.TryDeletePost(post);
+            if (!IsInitialized)
+                return;
+
+            Context.ShowAlert(error);
         }
 
         private void TagAction(string tag)

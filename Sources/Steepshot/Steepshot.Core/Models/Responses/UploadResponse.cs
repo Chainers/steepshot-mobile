@@ -49,9 +49,6 @@ namespace Steepshot.Core.Models.Responses
         public ImageUploadResponse Payload { get; set; }
 
         public object Meta { get; set; }
-
-        [JsonIgnore]
-        public string PostUrl { get; set; }
     }
 
     public class Beneficiary

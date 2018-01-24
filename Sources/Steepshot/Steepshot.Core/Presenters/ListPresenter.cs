@@ -177,7 +177,7 @@ namespace Steepshot.Core.Presenters
 
         internal void NotifySourceChanged(string sender, bool isChanged)
         {
-            SourceChanged?.Invoke(new Status(sender, true));
+            SourceChanged?.Invoke(new Status(sender, isChanged));
         }
     }
 }

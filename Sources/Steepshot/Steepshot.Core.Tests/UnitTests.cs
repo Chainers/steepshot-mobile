@@ -47,7 +47,7 @@ namespace Steepshot.Core.Tests
         public void CreateComment_Empty_Url()
         {
             var user = Users.First().Value;
-            var request = new CommentModel(user, string.Empty, "test", AppSettings.AppInfo);
+            var request = new CreateCommentModel(user, string.Empty, "test", AppSettings.AppInfo);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);

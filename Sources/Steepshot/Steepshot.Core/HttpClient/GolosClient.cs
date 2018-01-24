@@ -17,6 +17,7 @@ using Ditch.Golos.Operations;
 using Ditch.Golos.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -29,7 +30,6 @@ namespace Steepshot.Core.HttpClient
         public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
             var jss = GetJsonSerializerSettings();
-            //var cm = new HttpManager(jss);
             var cm = new WebSocketManager(jss);
             _operationManager = new OperationManager(cm, jss);
         }
@@ -45,7 +45,6 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    //var cUrls = new List<string> { "https://public-ws.golos.io" };
                     var cUrls = new List<string> { "wss://ws.golos.io" };
                     var conectedTo = _operationManager.TryConnectTo(cUrls, token);
                     if (!string.IsNullOrEmpty(conectedTo))
@@ -76,26 +75,21 @@ namespace Steepshot.Core.HttpClient
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
                     return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
-
-                string author;
-                string permlink;
-                if (!TryCastUrlToAuthorAndPermlink(model.Identifier, out author, out permlink))
-                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
-
+                
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
                     weigth = 10000;
                 if (model.Type == VoteType.Flag)
                     weigth = -10000;
 
-                var op = new VoteOperation(model.Login, author, permlink, weigth);
+                var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
                 var result = new OperationResult<VoteResponse>();
                 if (!resp.IsError)
                 {
                     var dt = DateTime.Now;
-                    var content = _operationManager.GetContent(author, permlink, ct);
+                    var content = _operationManager.GetContent(model.Author, model.Permlink, ct);
                     if (!content.IsError)
                     {
                         //Convert Asset type to double
@@ -167,144 +161,7 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct)
-        {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
-
-                string author;
-                string permlink;
-                if (!TryCastUrlToAuthorAndPermlink(model.Url, out author, out permlink))
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
-
-                var replyOperation = new ReplyOperation(author, permlink, model.Login, model.Body, $"{{\"app\": \"steepshot/{model.AppVersion}\"}}");
-
-                BaseOperation[] ops;
-                if (model.Beneficiaries != null && model.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
-                {
-                    var beneficiaries = model.Beneficiaries
-                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
-                        .ToArray();
-                    ops = new BaseOperation[]
-                    {
-                        replyOperation,
-                        new BeneficiariesOperation(model.Login, replyOperation.Permlink, _operationManager.SbdSymbol, beneficiaries)
-                    };
-                }
-                else
-                {
-                    ops = new BaseOperation[] { replyOperation };
-                }
-
-                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
-
-                var result = new OperationResult<CommentResponse>();
-                if (!resp.IsError)
-                {
-                    result.Result = new CommentResponse(true);
-                    result.Result.Permlink = replyOperation.Permlink;
-                }
-                else
-                    OnError(resp, result);
-                return result;
-            }, ct);
-        }
-
-        public override async Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct)
-        {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
-
-                string author;
-                string commentPermlink;
-                string parentAuthor;
-                string parentPermlink;
-                if (!TryCastUrlToAuthorPermlinkAndParentPermlink(model.Url, out author, out commentPermlink, out parentAuthor, out parentPermlink) || !string.Equals(author, model.Login))
-                    return new OperationResult<CommentResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
-
-                var op = new CommentOperation(parentAuthor, parentPermlink, author, commentPermlink, string.Empty, model.Body, $"{{\"app\": \"steepshot/{model.AppVersion}\"}}");
-                // var op = new ReplyOperation(author, permlink, model.Login, model.Body, $"{{\"app\": \"steepshot/{model.AppVersion}\"}}");
-
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
-
-                var result = new OperationResult<CommentResponse>();
-                if (!resp.IsError)
-                {
-                    result.Result = new CommentResponse(true);
-                    result.Result.Permlink = op.Permlink;
-                }
-                else
-                {
-                    OnError(resp, result);
-                }
-                return result;
-            }, ct);
-        }
-
-        public override async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
-        {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<ImageUploadResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
-
-                OperationHelper.PrepareTags(model.Tags);
-
-                var meta = uploadResponse.Meta.ToString();
-                if (!string.IsNullOrWhiteSpace(meta))
-                    meta = meta.Replace(Environment.NewLine, string.Empty);
-
-                var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
-                var post = new PostOperation(category, model.Login, model.PostUrl, model.Title, uploadResponse.Payload.Body, meta);
-                BaseOperation[] ops;
-                if (uploadResponse.Beneficiaries != null && uploadResponse.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
-                {
-                    var beneficiaries = uploadResponse.Beneficiaries
-                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
-                        .ToArray();
-                    ops = new BaseOperation[]
-                    {
-                        post,
-                        new BeneficiariesOperation(model.Login, post.Permlink, _operationManager.SbdSymbol, beneficiaries)
-                    };
-                }
-                else
-                {
-                    ops = new BaseOperation[] { post };
-                }
-
-                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
-
-                var result = new OperationResult<ImageUploadResponse>();
-                if (!resp.IsError)
-                {
-                    uploadResponse.Payload.Permlink = post.Permlink;
-                    result.Result = uploadResponse.Payload;
-                }
-                else
-                    OnError(resp, result);
-
-                return result;
-            }, ct);
-        }
-
-        public override async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> Edit(CommentModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
@@ -315,11 +172,78 @@ namespace Steepshot.Core.HttpClient
                 if (keys == null)
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
 
-                if (!TryCastUrlToAuthorAndPermlink(model.Url, out var author, out var permlink) ||
-                    !string.Equals(author, model.Login))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
+                var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
+                var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
-                var op = new DeleteCommentOperation(author, permlink);
+                var result = new OperationResult<VoidResponse>();
+                if (!resp.IsError)
+                {
+                    result.Result = new VoidResponse(true);
+                }
+                else
+                {
+                    OnError(resp, result);
+                }
+                return result;
+            }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> Create(CommentModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+
+                var keys = ToKeyArr(model.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
+
+                var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Login, model.Permlink, model.Title, model.Body, model.JsonMetadata);
+
+                BaseOperation[] ops;
+                if (model.Beneficiaries != null && model.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
+                {
+                    var beneficiaries = model.Beneficiaries
+                        .Select(i => new DitchBeneficiary(i.Account, i.Weight))
+                        .ToArray();
+                    ops = new BaseOperation[]
+                    {
+                        op,
+                        new BeneficiariesOperation(model.Login, model.Permlink, _operationManager.SbdSymbol, beneficiaries)
+                    };
+                }
+                else
+                {
+                    ops = new BaseOperation[] { op };
+                }
+
+                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
+
+                var result = new OperationResult<VoidResponse>();
+                if (!resp.IsError)
+                {
+                    result.Result = new VoidResponse(true);
+                }
+                else
+                    OnError(resp, result);
+
+                return result;
+            }, ct);
+        }
+
+        public override async Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct)
+        {
+            return await Task.Run(() =>
+            {
+                if (!TryReconnectChain(ct))
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+
+                var keys = ToKeyArr(model.PostingKey);
+                if (keys == null)
+                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateKey));
+                
+                var op = new DeleteCommentOperation(model.Author, model.Permlink);
                 var resp = _operationManager.BroadcastOperations(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();

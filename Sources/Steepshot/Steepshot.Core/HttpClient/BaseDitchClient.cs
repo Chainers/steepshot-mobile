@@ -39,57 +39,15 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Edit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct);
-
-        public abstract Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Create(CommentModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
-
-
-        protected bool TryCastUrlToAuthorAndPermlink(string url, out string author, out string permlink)
-        {
-            var start = url.LastIndexOf('@');
-            if (start == -1)
-            {
-                author = permlink = null;
-                return false;
-            }
-            var authAndPermlink = url.Remove(0, start + 1);
-            var authPostArr = authAndPermlink.Split('/');
-            if (authPostArr.Length != 2)
-            {
-                author = permlink = null;
-                return false;
-            }
-            author = authPostArr[0];
-            permlink = authPostArr[1];
-            return true;
-        }
-
-        protected bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentAuthor, out string parentPermlink)
-        {
-            var start = url.LastIndexOf('#');
-
-            author = parentPermlink = parentAuthor = commentPermlink = null;
-
-            if (start == -1)
-                return false;
-
-            if (!TryCastUrlToAuthorAndPermlink(url.Remove(0, start + 1), out author, out commentPermlink))
-                return false;
-
-
-            if (!TryCastUrlToAuthorAndPermlink(url.Substring(0, start), out parentAuthor, out parentPermlink))
-                return false;
-
-            return true;
-        }
 
         protected List<byte[]> ToKeyArr(string postingKey)
         {

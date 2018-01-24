@@ -53,13 +53,13 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.GoToComments += (postUrl) =>
             {
                 var myViewController = new CommentsViewController();
-                //myViewController.PostUrl = postUrl;
+                //myViewController.Permlink = postUrl;
                 _navController.PushViewController(myViewController, true);
             };
             _collectionViewSource.GoToVoters += (postUrl) =>
             {
                 var myViewController = new VotersViewController();
-                myViewController.PostUrl = postUrl;
+                myViewController.Permlink = postUrl;
                 NavigationController.PushViewController(myViewController, true);
             };
             _collectionViewSource.ImagePreview += PreviewPhoto;
@@ -377,7 +377,7 @@ namespace Steepshot.iOS.Views
                 BasePresenter.User.PostBlackList.Add(post.Url);
                 BasePresenter.User.Save();
 
-                _presenter.RemovePost(post);
+                _presenter.HidePost(post);
                 // _collectionViewSource.FeedStrings.Remove(post.Url);
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();

@@ -7,6 +7,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
+using Ditch.Core.Helpers;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -36,28 +37,25 @@ namespace Steepshot.Core.Tests.HttpClient
             // 1) Create new post
             var file = File.ReadAllBytes(GetTestImagePath());
             user.IsNeedRewards = false;
-            var createPostRequest = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
-            var servResp = await Api[apiName].UploadWithPrepare(createPostRequest, CancellationToken.None);
+            var uploadImageModel = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var servResp = await Api[apiName].UploadWithPrepare(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
-            var createPostResponse = await Api[apiName].CreatePost(createPostRequest, servResp.Result, CancellationToken.None);
+            var createPostResponse = await Api[apiName].CreatePost(uploadImageModel, servResp.Result, CancellationToken.None);
 
             AssertResult(createPostResponse);
-            Assert.That(createPostResponse.Result.Body, Is.Not.Empty);
-            Assert.That(createPostResponse.Result.Title, Is.Not.Empty);
-            Assert.That(createPostResponse.Result.Tags, Is.Not.Empty);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             // Load last created post
-            var userPostsRequest = new UserPostsModel(user.Login);
-            userPostsRequest.ShowNsfw = true;
-            userPostsRequest.ShowLowRated = true;
-            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            var userPostsModel = new UserPostsModel(user.Login);
+            userPostsModel.ShowNsfw = true;
+            userPostsModel.ShowLowRated = true;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsModel, CancellationToken.None);
             AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createPostResponse.Result.Permlink, StringComparison.OrdinalIgnoreCase));
+            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(uploadImageModel.Permlink, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(lastPost);
-            Assert.That(createPostResponse.Result.Title, Is.EqualTo(lastPost.Title));
+            Assert.That(uploadImageModel.Title, Is.EqualTo(lastPost.Title));
         }
 
         [Test]
@@ -78,8 +76,8 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentRequest = new CommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
-            var createCommentResponse = await Api[apiName].CreateComment(createCommentRequest, CancellationToken.None);
+            var createCommentModel = new CreateCommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentResponse = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
@@ -90,7 +88,10 @@ namespace Steepshot.Core.Tests.HttpClient
             var getCommentsRequest = new NamedInfoModel(lastPost.Url);
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
-            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentResponse.Result.Permlink)));
+
+            UrlHelper.TryCastUrlToAuthorAndPermlink(createCommentModel.ParentUrl, out var parentAuthor, out var parentPermlink);
+            var permlink = OperationHelper.CreateReplyPermlink(user.Login, parentAuthor, parentPermlink);
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(permlink)));
         }
 
         [Test]

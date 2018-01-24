@@ -8,7 +8,9 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using System.Linq;
+using Ditch.Core.Helpers;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -104,48 +106,51 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateComment(CreateCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<CommentResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
+            if (!UrlHelper.TryCastUrlToAuthorAndPermlink(model.ParentUrl, out var parentAuthor, out var parentPermlink))
+                return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
+
+            var permlink = OperationHelper.CreateReplyPermlink(model.Login, parentAuthor, parentPermlink);
+            var commentModel = new CommentModel(model.Login, model.PostingKey, parentAuthor, parentPermlink, model.Login, permlink, string.Empty, model.Body, model.JsonMetadata);
 
             var bKey = $"{_ditchClient.GetType()}{model.IsNeedRewards}";
             if (_beneficiariesCash.ContainsKey(bKey))
             {
-                model.Beneficiaries = _beneficiariesCash[bKey];
+                commentModel.Beneficiaries = _beneficiariesCash[bKey];
             }
             else
             {
                 var beneficiaries = await GetBeneficiaries(model.IsNeedRewards, ct);
                 if (beneficiaries.IsSuccess)
-                    _beneficiariesCash[bKey] = model.Beneficiaries = beneficiaries.Result.Beneficiaries;
+                    _beneficiariesCash[bKey] = commentModel.Beneficiaries = beneficiaries.Result.Beneficiaries;
             }
 
-            var result = await _ditchClient.CreateComment(model, ct);
-            Trace($"post/{model.Url}/comment", model.Login, result.Error, model.Url, ct);//.Wait(5000);
+            var result = await _ditchClient.Create(commentModel, ct);
+            Trace($"post/{permlink}/comment", model.Login, result.Error, permlink, ct);//.Wait(5000);
             return result;
         }
 
-        public async Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<CommentResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
-            var result = await _ditchClient.EditComment(model, ct);
-            Trace($"post/{model.Url}/comment", model.Login, result.Error, model.Url, ct);//.Wait(5000);
-            return result;
-        }
+            var meta = uploadResponse.Meta.ToString();
+            if (!string.IsNullOrWhiteSpace(meta))
+                meta = meta.Replace(Environment.NewLine, string.Empty);
 
-        public async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
-        {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<ImageUploadResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+            var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
 
-            var result = await _ditchClient.CreatePost(model, uploadResponse, ct);
-            Trace("post", model.Login, result.Error, uploadResponse.Payload.Permlink, ct);//.Wait(5000);
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, uploadResponse.Payload.Body, meta);
+            var result = await _ditchClient.Create(commentModel, ct);
+
+            Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
             return result;
         }
 
@@ -161,22 +166,51 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<UploadResponse>(trxResp.Error);
 
             model.VerifyTransaction = trxResp.Result;
-            var response = await Upload(model, ct);
-
-            if (response.IsSuccess)
-                response.Result.PostUrl = model.PostUrl;
-            return response;
+            return await Upload(model, ct);
         }
 
-        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> DeletePost(DeleteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
-            var response = await _ditchClient.DeletePostOrComment(model, ct);
-            // if (response.IsSuccess)
-            return response;
+            if (model.IsEnableToDelete)
+            {
+                var operationResult = await _ditchClient.Delete(model, ct);
+                if (operationResult.IsSuccess)
+                {
+                    Trace("post", model.Login, operationResult.Error, model.PostUrl, ct);//.Wait(5000);\
+                    return operationResult;
+                }
+            }
+
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, model.ParentPermlink, model.Author, model.Permlink, "*deleted*", "*deleted*", string.Empty);
+            var result = await _ditchClient.Edit(commentModel, ct);
+            Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
+            return result;
+        }
+
+        public async Task<OperationResult<VoidResponse>> DeleteComment(DeleteModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
+            if (model.IsEnableToDelete)
+            {
+                var operationResult = await _ditchClient.Delete(model, ct);
+                if (operationResult.IsSuccess)
+                {
+                    await Trace("post", model.Login, operationResult.Error, model.PostUrl, ct);//.Wait(5000);\
+                    return operationResult;
+                }
+            }
+
+            var commentModel = new CommentModel(model.Login, model.PostingKey, model.ParentPermlink, model.ParentAuthor, model.Author, model.Permlink, string.Empty, "*deleted*", string.Empty);
+            var result = await _ditchClient.Edit(commentModel, ct);
+            Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
+            return result;
         }
     }
 }

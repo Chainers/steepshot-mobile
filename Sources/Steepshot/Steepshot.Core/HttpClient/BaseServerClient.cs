@@ -272,10 +272,10 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        protected async Task Trace(string endpoint, string login, ErrorBase resultErrors, string target, CancellationToken token)
+        protected async Task<OperationResult<VoidResponse>> Trace(string endpoint, string login, ErrorBase resultErrors, string target, CancellationToken token)
         {
             if (!EnableRead)
-                return;
+                return null;
 
             try
             {
@@ -284,12 +284,16 @@ namespace Steepshot.Core.HttpClient
                 parameters.Add("error", resultErrors == null ? string.Empty : resultErrors.Message);
                 if (!string.IsNullOrEmpty(target))
                     parameters.Add("target", target);
-                await Gateway.Post<VoidResponse>(GatewayVersion.V1, $@"log/{endpoint}", parameters, token);
+                var result = await Gateway.Post<VoidResponse>(GatewayVersion.V1, $@"log/{endpoint}", parameters, token);
+                if (result.IsSuccess)
+                    result.Result = new VoidResponse(true);
+                return result;
             }
             catch
             {
                 //todo nothing
             }
+            return null;
         }
 
         public async Task<OperationResult<BeneficiariesResponse>> GetBeneficiaries(bool isNeedRewards, CancellationToken token)

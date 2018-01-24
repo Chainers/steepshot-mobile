@@ -20,7 +20,5 @@ namespace Steepshot.Core.Models.Responses
         public List<string> Tags { get; set; }
 
         public string Body { get; set; }
-
-        public string Permlink { get; set; }
     }
 }
