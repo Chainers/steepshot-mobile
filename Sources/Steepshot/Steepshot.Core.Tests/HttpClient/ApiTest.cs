@@ -220,5 +220,34 @@ namespace Steepshot.Core.Tests.HttpClient
             AssertResult(unfollowResponse);
             Assert.IsTrue(unfollowResponse.Result.IsSuccess);
         }
+
+
+        [Test]
+        [TestCase(KnownChains.Steem, "joseph.kalu")]
+        [TestCase(KnownChains.Golos, "joseph.kalu")]
+        public async Task UpdateUserProfileTest(KnownChains apiName, string followUser)
+        {
+            var user = Users[apiName];
+
+            var userProfileModel = new UserProfileModel(user.Login);
+            var profileResponse = await Api[apiName].GetUserProfile(userProfileModel, CancellationToken.None);
+            AssertResult(profileResponse);
+            Assert.IsTrue(profileResponse.IsSuccess);
+            var profile = profileResponse.Result;
+
+            var updateUserProfileModel = new UpdateUserProfileModel()
+            {
+                Login = user.Login,
+                ActiveKey = user.PostingKey,
+                About = profile.About,
+                Location = profile.Location,
+                Name = profile.Name,
+                ProfileImage = profile.ProfileImage,
+                Website = profile.Website
+            };
+            var responce = await Api[apiName].UpdateUserProfile(updateUserProfileModel, CancellationToken.None);
+            AssertResult(responce);
+            Assert.IsTrue(responce.Result.IsSuccess);
+        }
     }
 }

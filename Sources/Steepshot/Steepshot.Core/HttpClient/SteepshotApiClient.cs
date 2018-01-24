@@ -212,5 +212,14 @@ namespace Steepshot.Core.HttpClient
             Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
             return result;
         }
+
+        public async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
+            return await _ditchClient.UpdateUserProfile(model, ct);
+        }
     }
 }

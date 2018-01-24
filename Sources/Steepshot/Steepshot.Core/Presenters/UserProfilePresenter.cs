@@ -70,6 +70,7 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
+
         public async Task<ErrorBase> TryFollow()
         {
             if (UserProfileResponse.FollowedChanging)
@@ -92,6 +93,34 @@ namespace Steepshot.Core.Presenters
             if (response.IsSuccess)
                 userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
 
+            return response.Error;
+        }
+
+
+        public async Task<ErrorBase> TryUpdateUserProfile(UpdateUserProfileModel model, UserProfileResponse currentProfile)
+        {
+            var error = await TryRunTask(UpdateUserProfile, OnDisposeCts.Token, model);
+            if (error != null)
+            {
+                NotifySourceChanged(nameof(TryUpdateUserProfile), false);
+            }
+            else
+            {
+                //TODO:KOA: Looks like it is work for AutoMapper
+                currentProfile.About = model.About;
+                currentProfile.Name = model.Name;
+                currentProfile.Location = model.Location;
+                currentProfile.Website = model.Website;
+                currentProfile.ProfileImage = model.ProfileImage;
+                NotifySourceChanged(nameof(TryUpdateUserProfile), false);
+            }
+
+            return error;
+        }
+
+        private async Task<ErrorBase> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        {
+            var response = await Api.UpdateUserProfile(model, ct);
             return response.Error;
         }
     }

@@ -13,6 +13,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
+using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -46,6 +47,8 @@ namespace Steepshot.Core.HttpClient
         public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
+
+        public abstract Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
 
@@ -118,7 +121,7 @@ namespace Steepshot.Core.HttpClient
                             }
                         case 13: //unknown key
                             {
-                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
+                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
                                 break;
                             }
                         //case 3000000: "transaction exception"
@@ -132,7 +135,7 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (t.Name == "LoginResponse")
                                 {
-                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
+                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
                                     break;
                                 }
                                 goto default;
@@ -160,6 +163,52 @@ namespace Steepshot.Core.HttpClient
                 Culture = CultureInfo.InvariantCulture
             };
             return rez;
+        }
+
+
+        protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
+        {
+            var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;
+            var jMeta = JsonConverter.Deserialize<JObject>(meta);
+            var jProfile = GetOrCreateJObject(jMeta, "profile");
+            UpdateJValue(jProfile, "profile_image", model.ProfileImage);
+            UpdateJValue(jProfile, "name", model.Name);
+            UpdateJValue(jProfile, "location", model.Location);
+            UpdateJValue(jProfile, "website", model.Website);
+            UpdateJValue(jProfile, "about", model.About);
+            return JsonConverter.Serialize(jMeta);
+        }
+
+        protected JObject GetOrCreateJObject(JObject jObject, string name)
+        {
+            var value = jObject.GetValue(name);
+            if (value == null)
+            {
+                var obj = new JObject();
+                jObject.Add(name, obj);
+                return obj;
+            }
+            return (JObject)value;
+        }
+
+        protected void UpdateJValue(JObject jObject, string name, string newValue)
+        {
+            var value = jObject.GetValue(name);
+            if (value == null)
+            {
+                if (string.IsNullOrEmpty(newValue))
+                    return;
+
+                jObject.Add(name, new JValue(newValue));
+                return;
+            }
+
+            if (string.IsNullOrEmpty(newValue))
+            {
+                value.Remove();
+                return;
+            }
+            value.Replace(new JValue(newValue));
         }
     }
 }

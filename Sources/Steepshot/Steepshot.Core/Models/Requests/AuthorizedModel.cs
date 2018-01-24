@@ -10,7 +10,7 @@ namespace Steepshot.Core.Models.Requests
         [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
         public string Login { get; set; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyPosting)]
+        [Required(ErrorMessage = Localization.Errors.EmptyPostingKey)]
         public string PostingKey { get; set; }
 
 
