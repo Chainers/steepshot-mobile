@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <resources>
-  <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
-    <item name="android:windowBackground">@drawable/splash</item>
+  <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">    
     <item name="colorAccent">@color/rgb231_72_0</item>
+  </style>
+  <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowBackground">@drawable/splash</item>    
   </style>
 </resources>
