@@ -58,13 +58,7 @@ namespace Steepshot.iOS.Views
             collectionView.Add(_refreshControl);
 
             _collectionViewSource.CellAction += CellAction;
-
-            _collectionViewSource.TagAction += (string tag) => 
-            {
-                var myViewController = new PreSearchViewController();
-                myViewController.CurrentPostCategory = tag;
-                NavigationController.PushViewController(myViewController, true);
-            };
+            _collectionViewSource.TagAction += TagAction;
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
@@ -75,7 +69,7 @@ namespace Steepshot.iOS.Views
 
             collectionView.Delegate = _gridDelegate;
 
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 20;
@@ -147,6 +141,13 @@ namespace Steepshot.iOS.Views
         private async void ScrolledToBottom()
         {
             await GetPosts(false);
+        }
+
+        private void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -254,14 +255,38 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
-            //if (_collectionViewSource.IsGrid)
-                //switchButton.TintColor = Constants.R231G72B0;
-            //else
-                //switchButton.TintColor = Constants.R151G155B158;
+            try
+            {
+                _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+                if (_collectionViewSource.IsGrid)
+                {
+                    //switchButton.TintColor = Helpers.Constants.R231G72B0;
+                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                    {
+                        EstimatedItemSize = Helpers.Constants.CellSize,
+                        MinimumLineSpacing = 1,
+                        MinimumInteritemSpacing = 1,
+                    }, false);
+                }
+                else
+                {
+                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                    {
+                        EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
+                        MinimumLineSpacing = 0,
+                        MinimumInteritemSpacing = 0,
+                    }, false);
 
-            collectionView.ReloadData();
-            collectionView.SetContentOffset(new CGPoint(0, 0), false);
+                    //switchButton.TintColor = Helpers.Constants.R151G155B158;
+                }
+
+                collectionView.ReloadData();
+                collectionView.SetContentOffset(new CGPoint(0, 0), false);
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -284,7 +309,7 @@ namespace Steepshot.iOS.Views
                 _presenter.Tag = CurrentPostCategory;
                 error = await _presenter.TryGetSearchedPosts();
             }
-            Debug.WriteLine(DateTime.Now);
+
             if (error is TaskCanceledError)
                 return;
 
@@ -297,7 +322,6 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StopAnimating();
 
             ShowAlert(error);
-            Debug.WriteLine(DateTime.Now);
         }
 
         private async Task RefreshTable()
@@ -313,15 +337,11 @@ namespace Steepshot.iOS.Views
         void SearchTapped()
         {
             var myViewController = new TagsSearchViewController();
-            _navController.PushViewController(myViewController, true);
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private void SourceChanged(Status status)
         {
-            Debug.WriteLine(DateTime.Now);
-            collectionView.ReloadData();
-            Debug.WriteLine(DateTime.Now);
-            /*
             var offset = collectionView.ContentOffset;
             collectionView.ReloadData();
             collectionView.LayoutIfNeeded();
@@ -329,7 +349,6 @@ namespace Steepshot.iOS.Views
                 collectionView.SetContentOffset(new CGPoint(0, 0), false);
             else
                 collectionView.SetContentOffset(offset, false);
-            Debug.WriteLine(collectionView.ContentOffset);*/
         }
     }
 }

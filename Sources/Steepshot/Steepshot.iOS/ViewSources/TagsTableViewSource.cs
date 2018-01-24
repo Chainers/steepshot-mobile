@@ -11,10 +11,10 @@ namespace Steepshot.iOS.ViewSources
     public class TagsTableViewSource : UITableViewSource
     {
         private readonly string _cellIdentifier = nameof(TagTableViewCell);
-        private PostDescriptionPresenter _presenter;
+        private TagsPresenter _presenter;
         public Action<ActionType, string> CellAction;
 
-        public TagsTableViewSource(PostDescriptionPresenter presenter)
+        public TagsTableViewSource(TagsPresenter presenter)
         {
             _presenter = presenter;
         }

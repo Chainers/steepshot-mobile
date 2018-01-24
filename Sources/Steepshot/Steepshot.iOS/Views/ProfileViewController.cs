@@ -51,6 +51,7 @@ namespace Steepshot.iOS.Views
             _presenter.SourceChanged += SourceChanged;
 
             _collectionViewSource.CellAction += CellAction;
+            _collectionViewSource.TagAction += TagAction;
 
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -214,6 +215,13 @@ namespace Steepshot.iOS.Views
             }
         }
 
+        private void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
+        }
+
         private async Task RefreshPage()
         {
             GetUserInfo();
@@ -352,31 +360,38 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
-            if (_collectionViewSource.IsGrid)
+            try
             {
-                switchButton.TintColor = Helpers.Constants.R231G72B0;
-                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+                if (_collectionViewSource.IsGrid)
                 {
-                    EstimatedItemSize = Helpers.Constants.CellSize,
-                    MinimumLineSpacing = 1,
-                    MinimumInteritemSpacing = 1,
-                }, false);
+                    switchButton.TintColor = Helpers.Constants.R231G72B0;
+                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                    {
+                        EstimatedItemSize = Helpers.Constants.CellSize,
+                        MinimumLineSpacing = 1,
+                        MinimumInteritemSpacing = 1,
+                    }, false);
+                }
+                else
+                {
+                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                    {
+                        EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
+                        MinimumLineSpacing = 0,
+                        MinimumInteritemSpacing = 0,
+                    }, false);
+
+                    switchButton.TintColor = Helpers.Constants.R151G155B158;
+                }
+
+                collectionView.ReloadData();
+                collectionView.SetContentOffset(new CGPoint(0, 0), false);
             }
-            else
+            catch(Exception ex)
             {
-                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-                {
-                    EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
-                    MinimumLineSpacing = 0,
-                    MinimumInteritemSpacing = 0,
-                }, false);
-
-                switchButton.TintColor = Helpers.Constants.R151G155B158;
+                
             }
-
-            collectionView.ReloadData();
-            collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)
@@ -480,7 +495,7 @@ namespace Steepshot.iOS.Views
 
         void LoginTapped()
         {
-            var myViewController = new PreLoginViewController();
+            var myViewController = new WelcomeViewController();
             NavigationController.PushViewController(myViewController, true);
         }
     }

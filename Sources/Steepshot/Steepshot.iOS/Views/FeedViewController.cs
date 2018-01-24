@@ -48,7 +48,7 @@ namespace Steepshot.iOS.Views
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
-
+            _collectionViewSource.TagAction += TagAction;
             _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
@@ -119,6 +119,13 @@ namespace Steepshot.iOS.Views
                 default:
                     break;
             }
+        }
+
+        private void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
