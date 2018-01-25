@@ -9,11 +9,18 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="20dp">
-        <refractored.controls.CircleImageView
-            android:id="@+id/profile_image"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:src="@drawable/ic_holder" />
+        <steepshot.utils.VotingPowerFrame xmlns:customAttrs="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/voting_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="7dp"
+            customAttrs:votingPowerWidth="3dp">
+            <refractored.controls.CircleImageView
+                android:id="@+id/profile_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_holder" />
+        </steepshot.utils.VotingPowerFrame>
         <RelativeLayout
             android:id="@+id/follow_container"
             android:layout_width="108dp"
