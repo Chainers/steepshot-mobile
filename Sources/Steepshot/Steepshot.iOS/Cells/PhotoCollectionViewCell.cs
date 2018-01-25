@@ -21,6 +21,8 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWork;
         private readonly int _downSampleWidth = (int)Constants.CellSize.Width;
 
+        bool isInitialized;
+
         static PhotoCollectionViewCell()
         {
             Nib = UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle);
@@ -34,21 +36,20 @@ namespace Steepshot.iOS.Cells
 
         public override void UpdateCell(Post post)
         {
-            var photoUrl = post.Photos?.FirstOrDefault();
-            ImageUrl = photoUrl;
+            if (!isInitialized)
+            {
+                widthConstraint.Constant = heightConstraint.Constant = Constants.CellSideSize;
+                isInitialized = true;
+            }
+
+            ImageUrl = post.Photos?.FirstOrDefault();
             photoImg.Image = null;
             _scheduledWork?.Cancel();
-            if (photoUrl != null)
+            if (ImageUrl != null)
                 _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
-                                             .Retry(2, 200)
+                                             .FadeAnimation(false)
                                              .DownSample(width: _downSampleWidth)
                                              .Into(photoImg);
         }
-        /*
-		public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(UICollectionViewLayoutAttributes layoutAttributes)
-		{
-			layoutAttributes.Frame = new CGRect(layoutAttributes.Frame.Location, Constants.CellSize);
-			return layoutAttributes;
-		}*/
     }
 }

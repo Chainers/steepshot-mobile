@@ -115,8 +115,8 @@ namespace Steepshot.iOS.Views
 
         private void AddTags(object sender, EventArgs e)
         {
-            TagsList.AddRange(_collectionviewSource.TagsCollection.Except(TagsList));
-            TagsList = TagsList.Take(4).ToList();
+            //TagsList.AddRange(_collectionviewSource.TagsCollection.Except(TagsList));
+            //TagsList = TagsList.Take(4).ToList();
             NavigationController.PopViewController(true);
         }
 

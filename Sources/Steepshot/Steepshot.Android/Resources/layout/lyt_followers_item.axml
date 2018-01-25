@@ -56,23 +56,41 @@
         android:layout_toLeftOf="@id/follow_container"
         android:layout_centerVertical="true">
         <TextView
+            android:id="@+id/sbd_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textSize="14sp"
+            android:textColor="@color/rgb151_155_158"
+            android:maxLines="1"
+            android:clickable="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:text="+$100"
+            android:visibility="gone" />
+        <TextView
             android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/sbd_amount"
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30"
             android:textStyle="bold"
+            android:ellipsize="end"
             android:maxLines="1"
             android:text="Username"
-            android:clickable="true"/>
+            android:clickable="true" />
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/sbd_amount"
             android:layout_below="@id/username"
             android:layout_marginTop="5dp"
             android:textSize="12sp"
             android:textColor="@color/rgb151_155_158"
+            android:ellipsize="end"
             android:maxLines="1"
             android:clickable="true"
             android:text="name" />

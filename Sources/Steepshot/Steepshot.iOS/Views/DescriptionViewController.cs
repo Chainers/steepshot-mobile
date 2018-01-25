@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Foundation;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -11,131 +9,239 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
 using FFImageLoading.Extensions;
+using System.Threading.Tasks;
+using Steepshot.Core;
+using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Models;
+using System.Threading;
+using Steepshot.Core.Errors;
+using Steepshot.iOS.Helpers;
+using System.Runtime.InteropServices;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Responses;
+using System.Collections.Generic;
+using Steepshot.Core.Models.Enums;
+using System.IO;
+using System.Linq;
 
 namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new PostDescriptionPresenter();
-        }
         public UIImage ImageAsset;
-
-        private TagsCollectionViewSource _collectionviewSource;
+        private TagsTableViewSource _tableSource;
+        private LocalTagsCollectionViewSource _collectionviewSource;
+        private Timer _timer;
+        private string _previousQuery;
 
         public override void ViewDidLoad()
         {
-            SetNavBar();
             base.ViewDidLoad();
-            SwitchDescription();
-            photoView.Image = NormalizeImage(ImageAsset);
-            postPhotoButton.TouchDown += (sender, e) => PostPhoto();
+
             Activeview = descriptionTextField;
-            //Collection view initialization
-            tagsCollectionView.RegisterClassForCell(typeof(TagCollectionViewCell), nameof(TagCollectionViewCell));
-            tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(TagCollectionViewCell), NSBundle.MainBundle), nameof(TagCollectionViewCell));
-            // research flow layout
-            /*tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            postPhotoButton.Layer.CornerRadius = 25;
+            postPhotoButton.TitleLabel.Font = Constants.Semibold14;
+            tagField.Font = titleTextField.Font = descriptionTextField.Font = Constants.Regular14;
+
+            _tableSource = new TagsTableViewSource(_presenter);
+            _tableSource.CellAction += TableCellAction;
+            tagsTableView.Source = _tableSource;
+            tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
+            tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
+            tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
+            tagsTableView.RowHeight = 65f;
+
+            tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
+            tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
+
+            tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(100, 50),
-                
-            }, false);*/
-            _collectionviewSource = new TagsCollectionViewSource((sender, e) =>
-            {
-                var myViewController = new PostTagsViewController();
-                NavigationController.PushViewController(myViewController, true);
-            });
-            _collectionviewSource.TagsCollection = new List<string>() { "" }; //BaseViewController.User.TagsList;
-            _collectionviewSource.RowSelectedEvent += CollectionTagSelected;
+                EstimatedItemSize = new CGSize(20, 45),
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                SectionInset = new UIEdgeInsets(0, 15, 0, 0),
+            }, false);
+
+            _collectionviewSource = new LocalTagsCollectionViewSource();
+            _collectionviewSource.CellAction += CollectionCellAction;
             tagsCollectionView.Source = _collectionviewSource;
 
-            UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
-                {
-                    descriptionTextField.ResignFirstResponder();
-                    titleTextField.ResignFirstResponder();
-                });
+            tagField.Delegate = new TagFieldDelegate(DoneTapped);
+            tagField.EditingChanged += EditingDidChange;
+            tagField.EditingDidBegin += EditingDidBegin;
+            tagField.EditingDidEnd += EditingDidEnd;
+
+            var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
-            titleTextField.Layer.BorderWidth = descriptionTextField.Layer.BorderWidth = 1;
-            titleTextField.Layer.BorderColor = descriptionTextField.Layer.BorderColor = UIColor.Black.CGColor;
+
+            postPhotoButton.TouchDown += PostPhoto;
+
+            _presenter.SourceChanged += SourceChanged;
+            _timer = new Timer(OnTimer);
+
+            SetBackButton();
+            SearchTextChanged();
         }
 
-        private void SetNavBar()
+        private void EditingDidBegin(object sender, EventArgs e)
         {
-            NavigationController.SetNavigationBarHidden(false, false);
-            var barHeight = NavigationController.NavigationBar.Frame.Height;
+            AnimateView(true);
+        }
 
-            var tw = new UILabel(new CGRect(0, 0, 120, barHeight));
-            tw.TextColor = UIColor.White;
-            tw.BackgroundColor = UIColor.Clear;
-            tw.TextAlignment = UITextAlignment.Center;
-            tw.Font = UIFont.SystemFontOfSize(17);
-
-            NavigationItem.TitleView = tw;
-
-            var button = new UIButton();
-            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+        private void EditingDidChange(object sender, EventArgs e)
+        {
+            var txt = ((UITextField)sender).Text;
+            if (!string.IsNullOrWhiteSpace(txt))
             {
-                button.WidthAnchor.ConstraintEqualTo(32).Active = true;
-                button.HeightAnchor.ConstraintEqualTo(32).Active = true;
+                if (txt.EndsWith(" "))
+                {
+                    ((UITextField)sender).Text = string.Empty;
+                    AddTag(txt);
+                }
             }
-            else
+            _timer.Change(500, Timeout.Infinite);
+        }
+
+        private void EditingDidEnd(object sender, EventArgs e)
+        {
+            AnimateView(false);
+        }
+
+        protected override void KeyBoardUpNotification(NSNotification notification)
+        {
+            tagsTableView.ContentInset = new UIEdgeInsets(0, 0, UIKeyboard.FrameEndFromNotification(notification).Height, 0);
+            base.KeyBoardUpNotification(notification);
+        }
+
+        private void OnTimer(object state)
+        {
+            InvokeOnMainThread(() =>
             {
-                button.Frame = new CGRect(0, 0, 32, 32);
+                SearchTextChanged();
+            });
+        }
+
+        private void CollectionCellAction(ActionType type, string tag)
+        {
+            RemoveTag(tag);
+        }
+
+        private void TableCellAction(ActionType type, string tag)
+        {
+            AddTag(tag);
+        }
+
+        private async void SearchTextChanged()
+        {
+            if (_previousQuery == tagField.Text || tagField.Text.Length == 1)
+                return;
+
+            _previousQuery = tagField.Text;
+            _presenter.Clear();
+
+            ErrorBase error = null;
+            if (tagField.Text.Length == 0)
+                error = await _presenter.TryGetTopTags();
+            else if (tagField.Text.Length > 1)
+                error = await _presenter.TryLoadNext(tagField.Text);
+
+            ShowAlert(error);
+        }
+
+        private void SourceChanged(Status obj)
+        {
+            tagsTableView.ReloadData();
+        }
+
+        private void AnimateView(bool tagsOpened)
+        {
+            View.LayoutIfNeeded();
+            UIView.Animate(0.2, () =>
+            {
+                tagDefault.Active = !tagsOpened;
+                tagToTop.Active = tagsOpened;
+
+                photoView.Hidden = tagsOpened;
+                titleEditImage.Hidden = tagsOpened;
+                titleTextField.Hidden = tagsOpened;
+                tagsTableView.Hidden = !tagsOpened;
+                titleBottomView.Hidden = tagsOpened;
+
+                View.LayoutIfNeeded();
+            });
+        }
+
+        private void AddTag(string txt)
+        {
+            if (!_collectionviewSource.LocalTags.Contains(txt))
+            {
+                localTagsHeight.Constant = 50;
+                localTagsTopSpace.Constant = 15;
+                _collectionviewSource.LocalTags.Add(txt);
+                tagsCollectionView.ReloadData();
             }
-            button.Layer.BorderColor = UIColor.White.CGColor;
-            button.Layer.BorderWidth = 2.0f;
-            button.Layer.CornerRadius = 16;
-            button.SetTitle("+", UIControlState.Normal);
-            button.TitleLabel.Font = UIFont.SystemFontOfSize(25);
-            button.TitleEdgeInsets = new UIEdgeInsets(0, 0, 4, 0);
-            button.TouchUpInside += AddDescriptionButtonClick;
-            var rightBarButton = new UIBarButtonItem();
-            rightBarButton.CustomView = button;
-            NavigationItem.SetRightBarButtonItem(rightBarButton, true);
 
-            NavigationController.NavigationBar.TintColor = UIColor.White;
-            NavigationController.NavigationBar.BarTintColor = UIColor.FromRGB(66, 165, 245); // To constants
+            //tagsCollectionView.CollectionViewLayout.InvalidateLayout();
+
+            //await Task.Delay(100);
+
+            //InvokeOnMainThread(() => {
+            //tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
+            // });
         }
 
-        void SwitchDescription()
+        private void RemoveTag(string tag)
         {
-            descriptionLabel.Hidden = !descriptionLabel.Hidden;
-            descriptionTextField.Hidden = !descriptionTextField.Hidden;
-            tagsCollectionVerticalSpacing.Active = !descriptionTextField.Hidden;
-            tagsCollectionVerticalSpacingHidden.Active = descriptionTextField.Hidden;
-            tagsCollectionView.SetNeedsLayout();
+            _collectionviewSource.LocalTags.Remove(tag);
+            tagsCollectionView.ReloadData();
+            if (_collectionviewSource.LocalTags.Count == 0)
+            {
+                localTagsHeight.Constant = 0;
+                localTagsTopSpace.Constant = 0;
+            }
         }
 
-        void AddDescriptionButtonClick(object sender, EventArgs e)
+        public override void ViewDidLayoutSubviews()
         {
-            SwitchDescription();
+            Constants.CreateGradient(postPhotoButton, 25);
+            Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
         }
 
-        public override void ViewWillAppear(bool animated)
+        private void SetBackButton()
         {
-            if (NavigationController != null)
-                NavigationController.NavigationBarHidden = false;
-            base.ViewWillAppear(animated);
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+
+            NavigationItem.Title = Localization.Messages.PostSettings;
+            NavigationController.NavigationBar.Translucent = false;
         }
 
-        public override void ViewDidAppear(bool animated)
+        private void DoneTapped()
+        {
+            if (!string.IsNullOrEmpty(tagField.Text))
+            {
+                AddTag(tagField.Text);
+                tagField.Text = string.Empty;
+            }
+            RemoveFocusFromTextFields();
+        }
+
+        private void RemoveFocusFromTextFields()
+        {
+            descriptionTextField.ResignFirstResponder();
+            titleTextField.ResignFirstResponder();
+            tagField.ResignFirstResponder();
+        }
+
+        public override async void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-
-            _collectionviewSource.TagsCollection.Clear();
-            _collectionviewSource.TagsCollection.Add("");
-            _collectionviewSource.TagsCollection.AddRange(TagsList);
-            tagsCollectionView.ReloadData();
-            tagsCollectionView.LayoutIfNeeded();
-            collectionHeight.Constant = tagsCollectionView.ContentSize.Height;
+            ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
         }
 
-        public override void ViewDidDisappear(bool animated)
+        protected override void CreatePresenter()
         {
-            if (IsMovingFromParentViewController)
-                TagsList.Clear();
-            base.ViewDidDisappear(animated);
+            _presenter = new PostDescriptionPresenter();
         }
 
         private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
@@ -155,79 +261,162 @@ namespace Steepshot.iOS.Views
             return new CGSize(width * inSampleSize, height * inSampleSize);
         }
 
-        private UIImage NormalizeImage(UIImage sourceImage)
+        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
         {
-            var imgSize = sourceImage.Size;
-            var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
-            UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
+            return await Task.Run(() =>
+            {
+                var imgSize = sourceImage.Size;
+                var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
+                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
-            var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
-            sourceImage.Draw(drawRect);
-            var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
+                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
+                sourceImage.Draw(drawRect);
+                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+                UIGraphics.EndImageContext();
 
-            return modifiedImage;
+                return modifiedImage;
+            });
         }
 
-        private async void PostPhoto()
+        private async Task<OperationResult<UploadMediaResponse>> UploadPhoto()
         {
-            loadingView.Hidden = false;
-            postPhotoButton.Enabled = false;
-
+            Stream stream = null;
             try
             {
-                var stream = photoView.Image.AsJpegStream();
+                stream = ImageAsset.AsJpegStream();
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream);
-                var serverResult = await _presenter.TryUploadMedia(request);
-
-                if (!serverResult.IsSuccess)
-                {
-                    ShowAlert(serverResult);
-                }
-                else
-                {
-                    var model = new PreparePostModel(BasePresenter.User.UserInfo)
-                    {
-                        Title = titleTextField.Text,
-                        Description = descriptionTextField.Text,
-                        Tags = TagsList.ToArray(),
-                        Media = new[] { serverResult.Result }
-                    };
-                    var result = await _presenter.TryCreatePost(model);
-
-                    if (result != null && result.IsSuccess)
-                    {
-                        TagsList.Clear();
-                        ShouldProfileUpdate = true;
-                        NavigationController.PopViewController(true);
-                    }
-                    else
-                    {
-                        ShowAlert(result);
-                    }
-                }
+                return await _presenter.TryUploadMedia(request);
             }
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<UploadMediaResponse>(new ApplicationError(Localization.Errors.PhotoProcessingError));
             }
             finally
             {
-                loadingView.Hidden = true;
-                postPhotoButton.Enabled = true;
+                stream?.Flush();
+                stream?.Dispose();
             }
         }
 
-        void CollectionTagSelected(int row)
+        private async void PostPhoto(object sender, EventArgs e)
         {
-            _collectionviewSource.TagsCollection.RemoveAt(row);
-            TagsList.RemoveAt(row - 1);
-            tagsCollectionView.ReloadData();
+            ToggleAvailability(false);
+
+            try
+            {
+                string title = null;
+                string description = null;
+                IList<string> tags = null;
+
+                InvokeOnMainThread(() =>
+                {
+                    title = titleTextField.Text;
+                    description = descriptionTextField.Text;
+                    tags = _collectionviewSource.LocalTags;
+
+                    //loadingView.StartAnimating();
+                    //postPhotoButton.Enabled = false;
+                });
+
+                var mre = new ManualResetEvent(false);
+
+                var shouldReturn = false;
+                var photoUploadRetry = false;
+                OperationResult<UploadMediaResponse> photoUploadResponse;
+                do
+                {
+                    photoUploadRetry = false;
+                    photoUploadResponse = await UploadPhoto();
+
+                    if (!photoUploadResponse.IsSuccess)
+                    {
+                        InvokeOnMainThread(() =>
+                        {
+                            ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
+                            {
+                                shouldReturn = true;
+                                mre.Set();
+                            }, (arg) =>
+                            {
+                                photoUploadRetry = true;
+                                mre.Set();
+                            });
+                        });
+
+                        mre.Reset();
+                        mre.WaitOne();
+                    }
+                } while (photoUploadRetry);
+
+                if (shouldReturn)
+                    return;
+
+                var model = new PreparePostModel(BasePresenter.User.UserInfo)
+                {
+                    Title = title,
+                    Description = description,
+                    Tags = tags.ToArray(),
+                    Media = new[] { photoUploadResponse.Result }
+                };
+
+
+                var pushToBlockchainRetry = false;
+                do
+                {
+                    pushToBlockchainRetry = false;
+
+                    var response = await _presenter.TryCreatePost(model);
+
+                    if (!(response != null && response.IsSuccess))
+                    {
+                        InvokeOnMainThread(() =>
+                        {
+                            ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
+                            {
+                                mre.Set();
+                            }, (arg) =>
+                            {
+                                photoUploadRetry = true;
+                                mre.Set();
+                            });
+                        });
+
+                        mre.Reset();
+                        mre.WaitOne();
+                    }
+                } while (pushToBlockchainRetry);
+            }
+            finally
+            {
+                InvokeOnMainThread(() =>
+                {
+                    ToggleAvailability(true);
+                    //loadingView.StopAnimating();
+                    //postPhotoButton.Enabled = true;
+                });
+            }
         }
 
-        protected override void CalculateBottom()
+
+
+        private void ToggleAvailability(bool enabled)
         {
-            Bottom = Activeview.Frame.Y + scrollView.Frame.Y - scrollView.ContentOffset.Y + Activeview.Frame.Height + Offset;
+            if (enabled)
+                loadingView.StopAnimating();
+            else
+                loadingView.StartAnimating();
+
+            postPhotoButton.Enabled = enabled;
+            titleTextField.UserInteractionEnabled = enabled;
+            descriptionTextField.UserInteractionEnabled = enabled;
+            tagField.Enabled = enabled;
+            tagsCollectionView.UserInteractionEnabled = enabled;
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
         }
     }
 }

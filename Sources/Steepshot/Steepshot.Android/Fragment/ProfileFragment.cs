@@ -135,6 +135,8 @@ namespace Steepshot.Fragment
                             BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                         _isActivated = true;
                     }
+                    else
+                        _postsList?.GetAdapter()?.NotifyDataSetChanged();
                 }
                 base.UserVisibleHint = value;
             }

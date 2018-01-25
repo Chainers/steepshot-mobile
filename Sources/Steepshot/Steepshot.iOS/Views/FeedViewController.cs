@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -31,8 +33,11 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            feedCollection.ReloadData();
+            var offset = feedCollection.ContentOffset;
             flowLayout.InvalidateLayout();
+            feedCollection.ReloadData();
+            feedCollection.LayoutIfNeeded();
+            feedCollection.SetContentOffset(offset, false);
         }
 
         public override void ViewDidLoad()
@@ -44,7 +49,7 @@ namespace Steepshot.iOS.Views
             _collectionViewSource = new ProfileCollectionViewSource(_presenter);
             _collectionViewSource.IsGrid = false;
             _collectionViewSource.CellAction += CellAction;
-
+            _collectionViewSource.TagAction += TagAction;
             _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
@@ -53,11 +58,12 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += OnRefresh;
 
             feedCollection.Source = _collectionViewSource;
+            feedCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
-            //flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 485);
+            flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 450);
 
             if (TabBarController != null)
             {
@@ -98,9 +104,7 @@ namespace Steepshot.iOS.Views
                     _navController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
-                    var myViewController3 = new VotersViewController();
-                    myViewController3.PostUrl = post.Url;
-                    NavigationController.PushViewController(myViewController3, true);
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
@@ -116,6 +120,13 @@ namespace Steepshot.iOS.Views
                 default:
                     break;
             }
+        }
+
+        private void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -143,7 +154,7 @@ namespace Steepshot.iOS.Views
 
         private async void ScrolledToBottom()
         {
-            await GetPosts();
+            await GetPosts(false, false);
         }
 
         private async Task Vote(Post post)
@@ -180,7 +191,14 @@ namespace Steepshot.iOS.Views
 
         private void SetNavBar()
         {
-            _navItem.LeftBarButtonItem = new UIBarButtonItem(new UIImageView(UIImage.FromBundle("ic_feed_logo")));
+            var logo = new UIImageView(UIImage.FromBundle("ic_feed_logo"));
+            logo.UserInteractionEnabled = true;
+            _navItem.LeftBarButtonItem = new UIBarButtonItem(logo);
+
+            UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
+            {
+            });
+            logo.AddGestureRecognizer(tap);
         }
     }
 }

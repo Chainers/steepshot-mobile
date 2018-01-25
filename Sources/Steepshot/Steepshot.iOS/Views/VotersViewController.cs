@@ -1,68 +1,118 @@
-﻿using Foundation;
+﻿using System;
+using Foundation;
+using Steepshot.Core;
+using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
+using Steepshot.Core.Extensions;
 using UIKit;
+using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.iOS.Views
 {
     public partial class VotersViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
-        public string PostUrl;
+        private readonly Post _post;
+        private readonly VotersType _votersType;
+
+        public VotersViewController(Post post, VotersType votersType)
+        {
+            _post = post;
+            _votersType = votersType;
+        }
 
         protected override void CreatePresenter()
         {
-            _presenter = new UserFriendPresenter();
+            _presenter = new UserFriendPresenter() { VotersType = _votersType };
+            _presenter.SourceChanged += SourceChanged;
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            var tableSource = new VotersTableViewSource(_presenter, votersTable);
+            var tableSource = new FollowTableViewSource(_presenter, votersTable);
             votersTable.Source = tableSource;
             votersTable.SeparatorStyle = UITableViewCellSeparatorStyle.None;
             votersTable.LayoutMargins = UIEdgeInsets.Zero;
-            votersTable.RegisterClassForCellReuse(typeof(UsersSearchViewCell), nameof(UsersSearchViewCell));
-            votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(UsersSearchViewCell), NSBundle.MainBundle), nameof(UsersSearchViewCell));
+            votersTable.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
+            votersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
+            votersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
-            tableSource.RowSelectedEvent += (row) =>
-            {
-                var myViewController = new ProfileViewController();
-                myViewController.Username = _presenter[row]?.Author;
-                NavigationController.PushViewController(myViewController, true);
-            };
+            tableSource.ScrolledToBottom += GetItems;
+            tableSource.CellAction += CellAction;
 
-            tableSource.ScrolledToBottom += () =>
-            {
-                LoadNext();
-            };
-
-            LoadNext();
-        }
-
-        public override void ViewWillAppear(bool animated)
-        {
-            NavigationController.SetNavigationBarHidden(false, false);
-            base.ViewWillAppear(animated);
-        }
-
-        private async void LoadNext()
-        {
-            if (progressBar.IsAnimating)
-                return;
-
+            SetBackButton();
             progressBar.StartAnimating();
+            GetItems();
+        }
 
-            var error = await _presenter.TryLoadNextPostVoters(PostUrl);
+        private void SetBackButton()
+        {
+            var count = _votersType == VotersType.Likes ? _post.NetLikes : _post.NetFlags;
+            var peopleLabel = new UILabel()
+            {
+                Text = $"{count:N0} {Localization.Texts.PeopleText}",
+                Font = Helpers.Constants.Regular14,
+                TextColor = Helpers.Constants.R15G24B30,
+            };
+            peopleLabel.SizeToFit();
 
-            if (error == null)
-                votersTable.ReloadData();
-            else
-                ShowAlert(error);
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            var rightBarButton = new UIBarButtonItem(peopleLabel);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationItem.RightBarButtonItem = rightBarButton;
+            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationItem.Title = _presenter.VotersType.GetDescription();
+        }
 
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
+
+        private void CellAction(ActionType type, UserFriend user)
+        {
+            switch (type)
+            {
+                case ActionType.Profile:
+                    if (user.Author == BasePresenter.User.Login)
+                        return;
+                    var myViewController = new ProfileViewController();
+                    myViewController.Username = user.Author;
+                    NavigationController.PushViewController(myViewController, true);
+                    break;
+                case ActionType.Follow:
+                    Follow(user);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SourceChanged(Status status)
+        {
+            votersTable.ReloadData();
+        }
+
+        public async void GetItems()
+        {
+            var errors = await _presenter.TryLoadNextPostVoters(_post.Url);
+            ShowAlert(errors);
             progressBar.StopAnimating();
+        }
+
+        private async void Follow(UserFriend user)
+        {
+            if (user != null)
+            {
+                var errors = await _presenter.TryFollow(user);
+                ShowAlert(errors);
+            }
         }
 
         public override void ViewDidUnload()

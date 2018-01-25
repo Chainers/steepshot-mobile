@@ -17,8 +17,6 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        public static List<string> TagsList { get; set; }
-
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
@@ -36,13 +34,10 @@ namespace Steepshot.iOS.ViewControllers
 
         public static bool ShouldProfileUpdate { get; set; }
 
-        public static string CurrentPostCategory { get; set; }
-
         static BaseViewController()
         {
             BasePresenter.User = new User();
             BasePresenter.User.Load();
-            TagsList = new List<string>();
             //TODO:KOA: endpoint for CurencyConvertation needed
             CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
         }
@@ -136,12 +131,9 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void ShowAlert(string message)
         {
-            UIAlertView alert = new UIAlertView
-            {
-                Message = Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None)
-            };
-            alert.AddButton(Localization.Messages.Ok);
-            alert.Show();
+            var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(Localization.Messages.Ok, UIAlertActionStyle.Cancel, null));
+            PresentViewController(alert, true, null);
         }
 
         protected void ShowAlert(ErrorBase error)
@@ -156,6 +148,14 @@ namespace Steepshot.iOS.ViewControllers
             if (result == null)
                 return;
             ShowAlert(result.Error);
+        }
+
+        protected void ShowDialog(string message, string leftButtonText, string rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
+        {
+            var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(leftButtonText, UIAlertActionStyle.Cancel, leftButtonAction));
+            alert.AddAction(UIAlertAction.Create(rightButtonText, UIAlertActionStyle.Default, rightButtonAction));
+            PresentViewController(alert, true, null);
         }
 
         public static string ToFormatedCurrencyString(Asset value, string postfix = null)

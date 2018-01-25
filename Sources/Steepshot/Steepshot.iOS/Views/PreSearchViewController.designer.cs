@@ -25,16 +25,30 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton loginButton { get; set; }
 
 		[Outlet]
+		UIKit.UIButton newButton { get; set; }
+
+		[Outlet]
 		UIKit.UILabel noFeedLabel { get; set; }
 
 		[Outlet]
 		UIKit.UIView searchButton { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint searchHeight { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint searchTopMargin { get; set; }
+
+		[Outlet]
 		UIKit.UIButton topButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (activityIndicator != null) {
+				activityIndicator.Dispose ();
+				activityIndicator = null;
+			}
+
 			if (collectionView != null) {
 				collectionView.Dispose ();
 				collectionView = null;
@@ -43,6 +57,21 @@ namespace Steepshot.iOS.Views
 			if (hotButton != null) {
 				hotButton.Dispose ();
 				hotButton = null;
+			}
+
+			if (loginButton != null) {
+				loginButton.Dispose ();
+				loginButton = null;
+			}
+
+			if (newButton != null) {
+				newButton.Dispose ();
+				newButton = null;
+			}
+
+			if (noFeedLabel != null) {
+				noFeedLabel.Dispose ();
+				noFeedLabel = null;
 			}
 
 			if (searchButton != null) {
@@ -55,19 +84,14 @@ namespace Steepshot.iOS.Views
 				topButton = null;
 			}
 
-			if (noFeedLabel != null) {
-				noFeedLabel.Dispose ();
-				noFeedLabel = null;
+			if (searchHeight != null) {
+				searchHeight.Dispose ();
+				searchHeight = null;
 			}
 
-			if (activityIndicator != null) {
-				activityIndicator.Dispose ();
-				activityIndicator = null;
-			}
-
-			if (loginButton != null) {
-				loginButton.Dispose ();
-				loginButton = null;
+			if (searchTopMargin != null) {
+				searchTopMargin.Dispose ();
+				searchTopMargin = null;
 			}
 		}
 	}

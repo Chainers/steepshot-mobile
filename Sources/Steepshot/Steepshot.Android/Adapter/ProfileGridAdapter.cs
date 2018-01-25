@@ -94,6 +94,7 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _balanceContainer;
         private readonly Button _followButton;
         private readonly ProgressBar _loadingSpinner;
+        private readonly VotingPowerFrame _votingPower;
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
@@ -116,6 +117,7 @@ namespace Steepshot.Adapter
             _followersTitle = itemView.FindViewById<TextView>(Resource.Id.followers_title);
             _balanceText = itemView.FindViewById<TextView>(Resource.Id.balance_text);
             _balance = itemView.FindViewById<TextView>(Resource.Id.balance);
+            _votingPower = itemView.FindViewById<VotingPowerFrame>(Resource.Id.voting_power);
 
             _profileImage = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _followingBtn = itemView.FindViewById<LinearLayout>(Resource.Id.following_btn);
@@ -187,6 +189,8 @@ namespace Steepshot.Adapter
             }
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
+
+            _votingPower.VotingPower = profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase) ? (float)profile.VotingPower : 0;
 
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {

@@ -38,13 +38,9 @@
 	<string>44.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Fonts/Lato-Bold.ttf</string>
-		<string>Fonts/Lato-Heavy.ttf</string>
-		<string>Fonts/Lato-Regular.ttf</string>
-		<string>Fonts/Lato-Semibold.ttf</string>
-		<string>Fonts/OpenSans-Light.ttf</string>
 		<string>Fonts/OpenSans-Regular.ttf</string>
 		<string>Fonts/OpenSans-Semibold.ttf</string>
+		<string>Fonts/OpenSans-Light.ttf</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>

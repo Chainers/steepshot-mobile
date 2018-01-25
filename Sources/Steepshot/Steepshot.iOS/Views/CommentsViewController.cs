@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
@@ -32,7 +31,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            NavigationController.SetNavigationBarHidden(false, false);
+            //NavigationController.SetNavigationBarHidden(false, false);
 
             commentTextView.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
             commentTextView.Layer.BorderWidth = 1f;
@@ -125,9 +124,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
-                    var myViewController3 = new VotersViewController();
-                    myViewController3.PostUrl = post.Url;
-                    NavigationController.PushViewController(myViewController3, true);
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
                 case ActionType.Like:
                     Vote(post);

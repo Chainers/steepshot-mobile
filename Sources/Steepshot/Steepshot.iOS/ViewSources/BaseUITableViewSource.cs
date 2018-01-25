@@ -27,10 +27,10 @@ namespace Steepshot.iOS.ViewSources
         {
             if (_table.IndexPathsForVisibleRows.Length > 0)
             {
-                var pos = _table.IndexPathsForVisibleRows.Max(c => c.Row);
+                var pos = _table.IndexPathsForVisibleRows.Last().Row;
                 if (!Presenter.IsLastReaded && pos > _prevPos)
                 {
-                    if (pos == Presenter.Count - 1)
+                    if (pos == Presenter.Count)
                     {
                         _prevPos = pos;
                         ScrolledToBottom?.Invoke();
@@ -41,7 +41,8 @@ namespace Steepshot.iOS.ViewSources
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return Presenter.Count;
+            var count = Presenter.Count;
+            return count == 0 || Presenter.IsLastReaded ? count : count + 1;
         }
     }
 }

@@ -7,7 +7,8 @@ namespace Steepshot.Core.Models.Common
         public string CoverImage { get; set; }
         public string Author { get; set; }
         public string Avatar { get; set; }
-        
+        public double AmountSbd { get; set; }
+
         //system
         public bool FollowedChanging { get; set; }
     }
