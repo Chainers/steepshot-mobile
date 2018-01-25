@@ -61,7 +61,7 @@
                                     <constraint firstAttribute="width" constant="70" id="iD5-pg-b7Y"/>
                                 </constraints>
                                 <state key="normal" image="ic_like.png"/>
-                                <state key="selected" image="heart.png"/>
+                                <state key="selected" image="ic_like_active.png"/>
                                 <state key="highlighted" image="heart.png"/>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tKp-4M-r6B">
@@ -243,6 +243,7 @@
         <image name="flag_active.png" width="25" height="25"/>
         <image name="heart.png" width="25" height="25"/>
         <image name="ic_like.png" width="23" height="23"/>
+        <image name="ic_like_active.png" width="23" height="23"/>
         <image name="ic_more.png" width="20" height="6"/>
     </resources>
 </document>

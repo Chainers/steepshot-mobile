@@ -15,6 +15,7 @@ using UIKit;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
 using System.Diagnostics;
+using CoreGraphics;
 
 namespace Steepshot.iOS.Cells
 {
@@ -134,7 +135,15 @@ namespace Steepshot.iOS.Cells
             rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
 
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
-            likeButton.Selected = _currentPost.Vote;
+
+            if (_currentPost.VoteChanging)
+                Animate();
+            else
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(1f, 1f);
+                likeButton.Selected = _currentPost.Vote;
+            }
+
             flagButton.Selected = _currentPost.Flag;
             viewCommentText.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
             likeButton.Enabled = true;
@@ -252,6 +261,16 @@ namespace Steepshot.iOS.Cells
         private void LikeTap(object sender, EventArgs e)
         {
             CellAction?.Invoke(ActionType.Like, _currentPost);
+            Animate();
+        }
+
+        private void Animate()
+        {
+            likeButton.Selected = true;
+            UIView.Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
+            }, null);
         }
 
         private void VotedAction(Post post, OperationResult<VoteResponse> operationResult)

@@ -34,6 +34,7 @@ namespace Steepshot.iOS.Views
         private void SourceChanged(Status status)
         {
             var offset = feedCollection.ContentOffset;
+            flowLayout.InvalidateLayout();
             feedCollection.ReloadData();
             feedCollection.LayoutIfNeeded();
             feedCollection.SetContentOffset(offset, false);
@@ -62,7 +63,7 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
-            flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 1);
+            flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 450);
 
             if (TabBarController != null)
             {
@@ -153,7 +154,7 @@ namespace Steepshot.iOS.Views
 
         private async void ScrolledToBottom()
         {
-            await GetPosts();
+            await GetPosts(false, false);
         }
 
         private async Task Vote(Post post)
