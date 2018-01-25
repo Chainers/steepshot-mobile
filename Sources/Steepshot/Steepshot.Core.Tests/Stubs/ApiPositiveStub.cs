@@ -284,14 +284,14 @@ namespace Steepshot.Core.Tests.Stubs
         //    return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
         //}
 
-        public async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        public async Task<OperationResult<PreparePostResponce>> CreatePost(UploadMediaModel model, UploadMediaResponse uploadMediaResponse, CancellationToken ct)
         {
-            return new OperationResult<ImageUploadResponse> { Result = new ImageUploadResponse() };
+            return new OperationResult<PreparePostResponce> { Result = new PreparePostResponce() };
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
+        public async Task<OperationResult<UploadMediaResponse>> UploadWithPrepare(UploadMediaModel model, CancellationToken ct)
         {
-            return new OperationResult<UploadResponse> { Result = new UploadResponse() };
+            return new OperationResult<UploadMediaResponse> { Result = new UploadMediaResponse() };
         }
 
         public async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)

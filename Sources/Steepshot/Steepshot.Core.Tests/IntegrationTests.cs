@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
@@ -1351,13 +1352,13 @@ namespace Steepshot.Core.Tests
         public async Task Upload_Empty_Photo(KnownChains apiName)
         {
             // Arrange
-            var request = new UploadImageModel(Users[apiName], "title", new byte[0], new[] { "cat1", "cat2", "cat3", "cat4" });
+            var request = new UploadMediaModel(Users[apiName], new MemoryStream());
 
             // Act
-            var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
+            var response = await Api[apiName].UploadMedia(request, CancellationToken.None);
             // Assert
             AssertResult(response);
-            Assert.IsTrue(string.Equals(response.Error.Message, Localization.Errors.EmptyPhotoField));
+            Assert.IsTrue(string.Equals(response.Error.Message, Localization.Errors.EmptyFileField));
         }
 
         [Test]
@@ -1366,20 +1367,21 @@ namespace Steepshot.Core.Tests
         public async Task Upload_Tags_Greater_Than_Max(KnownChains apiName)
         {
             // Arrange
-            var file = File.ReadAllBytes(GetTestImagePath());
-            var tags = new string[UploadImageModel.TagLimit + 1];
-            for (var i = 0; i < tags.Length; i++)
+            var model = new PreparePostModel(Users[apiName])
             {
-                tags[i] = "cat" + i;
-            }
-            var request = new UploadImageModel(Users[apiName], "cat", file, tags);
+                Title = "Test title",
+                Media = new[] { new UploadMediaResponse() },
+                Tags = new string[PreparePostModel.TagLimit + 1]
+            };
 
+            for (var i = 0; i < model.Tags.Length; i++)
+                model.Tags[i] = "cat" + i;
+            
             // Act
-            var response = await Api[apiName].UploadWithPrepare(request, CancellationToken.None);
+            var response = await Api[apiName].CreatePost(model, CancellationToken.None);
             AssertResult(response);
             Assert.IsTrue(response.Error.Message.Equals(Localization.Errors.TagLimitError));
-            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(UploadImageModel.TagLimit.ToString()));
-
+            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(PreparePostModel.TagLimit.ToString()));
         }
 
         [Test]

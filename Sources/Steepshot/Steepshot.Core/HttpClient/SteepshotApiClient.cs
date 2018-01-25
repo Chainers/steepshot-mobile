@@ -135,39 +135,52 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
-            var meta = uploadResponse.Meta.ToString();
-            if (!string.IsNullOrWhiteSpace(meta))
-                meta = meta.Replace(Environment.NewLine, string.Empty);
+            model.PostPermlink = OperationHelper.TitleToPermlink(model.Title);
+            OperationHelper.PrepareTags(model.Tags);
+            var operationResult = await Gateway.Post<PreparePostResponce, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
+            if (!operationResult.IsSuccess)
+            {
+                return new OperationResult<VoidResponse>(operationResult.Error);
+            }
+            var preparedData = operationResult.Result;
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostPermlink, model.Title, preparedData.Body, preparedData.JsonMetadata)
+            {
+                Beneficiaries = preparedData.Beneficiaries
+            };
 
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, uploadResponse.Payload.Body, meta);
             var result = await _ditchClient.Create(commentModel, ct);
 
-            Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+            Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
             return result;
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
+        public async Task<OperationResult<UploadMediaResponse>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
+            if (!EnableRead)
+                return null;
+
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<UploadResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<UploadMediaResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
-                return new OperationResult<UploadResponse>(trxResp.Error);
+                return new OperationResult<UploadMediaResponse>(trxResp.Error);
 
             model.VerifyTransaction = trxResp.Result;
-            return await Upload(model, ct);
+
+            return await Gateway.UploadMedia(GatewayVersion.V1P1, "media/upload", model, ct);
         }
+
 
         public async Task<OperationResult<VoidResponse>> DeletePost(DeleteModel model, CancellationToken ct)
         {

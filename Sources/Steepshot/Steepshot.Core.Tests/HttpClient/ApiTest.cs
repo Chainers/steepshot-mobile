@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,6 +9,7 @@ using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -30,17 +32,45 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task UploadWithPrepareTest(KnownChains apiName)
+        public async Task UploadMediaTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
             // 1) Create new post
-            var file = File.ReadAllBytes(GetTestImagePath());
+            var stream = new FileStream(GetTestImagePath(), FileMode.Open);
             user.IsNeedRewards = false;
-            var uploadImageModel = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
-            var servResp = await Api[apiName].UploadWithPrepare(uploadImageModel, CancellationToken.None);
+            var uploadImageModel = new UploadMediaModel(user, stream);
+            var servResp = await Api[apiName].UploadMedia(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
-            var createPostResponse = await Api[apiName].CreatePost(uploadImageModel, servResp.Result, CancellationToken.None);
+        }
+
+        [Test]
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task UploadWithPrepareTest(KnownChains apiName)
+        {
+            var user = Users[apiName];
+
+            var model = new PreparePostModel(user)
+            {
+                Title = "Test",
+                Description = DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                Media = new[]
+                {
+                    new UploadMediaResponse
+                    {
+                        Url = "",
+                        IpfsHash = "",
+                        Size = new FrameSize
+                        {
+                            Height = 0,
+                            Width = 0
+                        }
+                    }
+                }
+            };
+
+            var createPostResponse = await Api[apiName].CreatePost(model, CancellationToken.None);
 
             AssertResult(createPostResponse);
 
@@ -53,9 +83,9 @@ namespace Steepshot.Core.Tests.HttpClient
             userPostsModel.ShowLowRated = true;
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsModel, CancellationToken.None);
             AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(uploadImageModel.Permlink, StringComparison.OrdinalIgnoreCase));
+            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(model.PostPermlink, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(lastPost);
-            Assert.That(uploadImageModel.Title, Is.EqualTo(lastPost.Title));
+            Assert.That(model.Title, Is.EqualTo(lastPost.Title));
         }
 
         [Test]

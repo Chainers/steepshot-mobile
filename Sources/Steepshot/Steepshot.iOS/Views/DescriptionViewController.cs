@@ -10,6 +10,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
+using FFImageLoading.Extensions;
 
 namespace Steepshot.iOS.Views
 {
@@ -175,25 +176,24 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                byte[] photoByteArray;
-                using (NSData imageData = photoView.Image.AsJPEG(0.9f))
-                {
-                    photoByteArray = new Byte[imageData.Length];
-                    Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
-                }
+                var stream = photoView.Image.AsJpegStream();
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream);
+                var serverResult = await _presenter.TryUploadMedia(request);
 
-                var request = new UploadImageModel(BasePresenter.User.UserInfo, titleTextField.Text, photoByteArray, TagsList.ToArray())
-                {
-                    Description = descriptionTextField.Text
-                };
-                var serverResult = await _presenter.TryUploadWithPrepare(request);
                 if (!serverResult.IsSuccess)
                 {
                     ShowAlert(serverResult);
                 }
                 else
                 {
-                    var result = await _presenter.TryCreatePost(request, serverResult.Result);
+                    var model = new PreparePostModel(BasePresenter.User.UserInfo)
+                    {
+                        Title = titleTextField.Text,
+                        Description = descriptionTextField.Text,
+                        Tags = TagsList.ToArray(),
+                        Media = new[] { serverResult.Result }
+                    };
+                    var result = await _presenter.TryCreatePost(model);
 
                     if (result != null && result.IsSuccess)
                     {

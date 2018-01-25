@@ -26,6 +26,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Activity
@@ -43,8 +44,7 @@ namespace Steepshot.Activity
         private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
-        private UploadImageModel _model;
-        private UploadResponse _response;
+        private PreparePostModel _model;
         private string _previousQuery;
 
 #pragma warning disable 0649, 4014
@@ -108,6 +108,8 @@ namespace Steepshot.Activity
             InitPhoto(_path);
             SetPostingTimer();
             SearchTextChanged();
+
+            _model = new PreparePostModel(BasePresenter.User.UserInfo);
         }
 
         private async void SetPostingTimer()
@@ -290,6 +292,7 @@ namespace Steepshot.Activity
             tag = tag.Trim();
             if (_localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
+
             _localTagsAdapter.LocalTags.Add(tag);
             RunOnUiThread(() =>
             {
@@ -347,90 +350,78 @@ namespace Steepshot.Activity
                 return;
             }
 
-            var photo = await CompressPhoto(_path);
+            var operationResult = await UploadPhoto(_path);
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (photo == null)
+            if (!operationResult.IsSuccess)
             {
                 SplashActivity.Cache.EvictAll();
-                photo = await CompressPhoto(_path);
+                operationResult = await UploadPhoto(_path);
                 if (IsFinishing || IsDestroyed)
                     return;
             }
 
-            if (photo == null)
+            if (!operationResult.IsSuccess)
             {
-                this.ShowAlert(Localization.Errors.PhotoProcessingError);
+                this.ShowAlert(operationResult.Error.Message);
                 OnUploadEnded();
                 return;
             }
 
-            _model = new UploadImageModel(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
-            {
-                Description = _description.Text
-            };
-            var serverResp = await Presenter.TryUploadWithPrepare(_model);
-            if (IsFinishing || IsDestroyed)
-                return;
-
-            if (serverResp != null && serverResp.IsSuccess)
-            {
-                _response = serverResp.Result;
-            }
-            else
-            {
-                this.ShowAlert(serverResp);
-                OnUploadEnded();
-                return;
-            }
-
+            _model.Media = new[] { operationResult.Result };
+            _model.Title = _title.Text;
+            _model.Description = _description.Text;
+            _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryUpload();
         }
 
-        private Task<byte[]> CompressPhoto(string path)
+        private async Task<OperationResult<UploadMediaResponse>> UploadPhoto(string path)
         {
-            return Task.Run(() =>
+            Stream stream = null;
+            FileInputStream fileInputStream = null;
+
+            try
             {
-                try
+                if (_shouldCompress)
                 {
-                    if (_shouldCompress)
-                    {
-                        using (var stream = new MemoryStream())
-                        {
-                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
-                            {
-                                return stream.ToArray();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var photo = new Java.IO.File(path);
-                        var stream = new FileInputStream(photo);
-                        var outbytes = new byte[photo.Length()];
-                        stream.Read(outbytes);
-                        stream.Close();
-                        return outbytes;
-                    }
+                    stream = new MemoryStream();
+                    _btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream);
                 }
-                catch (Exception ex)
+                else
                 {
-                    AppSettings.Reporter.SendCrash(ex);
+                    var photo = new Java.IO.File(path);
+                    fileInputStream = new FileInputStream(photo);
+                    stream = new StreamConverter(fileInputStream, null);
                 }
-                return null;
-            });
+
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream);
+                var serverResult = await Presenter.TryUploadMedia(request);
+                return serverResult;
+            }
+            catch (Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<UploadMediaResponse>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+            }
+            finally
+            {
+                fileInputStream?.Close(); // ??? change order?
+                stream?.Flush();
+                fileInputStream?.Dispose();
+                stream?.Dispose();
+            }
         }
 
         private async void TryUpload()
         {
-            if (_model == null || _response == null)
+            if (_model.Media == null)
             {
                 OnUploadEnded();
                 return;
             }
-
-            var resp = await Presenter.TryCreatePost(_model, _response);
+            
+            var resp = await Presenter.TryCreatePost(_model);
             if (IsFinishing || IsDestroyed)
                 return;
 
@@ -466,8 +457,6 @@ namespace Steepshot.Activity
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            _model = null;
-            _response = null;
             OnUploadEnded();
         }
 

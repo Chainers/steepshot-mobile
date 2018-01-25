@@ -55,27 +55,10 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Upload_Base64_Equals_ByteArray()
-        {
-            var user = Users.First().Value;
-            // Arrange
-            var file = File.ReadAllBytes(GetTestImagePath());
-
-            // Act
-            var requestArray = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
-            var base64 = Convert.ToBase64String(file);
-            var requestBase64 = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, base64, new[] { "cat1", "cat2", "cat3", "cat4" });
-
-            // Assert
-            Assert.That(requestArray.Photo, Is.EqualTo(requestBase64.Photo));
-            Assert.That(requestArray.Photo.Length, Is.EqualTo(requestBase64.Photo.Length));
-        }
-
-        [Test]
         public void UploadImageRequest_Empty_Title()
         {
             var user = Users.First().Value;
-            var request = new UploadImageModel(user, string.Empty, new byte[] { 0 }, new[] { "cat1", "cat2", "cat3", "cat4" });
+            var request = new PreparePostModel(user);
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
