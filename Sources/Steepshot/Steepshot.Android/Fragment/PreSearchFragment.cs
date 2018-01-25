@@ -19,7 +19,6 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
@@ -501,6 +500,9 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
+                if (error == null && Activity is RootActivity root)
+                    root.TryUpdateProfile();
+
                 Context.ShowAlert(error);
             }
             else
@@ -517,6 +519,9 @@ namespace Steepshot.Fragment
             var error = await Presenter.TryFlag(post);
             if (!IsInitialized)
                 return;
+
+            if (error == null && Activity is RootActivity root)
+                root.TryUpdateProfile();
 
             Context.ShowAlert(error);
         }

@@ -1,13 +1,17 @@
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
+using Android.Views;
 using Com.Lilarcor.Cheeseknife;
+using Refractored.Controls;
+using Square.Picasso;
 using Steepshot.Base;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
@@ -16,7 +20,7 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
-    public sealed class RootActivity : BaseActivity, IClearable
+    public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
@@ -136,13 +140,61 @@ namespace Steepshot.Activity
         private void OnTabSelected(int position)
         {
             _viewPager.SetCurrentItem(position, false);
-            for (var i = 0; i < _tabLayout.TabCount; i++)
+            for (var i = 0; i < _tabLayout.TabCount - 1; i++)
             {
                 var tab = _tabLayout.GetTabAt(i);
                 tab?.SetIcon(i == position
                              ? ContextCompat.GetDrawable(this, _adapter.TabIconsActive[i])
                              : ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
+
+            SetProfileChart(_tabLayout.LayoutParameters.Height);
+            TryUpdateProfile();
+        }
+
+        public async Task TryUpdateProfile()
+        {
+            do
+            {
+                var error = await Presenter.TryGetUserInfo(BasePresenter.User.Login);
+                if (IsDestroyed)
+                    return;
+
+                if (error == null || error is TaskCanceledError)
+                {
+                    SetProfileChart(_tabLayout.LayoutParameters.Height);
+                    break;
+                }
+
+                await Task.Delay(5000);
+                if (IsDestroyed)
+                    return;
+
+            } while (true);
+        }
+
+        private void SetProfileChart(int size)
+        {
+            var isEmpty = Presenter.UserProfileResponse == null;
+            var votingPowerFrame = new VotingPowerFrame(this)
+            {
+                VotingPower = isEmpty ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
+                VotingPowerWidth = BitmapUtils.DpToPixel(3, Resources)
+            };
+            var padding = (int)BitmapUtils.DpToPixel(7, Resources);
+            votingPowerFrame.Layout(0, 0, size, size);
+            var avatar = new CircleImageView(this);
+            avatar.Layout(padding, padding, size - padding, size - padding);
+            avatar.SetImageResource(Resource.Drawable.ic_holder);
+            votingPowerFrame.AddView(avatar);
+
+            var profileTab = _tabLayout.GetTabAt(_tabLayout.TabCount - 1);
+            if (!isEmpty)
+                Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size)
+                    .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
+                        () => { profileTab?.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
+            else
+                profileTab?.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
         }
     }
 }
