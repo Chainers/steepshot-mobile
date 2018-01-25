@@ -340,7 +340,7 @@ namespace Steepshot.iOS.Views
                         do
                         {
                             pushToBlockchainRetry = false;
-                            OperationResult<ImageUploadResponse> response = PushToBlockchain(request, photoUploadResponse).Result;
+                            var response = PushToBlockchain(request, photoUploadResponse).Result;
                             if (!(response != null && response.IsSuccess))
                             {
                                 InvokeOnMainThread(() =>
@@ -398,7 +398,7 @@ namespace Steepshot.iOS.Views
             return await _presenter.TryUploadWithPrepare(request);
         }
 
-        private async Task<OperationResult<ImageUploadResponse>> PushToBlockchain(UploadImageModel request, OperationResult<UploadResponse> response)
+        private async Task<OperationResult<VoidResponse>> PushToBlockchain(UploadImageModel request, OperationResult<UploadResponse> response)
         {
             return await _presenter.TryCreatePost(request, response.Result);
         }

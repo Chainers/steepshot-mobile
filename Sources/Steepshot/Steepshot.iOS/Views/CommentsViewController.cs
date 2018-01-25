@@ -167,7 +167,7 @@ namespace Steepshot.iOS.Views
 
         private void HideAction(Post post)
         {
-            _presenter.RemovePost(post);
+            _presenter.HidePost(post);
         }
 
         private void OpenKeyboard()

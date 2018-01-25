@@ -6,11 +6,6 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class InfoModel
     {
-        public InfoModel(string url)
-        {
-            Url = url;
-        }
-
         public string Login { get; set; }
 
         [JsonProperty]
@@ -22,5 +17,11 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string Url { get; }
+
+
+        public InfoModel(string url)
+        {
+            Url = url;
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Steepshot.Core.Models.Requests
         public string Title { get; }
 
         [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
-        public string PostUrl { get; }
+        public string Permlink { get; }
 
         [Required(ErrorMessage = Localization.Errors.EmptyPhotoField)]
         [MinLength(1, ErrorMessage = Localization.Errors.EmptyPhotoField)]
@@ -36,8 +36,9 @@ namespace Steepshot.Core.Models.Requests
         {
             Title = title;
             Tags = tags.Any() ? tags.Select(i => i.ToLower()).Distinct().ToArray() : new string[0];
+            OperationHelper.PrepareTags(Tags);
             IsNeedRewards = user.IsNeedRewards;
-            PostUrl = OperationHelper.TitleToPermlink(title);
+            Permlink = OperationHelper.TitleToPermlink(title);
         }
 
         public UploadImageModel(UserInfo user, string title, byte[] photo, IList<string> tags) : this(user, title, tags)

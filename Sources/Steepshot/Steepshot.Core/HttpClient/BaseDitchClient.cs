@@ -13,6 +13,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
+using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -39,57 +40,17 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> CreateComment(CommentModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Edit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<CommentResponse>> EditComment(CommentModel model, CancellationToken ct);
-
-        public abstract Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Create(CommentModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct);
+        public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
+
+        public abstract Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct);
 
         public abstract bool TryReconnectChain(CancellationToken token);
-
-
-        protected bool TryCastUrlToAuthorAndPermlink(string url, out string author, out string permlink)
-        {
-            var start = url.LastIndexOf('@');
-            if (start == -1)
-            {
-                author = permlink = null;
-                return false;
-            }
-            var authAndPermlink = url.Remove(0, start + 1);
-            var authPostArr = authAndPermlink.Split('/');
-            if (authPostArr.Length != 2)
-            {
-                author = permlink = null;
-                return false;
-            }
-            author = authPostArr[0];
-            permlink = authPostArr[1];
-            return true;
-        }
-
-        protected bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentAuthor, out string parentPermlink)
-        {
-            var start = url.LastIndexOf('#');
-
-            author = parentPermlink = parentAuthor = commentPermlink = null;
-
-            if (start == -1)
-                return false;
-
-            if (!TryCastUrlToAuthorAndPermlink(url.Remove(0, start + 1), out author, out commentPermlink))
-                return false;
-
-
-            if (!TryCastUrlToAuthorAndPermlink(url.Substring(0, start), out parentAuthor, out parentPermlink))
-                return false;
-
-            return true;
-        }
 
         protected List<byte[]> ToKeyArr(string postingKey)
         {
@@ -160,7 +121,7 @@ namespace Steepshot.Core.HttpClient
                             }
                         case 13: //unknown key
                             {
-                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
+                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
                                 break;
                             }
                         //case 3000000: "transaction exception"
@@ -174,7 +135,7 @@ namespace Steepshot.Core.HttpClient
                             {
                                 if (t.Name == "LoginResponse")
                                 {
-                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivateKey);
+                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
                                     break;
                                 }
                                 goto default;
@@ -202,6 +163,52 @@ namespace Steepshot.Core.HttpClient
                 Culture = CultureInfo.InvariantCulture
             };
             return rez;
+        }
+
+
+        protected string UpdateProfileJson(string jsonMetadata, UpdateUserProfileModel model)
+        {
+            var meta = string.IsNullOrEmpty(jsonMetadata) ? "{}" : jsonMetadata;
+            var jMeta = JsonConverter.Deserialize<JObject>(meta);
+            var jProfile = GetOrCreateJObject(jMeta, "profile");
+            UpdateJValue(jProfile, "profile_image", model.ProfileImage);
+            UpdateJValue(jProfile, "name", model.Name);
+            UpdateJValue(jProfile, "location", model.Location);
+            UpdateJValue(jProfile, "website", model.Website);
+            UpdateJValue(jProfile, "about", model.About);
+            return JsonConverter.Serialize(jMeta);
+        }
+
+        protected JObject GetOrCreateJObject(JObject jObject, string name)
+        {
+            var value = jObject.GetValue(name);
+            if (value == null)
+            {
+                var obj = new JObject();
+                jObject.Add(name, obj);
+                return obj;
+            }
+            return (JObject)value;
+        }
+
+        protected void UpdateJValue(JObject jObject, string name, string newValue)
+        {
+            var value = jObject.GetValue(name);
+            if (value == null)
+            {
+                if (string.IsNullOrEmpty(newValue))
+                    return;
+
+                jObject.Add(name, new JValue(newValue));
+                return;
+            }
+
+            if (string.IsNullOrEmpty(newValue))
+            {
+                value.Remove();
+                return;
+            }
+            value.Replace(new JValue(newValue));
         }
     }
 }

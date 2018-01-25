@@ -388,9 +388,9 @@ namespace Steepshot.iOS.Views
                 collectionView.ReloadData();
                 collectionView.SetContentOffset(new CGPoint(0, 0), false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                
+
             }
         }
 
@@ -463,7 +463,8 @@ namespace Steepshot.iOS.Views
                 BasePresenter.User.PostBlackList.Add(post.Url);
                 BasePresenter.User.Save();
 
-                _presenter.RemovePost(post);
+                _presenter.HidePost(post);
+
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
             }

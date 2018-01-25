@@ -66,7 +66,7 @@ namespace Steepshot.Core.HttpClient
             var multiContent = new MultipartFormDataContent();
             multiContent.Add(new ByteArrayContent(model.Photo), "photo", fTitle);
             multiContent.Add(new StringContent(model.Title), "title");
-            multiContent.Add(new StringContent($"@{model.Login}/{model.PostUrl}"), "post_permlink");
+            multiContent.Add(new StringContent($"@{model.Login}/{model.Permlink}"), "post_permlink");
             if (!string.IsNullOrWhiteSpace(model.Description))
                 multiContent.Add(new StringContent(model.Description), "description");
             if (!string.IsNullOrWhiteSpace(model.Login))

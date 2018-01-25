@@ -112,7 +112,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrWhiteSpace(password.Text))
             {
-                ShowAlert(Localization.Errors.EmptyPosting);
+                ShowAlert(Localization.Errors.EmptyPostingKey);
                 return;
             }
             activityIndicator.StartAnimating();
@@ -139,7 +139,7 @@ namespace Steepshot.iOS.Views
             }
             catch (ArgumentNullException)
             {
-                ShowAlert(Localization.Errors.WrongPrivateKey);
+                ShowAlert(Localization.Errors.WrongPrivatePostingKey);
             }
             catch (Exception ex)
             {

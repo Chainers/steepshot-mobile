@@ -78,7 +78,7 @@ namespace Steepshot.iOS.Views
 
             loginButton.TouchDown += LoginTapped;
 
-            hotButton.TouchDown += (object sender, EventArgs e) => 
+            hotButton.TouchDown += (object sender, EventArgs e) =>
             {
                 SwitchSearchType(PostType.Hot);
             };
@@ -107,7 +107,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
-            if(CurrentPostCategory != null)
+            if (CurrentPostCategory != null)
             {
                 NavigationItem.Title = CurrentPostCategory;
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
@@ -234,7 +234,7 @@ namespace Steepshot.iOS.Views
                 BasePresenter.User.PostBlackList.Add(post.Url);
                 BasePresenter.User.Save();
 
-                _presenter.RemovePost(post);
+                _presenter.HidePost(post);
                 collectionView.ReloadData();
                 collectionView.CollectionViewLayout.InvalidateLayout();
             }
