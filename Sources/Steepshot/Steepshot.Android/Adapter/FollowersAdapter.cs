@@ -135,7 +135,7 @@ namespace Steepshot.Adapter
                 if (userFriends.AmountSbd != 0)
                 {
                     _sbdAmount.Visibility = ViewStates.Visible;
-                    _sbdAmount.Text = $"{(userFriends.AmountSbd > 0 ? "+" : "")}${userFriends.AmountSbd}";
+                    _sbdAmount.Text = $"{(userFriends.AmountSbd > 0 ? "+" : "-")}${Math.Abs(userFriends.AmountSbd)}";
                 }
                 else
                     _sbdAmount.Visibility = ViewStates.Gone;
