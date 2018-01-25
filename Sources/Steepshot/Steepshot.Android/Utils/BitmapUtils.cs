@@ -1,6 +1,8 @@
 ﻿using Android.Content.Res;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Media;
+using Android.Views;
 using Java.IO;
 using Orientation = Android.Media.Orientation;
 
@@ -98,6 +100,15 @@ namespace Steepshot.Utils
         public static float DpToPixel(float dp, Resources resources)
         {
             return resources.DisplayMetrics.Density * dp;
+        }
+
+        public static Drawable GetViewDrawable(View view)
+        {
+            var bitmap = Bitmap.CreateBitmap(view.Width, view.Height, Bitmap.Config.Argb8888);
+            var canvas = new Canvas(bitmap);
+            view.Draw(canvas);
+
+            return new BitmapDrawable(view.Context.Resources, bitmap);
         }
 
         /*
