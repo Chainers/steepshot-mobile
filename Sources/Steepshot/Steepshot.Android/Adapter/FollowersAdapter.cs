@@ -77,6 +77,7 @@ namespace Steepshot.Adapter
             private readonly CircleImageView _friendAvatar;
             private readonly TextView _friendName;
             private readonly TextView _friendLogin;
+            private readonly TextView _sbdAmount;
             private readonly Button _followButton;
             private readonly ProgressBar _loader;
             private readonly Action<UserFriend> _followAction;
@@ -91,11 +92,13 @@ namespace Steepshot.Adapter
                 _friendAvatar = itemView.FindViewById<CircleImageView>(Resource.Id.friend_avatar);
                 _friendLogin = itemView.FindViewById<TextView>(Resource.Id.username);
                 _friendName = itemView.FindViewById<TextView>(Resource.Id.name);
+                _sbdAmount = itemView.FindViewById<TextView>(Resource.Id.sbd_amount);
                 _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
                 _loader = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
                 _friendLogin.Typeface = Style.Semibold;
                 _friendName.Typeface = Style.Regular;
+                _sbdAmount.Typeface = Style.Regular;
 
                 _followAction = followAction;
                 _userAction = userAction;
@@ -129,6 +132,14 @@ namespace Steepshot.Adapter
                     _friendName.Text = userFriends.Name;
                 }
 
+                if (userFriends.AmountSbd != 0)
+                {
+                    _sbdAmount.Visibility = ViewStates.Visible;
+                    _sbdAmount.Text = $"{(userFriends.AmountSbd > 0 ? "+" : "")}${userFriends.AmountSbd}";
+                }
+                else
+                    _sbdAmount.Visibility = ViewStates.Gone;
+
                 _friendLogin.Text = userFriends.Author;
 
                 if (!string.IsNullOrEmpty(_userFriends.Avatar))
@@ -147,7 +158,7 @@ namespace Steepshot.Adapter
 
                 if (string.Equals(BasePresenter.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
                 {
-                    _followButton.Visibility = ViewStates.Gone;
+                    _followButton.Visibility = ViewStates.Invisible;
                 }
                 else
                 {
