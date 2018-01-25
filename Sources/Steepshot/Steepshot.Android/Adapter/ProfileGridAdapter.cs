@@ -190,7 +190,7 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
-            _votingPower.VotingPower = profile.Username == BasePresenter.User.Login ? (float)profile.VotingPower : 0;
+            _votingPower.VotingPower = profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase) ? (float)profile.VotingPower : 0;
 
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {

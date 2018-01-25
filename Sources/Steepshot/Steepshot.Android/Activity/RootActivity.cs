@@ -166,7 +166,6 @@ namespace Steepshot.Activity
                     break;
                 }
 
-                this.ShowAlert(error);
                 await Task.Delay(5000);
                 if (IsDestroyed)
                     return;

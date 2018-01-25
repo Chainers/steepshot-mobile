@@ -19,15 +19,16 @@ namespace Steepshot.Utils
         public VotingPowerFrame(Context context, IAttributeSet attrs) : base(context, attrs)
         {
             SetWillNotDraw(false);
-            TypedArray ta = context.ObtainStyledAttributes(attrs, Resource.Styleable.VotingPowerFrame, 0, 0);
+            TypedArray ta = null;
             try
             {
+                ta = context.ObtainStyledAttributes(attrs, Resource.Styleable.VotingPowerFrame, 0, 0);
                 VotingPower = ta.GetFloat(Resource.Styleable.VotingPowerFrame_votingPower, 100.0f);
                 VotingPowerWidth = ta.GetDimensionPixelSize(Resource.Styleable.VotingPowerFrame_votingPowerWidth, 5);
             }
             finally
             {
-                ta.Recycle();
+                ta?.Recycle();
             }
         }
 
@@ -42,11 +43,7 @@ namespace Steepshot.Utils
         protected override void OnDraw(Canvas canvas)
         {
             base.OnDraw(canvas);
-            var paint = new Paint(PaintFlags.AntiAlias)
-            {
-                Color = Color.Aqua,
-                StrokeWidth = VotingPowerWidth
-            };
+            var paint = new Paint(PaintFlags.AntiAlias) { StrokeWidth = VotingPowerWidth };
             paint.SetStyle(Paint.Style.Stroke);
             paint.StrokeCap = Paint.Cap.Round;
             paint.SetShader(new LinearGradient(0, 0, 0, Height,
