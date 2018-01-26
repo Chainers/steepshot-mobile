@@ -1,5 +1,4 @@
-﻿using Steepshot.Core.Models.Responses;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Ditch.Core.Helpers;
@@ -48,7 +47,7 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyFileField)]
-        public UploadMediaResponse[] Media { get; set; }
+        public MediaModel[] Media { get; set; }
 
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyTitleField)]

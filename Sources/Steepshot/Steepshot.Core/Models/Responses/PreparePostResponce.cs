@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Steepshot.Core.Models.Responses
+﻿namespace Steepshot.Core.Models.Responses
 {
     public class PreparePostResponce
     {

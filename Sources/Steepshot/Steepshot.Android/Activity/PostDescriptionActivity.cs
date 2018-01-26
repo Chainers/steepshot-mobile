@@ -20,7 +20,6 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -376,7 +375,7 @@ namespace Steepshot.Activity
             TryUpload();
         }
 
-        private async Task<OperationResult<UploadMediaResponse>> UploadPhoto(string path)
+        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
         {
             Stream stream = null;
             FileInputStream fileInputStream = null;
@@ -402,7 +401,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<UploadMediaResponse>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
             }
             finally
             {

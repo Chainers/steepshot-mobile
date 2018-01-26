@@ -156,19 +156,19 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<UploadMediaResponse>> UploadMedia(UploadMediaModel model, CancellationToken ct)
+        public async Task<OperationResult<MediaModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
             if (!EnableRead)
                 return null;
 
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<UploadMediaResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<MediaModel>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
-                return new OperationResult<UploadMediaResponse>(trxResp.Error);
+                return new OperationResult<MediaModel>(trxResp.Error);
 
             model.VerifyTransaction = trxResp.Result;
 

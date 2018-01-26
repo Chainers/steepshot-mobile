@@ -2,7 +2,6 @@
 using NUnit.Framework;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
@@ -59,7 +58,7 @@ namespace Steepshot.Core.Tests
             var user = Users.First().Value;
             var request = new PreparePostModel(user)
             {
-                Media = new UploadMediaResponse[1]
+                Media = new MediaModel[1]
             };
 
             var result = Validate(request);
@@ -88,7 +87,7 @@ namespace Steepshot.Core.Tests
             var request = new PreparePostModel(user)
             {
                 Title = "title",
-                Media = new UploadMediaResponse[1],
+                Media = new MediaModel[1],
                 Tags = new string[PreparePostModel.TagLimit + 1]
             };
 
