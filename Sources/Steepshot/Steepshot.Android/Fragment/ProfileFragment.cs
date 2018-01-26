@@ -23,6 +23,7 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
+using Newtonsoft.Json;
 
 namespace Steepshot.Fragment
 {
@@ -138,6 +139,8 @@ namespace Steepshot.Fragment
                             BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                         _isActivated = true;
                     }
+                    else
+                        _postsList?.GetAdapter()?.NotifyDataSetChanged();
                 }
                 base.UserVisibleHint = value;
             }
@@ -584,12 +587,7 @@ namespace Steepshot.Fragment
         private void EditAction(Post post)
         {
             var intent = new Intent(Activity, typeof(PostDescriptionActivity));
-            var binaryFormatter = new BinaryFormatter();
-            using (var memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, new EditPost(post));
-                intent.PutExtra("EditPost", memoryStream.ToArray());
-            }
+            intent.PutExtra("EditPost", JsonConvert.SerializeObject(post));
             Activity.StartActivity(intent);
         }
 

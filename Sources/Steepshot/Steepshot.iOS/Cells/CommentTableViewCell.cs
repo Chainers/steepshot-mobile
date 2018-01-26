@@ -89,12 +89,17 @@ namespace Steepshot.iOS.Cells
             _currentPost = post;
 
             _scheduledWorkAvatar?.Cancel();
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+            {
             _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
                                                .LoadingPlaceholder("ic_noavatar.png")
                                                .ErrorPlaceholder("ic_noavatar.png")
                                                .FadeAnimation(false, false, 0)
                                                .DownSample(200)
                                                .Into(avatar);
+            }
+            else
+                avatar.Image = UIImage.FromBundle("ic_noavatar");
             
             commentText.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
@@ -106,6 +111,7 @@ namespace Steepshot.iOS.Cells
             timestamp.Text = _currentPost.Created.ToPostTime();
 
             likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            LayoutIfNeeded();
         }
 
         private void LikeTap(object sender, EventArgs e)

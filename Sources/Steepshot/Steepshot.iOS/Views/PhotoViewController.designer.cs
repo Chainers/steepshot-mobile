@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
@@ -13,7 +13,13 @@ namespace Steepshot.iOS.Views
 	partial class PhotoViewController
 	{
 		[Outlet]
-		UIKit.UICollectionViewFlowLayout collectionViewFlowLayout { get; set; }
+		UIKit.UIButton closeButton { get; set; }
+
+		[Outlet]
+		UIKit.UIButton flashButton { get; set; }
+
+		[Outlet]
+		UIKit.UIImageView galleryButton { get; set; }
 
 		[Outlet]
 		UIKit.UIView liveCameraStream { get; set; }
@@ -22,16 +28,18 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton photoButton { get; set; }
 
 		[Outlet]
-		UIKit.UICollectionView photoCollection { get; set; }
-
-		[Outlet]
 		UIKit.UIButton swapCameraButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (collectionViewFlowLayout != null) {
-				collectionViewFlowLayout.Dispose ();
-				collectionViewFlowLayout = null;
+			if (closeButton != null) {
+				closeButton.Dispose ();
+				closeButton = null;
+			}
+
+			if (flashButton != null) {
+				flashButton.Dispose ();
+				flashButton = null;
 			}
 
 			if (liveCameraStream != null) {
@@ -44,14 +52,14 @@ namespace Steepshot.iOS.Views
 				photoButton = null;
 			}
 
-			if (photoCollection != null) {
-				photoCollection.Dispose ();
-				photoCollection = null;
-			}
-
 			if (swapCameraButton != null) {
 				swapCameraButton.Dispose ();
 				swapCameraButton = null;
+			}
+
+			if (galleryButton != null) {
+				galleryButton.Dispose ();
+				galleryButton = null;
 			}
 		}
 	}

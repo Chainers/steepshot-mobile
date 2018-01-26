@@ -7,7 +7,8 @@ namespace Steepshot.Core
     {
         public class Errors
         {
-            public const string WrongPrivateKey = "It`s not a valid Private posting key! Check - Private key looks like 5********...";
+            public const string WrongPrivatePostingKey = "It`s not a valid Private Posting key! Check - Private key looks like 5********...";
+            public const string WrongPrivateActimeKey = "It`s not a valid Private Active key! Check - Private key looks like 5********...";
             public const string EmptyResponseContent = "Empty response content";
             public const string ResponseContentContainsHtml = "Response content contains HTML: ";
             public const string UnexpectedUrlFormat = "Unexpected url format: ";
@@ -22,10 +23,15 @@ namespace Steepshot.Core
             public const string EmptyBodyField = "Body required";
             public const string EmptyCategoryField = "Category required";
             public const string EmptyPhotoField = "Photo cannot be empty";
+            public const string EmptyFileField = "File cannot be empty";
+            public const string EmptyContentType = "Unknown file format";
+            public const string EmptyVerifyTransaction = "Empty authentification";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
-            public const string EmptyPosting = "Posting key cannot be empty";
+            public const string EmptyPostingKey = "Posting key cannot be empty";
+            public const string EmptyActiveKey = "Active key cannot be empty";
+            public const string EmptyPostPermlink = "Permlink cannot be empty";
             public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
@@ -42,6 +48,7 @@ namespace Steepshot.Core
             public const string VotedInASimilarWay = "You have already voted in a similar way.";
             public const string TagLimitError = "The number of tags should not be more than 20. Please remove a couple of tags and try again.";
             public const string UnsupportedMime = "Unsupported file type";
+            public const string UnexpectedProfileData = "Unexpected profile data";
 
 
             /// <summary>
@@ -81,6 +88,7 @@ namespace Steepshot.Core
         {
             public const string PostFirstComment = "Post your first comment";
             public const string Comments = "Comments";
+            public const string PostSettings = "Post settings";
             public const string RapidPosting = "You post so fast. Try it later";
             public const string CameraHoldUp = "Hold the camera up to the barcode\nAbout 6 inches away";
             public const string WaitforScan = "Wait for the barcode to automatically scan!";

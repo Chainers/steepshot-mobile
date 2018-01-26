@@ -80,8 +80,8 @@ namespace Steepshot.iOS
                     var nsFileManager = new NSFileManager();
                     var imageData = nsFileManager.Contents(urlCollection[0]);
                     var sharedPhoto = UIImage.LoadFromData(imageData);
-                    var descriptionViewController = new DescriptionViewController();
-                    descriptionViewController.ImageAsset = sharedPhoto;
+                    //TODO:KOA: Test System.IO.Path.GetExtension(urlCollection[0] expected something like .jpg / .gif etc.
+                    var descriptionViewController = new DescriptionViewController(sharedPhoto, System.IO.Path.GetExtension(urlCollection[0]));
                     tabController.PushViewController(descriptionViewController, true);
                 }
                 else

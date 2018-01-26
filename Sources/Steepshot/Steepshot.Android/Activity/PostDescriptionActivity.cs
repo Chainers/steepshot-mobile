@@ -17,6 +17,7 @@ using Android.Views.InputMethods;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Java.IO;
+using Newtonsoft.Json;
 using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -28,6 +29,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Activity
@@ -38,16 +40,16 @@ namespace Steepshot.Activity
         public const string PhotoExtraPath = "PhotoExtraPath";
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
         public const string EditPost = "EditPost";
+        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
 
         private string _path;
         private bool _shouldCompress;
-        private EditPost _editpost;
+        private Post _editpost;
         private Timer _timer;
         private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
-        private UploadImageModel _model;
-        private UploadResponse _response;
+        private PreparePostModel _model;
         private string _previousQuery;
 
 #pragma warning disable 0649, 4014
@@ -89,15 +91,11 @@ namespace Steepshot.Activity
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
-            var editPostByteArr = Intent.GetByteArrayExtra(EditPost);
-            if (editPostByteArr != null)
+            var editPost = Intent.GetStringExtra(EditPost);
+            if (!string.IsNullOrEmpty(editPost))
             {
-                using (var memoryStream = new MemoryStream(editPostByteArr))
-                {
-                    var formatter = new BinaryFormatter();
-                    _editpost = formatter.Deserialize(memoryStream) as EditPost;
-                    SetEditPost(_editpost);
-                }
+                _editpost = JsonConvert.DeserializeObject<Post>(editPost);
+                SetEditPost(_editpost);
             }
             else
             {
@@ -126,10 +124,29 @@ namespace Steepshot.Activity
             _path = Intent.GetStringExtra(PhotoExtraPath);
 
             InitPhoto(_path);
+            SetPostingTimer();
             SearchTextChanged();
+
+            _model = new PreparePostModel(BasePresenter.User.UserInfo);
         }
 
-        private void SetEditPost(EditPost editPost)
+        private async void SetPostingTimer()
+        {
+            var timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+            _postButton.Enabled = false;
+            while (timepassed < PostingLimit)
+            {
+                _postButton.Text = (PostingLimit - timepassed).ToString("mm\\:ss");
+                await Task.Delay(1000);
+                if (IsDestroyed)
+                    return;
+                timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+            }
+            _postButton.Enabled = true;
+            _postButton.Text = Localization.Texts.PublishButtonText;
+        }
+
+        private void SetEditPost(Post editPost)
         {
             _title.Text = editPost.Title;
             _title.SetSelection(editPost.Title.Length);
@@ -307,6 +324,7 @@ namespace Steepshot.Activity
             tag = tag.Trim();
             if (_localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
+
             _localTagsAdapter.LocalTags.Add(tag);
             RunOnUiThread(() =>
             {
@@ -366,96 +384,91 @@ namespace Steepshot.Activity
 
             if (_editpost == null)
             {
-                var photo = await CompressPhoto(_path);
+                var operationResult = await UploadPhoto(_path);
                 if (IsFinishing || IsDestroyed)
                     return;
 
-                if (photo == null)
+                if (!operationResult.IsSuccess)
                 {
                     SplashActivity.Cache.EvictAll();
-                    photo = await CompressPhoto(_path);
+                    operationResult = await UploadPhoto(_path);
+
                     if (IsFinishing || IsDestroyed)
                         return;
                 }
 
-                if (photo == null)
+                if (!operationResult.IsSuccess)
                 {
-                    this.ShowAlert(Localization.Errors.PhotoProcessingError);
+                    this.ShowAlert(operationResult.Error.Message);
                     OnUploadEnded();
                     return;
                 }
 
-                _model = new UploadImageModel(BasePresenter.User.UserInfo, _title.Text, photo, _localTagsAdapter.LocalTags)
-                {
-                    Description = _description.Text
-                };
-                var serverResp = await Presenter.TryUploadWithPrepare(_model);
-                if (IsFinishing || IsDestroyed)
-                    return;
+                _model.Media = new[] { operationResult.Result };
+            }
+            else
+            {
+                _model.Media = _editpost.Media;
+            }
 
-                if (serverResp != null && serverResp.IsSuccess)
+            _model.Title = _title.Text;
+            _model.Description = _description.Text;
+            _model.Tags = _localTagsAdapter.LocalTags.ToArray();
+            TryUpload();
+        }
+
+        private async Task<OperationResult<Media>> UploadPhoto(string path)
+        {
+            Stream stream = null;
+            FileInputStream fileInputStream = null;
+
+            try
+            {
+                if (_shouldCompress)
                 {
-                    _response = serverResp.Result;
+                    stream = new MemoryStream();
+                    _btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream);
                 }
                 else
                 {
-                    this.ShowAlert(serverResp);
-                    OnUploadEnded();
-                    return;
+                    var photo = new Java.IO.File(path);
+                    fileInputStream = new FileInputStream(photo);
+                    stream = new StreamConverter(fileInputStream, null);
                 }
 
-                TryUpload();
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
+                var serverResult = await Presenter.TryUploadMedia(request);
+                return serverResult;
             }
-        }
-
-        private Task<byte[]> CompressPhoto(string path)
-        {
-            return Task.Run(() =>
+            catch (Exception ex)
             {
-                try
-                {
-                    if (_shouldCompress)
-                    {
-                        using (var stream = new MemoryStream())
-                        {
-                            if (_btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream))
-                            {
-                                return stream.ToArray();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var photo = new Java.IO.File(path);
-                        var stream = new FileInputStream(photo);
-                        var outbytes = new byte[photo.Length()];
-                        stream.Read(outbytes);
-                        stream.Close();
-                        return outbytes;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                }
-                return null;
-            });
+                AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<Media>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+            }
+            finally
+            {
+                fileInputStream?.Close(); // ??? change order?
+                stream?.Flush();
+                fileInputStream?.Dispose();
+                stream?.Dispose();
+            }
         }
 
         private async void TryUpload()
         {
-            if (_model == null || _response == null)
+            if (_model.Media == null)
             {
                 OnUploadEnded();
                 return;
             }
 
-            var resp = await Presenter.TryCreatePost(_model, _response);
+            var resp = await Presenter.TryCreatePost(_model);
             if (IsFinishing || IsDestroyed)
                 return;
 
             if (resp.IsSuccess)
             {
+                BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
@@ -485,8 +498,6 @@ namespace Steepshot.Activity
 
         private void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            _model = null;
-            _response = null;
             OnUploadEnded();
         }
 

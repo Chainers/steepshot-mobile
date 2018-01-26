@@ -18,9 +18,7 @@ namespace Steepshot.iOS.Views
     public partial class FollowViewController : BaseViewControllerWithPresenter<UserFriendPresenter>
     {
         private readonly FriendsType _friendsType;
-        private readonly VotersType _votersType;
         private readonly UserProfileResponse _user;
-        private FollowTableViewSource _tableSource;
 
         public FollowViewController(FriendsType friendsType, UserProfileResponse user)
         {
@@ -31,23 +29,25 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new UserFriendPresenter { FollowType = _friendsType };
+            _presenter.SourceChanged += SourceChanged;
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            _presenter.SourceChanged += SourceChanged;
-            _tableSource = new FollowTableViewSource(_presenter, followTableView);
-            followTableView.Source = _tableSource;
+            var tableSource = new FollowTableViewSource(_presenter, followTableView);
+            followTableView.Source = tableSource;
             followTableView.LayoutMargins = UIEdgeInsets.Zero;
             followTableView.RegisterClassForCellReuse(typeof(FollowViewCell), nameof(FollowViewCell));
             followTableView.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
+            followTableView.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
-            _tableSource.ScrolledToBottom += GetItems;
-            _tableSource.CellAction += CellAction;
+            tableSource.ScrolledToBottom += GetItems;
+            tableSource.CellAction += CellAction;
 
             SetBackButton();
+            progressBar.StartAnimating();
             GetItems();
         }
 
@@ -101,10 +101,6 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            if (progressBar.IsAnimating)
-                return;
-
-            progressBar.StartAnimating();
             var errors = await _presenter.TryLoadNextUserFriends(_user.Username);
             ShowAlert(errors);
             progressBar.StopAnimating();
@@ -117,6 +113,12 @@ namespace Steepshot.iOS.Views
                 var errors = await _presenter.TryFollow(user);
                 ShowAlert(errors);
             }
+        }
+
+        public override void ViewDidUnload()
+        {
+            _presenter.LoadCancel();
+            base.ViewDidUnload();
         }
     }
 }

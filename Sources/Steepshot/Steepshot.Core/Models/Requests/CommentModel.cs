@@ -10,13 +10,13 @@ namespace Steepshot.Core.Models.Requests
         public string ParentAuthor { get; }
 
         [JsonProperty]
-        public string ParentPermlink { get; set; }
+        public string ParentPermlink { get; }
 
         [JsonProperty]
         public string Author { get; set; }
 
         [JsonProperty]
-        public string Permlink { get; set; }
+        public string Permlink { get; }
 
         [JsonProperty]
         public string Title { get; }
@@ -25,7 +25,7 @@ namespace Steepshot.Core.Models.Requests
         public string Body { get; }
 
         [JsonProperty]
-        public string JsonMetadata { get; set; }
+        public string JsonMetadata { get; }
 
         [JsonProperty]
         public Beneficiary[] Beneficiaries { get; internal set; }

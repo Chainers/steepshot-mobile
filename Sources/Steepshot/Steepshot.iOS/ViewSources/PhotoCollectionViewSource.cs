@@ -14,7 +14,7 @@ namespace Steepshot.iOS.ViewSources
         {
             PHFetchOptions options = new PHFetchOptions
             {
-                SortDescriptors = new[] { new NSSortDescriptor("creationDate", false) }
+                SortDescriptors = new[] { new NSSortDescriptor("creationDate", false) },
             };
             _fetchResults = PHAsset.FetchAssets(PHAssetMediaType.Image, options);
             _m = new PHImageManager();

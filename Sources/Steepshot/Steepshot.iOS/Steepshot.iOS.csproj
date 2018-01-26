@@ -49,7 +49,8 @@
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <LangVersion>Default</LangVersion>
-    <CodesignProvision></CodesignProvision>
+    <CodesignProvision>
+    </CodesignProvision>
     <MtouchUseLlvm>true</MtouchUseLlvm>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
@@ -106,6 +107,15 @@
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
     </Reference>
+    <Reference Include="Ditch.Core, Version=3.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.0.8\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Golos, Version=3.0.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.0.10\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Steem, Version=3.0.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.3.0.10\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    </Reference>
     <Reference Include="iOSDeviceModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\iOSDeviceModel.1.1.0\lib\Xamarin.iOS10\iOSDeviceModel.dll</HintPath>
     </Reference>
@@ -148,23 +158,14 @@
     <Reference Include="PureLayout.Net">
       <HintPath>..\packages\PureLayout.Net.1.0.0\lib\xamarinios10\PureLayout.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Core">
-      <HintPath>..\packages\Ditch.Core.3.0.6\lib\netstandard2.0\Ditch.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Steem">
-      <HintPath>..\packages\Ditch.Steem.3.0.9\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Golos">
-      <HintPath>..\packages\Ditch.Golos.3.0.9\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
-    </Reference>
     <Reference Include="WebP.Touch">
       <HintPath>..\packages\WebP.Touch.1.0.7\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading">
-      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.1\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.4\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
     </Reference>
     <Reference Include="FFImageLoading.Platform">
-      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.1\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+      <HintPath>..\packages\Xamarin.FFImageLoading.2.3.4\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +220,9 @@
     <InterfaceDefinition Include="Views\VotersViewController.xib" />
     <InterfaceDefinition Include="Views\PreSearchViewController.xib" />
     <InterfaceDefinition Include="Views\WelcomeViewController.xib" />
+    <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
+    <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
+    <InterfaceDefinition Include="Cells\AccountTableViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -345,6 +349,25 @@
     </Compile>
     <Compile Include="Helpers\CollectionViewFlowDelegate.cs" />
     <Compile Include="Helpers\CommentsTextViewDelegate.cs" />
+    <Compile Include="Cells\LoaderCell.cs" />
+    <Compile Include="Helpers\TabBarDelegate.cs" />
+    <Compile Include="ViewSources\LocalTagsCollectionViewSource.cs" />
+    <Compile Include="Cells\LocalTagCollectionViewCell.cs" />
+    <Compile Include="Cells\LocalTagCollectionViewCell.designer.cs">
+      <DependentUpon>LocalTagCollectionViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\TagTableViewCell.cs" />
+    <Compile Include="Cells\TagTableViewCell.designer.cs">
+      <DependentUpon>TagTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSources\TagsTableViewSource.cs" />
+    <Compile Include="Helpers\TagFieldDelegate.cs" />
+    <Compile Include="ViewSources\AccountsTableViewSource.cs" />
+    <Compile Include="Cells\AccountTableViewCell.cs" />
+    <Compile Include="Cells\AccountTableViewCell.designer.cs">
+      <DependentUpon>AccountTableViewCell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cells\LoaderCollectionCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -447,6 +470,45 @@
     <BundleResource Include="Resources\ic_home.png" />
     <BundleResource Include="Resources\ic_home%402x.png" />
     <BundleResource Include="Resources\ic_home%403x.png" />
+    <BundleResource Include="Resources\ic_settings.png" />
+    <BundleResource Include="Resources\ic_settings%402x.png" />
+    <BundleResource Include="Resources\ic_settings%403x.png" />
+    <BundleResource Include="Resources\ic_create.png" />
+    <BundleResource Include="Resources\ic_create%402x.png" />
+    <BundleResource Include="Resources\ic_create%403x.png" />
+    <BundleResource Include="Resources\ic_сamera_shot.png" />
+    <BundleResource Include="Resources\ic_сamera_shot%402x.png" />
+    <BundleResource Include="Resources\ic_сamera_shot%403x.png" />
+    <BundleResource Include="Resources\ic_revert.png" />
+    <BundleResource Include="Resources\ic_revert%402x.png" />
+    <BundleResource Include="Resources\ic_revert%403x.png" />
+    <BundleResource Include="Resources\ic_white_close.png" />
+    <BundleResource Include="Resources\ic_white_close%402x.png" />
+    <BundleResource Include="Resources\ic_white_close%403x.png" />
+    <BundleResource Include="Resources\ic_flash.png" />
+    <BundleResource Include="Resources\ic_flash%402x.png" />
+    <BundleResource Include="Resources\ic_flash%403x.png" />
+    <BundleResource Include="Resources\ic_edit.png" />
+    <BundleResource Include="Resources\ic_edit%402x.png" />
+    <BundleResource Include="Resources\ic_edit%403x.png" />
+    <BundleResource Include="Resources\ic_close_black.png" />
+    <BundleResource Include="Resources\ic_close_black%402x.png" />
+    <BundleResource Include="Resources\ic_close_black%403x.png" />
+    <BundleResource Include="Resources\ic_forward.png" />
+    <BundleResource Include="Resources\ic_forward%402x.png" />
+    <BundleResource Include="Resources\ic_forward%403x.png" />
+    <BundleResource Include="Resources\ic_activated.png" />
+    <BundleResource Include="Resources\ic_activated%402x.png" />
+    <BundleResource Include="Resources\ic_activated%403x.png" />
+    <BundleResource Include="Resources\ic_deactivated.png" />
+    <BundleResource Include="Resources\ic_deactivated%402x.png" />
+    <BundleResource Include="Resources\ic_deactivated%403x.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive%402x.png" />
+    <BundleResource Include="Resources\ic_grid_nonactive%403x.png" />
+    <BundleResource Include="Resources\ic_balance.png" />
+    <BundleResource Include="Resources\ic_balance%402x.png" />
+    <BundleResource Include="Resources\ic_balance%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -13,7 +13,7 @@ using Android.Runtime;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true)]
+    [Activity(Label = Constants.Steepshot, MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true, Theme = "@style/SplashTheme")]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@mipmap/ic_launch_icon", DataMimeType = "image/*")]
     public sealed class SplashActivity : BaseActivity
     {

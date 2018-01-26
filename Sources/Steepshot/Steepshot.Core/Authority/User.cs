@@ -54,6 +54,17 @@ namespace Steepshot.Core.Authority
                     _data.Update(UserInfo);
             }
         }
+        
+        public bool ShowFooter
+        {
+            get => UserInfo.ShowFooter;
+            set
+            {
+                UserInfo.ShowFooter = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
 
         public string DefaultPhotoDirectory
         {

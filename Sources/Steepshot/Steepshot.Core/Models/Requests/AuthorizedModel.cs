@@ -8,10 +8,10 @@ namespace Steepshot.Core.Models.Requests
     public class AuthorizedModel
     {
         [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
-        public string Login { get; set; }
+        public string Login { get; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyPosting)]
-        public string PostingKey { get; set; }
+        [Required(ErrorMessage = Localization.Errors.EmptyPostingKey)]
+        public string PostingKey { get; }
 
 
         public AuthorizedModel(string login, string postingKey)

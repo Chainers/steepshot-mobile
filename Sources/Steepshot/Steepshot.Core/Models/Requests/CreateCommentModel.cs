@@ -10,13 +10,13 @@ namespace Steepshot.Core.Models.Requests
     {
         [JsonProperty]
         public bool IsNeedRewards { get; }
-        
+
         [Required(ErrorMessage = Localization.Errors.EmptyBodyField)]
         [JsonProperty]
         public string Body { get; set; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         [JsonProperty]
+        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string ParentUrl { get; set; }
 
         [JsonProperty]

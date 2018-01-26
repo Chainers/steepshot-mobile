@@ -135,38 +135,44 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
         {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+            var operationResult = await PreparePost(model, ct);
 
-            var meta = uploadResponse.Meta.ToString();
-            if (!string.IsNullOrWhiteSpace(meta))
-                meta = meta.Replace(Environment.NewLine, string.Empty);
+            if (!operationResult.IsSuccess)
+                return new OperationResult<VoidResponse>(operationResult.Error);
+
+            var preparedData = operationResult.Result;
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostPermlink, model.Title, preparedData.Body, preparedData.JsonMetadata)
+            {
+                Beneficiaries = preparedData.Beneficiaries
+            };
 
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, uploadResponse.Payload.Body, meta);
             var result = await _ditchClient.Create(commentModel, ct);
 
-            Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+            Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
             return result;
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
+        public async Task<OperationResult<Media>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
+            if (!EnableRead)
+                return null;
+
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<UploadResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<Media>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
             if (!trxResp.IsSuccess)
-                return new OperationResult<UploadResponse>(trxResp.Error);
+                return new OperationResult<Media>(trxResp.Error);
 
             model.VerifyTransaction = trxResp.Result;
-            return await Upload(model, ct);
+
+            return await Gateway.UploadMedia(GatewayVersion.V1P1, "media/upload", model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
@@ -190,11 +196,21 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
+        public async Task<OperationResult<VoidResponse>> UpdateUserProfile(UpdateUserProfileModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
+            return await _ditchClient.UpdateUserProfile(model, ct);
+        }
+
         public async Task<OperationResult<VoidResponse>> EditComment(EditCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
 
             var result = await _ditchClient.Edit(model, ct);
             Trace($"post/{model.Url}/comment", model.Login, result.Error, model.Url, ct);//.Wait(5000);

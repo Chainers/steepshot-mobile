@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
@@ -31,11 +31,6 @@ namespace Steepshot.iOS.Views
 				activityIndicator = null;
 			}
 
-			if (noFeedLabel != null) {
-				noFeedLabel.Dispose ();
-				noFeedLabel = null;
-			}
-
 			if (feedCollection != null) {
 				feedCollection.Dispose ();
 				feedCollection = null;
@@ -44,6 +39,11 @@ namespace Steepshot.iOS.Views
 			if (flowLayout != null) {
 				flowLayout.Dispose ();
 				flowLayout = null;
+			}
+
+			if (noFeedLabel != null) {
+				noFeedLabel.Dispose ();
+				noFeedLabel = null;
 			}
 		}
 	}

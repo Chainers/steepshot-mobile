@@ -1,200 +1,223 @@
 ﻿using System;
-using System.Linq;
 using Autofac;
+using Foundation;
 using MessageUI;
+using PureLayout.Net;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Models;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
+using Steepshot.iOS.ViewSources;
 using UIKit;
+using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
     public partial class SettingsViewController : BaseViewController
     {
-        private UserInfo _steemAcc;
-        private UserInfo _golosAcc;
-        private bool _isTabBarNeedResfresh;
-        private KnownChains _previousNetwork;
-        private MFMailComposeViewController _mailController;
+        private AccountsTableViewSource _tableSource;
 
         public override void ViewDidLoad()
         {
-            NavigationController.NavigationBar.Translucent = false;
             base.ViewDidLoad();
             nsfwSwitch.On = BasePresenter.User.IsNsfw;
             lowRatedSwitch.On = BasePresenter.User.IsLowRated;
-            NavigationController.SetNavigationBarHidden(false, false);
-            _steemAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Steem);
-            _golosAcc = BasePresenter.User.GetAllAccounts().FirstOrDefault(a => a.Chain == KnownChains.Golos);
-            _previousNetwork = BasePresenter.Chain;
+
+            versionLabel.Font = Constants.Regular12;
+            reportButton.Font = termsButton.Font = guideButton.Font = lowRatedLabel.Font = nsfwLabel.Font = addAccountButton.TitleLabel.Font = Constants.Semibold14;
+            Constants.CreateShadow(addAccountButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+
+            _tableSource = new AccountsTableViewSource();
+            _tableSource.Accounts = BasePresenter.User.GetAllAccounts();
+            _tableSource.CellAction += CellAction;
+
+            accountsTable.Source = _tableSource;
+            accountsTable.LayoutMargins = UIEdgeInsets.Zero;
+            accountsTable.RegisterClassForCellReuse(typeof(AccountTableViewCell), nameof(AccountTableViewCell));
+            accountsTable.RegisterNibForCellReuse(UINib.FromName(nameof(AccountTableViewCell), NSBundle.MainBundle), nameof(AccountTableViewCell));
+            accountsTable.RowHeight = 60f;
+
+            lowRatedSwitch.Layer.CornerRadius = nsfwSwitch.Layer.CornerRadius = 16;
+
+            var forwardImage = new UIImageView();
+            var forwardImage2 = new UIImageView();
+            var forwardImage3 = new UIImageView();
+            forwardImage2.Image = forwardImage3.Image = forwardImage.Image = UIImage.FromBundle("ic_forward");
+            guideButton.AddSubview(forwardImage);
+            termsButton.AddSubview(forwardImage2);
+            reportButton.AddSubview(forwardImage3);
+
+            forwardImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            forwardImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
+
+            forwardImage2.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            forwardImage2.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
+
+            forwardImage3.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            forwardImage3.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
+
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
             versionLabel.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
-            //steemAvatar.Layer.CornerRadius = steemAvatar.Frame.Width / 2;
-            //golosAvatar.Layer.CornerRadius = golosAvatar.Frame.Width / 2;
 
-            if (_steemAcc != null)
-            {
-                steemLabel.Text = _steemAcc.Login;
-                //LoadImage(steemAcc.Avatar, steemAvatar);
-            }
-            else
-                steemViewHeight.Constant = 0;
-
-
-            if (_golosAcc != null)
-            {
-                golosLabel.Text = _golosAcc.Login;
-                //LoadImage(golosAcc.Avatar, golosAvatar);
-            }
-            else
-                golosViewHeight.Constant = 0;
-
-            HighlightView(BasePresenter.Chain);
-            SetAddButton();
-
-            addAccountButton.TouchDown += (sender, e) =>
-            {
-                var myViewController = new PreLoginViewController();
-                //myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
-                NavigationController.PushViewController(myViewController, true);
-            };
-
-            steemButton.TouchDown += (sender, e) =>
-            {
-                BasePresenter.User.Delete(_steemAcc);
-                steemViewHeight.Constant = 0;
-                RemoveNetwork(KnownChains.Steem);
-            };
-
-            golosButton.TouchDown += (sender, e) =>
-            {
-                BasePresenter.User.Delete(_golosAcc);
-                golosViewHeight.Constant = 0;
-                RemoveNetwork(KnownChains.Golos);
-            };
-
-            UITapGestureRecognizer steemTap = new UITapGestureRecognizer(() => SwitchNetwork(_steemAcc));
-            UITapGestureRecognizer golosTap = new UITapGestureRecognizer(() => SwitchNetwork(_golosAcc));
-
-            steemView.AddGestureRecognizer(steemTap);
-            golosView.AddGestureRecognizer(golosTap);
-
-            reportButton.TouchDown += (sender, e) =>
-            {
-                if (MFMailComposeViewController.CanSendMail)
-                {
-                    _mailController = new MFMailComposeViewController();
-                    _mailController.SetToRecipients(new[] { "steepshot.org@gmail.com" });
-                    _mailController.SetSubject("User report");
-                    _mailController.Finished += (object s, MFComposeResultEventArgs args) =>
-                    {
-                        args.Controller.DismissViewController(true, null);
-                    };
-                    PresentViewController(_mailController, true, null);
-                }
-                else
-                    ShowAlert("Setup your mail please");
-            };
-
-            termsButton.TouchDown += (sender, e) =>
-            {
-                UIApplication.SharedApplication.OpenUrl(new Uri(Tos));
-            };
-            lowRatedSwitch.ValueChanged += (sender, e) =>
-            {
-                BasePresenter.User.IsLowRated = lowRatedSwitch.On;
-            };
-            nsfwSwitch.ValueChanged += (sender, e) =>
-            {
-                BasePresenter.User.IsNsfw = nsfwSwitch.On;
-            };
+            reportButton.TouchDown += SendReport;
+            termsButton.TouchDown += ShowTos;
+            guideButton.TouchDown += ShowGuide;
+            lowRatedSwitch.ValueChanged += SwitchLowRated;
+            nsfwSwitch.ValueChanged += SwitchNSFW;
+            SetBackButton();
         }
 
+        private void SendReport(object sender, EventArgs e)
+        {
+            if (MFMailComposeViewController.CanSendMail)
+            {
+                var mailController = new MFMailComposeViewController();
+                mailController.SetToRecipients(new[] { "steepshot.org@gmail.com" });
+                mailController.SetSubject("User report");
+                mailController.Finished += (object s, MFComposeResultEventArgs args) =>
+                {
+                    args.Controller.DismissViewController(true, null);
+                };
+                PresentViewController(mailController, true, null);
+            }
+            else
+                ShowAlert("Setup your mail please");
+        }
+
+        private void SwitchNSFW(object sender, EventArgs e)
+        {
+            BasePresenter.User.IsNsfw = nsfwSwitch.On;
+        }
+
+        private void SwitchLowRated(object sender, EventArgs e)
+        {
+            BasePresenter.User.IsLowRated = lowRatedSwitch.On;
+        }
+/*
+        private void AddAccount()
+        {
+            var myViewController = new PreLoginViewController();
+            myViewController.NewAccountNetwork = BasePresenter.Chain == KnownChains.Steem ? KnownChains.Golos : KnownChains.Steem;
+            NavigationController.PushViewController(myViewController, true);
+        }
+*/
+        private void RemoveAccount(UserInfo account)
+        {
+            BasePresenter.User.Delete(account);
+            RemoveNetwork(account);
+        }
+
+        private void ShowTos(object sender, EventArgs e)
+        {
+            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Tos));
+        }
+
+        private void ShowGuide(object sender, EventArgs e)
+        {
+            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.Guide));
+        }
+
+        private void SwitchAccount()
+        {
+            
+        }
+
+        private void SetBackButton()
+        {
+            var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
+            NavigationItem.LeftBarButtonItem = leftBarButton;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
+            NavigationItem.Title = Localization.Texts.AppSettingsTitle;
+        }
+
+        private void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
+        }
+
+        private void CellAction(ActionType type, UserInfo account)
+        {
+            switch (type)
+            {
+                case ActionType.Tap:
+                    break;
+                case ActionType.Delete:
+                    RemoveAccount(account);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public override void ViewDidLayoutSubviews()
+        {
+            base.ViewDidLayoutSubviews();
+            ResizeView();
+            Constants.CreateGradient(addAccountButton, 25);
+        }
+
+        private void ResizeView()
+        {
+            var tableContentSize = accountsTable.ContentSize;
+            tableHeight.Constant = tableContentSize.Height;
+            rootScrollView.LayoutIfNeeded();
+        }
+        /*
         public override void ViewWillDisappear(bool animated)
         {
-            ShouldProfileUpdate = _previousNetwork != BasePresenter.Chain;
+            //ShouldProfileUpdate = _previousNetwork != BasePresenter.Chain;
 
-            if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
-                NavigationController.SetNavigationBarHidden(true, true);
+            //if (IsMovingFromParentViewController && !_isTabBarNeedResfresh)
+                //NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillDisappear(animated);
         }
-
+*/
         private void SwitchNetwork(UserInfo user)
         {
             if (BasePresenter.Chain == user.Chain)
                 return;
             BasePresenter.User.SwitchUser(user);
-            HighlightView(user.Chain);
+            //HighlightView(user.Chain);
             BasePresenter.SwitchChain(user.Chain);
 
             SetAddButton();
 
             var myViewController = new MainTabBarController();
             NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-            _isTabBarNeedResfresh = true;
+            //_isTabBarNeedResfresh = true;
             NavigationController.PopViewController(false);
-
-            /*
-			var alert = UIAlertController.Create(null, $"Do you want to change the network to the {network}?", UIAlertControllerStyle.Alert);
-
-			alert.AddAction(UIAlertAction.Create("No", UIAlertActionStyle.Cancel, null));
-			alert.AddAction(UIAlertAction.Create("Yes", UIAlertActionStyle.Default, action =>
-			{
-				if (Chain != network)
-				{
-					try
-					{
-
-					}
-					catch (Exception ex)
-					{
-
-					}
-				}
-			}));
-
-			PresentViewController(alert, animated: true, completionHandler: null); */
         }
 
-        private void RemoveNetwork(KnownChains network)
+        private void RemoveNetwork(UserInfo account)
         {
-            if (BasePresenter.User.GetAllAccounts().Count == 0)
+            _tableSource.Accounts.Remove(account);
+            accountsTable.ReloadData();
+            ResizeView();
+
+            if (_tableSource.Accounts.Count == 0)
             {
-                var myViewController = new FeedViewController();
+                var myViewController = new PreSearchViewController();
                 NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
-                _isTabBarNeedResfresh = true;
+                //_isTabBarNeedResfresh = true;
                 NavigationController.PopViewController(false);
             }
             else
             {
-                if (BasePresenter.Chain != network)
+                if (BasePresenter.Chain != account.Chain)
                 {
-                    HighlightView(BasePresenter.Chain);
                     SetAddButton();
                 }
                 else
                 {
-                    BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
+                    //BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                 }
             }
             BasePresenter.User.Save();
-        }
-
-        private void HighlightView(KnownChains network)
-        {
-            if (network == KnownChains.Golos)
-            {
-                golosView.BackgroundColor = UIColor.Cyan;//Constants.Blue;
-                steemView.BackgroundColor = UIColor.White;
-            }
-            else
-            {
-                steemView.BackgroundColor = UIColor.Cyan;//Constants.Blue;
-                golosView.BackgroundColor = UIColor.White;
-            }
         }
 
         private void SetAddButton()

@@ -7,8 +7,12 @@
         Profile,
         Comments,
         Voters,
+        Flagers,
         Preview,
         Reply,
         Follow,
+        Tap,
+        Delete,
+        Edit,
     }
 }

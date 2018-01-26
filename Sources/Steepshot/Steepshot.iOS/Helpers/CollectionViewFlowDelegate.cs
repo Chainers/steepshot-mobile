@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Presenters;
 using UIKit;
@@ -15,6 +14,8 @@ namespace Steepshot.iOS.Helpers
         private BasePostPresenter _presenter;
         private UICollectionView _collection;
         private int _prevPos;
+
+        public int Position => _prevPos;
 
         public void ClearPosition()
         {
@@ -51,6 +52,7 @@ namespace Steepshot.iOS.Helpers
             CellClicked?.Invoke(indexPath);
         }
 
+        /*
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
             if (!IsGrid)
@@ -70,6 +72,6 @@ namespace Steepshot.iOS.Helpers
                 }
             }
             return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
-        }
+        } */
     }
 }

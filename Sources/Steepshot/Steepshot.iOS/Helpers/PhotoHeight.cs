@@ -7,7 +7,7 @@ namespace Steepshot.iOS.Helpers
     public static class PhotoHeight
     {
         private const int minHeight = 200;
-        private const int maxHeight = 500;
+        private const int maxHeight = 450;
 
         public static nfloat Get(Size imageSize)
         {
