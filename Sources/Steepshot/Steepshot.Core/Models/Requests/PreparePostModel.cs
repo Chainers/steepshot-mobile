@@ -2,6 +2,7 @@
 using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Models.Requests
 {

@@ -1,4 +1,4 @@
-﻿namespace Steepshot.Core.Models.Requests
+﻿namespace Steepshot.Core.Models.Common
 {
     public class MediaModel
     {

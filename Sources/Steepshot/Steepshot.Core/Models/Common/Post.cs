@@ -29,15 +29,10 @@ namespace Steepshot.Core.Models.Common
     public class Post
     {
         private string _permlink;
-
-        [Obsolete("use Media")]
+        
         public string Body { get; set; }
 
-        [Obsolete("use Media")]
-        public string[] Photos { get; set; }
-
-        [Obsolete("use Media")]
-        public Size ImageSize { get; set; }
+        public MediaModel[] Media { get; set; }
 
         public string Description { get; set; }
 

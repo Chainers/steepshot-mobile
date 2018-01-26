@@ -9,6 +9,7 @@ using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Tests.HttpClient
 {

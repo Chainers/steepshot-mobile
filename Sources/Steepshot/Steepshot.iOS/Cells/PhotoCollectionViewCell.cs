@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -42,7 +41,7 @@ namespace Steepshot.iOS.Cells
                 isInitialized = true;
             }
 
-            ImageUrl = post.Photos?.FirstOrDefault();
+            ImageUrl = post.Media[0].Url;
             photoImg.Image = null;
             _scheduledWork?.Cancel();
             if (ImageUrl != null)
