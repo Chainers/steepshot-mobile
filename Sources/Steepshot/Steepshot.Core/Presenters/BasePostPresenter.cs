@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post);
-            var response = await Api.DeletePost(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -48,7 +48,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
         {
-            if (post == null)
+            if (post == null || parentPost == null)
                 return null;
 
             var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post, parentPost);
-            var response = await Api.DeleteComment(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)

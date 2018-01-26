@@ -20,6 +20,9 @@ namespace Steepshot.Core
             public const string UnknownError = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title required";
+            public const string EmptyBodyField = "Body required";
+            public const string EmptyCategoryField = "Category required";
+            public const string EmptyPhotoField = "Photo cannot be empty";
             public const string EmptyFileField = "File cannot be empty";
             public const string EmptyContentType = "Unknown file format";
             public const string EmptyVerifyTransaction = "Empty authentification";
@@ -194,9 +197,11 @@ namespace Steepshot.Core
             public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
+            public const string EditComment = "Edit comment";
             public const string DeleteComment = "Delete comment";
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
+            public const string EditPost = "Edit post";
             public const string DeletePost = "Delete post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";

@@ -48,5 +48,24 @@ namespace Steepshot.Core.Utils
             permlink = authPostArr[1];
             return true;
         }
+
+        public static bool TryGetPermlinkFromUrl(string url, out string permlink)
+        {
+            var start = url.LastIndexOf('@');
+            if (start == -1)
+            {
+                permlink = null;
+                return false;
+            }
+            var authAndPermlink = url.Remove(0, start + 1);
+            var authPostArr = authAndPermlink.Split('/');
+            if (authPostArr.Length != 2)
+            {
+                permlink = null;
+                return false;
+            }
+            permlink = authPostArr[1];
+            return true;
+        }
     }
 }

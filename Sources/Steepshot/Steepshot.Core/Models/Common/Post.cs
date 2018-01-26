@@ -1,6 +1,7 @@
 using System;
 using Ditch.Core;
 using Newtonsoft.Json;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
 {
@@ -27,6 +28,8 @@ namespace Steepshot.Core.Models.Common
     ///    }
     public class Post
     {
+        private string _permlink;
+
         public string Body { get; set; }
         public string[] Photos { get; set; }
         public string Description { get; set; }
@@ -69,5 +72,16 @@ namespace Steepshot.Core.Models.Common
         public bool FlagNotificationWasShown { get; set; } = true;
         [JsonIgnore]
         public bool ShowMask { get; set; } = true;
+
+
+        public string Permlink
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_permlink))
+                    UrlHelper.TryGetPermlinkFromUrl(Url, out _permlink);
+                return _permlink;
+            }
+        }
     }
 }

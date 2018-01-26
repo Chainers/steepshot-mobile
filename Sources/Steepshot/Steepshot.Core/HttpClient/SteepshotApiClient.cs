@@ -175,8 +175,7 @@ namespace Steepshot.Core.HttpClient
             return await Gateway.UploadMedia(GatewayVersion.V1P1, "media/upload", model, ct);
         }
 
-
-        public async Task<OperationResult<VoidResponse>> DeletePost(DeleteModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
@@ -192,30 +191,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
 
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, model.ParentPermlink, model.Author, model.Permlink, "*deleted*", "*deleted*", string.Empty);
-            var result = await _ditchClient.Edit(commentModel, ct);
-            Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
-            return result;
-        }
-
-        public async Task<OperationResult<VoidResponse>> DeleteComment(DeleteModel model, CancellationToken ct)
-        {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
-
-            if (model.IsEnableToDelete)
-            {
-                var operationResult = await _ditchClient.Delete(model, ct);
-                if (operationResult.IsSuccess)
-                {
-                    await Trace("post", model.Login, operationResult.Error, model.PostUrl, ct);//.Wait(5000);\
-                    return operationResult;
-                }
-            }
-
-            var commentModel = new CommentModel(model.Login, model.PostingKey, model.ParentPermlink, model.ParentAuthor, model.Author, model.Permlink, string.Empty, "*deleted*", string.Empty);
-            var result = await _ditchClient.Edit(commentModel, ct);
+            var result = await _ditchClient.Edit(model, ct);
             Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
             return result;
         }
