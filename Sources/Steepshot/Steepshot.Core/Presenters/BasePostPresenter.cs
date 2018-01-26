@@ -97,7 +97,7 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
             error = null;
             if (response == null)
@@ -119,7 +119,7 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)) && (enableEmptyMedia || item.Media.Length > 0 && !string.IsNullOrEmpty(item.Media[0].Url)))
                             {
                                 Items.Add(item);
                                 isAdded = true;
