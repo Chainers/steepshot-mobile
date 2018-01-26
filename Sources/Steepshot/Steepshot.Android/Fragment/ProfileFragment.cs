@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
@@ -495,12 +492,8 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
 
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo == null)
-                return;
-
             var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
             StartActivity(intent);
         }
 

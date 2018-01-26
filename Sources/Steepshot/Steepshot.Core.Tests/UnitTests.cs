@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
@@ -52,14 +52,14 @@ namespace Steepshot.Core.Tests
             Assert.IsTrue(result.Count == 1);
             Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
-        
+
         [Test]
         public void PreparePostModel_Empty_Title()
         {
             var user = Users.First().Value;
             var request = new PreparePostModel(user)
             {
-                Media = new Media[1]
+                Media = new MediaModel[1]
             };
 
             var result = Validate(request);
@@ -88,7 +88,7 @@ namespace Steepshot.Core.Tests
             var request = new PreparePostModel(user)
             {
                 Title = "title",
-                Media = new Media[1],
+                Media = new MediaModel[1],
                 Tags = new string[PreparePostModel.TagLimit + 1]
             };
 

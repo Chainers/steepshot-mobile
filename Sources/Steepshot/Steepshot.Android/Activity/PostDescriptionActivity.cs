@@ -23,7 +23,6 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -157,7 +156,7 @@ namespace Steepshot.Activity
                 AddTag(editPostTag);
             }
 
-            Picasso.With(this).Load(editPost.Photos[0]).Into(_photoFrame);
+            Picasso.With(this).Load(editPost.Media[0].Url).Into(_photoFrame);
         }
 
         private void InitPhoto(string path)
@@ -417,7 +416,8 @@ namespace Steepshot.Activity
             TryUpload();
         }
 
-        private async Task<OperationResult<Media>> UploadPhoto(string path)
+
+        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
         {
             Stream stream = null;
             FileInputStream fileInputStream = null;
@@ -443,7 +443,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<Media>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
             }
             finally
             {

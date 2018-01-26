@@ -17,7 +17,6 @@ using System.Threading;
 using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 using System.IO;
@@ -285,8 +284,8 @@ namespace Steepshot.iOS.Views
                 return modifiedImage;
             });
         }
-
-        private async Task<OperationResult<Media>> UploadPhoto()
+        
+        private async Task<OperationResult<MediaModel>> UploadPhoto()
         {
             Stream stream = null;
             try
@@ -298,7 +297,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<Media>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
             }
             finally
             {
@@ -331,7 +330,7 @@ namespace Steepshot.iOS.Views
 
                 var shouldReturn = false;
                 var photoUploadRetry = false;
-                OperationResult<Media> photoUploadResponse;
+                OperationResult<MediaModel> photoUploadResponse;
                 do
                 {
                     photoUploadRetry = false;

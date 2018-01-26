@@ -1,9 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Extensions;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 
@@ -35,11 +33,12 @@ namespace Steepshot.Core.Presenters
             };
 
             ErrorBase error;
-            OperationResult<ListResponse<Post>> response;
+            bool isNeedRepeat;
             do
             {
-                response = await Api.GetPosts(request, ct);
-            } while (ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts)));
+                var response = await Api.GetPosts(request, ct);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextTopPosts));
+            } while (isNeedRepeat);
 
             return error;
         }

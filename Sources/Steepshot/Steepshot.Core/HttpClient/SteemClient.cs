@@ -16,8 +16,6 @@ using Ditch.Core;
 using Ditch.Steem.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.HttpClient
 {

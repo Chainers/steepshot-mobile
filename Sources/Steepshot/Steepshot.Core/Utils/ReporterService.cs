@@ -3,7 +3,6 @@ using SharpRaven;
 using SharpRaven.Data;
 using Steepshot.Core.Services;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Serializing;
 using Newtonsoft.Json;
 
 namespace Steepshot.Core.Utils

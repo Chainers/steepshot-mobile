@@ -15,7 +15,6 @@ using Steepshot.Activity;
 using Android.Content;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment

@@ -31,17 +31,11 @@ namespace Steepshot.Core.Models.Common
     {
         private string _permlink;
 
-        [Obsolete("use Media")]
         public string Body { get; set; }
 
-        [Obsolete("use Media")]
-        public string[] Photos { get; set; }
+        public MediaModel[] Media { get; set; }
 
-        [Obsolete("use Media")]
         public string Description { get; set; }
-
-        [Obsolete("use Media")]
-        public Size ImageSize { get; set; }
 
         public string Title { get; set; }
 
@@ -94,10 +88,7 @@ namespace Steepshot.Core.Models.Common
         public bool IsLowRated { get; set; }
 
         public bool IsNsfw { get; set; }
-
-        public Media[] Media { get; set; }
-
-
+        
         //system
         [JsonIgnore]
         public bool VoteChanging { get; set; }

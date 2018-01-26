@@ -9,7 +9,7 @@ using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
 using Ditch.Core.Helpers;
-using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -58,7 +58,7 @@ namespace Steepshot.Core.Tests.HttpClient
                 Description = DateTime.Now.ToString(CultureInfo.InvariantCulture),
                 Media = new[]
                 {
-                    new Media
+                    new MediaModel
                     {
                         Url = "http://steepshot.org/api/v1/image/034e7cc2-90df-4186-b475-9b7d4166e0a4.jpeg",
                         IpfsHash = "QmUHaQDMc46pR21fNFt1Gxo5YeeFxD4uENywbevXe5XXWM",

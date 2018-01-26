@@ -72,8 +72,8 @@ namespace Steepshot.Core.HttpClient
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
-
-        public async Task<OperationResult<Media>> UploadMedia(GatewayVersion version, string endpoint, UploadMediaModel model, CancellationToken token)
+        
+        public async Task<OperationResult<MediaModel>> UploadMedia(GatewayVersion version, string endpoint, UploadMediaModel model, CancellationToken token)
         {
             var url = GetUrl(version, endpoint);
             var fTitle = Guid.NewGuid().ToString();
@@ -88,7 +88,7 @@ namespace Steepshot.Core.HttpClient
             };
 
             var response = await _client.PostAsync(url, multiContent, token);
-            var result = await CreateResult<Media>(response, token);
+            var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
                 result.Error = new ServerError(Localization.Errors.ServeUnexpectedError);

@@ -9,16 +9,15 @@ namespace Steepshot.Core.Presenters
 {
     public class PostDescriptionPresenter : TagsPresenter
     {
-        public async Task<OperationResult<Media>> TryUploadMedia(UploadMediaModel model)
+        public async Task<OperationResult<MediaModel>> TryUploadMedia(UploadMediaModel model)
         {
-            return await TryRunTask<UploadMediaModel, Media>(UploadMedia, OnDisposeCts.Token, model);
+            return await TryRunTask<UploadMediaModel, MediaModel>(UploadMedia, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<Media>> UploadMedia(UploadMediaModel model, CancellationToken ct)
+        private async Task<OperationResult<MediaModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
             return await Api.UploadMedia(model, ct);
         }
-
 
         public async Task<OperationResult<VoidResponse>> TryCreatePost(PreparePostModel model)
         {

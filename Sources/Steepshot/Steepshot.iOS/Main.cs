@@ -1,5 +1,4 @@
 ﻿using System;
-using Steepshot.Core.Utils;
 using UIKit;
 
 namespace Steepshot.iOS
