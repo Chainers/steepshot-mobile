@@ -395,7 +395,7 @@ namespace Steepshot.Activity
                     stream = new StreamConverter(fileInputStream, null);
                 }
 
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream);
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
                 var serverResult = await Presenter.TryUploadMedia(request);
                 return serverResult;
             }
@@ -420,7 +420,7 @@ namespace Steepshot.Activity
                 OnUploadEnded();
                 return;
             }
-            
+
             var resp = await Presenter.TryCreatePost(_model);
             if (IsFinishing || IsDestroyed)
                 return;

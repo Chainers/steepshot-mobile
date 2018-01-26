@@ -137,17 +137,11 @@ namespace Steepshot.Core.HttpClient
 
         public async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
         {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+            var operationResult = await PreparePost(model, ct);
 
-            model.PostPermlink = OperationHelper.TitleToPermlink(model.Title);
-            OperationHelper.PrepareTags(model.Tags);
-            var operationResult = await Gateway.Post<PreparePostResponce, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
             if (!operationResult.IsSuccess)
-            {
                 return new OperationResult<VoidResponse>(operationResult.Error);
-            }
+
             var preparedData = operationResult.Result;
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";

@@ -92,7 +92,7 @@ namespace Steepshot.Core.Tests
 
         [Test]
         [TestCase(KnownChains.Steem, "@steepshot/steepshot-some-stats-and-explanations")]
-        [TestCase(KnownChains.Golos, "@anatolich/utro-dobroe-gospoda-i-damy-khochu-chtoby-opyatx-bylo-leto-plyazh-i-solncze--2017-11-08-02-10-33")]
+        [TestCase(KnownChains.Golos, "@irina1/avto-2018-01-04-10-43-52")]
         public async Task GetPostVotersTest(KnownChains apiName, string url)
         {
             var request = new VotersModel(url, VotersType.All)

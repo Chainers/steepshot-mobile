@@ -32,14 +32,16 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
+        [Ignore("For hand test only")]
         public async Task UploadMediaTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
             // 1) Create new post
+            var path = GetTestImagePath();
             var stream = new FileStream(GetTestImagePath(), FileMode.Open);
             user.IsNeedRewards = false;
-            var uploadImageModel = new UploadMediaModel(user, stream);
+            var uploadImageModel = new UploadMediaModel(user, stream, Path.GetExtension(path));
             var servResp = await Api[apiName].UploadMedia(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
         }
@@ -47,10 +49,9 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task UploadWithPrepareTest(KnownChains apiName)
+        public async Task PreparePostTest(KnownChains apiName)
         {
             var user = Users[apiName];
-
             var model = new PreparePostModel(user)
             {
                 Title = "Test",
@@ -59,33 +60,20 @@ namespace Steepshot.Core.Tests.HttpClient
                 {
                     new UploadMediaResponse
                     {
-                        Url = "",
-                        IpfsHash = "",
+                        Url = "http://steepshot.org/api/v1/image/034e7cc2-90df-4186-b475-9b7d4166e0a4.jpeg",
+                        IpfsHash = "QmUHaQDMc46pR21fNFt1Gxo5YeeFxD4uENywbevXe5XXWM",
                         Size = new FrameSize
                         {
-                            Height = 0,
-                            Width = 0
+                            Height = 194,
+                            Width = 194
                         }
                     }
-                }
+                },
+                Tags = new[] { "test" }
             };
 
-            var createPostResponse = await Api[apiName].CreatePost(model, CancellationToken.None);
-
+            var createPostResponse = await Api[apiName].PreparePost(model, CancellationToken.None);
             AssertResult(createPostResponse);
-
-            // Wait for data to be writed into blockchain
-            Thread.Sleep(TimeSpan.FromSeconds(15));
-
-            // Load last created post
-            var userPostsModel = new UserPostsModel(user.Login);
-            userPostsModel.ShowNsfw = true;
-            userPostsModel.ShowLowRated = true;
-            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsModel, CancellationToken.None);
-            AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(model.PostPermlink, StringComparison.OrdinalIgnoreCase));
-            Assert.IsNotNull(lastPost);
-            Assert.That(model.Title, Is.EqualTo(lastPost.Title));
         }
 
         [Test]

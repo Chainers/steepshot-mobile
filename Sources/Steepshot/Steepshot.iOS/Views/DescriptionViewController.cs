@@ -16,7 +16,6 @@ using Steepshot.Core.Models;
 using System.Threading;
 using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
-using System.Runtime.InteropServices;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using System.Collections.Generic;
@@ -28,11 +27,20 @@ namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        public UIImage ImageAsset;
+        private UIImage ImageAsset;
+        private string ImageExtension;
         private TagsTableViewSource _tableSource;
         private LocalTagsCollectionViewSource _collectionviewSource;
         private Timer _timer;
         private string _previousQuery;
+
+
+        public DescriptionViewController(UIImage imageAsset, string extension)
+        {
+            ImageAsset = imageAsset;
+            ImageExtension = extension;
+        }
+
 
         public override void ViewDidLoad()
         {
@@ -284,7 +292,7 @@ namespace Steepshot.iOS.Views
             try
             {
                 stream = ImageAsset.AsJpegStream();
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream);
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
                 return await _presenter.TryUploadMedia(request);
             }
             catch (Exception ex)

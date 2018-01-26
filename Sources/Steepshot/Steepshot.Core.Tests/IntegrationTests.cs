@@ -492,25 +492,24 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task Vote_Up_Already_Voted(KnownChains apiName)
         {
-            // Load last post
             var user = Users[apiName];
-            var userPostsRequest = new UserPostsModel(user.Login);
+            var userPostsRequest = new CensoredNamedRequestWithOffsetLimitModel();
             userPostsRequest.ShowLowRated = true;
             userPostsRequest.ShowNsfw = true;
-            var posts = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+            userPostsRequest.Login = user.Login;
+            var posts = await Api[apiName].GetUserRecentPosts(userPostsRequest, CancellationToken.None);
             Assert.IsTrue(posts.IsSuccess);
-            var lastPost = posts.Result.Results.First();
+            var postForVote = posts.Result.Results.FirstOrDefault(i => i.Vote == false);
+            Assert.IsNotNull(postForVote);
 
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, lastPost.Url);
-
-            // Act
+            var request = new VoteModel(Users[apiName], VoteType.Up, postForVote.Url);
             var response = await Api[apiName].Vote(request, CancellationToken.None);
+            AssertResult(response);
             Thread.Sleep(2000);
-            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
 
-            // Assert
+            var response2 = await Api[apiName].Vote(request, CancellationToken.None);
             AssertResult(response2);
+
             Assert.That(response2.Error.Message.Contains("You have already voted in a similar way.")
                         || response2.Error.Message.Contains("You`ve already liked this post a few times. Please try another one.")
                         || response2.Error.Message.Contains("Can only vote once every 3 seconds.")
@@ -604,13 +603,9 @@ namespace Steepshot.Core.Tests
         [TestCase(KnownChains.Golos)]
         public async Task Vote_Invalid_Identifier4(KnownChains apiName)
         {
-            // Arrange
             var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/@qwe");
-
-            // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
 
-            // Assert
             AssertResult(response);
             Assert.That(response.Error.Message.Contains("Incorrect identifier"));
         }
@@ -1352,36 +1347,13 @@ namespace Steepshot.Core.Tests
         public async Task Upload_Empty_Photo(KnownChains apiName)
         {
             // Arrange
-            var request = new UploadMediaModel(Users[apiName], new MemoryStream());
+            var request = new UploadMediaModel(Users[apiName], new MemoryStream(), ".jpg");
 
             // Act
             var response = await Api[apiName].UploadMedia(request, CancellationToken.None);
             // Assert
             AssertResult(response);
             Assert.IsTrue(string.Equals(response.Error.Message, Localization.Errors.EmptyFileField));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Upload_Tags_Greater_Than_Max(KnownChains apiName)
-        {
-            // Arrange
-            var model = new PreparePostModel(Users[apiName])
-            {
-                Title = "Test title",
-                Media = new[] { new UploadMediaResponse() },
-                Tags = new string[PreparePostModel.TagLimit + 1]
-            };
-
-            for (var i = 0; i < model.Tags.Length; i++)
-                model.Tags[i] = "cat" + i;
-            
-            // Act
-            var response = await Api[apiName].CreatePost(model, CancellationToken.None);
-            AssertResult(response);
-            Assert.IsTrue(response.Error.Message.Equals(Localization.Errors.TagLimitError));
-            Assert.IsTrue(Localization.Errors.TagLimitError.Contains(PreparePostModel.TagLimit.ToString()));
         }
 
         [Test]

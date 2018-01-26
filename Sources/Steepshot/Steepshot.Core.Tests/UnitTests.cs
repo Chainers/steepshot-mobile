@@ -1,9 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
@@ -12,7 +11,18 @@ namespace Steepshot.Core.Tests
     public class UnitTests : BaseTests
     {
         [Test]
-        public void Vote_Empty_Identifier()
+        public void CreateCommentModel_Empty_Url()
+        {
+            var user = Users.First().Value;
+            var request = new CreateCommentModel(user, string.Empty, "test", AppSettings.AppInfo);
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
+        }
+
+        [Test]
+        public void VoteModel_Empty_Identifier()
         {
             var user = Users.First().Value;
             var request = new VoteModel(user, VoteType.Up, string.Empty);
@@ -22,7 +32,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void Follow_Empty_Username()
+        public void FollowModel_Empty_Username()
         {
             var user = Users.First().Value;
 
@@ -34,7 +44,7 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void InfoRequest_Empty_Url()
+        public void InfoModel_Empty_Url()
         {
             var request = new InfoModel(string.Empty);
 
@@ -42,23 +52,15 @@ namespace Steepshot.Core.Tests
             Assert.IsTrue(result.Count == 1);
             Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
-
+        
         [Test]
-        public void CreateComment_Empty_Url()
+        public void PreparePostModel_Empty_Title()
         {
             var user = Users.First().Value;
-            var request = new CreateCommentModel(user, string.Empty, "test", AppSettings.AppInfo);
-
-            var result = Validate(request);
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
-        }
-
-        [Test]
-        public void UploadImageRequest_Empty_Title()
-        {
-            var user = Users.First().Value;
-            var request = new PreparePostModel(user);
+            var request = new PreparePostModel(user)
+            {
+                Media = new UploadMediaResponse[1]
+            };
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
@@ -66,13 +68,33 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        public void InfoRequest_Empty_Title()
+        public void PreparePostModel_Empty_Media()
         {
-            var request = new InfoModel(string.Empty);
+            var user = Users.First().Value;
+            var request = new PreparePostModel(user)
+            {
+                Title = "title"
+            };
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyFileField);
+        }
+
+        [Test]
+        public void PreparePostModel_MaxTags()
+        {
+            var user = Users.First().Value;
+            var request = new PreparePostModel(user)
+            {
+                Title = "title",
+                Media = new UploadMediaResponse[1],
+                Tags = new string[PreparePostModel.TagLimit + 1]
+            };
+
+            var result = Validate(request);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.TagLimitError);
         }
     }
 }

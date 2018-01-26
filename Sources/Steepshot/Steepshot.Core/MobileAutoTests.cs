@@ -290,7 +290,7 @@ namespace Steepshot.Core
             byte[] byteArray = Encoding.ASCII.GetBytes(cat);
             MemoryStream stream = new MemoryStream(byteArray);
 
-            var request = new UploadMediaModel(_user, stream)
+            var request = new UploadMediaModel(_user, stream, ".jpg")
             {
                 GenerateThumbnail = false,
             };

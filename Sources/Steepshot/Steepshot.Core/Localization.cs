@@ -21,12 +21,14 @@ namespace Steepshot.Core
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title required";
             public const string EmptyFileField = "File cannot be empty";
+            public const string EmptyContentType = "Unknown file format";
             public const string EmptyVerifyTransaction = "Empty authentification";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string EmptyPostingKey = "Posting key cannot be empty";
             public const string EmptyActiveKey = "Active key cannot be empty";
+            public const string EmptyPostPermlink = "Permlink cannot be empty";
             public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";

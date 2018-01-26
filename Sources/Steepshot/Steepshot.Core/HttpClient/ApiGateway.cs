@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Common;
 using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
+using System.Net.Http.Headers;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -77,15 +78,22 @@ namespace Steepshot.Core.HttpClient
             var url = GetUrl(version, endpoint);
             var fTitle = Guid.NewGuid().ToString();
 
+            var file = new StreamContent(model.File);
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse(model.ContentType);
             var multiContent = new MultipartFormDataContent
             {
                 {new StringContent(model.VerifyTransaction), "trx"},
-                {new StreamContent(model.File), "file", fTitle},
+                {file, "file", fTitle},
                 {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
             };
 
             var response = await _client.PostAsync(url, multiContent, token);
-            return await CreateResult<UploadMediaResponse>(response, token);
+            var result = await CreateResult<UploadMediaResponse>(response, token);
+
+            if (result.IsSuccess && result.Result == null)
+                result.Error = new ServerError(Localization.Errors.ServeUnexpectedError);
+
+            return result;
         }
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
@@ -191,6 +199,7 @@ namespace Steepshot.Core.HttpClient
                 if (mediaType.Equals("application/json"))
                 {
                     var content = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine(content);
                     result.Result = JsonNetConverter.Deserialize<T>(content);
                 }
                 else

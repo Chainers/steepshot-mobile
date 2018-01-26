@@ -336,8 +336,7 @@ namespace Steepshot.iOS.Views
 
         private void GoToDescription(UIImage image)
         {
-            var descriptionViewController = new DescriptionViewController();
-            descriptionViewController.ImageAsset = image;
+            var descriptionViewController = new DescriptionViewController(image, "jpg");
             NavigationController.PushViewController(descriptionViewController, true);
             //var mainTabBar = NavigationController.ViewControllers[0];
             //NavigationController.ViewControllers = new UIViewController[] { mainTabBar, descriptionViewController };

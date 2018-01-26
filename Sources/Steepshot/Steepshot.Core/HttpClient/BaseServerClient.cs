@@ -310,6 +310,17 @@ namespace Steepshot.Core.HttpClient
 
         #endregion Get requests
 
+        public async Task<OperationResult<PreparePostResponce>> PreparePost(PreparePostModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<PreparePostResponce>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+            
+            model.PostPermlink = OperationHelper.TitleToPermlink(model.Title);
+      
+            return await Gateway.Post<PreparePostResponce, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
+        }
+
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
