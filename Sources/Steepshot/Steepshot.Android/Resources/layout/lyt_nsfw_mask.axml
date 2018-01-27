@@ -41,6 +41,8 @@
             android:id="@+id/nsfw_mask_button"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:background="@drawable/transparent_rounded_border"
             android:textColor="@color/black"
             android:textSize="14sp"
