@@ -10,18 +10,14 @@ namespace Steepshot.Core.Models.Requests
     public class PreparePostModel : AuthorizedModel
     {
         private string[] _tags;
-        private string _postPermlink;
+        private readonly string _postPermlink;
         public const int TagLimit = 20;
 
         [JsonProperty]
         public string Description { get; set; }
 
         [JsonProperty]
-        public string PostPermlink
-        {
-            get { return string.IsNullOrEmpty(_postPermlink) ? OperationHelper.TitleToPermlink(Title) : _postPermlink; }
-            set { _postPermlink = value; }
-        }
+        public string PostPermlink => string.IsNullOrEmpty(_postPermlink) ? OperationHelper.TitleToPermlink(Title) : _postPermlink;
 
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyLogin)]
@@ -55,6 +51,7 @@ namespace Steepshot.Core.Models.Requests
         [Required(ErrorMessage = Localization.Errors.EmptyTitleField)]
         public string Title { get; set; }
 
+        public bool IsEditMode { get; }
 
         public PreparePostModel(UserInfo user) : base(user)
         {
@@ -63,6 +60,18 @@ namespace Steepshot.Core.Models.Requests
 
             ShowFooter = user.ShowFooter;
             Username = user.Login;
+            IsEditMode = false;
+        }
+
+        public PreparePostModel(UserInfo user, string permlink) : base(user)
+        {
+            if (!user.IsNeedRewards)
+                BeneficiariesSet = "steepshot_no_rewards";
+
+            ShowFooter = user.ShowFooter;
+            Username = user.Login;
+            _postPermlink = permlink;
+            IsEditMode = true;
         }
     }
 }

@@ -13,7 +13,6 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
 
@@ -29,7 +28,6 @@ namespace Steepshot.Fragment
 
         private Post _post, _editComment;
         private CommentAdapter _adapter;
-        private string _uid;
         private bool _openKeyboard;
         private LinearLayoutManager _manager;
         private int _counter = 0;
@@ -61,7 +59,6 @@ namespace Steepshot.Fragment
         public CommentsFragment(Post post, bool openKeyboard)
         {
             _post = post;
-            _uid = post.Url;
             _openKeyboard = openKeyboard;
         }
 
@@ -120,7 +117,7 @@ namespace Steepshot.Fragment
 
             _commentEditCancelBtn.Click += CommentEditCancelBtnOnClick;
 
-            LoadComments(_uid);
+            LoadComments(_post);
             if (_openKeyboard)
             {
                 _openKeyboard = false;
@@ -190,7 +187,7 @@ namespace Steepshot.Fragment
             }
             else
             {
-                var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
+                var resp = await Presenter.TryCreateComment(_post, _textInput.Text);
 
                 if (!IsInitialized)
                     return;
@@ -200,7 +197,7 @@ namespace Steepshot.Fragment
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
 
-                    var error = await Presenter.TryLoadNextComments(_uid);
+                    var error = await Presenter.TryLoadNextComments(_post);
 
                     if (!IsInitialized)
                         return;
@@ -210,7 +207,7 @@ namespace Steepshot.Fragment
 
                     _counter++;
 
-                    Activity.Intent.PutExtra(ResultString, _uid);
+                    Activity.Intent.PutExtra(ResultString, _post.Url);
                     Activity.Intent.PutExtra(CountString, _counter);
                 }
                 else
@@ -224,11 +221,11 @@ namespace Steepshot.Fragment
             _postImage.Visibility = ViewStates.Visible;
         }
 
-        private async void LoadComments(string postUrl)
+        private async void LoadComments(Post post)
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            var error = await Presenter.TryLoadNextComments(postUrl);
+            var error = await Presenter.TryLoadNextComments(post);
 
             if (!IsInitialized)
                 return;

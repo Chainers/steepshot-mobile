@@ -94,10 +94,12 @@ namespace Steepshot.Activity
             if (!string.IsNullOrEmpty(editPost))
             {
                 _editpost = JsonConvert.DeserializeObject<Post>(editPost);
+                _model = new PreparePostModel(BasePresenter.User.UserInfo, _editpost.Permlink);
                 SetEditPost(_editpost);
             }
             else
             {
+                _model = new PreparePostModel(BasePresenter.User.UserInfo);
                 _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
                 _path = Intent.GetStringExtra(PhotoExtraPath);
                 InitPhoto(_path);
@@ -122,11 +124,8 @@ namespace Steepshot.Activity
 
             _path = Intent.GetStringExtra(PhotoExtraPath);
 
-            InitPhoto(_path);
             SetPostingTimer();
             SearchTextChanged();
-
-            _model = new PreparePostModel(BasePresenter.User.UserInfo);
         }
 
         private async void SetPostingTimer()
@@ -462,7 +461,7 @@ namespace Steepshot.Activity
                 return;
             }
 
-            var resp = await Presenter.TryCreatePost(_model);
+            var resp = await Presenter.TryCreateOrEditPost(_model);
             if (IsFinishing || IsDestroyed)
                 return;
 

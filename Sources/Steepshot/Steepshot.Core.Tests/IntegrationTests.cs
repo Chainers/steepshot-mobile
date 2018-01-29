@@ -846,11 +846,11 @@ namespace Steepshot.Core.Tests
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
             var body = $"Test comment {DateTime.Now:G}";
-            var createCommentModel = new CreateCommentModel(Users[apiName], lastPost.Url, body, AppSettings.AppInfo);
+            var createCommentModel = new CreateOrEditCommentModel(Users[apiName], lastPost, body, AppSettings.AppInfo);
 
             // Act
-            var response1 = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
-            var response2 = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
+            var response1 = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
+            var response2 = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
 
             // Assert
             AssertResult(response1);
@@ -877,9 +877,9 @@ namespace Steepshot.Core.Tests
             var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
             Assert.IsNotNull(comment);
 
-            var editCommentRequest = new EditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
+            var editCommentRequest = new CreateOrEditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
 
-            var result = await Api[apiName].EditComment(editCommentRequest, CancellationToken.None);
+            var result = await Api[apiName].CreateOrEditComment(editCommentRequest, CancellationToken.None);
             AssertResult(result);
         }
 

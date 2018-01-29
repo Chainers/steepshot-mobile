@@ -373,7 +373,7 @@ namespace Steepshot.iOS.Views
                 {
                     pushToBlockchainRetry = false;
 
-                    var response = await _presenter.TryCreatePost(model);
+                    var response = await _presenter.TryCreateOrEditPost(model);
 
                     if (!(response != null && response.IsSuccess))
                     {

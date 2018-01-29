@@ -241,8 +241,8 @@ namespace Steepshot.Core
             }
 
             var testPost = postsResp.Result.Results.First();
-            var req = new CreateCommentModel(_user, testPost.Url, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
-            var rez = _api.CreateComment(req, CancellationToken.None)
+            var req = new CreateOrEditCommentModel(_user, testPost, "Hi, I am a bot for testing Ditch api, please ignore this comment.", _appInfo);
+            var rez = _api.CreateOrEditComment(req, CancellationToken.None)
                 .Result;
 
             if (!UrlHelper.TryCastUrlToAuthorAndPermlink(testPost.Url, out var parentAuthor, out var parentPermlink))
@@ -307,7 +307,7 @@ namespace Steepshot.Core
                 Media = new[] { mediaResponse.Result },
             };
 
-            var response = _api.CreatePost(model, CancellationToken.None).Result;
+            var response = _api.CreateOrEditPost(model, CancellationToken.None).Result;
             if (!response.IsSuccess)
             {
                 sb.AppendLine($"fail. Reason:{Environment.NewLine} {response.Error.Message}");

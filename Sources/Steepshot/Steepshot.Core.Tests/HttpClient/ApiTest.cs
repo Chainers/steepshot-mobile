@@ -94,8 +94,8 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentModel = new CreateCommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
-            var createCommentResponse = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentResponse = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
@@ -107,9 +107,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
 
-            UrlHelper.TryCastUrlToAuthorAndPermlink(createCommentModel.ParentUrl, out var parentAuthor, out var parentPermlink);
-            var permlink = OperationHelper.CreateReplyPermlink(user.Login, parentAuthor, parentPermlink);
-            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(permlink)));
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentModel.Permlink)));
         }
 
         [Test]

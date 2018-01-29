@@ -106,36 +106,33 @@ namespace Steepshot.Core.HttpClient
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreateComment(CreateCommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateOrEditComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
             var results = Validate(model);
             if (results.Any())
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
-            if (!UrlHelper.TryCastUrlToAuthorAndPermlink(model.ParentUrl, out var parentAuthor, out var parentPermlink))
-                return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.IncorrectIdentifier));
-
-            var permlink = OperationHelper.CreateReplyPermlink(model.Login, parentAuthor, parentPermlink);
-            var commentModel = new CommentModel(model.Login, model.PostingKey, parentAuthor, parentPermlink, model.Login, permlink, string.Empty, model.Body, model.JsonMetadata);
-
-            var bKey = $"{_ditchClient.GetType()}{model.IsNeedRewards}";
-            if (_beneficiariesCash.ContainsKey(bKey))
+            if (!model.IsEditMode)
             {
-                commentModel.Beneficiaries = _beneficiariesCash[bKey];
-            }
-            else
-            {
-                var beneficiaries = await GetBeneficiaries(model.IsNeedRewards, ct);
-                if (beneficiaries.IsSuccess)
-                    _beneficiariesCash[bKey] = commentModel.Beneficiaries = beneficiaries.Result.Beneficiaries;
+                var bKey = $"{_ditchClient.GetType()}{model.IsNeedRewards}";
+                if (_beneficiariesCash.ContainsKey(bKey))
+                {
+                    model.Beneficiaries = _beneficiariesCash[bKey];
+                }
+                else
+                {
+                    var beneficiaries = await GetBeneficiaries(model.IsNeedRewards, ct);
+                    if (beneficiaries.IsSuccess)
+                        _beneficiariesCash[bKey] = model.Beneficiaries = beneficiaries.Result.Beneficiaries;
+                }
             }
 
-            var result = await _ditchClient.Create(commentModel, ct);
-            Trace($"post/{permlink}/comment", model.Login, result.Error, permlink, ct);//.Wait(5000);
+            var result = await _ditchClient.CreateOrEdit(model, ct);
+            Trace($"post/{model.Permlink}/comment", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
             return result;
         }
 
-        public async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateOrEditPost(PreparePostModel model, CancellationToken ct)
         {
             var operationResult = await PreparePost(model, ct);
 
@@ -146,12 +143,11 @@ namespace Steepshot.Core.HttpClient
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
             var meta = JsonConverter.Serialize(preparedData.JsonMetadata);
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostPermlink, model.Title, preparedData.Body, meta)
-            {
-                Beneficiaries = preparedData.Beneficiaries
-            };
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostPermlink, model.Title, preparedData.Body, meta);
+            if (!model.IsEditMode)
+                commentModel.Beneficiaries = preparedData.Beneficiaries;
 
-            var result = await _ditchClient.Create(commentModel, ct);
+            var result = await _ditchClient.CreateOrEdit(commentModel, ct);
 
             Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
             return result;
@@ -192,7 +188,7 @@ namespace Steepshot.Core.HttpClient
                 }
             }
 
-            var result = await _ditchClient.Edit(model, ct);
+            var result = await _ditchClient.CreateOrEdit(model, ct);
             Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
             return result;
         }
@@ -204,29 +200,6 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             return await _ditchClient.UpdateUserProfile(model, ct);
-        }
-
-        public async Task<OperationResult<VoidResponse>> EditComment(EditCommentModel model, CancellationToken ct)
-        {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
-
-
-            var result = await _ditchClient.Edit(model, ct);
-            Trace($"post/{model.Url}/comment", model.Login, result.Error, model.Url, ct);//.Wait(5000);
-            return result;
-        }
-
-        public async Task<OperationResult<VoidResponse>> EditPost(EditPostModel model, CancellationToken ct)
-        {
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
-
-            var result = await _ditchClient.Edit(model, ct);
-            Trace($"post/{model.Url}/comment", model.Login, result.Error, model.Url, ct);//.Wait(5000);
-            return result;
         }
     }
 }
