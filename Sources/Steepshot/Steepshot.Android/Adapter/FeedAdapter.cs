@@ -87,7 +87,6 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _likeAction;
         private readonly Action<Post> _userAction;
         private readonly Action<Post> _commentAction;
-        private readonly Action<Post> _photoAction;
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
@@ -105,7 +104,6 @@ namespace Steepshot.Adapter
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
         protected readonly ImageButton _more;
-        private readonly LinearLayout _commentFooter;
         private readonly LinearLayout _topLikers;
         protected readonly RelativeLayout _nsfwMask;
         private readonly TextView _nsfwMaskMessage;
@@ -147,7 +145,6 @@ namespace Steepshot.Adapter
             _flagsIcon = itemView.FindViewById<ImageView>(Resource.Id.flagIcon);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
-            _commentFooter = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _topLikers = itemView.FindViewById<LinearLayout>(Resource.Id.top_likers);
             _nsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.nsfw_mask);
@@ -174,7 +171,6 @@ namespace Steepshot.Adapter
             _likeAction = likeAction;
             _userAction = userAction;
             _commentAction = commentAction;
-            _photoAction = photoAction;
             _votersAction = votersAction;
             _flagAction = flagAction;
             _hideAction = hideAction;
