@@ -199,7 +199,6 @@ namespace Steepshot.Core.HttpClient
                 if (mediaType.Equals("application/json"))
                 {
                     var content = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(content);
                     result.Result = JsonNetConverter.Deserialize<T>(content);
                 }
                 else

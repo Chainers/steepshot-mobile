@@ -132,6 +132,7 @@ namespace Steepshot.Core
             public const string FlagSubMessage = "";
             public const string DeleteAlertTitle = "Are you sure you want to delete this post?";
             public const string DeleteAlertMessage = "This action can not be undone.";
+            public const string VotingPower = "Voting power";
 
             public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Service</a> & <a href=\"{Constants.Pp}\">Privacy policy</a>";
             public const string PostDelay = "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain";
