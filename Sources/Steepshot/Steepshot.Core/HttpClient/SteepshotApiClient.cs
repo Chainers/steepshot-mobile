@@ -187,13 +187,15 @@ namespace Steepshot.Core.HttpClient
                 var operationResult = await _ditchClient.Delete(model, ct);
                 if (operationResult.IsSuccess)
                 {
-                    var tt = await Trace($"post/{model.Url}/delete", model.Login, operationResult.Error, model.Url, ct);//.Wait(5000);
+                    if (model.IsPost)
+                        Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
                     return operationResult;
                 }
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
-            var t = await Trace($"post/{model.Url}/edit", model.Login, result.Error, model.Url, ct);//.Wait(5000);
+            if (model.IsPost)
+                Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
             return result;
         }
 

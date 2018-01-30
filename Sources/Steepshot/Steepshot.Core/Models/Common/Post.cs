@@ -89,7 +89,7 @@ namespace Steepshot.Core.Models.Common
 
         public bool IsNsfw { get; set; }
 
-        public string CashoutTime { get; set; }
+        public DateTime CashoutTime { get; set; }
 
         //system
         [JsonIgnore]

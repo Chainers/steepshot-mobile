@@ -294,7 +294,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = _post.CashoutTime < _post.Created ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
