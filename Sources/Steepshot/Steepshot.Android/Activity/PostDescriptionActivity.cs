@@ -27,6 +27,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Activity
 {
@@ -40,7 +41,6 @@ namespace Steepshot.Activity
         private string _path;
         private bool _shouldCompress;
         private Timer _timer;
-        private Bitmap _btmp;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
         private PreparePostModel _model;
@@ -102,9 +102,7 @@ namespace Steepshot.Activity
 
             _timer = new Timer(OnTimer);
 
-            _path = Intent.GetStringExtra(PhotoExtraPath);
-
-            InitPhoto(_path);
+            InitPhoto();
             SetPostingTimer();
             SearchTextChanged();
 
@@ -127,57 +125,85 @@ namespace Steepshot.Activity
             _postButton.Text = Localization.Texts.PublishButtonText;
         }
 
-        private void InitPhoto(string path)
+        private void InitPhoto()
         {
-            var photoUri = Android.Net.Uri.Parse(path);
+            _path = Intent.GetStringExtra(PhotoExtraPath);
+
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             if (_shouldCompress)
-            {
-                FileDescriptor fileDescriptor = null;
-                try
-                {
-                    fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                    _btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                    _btmp = BitmapUtils.RotateImageIfRequired(_btmp, fileDescriptor, path);
-                    _photoFrame.SetImageBitmap(_btmp);
-                }
-                catch (Exception ex)
-                {
-                    _postButton.Enabled = false;
-                    this.ShowAlert(Localization.Errors.UnknownCriticalError);
-                    AppSettings.Reporter.SendCrash(ex);
-                }
-                finally
-                {
-                    fileDescriptor?.Dispose();
-                }
-            }
-            else
-            {
-                _photoFrame.SetImageURI(photoUri);
-            }
+                _path = Compress(_path);
+
+            var photoUri = Android.Net.Uri.Parse(_path);
+            _photoFrame.SetImageURI(photoUri);
         }
 
-        private void PhotoFrameOnClick(object sender, EventArgs e)
+        private string Compress(string path)
         {
-            if (_btmp == null)
+            var photoUri = Android.Net.Uri.Parse(path);
+
+            FileDescriptor fileDescriptor = null;
+            Bitmap btmp = null;
+            System.IO.FileStream stream = null;
+            try
             {
-                _btmp = BitmapFactory.DecodeFile(_path);
-                _shouldCompress = true;
+                fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
+                btmp = BitmapUtils.RotateImageIfRequired(btmp, fileDescriptor, path);
+
+                var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
+                if (!directory.Exists())
+                    directory.Mkdirs();
+
+                path = $"{directory}/{Guid.NewGuid()}.jpeg";
+                stream = new System.IO.FileStream(path, System.IO.FileMode.Create);
+                btmp.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+
+                return path;
             }
-            _btmp = BitmapUtils.RotateImage(_btmp, 90);
-            _photoFrame.SetImageBitmap(_btmp);
+            catch (Exception ex)
+            {
+                _postButton.Enabled = false;
+                this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            finally
+            {
+                fileDescriptor?.Dispose();
+                btmp?.Recycle();
+                btmp?.Dispose();
+                stream?.Dispose();
+            }
+            return path;
+        }
+
+        private async void PhotoFrameOnClick(object sender, EventArgs e)
+        {
+            if (!_photoFrame.Clickable)
+                return;
+
+            _photoFrame.Clickable = false;
+            var btmp = BitmapFactory.DecodeFile(_path);
+            _shouldCompress = true;
+
+            btmp = BitmapUtils.RotateImage(btmp, 90);
+            using (var stream = new System.IO.FileStream(_path, System.IO.FileMode.Create))
+            {
+                btmp.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+            }
+            btmp.Recycle();
+            btmp.Dispose();
+
+            var photoUri = Android.Net.Uri.Parse(_path);
+            _photoFrame.SetImageURI(null);
+            _photoFrame.SetImageURI(photoUri);
+            _photoFrame.Clickable = true;
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
             Cheeseknife.Reset(this);
-            if (_btmp != null)
-            {
-                _btmp.Recycle();
-                _btmp = null;
-            }
             GC.Collect(0);
         }
 
@@ -382,17 +408,9 @@ namespace Steepshot.Activity
 
             try
             {
-                if (_shouldCompress)
-                {
-                    stream = new MemoryStream();
-                    _btmp.Compress(Bitmap.CompressFormat.Jpeg, 90, stream);
-                }
-                else
-                {
-                    var photo = new Java.IO.File(path);
-                    fileInputStream = new FileInputStream(photo);
-                    stream = new StreamConverter(fileInputStream, null);
-                }
+                var photo = new Java.IO.File(path);
+                fileInputStream = new FileInputStream(photo);
+                stream = new StreamConverter(fileInputStream, null);
 
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
                 var serverResult = await Presenter.TryUploadMedia(request);
