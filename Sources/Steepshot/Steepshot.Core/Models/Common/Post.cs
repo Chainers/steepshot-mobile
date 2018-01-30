@@ -57,6 +57,7 @@ namespace Steepshot.Core.Models.Common
         public string[] TopLikersAvatars { get; set; }
         public bool IsLowRated { get; set; }
         public bool IsNsfw { get; set; }
+        public string CashoutTime { get; set; }
 
         //system
         [JsonIgnore]

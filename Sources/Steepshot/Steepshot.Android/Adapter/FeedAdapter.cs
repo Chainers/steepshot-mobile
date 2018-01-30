@@ -255,7 +255,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    delete.Visibility = ViewStates.Visible;
+                    delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
