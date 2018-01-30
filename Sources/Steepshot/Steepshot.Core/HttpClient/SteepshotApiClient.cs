@@ -8,9 +8,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using System.Linq;
-using Ditch.Core.Helpers;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -91,7 +89,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoteResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
 
             var result = await _ditchClient.Vote(model, ct);
-            Trace($"post/{model.Identifier}/{model.Type.GetDescription()}", model.Login, result.Error, model.Identifier, ct);//.Wait(5000);
+            Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
             return result;
         }
 
@@ -128,7 +126,7 @@ namespace Steepshot.Core.HttpClient
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
-            Trace($"post/{model.Permlink}/comment", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+            var t = await Trace($"post/@{model.Author}/{model.Permlink}/comment", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
             return result;
         }
 
@@ -143,13 +141,19 @@ namespace Steepshot.Core.HttpClient
 
             var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
             var meta = JsonConverter.Serialize(preparedData.JsonMetadata);
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.PostPermlink, model.Title, preparedData.Body, meta);
+            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, preparedData.Body, meta);
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
 
             var result = await _ditchClient.CreateOrEdit(commentModel, ct);
-
-            Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
+            if (model.IsEditMode)
+            {
+                var t2 = await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+            }
+            else
+            {
+                var t = await Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+            }
             return result;
         }
 
@@ -183,13 +187,13 @@ namespace Steepshot.Core.HttpClient
                 var operationResult = await _ditchClient.Delete(model, ct);
                 if (operationResult.IsSuccess)
                 {
-                    Trace("post", model.Login, operationResult.Error, model.PostUrl, ct);//.Wait(5000);\
+                    var tt = await Trace($"post/{model.Url}/delete", model.Login, operationResult.Error, model.Url, ct);//.Wait(5000);
                     return operationResult;
                 }
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
-            Trace("post", model.Login, result.Error, model.PostUrl, ct);//.Wait(5000);\
+            var t = await Trace($"post/{model.Url}/edit", model.Login, result.Error, model.Url, ct);//.Wait(5000);
             return result;
         }
 

@@ -13,21 +13,21 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
-        public readonly string PostUrl;
+        public readonly string Url;
 
 
         public DeleteModel(UserInfo user, Post post)
             : base(user.Login, user.PostingKey, string.Empty, post.Category, post.Author, post.Permlink, "*deleted*", "*deleted*", string.Empty)
         {
             IsEnableToDelete = post.Children == 0; // TODO:KOA: It`s not all case, research needed
-            PostUrl = post.Url;
+            Url = post.Url;
         }
 
         public DeleteModel(UserInfo user, Post post, Post parentPost)
             : base(user.Login, user.PostingKey, parentPost.Author, parentPost.Permlink, post.Author, post.Permlink, string.Empty, "*deleted*", string.Empty)
         {
             IsEnableToDelete = post.Children == 0; // TODO:KOA: It`s not all case, research needed
-            PostUrl = post.Url;
+            Url = post.Url;
         }
     }
 }

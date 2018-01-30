@@ -10,18 +10,18 @@ namespace Steepshot.Core.Models.Requests
     public class PreparePostModel : AuthorizedModel
     {
         private string[] _tags;
-        private readonly string _postPermlink;
+        private readonly string _permlink;
         public const int TagLimit = 20;
 
         [JsonProperty]
         public string Description { get; set; }
 
         [JsonProperty]
-        public string PostPermlink => string.IsNullOrEmpty(_postPermlink) ? OperationHelper.TitleToPermlink(Title) : _postPermlink;
+        public string Permlink => string.IsNullOrEmpty(_permlink) ? OperationHelper.TitleToPermlink(Title) : _permlink;
 
-        [JsonProperty]
+        [JsonProperty("username")]
         [Required(ErrorMessage = Localization.Errors.EmptyLogin)]
-        public string Username { get; set; }
+        public string Author { get; set; }
 
         [JsonProperty]
         [MaxLength(TagLimit, ErrorMessage = Localization.Errors.TagLimitError)]
@@ -59,7 +59,7 @@ namespace Steepshot.Core.Models.Requests
                 BeneficiariesSet = "steepshot_no_rewards";
 
             ShowFooter = user.ShowFooter;
-            Username = user.Login;
+            Author = user.Login;
             IsEditMode = false;
         }
 
@@ -69,8 +69,8 @@ namespace Steepshot.Core.Models.Requests
                 BeneficiariesSet = "steepshot_no_rewards";
 
             ShowFooter = user.ShowFooter;
-            Username = user.Login;
-            _postPermlink = permlink;
+            Author = user.Login;
+            _permlink = permlink;
             IsEditMode = true;
         }
     }

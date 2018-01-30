@@ -501,7 +501,7 @@ namespace Steepshot.Core.Tests
             var postForVote = posts.Result.Results.FirstOrDefault(i => i.Vote == false);
             Assert.IsNotNull(postForVote);
 
-            var request = new VoteModel(Users[apiName], VoteType.Up, postForVote.Url);
+            var request = new VoteModel(Users[apiName], postForVote, VoteType.Up);
             var response = await Api[apiName].Vote(request, CancellationToken.None);
             AssertResult(response);
             Thread.Sleep(2000);
@@ -532,7 +532,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -552,66 +552,6 @@ namespace Steepshot.Core.Tests
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier1(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier2(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier3(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier4(KnownChains apiName)
-        {
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/@qwe");
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
         public async Task Flag_Up_Already_Flagged(KnownChains apiName)
         {
             // Load last post
@@ -623,7 +563,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Flag);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -652,7 +592,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -666,70 +606,6 @@ namespace Steepshot.Core.Tests
                         || response2.Error.Message.Contains("Duplicate transaction check failed")
                         || response2.Error.Message.Contains("Vote weight cannot be 0.")
                         || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier1(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier2(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier3(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier4(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/@qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test]

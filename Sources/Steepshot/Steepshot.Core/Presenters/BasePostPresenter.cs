@@ -197,7 +197,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)
@@ -253,7 +253,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
-            var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            var request = new VoteModel(User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)

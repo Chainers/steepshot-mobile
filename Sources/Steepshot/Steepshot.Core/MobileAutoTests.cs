@@ -117,7 +117,7 @@ namespace Steepshot.Core
 
             } while (testPost == null);
 
-            var votereq = new VoteModel(_user, VoteType.Up, testPost.Url);
+            var votereq = new VoteModel(_user, testPost, VoteType.Up);
             var rez = _api.Vote(votereq, CancellationToken.None)
                 .Result;
 

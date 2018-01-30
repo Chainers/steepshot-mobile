@@ -10,16 +10,6 @@ namespace Steepshot.Core.Tests
     public class UnitTests : BaseTests
     {
         [Test]
-        public void VoteModel_Empty_Identifier()
-        {
-            var user = Users.First().Value;
-            var request = new VoteModel(user, VoteType.Up, string.Empty);
-            var result = Validate(request);
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
-        }
-
-        [Test]
         public void FollowModel_Empty_Username()
         {
             var user = Users.First().Value;
