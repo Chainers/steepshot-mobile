@@ -22,16 +22,13 @@ namespace Steepshot.Core.Presenters
             IsEnableVote = true;
         }
 
-
         public async Task<ErrorBase> TryDeletePost(Post post)
         {
             if (post == null)
                 return null;
 
             var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
-
             NotifySourceChanged(nameof(TryDeletePost), true);
-
             return error;
         }
 
@@ -49,16 +46,13 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-
         public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
         {
             if (post == null || parentPost == null)
                 return null;
 
             var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
-
             NotifySourceChanged(nameof(TryDeletePost), true);
-
             return error;
         }
 
@@ -76,19 +70,14 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-
         public async Task<ErrorBase> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
         {
             if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
                 return null;
 
-
             var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
-
             var error = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
-
             NotifySourceChanged(nameof(TryEditComment), true);
-
             return error;
         }
 
@@ -175,7 +164,6 @@ namespace Steepshot.Core.Presenters
             return false;
         }
 
-
         public async Task<ErrorBase> TryVote(Post post)
         {
             if (post == null || post.VoteChanging || post.FlagChanging)
@@ -220,7 +208,6 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
-
         private void ChangeLike(Post post, bool wasFlaged)
         {
             post.Vote = !post.Vote;
@@ -229,7 +216,6 @@ namespace Steepshot.Core.Presenters
             if (wasFlaged)
                 post.NetFlags--;
         }
-
 
         public async Task<ErrorBase> TryFlag(Post post)
         {
@@ -273,7 +259,6 @@ namespace Steepshot.Core.Presenters
             }
             return response.Error;
         }
-
 
         private void ChangeFlag(Post post, bool wasVote)
         {

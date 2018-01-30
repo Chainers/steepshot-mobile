@@ -294,7 +294,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility = ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
@@ -332,11 +332,34 @@ namespace Steepshot.Adapter
         private void DeleteOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var alert = new AlertDialog.Builder(_context);
-            alert.SetTitle("Title");
-            alert.SetMessage("Message");
-            alert.SetPositiveButton("Ok", (s, e) => { _deleteAction?.Invoke(_post); });
-            alert.SetNegativeButton("Cancel", (s, e) => { });
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(_context);
+            var alert = alertBuilder.Create();
+            var inflater = (LayoutInflater)_context.GetSystemService(Context.LayoutInflaterService);
+            var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
+
+            var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
+            alertTitle.Text = Localization.Messages.DeleteAlertTitle;
+            alertTitle.Typeface = Style.Semibold;
+
+            var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
+            alertMessage.Text = Localization.Messages.DeleteAlertMessage;
+            alertMessage.Typeface = Style.Light;
+
+            var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
+            alertCancel.Text = Localization.Texts.Cancel;
+            alertCancel.Click += (o, args) => alert.Cancel();
+
+            var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
+            alertDelete.Text = Localization.Texts.Delete;
+            alertDelete.Click += (o, args) =>
+            {
+                _deleteAction?.Invoke(_post);
+                alert.Cancel();
+            };
+
+            alert.SetCancelable(true);
+            alert.SetView(alertView);
+            alert.Window.SetBackgroundDrawable(new ColorDrawable(Color.Transparent));
             alert.Show();
         }
 

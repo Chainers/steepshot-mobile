@@ -88,7 +88,9 @@ namespace Steepshot.Core.Models.Common
         public bool IsLowRated { get; set; }
 
         public bool IsNsfw { get; set; }
-        
+
+        public string CashoutTime { get; set; }
+
         //system
         [JsonIgnore]
         public bool VoteChanging { get; set; }
