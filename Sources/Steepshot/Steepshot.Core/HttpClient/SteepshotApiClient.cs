@@ -126,7 +126,7 @@ namespace Steepshot.Core.HttpClient
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
-            var t = await Trace($"post/@{model.Author}/{model.Permlink}/comment", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+            Trace($"post/@{model.Author}/{model.Permlink}/comment", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
             return result;
         }
 
@@ -148,11 +148,11 @@ namespace Steepshot.Core.HttpClient
             var result = await _ditchClient.CreateOrEdit(commentModel, ct);
             if (model.IsEditMode)
             {
-                var t2 = await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+                Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
             }
             else
             {
-                var t = await Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+                Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
             }
             return result;
         }

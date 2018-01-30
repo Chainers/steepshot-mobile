@@ -103,6 +103,7 @@ namespace Steepshot.Activity
                 _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
                 _path = Intent.GetStringExtra(PhotoExtraPath);
                 InitPhoto(_path);
+                SetPostingTimer();
             }
 
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
@@ -123,8 +124,7 @@ namespace Steepshot.Activity
             _timer = new Timer(OnTimer);
 
             _path = Intent.GetStringExtra(PhotoExtraPath);
-
-            SetPostingTimer();
+            
             SearchTextChanged();
         }
 
