@@ -198,9 +198,7 @@ namespace Steepshot.iOS.Cells
 
             var tap = new UITapGestureRecognizer(() =>
             {
-                var photoUrl = _currentPost.Photos?.FirstOrDefault();
-                if (photoUrl != null)
-                    CellAction?.Invoke(ActionType.Preview, _currentPost);
+                CellAction?.Invoke(ActionType.Preview, _currentPost);
             });
             _bodyImage.AddGestureRecognizer(tap);
 
@@ -263,15 +261,13 @@ namespace Steepshot.iOS.Cells
             _bodyImage.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 20, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
             _bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
-            var photo = _currentPost.Photos?.FirstOrDefault();
-            if (photo != null)
-                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Constants.ImageCacheDuration)
-                                                 .Retry(5)
-                                                 .FadeAnimation(false)
-                                                 .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                 .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                 .WithPriority(LoadingPriority.Highest)
-                                                 .Into(_bodyImage);
+            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Media[0].Url, Constants.ImageCacheDuration)
+                                             .Retry(5)
+                                             .FadeAnimation(false)
+                                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                                             .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                             .WithPriority(LoadingPriority.Highest)
+                                             .Into(_bodyImage);
 
             if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
@@ -366,7 +362,7 @@ namespace Steepshot.iOS.Cells
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _bodyImage.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
             */
-            _topSeparator.Frame = new CGRect(0,_bodyImage.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
+            _topSeparator.Frame = new CGRect(0, _bodyImage.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
 
             _attributedLabel.SetText(variables.Text);
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),

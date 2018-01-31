@@ -200,18 +200,10 @@
     <AndroidResource Include="Resources\layout\lyt_post_view_item.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_grid_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_description_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml" />
+    <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml" />
+    <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
   </ItemGroup>
   <ItemGroup>

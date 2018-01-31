@@ -76,7 +76,7 @@ namespace Steepshot.Utils
             BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
             options.InJustDecodeBounds = false;
-            options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
+            // options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
             return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
         }
 

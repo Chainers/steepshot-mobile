@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Services;
 
@@ -10,10 +11,12 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public bool IsNeedRewards { get; }
 
+        [Required(ErrorMessage = Localization.Errors.EmptyBodyField)]
         [JsonProperty]
         public string Body { get; set; }
 
         [JsonProperty]
+        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string ParentUrl { get; set; }
 
         [JsonProperty]

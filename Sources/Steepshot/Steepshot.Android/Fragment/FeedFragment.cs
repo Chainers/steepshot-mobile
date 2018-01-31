@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -210,12 +209,8 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
 
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo == null)
-                return;
-
             var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
             StartActivity(intent);
         }
 

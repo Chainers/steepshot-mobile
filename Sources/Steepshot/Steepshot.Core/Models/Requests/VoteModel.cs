@@ -9,6 +9,10 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class VoteModel : AuthorizedModel
     {
+        public readonly string Permlink;
+
+        public readonly string Author;
+
         [JsonProperty]
         [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
         public string Identifier { get; private set; }
@@ -17,13 +21,7 @@ namespace Steepshot.Core.Models.Requests
         [Required]
         public VoteType Type { get; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
-        public readonly string Permlink;
 
-        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
-        public readonly string Author;
-
-        
         public VoteModel(UserInfo user, VoteType type, string identifier) : base(user)
         {
             Type = type;

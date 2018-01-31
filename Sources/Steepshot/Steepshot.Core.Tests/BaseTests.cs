@@ -12,12 +12,13 @@ using Steepshot.Core.Services;
 using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Tests
 {
     public class BaseTests
     {
-        private const bool IsDev = false;
+        private const bool IsDev = true;
         protected static readonly Dictionary<KnownChains, UserInfo> Users;
         protected static readonly Dictionary<KnownChains, SteepshotApiClient> Api;
 
@@ -58,13 +59,14 @@ namespace Steepshot.Core.Tests
             return Path.Combine(parent.FullName, @"Data/cat.jpg");
         }
 
-        protected void AssertResult<T>(OperationResult<T> response)
+        protected void AssertResult<T>(OperationResult<T> response, bool throwIfError = true)
         {
             Assert.NotNull(response, "Response is null");
 
             if (response.IsSuccess)
             {
                 Assert.NotNull(response.Result, "Response is success, but result is NULL");
+                Console.WriteLine(JsonConvert.SerializeObject(response.Result));
                 Assert.IsNull(response.Error, "Response is success, but errors array is NOT empty");
             }
             else
@@ -73,6 +75,8 @@ namespace Steepshot.Core.Tests
                 Assert.IsNotNull(response.Error, "Response is failed, but errors array is EMPTY");
 
                 Console.WriteLine(response.Error.Message);
+                if (throwIfError)
+                    Assert.IsTrue(response.IsSuccess);
             }
         }
 

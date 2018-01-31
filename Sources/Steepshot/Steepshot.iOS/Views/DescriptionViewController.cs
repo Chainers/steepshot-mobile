@@ -8,6 +8,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
+using FFImageLoading.Extensions;
 using System.Threading.Tasks;
 using Steepshot.Core;
 using Constants = Steepshot.iOS.Helpers.Constants;
@@ -15,21 +16,30 @@ using Steepshot.Core.Models;
 using System.Threading;
 using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
-using System.Runtime.InteropServices;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Models.Responses;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
+using System.IO;
+using System.Linq;
 
 namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        public UIImage ImageAsset;
+        private UIImage ImageAsset;
+        private string ImageExtension;
         private TagsTableViewSource _tableSource;
         private LocalTagsCollectionViewSource _collectionviewSource;
         private Timer _timer;
         private string _previousQuery;
+
+
+        public DescriptionViewController(UIImage imageAsset, string extension)
+        {
+            ImageAsset = imageAsset;
+            ImageExtension = extension;
+        }
+
 
         public override void ViewDidLoad()
         {
@@ -275,133 +285,127 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        private async void PostPhoto(object sender, EventArgs e)
+        private async Task<OperationResult<MediaModel>> UploadPhoto()
         {
-            ToggleAvailability(false);
-            await Task.Run(() =>
-            {
-                try
-                {
-                    string title = null;
-                    string description = null;
-                    IList<string> tags = null;
-
-                    InvokeOnMainThread(() =>
-                    {
-                        title = titleTextField.Text;
-                        description = descriptionTextField.Text;
-                        tags = _collectionviewSource.LocalTags;
-
-                        //loadingView.StartAnimating();
-                        //postPhotoButton.Enabled = false;
-                    });
-
-                    var mre = new ManualResetEvent(false);
-
-                    byte[] photo = CompressPhoto();
-
-                    if (photo != null)
-                    {
-                        var request = new UploadImageModel(BasePresenter.User.UserInfo, title, photo, tags)
-                        {
-                            Description = description
-                        };
-                        bool shouldReturn = false;
-                        bool photoUploadRetry = false;
-                        OperationResult<UploadResponse> photoUploadResponse;
-                        do
-                        {
-                            photoUploadRetry = false;
-                            photoUploadResponse = UploadPhoto(request).Result;
-                            if (!(photoUploadResponse != null && photoUploadResponse.IsSuccess))
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
-                                    {
-                                        shouldReturn = true;
-                                        mre.Set();
-                                    }, (arg) =>
-                                    {
-                                        photoUploadRetry = true;
-                                        mre.Set();
-                                    });
-                                });
-
-                                mre.Reset();
-                                mre.WaitOne();
-                            }
-                        } while (photoUploadRetry);
-
-                        if (shouldReturn)
-                            return;
-
-                        bool pushToBlockchainRetry = false;
-                        do
-                        {
-                            pushToBlockchainRetry = false;
-                            var response = PushToBlockchain(request, photoUploadResponse).Result;
-                            if (!(response != null && response.IsSuccess))
-                            {
-                                InvokeOnMainThread(() =>
-                                {
-                                    ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
-                                    {
-                                        mre.Set();
-                                    }, (arg) =>
-                                    {
-                                        photoUploadRetry = true;
-                                        mre.Set();
-                                    });
-                                });
-
-                                mre.Reset();
-                                mre.WaitOne();
-                            }
-                        } while (pushToBlockchainRetry);
-                    }
-                }
-                finally
-                {
-                    InvokeOnMainThread(() =>
-                    {
-                        ToggleAvailability(true);
-                        //loadingView.StopAnimating();
-                        //postPhotoButton.Enabled = true;
-                    });
-                }
-            });
-        }
-
-        private byte[] CompressPhoto()
-        {
+            Stream stream = null;
             try
             {
-                byte[] photoByteArray;
-                using (var imageData = ImageAsset.AsJPEG(0.9f))
-                {
-                    photoByteArray = new Byte[imageData.Length];
-                    Marshal.Copy(imageData.Bytes, photoByteArray, 0, Convert.ToInt32(imageData.Length));
-                }
-                return photoByteArray;
+                stream = ImageAsset.AsJpegStream();
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
+                return await _presenter.TryUploadMedia(request);
             }
             catch (Exception ex)
             {
-                ShowAlert("Image compressing error!");
                 AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
             }
-            return null;
+            finally
+            {
+                stream?.Flush();
+                stream?.Dispose();
+            }
         }
 
-        private async Task<OperationResult<UploadResponse>> UploadPhoto(UploadImageModel request)
+        private async void PostPhoto(object sender, EventArgs e)
         {
-            return await _presenter.TryUploadWithPrepare(request);
+            ToggleAvailability(false);
+
+            try
+            {
+                string title = null;
+                string description = null;
+                IList<string> tags = null;
+
+                InvokeOnMainThread(() =>
+                {
+                    title = titleTextField.Text;
+                    description = descriptionTextField.Text;
+                    tags = _collectionviewSource.LocalTags;
+
+                    //loadingView.StartAnimating();
+                    //postPhotoButton.Enabled = false;
+                });
+
+                var mre = new ManualResetEvent(false);
+
+                var shouldReturn = false;
+                var photoUploadRetry = false;
+                OperationResult<MediaModel> photoUploadResponse;
+                do
+                {
+                    photoUploadRetry = false;
+                    photoUploadResponse = await UploadPhoto();
+
+                    if (!photoUploadResponse.IsSuccess)
+                    {
+                        InvokeOnMainThread(() =>
+                        {
+                            ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
+                            {
+                                shouldReturn = true;
+                                mre.Set();
+                            }, (arg) =>
+                            {
+                                photoUploadRetry = true;
+                                mre.Set();
+                            });
+                        });
+
+                        mre.Reset();
+                        mre.WaitOne();
+                    }
+                } while (photoUploadRetry);
+
+                if (shouldReturn)
+                    return;
+
+                var model = new PreparePostModel(BasePresenter.User.UserInfo)
+                {
+                    Title = title,
+                    Description = description,
+                    Tags = tags.ToArray(),
+                    Media = new[] { photoUploadResponse.Result }
+                };
+
+
+                var pushToBlockchainRetry = false;
+                do
+                {
+                    pushToBlockchainRetry = false;
+
+                    var response = await _presenter.TryCreatePost(model);
+
+                    if (!(response != null && response.IsSuccess))
+                    {
+                        InvokeOnMainThread(() =>
+                        {
+                            ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
+                            {
+                                mre.Set();
+                            }, (arg) =>
+                            {
+                                photoUploadRetry = true;
+                                mre.Set();
+                            });
+                        });
+
+                        mre.Reset();
+                        mre.WaitOne();
+                    }
+                } while (pushToBlockchainRetry);
+            }
+            finally
+            {
+                InvokeOnMainThread(() =>
+                {
+                    ToggleAvailability(true);
+                    //loadingView.StopAnimating();
+                    //postPhotoButton.Enabled = true;
+                });
+            }
         }
 
-        private async Task<OperationResult<VoidResponse>> PushToBlockchain(UploadImageModel request, OperationResult<UploadResponse> response)
-        {
-            return await _presenter.TryCreatePost(request, response.Result);
-        }
+
 
         private void ToggleAvailability(bool enabled)
         {

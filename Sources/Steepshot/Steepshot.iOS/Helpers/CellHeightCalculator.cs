@@ -1,6 +1,7 @@
 ﻿using System;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Models;
@@ -26,7 +27,8 @@ namespace Steepshot.iOS.Helpers
         {
             var attributedLabel = new TTTAttributedLabel();
             var at = new NSMutableAttributedString();
-            var photoHeight = (int)(OptimalPhotoSize.Get(post.ImageSize, (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
+            var photoHeight = (int)(OptimalPhotoSize.Get(new Size() { Height = post.Media[0].Size.Height, Width = post.Media[0].Size.Width }, 
+                                                         (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
 
             at.Append(new NSAttributedString(post.Title, _noLinkAttribute));
             if (!string.IsNullOrEmpty(post.Description))

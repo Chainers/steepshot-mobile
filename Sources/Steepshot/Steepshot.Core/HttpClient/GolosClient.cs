@@ -17,7 +17,6 @@ using Ditch.Golos.Operations;
 using Ditch.Golos.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
-using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -297,7 +296,7 @@ namespace Steepshot.Core.HttpClient
 
         #region Get
 
-        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
                 return new OperationResult<string>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
