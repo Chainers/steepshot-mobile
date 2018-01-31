@@ -59,14 +59,13 @@ namespace Steepshot.iOS.Cells
             _scheduledWorkBody?.Cancel();
 
             var media = _currentPost.Media[0];
-            if (media != null)
-                _scheduledWorkBody = ImageService.Instance.LoadUrl(media.Url, Helpers.Constants.ImageCacheDuration)
-                                                         //.Retry(5)
-                                                         .FadeAnimation(false)
-                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                         .WithPriority(LoadingPriority.Highest)
-                                                         .Into(bodyImage);
+            _scheduledWorkBody = ImageService.Instance.LoadUrl(media.Url, Helpers.Constants.ImageCacheDuration)
+                                                     //.Retry(5)
+                                                     .FadeAnimation(false)
+                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                     .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                                     .WithPriority(LoadingPriority.Highest)
+                                                     .Into(bodyImage);
 
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
                 _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))

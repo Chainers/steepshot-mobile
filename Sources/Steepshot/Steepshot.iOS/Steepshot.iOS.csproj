@@ -368,6 +368,9 @@
       <DependentUpon>AccountTableViewCell.cs</DependentUpon>
     </Compile>
     <Compile Include="Cells\LoaderCollectionCell.cs" />
+    <Compile Include="Cells\NewFeedCollectionViewCell.cs" />
+    <Compile Include="Helpers\CellHeightCalculator.cs" />
+    <Compile Include="Models\CellSizeHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -518,6 +521,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.1\build\netstandard2.0\NETStandard.Library.targets')" />

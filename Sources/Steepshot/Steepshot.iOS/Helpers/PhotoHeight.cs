@@ -14,7 +14,8 @@ namespace Steepshot.iOS.Helpers
             var correction = UIScreen.MainScreen.Bounds.Width;
             if (frameSize.Width != 0)
             {
-                var height = UIScreen.MainScreen.Bounds.Width * ((float)frameSize.Height / (float)frameSize.Width);
+                var height = (float)Math.Ceiling(UIScreen.MainScreen.Bounds.Width * ((float)frameSize.Height / (float)frameSize.Width));
+
                 if (height >= minHeight && height <= maxHeight)
                 {
                     correction = height;

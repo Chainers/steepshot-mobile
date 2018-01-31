@@ -46,6 +46,7 @@ namespace Steepshot.iOS.Cells
             _scheduledWork?.Cancel();
             if (ImageUrl != null)
                 _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
+                                             .Retry(5)
                                              .FadeAnimation(false)
                                              .DownSample(width: _downSampleWidth)
                                              .Into(photoImg);
