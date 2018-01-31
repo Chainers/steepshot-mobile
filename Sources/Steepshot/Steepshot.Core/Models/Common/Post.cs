@@ -1,6 +1,7 @@
 using System;
 using Ditch.Core;
 using Newtonsoft.Json;
+using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Common
@@ -29,7 +30,7 @@ namespace Steepshot.Core.Models.Common
     public class Post
     {
         private string _permlink;
-        
+
         public string Body { get; set; }
 
         public MediaModel[] Media { get; set; }
@@ -87,7 +88,8 @@ namespace Steepshot.Core.Models.Common
         public bool IsLowRated { get; set; }
 
         public bool IsNsfw { get; set; }
-        public string CashoutTime { get; set; }
+
+        public DateTime CashoutTime { get; set; }
 
         //system
         [JsonIgnore]

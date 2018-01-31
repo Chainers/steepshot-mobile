@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -16,6 +17,8 @@ using Android.Views.InputMethods;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Java.IO;
+using Newtonsoft.Json;
+using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -27,7 +30,6 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Activity
 {
@@ -36,10 +38,12 @@ namespace Steepshot.Activity
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
+        public const string EditPost = "EditPost";
         private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
 
         private string _path;
         private bool _shouldCompress;
+        private Post _editpost;
         private Timer _timer;
         private SelectedTagsAdapter _localTagsAdapter;
         private TagsAdapter _tagsAdapter;
@@ -85,6 +89,22 @@ namespace Steepshot.Activity
             _localTagsList.SetAdapter(_localTagsAdapter);
             _localTagsList.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 15, Resources.DisplayMetrics)));
 
+            var editPost = Intent.GetStringExtra(EditPost);
+            if (!string.IsNullOrEmpty(editPost))
+            {
+                _editpost = JsonConvert.DeserializeObject<Post>(editPost);
+                _model = new PreparePostModel(BasePresenter.User.UserInfo, _editpost.Permlink);
+                SetEditPost(_editpost);
+            }
+            else
+            {
+                _model = new PreparePostModel(BasePresenter.User.UserInfo);
+                _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+                _path = Intent.GetStringExtra(PhotoExtraPath);
+                InitPhoto(_path);
+                SetPostingTimer();
+            }
+
             _tagsList.SetLayoutManager(new LinearLayoutManager(this));
             Presenter.SourceChanged += PresenterSourceChanged;
             _tagsAdapter = new TagsAdapter(Presenter);
@@ -102,11 +122,7 @@ namespace Steepshot.Activity
 
             _timer = new Timer(OnTimer);
 
-            InitPhoto();
-            SetPostingTimer();
             SearchTextChanged();
-
-            _model = new PreparePostModel(BasePresenter.User.UserInfo);
         }
 
         private async void SetPostingTimer()
@@ -125,7 +141,21 @@ namespace Steepshot.Activity
             _postButton.Text = Localization.Texts.PublishButtonText;
         }
 
-        private void InitPhoto()
+        private void SetEditPost(Post editPost)
+        {
+            _title.Text = editPost.Title;
+            _title.SetSelection(editPost.Title.Length);
+            _description.Text = editPost.Description;
+            _description.SetSelection(editPost.Description.Length);
+            foreach (var editPostTag in editPost.Tags)
+            {
+                AddTag(editPostTag);
+            }
+
+            Picasso.With(this).Load(editPost.Media[0].Url).Into(_photoFrame);
+        }
+
+        private void InitPhoto(string path)
         {
             _path = Intent.GetStringExtra(PhotoExtraPath);
 
@@ -375,31 +405,41 @@ namespace Steepshot.Activity
                 return;
             }
 
-            var operationResult = await UploadPhoto(_path);
-            if (IsFinishing || IsDestroyed)
-                return;
-
-            if (!operationResult.IsSuccess)
+            if (_editpost == null)
             {
-                SplashActivity.Cache.EvictAll();
-                operationResult = await UploadPhoto(_path);
+                var operationResult = await UploadPhoto(_path);
                 if (IsFinishing || IsDestroyed)
                     return;
-            }
 
-            if (!operationResult.IsSuccess)
+                if (!operationResult.IsSuccess)
+                {
+                    SplashActivity.Cache.EvictAll();
+                    operationResult = await UploadPhoto(_path);
+
+                    if (IsFinishing || IsDestroyed)
+                        return;
+                }
+
+                if (!operationResult.IsSuccess)
+                {
+                    this.ShowAlert(operationResult.Error.Message);
+                    OnUploadEnded();
+                    return;
+                }
+
+                _model.Media = new[] { operationResult.Result };
+            }
+            else
             {
-                this.ShowAlert(operationResult.Error.Message);
-                OnUploadEnded();
-                return;
+                _model.Media = _editpost.Media;
             }
 
-            _model.Media = new[] { operationResult.Result };
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryUpload();
         }
+
 
         private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
         {
@@ -438,7 +478,7 @@ namespace Steepshot.Activity
                 return;
             }
 
-            var resp = await Presenter.TryCreatePost(_model);
+            var resp = await Presenter.TryCreateOrEditPost(_model);
             if (IsFinishing || IsDestroyed)
                 return;
 

@@ -73,13 +73,62 @@
                 android:maxLines="4" />
         </LinearLayout>
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/comment_edit"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/white"
+        android:layout_above="@id/message"
+        android:clickable="true"
+        android:visibility="gone">
+        <ImageButton
+            android:id="@+id/comment_cancel_edit"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_close_black" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@id/comment_cancel_edit">
+            <View
+                android:id="@+id/comment_edit_separator"
+                android:layout_width="2px"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/rgb244_244_246" />
+            <TextView
+                android:id="@+id/comment_edit_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:text="Edit message"
+                android:layout_toRightOf="@id/comment_edit_separator" />
+            <TextView
+                android:id="@+id/comment_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:layout_toRightOf="@id/comment_edit_separator"
+                android:layout_below="@id/comment_edit_message" />
+        </RelativeLayout>
+    </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/comments_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
         android:layout_below="@id/toolbar"
-        android:layout_above="@id/message" />
+        android:layout_above="@id/comment_edit" />
     <ProgressBar
         android:id="@+id/loading_spinner"
         android:layout_width="wrap_content"

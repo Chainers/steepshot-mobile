@@ -20,6 +20,7 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
+using Newtonsoft.Json;
 
 namespace Steepshot.Fragment
 {
@@ -65,6 +66,7 @@ namespace Steepshot.Fragment
                     _profilePagerAdapter.PhotoClick += OnPhotoClick;
                     _profilePagerAdapter.FlagAction += FlagAction;
                     _profilePagerAdapter.HideAction += HideAction;
+                    _profilePagerAdapter.EditAction += EditAction;
                     _profilePagerAdapter.DeleteAction += DeleteAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
@@ -575,11 +577,19 @@ namespace Steepshot.Fragment
             Presenter.HidePost(post);
         }
 
+        private void EditAction(Post post)
+        {
+            var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+            intent.PutExtra("EditPost", JsonConvert.SerializeObject(post));
+            Activity.StartActivity(intent);
+        }
+
         private async void DeleteAction(Post post)
         {
             var error = await Presenter.TryDeletePost(post);
             if (!IsInitialized)
                 return;
+
             Context.ShowAlert(error);
         }
 

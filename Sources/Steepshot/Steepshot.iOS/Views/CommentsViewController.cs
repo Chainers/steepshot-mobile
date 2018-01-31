@@ -180,7 +180,7 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
 
             _presenter.Clear();
-            var error = await _presenter.TryLoadNextComments(Post.Url);
+            var error = await _presenter.TryLoadNextComments(Post);
             if (error is TaskCanceledError)
                 return;
             ShowAlert(error);
@@ -223,14 +223,14 @@ namespace Steepshot.iOS.Views
             sendButton.Hidden = true;
             sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateComment(commentTextView.Text, Post.Url);
+            var response = await _presenter.TryCreateComment(Post, commentTextView.Text);
             if (response.IsSuccess)
             {
                 commentTextView.Text = string.Empty;
                 _commentsTextViewDelegate.Placeholder.Hidden = false;
                 commentTextView.ResignFirstResponder();
 
-                var error = await _presenter.TryLoadNextComments(Post.Url);
+                var error = await _presenter.TryLoadNextComments(Post);
 
                 ShowAlert(error);
 

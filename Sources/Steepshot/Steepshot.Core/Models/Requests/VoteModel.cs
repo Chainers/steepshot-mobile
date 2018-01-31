@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Utils;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -14,20 +14,15 @@ namespace Steepshot.Core.Models.Requests
         public readonly string Author;
 
         [JsonProperty]
-        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
-        public string Identifier { get; private set; }
-
-        [JsonProperty]
         [Required]
         public VoteType Type { get; }
 
 
-        public VoteModel(UserInfo user, VoteType type, string identifier) : base(user)
+        public VoteModel(UserInfo user, Post post, VoteType type) : base(user)
         {
             Type = type;
-            Identifier = identifier;
-
-            UrlHelper.TryCastUrlToAuthorAndPermlink(Identifier, out Author, out Permlink);
+            Author = post.Author;
+            Permlink = post.Permlink;
         }
     }
 }

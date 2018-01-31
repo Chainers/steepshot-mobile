@@ -25,7 +25,7 @@ namespace Steepshot.Adapter
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
         private readonly Post _post;
-        public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction, DeleteAction;
+        public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction, EditAction, DeleteAction;
         public Action RootClickAction;
         public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
@@ -71,7 +71,7 @@ namespace Steepshot.Adapter
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
                         var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction,
-                            HideAction, ReplyAction, DeleteAction, RootClickAction);
+                            HideAction, ReplyAction, EditAction, DeleteAction, RootClickAction);
                         return vh;
                     }
             }
@@ -170,6 +170,7 @@ namespace Steepshot.Adapter
         private readonly Action<Post> _flagAction;
         private readonly Action<Post> _hideAction;
         private readonly Action<Post> _replyAction;
+        private readonly Action<Post> _editAction;
         private readonly Action<Post> _deleteAction;
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action _rootAction;
@@ -180,7 +181,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action<Post> deleteAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action<Post> editAction, Action<Post> deleteAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -204,6 +205,7 @@ namespace Steepshot.Adapter
             _replyAction = replyAction;
             _rootAction = rootClickAction;
             _votersAction = votersAction;
+            _editAction = editAction;
             _deleteAction = deleteAction;
 
             _likeOrFlag.Click += Like_Click;
@@ -281,6 +283,10 @@ namespace Steepshot.Adapter
                 hide.Text = Localization.Texts.HidePost;
                 hide.Typeface = Style.Semibold;
 
+                var edit = dialogView.FindViewById<Button>(Resource.Id.editpost);
+                edit.Text = Localization.Texts.EditComment;
+                edit.Typeface = Style.Semibold;
+
                 var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
                 delete.Text = Localization.Texts.DeleteComment;
                 delete.Typeface = Style.Semibold;
@@ -288,7 +294,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = _post.CashoutTime < _post.Created ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
@@ -301,6 +307,9 @@ namespace Steepshot.Adapter
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
 
+                edit.Click -= EditOnClick;
+                edit.Click += EditOnClick;
+
                 delete.Click -= DeleteOnClick;
                 delete.Click += DeleteOnClick;
 
@@ -312,6 +321,12 @@ namespace Steepshot.Adapter
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
+        }
+
+        private void EditOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            _editAction?.Invoke(_post);
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
