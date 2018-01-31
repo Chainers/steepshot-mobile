@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -88,6 +89,7 @@ namespace Steepshot.Adapter
         private readonly TextView _followersTitle;
         private readonly TextView _balanceText;
         private readonly TextView _balance;
+        private readonly TextView _votingPowerText;
         private readonly Refractored.Controls.CircleImageView _profileImage;
         private readonly LinearLayout _followingBtn;
         private readonly LinearLayout _followersBtn;
@@ -118,6 +120,7 @@ namespace Steepshot.Adapter
             _balanceText = itemView.FindViewById<TextView>(Resource.Id.balance_text);
             _balance = itemView.FindViewById<TextView>(Resource.Id.balance);
             _votingPower = itemView.FindViewById<VotingPowerFrame>(Resource.Id.voting_power);
+            _votingPowerText = itemView.FindViewById<TextView>(Resource.Id.voting_power_message);
 
             _profileImage = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
             _followingBtn = itemView.FindViewById<LinearLayout>(Resource.Id.following_btn);
@@ -138,6 +141,7 @@ namespace Steepshot.Adapter
             _followersTitle.Typeface = Style.Regular;
             _balanceText.Typeface = Style.Regular;
             _balance.Typeface = Style.Regular;
+            _votingPowerText.Typeface = Style.Regular;
 
             _followersAction = followersAction;
             _followingAction = followingAction;
@@ -148,6 +152,28 @@ namespace Steepshot.Adapter
             _followersBtn.Click += OnFollowersBtnOnClick;
             _balanceContainer.Click += OnBalanceContainerOnClick;
             _followButton.Click += OnFollowButtonOnClick;
+            _profileImage.Click += ProfileImageOnClick;
+        }
+
+        private async void ProfileImageOnClick(object sender, EventArgs eventArgs)
+        {
+            _profileImage.Enabled = false;
+            _votingPowerText.Text = $"{Localization.Messages.VotingPower} {_profile.VotingPower}%";
+            _votingPowerText.Visibility = ViewStates.Visible;
+            var start = 20;
+            var end = 255;
+            var change = end - start;
+            while (start < 255)
+            {
+                _votingPowerText.Alpha = 1 - start / (float)change;
+                _profileImage.SetColorFilter(Color.Argb(start, 255, 255, 255), PorterDuff.Mode.Multiply);
+                await Task.Delay(start == 20 ? 1000 : 50);
+                start += 10;
+            }
+            _profileImage.ClearColorFilter();
+            _votingPowerText.Alpha = 1;
+            _votingPowerText.Visibility = ViewStates.Invisible;
+            _profileImage.Enabled = true;
         }
 
         private void OnFollowButtonOnClick(object sender, EventArgs e)

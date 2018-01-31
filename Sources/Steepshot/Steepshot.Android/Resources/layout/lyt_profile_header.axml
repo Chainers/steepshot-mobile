@@ -20,6 +20,15 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/ic_holder" />
+            <TextView
+                android:id="@+id/voting_power_message"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Voting power 100%"
+                android:textSize="12sp"
+                android:visibility="invisible" />
         </steepshot.utils.VotingPowerFrame>
         <RelativeLayout
             android:id="@+id/follow_container"
