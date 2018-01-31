@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Presenters;
+using Steepshot.iOS.Models;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -14,12 +17,14 @@ namespace Steepshot.iOS.Helpers
         private BasePostPresenter _presenter;
         private UICollectionView _collection;
         private int _prevPos;
+        public List<CellSizeHelper> Variables = new List<CellSizeHelper>();
 
         public int Position => _prevPos;
 
         public void ClearPosition()
         {
             _prevPos = 0;
+            Variables.Clear();
         }
 
         public CollectionViewFlowDelegate(UICollectionView collection, BasePostPresenter presenter = null)
@@ -52,26 +57,30 @@ namespace Steepshot.iOS.Helpers
             CellClicked?.Invoke(indexPath);
         }
 
-        /*
+        public void GenerateVariables()
+        {
+            if (Variables.Count == _presenter.Count)
+                return;
+            for (int i = Variables.Count; i < _presenter.Count; i++)
+            {
+                var cellVariables = CellHeightCalculator.Calculate(_presenter[i]);
+                Variables.Add(cellVariables);
+            }
+        }
+
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
-            if (!IsGrid)
+            if (IsGrid)
+                return Constants.CellSize;
+            else
             {
-                var post = _presenter[indexPath.Row];
-                if (post != null)
+                if (Variables.Count > indexPath.Item)
                 {
-                    var correction = PhotoHeight.Get(post.ImageSize);
-                    //30 - margins sum
-                    CGRect textSize = new CGRect();
-                    //if (_commentString.Any())
-                    //textSize = _commentString[indexPath.Row].GetBoundingRect(new CGSize(UIScreen.MainScreen.Bounds.Width - 30, 1000), NSStringDrawingOptions.UsesLineFragmentOrigin, null);
-
-                    //192 => 512-320 cell height without image size
-                    var cellHeight = 192 + correction;
-                    return new CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
+                    return new CGSize(UIScreen.MainScreen.Bounds.Width, Variables[(int)indexPath.Item].CellHeight);
                 }
             }
-            return Helpers.Constants.CellSize;//CGSize(UIScreen.MainScreen.Bounds.Width, cellHeight + textSize.Size.Height);
-        } */
+            //loader height
+            return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
+        } 
     }
 }

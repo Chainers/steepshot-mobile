@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CoreGraphics;
 using Foundation;
 using Steepshot.Core;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
@@ -21,7 +19,6 @@ namespace Steepshot.iOS.Views
         private ProfileCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
         private UINavigationController _navController;
-        private UINavigationItem _navItem;
         private UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
 
@@ -33,37 +30,34 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            var offset = feedCollection.ContentOffset;
-            flowLayout.InvalidateLayout();
+            _gridDelegate.GenerateVariables();
             feedCollection.ReloadData();
-            feedCollection.LayoutIfNeeded();
-            feedCollection.SetContentOffset(offset, false);
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-            _navItem = NavigationItem;//TabBarController != null ? TabBarController.NavigationItem : NavigationItem;
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter);
-            _collectionViewSource.IsGrid = false;
-            _collectionViewSource.CellAction += CellAction;
-            _collectionViewSource.TagAction += TagAction;
+            _navController = TabBarController.NavigationController;
+
             _gridDelegate = new CollectionViewFlowDelegate(feedCollection, _presenter);
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.IsGrid = false;
+            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource.IsGrid = false;
+            _collectionViewSource.CellAction += CellAction;
+            _collectionViewSource.TagAction += TagAction;
 
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += OnRefresh;
 
             feedCollection.Source = _collectionViewSource;
+            feedCollection.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             feedCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             feedCollection.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
-            flowLayout.EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 450);
 
             if (TabBarController != null)
             {
@@ -126,7 +120,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
+            _navController.PushViewController(myViewController, true);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -193,7 +187,7 @@ namespace Steepshot.iOS.Views
         {
             var logo = new UIImageView(UIImage.FromBundle("ic_feed_logo"));
             logo.UserInteractionEnabled = true;
-            _navItem.LeftBarButtonItem = new UIBarButtonItem(logo);
+            NavigationItem.LeftBarButtonItem = new UIBarButtonItem(logo);
 
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
             {
