@@ -35,7 +35,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post);
-            var response = await Api.DeletePost(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -48,7 +48,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
         {
-            if (post == null)
+            if (post == null || parentPost == null)
                 return null;
 
             var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
@@ -61,7 +61,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post, parentPost);
-            var response = await Api.DeleteComment(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -97,7 +97,7 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
             error = null;
             if (response == null)
@@ -119,7 +119,7 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)) && (enableEmptyMedia || item.Media.Length > 0 && !string.IsNullOrEmpty(item.Media[0].Url)))
                             {
                                 Items.Add(item);
                                 isAdded = true;

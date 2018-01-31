@@ -567,7 +567,7 @@ namespace Steepshot.Adapter
             private readonly Action<Post> _photoAction;
             private PostPagerType _type;
             private Post _post;
-            private string _photo;
+            private MediaModel _photo;
 
             public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
             {
@@ -582,29 +582,31 @@ namespace Steepshot.Adapter
                 _type = type;
                 _post = post;
                 //_photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
-                _photo = _post.Photos[0];
+                _photo = _post.Media[0];
                 NotifyDataSetChanged();
                 var cardView = _photoHolders[0];
                 if (cardView != null)
-                    LoadPhoto(_post.Photos[0], cardView);
+                    LoadPhoto(_post.Media[0], cardView);
             }
 
-            private void LoadPhoto(string path, CardView photoCard)
+            private void LoadPhoto(MediaModel mediaModel, CardView photoCard)
             {
-                if (path != null)
+                if (mediaModel != null)
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
-                    Picasso.With(Context).Load(path).NoFade()
+                    Picasso.With(Context).Load(mediaModel.Url).NoFade()
                         .Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
-                            Picasso.With(Context).Load(path).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                            Picasso.With(Context).Load(mediaModel.Url).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
+
                     if (_type == PostPagerType.PostScreen)
                     {
                         photoCard.Radius = (int)BitmapUtils.DpToPixel(7, Context.Resources);
                     }
-                    var size = new Size { Height = _post.ImageSize.Height / Style.Density, Width = _post.ImageSize.Width / Style.Density };
+
+                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
                     var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
                     photoCard.LayoutParameters.Height = height;
                     ((View)photoCard.Parent).LayoutParameters.Height = height;

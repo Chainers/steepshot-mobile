@@ -1,7 +1,7 @@
 ﻿
 namespace Steepshot.Core.Utils
 {
-    public class UrlHelper
+    public partial class UrlHelper
     {
 
         public static string ComposeUrl(string author, string permlink)
@@ -9,7 +9,8 @@ namespace Steepshot.Core.Utils
             return $"@{author}/{permlink}";
         }
 
-        public static bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author, out string commentPermlink, out string parentAuthor, out string parentPermlink)
+        public static bool TryCastUrlToAuthorPermlinkAndParentPermlink(string url, out string author,
+            out string commentPermlink, out string parentAuthor, out string parentPermlink)
         {
             var start = url.LastIndexOf('#');
 
@@ -48,5 +49,23 @@ namespace Steepshot.Core.Utils
             return true;
         }
 
+        public static bool TryGetPermlinkFromUrl(string url, out string permlink)
+        {
+            var start = url.LastIndexOf('@');
+            if (start == -1)
+            {
+                permlink = null;
+                return false;
+            }
+            var authAndPermlink = url.Remove(0, start + 1);
+            var authPostArr = authAndPermlink.Split('/');
+            if (authPostArr.Length != 2)
+            {
+                permlink = null;
+                return false;
+            }
+            permlink = authPostArr[1];
+            return true;
+        }
     }
 }

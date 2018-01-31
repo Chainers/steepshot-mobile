@@ -7,7 +7,6 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core;
-using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 

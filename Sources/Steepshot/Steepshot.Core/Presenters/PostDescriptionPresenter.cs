@@ -9,25 +9,25 @@ namespace Steepshot.Core.Presenters
 {
     public class PostDescriptionPresenter : TagsPresenter
     {
-        public async Task<OperationResult<UploadResponse>> TryUploadWithPrepare(UploadImageModel model)
+        public async Task<OperationResult<MediaModel>> TryUploadMedia(UploadMediaModel model)
         {
-            return await TryRunTask<UploadImageModel, UploadResponse>(UploadWithPrepare, OnDisposeCts.Token, model);
+            return await TryRunTask<UploadMediaModel, MediaModel>(UploadMedia, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
+        private async Task<OperationResult<MediaModel>> UploadMedia(UploadMediaModel model, CancellationToken ct)
         {
-            return await Api.UploadWithPrepare(model, ct);
+            return await Api.UploadMedia(model, ct);
         }
 
 
-        public async Task<OperationResult<VoidResponse>> TryCreatePost(UploadImageModel model, UploadResponse uploadResponse)
+        public async Task<OperationResult<VoidResponse>> TryCreatePost(PreparePostModel model)
         {
-            return await TryRunTask<UploadImageModel, UploadResponse, VoidResponse>(CreatePost, OnDisposeCts.Token, model, uploadResponse);
+            return await TryRunTask<PreparePostModel, VoidResponse>(CreatePost, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<VoidResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        private async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CreatePost(model, uploadResponse, ct);
+            return await Api.CreatePost(model, ct);
         }
 
         public async Task<OperationResult<NsfwRate>> TryNsfwCheck(Stream stream)

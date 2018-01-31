@@ -4,7 +4,7 @@ using Steepshot.Core.Models.Responses;
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    internal class CommentModel : AuthorizedModel
+    public class CommentModel : AuthorizedModel
     {
         [JsonProperty]
         public string ParentAuthor { get; }

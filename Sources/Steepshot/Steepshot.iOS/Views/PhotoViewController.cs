@@ -1,20 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using AVFoundation;
 using CoreGraphics;
-using CoreImage;
 using CoreMedia;
-using CoreVideo;
 using Foundation;
 using Photos;
-using Steepshot.Core;
-using Steepshot.Core.Presenters;
-using Steepshot.iOS.Cells;
-using Steepshot.iOS.Helpers;
-using Steepshot.iOS.ViewSources;
 using UIKit;
 
 namespace Steepshot.iOS.Views
@@ -336,8 +327,7 @@ namespace Steepshot.iOS.Views
 
         private void GoToDescription(UIImage image)
         {
-            var descriptionViewController = new DescriptionViewController();
-            descriptionViewController.ImageAsset = image;
+            var descriptionViewController = new DescriptionViewController(image, "jpg");
             NavigationController.PushViewController(descriptionViewController, true);
             //var mainTabBar = NavigationController.ViewControllers[0];
             //NavigationController.ViewControllers = new UIViewController[] { mainTabBar, descriptionViewController };
