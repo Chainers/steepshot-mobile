@@ -177,7 +177,7 @@ namespace Steepshot.Activity
             return path;
         }
 
-        private async void PhotoFrameOnClick(object sender, EventArgs e)
+        private void PhotoFrameOnClick(object sender, EventArgs e)
         {
             if (!_photoFrame.Clickable)
                 return;

@@ -25,7 +25,7 @@ namespace Steepshot.iOS.Helpers
         {
             var attributedLabel = new TTTAttributedLabel();
             var at = new NSMutableAttributedString();
-            var photoHeight = PhotoHeight.Get(post.ImageSize);
+            var photoHeight = PhotoHeight.Get(post.Media[0].Size);
 
             at.Append(new NSAttributedString(post.Title, _noLinkAttribute));
             if (!string.IsNullOrEmpty(post.Description))
