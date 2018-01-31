@@ -252,8 +252,11 @@ namespace Steepshot.Fragment
                 Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
                 Activity.Intent.RemoveExtra(CommentsFragment.CountString);
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
-                post.Children += count;
-                _adapter.NotifyDataSetChanged();
+                if (post != null)
+                {
+                    post.Children += count;
+                    _adapter.NotifyDataSetChanged();
+                }
             }
         }
 
