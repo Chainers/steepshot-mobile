@@ -3,34 +3,12 @@ using NUnit.Framework;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
     [TestFixture]
     public class UnitTests : BaseTests
     {
-        [Test]
-        public void CreateCommentModel_Empty_Url()
-        {
-            var user = Users.First().Value;
-            var request = new CreateCommentModel(user, string.Empty, "test", AppSettings.AppInfo);
-
-            var result = Validate(request);
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
-        }
-
-        [Test]
-        public void VoteModel_Empty_Identifier()
-        {
-            var user = Users.First().Value;
-            var request = new VoteModel(user, VoteType.Up, string.Empty);
-            var result = Validate(request);
-            Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
-        }
-
         [Test]
         public void FollowModel_Empty_Username()
         {
@@ -52,7 +30,7 @@ namespace Steepshot.Core.Tests
             Assert.IsTrue(result.Count == 1);
             Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
         }
-        
+
         [Test]
         public void PreparePostModel_Empty_Title()
         {

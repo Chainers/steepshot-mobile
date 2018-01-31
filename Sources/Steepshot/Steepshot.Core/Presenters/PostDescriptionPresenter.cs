@@ -19,15 +19,14 @@ namespace Steepshot.Core.Presenters
             return await Api.UploadMedia(model, ct);
         }
 
-
-        public async Task<OperationResult<VoidResponse>> TryCreatePost(PreparePostModel model)
+        public async Task<OperationResult<VoidResponse>> TryCreateOrEditPost(PreparePostModel model)
         {
-            return await TryRunTask<PreparePostModel, VoidResponse>(CreatePost, OnDisposeCts.Token, model);
+            return await TryRunTask<PreparePostModel, VoidResponse>(CreateOrEditPost, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<VoidResponse>> CreatePost(PreparePostModel model, CancellationToken ct)
+        private async Task<OperationResult<VoidResponse>> CreateOrEditPost(PreparePostModel model, CancellationToken ct)
         {
-            return await Api.CreatePost(model, ct);
+            return await Api.CreateOrEditPost(model, ct);
         }
 
         public async Task<OperationResult<NsfwRate>> TryNsfwCheck(Stream stream)

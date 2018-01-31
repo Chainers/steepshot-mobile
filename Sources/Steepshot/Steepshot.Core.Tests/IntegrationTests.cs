@@ -501,7 +501,7 @@ namespace Steepshot.Core.Tests
             var postForVote = posts.Result.Results.FirstOrDefault(i => i.Vote == false);
             Assert.IsNotNull(postForVote);
 
-            var request = new VoteModel(Users[apiName], VoteType.Up, postForVote.Url);
+            var request = new VoteModel(Users[apiName], postForVote, VoteType.Up);
             var response = await Api[apiName].Vote(request, CancellationToken.None);
             AssertResult(response);
             Thread.Sleep(2000);
@@ -532,7 +532,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -552,66 +552,6 @@ namespace Steepshot.Core.Tests
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier1(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier2(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier3(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Vote_Invalid_Identifier4(KnownChains apiName)
-        {
-            var request = new VoteModel(Users[apiName], VoteType.Up, "qwe/@qwe");
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"));
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
         public async Task Flag_Up_Already_Flagged(KnownChains apiName)
         {
             // Load last post
@@ -623,7 +563,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Flag);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -652,7 +592,7 @@ namespace Steepshot.Core.Tests
             var lastPost = posts.Result.Results.First();
 
             // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Down, lastPost.Url);
+            var request = new VoteModel(Users[apiName], lastPost, VoteType.Down);
 
             // Act
             var response = await Api[apiName].Vote(request, CancellationToken.None);
@@ -666,70 +606,6 @@ namespace Steepshot.Core.Tests
                         || response2.Error.Message.Contains("Duplicate transaction check failed")
                         || response2.Error.Message.Contains("Vote weight cannot be 0.")
                         || response2.Error.Message.Contains("('Voter has used the maximum number of vote changes on this comment.',)"), response2.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier1(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier2(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier3(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
-        }
-
-        [Test]
-        [TestCase(KnownChains.Steem)]
-        [TestCase(KnownChains.Golos)]
-        public async Task Flag_Invalid_Identifier4(KnownChains apiName)
-        {
-            // Arrange
-            var request = new VoteModel(Users[apiName], VoteType.Flag, "qwe/@qwe");
-
-            // Act
-            var response = await Api[apiName].Vote(request, CancellationToken.None);
-
-            // Assert
-            AssertResult(response);
-            Assert.That(response.Error.Message.Contains("Incorrect identifier"), response.Error.Message);
         }
 
         [Test]
@@ -846,11 +722,11 @@ namespace Steepshot.Core.Tests
             var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
             var lastPost = userPostsResponse.Result.Results.First();
             var body = $"Test comment {DateTime.Now:G}";
-            var createCommentModel = new CreateCommentModel(Users[apiName], lastPost.Url, body, AppSettings.AppInfo);
+            var createCommentModel = new CreateOrEditCommentModel(Users[apiName], lastPost, body, AppSettings.AppInfo);
 
             // Act
-            var response1 = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
-            var response2 = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
+            var response1 = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
+            var response2 = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
 
             // Assert
             AssertResult(response1);
@@ -858,30 +734,30 @@ namespace Steepshot.Core.Tests
             Assert.That(response2.Error.Message.Contains("You may only comment once every 20 seconds.") || response2.Error.Message.Contains("Duplicate transaction check failed"), response2.Error.Message);
         }
 
-        //[Test]
-        //[TestCase(KnownChains.Steem)]
-        //[TestCase(KnownChains.Golos)]
-        //public async Task EditCommentTest(KnownChains apiName)
-        //{
-        //    // Arrange
-        //    var user = Users[apiName];
-        //    var userPostsRequest = new UserPostsModel(user.Login);
-        //    userPostsRequest.ShowLowRated = true;
-        //    userPostsRequest.ShowNsfw = true;
-        //    var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
+        [Test]
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task EditCommentTest(KnownChains apiName)
+        {
+            // Arrange
+            var user = Users[apiName];
+            var userPostsRequest = new UserPostsModel(user.Login);
+            userPostsRequest.ShowLowRated = true;
+            userPostsRequest.ShowNsfw = true;
+            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsRequest, CancellationToken.None);
 
-        //    var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
-        //    Assert.IsNotNull(post);
-        //    var namedRequest = new NamedInfoModel(post.Url);
-        //    var comments = await Api[apiName].GetComments(namedRequest, CancellationToken.None);
-        //    var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
-        //    Assert.IsNotNull(comment);
+            var post = userPostsResponse.Result.Results.FirstOrDefault(i => i.Children > 0);
+            Assert.IsNotNull(post);
+            var namedRequest = new NamedInfoModel(post.Url);
+            var comments = await Api[apiName].GetComments(namedRequest, CancellationToken.None);
+            var comment = comments.Result.Results.FirstOrDefault(i => i.Author.Equals(user.Login));
+            Assert.IsNotNull(comment);
 
-        //    var editCommentRequest = new CommentModel(user, comment.Url, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
+            var editCommentRequest = new CreateOrEditCommentModel(user, post, comment, comment.Body += $" edited {DateTime.Now}", AppSettings.AppInfo);
 
-        //    var result = await Api[apiName].EditComment(editCommentRequest, CancellationToken.None);
-        //    AssertResult(result);
-        //}
+            var result = await Api[apiName].CreateOrEditComment(editCommentRequest, CancellationToken.None);
+            AssertResult(result);
+        }
 
         [Test]
         [TestCase(KnownChains.Steem)]

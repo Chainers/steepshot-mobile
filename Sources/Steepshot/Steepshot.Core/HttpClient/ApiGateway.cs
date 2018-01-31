@@ -72,7 +72,7 @@ namespace Steepshot.Core.HttpClient
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
-
+        
         public async Task<OperationResult<MediaModel>> UploadMedia(GatewayVersion version, string endpoint, UploadMediaModel model, CancellationToken token)
         {
             var url = GetUrl(version, endpoint);

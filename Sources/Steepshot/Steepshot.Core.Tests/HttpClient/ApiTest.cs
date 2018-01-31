@@ -94,8 +94,8 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentModel = new CreateCommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
-            var createCommentResponse = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentResponse = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
@@ -107,9 +107,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
 
-            UrlHelper.TryCastUrlToAuthorAndPermlink(createCommentModel.ParentUrl, out var parentAuthor, out var parentPermlink);
-            var permlink = OperationHelper.CreateReplyPermlink(user.Login, parentAuthor, parentPermlink);
-            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(permlink)));
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentModel.Permlink)));
         }
 
         [Test]
@@ -126,7 +124,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
             // 4) Vote up
-            var voteUpRequest = new VoteModel(user, VoteType.Up, lastPost.Url);
+            var voteUpRequest = new VoteModel(user, lastPost, VoteType.Up);
             var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
@@ -146,7 +144,7 @@ namespace Steepshot.Core.Tests.HttpClient
             //Assert.That(post.Vote, Is.True);
 
             // 3) Vote down
-            var voteDownRequest = new VoteModel(user, VoteType.Down, lastPost.Url);
+            var voteDownRequest = new VoteModel(user, lastPost, VoteType.Down);
             var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
@@ -182,8 +180,8 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
 
             // 5) Vote up comment
-            var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var voteUpCommentRequest = new VoteModel(user, VoteType.Up, commentUrl);
+            var post = commentsResponse.Result.Results.First();
+            var voteUpCommentRequest = new VoteModel(user, post, VoteType.Up);
             var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
@@ -196,12 +194,12 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse2 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse2);
-            var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
+            var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(comm);
             Assert.That(comm.Vote, Is.True);
 
             // 6) Vote down comment
-            var voteDownCommentRequest = new VoteModel(user, VoteType.Down, commentUrl);
+            var voteDownCommentRequest = new VoteModel(user, post, VoteType.Down);
             var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
@@ -214,7 +212,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse3 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse3);
-            comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
+            comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(comm);
             Assert.That(comm.Vote, Is.False);
         }

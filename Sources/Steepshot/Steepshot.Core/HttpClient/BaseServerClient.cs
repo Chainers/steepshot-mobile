@@ -315,9 +315,7 @@ namespace Steepshot.Core.HttpClient
             var results = Validate(model);
             if (results.Any())
                 return new OperationResult<PreparePostResponce>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
-            
-            model.PostPermlink = OperationHelper.TitleToPermlink(model.Title);
-      
+
             return await Gateway.Post<PreparePostResponce, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
         }
 
