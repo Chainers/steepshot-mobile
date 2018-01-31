@@ -61,24 +61,11 @@ namespace Steepshot.Fragment
 
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
-                _adapter.LikeAction += LikeAction;
-                _adapter.UserAction += UserAction;
-                _adapter.CommentAction += CommentAction;
-                _adapter.VotersClick += VotersAction;
-                _adapter.PhotoClick += FeedPhotoClick;
-                _adapter.FlagAction += FlagAction;
-                _adapter.HideAction += HideAction;
+                _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
 
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
-                _postPagerAdapter.LikeAction += LikeAction;
-                _postPagerAdapter.UserAction += UserAction;
-                _postPagerAdapter.CommentAction += CommentAction;
-                _postPagerAdapter.VotersClick += VotersAction;
-                _postPagerAdapter.PhotoClick += PhotoClick;
-                _postPagerAdapter.FlagAction += FlagAction;
-                _postPagerAdapter.HideAction += HideAction;
-                _postPagerAdapter.DeleteAction += DeleteAction;
+                _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
 
@@ -253,76 +240,98 @@ namespace Steepshot.Fragment
             return false;
         }
 
-        private void CommentAction(Post post)
+        private async void PostAction(ActionType type, Post post)
         {
-            if (post == null)
-                return;
+            switch (type)
+            {
+                case ActionType.Like:
+                    {
+                        if (!BasePresenter.User.IsAuthenticated)
+                            return;
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
-        }
+                        var error = await Presenter.TryVote(post);
+                        if (!IsInitialized)
+                            return;
 
-        private void VotersAction(Post post, VotersType type)
-        {
-            if (post == null)
-                return;
+                        if (error == null && Activity is RootActivity root)
+                            root.TryUpdateProfile();
 
-            var isLikers = type == VotersType.Likes;
-            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
-            Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
-            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
-            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
-        }
+                        Context.ShowAlert(error);
+                        break;
+                    }
+                case ActionType.VotersLikes:
+                case ActionType.VotersFlags:
+                    {
+                        if (post == null)
+                            return;
 
-        private void UserAction(Post post)
-        {
-            if (post == null)
-                return;
+                        var isLikers = type == ActionType.VotersLikes;
+                        Activity.Intent.PutExtra(PostUrlExtraPath, post.Url);
+                        Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+                        Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
+                        ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+                        break;
+                    }
+                case ActionType.Comments:
+                    {
+                        if (post == null)
+                            return;
 
-            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
-        }
+                        ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
+                        break;
+                    }
+                case ActionType.Profile:
+                    {
+                        if (post == null)
+                            return;
 
-        private async void LikeAction(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-                return;
+                        ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
+                        break;
+                    }
+                case ActionType.Flag:
+                    {
+                        if (!BasePresenter.User.IsAuthenticated)
+                            return;
 
-            var error = await Presenter.TryVote(post);
-            if (!IsInitialized)
-                return;
+                        var error = await Presenter.TryFlag(post);
+                        if (!IsInitialized)
+                            return;
 
-            if (error == null && Activity is RootActivity root)
-                root.TryUpdateProfile();
+                        if (error == null && Activity is RootActivity root)
+                            root.TryUpdateProfile();
 
-            Context.ShowAlert(error);
-        }
+                        Context.ShowAlert(error);
+                        break;
+                    }
+                case ActionType.Hide:
+                    {
+                        Presenter.HidePost(post);
+                        break;
+                    }
+                case ActionType.Delete:
+                    {
+                        var error = await Presenter.TryDeletePost(post);
+                        if (!IsInitialized)
+                            return;
 
-        private async void FlagAction(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-                return;
-
-            var error = await Presenter.TryFlag(post);
-            if (!IsInitialized)
-                return;
-
-            if (error == null && Activity is RootActivity root)
-                root.TryUpdateProfile();
-
-            Context.ShowAlert(error);
-        }
-
-        private void HideAction(Post post)
-        {
-            Presenter.HidePost(post);
-        }
-
-        private async void DeleteAction(Post post)
-        {
-            var error = await Presenter.TryDeletePost(post);
-            if (!IsInitialized)
-                return;
-
-            Context.ShowAlert(error);
+                        Context.ShowAlert(error);
+                        break;
+                    }
+                case ActionType.Share:
+                    {
+                        var shareIntent = new Intent(Intent.ActionSend);
+                        shareIntent.SetType("text/plain");
+                        shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
+                        shareIntent.PutExtra(Intent.ExtraText, string.Format(Localization.Texts.PostLink, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, Localization.Texts.Sharepost));
+                        break;
+                    }
+                case ActionType.Photo:
+                    {
+                        OpenPost(post);
+                        break;
+                    }
+            }
         }
 
         private void TagAction(string tag)

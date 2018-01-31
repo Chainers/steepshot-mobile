@@ -196,6 +196,7 @@ namespace Steepshot.Core
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
             public const string DeletePost = "Delete post";
+            public const string Sharepost = "Share post";
             public const string CopyLink = "Copy link";
             public const string Cancel = "Cancel";
             public const string Delete = "Delete";

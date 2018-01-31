@@ -30,8 +30,7 @@ namespace Steepshot.Adapter
     {
         protected readonly T Presenter;
         protected readonly Context Context;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, DeleteAction;
-        public Action<Post, VotersType> VotersClick;
+        public Action<ActionType, Post> PostAction;
         public Action<string> TagAction;
 
         public override int ItemCount
@@ -76,7 +75,7 @@ namespace Steepshot.Adapter
                     return loaderVh;
                 default:
                     var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_feed_item, parent, false);
-                    var vh = new FeedViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick, FlagAction, HideAction, DeleteAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
+                    var vh = new FeedViewHolder(itemView, PostAction, TagAction, parent.Context.Resources.DisplayMetrics.WidthPixels);
                     return vh;
             }
         }
@@ -84,13 +83,7 @@ namespace Steepshot.Adapter
 
     public class FeedViewHolder : RecyclerView.ViewHolder
     {
-        private readonly Action<Post> _likeAction;
-        private readonly Action<Post> _userAction;
-        private readonly Action<Post> _commentAction;
-        private readonly Action<Post, VotersType> _votersAction;
-        private readonly Action<Post> _flagAction;
-        private readonly Action<Post> _hideAction;
-        private readonly Action<Post> _deleteAction;
+        private readonly Action<ActionType, Post> _postAction;
         private readonly Action<string> _tagAction;
         private readonly ViewPager _photosViewPager;
         private readonly ImageView _avatar;
@@ -122,7 +115,7 @@ namespace Steepshot.Adapter
         private const int _maxLines = 5;
         protected PostPagerType PhotoPagerType;
 
-        public FeedViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> deleteAction, Action<string> tagAction, int height) : base(itemView)
+        public FeedViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, int height) : base(itemView)
         {
             _context = itemView.Context;
             PhotoPagerType = PostPagerType.Feed;
@@ -135,7 +128,7 @@ namespace Steepshot.Adapter
             parameters.Height = height;
 
             _photosViewPager.LayoutParameters = parameters;
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, photoAction);
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(ActionType.Photo, post));
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -168,13 +161,7 @@ namespace Steepshot.Adapter
             _title.MovementMethod = new LinkMovementMethod();
             _title.SetHighlightColor(Color.Transparent);
 
-            _likeAction = likeAction;
-            _userAction = userAction;
-            _commentAction = commentAction;
-            _votersAction = votersAction;
-            _flagAction = flagAction;
-            _hideAction = hideAction;
-            _deleteAction = deleteAction;
+            _postAction = postAction;
             _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
@@ -205,7 +192,7 @@ namespace Steepshot.Adapter
             if (!_post.FlagNotificationWasShown)
             {
                 _post.FlagNotificationWasShown = true;
-                _flagAction?.Invoke(_post);
+                _postAction?.Invoke(ActionType.Flag, _post);
             }
             else
             {
@@ -258,6 +245,11 @@ namespace Steepshot.Adapter
                     delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
                 }
 
+                var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
+                sharepost.Text = Localization.Texts.Sharepost;
+                sharepost.Typeface = Style.Semibold;
+                sharepost.Visibility = ViewStates.Visible;
+
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
                 copylink.Text = Localization.Texts.CopyLink;
                 copylink.Typeface = Style.Semibold;
@@ -276,8 +268,11 @@ namespace Steepshot.Adapter
                 delete.Click -= DeleteOnClick;
                 delete.Click += DeleteOnClick;
 
-                copylink.Click -= DoShareAction;
-                copylink.Click += DoShareAction;
+                sharepost.Click -= DoShareAction;
+                sharepost.Click += DoShareAction;
+
+                copylink.Click -= DoCopyLinkAction;
+                copylink.Click += DoCopyLinkAction;
 
                 cancel.Click -= DoDialogCancelAction;
                 cancel.Click += DoDialogCancelAction;
@@ -313,7 +308,7 @@ namespace Steepshot.Adapter
             alertDelete.Text = Localization.Texts.Delete;
             alertDelete.Click += (o, args) =>
             {
-                _deleteAction?.Invoke(_post);
+                _postAction?.Invoke(ActionType.Delete, _post);
                 alert.Cancel();
             };
 
@@ -329,16 +324,22 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
-            _flagAction.Invoke(_post);
+            _postAction.Invoke(ActionType.Flag, _post);
         }
 
         private void DoHideAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            _hideAction.Invoke(_post);
+            _postAction.Invoke(ActionType.Hide, _post);
         }
 
         private void DoShareAction(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
+            _postAction.Invoke(ActionType.Share, _post);
+        }
+
+        private void DoCopyLinkAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
             var clipboard = (ClipboardManager)_context.GetSystemService(Context.ClipboardService);
@@ -399,22 +400,22 @@ namespace Steepshot.Adapter
 
         private void DoUserAction(object sender, EventArgs e)
         {
-            _userAction?.Invoke(_post);
+            _postAction?.Invoke(ActionType.Profile, _post);
         }
 
         private void DoCommentAction(object sender, EventArgs e)
         {
-            _commentAction?.Invoke(_post);
+            _postAction?.Invoke(ActionType.Comments, _post);
         }
 
         private void DoLikersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Likes);
+            _postAction?.Invoke(ActionType.VotersLikes, _post);
         }
 
         private void DoFlagersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Flags);
+            _postAction?.Invoke(ActionType.VotersFlags, _post);
         }
 
         private void DoLikeAction(object sender, EventArgs e)
@@ -423,9 +424,9 @@ namespace Steepshot.Adapter
                 return;
 
             if (_post.Flag)
-                _flagAction?.Invoke(_post);
+                _postAction?.Invoke(ActionType.Flag, _post);
             else
-                _likeAction?.Invoke(_post);
+                _postAction?.Invoke(ActionType.Like, _post);
         }
 
         public void UpdateData(Post post, Context context)
