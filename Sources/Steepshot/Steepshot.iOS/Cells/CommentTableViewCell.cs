@@ -3,7 +3,6 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
-using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core;
@@ -72,7 +71,6 @@ namespace Steepshot.iOS.Cells
                 flagLabel.Hidden = false;
                 flagVisibleConstraint.Active = true;
                 flagHiddenConstraint.Active = false;
-                flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             }
             else
             {
@@ -80,6 +78,20 @@ namespace Steepshot.iOS.Cells
                 flagHiddenConstraint.Active = true;
                 flagLabel.Hidden = true;
             }
+
+            if (_currentPost.NetLikes > 0)
+            {
+                likeLabel.Hidden = false;
+                flagVisibleConstraint.Active = true;
+                likeHiddenConstraint.Active = false;
+            }
+            else
+            {
+                likeLabel.Hidden = true;
+                flagVisibleConstraint.Active = false;
+                likeHiddenConstraint.Active = true;
+            }
+
             base.LayoutSubviews();
         }
 
@@ -102,14 +114,14 @@ namespace Steepshot.iOS.Cells
             
             commentText.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
-            likeLabel.Text = _currentPost.NetVotes.ToString();
-            costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            //costLabel.Hidden = true; //!BasePresenter.User.IsNeedRewards;
+            //costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+
             likeButton.Selected = _currentPost.Vote;
             likeButton.Enabled = true;
             timestamp.Text = _currentPost.Created.ToPostTime();
 
             likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             LayoutIfNeeded();
         }
 

@@ -40,7 +40,7 @@
                         <color key="textColor" red="0.59215686270000001" green="0.60784313729999995" blue="0.61960784310000006" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$ 875.23" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="msO-ct-rLQ">
+                    <label hidden="YES" opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$ 875.23" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="msO-ct-rLQ">
                         <rect key="frame" x="232.5" y="108.5" width="51" height="30"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="30" id="Gem-ih-ArW"/>
@@ -94,7 +94,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="23453 likes" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qb4-pf-uWu">
-                        <rect key="frame" x="70" y="107.5" width="66.5" height="30"/>
+                        <rect key="frame" x="70" y="107" width="66.5" height="30"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="30" id="cn8-PL-a9I"/>
                         </constraints>
@@ -127,11 +127,13 @@
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="centerY" secondItem="j3L-Au-o6s" secondAttribute="centerY" id="rg5-7f-RBA"/>
                     <constraint firstItem="msO-ct-rLQ" firstAttribute="leading" secondItem="bhf-a7-Kmk" secondAttribute="trailing" constant="25" id="t0L-2c-HEP"/>
                     <constraint firstItem="xhJ-7K-S2d" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="leading" id="wsL-IF-Acb"/>
+                    <constraint firstItem="bhf-a7-Kmk" firstAttribute="leading" secondItem="xhJ-7K-S2d" secondAttribute="trailing" constant="5" id="x2s-VM-bDQ"/>
                     <constraint firstItem="za7-wI-ZZh" firstAttribute="centerY" secondItem="fnL-d0-hVK" secondAttribute="centerY" id="zpj-9s-gEw"/>
                 </constraints>
                 <variation key="default">
                     <mask key="constraints">
                         <exclude reference="n4G-9a-wVe"/>
+                        <exclude reference="x2s-VM-bDQ"/>
                         <exclude reference="aPX-R0-6u3"/>
                     </mask>
                 </variation>
@@ -144,6 +146,7 @@
                 <outlet property="flagLabel" destination="bhf-a7-Kmk" id="7a4-b1-Vz4"/>
                 <outlet property="flagVisibleConstraint" destination="ecJ-9q-EK8" id="bOE-AV-6Ga"/>
                 <outlet property="likeButton" destination="YZa-PT-Ha5" id="zTg-TT-IFI"/>
+                <outlet property="likeHiddenConstraint" destination="x2s-VM-bDQ" id="rWt-vA-ooC"/>
                 <outlet property="likeLabel" destination="qb4-pf-uWu" id="IEA-Ra-W57"/>
                 <outlet property="loginLabel" destination="fnL-d0-hVK" id="pgJ-OM-R1L"/>
                 <outlet property="otherActionButton" destination="dcg-9I-bp2" id="2fb-la-hRd"/>
