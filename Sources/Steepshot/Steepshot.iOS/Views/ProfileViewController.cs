@@ -111,7 +111,7 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            NavigationController.PopViewController(true);
+            _navController.PopViewController(true);
         }
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
@@ -213,7 +213,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
+            _navController.PushViewController(myViewController, true);
         }
 
         private async Task RefreshPage()

@@ -2,6 +2,7 @@
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Models;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
@@ -25,7 +26,7 @@ namespace Steepshot.iOS.Helpers
         {
             var attributedLabel = new TTTAttributedLabel();
             var at = new NSMutableAttributedString();
-            var photoHeight = PhotoHeight.Get(post.ImageSize);
+            var photoHeight = (int)(OptimalPhotoSize.Get(post.ImageSize, (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
 
             at.Append(new NSAttributedString(post.Title, _noLinkAttribute));
             if (!string.IsNullOrEmpty(post.Description))

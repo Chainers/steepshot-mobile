@@ -89,14 +89,14 @@ namespace Steepshot.iOS.Cells
 
             var authorX = _avatarImage.Frame.Right + 10;
 
-            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top, _moreButton.Frame.Left - authorX, 16));
+            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _moreButton.Frame.Left - authorX, 18));
             _author.Font = Constants.Semibold14;
             //_author.BackgroundColor = UIColor.Yellow;
             _author.LineBreakMode = UILineBreakMode.TailTruncation;
             _author.TextColor = Constants.R15G24B30;
             ContentView.AddSubview(_author);
 
-            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 14));
+            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 16));
             _timestamp.Font = Constants.Regular12;
             //_timestamp.BackgroundColor = UIColor.Green;
             _timestamp.LineBreakMode = UILineBreakMode.TailTruncation;
@@ -374,9 +374,9 @@ namespace Steepshot.iOS.Cells
 
             _comments.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
 
-            _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 10, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
+            _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 
-            _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, 1);
+            _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 10, UIScreen.MainScreen.Bounds.Width, 1);
 
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
