@@ -9,6 +9,7 @@ namespace Steepshot.Utils
 {
     public class VotingPowerFrame : FrameLayout
     {
+        public bool Draw { get; set; }
         public float VotingPower { get; set; }
         public float VotingPowerWidth { get; set; }
 
@@ -43,9 +44,11 @@ namespace Steepshot.Utils
         protected override void OnDraw(Canvas canvas)
         {
             base.OnDraw(canvas);
-            var paint = new Paint(PaintFlags.AntiAlias) { StrokeWidth = VotingPowerWidth };
+            if (!Draw) return;
+            var paint = new Paint(PaintFlags.AntiAlias) { Color = new Color(ContextCompat.GetColor(Context, Resource.Color.rgb209_213_216)), StrokeWidth = VotingPowerWidth };
             paint.SetStyle(Paint.Style.Stroke);
             paint.StrokeCap = Paint.Cap.Round;
+            canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, 360f, false, paint);
             paint.SetShader(new LinearGradient(0, 0, 0, Height,
                 new Color(ContextCompat.GetColor(Context, Resource.Color.rgb255_121_4)),
                 new Color(ContextCompat.GetColor(Context, Resource.Color.rgb255_22_5)), Shader.TileMode.Mirror));

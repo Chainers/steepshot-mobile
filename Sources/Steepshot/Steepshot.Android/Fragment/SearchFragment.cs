@@ -16,6 +16,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Activity;
 
 namespace Steepshot.Fragment
 {
@@ -101,6 +102,13 @@ namespace Steepshot.Fragment
             _emptyQueryLabel.Typeface = Style.Light;
             _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
+        }
+
+        public override void OnResume()
+        {
+            if (Activity is RootActivity activity)
+                activity._tabLayout.Visibility = ViewStates.Gone;
+            base.OnResume();
         }
 
         public override void OnDetach()

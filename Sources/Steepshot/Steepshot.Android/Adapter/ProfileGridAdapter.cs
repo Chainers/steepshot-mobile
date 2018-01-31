@@ -158,7 +158,7 @@ namespace Steepshot.Adapter
         private async void ProfileImageOnClick(object sender, EventArgs eventArgs)
         {
             _profileImage.Enabled = false;
-            _votingPowerText.Text = $"{Localization.Messages.VotingPower} {_profile.VotingPower}%";
+            _votingPowerText.Text = $"{Localization.Messages.PowerOfLike} {_profile.VotingPower}%";
             _votingPowerText.Visibility = ViewStates.Visible;
             var start = 20;
             var end = 255;
@@ -216,7 +216,11 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
-            _votingPower.VotingPower = profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase) ? (float)profile.VotingPower : 0;
+            if (profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase))
+            {
+                _votingPower.VotingPower = (float)profile.VotingPower;
+                _votingPower.Draw = true;
+            }
 
             if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
