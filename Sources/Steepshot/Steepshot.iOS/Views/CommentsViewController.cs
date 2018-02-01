@@ -31,7 +31,6 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            //NavigationController.SetNavigationBarHidden(false, false);
 
             commentTextView.Layer.BorderColor = Helpers.Constants.R244G244B246.CGColor;
             commentTextView.Layer.BorderWidth = 1f;
@@ -115,13 +114,6 @@ namespace Steepshot.iOS.Views
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
                     NavigationController.PushViewController(myViewController, true);
-                    break;
-                case ActionType.Preview:
-                    var myViewController2 = new ImagePreviewViewController();
-                    //TODO: pass image
-                    myViewController2.ImageForPreview = null;
-                    myViewController2.ImageUrl = post.Body;
-                    NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);

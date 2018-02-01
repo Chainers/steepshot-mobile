@@ -63,7 +63,7 @@ namespace Steepshot.iOS
             else
                 InitialViewController = new PreSearchViewController();
 
-            var navController = new UINavigationController(InitialViewController);
+            var navController = new InteractivePopNavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
             return true;

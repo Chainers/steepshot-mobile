@@ -95,7 +95,7 @@ namespace Steepshot.iOS.Views
                     //TODO: pass image
                     myViewController2.ImageForPreview = null;
                     myViewController2.ImageUrl = post.Body;
-                    _navController.PushViewController(myViewController2, true);
+                    TabBarController.NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -103,7 +103,8 @@ namespace Steepshot.iOS.Views
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    _navController.PushViewController(myViewController4, true);
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -120,7 +121,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            _navController.PushViewController(myViewController, true);
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)

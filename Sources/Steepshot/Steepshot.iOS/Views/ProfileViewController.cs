@@ -106,7 +106,7 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            _navController.PopViewController(true);
+            NavigationController.PopViewController(true);
         }
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
@@ -191,7 +191,8 @@ namespace Steepshot.iOS.Views
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    _navController.PushViewController(myViewController4, true);
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
