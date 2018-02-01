@@ -28,7 +28,7 @@ namespace Steepshot.Core.HttpClient
             _synk = new object();
         }
 
-        public void InitConnector(KnownChains chain, bool isDev, CancellationToken token)
+        public void InitConnector(KnownChains chain, bool isDev)
         {
             var sUrl = string.Empty;
             switch (chain)

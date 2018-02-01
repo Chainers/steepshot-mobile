@@ -48,8 +48,8 @@ namespace Steepshot.Core.Tests
                 {KnownChains.Golos, new SteepshotApiClient()},
             };
 
-            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev, CancellationToken.None);
-            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev, CancellationToken.None);
+            Api[KnownChains.Steem].InitConnector(KnownChains.Steem, IsDev);
+            Api[KnownChains.Golos].InitConnector(KnownChains.Golos, IsDev);
         }
 
         protected string GetTestImagePath()
