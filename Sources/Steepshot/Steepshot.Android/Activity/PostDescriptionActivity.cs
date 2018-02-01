@@ -99,8 +99,6 @@ namespace Steepshot.Activity
             else
             {
                 _model = new PreparePostModel(BasePresenter.User.UserInfo);
-                _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
-                _path = Intent.GetStringExtra(PhotoExtraPath);
                 InitPhoto(_path);
                 SetPostingTimer();
             }
