@@ -31,6 +31,9 @@
                         <color key="textColor" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GUx-tN-8lA">
+                        <rect key="frame" x="0.0" y="0.0" width="142.5" height="43"/>
+                    </view>
                     <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="52 flags" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bhf-a7-Kmk">
                         <rect key="frame" x="161.5" y="108" width="46" height="30"/>
                         <constraints>
@@ -104,9 +107,12 @@
                     </label>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="w1I-EV-1GW" firstAttribute="top" secondItem="GUx-tN-8lA" secondAttribute="bottom" id="7D7-Fu-D1x"/>
+                    <constraint firstItem="GUx-tN-8lA" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" id="8Xs-St-EP2"/>
                     <constraint firstItem="qb4-pf-uWu" firstAttribute="leading" secondItem="xhJ-7K-S2d" secondAttribute="trailing" constant="5" id="B2C-Ck-8mx"/>
                     <constraint firstItem="za7-wI-ZZh" firstAttribute="leading" secondItem="dcg-9I-bp2" secondAttribute="trailing" constant="9" id="BGW-a8-zAg"/>
                     <constraint firstAttribute="bottom" secondItem="qb4-pf-uWu" secondAttribute="bottom" constant="13" id="CUI-tu-qqu"/>
+                    <constraint firstItem="GUx-tN-8lA" firstAttribute="top" secondItem="YTl-1W-gDM" secondAttribute="top" id="CVc-VY-UTZ"/>
                     <constraint firstItem="j3L-Au-o6s" firstAttribute="top" secondItem="YTl-1W-gDM" secondAttribute="top" constant="13" id="F8K-b4-XdH"/>
                     <constraint firstItem="bhf-a7-Kmk" firstAttribute="centerY" secondItem="xhJ-7K-S2d" secondAttribute="centerY" id="IbI-O6-Xnk"/>
                     <constraint firstAttribute="trailing" secondItem="za7-wI-ZZh" secondAttribute="trailing" constant="14" id="O5P-NP-MVw"/>
@@ -119,6 +125,7 @@
                     <constraint firstItem="qb4-pf-uWu" firstAttribute="centerY" secondItem="xhJ-7K-S2d" secondAttribute="centerY" id="htv-NE-phe"/>
                     <constraint firstItem="fnL-d0-hVK" firstAttribute="leading" secondItem="j3L-Au-o6s" secondAttribute="trailing" constant="9" id="if9-yw-RYL"/>
                     <constraint firstItem="xhJ-7K-S2d" firstAttribute="top" secondItem="w1I-EV-1GW" secondAttribute="bottom" id="jD3-9x-vxp"/>
+                    <constraint firstItem="fnL-d0-hVK" firstAttribute="trailing" secondItem="GUx-tN-8lA" secondAttribute="trailing" id="kfg-LT-wVF"/>
                     <constraint firstItem="YZa-PT-Ha5" firstAttribute="centerY" secondItem="w1I-EV-1GW" secondAttribute="centerY" id="lo3-vp-LKX"/>
                     <constraint firstItem="za7-wI-ZZh" firstAttribute="centerY" secondItem="dcg-9I-bp2" secondAttribute="centerY" id="m3J-sh-ced"/>
                     <constraint firstItem="j3L-Au-o6s" firstAttribute="leading" secondItem="YTl-1W-gDM" secondAttribute="leading" constant="15" id="mb8-RW-dQy"/>
@@ -150,6 +157,7 @@
                 <outlet property="likeLabel" destination="qb4-pf-uWu" id="IEA-Ra-W57"/>
                 <outlet property="loginLabel" destination="fnL-d0-hVK" id="pgJ-OM-R1L"/>
                 <outlet property="otherActionButton" destination="dcg-9I-bp2" id="2fb-la-hRd"/>
+                <outlet property="profileTapView" destination="GUx-tN-8lA" id="3DP-mZ-K6i"/>
                 <outlet property="replyButton" destination="xhJ-7K-S2d" id="Raa-GA-8i5"/>
                 <outlet property="replyHiddenConstraint" destination="n4G-9a-wVe" id="jJ0-Tf-3Wr"/>
                 <outlet property="replyVisibleConstraint" destination="B2C-Ck-8mx" id="wZE-9y-lBw"/>

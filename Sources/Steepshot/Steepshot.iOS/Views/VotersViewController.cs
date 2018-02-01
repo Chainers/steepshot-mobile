@@ -17,11 +17,13 @@ namespace Steepshot.iOS.Views
     {
         private readonly Post _post;
         private readonly VotersType _votersType;
+        private readonly bool _isComment;
 
-        public VotersViewController(Post post, VotersType votersType)
+        public VotersViewController(Post post, VotersType votersType, bool isComment = false)
         {
             _post = post;
             _votersType = votersType;
+            _isComment = isComment;
         }
 
         protected override void CreatePresenter()
@@ -100,7 +102,7 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var errors = await _presenter.TryLoadNextPostVoters(_post.Url);
+            var errors = await _presenter.TryLoadNextPostVoters(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
             ShowAlert(errors);
             progressBar.StopAnimating();
         }

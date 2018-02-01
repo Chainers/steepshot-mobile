@@ -8,6 +8,7 @@ using UIKit;
 using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using CoreGraphics;
 
 namespace Steepshot.iOS.Cells
 {
@@ -27,8 +28,43 @@ namespace Steepshot.iOS.Cells
             Nib = UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle);
         }
 
-        public override void LayoutSubviews()
+        public void UpdateCell(Post post)
         {
+            _currentPost = post;
+
+            _scheduledWorkAvatar?.Cancel();
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+            {
+            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                               .LoadingPlaceholder("ic_noavatar.png")
+                                               .ErrorPlaceholder("ic_noavatar.png")
+                                               .FadeAnimation(false, false, 0)
+                                               .DownSample(200)
+                                               .Into(avatar);
+            }
+            else
+                avatar.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.VoteChanging)
+                Animate();
+            else
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(1f, 1f);
+                likeButton.Selected = _currentPost.Vote;
+                likeButton.Enabled = true;
+            }
+
+            commentText.Text = _currentPost.Body;
+            loginLabel.Text = _currentPost.Author;
+            //costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+
+            timestamp.Text = _currentPost.Created.ToPostTime();
+
+            likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+            flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+            //LayoutIfNeeded();
+
+
             if (!_isInitialized)
             {
                 avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
@@ -45,9 +81,19 @@ namespace Steepshot.iOS.Cells
                 {
                     CellAction?.Invoke(ActionType.Reply, _currentPost);
                 });
+                var likersTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Voters, _currentPost);
+                });
+                var flagersTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Flagers, _currentPost);
+                });
                 replyButton.AddGestureRecognizer(replyTap);
-                avatar.AddGestureRecognizer(tap);
+                profileTapView.AddGestureRecognizer(tap);
                 costLabel.AddGestureRecognizer(costTap);
+                likeLabel.AddGestureRecognizer(likersTap);
+                flagLabel.AddGestureRecognizer(flagersTap);
 
                 commentText.Font = Helpers.Constants.Regular14;
                 loginLabel.Font = Helpers.Constants.Semibold14;
@@ -92,47 +138,30 @@ namespace Steepshot.iOS.Cells
                 likeHiddenConstraint.Active = true;
             }
 
-            base.LayoutSubviews();
-        }
-
-        public void UpdateCell(Post post)
-        {
-            _currentPost = post;
-
-            _scheduledWorkAvatar?.Cancel();
-            if (!string.IsNullOrEmpty(_currentPost.Avatar))
-            {
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                               .LoadingPlaceholder("ic_noavatar.png")
-                                               .ErrorPlaceholder("ic_noavatar.png")
-                                               .FadeAnimation(false, false, 0)
-                                               .DownSample(200)
-                                               .Into(avatar);
-            }
-            else
-                avatar.Image = UIImage.FromBundle("ic_noavatar");
-            
-            commentText.Text = _currentPost.Body;
-            loginLabel.Text = _currentPost.Author;
-            //costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-
-            likeButton.Selected = _currentPost.Vote;
-            likeButton.Enabled = true;
-            timestamp.Text = _currentPost.Created.ToPostTime();
-
-            likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
-            flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
-            LayoutIfNeeded();
         }
 
         private void LikeTap(object sender, EventArgs e)
         {
+            if (_currentPost.VoteChanging)
+                return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+            Animate();
         }
 
         private void MoreTap(object sender, EventArgs e)
         {
             CellAction?.Invoke(ActionType.More, _currentPost);
+        }
+
+        private void Animate()
+        {
+            likeButton.Selected = true;
+            UIView.Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
+            }, null);
         }
     }
 }

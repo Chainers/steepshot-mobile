@@ -143,6 +143,7 @@ namespace Steepshot.iOS.Cells
             //_flags.BackgroundColor = UIColor.Orange;
             _flags.LineBreakMode = UILineBreakMode.TailTruncation;
             _flags.TextColor = Constants.R15G24B30;
+            _flags.UserInteractionEnabled = true;
             ContentView.AddSubview(_flags);
 
             _rewards = new UILabel();
@@ -229,6 +230,12 @@ namespace Steepshot.iOS.Cells
                 CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
             _likersTapView.AddGestureRecognizer(netVotesTap);
+
+            var flagersTap = new UITapGestureRecognizer(() =>
+            {
+                CellAction?.Invoke(ActionType.Flagers, _currentPost);
+            });
+            _flags.AddGestureRecognizer(flagersTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
             _like.TouchDown += LikeTap;

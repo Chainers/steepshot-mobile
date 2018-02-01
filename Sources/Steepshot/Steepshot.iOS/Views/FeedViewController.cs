@@ -100,6 +100,9 @@ namespace Steepshot.iOS.Views
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
+                case ActionType.Flagers:
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
+                    break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
