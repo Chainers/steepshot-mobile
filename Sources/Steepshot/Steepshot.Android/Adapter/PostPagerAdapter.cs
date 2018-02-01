@@ -161,25 +161,25 @@ namespace Steepshot.Adapter
             postHeader.SetLayerType(LayerType.Hardware, null);
             postFooter.SetLayerType(LayerType.Hardware, null);
 
-            _nsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
+            NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
         }
 
         protected override void SetNsfwMaskLayout()
         {
             base.SetNsfwMaskLayout();
-            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
+            ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
         }
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)
         {
-            if (_nsfwMask.Height < BitmapUtils.DpToPixel(200, _context.Resources))
-                _nsfwMaskSubMessage.Visibility = ViewStates.Gone;
+            if (NsfwMask.Height < BitmapUtils.DpToPixel(200, Context.Resources))
+                NsfwMaskSubMessage.Visibility = ViewStates.Gone;
         }
 
         protected override void OnTitleOnClick(object sender, EventArgs e)
         {
             base.OnTitleOnClick(sender, e);
-            UpdateData(_post, _context);
+            UpdateData(Post, Context);
         }
 
         private void CloseButtonOnClick(object sender, EventArgs eventArgs)
