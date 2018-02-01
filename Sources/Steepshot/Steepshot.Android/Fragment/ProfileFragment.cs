@@ -93,6 +93,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.FollowAction += OnFollowClick;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.EditAction += EditAction;
                     _profileFeedAdapter.DeleteAction += DeleteAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
@@ -583,7 +584,7 @@ namespace Steepshot.Fragment
         private void EditAction(Post post)
         {
             var intent = new Intent(Activity, typeof(PostDescriptionActivity));
-            intent.PutExtra("EditPost", JsonConvert.SerializeObject(post));
+            intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
             Activity.StartActivity(intent);
         }
 

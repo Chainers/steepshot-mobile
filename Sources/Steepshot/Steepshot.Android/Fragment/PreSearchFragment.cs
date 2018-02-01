@@ -14,6 +14,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -96,6 +97,7 @@ namespace Steepshot.Fragment
                     _profilePagerAdapter.PhotoClick += OnPhotoClick;
                     _profilePagerAdapter.FlagAction += FlagAction;
                     _profilePagerAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.EditAction += EditAction;
                     _profilePagerAdapter.DeleteAction += DeleteAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
@@ -119,6 +121,7 @@ namespace Steepshot.Fragment
                     _profileFeedAdapter.VotersClick += VotersAction;
                     _profileFeedAdapter.FlagAction += FlagAction;
                     _profileFeedAdapter.HideAction += HideAction;
+                    _profileFeedAdapter.EditAction += EditAction;
                     _profileFeedAdapter.DeleteAction += DeleteAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
@@ -574,6 +577,13 @@ namespace Steepshot.Fragment
         private void CloseAction()
         {
             ClosePost();
+        }
+
+        private void EditAction(Post post)
+        {
+            var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+            intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
+            Activity.StartActivity(intent);
         }
 
         private async void DeleteAction(Post post)
