@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,6 +9,7 @@ using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Tests.HttpClient
 {
@@ -30,32 +32,48 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
-        public async Task UploadWithPrepareTest(KnownChains apiName)
+        [Ignore("For hand test only")]
+        public async Task UploadMediaTest(KnownChains apiName)
         {
             var user = Users[apiName];
 
             // 1) Create new post
-            var file = File.ReadAllBytes(GetTestImagePath());
+            var path = GetTestImagePath();
+            var stream = new FileStream(GetTestImagePath(), FileMode.Open);
             user.IsNeedRewards = false;
-            var uploadImageModel = new UploadImageModel(user, "cat" + DateTime.UtcNow.Ticks, file, new[] { "cat1", "cat2", "cat3", "cat4" });
-            var servResp = await Api[apiName].UploadWithPrepare(uploadImageModel, CancellationToken.None);
+            var uploadImageModel = new UploadMediaModel(user, stream, Path.GetExtension(path));
+            var servResp = await Api[apiName].UploadMedia(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
-            var createPostResponse = await Api[apiName].CreatePost(uploadImageModel, servResp.Result, CancellationToken.None);
+        }
 
+        [Test]
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task PreparePostTest(KnownChains apiName)
+        {
+            var user = Users[apiName];
+            var model = new PreparePostModel(user)
+            {
+                Title = "Test",
+                Description = DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                Media = new[]
+                {
+                    new MediaModel
+                    {
+                        Url = "http://steepshot.org/api/v1/image/034e7cc2-90df-4186-b475-9b7d4166e0a4.jpeg",
+                        IpfsHash = "QmUHaQDMc46pR21fNFt1Gxo5YeeFxD4uENywbevXe5XXWM",
+                        Size = new FrameSize
+                        {
+                            Height = 194,
+                            Width = 194
+                        }
+                    }
+                },
+                Tags = new[] { "test" }
+            };
+
+            var createPostResponse = await Api[apiName].PreparePost(model, CancellationToken.None);
             AssertResult(createPostResponse);
-
-            // Wait for data to be writed into blockchain
-            Thread.Sleep(TimeSpan.FromSeconds(15));
-
-            // Load last created post
-            var userPostsModel = new UserPostsModel(user.Login);
-            userPostsModel.ShowNsfw = true;
-            userPostsModel.ShowLowRated = true;
-            var userPostsResponse = await Api[apiName].GetUserPosts(userPostsModel, CancellationToken.None);
-            AssertResult(userPostsResponse);
-            var lastPost = userPostsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(uploadImageModel.Permlink, StringComparison.OrdinalIgnoreCase));
-            Assert.IsNotNull(lastPost);
-            Assert.That(uploadImageModel.Title, Is.EqualTo(lastPost.Title));
         }
 
         [Test]
@@ -76,8 +94,8 @@ namespace Steepshot.Core.Tests.HttpClient
             // 2) Create new comment
             // Wait for 20 seconds before commenting
             Thread.Sleep(TimeSpan.FromSeconds(20));
-            var createCommentModel = new CreateCommentModel(user, lastPost.Url, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
-            var createCommentResponse = await Api[apiName].CreateComment(createCommentModel, CancellationToken.None);
+            var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
+            var createCommentResponse = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
             Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
 
@@ -89,9 +107,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             AssertResult(commentsResponse);
 
-            UrlHelper.TryCastUrlToAuthorAndPermlink(createCommentModel.ParentUrl, out var parentAuthor, out var parentPermlink);
-            var permlink = OperationHelper.CreateReplyPermlink(user.Login, parentAuthor, parentPermlink);
-            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(permlink)));
+            Assert.IsNotNull(commentsResponse.Result.Results.FirstOrDefault(i => i.Url.EndsWith(createCommentModel.Permlink)));
         }
 
         [Test]
@@ -108,7 +124,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var lastPost = userPostsResponse.Result.Results.First(i => !i.Vote);
 
             // 4) Vote up
-            var voteUpRequest = new VoteModel(user, VoteType.Up, lastPost.Url);
+            var voteUpRequest = new VoteModel(user, lastPost, VoteType.Up);
             var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
             Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
@@ -128,7 +144,7 @@ namespace Steepshot.Core.Tests.HttpClient
             //Assert.That(post.Vote, Is.True);
 
             // 3) Vote down
-            var voteDownRequest = new VoteModel(user, VoteType.Down, lastPost.Url);
+            var voteDownRequest = new VoteModel(user, lastPost, VoteType.Down);
             var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
             Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
@@ -164,8 +180,8 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
 
             // 5) Vote up comment
-            var commentUrl = commentsResponse.Result.Results.First().Url.Split('#').Last();
-            var voteUpCommentRequest = new VoteModel(user, VoteType.Up, commentUrl);
+            var post = commentsResponse.Result.Results.First();
+            var voteUpCommentRequest = new VoteModel(user, post, VoteType.Up);
             var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
             Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
@@ -178,12 +194,12 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse2 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse2);
-            var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
+            var comm = commentsResponse2.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(comm);
             Assert.That(comm.Vote, Is.True);
 
             // 6) Vote down comment
-            var voteDownCommentRequest = new VoteModel(user, VoteType.Down, commentUrl);
+            var voteDownCommentRequest = new VoteModel(user, post, VoteType.Down);
             var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
             Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
@@ -196,7 +212,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var commentsResponse3 = await Api[apiName].GetComments(getCommentsRequest, CancellationToken.None);
             // Check if last comment was voted
             AssertResult(commentsResponse3);
-            comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.EndsWith(commentUrl, StringComparison.OrdinalIgnoreCase));
+            comm = commentsResponse3.Result.Results.FirstOrDefault(i => i.Url.Equals(post.Url, StringComparison.OrdinalIgnoreCase));
             Assert.IsNotNull(comm);
             Assert.That(comm.Vote, Is.False);
         }

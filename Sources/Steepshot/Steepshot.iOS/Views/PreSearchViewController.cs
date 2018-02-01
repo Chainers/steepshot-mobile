@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
@@ -33,11 +32,12 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter);
 
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+
+            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
 
             if (_navController != null)
                 _navController.NavigationBar.Translucent = false;
@@ -47,8 +47,7 @@ namespace Steepshot.iOS.Views
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
-            collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
-            collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
+            collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
 
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += async (sender, e) =>
@@ -62,9 +61,8 @@ namespace Steepshot.iOS.Views
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 500),
-                MinimumLineSpacing = 1,
-                MinimumInteritemSpacing = 1,
+                MinimumLineSpacing = 0,
+                MinimumInteritemSpacing = 0,
             }, false);
 
             collectionView.Delegate = _gridDelegate;
@@ -147,7 +145,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
+            _navController.PushViewController(myViewController, true);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -207,7 +205,7 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            NavigationController.PopViewController(true);
+            _navController.PopViewController(true);
         }
 
         private void Flagged(Post post)
@@ -255,38 +253,29 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            try
+            _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+            if (_collectionViewSource.IsGrid)
             {
-                _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
-                if (_collectionViewSource.IsGrid)
+                //switchButton.TintColor = Helpers.Constants.R231G72B0;
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
-                    //switchButton.TintColor = Helpers.Constants.R231G72B0;
-                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-                    {
-                        EstimatedItemSize = Helpers.Constants.CellSize,
-                        MinimumLineSpacing = 1,
-                        MinimumInteritemSpacing = 1,
-                    }, false);
-                }
-                else
-                {
-                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-                    {
-                        EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
-                        MinimumLineSpacing = 0,
-                        MinimumInteritemSpacing = 0,
-                    }, false);
-
-                    //switchButton.TintColor = Helpers.Constants.R151G155B158;
-                }
-
-                collectionView.ReloadData();
-                collectionView.SetContentOffset(new CGPoint(0, 0), false);
+                    MinimumLineSpacing = 1,
+                    MinimumInteritemSpacing = 1,
+                }, false);
             }
-            catch (Exception ex)
+            else
             {
+                //switchButton.TintColor = Helpers.Constants.R151G155B158;
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                {
+                    MinimumLineSpacing = 0,
+                    MinimumInteritemSpacing = 0,
+                }, false);
 
             }
+
+            collectionView.ReloadData();
+            //collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -342,13 +331,8 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            var offset = collectionView.ContentOffset;
+            _gridDelegate.GenerateVariables();
             collectionView.ReloadData();
-            collectionView.LayoutIfNeeded();
-            if (status.Sender == "TryLoadNextTopPosts" && _gridDelegate.Position == 0)
-                collectionView.SetContentOffset(new CGPoint(0, 0), false);
-            else
-                collectionView.SetContentOffset(offset, false);
         }
     }
 }

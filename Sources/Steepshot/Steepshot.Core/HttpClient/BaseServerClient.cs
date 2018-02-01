@@ -310,21 +310,22 @@ namespace Steepshot.Core.HttpClient
 
         #endregion Get requests
 
+        public async Task<OperationResult<PreparePostResponce>> PreparePost(PreparePostModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<PreparePostResponce>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+
+            return await Gateway.Post<PreparePostResponce, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
+        }
+
+
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
             if (!EnableRead)
                 return null;
 
             return await Gateway.NsfwCheck(stream, token);
-        }
-
-        protected async Task<OperationResult<UploadResponse>> Upload(UploadImageModel model, CancellationToken token)
-        {
-            if (!EnableRead)
-                return null;
-
-            OperationHelper.PrepareTags(model.Tags);
-            return await Gateway.Upload<UploadResponse>(GatewayVersion.V1, "post/prepare", model, token);
         }
 
         private void AddOffsetLimitParameters(Dictionary<string, object> parameters, string offset, int limit)

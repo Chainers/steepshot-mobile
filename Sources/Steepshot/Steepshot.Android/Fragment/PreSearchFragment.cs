@@ -469,12 +469,8 @@ namespace Steepshot.Fragment
             if (post == null)
                 return;
 
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo == null)
-                return;
-
             var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
+            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
             StartActivity(intent);
         }
 
@@ -577,6 +573,16 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Preview:
+                    {
+                        if (post == null)
+                            return;
+
+                        var intent = new Intent(Context, typeof(PostPreviewActivity));
+                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
+                        StartActivity(intent);
                         break;
                     }
             }

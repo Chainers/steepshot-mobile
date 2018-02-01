@@ -128,7 +128,7 @@ namespace Steepshot.Adapter
             parameters.Height = height;
 
             _photosViewPager.LayoutParameters = parameters;
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(ActionType.Photo, post));
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(_context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post));
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -235,6 +235,10 @@ namespace Steepshot.Adapter
                 hide.Typeface = Style.Semibold;
                 hide.Visibility = ViewStates.Visible;
 
+                var edit = dialogView.FindViewById<Button>(Resource.Id.editpost);
+                edit.Text = Localization.Texts.EditPost;
+                edit.Typeface = Style.Semibold;
+
                 var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
                 delete.Text = Localization.Texts.DeletePost;
                 delete.Typeface = Style.Semibold;
@@ -242,7 +246,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    delete.Visibility = _post.CashoutTime == "1969-12-31T23:59:59Z" ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = _post.CashoutTime < _post.Created ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
@@ -265,6 +269,9 @@ namespace Steepshot.Adapter
                 hide.Click -= DoHideAction;
                 hide.Click += DoHideAction;
 
+                edit.Click -= EditOnClick;
+                edit.Click += EditOnClick;
+
                 delete.Click -= DeleteOnClick;
                 delete.Click += DeleteOnClick;
 
@@ -282,6 +289,12 @@ namespace Steepshot.Adapter
                 _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
                 _moreActionsDialog.Show();
             }
+        }
+
+        private void EditOnClick(object sender, EventArgs eventArgs)
+        {
+            _moreActionsDialog.Dismiss();
+            _postAction?.Invoke(ActionType.Edit, _post);
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
@@ -568,7 +581,7 @@ namespace Steepshot.Adapter
             private readonly Action<Post> _photoAction;
             private PostPagerType _type;
             private Post _post;
-            private string _photo;
+            private MediaModel _photo;
 
             public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
             {
@@ -583,29 +596,31 @@ namespace Steepshot.Adapter
                 _type = type;
                 _post = post;
                 //_photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
-                _photo = _post.Photos[0];
+                _photo = _post.Media[0];
                 NotifyDataSetChanged();
                 var cardView = _photoHolders[0];
                 if (cardView != null)
-                    LoadPhoto(_post.Photos[0], cardView);
+                    LoadPhoto(_post.Media[0], cardView);
             }
 
-            private void LoadPhoto(string path, CardView photoCard)
+            private void LoadPhoto(MediaModel mediaModel, CardView photoCard)
             {
-                if (path != null)
+                if (mediaModel != null)
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
-                    Picasso.With(Context).Load(path).NoFade()
+                    Picasso.With(Context).Load(mediaModel.Url).NoFade()
                         .Resize(Context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
-                            Picasso.With(Context).Load(path).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                            Picasso.With(Context).Load(mediaModel.Url).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
+
                     if (_type == PostPagerType.PostScreen)
                     {
                         photoCard.Radius = (int)BitmapUtils.DpToPixel(7, Context.Resources);
                     }
-                    var size = new Size { Height = _post.ImageSize.Height / Style.Density, Width = _post.ImageSize.Width / Style.Density };
+
+                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
                     var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
                     photoCard.LayoutParameters.Height = height;
                     ((View)photoCard.Parent).LayoutParameters.Height = height;

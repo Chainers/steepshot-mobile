@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
@@ -21,6 +20,7 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
+using Newtonsoft.Json;
 
 namespace Steepshot.Fragment
 {
@@ -237,8 +237,11 @@ namespace Steepshot.Fragment
                 Activity.Intent.RemoveExtra(CommentsFragment.ResultString);
                 Activity.Intent.RemoveExtra(CommentsFragment.CountString);
                 var post = Presenter.FirstOrDefault(p => p.Url == postUrl);
-                post.Children += count;
-                _adapter.NotifyDataSetChanged();
+                if (post != null)
+                {
+                    post.Children += count;
+                    _adapter.NotifyDataSetChanged();
+                }
             }
         }
 
@@ -472,20 +475,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void OnPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var photo = post.Photos?.FirstOrDefault();
-            if (photo == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, photo);
-            StartActivity(intent);
-        }
-
         private void OnFollowingClick()
         {
             Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, false);
@@ -572,6 +561,13 @@ namespace Steepshot.Fragment
                         Presenter.HidePost(post);
                         break;
                     }
+                case ActionType.Edit:
+                    {
+                        var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+                        intent.PutExtra("EditPost", JsonConvert.SerializeObject(post));
+                        Activity.StartActivity(intent);
+                        break;
+                    }
                 case ActionType.Delete:
                     {
                         var error = await Presenter.TryDeletePost(post);
@@ -592,6 +588,16 @@ namespace Steepshot.Fragment
                 case ActionType.Photo:
                     {
                         OpenPost(post);
+                        break;
+                    }
+                case ActionType.Preview:
+                    {
+                        if (post == null)
+                            return;
+
+                        var intent = new Intent(Context, typeof(PostPreviewActivity));
+                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
+                        StartActivity(intent);
                         break;
                     }
             }

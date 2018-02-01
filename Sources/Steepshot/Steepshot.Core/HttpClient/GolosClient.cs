@@ -17,7 +17,6 @@ using Ditch.Golos.Operations;
 using Ditch.Golos.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
-using Newtonsoft.Json.Linq;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -161,7 +160,7 @@ namespace Steepshot.Core.HttpClient
             }, ct);
         }
 
-        public override async Task<OperationResult<VoidResponse>> Edit(CommentModel model, CancellationToken ct)
+        public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
             {
@@ -173,33 +172,6 @@ namespace Steepshot.Core.HttpClient
                     return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
 
                 var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
-
-                var result = new OperationResult<VoidResponse>();
-                if (!resp.IsError)
-                {
-                    result.Result = new VoidResponse(true);
-                }
-                else
-                {
-                    OnError(resp, result);
-                }
-                return result;
-            }, ct);
-        }
-
-        public override async Task<OperationResult<VoidResponse>> Create(CommentModel model, CancellationToken ct)
-        {
-            return await Task.Run(() =>
-            {
-                if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
-
-                var keys = ToKeyArr(model.PostingKey);
-                if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
-
-                var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Login, model.Permlink, model.Title, model.Body, model.JsonMetadata);
 
                 BaseOperation[] ops;
                 if (model.Beneficiaries != null && model.Beneficiaries.Any() && VersionHelper.GetHardfork(_operationManager.Version) > 16)
@@ -297,7 +269,7 @@ namespace Steepshot.Core.HttpClient
 
         #region Get
 
-        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct)
+        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
                 return new OperationResult<string>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));

@@ -39,12 +39,10 @@ namespace Steepshot.Core.HttpClient
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
+        
+        public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<VoidResponse>> Edit(CommentModel model, CancellationToken ct);
-
-        public abstract Task<OperationResult<VoidResponse>> Create(CommentModel model, CancellationToken ct);
-
-        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadImageModel model, CancellationToken ct);
+        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 

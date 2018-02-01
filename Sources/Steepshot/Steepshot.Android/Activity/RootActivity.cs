@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Views;
+using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Square.Picasso;
@@ -24,6 +25,7 @@ namespace Steepshot.Activity
     {
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
+        private int _tabHeight;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
@@ -40,6 +42,8 @@ namespace Steepshot.Activity
 
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Inject(this);
+
+            _tabHeight = (int)BitmapUtils.DpToPixel(30, Resources);
             _adapter = new Adapter.PagerAdapter(SupportFragmentManager);
             _viewPager.Adapter = _adapter;
             InitTabs();
@@ -114,9 +118,16 @@ namespace Steepshot.Activity
             for (var i = 0; i < _adapter.TabIconsInactive.Length; i++)
             {
                 var tab = _tabLayout.NewTab();
+                var tabView = new ImageView(this) { Id = Android.Resource.Id.Icon };
+                tabView.SetScaleType(ImageView.ScaleType.CenterInside);
+                tabView.LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, _tabHeight);
+                tab.SetCustomView(tabView);
+
                 if (i == 0)
                     _prevTab = tab;
                 _tabLayout.AddTab(tab);
+                if (i == _adapter.TabIconsInactive.Length - 1)
+                    SetProfileChart(_tabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
             SelectTab(BasePresenter.User.SelectedTab);
@@ -175,9 +186,10 @@ namespace Steepshot.Activity
 
         private void SetProfileChart(int size)
         {
-            var isEmpty = Presenter.UserProfileResponse == null;
+            var isEmpty = Presenter.UserProfileResponse == null || string.IsNullOrEmpty(Presenter.UserProfileResponse.ProfileImage);
             var votingPowerFrame = new VotingPowerFrame(this)
             {
+                Draw = true,
                 VotingPower = isEmpty ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
                 VotingPowerWidth = BitmapUtils.DpToPixel(3, Resources)
             };
@@ -192,9 +204,9 @@ namespace Steepshot.Activity
             if (!isEmpty)
                 Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size)
                     .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
-                        () => { profileTab?.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
+                        () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
             else
-                profileTab?.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
+                profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
         }
     }
 }

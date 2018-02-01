@@ -14,7 +14,7 @@ using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -26,9 +26,8 @@ namespace Steepshot.Fragment
         public const string ResultString = "result";
         public const string CountString = "count";
 
-        private Post _post;
+        private Post _post, _editComment;
         private CommentAdapter _adapter;
-        private string _uid;
         private bool _openKeyboard;
         private LinearLayoutManager _manager;
         private int _counter = 0;
@@ -46,6 +45,10 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_post_image)] private ImageView _postImage;
         [InjectView(Resource.Id.message)] private RelativeLayout _messagePanel;
         [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [InjectView(Resource.Id.comment_edit)] private RelativeLayout _commentEditBlock;
+        [InjectView(Resource.Id.comment_cancel_edit)] private ImageButton _commentEditCancelBtn;
+        [InjectView(Resource.Id.comment_edit_message)] private TextView _commentEditMessage;
+        [InjectView(Resource.Id.comment_edit_text)] private TextView _commentEditText;
 #pragma warning restore 0649
 
         public CommentsFragment()
@@ -56,7 +59,6 @@ namespace Steepshot.Fragment
         public CommentsFragment(Post post, bool openKeyboard)
         {
             _post = post;
-            _uid = post.Url;
             _openKeyboard = openKeyboard;
         }
 
@@ -78,6 +80,9 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
+            _commentEditMessage.Typeface = Style.Semibold;
+            _commentEditMessage.Text = Localization.Texts.EditComment;
+            _commentEditText.Typeface = Style.Regular;
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
             _backButton.Visibility = ViewStates.Visible;
@@ -99,6 +104,7 @@ namespace Steepshot.Fragment
             _adapter.FlagAction += FlagAction;
             _adapter.HideAction += HideAction;
             _adapter.ReplyAction += ReplyAction;
+            _adapter.EditAction += EditAction;
             _adapter.DeleteAction += DeleteAction;
             _adapter.RootClickAction += HideKeyboard;
             _adapter.TagAction += TagAction;
@@ -109,7 +115,9 @@ namespace Steepshot.Fragment
             if (!BasePresenter.User.IsAuthenticated)
                 _messagePanel.Visibility = ViewStates.Gone;
 
-            LoadComments(_uid);
+            _commentEditCancelBtn.Click += CommentEditCancelBtnOnClick;
+
+            LoadComments(_post);
             if (_openKeyboard)
             {
                 _openKeyboard = false;
@@ -167,32 +175,45 @@ namespace Steepshot.Fragment
 
             HideKeyboard();
 
-            var resp = await Presenter.TryCreateComment(_textInput.Text, _uid);
-
-            if (!IsInitialized)
-                return;
-
-            if (resp != null && resp.IsSuccess)
+            if (_commentEditBlock.Visibility == ViewStates.Visible)
             {
-                _textInput.Text = string.Empty;
-                _textInput.ClearFocus();
-
-                var error = await Presenter.TryLoadNextComments(_uid);
+                var error = await Presenter.TryEditComment(BasePresenter.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
 
-                Context.ShowAlert(error, ToastLength.Short);
-                _comments.MoveToPosition(Presenter.Count - 1);
-
-                _counter++;
-
-                Activity.Intent.PutExtra(ResultString, _uid);
-                Activity.Intent.PutExtra(CountString, _counter);
+                Context.ShowAlert(error);
+                CommentEditCancelBtnOnClick(null, null);
             }
             else
             {
-                Context.ShowAlert(resp, ToastLength.Short);
+                var resp = await Presenter.TryCreateComment(_post, _textInput.Text);
+
+                if (!IsInitialized)
+                    return;
+
+                if (resp != null && resp.IsSuccess)
+                {
+                    _textInput.Text = string.Empty;
+                    _textInput.ClearFocus();
+
+                    var error = await Presenter.TryLoadNextComments(_post);
+
+                    if (!IsInitialized)
+                        return;
+
+                    Context.ShowAlert(error, ToastLength.Short);
+                    _comments.MoveToPosition(Presenter.Count - 1);
+
+                    _counter++;
+
+                    Activity.Intent.PutExtra(ResultString, _post.Url);
+                    Activity.Intent.PutExtra(CountString, _counter);
+                }
+                else
+                {
+                    Context.ShowAlert(resp, ToastLength.Short);
+                }
             }
 
             _sendSpinner.Visibility = ViewStates.Invisible;
@@ -200,11 +221,11 @@ namespace Steepshot.Fragment
             _postImage.Visibility = ViewStates.Visible;
         }
 
-        private async void LoadComments(string postUrl)
+        private async void LoadComments(Post post)
         {
             _spinner.Visibility = ViewStates.Visible;
 
-            var error = await Presenter.TryLoadNextComments(postUrl);
+            var error = await Presenter.TryLoadNextComments(post);
 
             if (!IsInitialized)
                 return;
@@ -295,6 +316,22 @@ namespace Steepshot.Fragment
         {
             _textInput?.RequestFocus();
             _textInput?.Post(() => ((BaseActivity)Activity).OpenKeyboard(_textInput));
+        }
+
+        private void CommentEditCancelBtnOnClick(object sender, EventArgs eventArgs)
+        {
+            _textInput.Text = _commentEditText.Text = string.Empty;
+            _commentEditBlock.Visibility = ViewStates.Gone;
+            HideKeyboard();
+        }
+
+        private void EditAction(Post post)
+        {
+            _editComment = post;
+            _textInput.Text = _commentEditText.Text = post.Body;
+            _textInput.SetSelection(post.Body.Length);
+            _commentEditBlock.Visibility = ViewStates.Visible;
+            OpenKeyboard();
         }
 
         private async void DeleteAction(Post post)

@@ -1,5 +1,5 @@
 ﻿using System;
-using Steepshot.Core.Models;
+using Steepshot.Core.Models.Common;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -9,12 +9,13 @@ namespace Steepshot.iOS.Helpers
         private const int minHeight = 200;
         private const int maxHeight = 450;
 
-        public static nfloat Get(Size imageSize)
+        public static nfloat Get(FrameSize frameSize)
         {
             var correction = UIScreen.MainScreen.Bounds.Width;
-            if (imageSize.Width != 0)
+            if (frameSize.Width != 0)
             {
-                var height = UIScreen.MainScreen.Bounds.Width * ((float)imageSize.Height / (float)imageSize.Width);
+                var height = (float)Math.Ceiling(UIScreen.MainScreen.Bounds.Width * ((float)frameSize.Height / (float)frameSize.Width));
+
                 if (height >= minHeight && height <= maxHeight)
                 {
                     correction = height;

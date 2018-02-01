@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -27,6 +23,7 @@ namespace Steepshot.iOS.Views
         protected override void CreatePresenter()
         {
             _presenter = new UserProfilePresenter() { UserName = Username };
+            _presenter.SourceChanged += SourceChanged;
         }
 
         private UserProfileResponse _userData;
@@ -36,7 +33,6 @@ namespace Steepshot.iOS.Views
         private bool _isPostsLoading;
         private ProfileHeaderViewController _profileHeader;
         private CollectionViewFlowDelegate _gridDelegate;
-        private int _lastRow;
         private UINavigationController _navController;
         private UIBarButtonItem switchButton;
         private bool _userDataLoaded;
@@ -46,23 +42,13 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
 
-            _collectionViewSource = new ProfileCollectionViewSource(_presenter);
-
-            _presenter.SourceChanged += SourceChanged;
-
-            _collectionViewSource.CellAction += CellAction;
-            _collectionViewSource.TagAction += TagAction;
-
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
             collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
-            collectionView.RegisterClassForCell(typeof(FeedCollectionViewCell), nameof(FeedCollectionViewCell));
-            collectionView.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
-            collectionView.Source = _collectionViewSource;
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
                 MinimumLineSpacing = 0,
                 MinimumInteritemSpacing = 0,
             }, false);
@@ -70,6 +56,11 @@ namespace Steepshot.iOS.Views
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+
+            _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
+            _collectionViewSource.CellAction += CellAction;
+            _collectionViewSource.TagAction += TagAction;
+            collectionView.Source = _collectionViewSource;
             collectionView.Delegate = _gridDelegate;
 
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
@@ -126,10 +117,8 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            var offset = collectionView.ContentOffset;
+            _gridDelegate.GenerateVariables();
             collectionView.ReloadData();
-            collectionView.LayoutIfNeeded();
-            collectionView.SetContentOffset(offset, false);
         }
 
         /*
@@ -360,38 +349,28 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            try
+            _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+            if (_collectionViewSource.IsGrid)
             {
-                _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
-                if (_collectionViewSource.IsGrid)
+                switchButton.TintColor = Helpers.Constants.R231G72B0;
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
-                    switchButton.TintColor = Helpers.Constants.R231G72B0;
-                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-                    {
-                        EstimatedItemSize = Helpers.Constants.CellSize,
-                        MinimumLineSpacing = 1,
-                        MinimumInteritemSpacing = 1,
-                    }, false);
-                }
-                else
-                {
-                    collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-                    {
-                        EstimatedItemSize = new CGSize(UIScreen.MainScreen.Bounds.Width, 400),
-                        MinimumLineSpacing = 0,
-                        MinimumInteritemSpacing = 0,
-                    }, false);
-
-                    switchButton.TintColor = Helpers.Constants.R151G155B158;
-                }
-
-                collectionView.ReloadData();
-                collectionView.SetContentOffset(new CGPoint(0, 0), false);
+                    MinimumLineSpacing = 1,
+                    MinimumInteritemSpacing = 1,
+                }, false);
             }
-            catch (Exception ex)
+            else
             {
-
+                switchButton.TintColor = Helpers.Constants.R151G155B158;
+                collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+                {
+                    MinimumLineSpacing = 0,
+                    MinimumInteritemSpacing = 0,
+                }, false);
             }
+
+            collectionView.ReloadData();
+            collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)
@@ -401,7 +380,10 @@ namespace Steepshot.iOS.Views
             _isPostsLoading = true;
 
             if (needRefresh)
+            {
                 _presenter.Clear();
+                _gridDelegate.ClearPosition();
+            }
 
             var error = await _presenter.TryLoadNextPosts();
 

@@ -7,6 +7,8 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Authority;
+using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Presenters
 {
@@ -26,16 +28,14 @@ namespace Steepshot.Core.Presenters
                 return null;
 
             var error = await TryRunTask(DeletePost, OnDisposeCts.Token, post);
-
             NotifySourceChanged(nameof(TryDeletePost), true);
-
             return error;
         }
 
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post);
-            var response = await Api.DeletePost(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -48,20 +48,18 @@ namespace Steepshot.Core.Presenters
 
         public async Task<ErrorBase> TryDeleteComment(Post post, Post parentPost)
         {
-            if (post == null)
+            if (post == null || parentPost == null)
                 return null;
 
             var error = await TryRunTask(DeleteComment, OnDisposeCts.Token, post, parentPost);
-
             NotifySourceChanged(nameof(TryDeletePost), true);
-
             return error;
         }
 
         private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
         {
             var request = new DeleteModel(User.UserInfo, post, parentPost);
-            var response = await Api.DeleteComment(request, ct);
+            var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
                 lock (Items)
@@ -71,6 +69,26 @@ namespace Steepshot.Core.Presenters
             }
             return response.Error;
         }
+
+        public async Task<ErrorBase> TryEditComment(UserInfo userInfo, Post parentPost, Post post, string body, IAppInfo appInfo)
+        {
+            if (string.IsNullOrEmpty(body) || parentPost == null || post == null)
+                return null;
+
+            var model = new CreateOrEditCommentModel(userInfo, parentPost, post, body, appInfo);
+            var error = await TryRunTask(EditComment, OnDisposeCts.Token, model, post);
+            NotifySourceChanged(nameof(TryEditComment), true);
+            return error;
+        }
+
+        private async Task<ErrorBase> EditComment(CreateOrEditCommentModel model, Post post, CancellationToken ct)
+        {
+            var response = await Api.CreateOrEditComment(model, ct);
+            if (response.IsSuccess)
+                post.Body = model.Body;
+            return response.Error;
+        }
+
 
         public void HidePost(Post post)
         {
@@ -97,7 +115,7 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(post);
         }
 
-        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false)
+        protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
             error = null;
             if (response == null)
@@ -119,7 +137,7 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)) && (enableEmptyMedia || item.Media.Length > 0 && !string.IsNullOrEmpty(item.Media[0].Url)))
                             {
                                 Items.Add(item);
                                 isAdded = true;
@@ -167,7 +185,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteModel(User.UserInfo, post.Vote ? VoteType.Down : VoteType.Up, post.Url);
+            var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)
@@ -221,7 +239,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
-            var request = new VoteModel(User.UserInfo, post.Flag ? VoteType.Down : VoteType.Flag, post.Url);
+            var request = new VoteModel(User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)

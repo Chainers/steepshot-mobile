@@ -58,25 +58,24 @@ namespace Steepshot.iOS.Cells
             bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
 
-            var photo = _currentPost.Photos?.FirstOrDefault();
-            if (photo != null)
-                _scheduledWorkBody = ImageService.Instance.LoadUrl(photo, Helpers.Constants.ImageCacheDuration)
-                                                         //.Retry(5)
-                                                         .FadeAnimation(false)
-                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
-                                                         .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                                         .WithPriority(LoadingPriority.Highest)
-                                                         .Into(bodyImage);
-            
-            if (!string.IsNullOrEmpty(_currentPost.Avatar))
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
+            var media = _currentPost.Media[0];
+            _scheduledWorkBody = ImageService.Instance.LoadUrl(media.Url, Helpers.Constants.ImageCacheDuration)
+                                                     //.Retry(5)
                                                      .FadeAnimation(false)
-                                                     .DownSample(200)
-                                                     .LoadingPlaceholder("ic_noavatar.png")
-                                                     .ErrorPlaceholder("ic_noavatar.png")
-                                                     .WithPriority(LoadingPriority.Normal)
-                                                     .Into(avatarImage);
+                                                     .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                     .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                                     .WithPriority(LoadingPriority.Highest)
+                                                     .Into(bodyImage);
+
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                                         .FadeAnimation(false)
+                                                         .DownSample(200)
+                                                         .LoadingPlaceholder("ic_noavatar.png")
+                                                         .ErrorPlaceholder("ic_noavatar.png")
+                                                         .WithPriority(LoadingPriority.Normal)
+                                                         .Into(avatarImage);
             else
                 avatarImage.Image = UIImage.FromBundle("ic_noavatar");
 
@@ -150,9 +149,9 @@ namespace Steepshot.iOS.Cells
             flagButton.Enabled = true;
             postTimeStamp.Text = _currentPost.Created.ToPostTime();
 
-            imageHeight.Constant = PhotoHeight.Get(_currentPost.ImageSize);
+            imageHeight.Constant = PhotoHeight.Get(media.Size);
             contentViewWidth.Constant = UIScreen.MainScreen.Bounds.Width;
-           
+
             if (!_isButtonBinded)
             {
                 cellText.Font = Helpers.Constants.Semibold14;
@@ -160,7 +159,7 @@ namespace Steepshot.iOS.Cells
                 netVotes.Font = Helpers.Constants.Semibold14;
                 rewards.Font = Helpers.Constants.Semibold14;
                 viewCommentText.Font = Helpers.Constants.Regular14;
-                
+
                 avatarImage.Layer.CornerRadius = avatarImage.Frame.Size.Width / 2;
                 firstLiker.Layer.CornerRadius = firstLiker.Frame.Size.Width / 2;
                 secondLiker.Layer.CornerRadius = secondLiker.Frame.Size.Width / 2;
@@ -185,9 +184,7 @@ namespace Steepshot.iOS.Cells
 
                 UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
                 {
-                    var photoUrl = _currentPost.Photos?.FirstOrDefault();
-                    if (photoUrl != null)
-                        CellAction?.Invoke(ActionType.Preview, _currentPost);
+                    CellAction?.Invoke(ActionType.Preview, _currentPost);
                 });
                 bodyImage.AddGestureRecognizer(tap);
 

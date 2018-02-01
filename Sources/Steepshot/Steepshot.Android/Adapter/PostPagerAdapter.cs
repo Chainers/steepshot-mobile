@@ -144,7 +144,6 @@ namespace Steepshot.Adapter
     public class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
-
         public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, postAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;

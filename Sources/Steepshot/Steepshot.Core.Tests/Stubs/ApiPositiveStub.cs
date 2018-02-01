@@ -274,24 +274,24 @@ namespace Steepshot.Core.Tests.Stubs
             return new OperationResult<ListResponse<Post>> { Result = rez };
         }
 
-        public async Task<OperationResult<VoidResponse>> CreateComment(CreateCommentModel model, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> CreateComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
             return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
         }
 
-        //public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
-        //{
-        //    return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
-        //}
-
-        public async Task<OperationResult<ImageUploadResponse>> CreatePost(UploadImageModel model, UploadResponse uploadResponse, CancellationToken ct)
+        public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
         {
-            return new OperationResult<ImageUploadResponse> { Result = new ImageUploadResponse() };
+            return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
         }
 
-        public async Task<OperationResult<UploadResponse>> UploadWithPrepare(UploadImageModel model, CancellationToken ct)
+        public async Task<OperationResult<PreparePostResponce>> CreatePost(UploadMediaModel model, MediaModel mediaModel, CancellationToken ct)
         {
-            return new OperationResult<UploadResponse> { Result = new UploadResponse() };
+            return new OperationResult<PreparePostResponce> { Result = new PreparePostResponce() };
+        }
+
+        public async Task<OperationResult<MediaModel>> UploadWithPrepare(UploadMediaModel model, CancellationToken ct)
+        {
+            return new OperationResult<MediaModel> { Result = new MediaModel() };
         }
 
         public async Task<OperationResult<ListResponse<SearchResult>>> GetCategories(OffsetLimitModel request, CancellationToken ct)

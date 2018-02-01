@@ -1,10 +1,12 @@
 using Newtonsoft.Json;
+using Steepshot.Core.Authority;
+using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
-    internal class CommentModel : AuthorizedModel
+    public class CommentModel : AuthorizedModel
     {
         [JsonProperty]
         public string ParentAuthor { get; }
@@ -37,6 +39,18 @@ namespace Steepshot.Core.Models.Requests
             ParentAuthor = parentAuthor;
             ParentPermlink = parentPermlink;
             Author = author;
+            Permlink = permlink;
+            Title = title;
+            Body = body;
+            JsonMetadata = jsonMetadata;
+        }
+
+        public CommentModel(UserInfo user, Post parentPost, string permlink, string title, string body, string jsonMetadata)
+            : base(user)
+        {
+            ParentAuthor = parentPost.Author;
+            ParentPermlink = parentPost.Permlink;
+            Author = user.Login;
             Permlink = permlink;
             Title = title;
             Body = body;

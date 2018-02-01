@@ -12,14 +12,14 @@ namespace Steepshot.Core.Presenters
     {
         private const int ItemsLimit = 60;
 
-        public async Task<ErrorBase> TryLoadNextComments(string postUrl)
+        public async Task<ErrorBase> TryLoadNextComments(Post post)
         {
-            return await RunAsSingleTask(LoadNextComments, postUrl);
+            return await RunAsSingleTask(LoadNextComments, post);
         }
 
-        private async Task<ErrorBase> LoadNextComments(string postUrl, CancellationToken ct)
+        private async Task<ErrorBase> LoadNextComments(Post post, CancellationToken ct)
         {
-            var request = new NamedInfoModel(postUrl)
+            var request = new NamedInfoModel(post.Url)
             {
                 Login = User.Login
             };
@@ -30,22 +30,22 @@ namespace Steepshot.Core.Presenters
             do
             {
                 var response = await Api.GetComments(request, ct);
-                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextComments), isNeedClearItems);
+                isNeedRepeat = ResponseProcessing(response, ItemsLimit, out error, nameof(TryLoadNextComments), isNeedClearItems, true);
                 isNeedClearItems = false;
             } while (isNeedRepeat);
 
             return error;
         }
 
-        public async Task<OperationResult<VoidResponse>> TryCreateComment(string comment, string url)
+        public async Task<OperationResult<VoidResponse>> TryCreateComment(Post parentPost, string body)
         {
-            return await TryRunTask<string, string, VoidResponse>(CreateComment, OnDisposeCts.Token, comment, url);
+            var model = new CreateOrEditCommentModel(User.UserInfo, parentPost, body, AppSettings.AppInfo);
+            return await TryRunTask<CreateOrEditCommentModel, VoidResponse>(CreateComment, OnDisposeCts.Token, model);
         }
 
-        private async Task<OperationResult<VoidResponse>> CreateComment(string comment, string url, CancellationToken ct)
+        private async Task<OperationResult<VoidResponse>> CreateComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
-            var reqv = new CreateCommentModel(User.UserInfo, url, comment, AppSettings.AppInfo);
-            return await Api.CreateComment(reqv, ct);
+            return await Api.CreateOrEditComment(model, ct);
         }
     }
 }

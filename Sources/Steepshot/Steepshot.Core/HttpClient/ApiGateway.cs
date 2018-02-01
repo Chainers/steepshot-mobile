@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Common;
 using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
+using System.Net.Http.Headers;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -58,28 +59,41 @@ namespace Steepshot.Core.HttpClient
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Upload<T>(GatewayVersion version, string endpoint, UploadImageModel model, CancellationToken token)
+        public async Task<OperationResult<T>> Post<T, TData>(GatewayVersion version, string endpoint, TData data, CancellationToken token)
         {
             var url = GetUrl(version, endpoint);
-            var fTitle = Guid.NewGuid().ToString(); //model.Title.Length > 20 ? model.Title.Remove(20) : model.Title;
+            HttpContent content = null;
+            if (data != null)
+            {
+                var param = JsonNetConverter.Serialize(data);
+                content = new StringContent(param, Encoding.UTF8, "application/json");
+            }
 
-            var multiContent = new MultipartFormDataContent();
-            multiContent.Add(new ByteArrayContent(model.Photo), "photo", fTitle);
-            multiContent.Add(new StringContent(model.Title), "title");
-            multiContent.Add(new StringContent($"@{model.Login}/{model.Permlink}"), "post_permlink");
-            if (!string.IsNullOrWhiteSpace(model.Description))
-                multiContent.Add(new StringContent(model.Description), "description");
-            if (!string.IsNullOrWhiteSpace(model.Login))
-                multiContent.Add(new StringContent(model.Login), "username");
-            if (!string.IsNullOrWhiteSpace(model.VerifyTransaction))
-                multiContent.Add(new StringContent(model.VerifyTransaction), "trx");
-            if (!model.IsNeedRewards)
-                multiContent.Add(new StringContent("steepshot_no_rewards"), "set_beneficiary");
-            foreach (var tag in model.Tags)
-                multiContent.Add(new StringContent(tag), "tags");
+            var response = await _client.PostAsync(url, content, token);
+            return await CreateResult<T>(response, token);
+        }
+        
+        public async Task<OperationResult<MediaModel>> UploadMedia(GatewayVersion version, string endpoint, UploadMediaModel model, CancellationToken token)
+        {
+            var url = GetUrl(version, endpoint);
+            var fTitle = Guid.NewGuid().ToString();
+
+            var file = new StreamContent(model.File);
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse(model.ContentType);
+            var multiContent = new MultipartFormDataContent
+            {
+                {new StringContent(model.VerifyTransaction), "trx"},
+                {file, "file", fTitle},
+                {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
+            };
 
             var response = await _client.PostAsync(url, multiContent, token);
-            return await CreateResult<T>(response, token);
+            var result = await CreateResult<MediaModel>(response, token);
+
+            if (result.IsSuccess && result.Result == null)
+                result.Error = new ServerError(Localization.Errors.ServeUnexpectedError);
+
+            return result;
         }
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)

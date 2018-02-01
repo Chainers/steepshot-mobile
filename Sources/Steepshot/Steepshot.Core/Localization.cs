@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace Steepshot.Core
 {
@@ -20,12 +19,18 @@ namespace Steepshot.Core
             public const string UnknownError = "Unknown error. Try again";
             public const string UnknownCriticalError = "An unexpected critical error occurred. Unfortunately the next step can not be performed.";
             public const string EmptyTitleField = "Title required";
+            public const string EmptyBodyField = "Body required";
+            public const string EmptyCategoryField = "Category required";
             public const string EmptyPhotoField = "Photo cannot be empty";
+            public const string EmptyFileField = "File cannot be empty";
+            public const string EmptyContentType = "Unknown file format";
+            public const string EmptyVerifyTransaction = "Empty authentification";
             public const string EmptyUrlField = "Url cannot be empty";
             public const string EmptyUsernameField = "Username cannot be empty";
             public const string EmptyLogin = "Login cannot be empty";
             public const string EmptyPostingKey = "Posting key cannot be empty";
             public const string EmptyActiveKey = "Active key cannot be empty";
+            public const string EmptyPostPermlink = "Permlink cannot be empty";
             public const string PhotoProcessingError = "An error occurred while processing the photo. Unfortunately the next step can not be performed.";
             public const string PhotoPrepareError = "Failure to process the photos. Try to re-select the photo.";
             public const string PhotoUploadError = "Photo upload error: ";
@@ -127,7 +132,7 @@ namespace Steepshot.Core
             public const string FlagSubMessage = "";
             public const string DeleteAlertTitle = "Are you sure you want to delete this post?";
             public const string DeleteAlertMessage = "This action can not be undone.";
-            public const string VotingPower = "Voting power";
+            public const string PowerOfLike = "Power of like";
 
             public static readonly string TitleForAcceptToS = $"By pressing any of the buttons you agree with our <a href=\"{Constants.Tos}\">Terms of Service</a> & <a href=\"{Constants.Pp}\">Privacy policy</a>";
             public const string PostDelay = "If you don't see the post in your profile, please give it a few minutes to sync from the blockchain";
@@ -192,9 +197,11 @@ namespace Steepshot.Core
             public const string UnFlagPost = "Remove flag";
             public const string FlagComment = "Flag comment";
             public const string HideComment = "Hide comment";
+            public const string EditComment = "Edit comment";
             public const string DeleteComment = "Delete comment";
             public const string UnFlagComment = "Unflag comment";
             public const string HidePost = "Hide post";
+            public const string EditPost = "Edit post";
             public const string DeletePost = "Delete post";
             public const string Sharepost = "Share post";
             public const string CopyLink = "Copy link";

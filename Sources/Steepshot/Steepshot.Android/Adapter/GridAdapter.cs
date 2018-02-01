@@ -103,7 +103,7 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _context = context;
-            _photoString = post.Photos?.FirstOrDefault();
+            _photoString = post.Media[0].Url;
 
             if (_photoString != null)
             {
