@@ -2,7 +2,7 @@
 
 namespace Steepshot.Core.Exceptions
 {
-    public class UserException : ApplicationExceptionBase
+    public sealed class UserException : ApplicationExceptionBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Exception"></see> class.

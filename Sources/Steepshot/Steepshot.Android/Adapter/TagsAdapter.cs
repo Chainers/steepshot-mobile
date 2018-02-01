@@ -7,7 +7,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class TagsAdapter : RecyclerView.Adapter
+    public sealed class TagsAdapter : RecyclerView.Adapter
     {
         private readonly TagsPresenter _presenter;
         public Action<string> Click;
@@ -38,7 +38,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class TagViewHolder : RecyclerView.ViewHolder
+    public sealed class TagViewHolder : RecyclerView.ViewHolder
     {
         private readonly TextView _tag;
         private readonly ViewGroup _tagLayout;

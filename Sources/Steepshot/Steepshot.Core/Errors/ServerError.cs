@@ -3,7 +3,7 @@
 namespace Steepshot.Core.Errors
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class ServerError : ErrorBase
+    public sealed class ServerError : ErrorBase
     {
         /// <summary>
         /// Constructor of class

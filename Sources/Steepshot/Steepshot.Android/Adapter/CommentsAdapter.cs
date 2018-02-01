@@ -20,7 +20,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
 {
-    public class CommentAdapter : RecyclerView.Adapter
+    public sealed class CommentAdapter : RecyclerView.Adapter
     {
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
@@ -78,7 +78,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class PostDescriptionViewHolder : RecyclerView.ViewHolder
+    public sealed class PostDescriptionViewHolder : RecyclerView.ViewHolder
     {
         private readonly Action<string> _tagAction;
         private readonly Action<Post> _userAction;
@@ -153,7 +153,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class CommentViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class CommentViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly ImageView _avatar;
         private readonly TextView _author;

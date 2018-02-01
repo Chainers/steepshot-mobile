@@ -7,7 +7,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Utils
 {
-    public class AssetsHelper : IAssetsHelper
+    public sealed class AssetsHelper : IAssetsHelper
     {
         private readonly AssetManager _assetManager;
 

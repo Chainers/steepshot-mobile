@@ -4,7 +4,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Authority
 {
-    public class DataProvider : IDataProvider
+    public sealed class DataProvider : IDataProvider
     {
         private readonly List<UserInfo> _set;
         private readonly ISaverService _saverService;

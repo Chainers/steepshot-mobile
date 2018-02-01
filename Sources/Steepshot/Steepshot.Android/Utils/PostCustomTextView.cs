@@ -14,7 +14,7 @@ using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Utils
 {
-    public class PostCustomTextView : TextView
+    public sealed class PostCustomTextView : TextView
     {
         public Action OnMeasureInvoked;
         public Action<string> TagAction;

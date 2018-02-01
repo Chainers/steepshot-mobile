@@ -6,7 +6,7 @@ using Android.Views;
 
 namespace Steepshot.Utils
 {
-    public class NewTextEdit : AppCompatEditText
+    public sealed class NewTextEdit : AppCompatEditText
     {
         public event Action KeyboardDownEvent;
         public event Action OkKeyEvent;

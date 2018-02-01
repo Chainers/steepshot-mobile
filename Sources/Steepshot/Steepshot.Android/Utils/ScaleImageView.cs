@@ -15,7 +15,7 @@ using Math = System.Math;
 
 namespace Steepshot.Utils
 {
-    public class ScaleImageView : ImageView
+    public sealed class ScaleImageView : ImageView
     {
         public enum TouchState { None, Drag, Zoom, Fling, AnimateZoom, Click };
 

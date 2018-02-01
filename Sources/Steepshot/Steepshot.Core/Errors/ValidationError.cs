@@ -1,6 +1,6 @@
 namespace Steepshot.Core.Errors
 {
-    public class ValidationError : ErrorBase
+    public sealed class ValidationError : ErrorBase
     {
         /// <summary>
         /// Constructor of class
