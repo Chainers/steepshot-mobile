@@ -35,7 +35,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleVersion</key>
-	<string>44.0.0</string>
+	<string>45.0.0</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/OpenSans-Regular.ttf</string>
