@@ -16,7 +16,7 @@ using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.Cells
 {
-    public class NewFeedCollectionViewCell : BaseProfileCell
+    public class NewFeedCollectionViewCell : UICollectionViewCell
     {
         private Post _currentPost;
 
@@ -30,6 +30,7 @@ namespace Steepshot.iOS.Cells
         private UIImageView _secondLikerImage;
         private UIImageView _thirdLikerImage;
         private UILabel _likes;
+        private UIView _likersTapView;
         private UILabel _flags;
         private UILabel _rewards;
         private UIView _verticalSeparator;
@@ -196,6 +197,10 @@ namespace Steepshot.iOS.Cells
             _profileTapView.UserInteractionEnabled = true;
             ContentView.AddSubview(_profileTapView);
 
+            _likersTapView = new UIView();
+            _likersTapView.UserInteractionEnabled = true;
+            ContentView.AddSubview(_likersTapView);
+
             var tap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Preview, _currentPost);
@@ -223,15 +228,10 @@ namespace Steepshot.iOS.Cells
             {
                 CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
-            _likes.AddGestureRecognizer(netVotesTap);
+            _likersTapView.AddGestureRecognizer(netVotesTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
             _like.TouchDown += LikeTap;
-        }
-
-        public override void UpdateCell(Post post)
-        {
-            //throw new NotImplementedException();
         }
 
         public void UpdateCell(Post post, CellSizeHelper variables)
@@ -335,6 +335,8 @@ namespace Steepshot.iOS.Cells
             else
                 _likes.Frame = new CGRect(likesMargin, _bodyImage.Frame.Bottom, 0, 0);
 
+            _likersTapView.Frame = new CGRect(leftMargin, _bodyImage.Frame.Bottom, _likes.Frame.Right - leftMargin, _likes.Frame.Height);
+
             if (_currentPost.NetFlags != 0)
             {
                 _flags.Text = $"{_currentPost.NetFlags} {Localization.Messages.Flags}";
@@ -362,6 +364,7 @@ namespace Steepshot.iOS.Cells
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _bodyImage.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
             */
+
             _topSeparator.Frame = new CGRect(0, _bodyImage.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
 
             _attributedLabel.SetText(variables.Text);
