@@ -25,9 +25,8 @@ namespace Steepshot.Adapter
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
         private readonly Post _post;
-        public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction, EditAction, DeleteAction;
+        public Action<ActionType, Post> CommentAction;
         public Action RootClickAction;
-        public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
 
         public override int ItemCount => _presenter.Count + 1;
@@ -63,15 +62,14 @@ namespace Steepshot.Adapter
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_description_item, parent, false);
-                        var vh = new PostDescriptionViewHolder(itemView, UserAction, TagAction);
+                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), TagAction);
                         return vh;
                     }
                 default:
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
-                        var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction,
-                            HideAction, ReplyAction, EditAction, DeleteAction, RootClickAction);
+                        var vh = new CommentViewHolder(itemView, CommentAction, RootClickAction);
                         return vh;
                     }
             }
@@ -165,13 +163,7 @@ namespace Steepshot.Adapter
         private readonly TextView _time;
         private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _more;
-        private readonly Action<Post> _likeAction;
-        private readonly Action<Post> _userAction;
-        private readonly Action<Post> _flagAction;
-        private readonly Action<Post> _hideAction;
-        private readonly Action<Post> _replyAction;
-        private readonly Action<Post> _editAction;
-        private readonly Action<Post> _deleteAction;
+        private readonly Action<ActionType, Post> _commentAction;
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action _rootAction;
         private readonly BottomSheetDialog _moreActionsDialog;
@@ -181,7 +173,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action<Post> editAction, Action<Post> deleteAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -198,15 +190,8 @@ namespace Steepshot.Adapter
             _author.Typeface = Style.Semibold;
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
 
-            _likeAction = likeAction;
-            _userAction = userAction;
-            _flagAction = flagAction;
-            _hideAction = hideAction;
-            _replyAction = replyAction;
+            _commentAction = commentAction;
             _rootAction = rootClickAction;
-            _votersAction = votersAction;
-            _editAction = editAction;
-            _deleteAction = deleteAction;
 
             _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
@@ -326,7 +311,7 @@ namespace Steepshot.Adapter
         private void EditOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            _editAction?.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Edit, _post);
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
@@ -353,7 +338,7 @@ namespace Steepshot.Adapter
             alertDelete.Text = Localization.Texts.Delete;
             alertDelete.Click += (o, args) =>
             {
-                _deleteAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Delete, _post);
                 alert.Cancel();
             };
 
@@ -369,13 +354,13 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
-            _flagAction.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Flag, _post);
         }
 
         private void DoHideAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            _hideAction.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Hide, _post);
         }
 
         private void DoDialogCancelAction(object sender, EventArgs e)
@@ -385,22 +370,22 @@ namespace Steepshot.Adapter
 
         private void UserAction(object sender, EventArgs e)
         {
-            _userAction?.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Profile, _post);
         }
 
         private void ReplyAction(object sender, EventArgs e)
         {
-            _replyAction?.Invoke(_post);
+            _commentAction.Invoke(ActionType.Reply, _post);
         }
 
         private void DoLikersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Likes);
+            _commentAction?.Invoke(ActionType.VotersLikes, _post);
         }
 
         private void DoFlagersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Flags);
+            _commentAction?.Invoke(ActionType.VotersFlags, _post);
         }
 
         private void Like_Click(object sender, EventArgs e)
@@ -408,9 +393,9 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
             if (_post.Flag)
-                _flagAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Flag, _post);
             else
-                _likeAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Like, _post);
         }
 
         private void Root_Click(object sender, EventArgs e)
