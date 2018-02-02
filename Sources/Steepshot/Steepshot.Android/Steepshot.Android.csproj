@@ -66,6 +66,17 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils\Animations\AnimationEntity.cs" />
+    <Compile Include="Utils\Animations\AnimationExtensions.cs" />
+    <Compile Include="Utils\Animations\AnimationTimer.cs" />
+    <Compile Include="Utils\Animations\Base\BaseAnimationEntity.cs" />
+    <Compile Include="Utils\Animations\Base\BaseStoryboard.cs" />
+    <Compile Include="Utils\Animations\Easing.cs" />
+    <Compile Include="Utils\Animations\Interfaces\IAnimatable.cs" />
+    <Compile Include="Utils\Animations\Interfaces\IOnUIInvoker.cs" />
+    <Compile Include="Utils\Animations\Interfaces\ITimer.cs" />
+    <Compile Include="Utils\Animations\Storyboard.cs" />
+    <Compile Include="Utils\Animations\UIInvoker.cs" />
     <Compile Include="Utils\VotingPowerFrame.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />

@@ -21,6 +21,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Newtonsoft.Json;
+using Steepshot.Utils.Animations;
 
 namespace Steepshot.Fragment
 {
@@ -221,7 +222,7 @@ namespace Steepshot.Fragment
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
                 _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
-                _postPager.PageMargin = pagePadding / 2;
+                _postPager.PageMargin = pagePadding / 2;                
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
@@ -258,6 +259,18 @@ namespace Steepshot.Fragment
                     post.Children += count;
                     _adapter.NotifyDataSetChanged();
                 }
+            }
+        }
+
+        private void OnPostPagerGlobalLayout(object sender, EventArgs e)
+        {
+            if (_postPager.Visibility == ViewStates.Visible)
+            {
+                _postPager.ViewTreeObserver.GlobalLayout -= OnPostPagerGlobalLayout;
+                var storyboard = new Storyboard();
+                storyboard.Add(_postPager.Opacity(0, 1, 500, Easing.CubicOut));
+                storyboard.Add(_profilePagerAdapter.Storyboard);
+                storyboard.Animate();                
             }
         }
 
@@ -303,8 +316,10 @@ namespace Steepshot.Fragment
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
+            _postPager.Alpha = 0;
             _postPager.Visibility = ViewStates.Visible;
             _postsList.Visibility = ViewStates.Gone;
+            _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
         }
 
         public bool ClosePost()

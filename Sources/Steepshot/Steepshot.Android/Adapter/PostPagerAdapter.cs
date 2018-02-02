@@ -9,6 +9,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Utils.Animations;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -139,6 +140,36 @@ namespace Steepshot.Adapter
                 var translation = (int)(position * _pageOffset);
                 postHeader.TranslationX = translation;
                 postFooter.TranslationX = translation;
+            }
+        }
+
+        public Storyboard Storyboard
+        {
+            get
+            {
+                var reusePosition = CurrentItem % CachedPagesCount;
+                var itemView = _viewHolders[reusePosition]?.ItemView;
+                if (itemView != null)
+                {
+                    var photoPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
+                    var headerLeft = itemView.FindViewById<LinearLayout>(Resource.Id.header_left);
+                    var headerRight = itemView.FindViewById<LinearLayout>(Resource.Id.header_right);
+                    var subtitle = itemView.FindViewById<RelativeLayout>(Resource.Id.subtitle);
+                    var footer = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
+
+                    var storyboard = new Storyboard();
+                    storyboard.AddRange(new[]
+                    {
+                        photoPager.Translation(-photoPager.Width,itemView.Height,0,0,300,Easing.CubicOut),
+                        photoPager.Scaling(0,0,1,1,300,Easing.CubicOut),
+                        headerLeft.Translation(-headerLeft.Width,0,0,0,300,Easing.CubicOut),
+                        headerRight.Translation(headerRight.Width,0,0,0,300,Easing.CubicOut),
+                        subtitle.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,50),
+                        footer.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,100)
+                    });
+                    return storyboard;
+                }
+                return null;
             }
         }
     }

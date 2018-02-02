@@ -1,71 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@android:color/white"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
     <RelativeLayout
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_feed_item_header_height"
         android:background="@android:color/white">
-        <refractored.controls.CircleImageView
-            android:id="@+id/profile_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_holder" />
         <LinearLayout
-            android:id="@+id/text_container"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
+            android:id="@+id/header_left"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/profile_image"
-            android:layout_centerVertical="true">
-            <TextView
-                android:id="@+id/author_name"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+            <refractored.controls.CircleImageView
+                android:id="@+id/profile_image"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_holder" />
+            <LinearLayout
+                android:id="@+id/text_container"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/rgb15_24_30"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:text="joseph.kalu" />
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-3dp"
-                android:textSize="12sp"
-                android:textColor="@color/rgb151_155_158"
-                android:maxLines="1"
-                android:text="34 min ago" />
+                android:layout_marginLeft="10dp">
+                <TextView
+                    android:id="@+id/author_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/rgb15_24_30"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:text="joseph.kalu" />
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-3dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/rgb151_155_158"
+                    android:maxLines="1"
+                    android:text="34 min ago" />
+            </LinearLayout>
         </LinearLayout>
-        <ImageButton
-            android:id="@+id/close"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
+        <LinearLayout
+            android:id="@+id/header_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_close_black"
+            android:layout_centerVertical="true"
             android:layout_marginRight="-5dp"
-            android:layout_centerHorizontal="true" />
-        <ImageButton
-            android:id="@+id/more"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_more_black"
-            android:layout_marginRight="10dp"
-            android:layout_centerHorizontal="true"
-            android:layout_toLeftOf="@id/close" />
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/more"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_more_black" />
+            <ImageButton
+                android:id="@+id/close"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_close_black"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
     </RelativeLayout>
     <ScrollView
         android:scrollbars="none"
         android:fillViewport="true"
         android:layout_below="@id/title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
