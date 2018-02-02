@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
@@ -47,6 +48,11 @@ namespace Steepshot.iOS.Cells
             if (ImageUrl != null)
                 _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
                                              .Retry(5)
+                                             .WithPriority(LoadingPriority.High)
+                                            /* .DownloadProgress((DownloadProgress obj) =>
+                                                {
+                                                    Debug.WriteLine(obj.Current + " of " + obj.Total);
+                                                })*/
                                              .FadeAnimation(false)
                                              .DownSample(width: _downSampleWidth)
                                              .Into(photoImg);

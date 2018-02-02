@@ -40,6 +40,9 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint searchTopMargin { get; set; }
 
 		[Outlet]
+		UIKit.UIButton switcher { get; set; }
+
+		[Outlet]
 		UIKit.UIButton topButton { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -79,11 +82,6 @@ namespace Steepshot.iOS.Views
 				searchButton = null;
 			}
 
-			if (topButton != null) {
-				topButton.Dispose ();
-				topButton = null;
-			}
-
 			if (searchHeight != null) {
 				searchHeight.Dispose ();
 				searchHeight = null;
@@ -92,6 +90,16 @@ namespace Steepshot.iOS.Views
 			if (searchTopMargin != null) {
 				searchTopMargin.Dispose ();
 				searchTopMargin = null;
+			}
+
+			if (topButton != null) {
+				topButton.Dispose ();
+				topButton = null;
+			}
+
+			if (switcher != null) {
+				switcher.Dispose ();
+				switcher = null;
 			}
 		}
 	}

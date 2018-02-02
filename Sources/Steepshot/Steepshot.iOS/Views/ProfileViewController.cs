@@ -56,6 +56,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _gridDelegate.CellClicked += CellAction;
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.CellAction += CellAction;
@@ -80,20 +81,20 @@ namespace Steepshot.iOS.Views
         private void SetBackButton()
         {
             switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
-            switchButton.TintColor = Helpers.Constants.R151G155B158;
+            switchButton.TintColor = Constants.R151G155B158;
 
             if (Username == BasePresenter.User.Login)
             {
                 NavigationItem.Title = "My Profile";
                 var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
-                settingsButton.TintColor = Helpers.Constants.R151G155B158;
+                settingsButton.TintColor = Constants.R151G155B158;
                 NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
             }
             else
             {
                 NavigationItem.Title = Username;
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-                leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+                leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
                 NavigationItem.RightBarButtonItem = switchButton;
             }
@@ -364,7 +365,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
-                switchButton.TintColor = Helpers.Constants.R231G72B0;
+                switchButton.TintColor = Constants.R231G72B0;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 1,
@@ -373,7 +374,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                switchButton.TintColor = Helpers.Constants.R151G155B158;
+                switchButton.TintColor = Constants.R151G155B158;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 0,

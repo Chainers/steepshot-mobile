@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CoreGraphics;
 using Foundation;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Models;
 using UIKit;
@@ -12,7 +14,7 @@ namespace Steepshot.iOS.Helpers
     public class CollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
     {
         public Action ScrolledToBottom;
-        public Action<NSIndexPath> CellClicked;
+        public Action<ActionType, Post> CellClicked;
         public bool IsGrid = true;
         private BasePostPresenter _presenter;
         private UICollectionView _collection;
@@ -20,6 +22,7 @@ namespace Steepshot.iOS.Helpers
         public List<CellSizeHelper> Variables = new List<CellSizeHelper>();
 
         public int Position => _prevPos;
+        public NSIndexPath TopCurrentPosition;
 
         public void ClearPosition()
         {
@@ -38,6 +41,7 @@ namespace Steepshot.iOS.Helpers
             if (_collection.IndexPathsForVisibleItems.Length > 0)
             {
                 var pos = _collection.IndexPathsForVisibleItems.Max(c => c.Row);
+                //TopCurrentPosition = _collection.IndexPathsForVisibleItems.Min();
                 if (pos > _prevPos)
                 {
                     if (pos == _presenter.Count - 1)
@@ -54,7 +58,7 @@ namespace Steepshot.iOS.Helpers
             if (!IsGrid)
                 return;
 
-            CellClicked?.Invoke(indexPath);
+            CellClicked?.Invoke(ActionType.Preview, _presenter[(int)indexPath.Item]);
         }
 
         public void GenerateVariables()

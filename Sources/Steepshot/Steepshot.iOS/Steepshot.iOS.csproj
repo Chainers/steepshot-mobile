@@ -401,7 +401,6 @@
     <BundleResource Include="Resources\Fonts\OpenSans-Light.ttf" />
     <BundleResource Include="Resources\Fonts\OpenSans-Regular.ttf" />
     <BundleResource Include="Resources\Fonts\OpenSans-Semibold.ttf" />
-    <BundleResource Include="Resources\ic_welcome_background.png" />
     <BundleResource Include="Resources\ic_welcome_background%402x.png" />
     <BundleResource Include="Resources\ic_welcome_background%403x.png" />
     <BundleResource Include="Resources\ic_logo.png" />
@@ -459,6 +458,8 @@
     <BundleResource Include="Resources\ic_profile%403x.png" />
     <BundleResource Include="Resources\ic_rotate%402x.png" />
     <BundleResource Include="Resources\ic_rotate%403x.png" />
+    <BundleResource Include="Resources\ic_grid_active%402x.png" />
+    <BundleResource Include="Resources\ic_grid_active%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
