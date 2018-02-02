@@ -97,7 +97,7 @@ namespace Steepshot.Fragment
                     _profilePagerAdapter.PhotoClick += OnPhotoClick;
                     _profilePagerAdapter.FlagAction += FlagAction;
                     _profilePagerAdapter.HideAction += HideAction;
-                    _profileFeedAdapter.EditAction += EditAction;
+                    _profilePagerAdapter.EditAction += EditAction;
                     _profilePagerAdapter.DeleteAction += DeleteAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
