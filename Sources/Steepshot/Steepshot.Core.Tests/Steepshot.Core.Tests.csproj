@@ -46,6 +46,7 @@
     <Compile Include="Presenters\VotersPresenterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stubs\StubApiGateway.cs" />
+    <Compile Include="Stubs\StubReporterService.cs" />
     <Compile Include="Stubs\StubServerClient.cs" />
     <Compile Include="Stubs\StubAppInfo.cs" />
     <Compile Include="Stubs\StubConnectionService.cs" />

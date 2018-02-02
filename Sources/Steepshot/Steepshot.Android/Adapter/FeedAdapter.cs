@@ -621,7 +621,7 @@ namespace Steepshot.Adapter
                         photoCard.Radius = (int)BitmapUtils.DpToPixel(7, _context.Resources);
                     }
 
-                    var size = new FrameSize { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
+                    var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
                     var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
                     photoCard.LayoutParameters.Height = height;
                     ((View)photoCard.Parent).LayoutParameters.Height = height;
