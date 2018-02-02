@@ -18,7 +18,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
+    public sealed class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
     {
         private const string PostUrlExtraPath = "url";
         private const string PostNetVotesExtraPath = "count";

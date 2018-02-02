@@ -3,7 +3,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Services
 {
-    public class AppInfo : IAppInfo
+    public sealed class AppInfo : IAppInfo
     {
         public string GetOsVersion()
         {

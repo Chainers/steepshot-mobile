@@ -12,7 +12,7 @@ using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient
 {
-    public class SteepshotApiClient : BaseServerClient
+    public sealed class SteepshotApiClient : BaseServerClient
     {
         private readonly Dictionary<string, Beneficiary[]> _beneficiariesCash;
         private readonly object _synk;
@@ -28,7 +28,7 @@ namespace Steepshot.Core.HttpClient
             _synk = new object();
         }
 
-        public void InitConnector(KnownChains chain, bool isDev, CancellationToken token)
+        public void InitConnector(KnownChains chain, bool isDev)
         {
             var sUrl = string.Empty;
             switch (chain)

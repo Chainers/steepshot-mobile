@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Steepshot.Core.Utils
 {
-    public class ReporterService : IReporterService
+    public sealed class ReporterService : IReporterService
     {
         private readonly IAppInfo _appInfoService;
         private readonly string _dsn;

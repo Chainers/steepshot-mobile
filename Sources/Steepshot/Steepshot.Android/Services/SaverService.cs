@@ -7,7 +7,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Services
 {
-    public class SaverService : ISaverService
+    public sealed class SaverService : ISaverService
     {
         private readonly ISharedPreferences _preferences = Application.Context.GetSharedPreferences(Constants.Steepshot, FileCreationMode.Private);
 

@@ -14,7 +14,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class ProfileGridAdapter : GridAdapter<UserProfilePresenter>
+    public sealed class ProfileGridAdapter : GridAdapter<UserProfilePresenter>
     {
         public Action FollowersAction, FollowingAction, BalanceAction = null;
         public Action FollowAction;
@@ -74,7 +74,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class HeaderViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class HeaderViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Context _context;
         private readonly TextView _name;

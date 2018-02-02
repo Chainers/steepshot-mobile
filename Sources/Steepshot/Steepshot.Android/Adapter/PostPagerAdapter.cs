@@ -13,7 +13,7 @@ using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
 {
-    public class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
+    public sealed class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
         where T : BasePostPresenter
     {
         private const int CachedPagesCount = 5;
@@ -143,12 +143,10 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class PostViewHolder : FeedViewHolder
+    public sealed class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
-        private readonly ImageButton _closeButton;
-        private readonly RelativeLayout _postHeader;
-        private readonly RelativeLayout _postFooter;
+
         public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> editAction, Action<Post> deleteAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, editAction, deleteAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;

@@ -4,7 +4,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Authority
 {
-    public class UserInfo
+    public sealed class UserInfo
     {
         public int Id { get; set; }
 
@@ -37,12 +37,12 @@ namespace Steepshot.Core.Authority
         public bool ShowFooter { get; set; } = true;
     }
 
-    public class Navigation
+    public sealed class Navigation
     {
         public Dictionary<string, TabSettings> TabSettings { get; set; } = new Dictionary<string, TabSettings>();
     }
 
-    public class TabSettings
+    public sealed class TabSettings
     {
         public bool IsGridView { get; set; } = false;
         public PostType PostType { get; set; } = PostType.Hot;

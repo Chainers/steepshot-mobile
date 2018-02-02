@@ -5,7 +5,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Authority
 {
-    public class User
+    public sealed class User
     {
         private readonly IDataProvider _data;
 

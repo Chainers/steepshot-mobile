@@ -3,7 +3,7 @@ using Android.Support.V7.Widget;
 
 namespace Steepshot.Utils
 {
-    public class ScrollListener : RecyclerView.OnScrollListener
+    public sealed class ScrollListener : RecyclerView.OnScrollListener
     {
         public event Action ScrolledToBottom;
         private int _pos, _prevPos;

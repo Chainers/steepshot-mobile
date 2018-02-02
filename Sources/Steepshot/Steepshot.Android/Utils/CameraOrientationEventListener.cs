@@ -6,7 +6,7 @@ using Android.Views;
 
 namespace Steepshot.Utils
 {
-    public class CameraOrientationEventListener : OrientationEventListener
+    public sealed class CameraOrientationEventListener : OrientationEventListener
     {
         public event Action<int> OrientationChanged;
 

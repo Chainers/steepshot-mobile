@@ -14,7 +14,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class FollowersAdapter : RecyclerView.Adapter
+    public sealed class FollowersAdapter : RecyclerView.Adapter
     {
         private readonly Context _context;
         private readonly ListPresenter<UserFriend> _presenter;

@@ -6,7 +6,7 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public class PreSignInPresenter : BasePresenter
+    public sealed class PreSignInPresenter : BasePresenter
     {
         public async Task<OperationResult<UserProfileResponse>> TryGetAccountInfo(string login)
         {

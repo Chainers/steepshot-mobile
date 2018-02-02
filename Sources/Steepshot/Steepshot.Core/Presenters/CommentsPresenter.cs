@@ -8,7 +8,7 @@ using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
-    public class CommentsPresenter : BasePostPresenter
+    public sealed class CommentsPresenter : BasePostPresenter
     {
         private const int ItemsLimit = 60;
 

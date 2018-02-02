@@ -3,7 +3,7 @@
 namespace Steepshot.Core.Errors
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class BlockchainError : ErrorBase
+    public sealed class BlockchainError : ErrorBase
     {
         /// <summary>
         /// Constructor of class
