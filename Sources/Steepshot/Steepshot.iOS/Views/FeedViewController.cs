@@ -34,6 +34,13 @@ namespace Steepshot.iOS.Views
             feedCollection.ReloadData();
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (!IsMovingToParentViewController)
+                feedCollection.ReloadData();
+            base.ViewWillAppear(animated);
+        }
+
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();

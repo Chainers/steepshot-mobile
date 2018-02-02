@@ -35,12 +35,12 @@ namespace Steepshot.iOS.Cells
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
             {
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                               .LoadingPlaceholder("ic_noavatar.png")
-                                               .ErrorPlaceholder("ic_noavatar.png")
-                                               .FadeAnimation(false, false, 0)
-                                               .DownSample(200)
-                                               .Into(avatar);
+                _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                                   .LoadingPlaceholder("ic_noavatar.png")
+                                                   .ErrorPlaceholder("ic_noavatar.png")
+                                                   .FadeAnimation(false, false, 0)
+                                                   .DownSample(200)
+                                                   .Into(avatar);
             }
             else
                 avatar.Image = UIImage.FromBundle("ic_noavatar");
@@ -62,8 +62,6 @@ namespace Steepshot.iOS.Cells
 
             likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
             flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
-            //LayoutIfNeeded();
-
 
             if (!_isInitialized)
             {
@@ -137,17 +135,13 @@ namespace Steepshot.iOS.Cells
                 flagVisibleConstraint.Active = false;
                 likeHiddenConstraint.Active = true;
             }
-
         }
 
         private void LikeTap(object sender, EventArgs e)
         {
-            if (_currentPost.VoteChanging)
+            if (!BasePostPresenter.IsEnableVote)
                 return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
-            if (!BasePresenter.User.IsAuthenticated)
-                return;
-            Animate();
         }
 
         private void MoreTap(object sender, EventArgs e)

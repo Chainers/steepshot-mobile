@@ -157,9 +157,17 @@ namespace Steepshot.iOS.Views
             };
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
+            base.ViewWillAppear(animated);
+        }
+
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
+
             if (ShouldProfileUpdate)
             {
                 RefreshPage();

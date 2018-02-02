@@ -105,6 +105,8 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
             if (CurrentPostCategory != null)
             {
                 NavigationItem.Title = CurrentPostCategory;

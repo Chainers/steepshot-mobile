@@ -34,7 +34,7 @@ namespace Steepshot.iOS.Cells
         private UILabel _flags;
         private UILabel _rewards;
         private UIView _verticalSeparator;
-        private UIButton _like;
+        private UIImageView _like;
 
         private UIView _topSeparator;
         private TTTAttributedLabel _attributedLabel;
@@ -154,10 +154,8 @@ namespace Steepshot.iOS.Cells
             _rewards.UserInteractionEnabled = true;
             ContentView.AddSubview(_rewards);
 
-            _like = new UIButton();
-            _like.SetImage(UIImage.FromBundle("ic_like"), UIControlState.Normal);
-            _like.SetImage(UIImage.FromBundle("ic_like_active"), UIControlState.Selected);
-            //_like.BackgroundColor = UIColor.Brown;
+            _like = new UIImageView();
+            _like.ContentMode = UIViewContentMode.Center;
             ContentView.AddSubview(_like);
 
             _verticalSeparator = new UIView();
@@ -178,7 +176,6 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.UserInteractionEnabled = true;
             _attributedLabel.Enabled = true;
             //_attributedLabel.BackgroundColor = UIColor.Blue;
-            //_attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(TagAction);
             ContentView.AddSubview(_attributedLabel);
 
             _comments = new UILabel();
@@ -201,6 +198,9 @@ namespace Steepshot.iOS.Cells
             _likersTapView = new UIView();
             _likersTapView.UserInteractionEnabled = true;
             ContentView.AddSubview(_likersTapView);
+
+            var liketap = new UITapGestureRecognizer(LikeTap);
+            _like.AddGestureRecognizer(liketap);
 
             var tap = new UITapGestureRecognizer(() =>
             {
@@ -238,7 +238,6 @@ namespace Steepshot.iOS.Cells
             _flags.AddGestureRecognizer(flagersTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
-            _like.TouchDown += LikeTap;
         }
 
         public void UpdateCell(Post post, CellSizeHelper variables)
@@ -355,13 +354,13 @@ namespace Steepshot.iOS.Cells
 
             _like.Frame = new CGRect(ContentView.Frame.Width - likeButtonWidthConst, _bodyImage.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
 
+            _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
             if (_currentPost.VoteChanging)
                 Animate();
             else
             {
-                _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
-                _like.Selected = _currentPost.Vote;
-                _like.Enabled = true;
+                _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                _like.UserInteractionEnabled = true;
             }
 
             _verticalSeparator.Frame = new CGRect(ContentView.Frame.Width - likeButtonWidthConst - 1, _bodyImage.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
@@ -388,14 +387,11 @@ namespace Steepshot.iOS.Cells
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
         }
 
-        private void LikeTap(object sender, EventArgs e)
+        private void LikeTap()
         {
-            if (_currentPost.VoteChanging)
+            if (!BasePostPresenter.IsEnableVote)
                 return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
-            if (!BasePresenter.User.IsAuthenticated)
-                return;
-            Animate();
         }
 
         private void FlagButton_TouchDown(object sender, EventArgs e)
@@ -405,8 +401,8 @@ namespace Steepshot.iOS.Cells
 
         private void Animate()
         {
-            _like.Selected = true;
-            UIView.Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+            _like.Image = UIImage.FromBundle("ic_like_active");
+            Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
             {
                 _like.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
             }, null);
