@@ -13,7 +13,7 @@ using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
 {
-    public class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
+    public sealed class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
         where T : BasePostPresenter
     {
         private const int CachedPagesCount = 5;
@@ -141,7 +141,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class PostViewHolder : FeedViewHolder
+    public sealed class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
         public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, postAction, tagAction, height)
@@ -156,25 +156,25 @@ namespace Steepshot.Adapter
             postHeader.SetLayerType(LayerType.Hardware, null);
             postFooter.SetLayerType(LayerType.Hardware, null);
 
-            _nsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
+            NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
         }
 
         protected override void SetNsfwMaskLayout()
         {
             base.SetNsfwMaskLayout();
-            ((RelativeLayout.LayoutParams)_nsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
+            ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
         }
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)
         {
-            if (_nsfwMask.Height < BitmapUtils.DpToPixel(200, _context.Resources))
-                _nsfwMaskSubMessage.Visibility = ViewStates.Gone;
+            if (NsfwMask.Height < BitmapUtils.DpToPixel(200, Context.Resources))
+                NsfwMaskSubMessage.Visibility = ViewStates.Gone;
         }
 
         protected override void OnTitleOnClick(object sender, EventArgs e)
         {
             base.OnTitleOnClick(sender, e);
-            UpdateData(_post, _context);
+            UpdateData(Post, Context);
         }
 
         private void CloseButtonOnClick(object sender, EventArgs eventArgs)

@@ -10,7 +10,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class AccountsAdapter : RecyclerView.Adapter
+    public sealed class AccountsAdapter : RecyclerView.Adapter
     {
         public List<UserInfo> AccountsList;
         public Action<UserInfo> DeleteAccount;
@@ -37,7 +37,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class AccountViewHolder : RecyclerView.ViewHolder
+    public sealed class AccountViewHolder : RecyclerView.ViewHolder
     {
         private readonly TextView _cellText;
         private readonly ImageView _checkImage;

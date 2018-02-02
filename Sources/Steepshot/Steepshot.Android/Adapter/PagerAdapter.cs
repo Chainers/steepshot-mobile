@@ -8,7 +8,7 @@ using Steepshot.Core.Authority;
 
 namespace Steepshot.Adapter
 {
-    public class PagerAdapter : FragmentStatePagerAdapter
+    public sealed class PagerAdapter : FragmentStatePagerAdapter
     {
         public readonly int[] TabIconsInactive = {
             Resource.Drawable.ic_home,

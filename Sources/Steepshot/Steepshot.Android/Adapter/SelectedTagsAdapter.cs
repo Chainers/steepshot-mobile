@@ -4,7 +4,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 namespace Steepshot.Adapter
 {
-    public class SelectedTagsAdapter : RecyclerView.Adapter
+    public sealed class SelectedTagsAdapter : RecyclerView.Adapter
     {
         public readonly List<string> LocalTags = new List<string>();
         public bool Enabled = true;

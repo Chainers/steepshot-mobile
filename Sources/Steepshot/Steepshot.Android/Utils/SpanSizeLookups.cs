@@ -2,7 +2,7 @@
 
 namespace Steepshot.Utils
 {
-    public class ProfileSpanSizeLookup : FeedSpanSizeLookup
+    public sealed class ProfileSpanSizeLookup : FeedSpanSizeLookup
     {
         public override int GetSpanSize(int position)
         {

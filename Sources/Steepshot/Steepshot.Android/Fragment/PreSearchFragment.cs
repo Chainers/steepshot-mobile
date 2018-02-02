@@ -14,6 +14,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -550,6 +551,13 @@ namespace Steepshot.Fragment
                 case ActionType.Hide:
                     {
                         Presenter.HidePost(post);
+                        break;
+                    }
+                case ActionType.Edit:
+                    {
+                        var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+                        intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
+                        Activity.StartActivity(intent);
                         break;
                     }
                 case ActionType.Delete:

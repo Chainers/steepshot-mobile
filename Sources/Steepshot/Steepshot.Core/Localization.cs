@@ -2,9 +2,9 @@
 
 namespace Steepshot.Core
 {
-    public class Localization
+    public static class Localization
     {
-        public class Errors
+        public static class Errors
         {
             public const string WrongPrivatePostingKey = "It`s not a valid Private Posting key! Check - Private key looks like 5********...";
             public const string WrongPrivateActimeKey = "It`s not a valid Private Active key! Check - Private key looks like 5********...";
@@ -83,7 +83,7 @@ namespace Steepshot.Core
             }
         }
 
-        public class Messages
+        public static class Messages
         {
             public const string PostFirstComment = "Post your first comment";
             public const string Comments = "Comments";
@@ -168,7 +168,7 @@ namespace Steepshot.Core
             }
         }
 
-        public class Texts
+        public static class Texts
         {
             public const string SignInButtonText = "Sign in with {0}";
             public const string CreateButtonText = "Create new account";

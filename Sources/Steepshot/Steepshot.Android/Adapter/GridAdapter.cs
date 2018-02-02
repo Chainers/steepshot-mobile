@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -70,7 +69,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class ImageViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class ImageViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;

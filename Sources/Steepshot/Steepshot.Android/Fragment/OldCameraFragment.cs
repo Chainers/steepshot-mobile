@@ -375,11 +375,7 @@ namespace Steepshot.Fragment
         {
             Task.Run(() =>
             {
-                var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
-                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
-                if (!directory.Exists())
-                    directory.Mkdirs();
-
+                var directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
                 var photoUri = $"{directory}/{Guid.NewGuid()}.jpeg";
 
                 var stream = new Java.IO.FileOutputStream(photoUri);

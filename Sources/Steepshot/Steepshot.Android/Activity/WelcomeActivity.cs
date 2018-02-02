@@ -18,7 +18,7 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public class WelcomeActivity : BaseActivity
+    public sealed class WelcomeActivity : BaseActivity
     {
         private int _clickCount;
 

@@ -6,7 +6,7 @@
         V1P1
     }
 
-    public class Constants
+    public static class Constants
     {
         public const string UserContextKey = "UserCredentials";
         public const string IsDevKey = "IsDev";

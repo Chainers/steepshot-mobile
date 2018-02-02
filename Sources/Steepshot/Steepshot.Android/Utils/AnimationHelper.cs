@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Steepshot.Utils
 {
-    public class AnimationHelper
+    public sealed class AnimationHelper
     {
         public static async Task PulseGridItem(ImageView imageView)
         {

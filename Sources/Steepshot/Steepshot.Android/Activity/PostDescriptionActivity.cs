@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -99,8 +98,6 @@ namespace Steepshot.Activity
             else
             {
                 _model = new PreparePostModel(BasePresenter.User.UserInfo);
-                _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
-                _path = Intent.GetStringExtra(PhotoExtraPath);
                 InitPhoto(_path);
                 SetPostingTimer();
             }

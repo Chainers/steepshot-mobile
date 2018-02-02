@@ -4,7 +4,7 @@ using System.IO;
 namespace Steepshot.Utils
 {
 
-    public class StreamConverter : System.IO.Stream
+    public sealed class StreamConverter : System.IO.Stream
     {
         private readonly Java.IO.FileInputStream _fileInputStream;
         private readonly Java.IO.FileOutputStream _fileOutputStream;

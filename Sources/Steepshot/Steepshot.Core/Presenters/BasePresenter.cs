@@ -21,18 +21,20 @@ namespace Steepshot.Core.Presenters
         private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
         protected static readonly SteepshotApiClient Api;
-
-        private static readonly object CtsSync = new object();
+        private static readonly Timer LazyLoadTimer;
+        private static readonly object CtsSync;
         private static CancellationTokenSource _reconecTokenSource;
         private static IConnectionService _connectionService;
 
-        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
-        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
-        public static event Action<string> OnAllert;
-
         protected CancellationTokenSource OnDisposeCts;
 
-        public static string Currency
+        public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
+        public static event Action<string> OnAllert;
+        public static readonly User User;
+
+        public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
+
+        private static string Currency
         {
             get
             {
@@ -41,11 +43,13 @@ namespace Steepshot.Core.Presenters
                 return Chain == KnownChains.Steem ? "$" : "₽";
             }
         }
-        public static User User { get; set; }
-        public static KnownChains Chain { get; set; }
+
+        public static KnownChains Chain { get; private set; }
+
 
         static BasePresenter()
         {
+            CtsSync = new object();
             CultureInfo = CultureInfo.InvariantCulture;
             User = new User();
             User.Load();
@@ -55,15 +59,19 @@ namespace Steepshot.Core.Presenters
 
             Api = new SteepshotApiClient();
 
+            Api.InitConnector(Chain, AppSettings.IsDev);
+            LazyLoadTimer = new Timer(Callback, null, 9000, Int32.MaxValue);
+        }
+
+        private static void Callback(object state)
+        {
             var ts = GetReconectToken();
-            Api.InitConnector(Chain, AppSettings.IsDev, ts);
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
-            Task.Run(() =>
-            {
-                var init = new Secp256k1Manager();
-            });
+            var init = new Secp256k1Manager();
+            LazyLoadTimer.Dispose();
         }
+
 
         protected BasePresenter()
         {
@@ -100,7 +108,7 @@ namespace Steepshot.Core.Presenters
 
             var ts = GetReconectToken();
 
-            Api.InitConnector(Chain, isDev, ts);
+            Api.InitConnector(Chain, isDev);
             await TryRunTask(TryСonect, ts);
         }
 
@@ -114,7 +122,7 @@ namespace Steepshot.Core.Presenters
             Chain = userInfo.Chain;
 
             var ts = GetReconectToken();
-            Api.InitConnector(userInfo.Chain, AppSettings.IsDev, ts);
+            Api.InitConnector(userInfo.Chain, AppSettings.IsDev);
             await TryRunTask(TryСonect, ts);
         }
 
@@ -126,7 +134,7 @@ namespace Steepshot.Core.Presenters
             Chain = chain;
 
             var ts = GetReconectToken();
-            Api.InitConnector(chain, AppSettings.IsDev, ts);
+            Api.InitConnector(chain, AppSettings.IsDev);
             await TryRunTask(TryСonect, ts);
         }
 
@@ -216,7 +224,7 @@ namespace Steepshot.Core.Presenters
                 else
                 {
                     AppSettings.Reporter.SendCrash(ex, param1);
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError)); ;
+                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
                 }
             }
         }

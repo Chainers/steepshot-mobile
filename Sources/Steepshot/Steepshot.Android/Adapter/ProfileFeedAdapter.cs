@@ -7,7 +7,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class ProfileFeedAdapter : FeedAdapter<UserProfilePresenter>
+    public sealed class ProfileFeedAdapter : FeedAdapter<UserProfilePresenter>
     {
         public Action FollowersAction, FollowingAction, BalanceAction = null;
         public Action FollowAction;

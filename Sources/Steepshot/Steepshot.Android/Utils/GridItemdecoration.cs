@@ -2,7 +2,7 @@
 
 namespace Steepshot.Utils
 {
-    public class GridItemDecoration : RecyclerView.ItemDecoration
+    public sealed class GridItemDecoration : RecyclerView.ItemDecoration
     {
         private readonly bool _skipFirst;
 

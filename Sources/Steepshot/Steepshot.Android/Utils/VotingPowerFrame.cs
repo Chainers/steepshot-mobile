@@ -7,7 +7,7 @@ using Android.Widget;
 
 namespace Steepshot.Utils
 {
-    public class VotingPowerFrame : FrameLayout
+    public sealed class VotingPowerFrame : FrameLayout
     {
         public bool Draw { get; set; }
         public float VotingPower { get; set; }

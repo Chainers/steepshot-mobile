@@ -5,7 +5,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Services
 {
-    public class ConnectionService : IConnectionService
+    public sealed class ConnectionService : IConnectionService
     {
         private readonly ConnectivityManager _connectivityManager = (ConnectivityManager)Application.Context.GetSystemService(Context.ConnectivityService);
 

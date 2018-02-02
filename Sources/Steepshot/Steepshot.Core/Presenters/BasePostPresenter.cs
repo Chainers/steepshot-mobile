@@ -137,7 +137,8 @@ namespace Steepshot.Core.Presenters
                             if (User.PostBlackList.Contains(item.Url))
                                 continue;
 
-                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase)) && (enableEmptyMedia || item.Media.Length > 0 && !string.IsNullOrEmpty(item.Media[0].Url)))
+                            if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))
+                                && (enableEmptyMedia || IsValidMedia(item)))
                             {
                                 Items.Add(item);
                                 isAdded = true;
@@ -163,6 +164,28 @@ namespace Steepshot.Core.Presenters
             error = response.Error;
             return false;
         }
+
+        private bool IsValidMedia(Post item)
+        {
+            //This part of the server logic, but... let`s check that everything is okay
+            if (item.Media.Length == 0)
+                return false;
+
+            item.Media = item.Media.Where(i => !string.IsNullOrEmpty(i.Url)).ToArray();
+
+            if (item.Media.Length == 0)
+                return false;
+
+            foreach (var itm in item.Media)
+            {
+                if (itm.Size == null || itm.Size.Height == 0 || itm.Size.Width == 0)
+                {
+                    itm.Size = new FrameSize(1024, 1024);
+                }
+            }
+            return true;
+        }
+
 
         public async Task<ErrorBase> TryVote(Post post)
         {
