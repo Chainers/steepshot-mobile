@@ -131,7 +131,7 @@ namespace Steepshot.iOS.Cells
 
             cellText.Text = _currentPost.Author;
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
-            rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            //rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
 
             netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
 
@@ -276,7 +276,7 @@ namespace Steepshot.iOS.Cells
             {
                 likeButton.Selected = operationResult.Result.IsSuccess;
                 flagButton.Selected = _currentPost.Flag;
-                rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
+                //rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
                 netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
             }
             likeButton.Enabled = true;
@@ -294,7 +294,7 @@ namespace Steepshot.iOS.Cells
                 flagButton.Selected = result.Result.IsSuccess;
                 likeButton.Selected = _currentPost.Vote;
                 netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
-                rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);
+                //rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);
             }
             flagButton.Selected = _currentPost.Flag;
             flagButton.Enabled = true;

@@ -39,13 +39,13 @@ namespace Steepshot.iOS.ViewSources
             }
             else
             {
-                BaseProfileCell cell;
+                UICollectionViewCell cell;
                 var post = _presenter[(int)indexPath.Item];
                 if (IsGrid)
                 {
                     cell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
                     if (post != null)
-                        cell.UpdateCell(post);
+                        ((PhotoCollectionViewCell)cell).UpdateCell(post);
                 }
                 else
                 {

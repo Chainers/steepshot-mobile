@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using CoreGraphics;
-using Ditch.Core;
 using Foundation;
 using Steepshot.Core;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -16,7 +13,6 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
         public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
@@ -32,22 +28,6 @@ namespace Steepshot.iOS.ViewControllers
         protected NSObject ForegroundToken;
 
         public static bool ShouldProfileUpdate { get; set; }
-
-        static BaseViewController()
-        {
-            BasePresenter.User = new User();
-            BasePresenter.User.Load();
-            //TODO:KOA: endpoint for CurencyConvertation needed
-            CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
-        }
-        /*
-        public override void ViewWillAppear(bool animated)
-        {
-            if (TabBarController != null)
-                TabBarController.TabBar.Hidden = false;
-
-            base.ViewWillAppear(animated);
-        }*/
 
         public override void ViewDidAppear(bool animated)
         {
@@ -155,14 +135,6 @@ namespace Steepshot.iOS.ViewControllers
             alert.AddAction(UIAlertAction.Create(leftButtonText, UIAlertActionStyle.Cancel, leftButtonAction));
             alert.AddAction(UIAlertAction.Create(rightButtonText, UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);
-        }
-
-        public static string ToFormatedCurrencyString(Asset value, string postfix = null)
-        {
-            var dVal = value.ToDouble();
-            if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
-                dVal *= CurencyConvertationDic[value.Currency];
-            return $"{BasePresenter.Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
         }
     }
 }

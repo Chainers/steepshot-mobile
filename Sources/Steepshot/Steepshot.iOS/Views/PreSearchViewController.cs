@@ -169,10 +169,14 @@ namespace Steepshot.iOS.Views
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
+                case ActionType.Flagers:
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
+                    break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    _navController.PushViewController(myViewController4, true);
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -205,7 +209,7 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            _navController.PopViewController(true);
+            NavigationController.PopViewController(true);
         }
 
         private void Flagged(Post post)
