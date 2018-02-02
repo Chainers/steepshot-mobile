@@ -13,7 +13,8 @@ namespace Steepshot.Utils.Animations
         }
         public void RunOnUIThread(Action action)
         {
-            _handler.Post(action);
+            if (action != null)
+                _handler.Post(action);
         }
     }
 }

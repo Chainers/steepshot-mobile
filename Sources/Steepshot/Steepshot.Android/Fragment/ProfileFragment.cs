@@ -22,6 +22,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Newtonsoft.Json;
 using Steepshot.Utils.Animations;
+using Steepshot.Utils.Animations.Interfaces;
 
 namespace Steepshot.Fragment
 {
@@ -222,7 +223,7 @@ namespace Steepshot.Fragment
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
                 _postPager.SetPadding(pagePadding, 0, pagePadding, 0);
-                _postPager.PageMargin = pagePadding / 2;                
+                _postPager.PageMargin = pagePadding / 2;
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
@@ -268,9 +269,12 @@ namespace Steepshot.Fragment
             {
                 _postPager.ViewTreeObserver.GlobalLayout -= OnPostPagerGlobalLayout;
                 var storyboard = new Storyboard();
-                storyboard.Add(_postPager.Opacity(0, 1, 500, Easing.CubicOut));
-                storyboard.Add(_profilePagerAdapter.Storyboard);
-                storyboard.Animate();                
+                storyboard.AddRange(new IAnimator[]{
+                    _postsList.Opacity(1, 0, 500, Easing.CubicOut),
+                    _postPager.Opacity(0, 1, 500, Easing.CubicOut),
+                    _profilePagerAdapter.Storyboard
+                });
+                storyboard.Animate(() => { _postsList.Visibility = ViewStates.Gone; _postsList.Alpha = 1; });
             }
         }
 
@@ -318,7 +322,6 @@ namespace Steepshot.Fragment
             _profilePagerAdapter.NotifyDataSetChanged();
             _postPager.Alpha = 0;
             _postPager.Visibility = ViewStates.Visible;
-            _postsList.Visibility = ViewStates.Gone;
             _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
         }
 

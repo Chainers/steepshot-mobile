@@ -65,7 +65,7 @@ namespace Steepshot.Utils.Animations.Base
             IsAnimating = false;
         }
 
-        public void Animate()
+        public void Animate(Action callback = null)
         {
             _timer.Start(TimerOnElapsed);
         }

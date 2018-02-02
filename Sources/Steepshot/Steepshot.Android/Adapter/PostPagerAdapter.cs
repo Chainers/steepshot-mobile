@@ -167,6 +167,28 @@ namespace Steepshot.Adapter
                         subtitle.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,50),
                         footer.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,100)
                     });
+
+                    if (CurrentItem - 1 >= 0)
+                    {
+                        reusePosition = (CurrentItem - 1) % CachedPagesCount;
+                        itemView = _viewHolders[reusePosition]?.ItemView;
+                        if (itemView != null)
+                        {
+                            photoPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
+                            storyboard.Add(photoPager.Translation(-_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
+                        }
+                    }
+
+                    if (CurrentItem + 1 <= _presenter.Count - 1)
+                    {
+                        reusePosition = (CurrentItem + 1) % CachedPagesCount;
+                        itemView = _viewHolders[reusePosition]?.ItemView;
+                        if (itemView != null)
+                        {
+                            photoPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
+                            storyboard.Add(photoPager.Translation(_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
+                        }
+                    }
                     return storyboard;
                 }
                 return null;

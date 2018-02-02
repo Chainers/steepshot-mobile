@@ -6,26 +6,29 @@ namespace Steepshot.Utils.Animations.Base
 {
     public abstract class BaseStoryboard : List<IAnimator>, IAnimator
     {
-        public Action AnimationFinished;
+        private Action _onFinish;
+        private IOnUIInvoker _uiInvoker;
         protected readonly ITimer _timer;
 
         public uint StartAt { get; }
         public bool IsFinished { get; private set; }
         public bool IsAnimating { get; private set; }
 
-        public BaseStoryboard(ITimer timer)
+        public BaseStoryboard(ITimer timer, IOnUIInvoker onUIInvoker)
         {
             StartAt = 0;
             _timer = timer;
+            _uiInvoker = onUIInvoker;
         }
 
-        public BaseStoryboard(uint startAt, ITimer timer) : this(timer)
+        public BaseStoryboard(uint startAt, ITimer timer, IOnUIInvoker onUIInvoker) : this(timer, onUIInvoker)
         {
             StartAt = startAt;
         }
 
-        public void Animate()
+        public void Animate(Action callback = null)
         {
+            _onFinish = callback;
             _timer.Start(TimerOnElapsed);
         }
 
@@ -55,7 +58,7 @@ namespace Steepshot.Utils.Animations.Base
 
         private void FinishAnimation()
         {
-            AnimationFinished?.Invoke();
+            _uiInvoker.RunOnUIThread(_onFinish);
             CancelAnimation();
         }
 
