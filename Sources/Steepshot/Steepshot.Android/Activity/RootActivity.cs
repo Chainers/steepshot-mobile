@@ -186,11 +186,10 @@ namespace Steepshot.Activity
 
         private void SetProfileChart(int size)
         {
-            var isEmpty = Presenter.UserProfileResponse == null || string.IsNullOrEmpty(Presenter.UserProfileResponse.ProfileImage);
             var votingPowerFrame = new VotingPowerFrame(this)
             {
                 Draw = true,
-                VotingPower = isEmpty ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
+                VotingPower = Presenter.UserProfileResponse == null ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
                 VotingPowerWidth = BitmapUtils.DpToPixel(3, Resources)
             };
             var padding = (int)BitmapUtils.DpToPixel(7, Resources);
@@ -201,7 +200,7 @@ namespace Steepshot.Activity
             votingPowerFrame.AddView(avatar);
 
             var profileTab = _tabLayout.GetTabAt(_tabLayout.TabCount - 1);
-            if (!isEmpty)
+            if (!string.IsNullOrEmpty(Presenter.UserProfileResponse?.ProfileImage))
                 Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size)
                     .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
