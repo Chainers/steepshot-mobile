@@ -9,123 +9,131 @@ using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
-	[Register ("DescriptionViewController")]
-	partial class DescriptionViewController
-	{
-		[Outlet]
-		UIKit.UITextView descriptionTextField { get; set; }
+    [Register ("DescriptionViewController")]
+    partial class DescriptionViewController
+    {
+        [Outlet]
+        UIKit.UITextView descriptionTextField { get; set; }
 
-		[Outlet]
-		UIKit.UIActivityIndicatorView loadingView { get; set; }
+        [Outlet]
+        UIKit.UIActivityIndicatorView loadingView { get; set; }
 
-		[Outlet]
-		UIKit.NSLayoutConstraint localTagsHeight { get; set; }
+        [Outlet]
+        UIKit.NSLayoutConstraint localTagsHeight { get; set; }
 
-		[Outlet]
-		UIKit.NSLayoutConstraint localTagsTopSpace { get; set; }
+        [Outlet]
+        UIKit.NSLayoutConstraint localTagsTopSpace { get; set; }
 
-		[Outlet]
-		UIKit.UIImageView photoView { get; set; }
+        [Outlet]
+        UIKit.UIImageView photoView { get; set; }
 
-		[Outlet]
-		UIKit.UIButton postPhotoButton { get; set; }
+        [Outlet]
+        UIKit.UIButton postPhotoButton { get; set; }
 
-		[Outlet]
-		UIKit.NSLayoutConstraint tagDefault { get; set; }
+        [Outlet]
+        UIKit.UIImageView rotateImage { get; set; }
 
-		[Outlet]
-		UIKit.UITextField tagField { get; set; }
+        [Outlet]
+        UIKit.NSLayoutConstraint tagDefault { get; set; }
 
-		[Outlet]
-		UIKit.UICollectionView tagsCollectionView { get; set; }
+        [Outlet]
+        UIKit.UITextField tagField { get; set; }
 
-		[Outlet]
-		UIKit.UITableView tagsTableView { get; set; }
+        [Outlet]
+        UIKit.UICollectionView tagsCollectionView { get; set; }
 
-		[Outlet]
-		UIKit.NSLayoutConstraint tagToTop { get; set; }
+        [Outlet]
+        UIKit.UITableView tagsTableView { get; set; }
 
-		[Outlet]
-		UIKit.UIView titleBottomView { get; set; }
+        [Outlet]
+        UIKit.NSLayoutConstraint tagToTop { get; set; }
 
-		[Outlet]
-		UIKit.UIImageView titleEditImage { get; set; }
+        [Outlet]
+        UIKit.UIView titleBottomView { get; set; }
 
-		[Outlet]
-		[GeneratedCode ("iOS Designer", "1.0")]
-		UIKit.UITextView titleTextField { get; set; }
-		
-		void ReleaseDesignerOutlets ()
-		{
-			if (descriptionTextField != null) {
-				descriptionTextField.Dispose ();
-				descriptionTextField = null;
-			}
+        [Outlet]
+        UIKit.UIImageView titleEditImage { get; set; }
 
-			if (localTagsHeight != null) {
-				localTagsHeight.Dispose ();
-				localTagsHeight = null;
-			}
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UITextView titleTextField { get; set; }
+        
+        void ReleaseDesignerOutlets ()
+        {
+            if (descriptionTextField != null) {
+                descriptionTextField.Dispose ();
+                descriptionTextField = null;
+            }
 
-			if (localTagsTopSpace != null) {
-				localTagsTopSpace.Dispose ();
-				localTagsTopSpace = null;
-			}
+            if (loadingView != null) {
+                loadingView.Dispose ();
+                loadingView = null;
+            }
 
-			if (photoView != null) {
-				photoView.Dispose ();
-				photoView = null;
-			}
+            if (localTagsHeight != null) {
+                localTagsHeight.Dispose ();
+                localTagsHeight = null;
+            }
 
-			if (postPhotoButton != null) {
-				postPhotoButton.Dispose ();
-				postPhotoButton = null;
-			}
+            if (localTagsTopSpace != null) {
+                localTagsTopSpace.Dispose ();
+                localTagsTopSpace = null;
+            }
 
-			if (tagDefault != null) {
-				tagDefault.Dispose ();
-				tagDefault = null;
-			}
+            if (photoView != null) {
+                photoView.Dispose ();
+                photoView = null;
+            }
 
-			if (tagField != null) {
-				tagField.Dispose ();
-				tagField = null;
-			}
+            if (postPhotoButton != null) {
+                postPhotoButton.Dispose ();
+                postPhotoButton = null;
+            }
 
-			if (tagsCollectionView != null) {
-				tagsCollectionView.Dispose ();
-				tagsCollectionView = null;
-			}
+            if (tagDefault != null) {
+                tagDefault.Dispose ();
+                tagDefault = null;
+            }
 
-			if (tagsTableView != null) {
-				tagsTableView.Dispose ();
-				tagsTableView = null;
-			}
+            if (tagField != null) {
+                tagField.Dispose ();
+                tagField = null;
+            }
 
-			if (tagToTop != null) {
-				tagToTop.Dispose ();
-				tagToTop = null;
-			}
+            if (tagsCollectionView != null) {
+                tagsCollectionView.Dispose ();
+                tagsCollectionView = null;
+            }
 
-			if (titleBottomView != null) {
-				titleBottomView.Dispose ();
-				titleBottomView = null;
-			}
+            if (tagsTableView != null) {
+                tagsTableView.Dispose ();
+                tagsTableView = null;
+            }
 
-			if (titleEditImage != null) {
-				titleEditImage.Dispose ();
-				titleEditImage = null;
-			}
+            if (tagToTop != null) {
+                tagToTop.Dispose ();
+                tagToTop = null;
+            }
 
-			if (titleTextField != null) {
-				titleTextField.Dispose ();
-				titleTextField = null;
-			}
+            if (titleBottomView != null) {
+                titleBottomView.Dispose ();
+                titleBottomView = null;
+            }
 
-			if (loadingView != null) {
-				loadingView.Dispose ();
-				loadingView = null;
-			}
-		}
-	}
+            if (titleEditImage != null) {
+                titleEditImage.Dispose ();
+                titleEditImage = null;
+            }
+
+            if (titleTextField != null) {
+                titleTextField.Dispose ();
+                titleTextField = null;
+            }
+
+            if (rotateImage != null) {
+                rotateImage.Dispose ();
+                rotateImage = null;
+            }
+        }
+    }
 }

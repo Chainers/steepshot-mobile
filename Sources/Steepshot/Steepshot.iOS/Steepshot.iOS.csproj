@@ -370,6 +370,7 @@
     <Compile Include="Cells\NewFeedCollectionViewCell.cs" />
     <Compile Include="Helpers\CellHeightCalculator.cs" />
     <Compile Include="Models\CellSizeHelper.cs" />
+    <Compile Include="Helpers\PostTitleTextViewDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

@@ -33,13 +33,11 @@ namespace Steepshot.iOS.Views
         private Timer _timer;
         private string _previousQuery;
 
-
         public DescriptionViewController(UIImage imageAsset, string extension)
         {
             ImageAsset = imageAsset;
             ImageExtension = extension;
         }
-
 
         public override void ViewDidLoad()
         {
@@ -80,6 +78,9 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
+            var rotateTap = new UITapGestureRecognizer(RotateImage);
+            rotateImage.AddGestureRecognizer(rotateTap);
+
             postPhotoButton.TouchDown += PostPhoto;
 
             _presenter.SourceChanged += SourceChanged;
@@ -87,10 +88,64 @@ namespace Steepshot.iOS.Views
 
             SetBackButton();
             SearchTextChanged();
+            SetPlaceholder();
+        }
+
+        private void SetPlaceholder()
+        {
+            var _titleTextViewDelegate = new PostTitleTextViewDelegate();
+            titleTextField.Delegate = _titleTextViewDelegate;
+
+            var titlePlaceholderLabel = new UILabel();
+            titlePlaceholderLabel.Text = "Enter a title of your photo";
+            titlePlaceholderLabel.SizeToFit();
+            titlePlaceholderLabel.Font = Constants.Regular14;
+            titlePlaceholderLabel.TextColor = Constants.R151G155B158;
+            titlePlaceholderLabel.Hidden = false;
+
+            var labelX = titleTextField.TextContainerInset.Left;
+            var labelY = titleTextField.TextContainerInset.Top;
+            var labelWidth = titlePlaceholderLabel.Frame.Width;
+            var labelHeight = titlePlaceholderLabel.Frame.Height;
+
+            titlePlaceholderLabel.Frame = new CGRect(labelX, labelY, labelWidth, labelHeight);
+
+            titleTextField.AddSubview(titlePlaceholderLabel);
+            _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
+
+
+            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate();
+            descriptionTextField.Delegate = _descriptionTextViewDelegate;
+
+            var descriptionPlaceholderLabel = new UILabel();
+            descriptionPlaceholderLabel.Text = "Enter a description of your photo";
+            descriptionPlaceholderLabel.SizeToFit();
+            descriptionPlaceholderLabel.Font = Constants.Regular14;
+            descriptionPlaceholderLabel.TextColor = Constants.R151G155B158;
+            descriptionPlaceholderLabel.Hidden = false;
+
+            var descLabelX = descriptionTextField.TextContainerInset.Left;
+            var descLabelY = descriptionTextField.TextContainerInset.Top;
+            var descLabelWidth = descriptionPlaceholderLabel.Frame.Width;
+            var descLabelHeight = descriptionPlaceholderLabel.Frame.Height;
+
+            descriptionPlaceholderLabel.Frame = new CGRect(descLabelX, descLabelY, descLabelWidth, descLabelHeight);
+
+            descriptionTextField.AddSubview(descriptionPlaceholderLabel);
+            _descriptionTextViewDelegate.Placeholder = descriptionPlaceholderLabel;
+
+            _descriptionTextViewDelegate.EditingStartedAction += EditingStartedAction;
+            _titleTextViewDelegate.EditingStartedAction += EditingStartedAction;
+        }
+
+        private void EditingStartedAction()
+        {
+            AddOkButton();
         }
 
         private void EditingDidBegin(object sender, EventArgs e)
         {
+            AddOkButton();
             AnimateView(true);
         }
 
@@ -167,6 +222,7 @@ namespace Steepshot.iOS.Views
                 tagDefault.Active = !tagsOpened;
                 tagToTop.Active = tagsOpened;
 
+                rotateImage.Hidden = tagsOpened;
                 photoView.Hidden = tagsOpened;
                 titleEditImage.Hidden = tagsOpened;
                 titleTextField.Hidden = tagsOpened;
@@ -223,6 +279,12 @@ namespace Steepshot.iOS.Views
             NavigationController.NavigationBar.Translucent = false;
         }
 
+        private void AddOkButton()
+        {
+            var leftBarButton = new UIBarButtonItem("OK", UIBarButtonItemStyle.Plain, RemoveFocus);
+            NavigationItem.RightBarButtonItem = leftBarButton;
+        }
+
         private void DoneTapped()
         {
             if (!string.IsNullOrEmpty(tagField.Text))
@@ -238,6 +300,8 @@ namespace Steepshot.iOS.Views
             descriptionTextField.ResignFirstResponder();
             titleTextField.ResignFirstResponder();
             tagField.ResignFirstResponder();
+
+            NavigationItem.RightBarButtonItem = null;
         }
 
         public override async void ViewDidAppear(bool animated)
@@ -284,7 +348,31 @@ namespace Steepshot.iOS.Views
                 return modifiedImage;
             });
         }
-        
+
+        private void RotateImage()
+        {
+            UIImageOrientation orientation;
+            switch (photoView.Image.Orientation)
+            {
+                case UIImageOrientation.Up:
+                    orientation = UIImageOrientation.Right;
+                    break;
+                case UIImageOrientation.Right:
+                    orientation = UIImageOrientation.Down;
+                    break;
+                case UIImageOrientation.Down:
+                    orientation = UIImageOrientation.Left;
+                    break;
+                case UIImageOrientation.Left:
+                    orientation = UIImageOrientation.Up;
+                    break;
+                default:
+                    orientation = UIImageOrientation.Up;
+                    break;
+            }
+            ImageAsset = photoView.Image = new UIImage(photoView.Image.CGImage, 1, orientation);
+        }
+
         private async Task<OperationResult<MediaModel>> UploadPhoto()
         {
             Stream stream = null;
@@ -417,6 +505,11 @@ namespace Steepshot.iOS.Views
         private void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(true);
+        }
+
+        private void RemoveFocus(object sender, EventArgs e)
+        {
+            RemoveFocusFromTextFields();
         }
     }
 }

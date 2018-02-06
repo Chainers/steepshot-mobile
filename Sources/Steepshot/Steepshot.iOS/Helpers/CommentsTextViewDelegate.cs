@@ -3,10 +3,8 @@ using UIKit;
 
 namespace Steepshot.iOS.Helpers
 {
-    class CommentsTextViewDelegate : UITextViewDelegate
+    class CommentsTextViewDelegate : BaseTextViewDelegate
     {
-        public UILabel Placeholder;
-
         public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
         {
             if (text == "\n")
@@ -23,19 +21,6 @@ namespace Steepshot.iOS.Helpers
                 textView.ScrollEnabled = true;
             else
                 textView.ScrollEnabled = false;
-        }
-
-        public override void EditingStarted(UITextView textView)
-        {
-            Placeholder.Hidden = true;
-        }
-
-        public override void EditingEnded(UITextView textView)
-        {
-            if (textView.Text.Length > 0)
-                Placeholder.Hidden = true;
-            else
-                Placeholder.Hidden = false;
         }
     }
 }
