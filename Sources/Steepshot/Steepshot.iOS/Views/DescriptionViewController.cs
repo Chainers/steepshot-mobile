@@ -513,7 +513,10 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            NavigationController.PopViewController(true);
+            if (tagToTop.Active)
+                RemoveFocusFromTextFields();
+            else
+                NavigationController.PopViewController(true);
         }
 
         private void RemoveFocus(object sender, EventArgs e)

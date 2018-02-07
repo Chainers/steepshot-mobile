@@ -20,7 +20,6 @@ namespace Steepshot.iOS.Views
         private bool _isCameraAccessDenied;
         //private UIDeviceOrientation _photoOrientation;
 
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
@@ -134,35 +133,7 @@ namespace Steepshot.iOS.Views
 
         [Export("captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:")]
         public void DidFinishProcessingPhoto(AVCapturePhotoOutput captureOutput, CMSampleBuffer photoSampleBuffer, CMSampleBuffer previewPhotoSampleBuffer, AVCaptureResolvedPhotoSettings resolvedSettings, AVCaptureBracketedStillImageSettings bracketSettings, NSError error)
-        {/*
-            try
-            {
-                using (var pixelBuffer = photoSampleBuffer.GetImageBuffer() as CVPixelBuffer)
-                {
-                    pixelBuffer.Lock(CVPixelBufferLock.None);
-                    var j = CIImage.FromImageBuffer(pixelBuffer);
-                    pixelBuffer.Unlock(CVPixelBufferLock.None);
-                }
-
-                using(var t = photoSampleBuffer.GetImageBuffer())
-                {
-                    
-                }
-
-
-                //var i = new CGAffineTransform();
-                //i.Rotate(90);
-
-                //u = lol.ImageByApplyingTransform(y);
-           
-                //var filter = CIFilter.GetFilter("CIAffineTransform", );
-
-
-            }
-            catch(Exception ex)
-            {
-                
-            }*/
+        {
             var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
             var h = UIImage.LoadFromData(jpegData);
 
@@ -334,9 +305,6 @@ namespace Steepshot.iOS.Views
         {
             var descriptionViewController = new DescriptionViewController(image, "jpg");
             NavigationController.PushViewController(descriptionViewController, true);
-            //var mainTabBar = NavigationController.ViewControllers[0];
-            //NavigationController.ViewControllers = new UIViewController[] { mainTabBar, descriptionViewController };
-            //NavigationController.PopViewController(true);
         }
     }
 }
