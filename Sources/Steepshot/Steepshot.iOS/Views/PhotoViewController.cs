@@ -43,7 +43,12 @@ namespace Steepshot.iOS.Views
             //_imagePicker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
 
             _imagePicker.FinishedPickingMedia += FinishedPickingMedia;
-            //imagePicker.Canceled += Handle_Canceled;
+            _imagePicker.Canceled += Handle_Canceled;
+        }
+
+        private void Handle_Canceled(object sender, EventArgs e)
+        {
+            _imagePicker.DismissViewControllerAsync(false);
         }
 
         public override bool PrefersStatusBarHidden()
