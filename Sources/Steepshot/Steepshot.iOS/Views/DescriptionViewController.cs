@@ -476,6 +476,15 @@ namespace Steepshot.iOS.Views
                             mre.Reset();
                             mre.WaitOne();
                         }
+                        else
+                        {
+                            InvokeOnMainThread(() =>
+                            {
+                                ShouldProfileUpdate = true;
+                                NavigationController.ViewControllers = new UIViewController[] { NavigationController.ViewControllers[0], this };
+                                NavigationController.PopViewController(false);
+                            });
+                        }
                     } while (pushToBlockchainRetry);
                 }
                 finally

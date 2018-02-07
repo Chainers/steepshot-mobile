@@ -6,6 +6,8 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class MainTabBarController : UITabBarController
     {
+        private bool _isInitialized;
+
         public MainTabBarController()
         {
             TabBar.Translucent = false;
@@ -22,7 +24,6 @@ namespace Steepshot.iOS.ViewControllers
 
             var photoTab = new UIViewController() { };
             photoTab.TabBarItem = new UITabBarItem(null, createPhotoIcon, createPhotoIcon);
-
             photoTab.TabBarItem.Tag = 2;
 
             var profileTab = new InteractivePopNavigationController(new ProfileViewController());
@@ -44,14 +45,20 @@ namespace Steepshot.iOS.ViewControllers
                 item.TabBarItem.ImageInsets = insets;
             }
 
-            photoTab.TabBarItem.Image = createPhotoIcon;
-            photoTab.TabBarItem.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
-            photoTab.TabBarItem.SelectedImage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+            //photoTab.TabBarItem.Image = createPhotoIcon;
+            //photoTab.TabBarItem.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+            //photoTab.TabBarItem.SelectedImage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
         }
 
         public override void ViewWillAppear(bool animated)
         {
-            Delegate = new TabBarDelegate(NavigationController);
+            if (!_isInitialized)
+            {
+                Delegate = new TabBarDelegate(NavigationController);
+                _isInitialized = true;
+            }
+            if (BaseViewController.ShouldProfileUpdate)
+                SelectedIndex = 3;
             NavigationController.SetNavigationBarHidden(true, true);
             base.ViewWillAppear(animated);
         }
