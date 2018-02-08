@@ -2,9 +2,10 @@
 using Android.App;
 using Android.Content;
 using Android.Widget;
-using Steepshot.Core;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Common;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
@@ -22,11 +23,26 @@ namespace Steepshot.Utils
             Show(context, error.Message);
         }
 
+        public static void ShowAlert(this Context context, LocalizationKeys key)
+        {
+            Show(context, AppSettings.LocalizationManager.GetText(key));
+        }
+
         public static void ShowAlert(this Context context, OperationResult response)
         {
             if (response == null)
                 return;
             ShowAlert(context, response.Error);
+        }
+
+        public static void ShowAlert(this Context context, LocalizationKeys keys, ToastLength length)
+        {
+            var message = AppSettings.LocalizationManager.GetText(keys);
+
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            Toast.MakeText(context, message, length).Show();
         }
 
         public static void ShowAlert(this Context context, string message, ToastLength length)
@@ -58,7 +74,7 @@ namespace Steepshot.Utils
 
             var alert = new AlertDialog.Builder(context);
             alert.SetMessage(text);
-            alert.SetPositiveButton(Localization.Messages.Ok, (senderAlert, args) => { });
+            alert.SetPositiveButton(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), (senderAlert, args) => { });
             Dialog dialog = alert.Create();
             dialog.Show();
         }
@@ -70,8 +86,8 @@ namespace Steepshot.Utils
 
             var alert = new AlertDialog.Builder(context);
             alert.SetMessage(text);
-            alert.SetNegativeButton(Localization.Messages.Forget, forgetAction);
-            alert.SetPositiveButton(Localization.Messages.TryAgain, tryAgainAction);
+            alert.SetNegativeButton(AppSettings.LocalizationManager.GetText(LocalizationKeys.Forget), forgetAction);
+            alert.SetPositiveButton(AppSettings.LocalizationManager.GetText(LocalizationKeys.TryAgain), tryAgainAction);
             Dialog dialog = alert.Create();
             dialog.Show();
         }

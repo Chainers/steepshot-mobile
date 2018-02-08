@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Requests;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters

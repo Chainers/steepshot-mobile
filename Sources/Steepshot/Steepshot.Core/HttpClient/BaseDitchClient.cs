@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Errors;
 using Ditch.Core.JsonRpc;
 using Newtonsoft.Json;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using Newtonsoft.Json.Linq;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -39,7 +38,7 @@ namespace Steepshot.Core.HttpClient
         public abstract Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> LoginWithPostingKey(AuthorizedModel model, CancellationToken ct);
-        
+
         public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct);
@@ -70,84 +69,18 @@ namespace Steepshot.Core.HttpClient
         {
             if (response.IsError)
             {
-                if (response.Error is SystemError)
+                if (response.Error is SystemError systemError)
                 {
-                    switch (response.Error.Code)
-                    {
-                        case (int)ErrorCodes.ConnectionTimeoutError:
-                            {
+                    operationResult.Error = new HttpError(systemError);
 
-                                operationResult.Error = new HttpError(Localization.Errors.EnableConnectToServer);
-                                break;
-                            }
-                        case (int)ErrorCodes.ResponseTimeoutError:
-                            {
-                                operationResult.Error = new HttpError(Localization.Errors.ServeNotRespond);
-                                break;
-                            }
-                        default:
-                            {
-                                operationResult.Error = new HttpError(Localization.Errors.ServeUnexpectedError);
-                                break;
-                            }
-                    }
                 }
-                else if (response.Error is ResponseError)
+                else if (response.Error is ResponseError responseError)
                 {
-                    var typedError = (ResponseError)response.Error;
-                    var t = typeof(T);
-
-                    switch (typedError.Data.Code)
-                    {
-                        case 10: //Assert Exception
-                            {
-                                if (typedError.Data.Stack.Any())
-                                {
-                                    if (typedError.Data.Stack[0].Format.Contains("STEEMIT_MAX_VOTE_CHANGES"))
-                                    {
-                                        operationResult.Error = new BlockchainError(Localization.Errors.MaxVoteChanges);
-                                        break;
-                                    }
-                                    var match = _errorMsg.Match(typedError.Data.Stack[0].Format);
-                                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
-                                    {
-                                        operationResult.Error = new BlockchainError(match.Value);
-                                        break;
-                                    }
-                                }
-                                goto default;
-                            }
-                        case 13: //unknown key
-                            {
-                                operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
-                                break;
-                            }
-                        //case 3000000: "transaction exception"
-                        //case 3010000: "missing required active authority"
-                        //case 3020000: "missing required owner authority"
-                        //case 3030000: "missing required posting authority"
-                        //case 3040000: "missing required other authority"
-                        //case 3050000: "irrelevant signature included"
-                        //case 3060000: "duplicate signature included"
-                        case 3030000:
-                            {
-                                if (t.Name == "LoginResponse")
-                                {
-                                    operationResult.Error = new BlockchainError(Localization.Errors.WrongPrivatePostingKey);
-                                    break;
-                                }
-                                goto default;
-                            }
-                        default:
-                            {
-                                operationResult.Error = new BlockchainError(Localization.Errors.ServeRejectRequest(typedError.Data.Code, typedError.Data.Message));
-                                break;
-                            }
-                    }
+                    operationResult.Error = new BlockchainError(responseError);
                 }
                 else
                 {
-                    operationResult.Error = new ServerError(response.GetErrorMessage());
+                    operationResult.Error = new ServerError(response.Error);
                 }
             }
         }

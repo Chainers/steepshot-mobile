@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Presenters
 {
@@ -222,7 +223,7 @@ namespace Steepshot.Core.Presenters
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
             else if (response.Error is BlockchainError
-                && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
+                && response.Error.Message.Equals(LocalizationKeys.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
                 response.Error = null;
                 ChangeLike(post, wasFlaged);
@@ -275,7 +276,7 @@ namespace Steepshot.Core.Presenters
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
             }
             else if (response.Error is BlockchainError
-                     && response.Error.Message.Contains(Localization.Errors.VotedInASimilarWay)) //TODO:KOA: unstable solution
+                     && response.Error.Message.Equals(LocalizationKeys.VotedInASimilarWay)) //TODO:KOA: unstable solution
             {
                 response.Error = null;
                 ChangeFlag(post, wasVote);

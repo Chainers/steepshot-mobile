@@ -8,6 +8,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -73,7 +74,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
 
-            NavigationItem.Title = Localization.Texts.PasswordViewTitleText;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -112,7 +113,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrWhiteSpace(password.Text))
             {
-                ShowAlert(Localization.Errors.EmptyPostingKey);
+                ShowAlert(LocalizationKeys.EmptyPostingKey);
                 return;
             }
             activityIndicator.StartAnimating();
@@ -139,7 +140,7 @@ namespace Steepshot.iOS.Views
             }
             catch (ArgumentNullException)
             {
-                ShowAlert(Localization.Errors.WrongPrivatePostingKey);
+                ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
             }
             catch (Exception ex)
             {

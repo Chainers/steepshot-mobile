@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -91,19 +92,21 @@ namespace Steepshot.Core.Tests
         }
 
         [Test]
-        [TestCase(KnownChains.Steem, "@steepshot/steepshot-some-stats-and-explanations")]
-        [TestCase(KnownChains.Golos, "@irina1/avto-2018-01-04-10-43-52")]
-        public async Task GetPostVotersTest(KnownChains apiName, string url)
+        [TestCase(KnownChains.Steem)]
+        [TestCase(KnownChains.Golos)]
+        public async Task GetPostVotersTest(KnownChains apiName)
         {
-            var request = new VotersModel(url, VotersType.All)
+            var request = new PostsModel(PostType.Hot);
+            var result = await Gateway[apiName].GetPosts(request, CancellationToken.None);
+
+            var votersModel = new VotersModel(result.Result.Results.First(i => i.NetLikes > 0).Url, VotersType.All)
             {
                 Limit = 40,
                 Offset = string.Empty,
-
             };
 
-            var result = await Gateway[apiName].GetPostVoters(request, CancellationToken.None);
-            Assert.IsTrue(result.IsSuccess, result.Error?.Message);
+            var operationResult = await Gateway[apiName].GetPostVoters(votersModel, CancellationToken.None);
+            Assert.IsTrue(operationResult.IsSuccess, result.Error?.Message);
         }
 
         [Test]

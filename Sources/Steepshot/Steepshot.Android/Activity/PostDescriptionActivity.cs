@@ -21,14 +21,15 @@ using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Activity
 {
@@ -79,7 +80,7 @@ namespace Steepshot.Activity
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
             _postButton.Enabled = true;
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
@@ -135,7 +136,7 @@ namespace Steepshot.Activity
                 timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
             }
             _postButton.Enabled = true;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
         }
 
         private void SetEditPost(Post editPost)
@@ -191,7 +192,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 _postButton.Enabled = false;
-                this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                this.ShowAlert(LocalizationKeys.UnknownCriticalError);
                 AppSettings.Reporter.SendCrash(ex);
             }
             finally
@@ -390,14 +391,14 @@ namespace Steepshot.Activity
 
             if (!isConnected)
             {
-                this.ShowAlert(Localization.Errors.InternetUnavailable);
+                this.ShowAlert(LocalizationKeys.InternetUnavailable);
                 OnUploadEnded();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
-                this.ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                this.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
                 OnUploadEnded();
                 return;
             }
@@ -456,7 +457,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
             }
             finally
             {
@@ -484,12 +485,12 @@ namespace Steepshot.Activity
                 BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
-                this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
+                this.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 Finish();
             }
             else
             {
-                if (resp.Error is TaskCanceledError)
+                if (resp.Error is CanceledError)
                     return;
 
                 this.ShowInteractiveMessage(resp.Error.Message, TryAgainAction, ForgetAction);
@@ -499,7 +500,7 @@ namespace Steepshot.Activity
         private void OnUploadEnded()
         {
             _postButton.Enabled = true;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
 
             _loadingSpinner.Visibility = ViewStates.Gone;
 

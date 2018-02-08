@@ -11,6 +11,7 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -50,7 +51,7 @@ namespace Steepshot.Activity
             Cheeseknife.Inject(this);
 
             var appInfoService = AppSettings.AppInfo;
-            _versionText.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            _versionText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
             var accounts = BasePresenter.User.GetAllAccounts();
 
             SetAddButton(accounts.Count);
@@ -59,7 +60,7 @@ namespace Steepshot.Activity
             _backButton.Click += GoBackClick;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Texts.AppSettingsTitle;
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
 
             _viewTitle.Typeface = Style.Semibold;
             _addButton.Typeface = Style.Semibold;
@@ -71,7 +72,7 @@ namespace Steepshot.Activity
             _guideButton.Typeface = Style.Semibold;
             _guideButton.Click += GuideClick;
 
-            _addButton.Text = Localization.Texts.AddAccountText;
+            _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _addButton.Click += AddAccountClick;
 
             _accountsAdapter = new AccountsAdapter();
@@ -100,7 +101,7 @@ namespace Steepshot.Activity
         protected override void OnResume()
         {
             _addAccountLoader.Visibility = ViewStates.Gone;
-            _addButton.Text = Localization.Texts.AddAccountText;
+            _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _addButton.Enabled = true;
             base.OnResume();
         }

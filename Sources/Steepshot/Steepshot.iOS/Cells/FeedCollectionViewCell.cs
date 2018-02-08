@@ -3,19 +3,19 @@ using System.Linq;
 using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Helpers;
-using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
 using System.Diagnostics;
 using CoreGraphics;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Cells
 {
@@ -133,7 +133,7 @@ namespace Steepshot.iOS.Cells
             rewards.Hidden = !BasePresenter.User.IsNeedRewards;
             //rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
 
-            netVotes.Text = $"{_currentPost.NetVotes} {Localization.Messages.Likes}";
+            netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Like, _currentPost.NetVotes);
 
             if (_currentPost.VoteChanging)
                 Animate();
@@ -144,7 +144,10 @@ namespace Steepshot.iOS.Cells
             }
 
             flagButton.Selected = _currentPost.Flag;
-            viewCommentText.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
+            viewCommentText.Text = _currentPost.Children == 0
+                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
+                : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
+
             likeButton.Enabled = true;
             flagButton.Enabled = true;
             postTimeStamp.Text = _currentPost.Created.ToPostTime();
@@ -277,7 +280,7 @@ namespace Steepshot.iOS.Cells
                 likeButton.Selected = operationResult.Result.IsSuccess;
                 flagButton.Selected = _currentPost.Flag;
                 //rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
-                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+                netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetVotes);
             }
             likeButton.Enabled = true;
         }
@@ -293,7 +296,7 @@ namespace Steepshot.iOS.Cells
             {
                 flagButton.Selected = result.Result.IsSuccess;
                 likeButton.Selected = _currentPost.Vote;
-                netVotes.Text = $"{_currentPost.NetVotes.ToString()} {Localization.Messages.Likes}";
+                netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetVotes);
                 //rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);
             }
             flagButton.Selected = _currentPost.Flag;

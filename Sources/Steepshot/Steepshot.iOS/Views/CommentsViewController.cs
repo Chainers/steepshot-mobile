@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -13,6 +12,8 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -78,7 +79,7 @@ namespace Steepshot.iOS.Views
         private void SetPlaceholder()
         {
             var placeholderLabel = new UILabel();
-            placeholderLabel.Text = Localization.Texts.PutYourComment;
+            placeholderLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
             placeholderLabel.SizeToFit();
             placeholderLabel.Font = Helpers.Constants.Regular14;
             placeholderLabel.TextColor = Helpers.Constants.R151G155B158;
@@ -101,7 +102,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
 
-            NavigationItem.Title = Localization.Messages.Comments;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -138,9 +139,9 @@ namespace Steepshot.iOS.Views
         private void Flag(Post post)
         {
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Texts.FlagComment, UIAlertActionStyle.Default, obj => FlagComment(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Texts.HideComment, UIAlertActionStyle.Default, obj => HideAction(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, null));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagComment), UIAlertActionStyle.Default, obj => FlagComment(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HideComment), UIAlertActionStyle.Default, obj => HideAction(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
         }
 
@@ -176,7 +177,7 @@ namespace Steepshot.iOS.Views
 
             _presenter.Clear();
             var error = await _presenter.TryLoadNextComments(Post);
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
             ShowAlert(error);
             progressBar.StopAnimating();

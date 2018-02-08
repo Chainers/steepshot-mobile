@@ -3,11 +3,12 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -108,10 +109,15 @@ namespace Steepshot.iOS.ViewControllers
             UIView.CommitAnimations();
         }
 
+        protected void ShowAlert(LocalizationKeys key)
+        {
+            ShowAlert(AppSettings.LocalizationManager.GetText(key));
+        }
+
         protected void ShowAlert(string message)
         {
             var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(Localization.Messages.Ok, UIAlertActionStyle.Cancel, null));
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
             PresentViewController(alert, true, null);
         }
 

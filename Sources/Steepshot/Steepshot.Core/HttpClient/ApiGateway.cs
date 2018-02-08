@@ -6,13 +6,13 @@ using Steepshot.Core.Models.Requests;
 using System.Net.Http;
 using System.Text;
 using Steepshot.Core.Serializing;
-using Steepshot.Core.Errors;
-using System.Text.RegularExpressions;
 using Steepshot.Core.Models.Common;
 using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
 using System.Net.Http.Headers;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -20,9 +20,6 @@ namespace Steepshot.Core.HttpClient
     {
         private const string NsfwCheckerUrl = "https://nsfwchecker.com/api/nsfw_recognizer";
         private const string NsfwUrlCheckerUrl = "https://nsfwchecker.com/api/nsfw_url_recognizer";
-        private readonly Regex _errorJson = new Regex("(?<=^{\"[a-z_0-9]*\":\\[\").*(?=\"]}$)");
-        private readonly Regex _errorJson2 = new Regex("(?<=^{\"[a-z_0-9]*\":\").*(?=\"}$)");
-        private readonly Regex _errorHtml = new Regex(@"<[^>]+>");
         protected readonly JsonNetConverter JsonNetConverter;
 
 
@@ -91,7 +88,7 @@ namespace Steepshot.Core.HttpClient
             var result = await CreateResult<MediaModel>(response, token);
 
             if (result.IsSuccess && result.Result == null)
-                result.Error = new ServerError(Localization.Errors.ServeUnexpectedError);
+                result.Error = new AppError(LocalizationKeys.ServeUnexpectedError);
 
             return result;
         }
@@ -159,33 +156,7 @@ namespace Steepshot.Core.HttpClient
                 response.StatusCode != HttpStatusCode.Created)
             {
                 var content = await response.Content.ReadAsStringAsync();
-
-                if (string.IsNullOrWhiteSpace(content))
-                {
-                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.EmptyResponseContent);
-                    return result;
-                }
-                if (_errorHtml.IsMatch(content))
-                {
-                    result.Error = new ServerError((int)response.StatusCode, Localization.Errors.HttpErrorCodeToMessage(response.StatusCode, content));
-                    return result;
-                }
-                var match = _errorJson.Match(content);
-                if (match.Success)
-                {
-                    var txt = match.Value.Replace("\",\"", Environment.NewLine);
-                    result.Error = new ServerError((int)response.StatusCode, txt);
-                    return result;
-                }
-
-                match = _errorJson2.Match(content);
-                if (match.Success)
-                {
-                    result.Error = new ServerError((int)response.StatusCode, match.Value);
-                    return result;
-                }
-
-                result.Error = new ServerError((int)response.StatusCode, Localization.Errors.UnexpectedError);
+                result.Error = new ServerError(response.StatusCode, content);
                 return result;
             }
 
@@ -203,7 +174,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    result.Error = new ApplicationError(Localization.Errors.UnsupportedMime);
+                    result.Error = new AppError(LocalizationKeys.UnsupportedMime);
                 }
             }
 

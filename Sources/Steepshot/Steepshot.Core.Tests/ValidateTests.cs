@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
@@ -7,7 +8,7 @@ using Steepshot.Core.Models.Requests;
 namespace Steepshot.Core.Tests
 {
     [TestFixture]
-    public class UnitTests : BaseTests
+    public class ValidateTests : BaseTests
     {
         [Test]
         public void FollowModel_Empty_Username()
@@ -18,7 +19,8 @@ namespace Steepshot.Core.Tests
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUsernameField);
+            Assert.IsTrue(result.Count == 1);
+            Assert.IsTrue(result[0].ErrorMessage.Equals(nameof(LocalizationKeys.EmptyUsernameField)));
         }
 
         [Test]
@@ -28,7 +30,7 @@ namespace Steepshot.Core.Tests
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyUrlField);
+            Assert.IsTrue(result[0].ErrorMessage.Equals(nameof(LocalizationKeys.EmptyUrlField)));
         }
 
         [Test]
@@ -42,7 +44,7 @@ namespace Steepshot.Core.Tests
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyTitleField);
+            Assert.IsTrue(result[0].ErrorMessage.Equals(nameof(LocalizationKeys.EmptyTitleField)));
         }
 
         [Test]
@@ -56,23 +58,27 @@ namespace Steepshot.Core.Tests
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.EmptyFileField);
+            Assert.IsTrue(result[0].ErrorMessage.Equals(nameof(LocalizationKeys.EmptyFileField)));
         }
 
         [Test]
         public void PreparePostModel_MaxTags()
         {
             var user = Users.First().Value;
+            var tags = new string[PreparePostModel.TagLimit + 1];
+            for (int i = 0; i < tags.Length; i++)
+                tags[i] = "tag_" + i;
+
             var request = new PreparePostModel(user)
             {
                 Title = "title",
                 Media = new MediaModel[1],
-                Tags = new string[PreparePostModel.TagLimit + 1]
+                Tags = tags
             };
 
             var result = Validate(request);
             Assert.IsTrue(result.Count == 1);
-            Assert.IsTrue(result[0].ErrorMessage == Localization.Errors.TagLimitError);
+            Assert.IsTrue(result[0].ErrorMessage.Equals(nameof(LocalizationKeys.TagLimitError)));
         }
     }
 }

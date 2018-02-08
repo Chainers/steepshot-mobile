@@ -10,13 +10,14 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Activity;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -100,7 +101,7 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenKeyboard(_searchView);
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
         }
 

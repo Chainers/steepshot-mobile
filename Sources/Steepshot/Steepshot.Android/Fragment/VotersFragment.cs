@@ -8,11 +8,12 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Fragment
 {
@@ -53,7 +54,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             var count = Activity.Intent.GetIntExtra(FeedFragment.PostNetVotesExtraPath, 0);
-            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
+            _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count);
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
@@ -63,7 +64,7 @@ namespace Steepshot.Fragment
             _peopleCount.Typeface = Style.Regular;
 
             _isLikers = Activity.Intent.GetBooleanExtra(VotersType, true);
-            _viewTitle.Text = _isLikers ? Localization.Messages.Voters : Localization.Messages.FlagVoters;
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(_isLikers ? LocalizationKeys.Voters : LocalizationKeys.FlagVoters);
 
             _url = Activity.Intent.GetStringExtra(FeedFragment.PostUrlExtraPath);
             Presenter.SourceChanged += PresenterSourceChanged;
@@ -79,7 +80,7 @@ namespace Steepshot.Fragment
             _votersList.SetLayoutManager(new LinearLayoutManager(Activity));
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
             LoadNext();
         }

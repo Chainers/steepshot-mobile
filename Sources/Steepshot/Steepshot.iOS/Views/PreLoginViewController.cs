@@ -5,6 +5,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -65,7 +66,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrWhiteSpace(loginText.Text))
             {
-                ShowAlert(Localization.Errors.EmptyLogin);
+                ShowAlert(LocalizationKeys.EmptyLogin);
                 return;
             }
 

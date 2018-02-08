@@ -18,15 +18,16 @@ using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
-using Steepshot.Interfaces;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
+using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -228,7 +229,7 @@ namespace Steepshot.Fragment
                 _clearButton.Visibility = ViewStates.Gone;
                 _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
-                _loginButton.Text = Localization.Texts.SignIn;
+                _loginButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
                 _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
@@ -257,7 +258,7 @@ namespace Steepshot.Fragment
                 _refresher.Refresh += RefresherRefresh;
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
                 _searchToolbarLayout.Click += OnSearch;
 
@@ -377,7 +378,7 @@ namespace Steepshot.Fragment
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
-            _searchView.Text = Localization.Texts.TapToSearch;
+            _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
@@ -612,7 +613,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
 
             Context.ShowAlert(error);

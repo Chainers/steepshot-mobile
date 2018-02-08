@@ -3,8 +3,8 @@
 namespace Steepshot.Core.Errors
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class TaskCanceledError : ErrorBase
+    public sealed class CanceledError : ErrorBase
     {
-        public TaskCanceledError() : base(string.Empty) { }
+        public CanceledError() { }
     }
 }

@@ -11,13 +11,14 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -103,7 +104,7 @@ namespace Steepshot.Fragment
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
                 LoadPosts();
             }

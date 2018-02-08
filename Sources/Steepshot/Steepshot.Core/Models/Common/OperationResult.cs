@@ -1,3 +1,4 @@
+using System;
 using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Models.Common
@@ -26,5 +27,10 @@ namespace Steepshot.Core.Models.Common
 
         public OperationResult(ErrorBase error) : base(error) { }
 
+        public OperationResult(ApplicationException applicationException)
+        {
+
+        }
+        
     }
 }

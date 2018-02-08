@@ -11,16 +11,17 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
-using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Newtonsoft.Json;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -232,7 +233,7 @@ namespace Steepshot.Fragment
                 _switcher.Click += OnSwitcherClick;
                 _firstPostButton.Click += OnFirstPostButtonClick;
 
-                _firstPostButton.Text = Localization.Texts.CreateFirstPostText;
+                _firstPostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateFirstPostText);
 
                 if (_profileId != BasePresenter.User.Login)
                 {
@@ -452,7 +453,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (error == null || error is TaskCanceledError)
+                if (error == null || error is CanceledError)
                 {
                     _listLayout.Visibility = ViewStates.Visible;
                     break;

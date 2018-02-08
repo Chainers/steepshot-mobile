@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Services;
 
 namespace Steepshot.Core.Utils
@@ -25,6 +26,10 @@ namespace Steepshot.Core.Utils
 
         private static IAssetsHelper _assetsesHelper;
         public static IAssetsHelper AssetsesHelper => _assetsesHelper ?? (_assetsesHelper = Container.Resolve<IAssetsHelper>());
+
+        private static LocalizationManager _localizationManager;
+        public static LocalizationManager LocalizationManager => _localizationManager ?? (_localizationManager = Container.Resolve<LocalizationManager>());
+        
 
         public static bool IsDev
         {

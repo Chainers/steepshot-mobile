@@ -10,6 +10,7 @@ using Steepshot.Utils;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using System.Linq;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Activity
@@ -45,12 +46,12 @@ namespace Steepshot.Activity
             _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Messages.YourAccountName;
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.YourAccountName);
 
             _viewTitle.Typeface = Style.Semibold;
             _username.Typeface = Style.Regular;
             _preSignInBtn.Typeface = Style.Semibold;
-            _preSignInBtn.Text = Localization.Messages.NextStep;
+            _preSignInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NextStep);
             _preSignInBtn.Click += SignInBtn_Click;
             _rootLayout.Click += HideKeyboard;
         }
@@ -80,7 +81,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(login))
             {
-                this.ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                this.ShowAlert(LocalizationKeys.EmptyLogin, ToastLength.Short);
                 return;
             }
 
@@ -104,7 +105,7 @@ namespace Steepshot.Activity
             }
 
             _spinner.Visibility = ViewStates.Invisible;
-            _preSignInBtn.Text = Localization.Messages.NextStep;
+            _preSignInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NextStep);
         }
 
         private void HideKeyboard(object sender, EventArgs e)
