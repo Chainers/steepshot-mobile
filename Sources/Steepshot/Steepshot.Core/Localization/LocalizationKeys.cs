@@ -164,5 +164,6 @@
         ShowLowRated,
         Guidelines,
         ToS,
+        Sharepost,
     }
 }

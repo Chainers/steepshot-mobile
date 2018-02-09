@@ -178,5 +178,6 @@
 		"Category used for offset was not found": "Category used for offset was not found",
 		"QueryMinLength":"Query should have at least 2 characters",
 		"4100000 plugin_exception: plugin exception: The comment is archived":"The comment is archived",
+		"Sharepost":"Share post",
     }
 }
