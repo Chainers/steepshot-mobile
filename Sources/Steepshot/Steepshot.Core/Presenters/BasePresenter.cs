@@ -63,21 +63,29 @@ namespace Steepshot.Core.Presenters
             LazyLoadTimer = new Timer(Callback, null, 9000, Int32.MaxValue);
         }
 
+        protected BasePresenter()
+        {
+            OnDisposeCts = new CancellationTokenSource();
+        }
+
+
         private static void Callback(object state)
         {
             var ts = GetReconectToken();
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
             var init = new Secp256k1Manager();
+            UpdateLocalizationAsync();
             LazyLoadTimer.Dispose();
         }
 
-
-        protected BasePresenter()
+        private static async Task UpdateLocalizationAsync()
         {
-            OnDisposeCts = new CancellationTokenSource();
+            var content = await Api.Gateway.Get(LocalizationManager.UpdateUrl);
+            var changed = AppSettings.LocalizationManager.Reset(content);
+            if (changed)
+                AppSettings.AssetsesHelper.SetLocalization(AppSettings.LocalizationManager.Model);
         }
-
 
         private static Task<ErrorBase> TryСonect(CancellationToken token)
         {

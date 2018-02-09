@@ -180,5 +180,11 @@ namespace Steepshot.Core.HttpClient
 
             return result;
         }
+
+        public async Task<string> Get(string url)
+        {
+            var response = _client.GetAsync(url);
+            return await response.Result.Content.ReadAsStringAsync();
+        }
     }
 }

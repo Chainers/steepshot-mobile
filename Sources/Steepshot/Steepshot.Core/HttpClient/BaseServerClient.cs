@@ -18,7 +18,7 @@ namespace Steepshot.Core.HttpClient
     public abstract class BaseServerClient
     {
         public volatile bool EnableRead;
-        protected ApiGateway Gateway;
+        public ApiGateway Gateway;
         protected JsonNetConverter JsonConverter;
 
         #region Get requests

@@ -52,7 +52,10 @@ namespace Steepshot.Utils
 
             var lm = AppSettings.LocalizationManager;
             if (!lm.ContainsKey(message))
+            {
                 AppSettings.Reporter.SendMessage($"New message: {message}");
+                message = nameof(LocalizationKeys.UnexpectedError);
+            }
 
             Toast.MakeText(context, lm.GetText(message), length).Show();
         }
@@ -79,7 +82,10 @@ namespace Steepshot.Utils
             var alert = new AlertDialog.Builder(context);
             var lm = AppSettings.LocalizationManager;
             if (!lm.ContainsKey(text))
+            {
                 AppSettings.Reporter.SendMessage($"New message: {text}");
+                text = nameof(LocalizationKeys.UnexpectedError);
+            }
 
             alert.SetMessage(lm.GetText(text));
             alert.SetPositiveButton(lm.GetText(LocalizationKeys.Ok), (senderAlert, args) => { });
@@ -95,7 +101,10 @@ namespace Steepshot.Utils
             var alert = new AlertDialog.Builder(context);
             var lm = AppSettings.LocalizationManager;
             if (!lm.ContainsKey(text))
+            {
                 AppSettings.Reporter.SendMessage($"New message: {text}");
+                text = nameof(LocalizationKeys.UnexpectedError);
+            }
 
             alert.SetMessage(lm.GetText(text));
             alert.SetNegativeButton(lm.GetText(LocalizationKeys.Forget), forgetAction);

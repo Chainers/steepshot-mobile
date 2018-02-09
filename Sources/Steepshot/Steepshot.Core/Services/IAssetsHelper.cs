@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Utils;
+﻿using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 using System.Collections.Generic;
 
 namespace Steepshot.Core.Services
@@ -10,5 +11,9 @@ namespace Steepshot.Core.Services
         ConfigInfo GetConfigInfo();
 
         DebugInfo GetDebugInfo();
+
+        LocalizationModel GetLocalization(string lang);
+
+        void SetLocalization(LocalizationModel model);
     }
 }

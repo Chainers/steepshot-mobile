@@ -1,4 +1,5 @@
-﻿using Ditch.Core.Errors;
+﻿using System.Linq;
+using Ditch.Core.Errors;
 using Newtonsoft.Json;
 using Steepshot.Core.Localization;
 
@@ -14,7 +15,11 @@ namespace Steepshot.Core.Errors
 
         private static string ToMessage(ResponseError responseError)
         {
-            return $"{responseError.Data.Code} {responseError.Data.Name}: {responseError.Data.Message}";
+            var format = string.Empty;
+            if (responseError.Data.Stack.Any() && !string.IsNullOrEmpty(responseError.Data.Stack[0].Format))
+                format = ": " + responseError.Data.Stack[0].Format;
+
+            return $"{responseError.Data.Code} {responseError.Data.Name}: {responseError.Data.Message}{format}";
         }
     }
 }

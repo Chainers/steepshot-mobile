@@ -1,17 +1,47 @@
-﻿namespace Steepshot.Core.Localization
+﻿using Newtonsoft.Json;
+
+namespace Steepshot.Core.Localization
 {
     public class LocalizationManager
     {
-        private LocalizationModel _model;
+        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/message-wrapper/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
+
+        public LocalizationModel Model { get; }
 
         public LocalizationManager(LocalizationModel model)
         {
-            _model = model;
+            Model = model;
         }
 
-        public void Reset(LocalizationModel model)
+        public bool Reset(string content)
         {
-            _model = model;
+            try
+            {
+                var changed = false;
+                var model = JsonConvert.DeserializeObject<LocalizationModel>(content);
+                if (Model.Lang.Equals(model.Lang) && model.Version > Model.Version)
+                {
+                    changed = true;
+                    foreach (var item in model.Map)
+                    {
+                        if (Model.Map.ContainsKey(item.Key))
+                        {
+                            Model.Map[item.Key] = item.Value;
+                        }
+                        else
+                        {
+                            Model.Map.Add(item.Key, item.Value);
+                        }
+                    }
+                    Model.Version = model.Version;
+                }
+                return changed;
+            }
+            catch
+            {
+                //to do nothing
+            }
+            return false;
         }
 
         public string GetText(LocalizationKeys key, params object[] args)
@@ -22,11 +52,11 @@
 
         public bool ContainsKey(string key)
         {
-            var contains = _model.Map.ContainsKey(key);
+            var contains = Model.Map.ContainsKey(key);
 
             if (!contains)
             {
-                foreach (var item in _model.Map)
+                foreach (var item in Model.Map)
                 {
                     if (key.StartsWith(item.Key))
                         return true;
@@ -39,16 +69,16 @@
         {
             var result = string.Empty;
 
-            if (_model.Map.ContainsKey(key))
+            if (Model.Map.ContainsKey(key))
             {
                 if (args != null && args.Length > 0)
-                    result = string.Format(_model.Map[key], args);
+                    result = string.Format(Model.Map[key], args);
                 else
-                    result = _model.Map[key];
+                    result = Model.Map[key];
             }
             else
             {
-                foreach (var item in _model.Map)
+                foreach (var item in Model.Map)
                 {
                     if (key.StartsWith(item.Key))
                     {
@@ -58,7 +88,7 @@
                 }
                 if (string.IsNullOrEmpty(result))
                 {
-                    foreach (var item in _model.Map)
+                    foreach (var item in Model.Map)
                     {
                         if (key.Contains(item.Key))
                         {
@@ -73,172 +103,5 @@
 #endif
             return result;
         }
-    }
-
-
-    public enum LocalizationKeys
-    {
-        WrongPrivatePostingKey,
-        WrongPrivateActimeKey,
-        EmptyResponseContent,
-        ResponseContentContainsHtml,
-        UnexpectedUrlFormat,
-        EnableConnectToServer,
-        EnableConnectToBlockchain,
-        ServeNotRespond,
-        ServeUnexpectedError,
-        EmptyCommentField,
-        UnknownError,
-        UnknownCriticalError,
-        EmptyTitleField,
-        EmptyBodyField,
-        EmptyCategoryField,
-        EmptyPhotoField,
-        EmptyFileField,
-        EmptyContentType,
-        EmptyVerifyTransaction,
-        EmptyUrlField,
-        EmptyUsernameField,
-        EmptyLogin,
-        EmptyPostingKey,
-        EmptyActiveKey,
-        EmptyPostPermlink,
-        EmptyCategory,
-        PhotoProcessingError,
-        PhotoPrepareError,
-        PhotoUploadError,
-        ErrorCameraPreview,
-        ErrorCameraScale,
-        ErrorCameraZoom,
-        FollowError,
-        PostTagsError,
-        InternetUnavailable,
-        IncorrectIdentifier,
-        MaxVoteChanges,
-        UnexpectedError,
-        CameraSettingError,
-        VotedInASimilarWay,
-        TagLimitError,
-        UnsupportedMime,
-        UnexpectedProfileData,
-        PostFirstComment,
-        ScanQRCode,
-        Comments,
-        PostSettings,
-        RapidPosting,
-        CameraHoldUp,
-        WaitforScan,
-        Likes,
-        Like,
-        Flags,
-        Flag,
-        Follow,
-        Unfollow,
-        Error,
-        Ok,
-        TryAgain,
-        Forget,
-        Voters,
-        FlagVoters,
-        ViewComments,
-        FlagPhoto,
-        HidePhoto,
-        Feed,
-        Trending,
-        Hot,
-        New,
-        Top,
-        Clear,
-        SeeComment,
-        Login,
-        Photos,
-        Following,
-        Followers,
-        Reply,
-        NewPhotos,
-        Hello,
-        Profile,
-        AcceptToS,
-        ChoosePhoto,
-        TypeTag,
-        TypeUsername,
-        YourAccountName,
-        NextStep,
-        Account,
-        NsfwShow,
-        Nsfw,
-        NsfwContent,
-        NsfwContentExplanation,
-        LowRated,
-        LowRatedContent,
-        LowRatedContentExplanation,
-        FlagMessage,
-        FlagSubMessage,
-        DeleteAlertTitle,
-        DeleteAlertMessage,
-        PowerOfLike,
-        TitleForAcceptToS,
-        PostDelay,
-        SignInButtonText,
-        CreateButtonText,
-        EnterAccountText,
-        PasswordViewTitleText,
-        PublishButtonText,
-        AppSettingsTitle,
-        AddAccountText,
-        PeopleText,
-        TapToSearch,
-        SearchHint,
-        Tag,
-        Users,
-        YearsAgo,
-        MonthAgo,
-        DaysAgo,
-        DayAgo,
-        HrsAgo,
-        HrAgo,
-        MinAgo,
-        SecAgo,
-        CreateFirstPostText,
-        Copied,
-        PostLink,
-        ShowMoreString,
-        SignIn,
-        FlagPost,
-        UnFlagPost,
-        FlagComment,
-        HideComment,
-        EditComment,
-        DeleteComment,
-        UnFlagComment,
-        HidePost,
-        EditPost,
-        DeletePost,
-        CopyLink,
-        Cancel,
-        Delete,
-        PutYourComment,
-        ServeRejectRequest,
-        LoginMsg,
-        NoAccountMsg,
-        AppVersion,
-        AppVersion2,
-        BadRequest,
-        Forbidden,
-        NotFound,
-        InternalServerError,
-        BadGateway,
-        GatewayTimeout,
-        HttpErrorCode,
-        QueryMinLength,
-        EnterPostTitle,
-        EnterPostDescription,
-        AddHashtag,
-        MyProfile,
-        AccountBalance,
-        ShowNsfw,
-        ShowLowRated,
-        Guidelines,
-        ToS,
     }
 }
