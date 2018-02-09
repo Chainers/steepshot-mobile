@@ -147,11 +147,11 @@ namespace Steepshot.Core.HttpClient
             var result = await _ditchClient.CreateOrEdit(commentModel, ct);
             if (model.IsEditMode)
             {
-                Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+                Trace($"post/{model.PostPermlink}/edit", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
             }
             else
             {
-                Trace("post", model.Login, result.Error, model.Permlink, ct);//.Wait(5000);
+                Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
             }
             return result;
         }

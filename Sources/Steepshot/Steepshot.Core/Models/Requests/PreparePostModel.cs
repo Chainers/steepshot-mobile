@@ -17,8 +17,11 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         public string Description { get; set; }
 
-        [JsonProperty]
         public string Permlink => string.IsNullOrEmpty(_permlink) ? OperationHelper.TitleToPermlink(Title) : _permlink;
+
+        //needed for post/prepare
+        [JsonProperty]
+        public string PostPermlink => $"@{Author}/{Permlink}";
 
         [JsonProperty("username")]
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyLogin))]
