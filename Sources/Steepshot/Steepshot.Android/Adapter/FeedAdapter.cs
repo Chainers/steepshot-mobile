@@ -261,9 +261,6 @@ namespace Steepshot.Adapter
                 if (Post.Author == BasePresenter.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    var t1 = Post.CashoutTime;
-                    var t2 = Post.Created;
-                    var t3 = Post.Permlink;
                     edit.Visibility = delete.Visibility = Post.CashoutTime < Post.Created ? ViewStates.Gone : ViewStates.Visible;
                 }
 
