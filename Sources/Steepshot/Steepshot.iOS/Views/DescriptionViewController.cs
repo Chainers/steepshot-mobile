@@ -370,7 +370,13 @@ namespace Steepshot.iOS.Views
                     orientation = UIImageOrientation.Up;
                     break;
             }
-            ImageAsset = photoView.Image = new UIImage(photoView.Image.CGImage, 1, orientation);
+
+            var rotated = new UIImage(photoView.Image.CGImage, photoView.Image.CurrentScale, orientation);
+            UIGraphics.BeginImageContextWithOptions(rotated.Size, false, rotated.CurrentScale);
+            var drawRect = new CGRect(0, 0, rotated.Size.Width, rotated.Size.Height);
+            rotated.Draw(drawRect);
+            ImageAsset = photoView.Image = UIGraphics.GetImageFromCurrentImageContext();
+            UIGraphics.EndImageContext();
         }
 
         private async Task<OperationResult<MediaModel>> UploadPhoto()
