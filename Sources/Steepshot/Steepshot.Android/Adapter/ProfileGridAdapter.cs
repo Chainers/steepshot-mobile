@@ -130,6 +130,12 @@ namespace Steepshot.Adapter
             _followButton = itemView.FindViewById<Button>(Resource.Id.follow_button);
             _loadingSpinner = itemView.FindViewById<ProgressBar>(Resource.Id.loading_spinner);
 
+
+            _photosTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Photos);
+            _followingTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Following);
+            _followersTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Followers);
+            _balanceText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AccountBalance);
+
             _name.Typeface = Style.Semibold;
             _place.Typeface = Style.Regular;
             _description.Typeface = Style.Regular;

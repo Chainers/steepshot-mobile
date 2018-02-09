@@ -62,6 +62,7 @@ namespace Steepshot.Activity
             _settings.Visibility = ViewStates.Gone;
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
             _signInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
+            _buttonScanDefaultView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ScanQRCode);
 
             _viewTitle.Typeface = Style.Semibold;
             _password.Typeface = Style.Semibold;

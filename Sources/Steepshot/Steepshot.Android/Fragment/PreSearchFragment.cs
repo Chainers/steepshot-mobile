@@ -213,6 +213,11 @@ namespace Steepshot.Fragment
 
                 Presenter.SourceChanged += PresenterSourceChanged;
 
+                _hotButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hot);
+                _newButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.New);
+                _trendingButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Top);
+                _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
+
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
                 _currentButton = _hotButton;
@@ -224,6 +229,7 @@ namespace Steepshot.Fragment
                 _newButton.Click += OnNewClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
+                _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
                 _clearButton.Visibility = ViewStates.Gone;

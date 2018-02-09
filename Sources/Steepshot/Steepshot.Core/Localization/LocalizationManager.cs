@@ -9,7 +9,6 @@
             _model = model;
         }
 
-
         public void Reset(LocalizationModel model)
         {
             _model = model;
@@ -21,21 +20,58 @@
             return GetText(ks, args);
         }
 
+        public bool ContainsKey(string key)
+        {
+            var contains = _model.Map.ContainsKey(key);
+
+            if (!contains)
+            {
+                foreach (var item in _model.Map)
+                {
+                    if (key.StartsWith(item.Key))
+                        return true;
+                }
+            }
+            return contains;
+        }
+
         public string GetText(string key, params object[] args)
         {
+            var result = string.Empty;
+
             if (_model.Map.ContainsKey(key))
             {
                 if (args != null && args.Length > 0)
-                    return string.Format(_model.Map[key], args);
-#if DEBUG
-                return $"_{_model.Map[key]}_";
-#endif
-                return _model.Map[key];
+                    result = string.Format(_model.Map[key], args);
+                else
+                    result = _model.Map[key];
+            }
+            else
+            {
+                foreach (var item in _model.Map)
+                {
+                    if (key.StartsWith(item.Key))
+                    {
+                        result = item.Value;
+                        break;
+                    }
+                }
+                if (string.IsNullOrEmpty(result))
+                {
+                    foreach (var item in _model.Map)
+                    {
+                        if (key.Contains(item.Key))
+                        {
+                            result = item.Value;
+                            break;
+                        }
+                    }
+                }
             }
 #if DEBUG
-            return "string.Empty";
+            return $"_{result}_";
 #endif
-            return string.Empty;
+            return result;
         }
     }
 
@@ -86,6 +122,7 @@
         UnsupportedMime,
         UnexpectedProfileData,
         PostFirstComment,
+        ScanQRCode,
         Comments,
         PostSettings,
         RapidPosting,
@@ -109,7 +146,15 @@
         Feed,
         Trending,
         Hot,
+        New,
+        Top,
+        Clear,
+        SeeComment,
         Login,
+        Photos,
+        Following,
+        Followers,
+        Reply,
         NewPhotos,
         Hello,
         Profile,
@@ -143,6 +188,9 @@
         AddAccountText,
         PeopleText,
         TapToSearch,
+        SearchHint,
+        Tag,
+        Users,
         YearsAgo,
         MonthAgo,
         DaysAgo,
@@ -183,5 +231,14 @@
         GatewayTimeout,
         HttpErrorCode,
         QueryMinLength,
+        EnterPostTitle,
+        EnterPostDescription,
+        AddHashtag,
+        MyProfile,
+        AccountBalance,
+        ShowNsfw,
+        ShowLowRated,
+        Guidelines,
+        ToS,
     }
 }

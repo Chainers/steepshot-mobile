@@ -68,6 +68,12 @@ namespace Steepshot.Fragment
                 return;
 
             base.OnViewCreated(view, savedInstanceState);
+            _searchView.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchHint);
+            _tagsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Tag);
+            _peopleButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Users);
+            _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
+            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+
             _searchView.TextChanged += OnSearchViewOnTextChanged;
 
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
@@ -101,7 +107,6 @@ namespace Steepshot.Fragment
             ((BaseActivity)Activity).OpenKeyboard(_searchView);
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
         }
 

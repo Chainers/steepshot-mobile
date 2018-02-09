@@ -500,9 +500,11 @@ namespace Steepshot.Adapter
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
-            _commentSubtitle.Text = post.Children > 0
-                ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
-                : context.GetString(Resource.String.first_title_comment);
+            _commentSubtitle.Text = post.Children == 0
+                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
+                : post.Children == 1
+                    ? AppSettings.LocalizationManager.GetText(LocalizationKeys.SeeComment)
+                    : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, post.Children);
 
             if (_isAnimationRuning && !post.VoteChanging)
             {

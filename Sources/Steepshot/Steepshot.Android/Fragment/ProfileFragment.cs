@@ -243,6 +243,10 @@ namespace Steepshot.Fragment
                     LoadProfile();
                     GetUserPosts();
                 }
+                else
+                {
+                    _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
+                }
             }
 
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);

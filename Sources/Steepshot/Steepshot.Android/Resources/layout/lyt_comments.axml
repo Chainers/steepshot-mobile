@@ -65,7 +65,6 @@
                 android:textColorHint="@color/rgb151_155_158"
                 android:textCursorDrawable="@drawable/ic_input"
                 android:singleLine="false"
-                android:hint="Put your comment here..."
                 android:paddingLeft="25dp"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"

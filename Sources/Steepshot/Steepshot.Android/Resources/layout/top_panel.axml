@@ -47,7 +47,6 @@
             android:id="@+id/profile_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="My Profile"
             android:singleLine="true"
             android:textSize="20sp"
             android:textColor="@color/rgb15_24_30"

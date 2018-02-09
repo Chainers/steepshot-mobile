@@ -196,6 +196,8 @@ namespace Steepshot.Adapter
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
 
+            _reply.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Reply);
+
             _author.Typeface = Style.Semibold;
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
 

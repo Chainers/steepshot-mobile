@@ -73,6 +73,12 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
 
+            _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddHashtag);
+            _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
+            _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            _pageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+
             _pageTitle.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _description.Typeface = Style.Regular;
@@ -80,7 +86,6 @@ namespace Steepshot.Activity
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
             _photoFrame.Click += PhotoFrameOnClick;
-            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
             _postButton.Enabled = true;
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));

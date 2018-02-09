@@ -80,8 +80,11 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _commentEditMessage.Typeface = Style.Semibold;
             _commentEditMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
+            _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+            
+            _commentEditMessage.Typeface = Style.Semibold;
             _commentEditText.Typeface = Style.Regular;
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
@@ -89,8 +92,7 @@ namespace Steepshot.Fragment
             _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
-
+            
             _postBtn.Click += OnPost;
             _rootLayout.Click += OnRootClick;
 
