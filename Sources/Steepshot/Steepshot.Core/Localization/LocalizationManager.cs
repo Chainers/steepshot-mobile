@@ -98,9 +98,6 @@ namespace Steepshot.Core.Localization
                     }
                 }
             }
-#if DEBUG
-            return $"_{result}_";
-#endif
             return result;
         }
     }
