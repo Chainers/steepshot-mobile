@@ -125,20 +125,18 @@ namespace Steepshot.Fragment
             {
                 if (value)
                 {
-                    if (!_isActivated)
+                    if (Presenter != null)
                     {
-                        if (Presenter != null)
+                        LoadProfile();
+                        if (!_isActivated)
                         {
-                            LoadProfile();
                             GetUserPosts();
                             BasePresenter.ProfileUpdateType = ProfileUpdateType.None;
                         }
-                        else
-                            BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                         _isActivated = true;
                     }
                     else
-                        _postsList?.GetAdapter()?.NotifyDataSetChanged();
+                        BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 }
                 base.UserVisibleHint = value;
             }

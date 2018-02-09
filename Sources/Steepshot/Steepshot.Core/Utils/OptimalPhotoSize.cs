@@ -9,7 +9,7 @@ namespace Steepshot.Core.Utils
             var correction = screenWidth;
             if (imageSize.Width != 0)
             {
-                var height = screenWidth * ((float)imageSize.Height / (float)imageSize.Width);
+                var height = screenWidth * (imageSize.Height / imageSize.Width);
                 if (height >= minHeight && height <= maxHeight)
                 {
                     correction = height;
