@@ -110,11 +110,11 @@
     <Reference Include="Ditch.Core, Version=3.0.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Core.3.0.9\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Golos, Version=3.0.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Golos.3.0.11\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
+    <Reference Include="Ditch.Golos, Version=3.0.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Golos.3.0.12\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
     </Reference>
-    <Reference Include="Ditch.Steem, Version=3.0.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Steem.3.0.11\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
+    <Reference Include="Ditch.Steem, Version=3.0.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Steem.3.0.12\lib\netstandard2.0\Ditch.Steem.dll</HintPath>
     </Reference>
     <Reference Include="iOSDeviceModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\iOSDeviceModel.1.1.0\lib\Xamarin.iOS10\iOSDeviceModel.dll</HintPath>
