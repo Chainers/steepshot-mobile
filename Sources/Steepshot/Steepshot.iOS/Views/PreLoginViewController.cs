@@ -6,6 +6,7 @@ using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
@@ -27,10 +28,11 @@ namespace Steepshot.iOS.Views
             loginText.ShouldReturn += LoginShouldReturn;
             loginButton.TouchDown += Login;
 #if DEBUG
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             if (BasePresenter.Chain == KnownChains.Steem)
-                loginText.Text = DebugHelper.GetTestSteemLogin();
+                loginText.Text = di.SteemTestLogin;
             else
-                loginText.Text = DebugHelper.GetTestGolosLogin();
+                loginText.Text = di.GolosTestLogin;
 #endif
             NavigationController.SetNavigationBarHidden(false, false);
             SetBackButton();

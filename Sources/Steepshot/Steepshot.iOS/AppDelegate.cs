@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Foundation;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -37,9 +38,13 @@ namespace Steepshot.iOS
             var dataProvider = new DataProvider(saverService);
             var appInfo = new AppInfo();
             var connectionService = new ConnectionService();
-            var ravenClientDSN = DebugHelper.GetRavenClientDSN();
+            var assetsHelper = new AssetsHelper();
+            var localizationManager = new LocalizationManager(assetsHelper.GetLocalization("en-us"));
+            var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
             var reporterService = new ReporterService(appInfo, ravenClientDSN);
 
+            builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
+            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
             builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();

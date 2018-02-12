@@ -48,10 +48,11 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Constants.Semibold14;
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             if (BasePresenter.Chain == KnownChains.Steem)
-                password.Text = DebugHelper.GetTestSteemWif();
+                password.Text = di.SteemTestWif;
             else
-                password.Text = DebugHelper.GetTestGolosWif();
+                password.Text = di.GolosTestWif;
 #endif
             loginButton.TouchDown += Login;
             eyeButton.TouchDown += EyeButtonTouch;

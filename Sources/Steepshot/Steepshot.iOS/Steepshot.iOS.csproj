@@ -232,7 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\DataProvider.cs" />
-    <Compile Include="Helpers\DebugHelper.cs" />
+    <Compile Include="Helpers\AssetsHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />
@@ -388,7 +388,6 @@
     <BundleResource Include="Resources\Fonts\Lato-Semibold.ttf" />
     <BundleResource Include="Resources\search%402x.png" />
     <BundleResource Include="Resources\search%403x.png" />
-    <BundleResource Include="Debug.plist" />
     <BundleResource Include="Resources\ic_search_small.png" />
     <BundleResource Include="Resources\ic_search_small%402x.png" />
     <BundleResource Include="Resources\ic_search_small%403x.png" />
@@ -461,16 +460,31 @@
     <BundleResource Include="Resources\ic_rotate%402x.png" />
     <BundleResource Include="Resources\ic_rotate%403x.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
+      <Link>Localization.en-us.txt</Link>
+    </BundleResource>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
       <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Models\" />
+    <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
+      <Link>Config.txt</Link>
+    </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
+      <Link>CensoredWords.txt</Link>
+    </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
+      <Link>DebugWif.txt</Link>
+    </BundleResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />
