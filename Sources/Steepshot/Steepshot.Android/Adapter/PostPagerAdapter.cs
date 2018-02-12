@@ -164,8 +164,8 @@ namespace Steepshot.Adapter
                         photoPager.Scaling(0,0,1,1,300,Easing.CubicOut),
                         headerLeft.Translation(-headerLeft.Width,0,0,0,300,Easing.CubicOut),
                         headerRight.Translation(headerRight.Width,0,0,0,300,Easing.CubicOut),
-                        subtitle.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,50),
-                        footer.Translation(0,itemView.Height,0,0,300,Easing.SpringOut,100)
+                        subtitle.Translation(0,itemView.Height,0,0,300,Easing.CubicOut,50),
+                        footer.Translation(0,itemView.Height,0,0,300,Easing.CubicOut,100)
                     });
 
                     if (CurrentItem - 1 >= 0)

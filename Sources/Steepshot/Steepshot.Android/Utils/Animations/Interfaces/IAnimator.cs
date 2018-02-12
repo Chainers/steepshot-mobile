@@ -4,10 +4,13 @@ namespace Steepshot.Utils.Animations.Interfaces
 {
     public interface IAnimator
     {
-        void Animate(Action callback = null);
+        void Animate();
+        void FinishAnimation();
         void EvaluateStep(uint time);
+        void Reset();
         uint StartAt { get; }
         bool IsFinished { get; }
-        bool IsAnimating { get; }
+        bool Reverse { get; set; }
+        IAnimator Reversed { get; }
     }
 }

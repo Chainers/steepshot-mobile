@@ -11,7 +11,7 @@ namespace Steepshot.Utils.Animations
 
         public uint ElapsedTime { get; private set; }
 
-        public AnimationTimer(uint timeStep = 15)
+        public AnimationTimer(uint timeStep = 12)
         {
             TimeStep = timeStep;
         }
@@ -27,7 +27,7 @@ namespace Steepshot.Utils.Animations
 
         public void Dispose()
         {
-            _timer.Dispose();
+            _timer?.Dispose();
         }
     }
 }

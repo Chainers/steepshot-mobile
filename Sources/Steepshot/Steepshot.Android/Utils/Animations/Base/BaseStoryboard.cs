@@ -6,65 +6,82 @@ namespace Steepshot.Utils.Animations.Base
 {
     public abstract class BaseStoryboard : List<IAnimator>, IAnimator
     {
-        private Action _onFinish;
-        private IOnUIInvoker _uiInvoker;
-        protected readonly ITimer _timer;
+        protected abstract ITimer timer { get; }
+        protected abstract IOnUIInvoker uiInvoker { get; }
 
+        public Action<IAnimator> OnStart;
+        public Action<IAnimator> OnFinish;
         public uint StartAt { get; }
         public bool IsFinished { get; private set; }
-        public bool IsAnimating { get; private set; }
+        new public bool Reverse { get; set; }
 
-        public BaseStoryboard(ITimer timer, IOnUIInvoker onUIInvoker)
+        private IAnimator _reversed;
+        public IAnimator Reversed
         {
-            StartAt = 0;
-            _timer = timer;
-            _uiInvoker = onUIInvoker;
+            get
+            {
+                if (_reversed != null) return _reversed;
+                _reversed = new Storyboard(StartAt);
+                ForEach(s => ((Storyboard)_reversed).Add(s.Reversed));
+                return _reversed;
+            }
         }
 
-        public BaseStoryboard(uint startAt, ITimer timer, IOnUIInvoker onUIInvoker) : this(timer, onUIInvoker)
+        public BaseStoryboard()
+        {
+            StartAt = 0;
+        }
+
+        public BaseStoryboard(uint startAt)
         {
             StartAt = startAt;
         }
 
-        public void Animate(Action callback = null)
+        public void Animate()
         {
-            _onFinish = callback;
-            _timer.Start(TimerOnElapsed);
+            OnStart?.Invoke(this);
+            timer?.Start(TimerOnElapsed);
         }
 
         private void TimerOnElapsed(object obj)
         {
-            if (Count == 0) FinishAnimation();
-            if (!IsAnimating)
-                EvaluateStep(_timer.ElapsedTime);
+            if (!IsFinished)
+                EvaluateStep(timer.ElapsedTime);
         }
 
         public void EvaluateStep(uint time)
         {
-            IsAnimating = true;
+            IsFinished = true;
             for (int i = 0; i < Count; i++)
             {
                 if (!this[i].IsFinished)
                 {
                     if (time >= this[i].StartAt)
-                        this[i].EvaluateStep(time - this[i].StartAt);
+                        this[i]?.EvaluateStep(time - this[i].StartAt);
+                    IsFinished = false;
                 }
-                else
-                    RemoveAt(i);
             }
-            if (Count == 0) IsFinished = true;
-            IsAnimating = false;
+            if (IsFinished) FinishAnimation();
         }
 
-        private void FinishAnimation()
+        public void Reset()
         {
-            _uiInvoker.RunOnUIThread(_onFinish);
+            for (int i = 0; i < Count; i++)
+            {
+                this[i].Reset();
+            }
+        }
+
+        public void FinishAnimation()
+        {
+            IsFinished = true;
+            uiInvoker.RunOnUIThread(() => OnFinish?.Invoke(this));
             CancelAnimation();
         }
 
         public void CancelAnimation()
         {
-            _timer.Dispose();
+            timer?.Dispose();
         }
     }
 }
