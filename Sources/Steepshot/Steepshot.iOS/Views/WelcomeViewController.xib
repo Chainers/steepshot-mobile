@@ -74,7 +74,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ARe-to-0ce">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="427"/>
                     <subviews>
-                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="FeC-5s-2Cq">
+                        <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_logo_main.png" translatesAutoresizingMaskIntoConstraints="NO" id="FeC-5s-2Cq">
                             <rect key="frame" x="137" y="173" width="100" height="81"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="81" id="gkZ-Lc-h8g"/>
@@ -121,7 +121,7 @@
         </view>
     </objects>
     <resources>
-        <image name="ic_logo.png" width="100" height="81"/>
+        <image name="ic_logo_main.png" width="199" height="168"/>
         <image name="ic_welcome_background.png" width="375" height="667"/>
     </resources>
 </document>

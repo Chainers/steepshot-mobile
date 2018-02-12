@@ -21,8 +21,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_splash_logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="6ss-lh-kTl">
-                                <rect key="frame" x="127" y="283.5" width="120" height="99"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_logo_main.png" translatesAutoresizingMaskIntoConstraints="NO" id="6ss-lh-kTl">
+                                <rect key="frame" x="87.5" y="249" width="199" height="168"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -38,6 +38,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="ic_splash_logo.png" width="120" height="99"/>
+        <image name="ic_logo_main.png" width="199" height="168"/>
     </resources>
 </document>

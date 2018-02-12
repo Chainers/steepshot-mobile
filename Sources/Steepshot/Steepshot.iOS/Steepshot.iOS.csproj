@@ -122,22 +122,10 @@
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\netstandard1.3\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Plugin.Connectivity, Version=3.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugin.Connectivity.3.0.3\lib\Xamarin.iOS10\Plugin.Connectivity.dll</HintPath>
-    </Reference>
-    <Reference Include="Plugin.Connectivity.Abstractions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xam.Plugin.Connectivity.3.0.3\lib\Xamarin.iOS10\Plugin.Connectivity.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperSocket.ClientEngine, Version=0.9.0.0, Culture=neutral, PublicKeyToken=ee9af13f57f00acc, processorArchitecture=MSIL">
-      <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.9.0\lib\netstandard1.3\SuperSocket.ClientEngine.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
-    <Reference Include="WebSocket4Net, Version=0.15.1.10, Culture=neutral, PublicKeyToken=eb4e154b696bf72a, processorArchitecture=MSIL">
-      <HintPath>..\packages\WebSocket4Net.0.15.1\lib\netstandard1.3\WebSocket4Net.dll</HintPath>
-    </Reference>
     <Reference Include="Xamarin.iOS" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.IO.Compression" />
@@ -166,6 +154,18 @@
     </Reference>
     <Reference Include="FFImageLoading.Platform">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.3.4\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Connectivity.Abstractions">
+      <HintPath>..\packages\Xam.Plugin.Connectivity.3.1.1\lib\Xamarin.iOS10\Plugin.Connectivity.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Plugin.Connectivity">
+      <HintPath>..\packages\Xam.Plugin.Connectivity.3.1.1\lib\Xamarin.iOS10\Plugin.Connectivity.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.ClientEngine">
+      <HintPath>..\packages\SuperSocket.ClientEngine.Core.0.10.0\lib\netstandard1.3\SuperSocket.ClientEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocket4Net">
+      <HintPath>..\packages\WebSocket4Net.0.15.2\lib\netstandard1.3\WebSocket4Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -196,7 +196,6 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
-    <InterfaceDefinition Include="Main.storyboard" />
     <InterfaceDefinition Include="Cells\PhotoCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
@@ -404,14 +403,8 @@
     <BundleResource Include="Resources\Fonts\OpenSans-Semibold.ttf" />
     <BundleResource Include="Resources\ic_welcome_background%402x.png" />
     <BundleResource Include="Resources\ic_welcome_background%403x.png" />
-    <BundleResource Include="Resources\ic_logo.png" />
-    <BundleResource Include="Resources\ic_logo%402x.png" />
-    <BundleResource Include="Resources\ic_logo%403x.png" />
     <BundleResource Include="Resources\ic_back_arrow%402x.png" />
     <BundleResource Include="Resources\ic_back_arrow%403x.png" />
-    <BundleResource Include="Resources\ic_splash_logo.png" />
-    <BundleResource Include="Resources\ic_splash_logo%402x.png" />
-    <BundleResource Include="Resources\ic_splash_logo%403x.png" />
     <BundleResource Include="Resources\ic_feed_logo.png" />
     <BundleResource Include="Resources\ic_feed_logo%402x.png" />
     <BundleResource Include="Resources\ic_feed_logo%403x.png" />
@@ -461,6 +454,8 @@
     <BundleResource Include="Resources\ic_rotate%403x.png" />
     <BundleResource Include="Resources\ic_grid_active%402x.png" />
     <BundleResource Include="Resources\ic_grid_active%403x.png" />
+    <BundleResource Include="Resources\ic_logo_main%402x.png" />
+    <BundleResource Include="Resources\ic_logo_main%403x.png" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
