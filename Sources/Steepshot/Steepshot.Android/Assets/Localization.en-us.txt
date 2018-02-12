@@ -180,5 +180,6 @@
 		"4100000 plugin_exception: plugin exception: The comment is archived":"The comment is archived",
 		"4100000 plugin_exception: plugin exception Account: steem bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Steem bandwidth limit exceeded. Please wait to transact or power up STEEM.",
 		"Sharepost":"Share post",
+		"Retry":"Retry",
     }
 }

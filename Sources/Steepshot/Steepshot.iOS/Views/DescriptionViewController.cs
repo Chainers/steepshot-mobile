@@ -284,7 +284,7 @@ namespace Steepshot.iOS.Views
                 return modifiedImage;
             });
         }
-        
+
         private async Task<OperationResult<MediaModel>> UploadPhoto()
         {
             Stream stream = null;
@@ -340,7 +340,7 @@ namespace Steepshot.iOS.Views
                     {
                         InvokeOnMainThread(() =>
                         {
-                            ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
+                            ShowDialog(photoUploadResponse.Error.Message, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                             {
                                 shouldReturn = true;
                                 mre.Set();
@@ -379,7 +379,7 @@ namespace Steepshot.iOS.Views
                     {
                         InvokeOnMainThread(() =>
                         {
-                            ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
+                            ShowDialog(response.Error.Message, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                             {
                                 mre.Set();
                             }, (arg) =>

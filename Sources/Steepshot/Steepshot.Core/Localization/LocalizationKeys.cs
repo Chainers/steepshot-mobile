@@ -140,6 +140,7 @@
         DeletePost,
         CopyLink,
         Cancel,
+        Retry,
         Delete,
         PutYourComment,
         ServeRejectRequest,
