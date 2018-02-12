@@ -1,6 +1,6 @@
 {
     "Lang": "en-us",
-    "Version": 1,
+    "Version": 2,
     "Map": {
         "WrongPrivatePostingKey": "It`s not a valid Private Posting key! Check - Private key looks like 5********...",
         "WrongPrivateActimeKey": "It`s not a valid Private Active key! Check - Private key looks like 5********...",
@@ -179,6 +179,7 @@
 		"QueryMinLength":"Query should have at least 2 characters",
 		"4100000 plugin_exception: plugin exception: The comment is archived":"The comment is archived",
 		"4100000 plugin_exception: plugin exception Account: steem bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Steem bandwidth limit exceeded. Please wait to transact or power up STEEM.",
+		"4100000 plugin_exception: plugin exception: Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Bandwidth limit exceeded. Please wait to transact or power up STEEM.",
 		"Sharepost":"Share post",
 		"Retry":"Retry",
     }
