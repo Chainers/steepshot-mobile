@@ -83,7 +83,7 @@ namespace Steepshot.Fragment
             _commentEditMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
             _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
             _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
-            
+
             _commentEditMessage.Typeface = Style.Semibold;
             _commentEditText.Typeface = Style.Regular;
             _textInput.Typeface = Style.Regular;
@@ -92,7 +92,7 @@ namespace Steepshot.Fragment
             _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            
+
             _postBtn.Click += OnPost;
             _rootLayout.Click += OnRootClick;
 
@@ -187,7 +187,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (resp != null && resp.IsSuccess)
+                if (resp.IsSuccess)
                 {
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
@@ -207,7 +207,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    Context.ShowAlert(resp, ToastLength.Short);
+                    Context.ShowAlert(resp.Error, ToastLength.Short);
                 }
             }
 

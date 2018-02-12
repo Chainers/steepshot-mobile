@@ -166,5 +166,7 @@
         Guidelines,
         ToS,
         Sharepost,
+        CheckPermission,
+        SetupMail,
     }
 }

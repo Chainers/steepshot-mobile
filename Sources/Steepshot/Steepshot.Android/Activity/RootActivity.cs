@@ -12,6 +12,7 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
@@ -103,7 +104,7 @@ namespace Steepshot.Activity
                 else
                 {
                     //Replace for Permission request
-                    this.ShowAlert("Check your app permissions");
+                    this.ShowAlert(LocalizationKeys.CheckPermission);
                 }
             }
             else

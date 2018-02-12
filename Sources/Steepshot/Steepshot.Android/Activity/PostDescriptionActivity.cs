@@ -428,7 +428,7 @@ namespace Steepshot.Activity
 
                 if (!operationResult.IsSuccess)
                 {
-                    this.ShowAlert(operationResult.Error.Message);
+                    this.ShowAlert(operationResult.Error);
                     OnUploadEnded();
                     return;
                 }
@@ -498,10 +498,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                if (resp.Error is CanceledError)
-                    return;
-
-                this.ShowInteractiveMessage(resp.Error.Message, TryAgainAction, ForgetAction);
+                this.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
             }
         }
 

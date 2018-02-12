@@ -128,7 +128,7 @@ namespace Steepshot.Activity
             else
             {
                 //Replace for Permission request
-                this.ShowAlert("Check your app permissions");
+                this.ShowAlert(LocalizationKeys.CheckPermission);
             }
         }
 
@@ -158,7 +158,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (response != null && response.IsSuccess)
+            if (response.IsSuccess)
             {
                 BasePresenter.User.AddAndSwitchUser(login, pass, BasePresenter.Chain, true);
                 var intent = new Intent(this, typeof(RootActivity));
@@ -167,7 +167,7 @@ namespace Steepshot.Activity
             }
             else
             {
-                this.ShowAlert(response);
+                this.ShowAlert(response.Error);
             }
 
             appCompatButton.Enabled = true;

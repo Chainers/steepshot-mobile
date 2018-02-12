@@ -76,7 +76,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
 
             var response = await _presenter.TryGetAccountInfo(loginText.Text);
-            if (response != null && response.IsSuccess)
+            if (response.IsSuccess)
             {
                 var myViewController = new LoginViewController
                 {
@@ -86,7 +86,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(response);
+                ShowAlert(response.Error);
 
             loginButton.Enabled = true;
             activityIndicator.StopAnimating();

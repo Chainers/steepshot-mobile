@@ -85,7 +85,7 @@ namespace Steepshot.iOS.Views
                 PresentViewController(mailController, true, null);
             }
             else
-                ShowAlert("Setup your mail please");
+                ShowAlert(LocalizationKeys.SetupMail);
         }
 
         private void SwitchNSFW(object sender, EventArgs e)

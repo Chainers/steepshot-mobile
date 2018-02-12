@@ -124,10 +124,7 @@ namespace Steepshot.iOS.Views
             try
             {
                 var response = await _presenter.TrySignIn(Username, password.Text);
-                if (response == null) // cancelled
-                    return;
-
-                if (response != null && response.IsSuccess)
+                if (response.IsSuccess)
                 {
                     BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain, false);
 
@@ -137,7 +134,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PopViewController(true);
                 }
                 else
-                    ShowAlert(response);
+                    ShowAlert(response.Error);
             }
             catch (ArgumentNullException)
             {

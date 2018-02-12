@@ -182,5 +182,7 @@
 		"4100000 plugin_exception: plugin exception: Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Bandwidth limit exceeded. Please wait to transact or power up STEEM.",
 		"Sharepost":"Share post",
 		"Retry":"Retry",
+		"CheckPermission":"Check your app permissions",
+		"SetupMail":"Setup your mail please",
     }
 }

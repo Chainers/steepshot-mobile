@@ -338,9 +338,10 @@ namespace Steepshot.iOS.Views
 
                     if (!photoUploadResponse.IsSuccess)
                     {
+                        var response = photoUploadResponse;
                         InvokeOnMainThread(() =>
                         {
-                            ShowDialog(photoUploadResponse.Error.Message, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                            ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                             {
                                 shouldReturn = true;
                                 mre.Set();
@@ -375,11 +376,11 @@ namespace Steepshot.iOS.Views
 
                     var response = await _presenter.TryCreateOrEditPost(model);
 
-                    if (!(response != null && response.IsSuccess))
+                    if (!response.IsSuccess)
                     {
                         InvokeOnMainThread(() =>
                         {
-                            ShowDialog(response.Error.Message, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                            ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                             {
                                 mre.Set();
                             }, (arg) =>
