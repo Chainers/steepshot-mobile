@@ -33,6 +33,7 @@ namespace Steepshot.iOS.Views
         private Timer _timer;
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
+        private const int _photoSize = 900; //kb
 
         public DescriptionViewController(UIImage imageAsset, string extension)
         {
@@ -381,7 +382,19 @@ namespace Steepshot.iOS.Views
             Stream stream = null;
             try
             {
-                stream = ImageAsset.AsJpegStream();
+                var compression = 1f;
+                var maxCompression = 0.1f;
+                int maxFileSize = _photoSize * 1024;
+
+                var byteArray = ImageAsset.AsJPEG(compression);
+
+                while(byteArray.Count() > maxFileSize && compression > maxCompression)
+                {
+                    compression -= 0.1f;
+                    byteArray = ImageAsset.AsJPEG(compression);
+                }
+
+                stream = byteArray.AsStream();
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
                 return await _presenter.TryUploadMedia(request);
             }
@@ -399,6 +412,12 @@ namespace Steepshot.iOS.Views
 
         private async void PostPhoto(object sender, EventArgs e)
         {
+            if (string.IsNullOrEmpty(titleTextField.Text))
+            {
+                ShowAlert(Localization.Errors.EmptyTitleField);
+                return;
+            }
+
             ToggleAvailability(false);
 
             await Task.Run(() =>
