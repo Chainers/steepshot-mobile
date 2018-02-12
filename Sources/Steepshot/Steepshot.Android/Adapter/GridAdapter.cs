@@ -102,7 +102,9 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _context = context;
-            _photoString = post.Media[0].Url;
+
+            var thumbnail = post.Media[0].Thumbnails?[256];
+            _photoString = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
 
             if (_photoString != null)
             {
