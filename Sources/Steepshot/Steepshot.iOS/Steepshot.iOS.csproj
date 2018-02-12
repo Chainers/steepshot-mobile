@@ -231,7 +231,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\DataProvider.cs" />
     <Compile Include="Helpers\AssetsHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />

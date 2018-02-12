@@ -64,8 +64,9 @@ namespace Steepshot.Base
                 var appInfo = new AppInfo();
                 var assetsHelper = new AssetsHelper(assetManagerssets);
                 var connectionService = new ConnectionService();
-                
-                 var localizationManager = new LocalizationManager(assetsHelper.GetLocalization("en-us"));
+
+                var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
+                var localizationManager = new LocalizationManager(localization);
 
                 builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
                 builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();

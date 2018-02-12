@@ -13,7 +13,5 @@ namespace Steepshot.Core.Services
         DebugInfo GetDebugInfo();
 
         LocalizationModel GetLocalization(string lang);
-
-        void SetLocalization(LocalizationModel model);
     }
 }

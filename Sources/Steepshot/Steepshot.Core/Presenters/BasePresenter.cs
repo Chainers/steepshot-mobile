@@ -84,7 +84,9 @@ namespace Steepshot.Core.Presenters
             var content = await Api.Gateway.Get(LocalizationManager.UpdateUrl);
             var changed = AppSettings.LocalizationManager.Reset(content);
             if (changed)
-                AppSettings.AssetsesHelper.SetLocalization(AppSettings.LocalizationManager.Model);
+            {
+                AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
+            }
         }
 
         private static Task<ErrorBase> TryСonect(CancellationToken token)

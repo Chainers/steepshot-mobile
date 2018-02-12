@@ -32,11 +32,6 @@ namespace Steepshot.Utils
             return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
         }
 
-        public void SetLocalization(LocalizationModel model)
-        {
-            TryWriteAsset($"Localization.{model.Lang}.txt", model);
-        }
-
         public HashSet<string> TryReadCensoredWords()
         {
             var hs = new HashSet<string>();
@@ -84,22 +79,5 @@ namespace Steepshot.Utils
             return new T();
         }
 
-        private void TryWriteAsset<T>(string file, T data)
-        {
-            try
-            {
-                var json = JsonConvert.SerializeObject(data);
-                var stream = _assetManager.Open(file);
-                using (var sr = new StreamWriter(stream))
-                {
-                    sr.Write(json);
-                }
-                stream.Dispose();
-            }
-            catch
-            {
-                //to do nothing
-            }
-        }
     }
 }

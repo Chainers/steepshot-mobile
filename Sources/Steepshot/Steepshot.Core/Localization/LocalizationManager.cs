@@ -4,7 +4,7 @@ namespace Steepshot.Core.Localization
 {
     public class LocalizationManager
     {
-        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/message-wrapper/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
+        public const string UpdateUrl = "https://raw.githubusercontent.com/Chainers/steepshot-mobile/master/Sources/Steepshot/Steepshot.Android/Assets/Localization.en-us.txt";
 
         public LocalizationModel Model { get; }
 

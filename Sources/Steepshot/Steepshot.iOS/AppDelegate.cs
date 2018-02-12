@@ -39,7 +39,10 @@ namespace Steepshot.iOS
             var appInfo = new AppInfo();
             var connectionService = new ConnectionService();
             var assetsHelper = new AssetsHelper();
-            var localizationManager = new LocalizationManager(assetsHelper.GetLocalization("en-us"));
+
+            var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
+            var localizationManager = new LocalizationManager(localization);
+
             var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
             var reporterService = new ReporterService(appInfo, ravenClientDSN);
 
