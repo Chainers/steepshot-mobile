@@ -222,6 +222,7 @@
     <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
     <InterfaceDefinition Include="Cells\AccountTableViewCell.xib" />
+    <InterfaceDefinition Include="Main.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -373,10 +374,6 @@
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
-    <BundleResource Include="Resources\ic_user_placeholder.png" />
-    <BundleResource Include="Resources\ic_conversation.png" />
-    <BundleResource Include="Resources\ic_cross.png" />
-    <BundleResource Include="Resources\ic_micro_heart.png" />
     <BundleResource Include="Resources\eye%402x.png" />
     <BundleResource Include="Resources\eye%403x.png" />
     <BundleResource Include="Resources\Fonts\Lato-Bold.ttf" />
@@ -388,12 +385,10 @@
     <BundleResource Include="Resources\search%402x.png" />
     <BundleResource Include="Resources\search%403x.png" />
     <BundleResource Include="Debug.plist" />
-    <BundleResource Include="Resources\ic_search_small.png" />
     <BundleResource Include="Resources\ic_search_small%402x.png" />
     <BundleResource Include="Resources\ic_search_small%403x.png" />
     <BundleResource Include="Resources\ic_more%402x.png" />
     <BundleResource Include="Resources\ic_more%403x.png" />
-    <BundleResource Include="Resources\ic_like.png" />
     <BundleResource Include="Resources\ic_like%402x.png" />
     <BundleResource Include="Resources\ic_like%403x.png" />
     <BundleResource Include="Resources\ic_noavatar%402x.png" />
@@ -405,13 +400,10 @@
     <BundleResource Include="Resources\ic_welcome_background%403x.png" />
     <BundleResource Include="Resources\ic_back_arrow%402x.png" />
     <BundleResource Include="Resources\ic_back_arrow%403x.png" />
-    <BundleResource Include="Resources\ic_feed_logo.png" />
     <BundleResource Include="Resources\ic_feed_logo%402x.png" />
     <BundleResource Include="Resources\ic_feed_logo%403x.png" />
-    <BundleResource Include="Resources\ic_send_comment.png" />
     <BundleResource Include="Resources\ic_send_comment%402x.png" />
     <BundleResource Include="Resources\ic_send_comment%403x.png" />
-    <BundleResource Include="Resources\ic_like_active.png" />
     <BundleResource Include="Resources\ic_like_active%402x.png" />
     <BundleResource Include="Resources\ic_like_active%403x.png" />
     <BundleResource Include="Resources\ic_home%402x.png" />
@@ -422,10 +414,8 @@
     <BundleResource Include="Resources\ic_create%403x.png" />
     <BundleResource Include="Resources\ic_сamera_shot%402x.png" />
     <BundleResource Include="Resources\ic_сamera_shot%403x.png" />
-    <BundleResource Include="Resources\ic_revert.png" />
     <BundleResource Include="Resources\ic_revert%402x.png" />
     <BundleResource Include="Resources\ic_revert%403x.png" />
-    <BundleResource Include="Resources\ic_white_close.png" />
     <BundleResource Include="Resources\ic_white_close%402x.png" />
     <BundleResource Include="Resources\ic_white_close%403x.png" />
     <BundleResource Include="Resources\ic_flash%402x.png" />
@@ -436,10 +426,8 @@
     <BundleResource Include="Resources\ic_close_black%403x.png" />
     <BundleResource Include="Resources\ic_forward%402x.png" />
     <BundleResource Include="Resources\ic_forward%403x.png" />
-    <BundleResource Include="Resources\ic_activated.png" />
     <BundleResource Include="Resources\ic_activated%402x.png" />
     <BundleResource Include="Resources\ic_activated%403x.png" />
-    <BundleResource Include="Resources\ic_deactivated.png" />
     <BundleResource Include="Resources\ic_deactivated%402x.png" />
     <BundleResource Include="Resources\ic_deactivated%403x.png" />
     <BundleResource Include="Resources\ic_grid_nonactive%402x.png" />
