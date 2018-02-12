@@ -65,6 +65,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.rotate)] private ImageView _rotate;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -85,7 +86,8 @@ namespace Steepshot.Activity
             _postButton.Typeface = Style.Semibold;
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
-            _photoFrame.Click += PhotoFrameOnClick;
+            _rotate.Click += RotateOnClick;
+
             _postButton.Enabled = true;
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
@@ -100,6 +102,7 @@ namespace Steepshot.Activity
                 _editpost = JsonConvert.DeserializeObject<Post>(editPost);
                 _model = new PreparePostModel(BasePresenter.User.UserInfo, _editpost.Permlink);
                 SetEditPost(_editpost);
+                _rotate.Visibility = ViewStates.Gone;
             }
             else
             {
@@ -210,7 +213,7 @@ namespace Steepshot.Activity
             return path;
         }
 
-        private void PhotoFrameOnClick(object sender, EventArgs e)
+        private void RotateOnClick(object sender, EventArgs e)
         {
             if (!_photoFrame.Clickable)
                 return;
