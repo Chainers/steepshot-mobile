@@ -3,10 +3,13 @@
     public enum ActionType
     {
         Like,
+        Flag,
         More,
         Profile,
         Comments,
         Voters,
+        VotersLikes,
+        VotersFlags,
         Flagers,
         Preview,
         Reply,
@@ -14,5 +17,8 @@
         Tap,
         Delete,
         Edit,
+        Hide,
+        Photo,
+        Share
     }
 }
