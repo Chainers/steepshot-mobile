@@ -49,6 +49,7 @@ namespace Steepshot.Activity
             InitTabs();
 
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
+            _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
@@ -110,6 +111,15 @@ namespace Steepshot.Activity
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
                 BasePresenter.User.SelectedTab = e.Tab.Position;
+            }
+        }
+
+        private void OnTabLayoutOnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
+        {
+            if (_tabLayout.GetTabAt(e.Tab.Position) == _prevTab)
+            {
+                var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
+                hostFragment?.Clear();
             }
         }
 
