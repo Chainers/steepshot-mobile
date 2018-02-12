@@ -247,6 +247,16 @@ namespace Steepshot.iOS.Cells
             likesMargin = leftMargin;
             nfloat likersY = underPhotoPanelHeight / 2 - likersImageSide / 2;
 
+            _bodyImage.Image = null;
+            _scheduledWorkBody?.Cancel();
+            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Media[0].Url, Constants.ImageCacheDuration)
+                                             .Retry(5)
+                                             .FadeAnimation(false)
+                                             .WithCache(FFImageLoading.Cache.CacheType.All)
+                                             .DownSample((int)UIScreen.MainScreen.Bounds.Width)
+                                             .WithPriority(LoadingPriority.Highest)
+                                             .Into(_bodyImage);
+
             _avatarImage.Image = null;
             _scheduledWorkAvatar?.Cancel();
             if (!string.IsNullOrEmpty(_currentPost.Avatar))
@@ -265,7 +275,7 @@ namespace Steepshot.iOS.Cells
             _timestamp.Text = _currentPost.Created.ToPostTime();
 
             _bodyImage.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 20, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-            _bodyImage.Image = null;
+            /*_bodyImage.Image = null;
             _scheduledWorkBody?.Cancel();
             _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Media[0].Url, Constants.ImageCacheDuration)
                                              .Retry(5)
@@ -273,7 +283,7 @@ namespace Steepshot.iOS.Cells
                                              .WithCache(FFImageLoading.Cache.CacheType.All)
                                              .DownSample((int)UIScreen.MainScreen.Bounds.Width)
                                              .WithPriority(LoadingPriority.Highest)
-                                             .Into(_bodyImage);
+                                             .Into(_bodyImage);*/
 
             if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
@@ -286,6 +296,7 @@ namespace Steepshot.iOS.Cells
                                                   .LoadingPlaceholder("ic_noavatar.png")
                                                   .ErrorPlaceholder("ic_noavatar.png")
                                                   .DownSample(width: 100)
+                                                  .FadeAnimation(false)
                                                   .WithPriority(LoadingPriority.Lowest)
                                                   .Into(_firstLikerImage);
                 likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
@@ -305,6 +316,7 @@ namespace Steepshot.iOS.Cells
                                                     .ErrorPlaceholder("ic_noavatar.png")
                                                     .WithPriority(LoadingPriority.Lowest)
                                                     .DownSample(width: 100)
+                                                    .FadeAnimation(false)
                                                     .Into(_secondLikerImage);
                 likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
             }
@@ -323,6 +335,7 @@ namespace Steepshot.iOS.Cells
                                                    .ErrorPlaceholder("ic_noavatar.png")
                                                    .WithPriority(LoadingPriority.Lowest)
                                                    .DownSample(width: 100)
+                                                   .FadeAnimation(false)
                                                    .Into(_thirdLikerImage);
                 likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
             }

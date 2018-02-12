@@ -32,6 +32,7 @@ namespace Steepshot.iOS.Views
         private LocalTagsCollectionViewSource _collectionviewSource;
         private Timer _timer;
         private string _previousQuery;
+        private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
 
         public DescriptionViewController(UIImage imageAsset, string extension)
         {
@@ -61,14 +62,15 @@ namespace Steepshot.iOS.Views
 
             tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                EstimatedItemSize = new CGSize(20, 45),
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 SectionInset = new UIEdgeInsets(0, 15, 0, 0),
             }, false);
 
             _collectionviewSource = new LocalTagsCollectionViewSource();
             _collectionviewSource.CellAction += CollectionCellAction;
+            _collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(_collectionviewSource);
             tagsCollectionView.Source = _collectionviewSource;
+            tagsCollectionView.Delegate = _collectionViewDelegate;
 
             tagField.Delegate = new TagFieldDelegate(DoneTapped);
             tagField.EditingChanged += EditingDidChange;
@@ -240,21 +242,16 @@ namespace Steepshot.iOS.Views
                 localTagsHeight.Constant = 50;
                 localTagsTopSpace.Constant = 15;
                 _collectionviewSource.LocalTags.Add(txt);
+                _collectionViewDelegate.GenerateVariables();
                 tagsCollectionView.ReloadData();
+                tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
             }
-
-            //tagsCollectionView.CollectionViewLayout.InvalidateLayout();
-
-            //await Task.Delay(100);
-
-            //InvokeOnMainThread(() => {
-            //tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
-            // });
         }
 
         private void RemoveTag(string tag)
         {
             _collectionviewSource.LocalTags.Remove(tag);
+            _collectionViewDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
             if (_collectionviewSource.LocalTags.Count == 0)
             {
@@ -281,7 +278,7 @@ namespace Steepshot.iOS.Views
 
         private void AddOkButton()
         {
-            var leftBarButton = new UIBarButtonItem("OK", UIBarButtonItemStyle.Plain, RemoveFocus);
+            var leftBarButton = new UIBarButtonItem("OK", UIBarButtonItemStyle.Plain, DoneTapped);
             NavigationItem.RightBarButtonItem = leftBarButton;
         }
 
@@ -525,9 +522,9 @@ namespace Steepshot.iOS.Views
                 NavigationController.PopViewController(true);
         }
 
-        private void RemoveFocus(object sender, EventArgs e)
+        private void DoneTapped(object sender, EventArgs e)
         {
-            RemoveFocusFromTextFields();
+            DoneTapped();
         }
     }
 }
