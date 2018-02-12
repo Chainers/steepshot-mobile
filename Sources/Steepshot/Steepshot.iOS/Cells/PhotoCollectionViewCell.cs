@@ -42,7 +42,9 @@ namespace Steepshot.iOS.Cells
                 isInitialized = true;
             }
 
-            ImageUrl = post.Media[0].Url;
+            var thumbnail = post.Media[0].Thumbnails?[256];
+            ImageUrl = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
+
             photoImg.Image = null;
             _scheduledWork?.Cancel();
             if (ImageUrl != null)
