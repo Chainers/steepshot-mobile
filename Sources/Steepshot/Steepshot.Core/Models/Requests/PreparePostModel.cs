@@ -4,20 +4,31 @@ using System.ComponentModel.DataAnnotations;
 using Ditch.Core.Helpers;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
+using System.Diagnostics;
 
 namespace Steepshot.Core.Models.Requests
 {
+    [DebuggerStepThrough]
     [JsonObject(MemberSerialization.OptIn)]
     public class PreparePostModel : AuthorizedModel
     {
         private string[] _tags;
-        private readonly string _permlink;
+        private string _permlink;
         public const int TagLimit = 20;
 
         [JsonProperty]
         public string Description { get; set; }
+        
+        public string Permlink
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_permlink))
+                    _permlink = OperationHelper.TitleToPermlink(Title);
 
-        public string Permlink => string.IsNullOrEmpty(_permlink) ? OperationHelper.TitleToPermlink(Title) : _permlink;
+                return _permlink;
+            }
+        }
 
         //needed for post/prepare
         [JsonProperty]

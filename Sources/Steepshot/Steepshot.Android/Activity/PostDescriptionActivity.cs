@@ -443,7 +443,7 @@ namespace Steepshot.Activity
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryUpload();
+            TryCreateOrEditPost();
         }
 
 
@@ -476,7 +476,7 @@ namespace Steepshot.Activity
             }
         }
 
-        private async void TryUpload()
+        private async void TryCreateOrEditPost()
         {
             if (_model.Media == null)
             {
@@ -525,7 +525,7 @@ namespace Steepshot.Activity
 
         private void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            TryUpload();
+            TryCreateOrEditPost();
         }
 
         private void HideTagsList()
