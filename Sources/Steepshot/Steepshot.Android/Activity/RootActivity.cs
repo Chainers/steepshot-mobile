@@ -181,7 +181,7 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (error == null || error is TaskCanceledError)
+                if (error == null || error is CanceledError)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;

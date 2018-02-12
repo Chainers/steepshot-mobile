@@ -1,16 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Steepshot.Core.Authority;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Models.Requests
 {
     [JsonObject(MemberSerialization.OptIn)]
     public class AuthorizedModel
     {
-        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
         public string Login { get; }
 
-        [Required(ErrorMessage = Localization.Errors.EmptyPostingKey)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyPostingKey))]
         public string PostingKey { get; }
 
 

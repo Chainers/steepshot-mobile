@@ -175,7 +175,6 @@
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/comment_subtitle"
-                    android:text="@string/view_n_comments"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="14sp"

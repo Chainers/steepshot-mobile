@@ -5,10 +5,11 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Extensions;
 using UIKit;
-using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using CoreGraphics;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {
@@ -60,8 +61,8 @@ namespace Steepshot.iOS.Cells
 
             timestamp.Text = _currentPost.Created.ToPostTime();
 
-            likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
-            flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+            likeLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
+            flagLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
             //LayoutIfNeeded();
 
 

@@ -34,6 +34,12 @@ namespace Steepshot.Core.Utils
             _dsn = dsn;
         }
 
+        public void SendMessage(string message)
+        {
+            var sentryEvent = CreateSentryEvent(new SentryMessage(message));
+            RavenClient?.Capture(sentryEvent);
+        }
+
         public void SendCrash(Exception ex, string message)
         {
             var sentryEvent = CreateSentryEvent(ex, message);
@@ -68,6 +74,19 @@ namespace Steepshot.Core.Utils
         private SentryEvent CreateSentryEvent(Exception ex, string message)
         {
             var sentryEvent = new SentryEvent(ex);
+            sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
+            sentryEvent.Tags.Add("Login", BasePresenter.User.Login);
+            sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());
+            sentryEvent.Tags.Add("AppBuild", _appInfoService.GetBuildVersion());
+            sentryEvent.Tags.Add("Model", _appInfoService.GetModel());
+            sentryEvent.Tags.Add("OsVersion", _appInfoService.GetOsVersion());
+            sentryEvent.Message = message;
+            return sentryEvent;
+        }
+
+        private SentryEvent CreateSentryEvent(SentryMessage message)
+        {
+            var sentryEvent = new SentryEvent(message);
             sentryEvent.Tags.Add("OS", _appInfoService.GetPlatform());
             sentryEvent.Tags.Add("Login", BasePresenter.User.Login);
             sentryEvent.Tags.Add("AppVersion", _appInfoService.GetAppVersion());

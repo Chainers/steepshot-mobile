@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
@@ -201,7 +200,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             var error = await _presenter.TryVote(post);
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
 
             ShowAlert(error);
@@ -303,7 +302,7 @@ namespace Steepshot.iOS.Views
                 error = await _presenter.TryGetSearchedPosts();
             }
 
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
 
             if (_refreshControl.Refreshing)

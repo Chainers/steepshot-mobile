@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Extensions
@@ -16,22 +17,22 @@ namespace Steepshot.Core.Extensions
         {
             var period = DateTime.UtcNow.Subtract(date);
             if (period.Days / 365 != 0)
-                return $"{period.Days / 365} {Localization.Texts.YearsAgo}";
+                return AppSettings.LocalizationManager.GetText(LocalizationKeys.YearsAgo, period.Days / 365);
 
             if (period.Days / 30 != 0)
-                return $"{period.Days / 30} {Localization.Texts.MonthAgo}";
+                return AppSettings.LocalizationManager.GetText(LocalizationKeys.MonthAgo, period.Days / 30);
 
             if (period.Days != 0)
-                return $"{period.Days} {(period.Days == 1 ? Localization.Texts.DayAgo : Localization.Texts.DaysAgo)}";
+                return AppSettings.LocalizationManager.GetText(period.Days == 1 ? LocalizationKeys.DayAgo : LocalizationKeys.DaysAgo, period.Days);
 
             if (period.Hours != 0)
-                return $"{period.Hours} {(period.Hours == 1 ? Localization.Texts.HrAgo : Localization.Texts.HrsAgo)}";
+                return AppSettings.LocalizationManager.GetText(period.Days == 1 ? LocalizationKeys.HrAgo : LocalizationKeys.HrsAgo, period.Hours);
 
             if (period.Minutes != 0)
-                return $"{period.Minutes} {Localization.Texts.MinAgo}";
+                return AppSettings.LocalizationManager.GetText(LocalizationKeys.MinAgo, period.Minutes);
 
             if (period.Seconds != 0)
-                return $"{period.Seconds} {Localization.Texts.SecAgo}";
+                return AppSettings.LocalizationManager.GetText(LocalizationKeys.SecAgo, period.Seconds);
 
             return String.Empty;
         }

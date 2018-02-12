@@ -10,17 +10,17 @@ using UIKit;
 using CoreGraphics;
 using FFImageLoading.Extensions;
 using System.Threading.Tasks;
-using Steepshot.Core;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Models;
 using System.Threading;
-using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
 using Steepshot.Core.Models.Common;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 using System.IO;
 using System.Linq;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -219,7 +219,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = Localization.Messages.PostSettings;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
             NavigationController.NavigationBar.Translucent = false;
         }
 
@@ -297,7 +297,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
             }
             finally
             {

@@ -2,6 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Services;
 
@@ -24,6 +25,16 @@ namespace Steepshot.Utils
         public ConfigInfo GetConfigInfo()
         {
             return TryReadAsset<ConfigInfo>("Config.txt");
+        }
+
+        public LocalizationModel GetLocalization(string lang)
+        {
+            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
+        }
+
+        public void SetLocalization(LocalizationModel model)
+        {
+            TryWriteAsset($"Localization.{model.Lang}.txt", model);
         }
 
         public HashSet<string> TryReadCensoredWords()
@@ -71,6 +82,24 @@ namespace Steepshot.Utils
                 //to do nothing
             }
             return new T();
+        }
+
+        private void TryWriteAsset<T>(string file, T data)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(data);
+                var stream = _assetManager.Open(file);
+                using (var sr = new StreamWriter(stream))
+                {
+                    sr.Write(json);
+                }
+                stream.Dispose();
+            }
+            catch
+            {
+                //to do nothing
+            }
         }
     }
 }

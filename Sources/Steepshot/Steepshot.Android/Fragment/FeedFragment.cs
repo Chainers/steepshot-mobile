@@ -11,13 +11,14 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -90,7 +91,7 @@ namespace Steepshot.Fragment
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
                 LoadPosts();
             }
@@ -317,8 +318,8 @@ namespace Steepshot.Fragment
                         var shareIntent = new Intent(Intent.ActionSend);
                         shareIntent.SetType("text/plain");
                         shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
-                        shareIntent.PutExtra(Intent.ExtraText, string.Format(Localization.Texts.PostLink, post.Url));
-                        StartActivity(Intent.CreateChooser(shareIntent, Localization.Texts.Sharepost));
+                        shareIntent.PutExtra(Intent.ExtraText, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
                         break;
                     }
                 case ActionType.Photo:

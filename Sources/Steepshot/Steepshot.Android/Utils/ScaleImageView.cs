@@ -10,8 +10,9 @@ using Android.Views;
 using Android.Views.Animations;
 using Android.Widget;
 using Java.Lang;
-using Steepshot.Core;
 using Math = System.Math;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.Utils
 {
@@ -182,7 +183,7 @@ namespace Steepshot.Utils
         {
             if (scaleType == ScaleType.FitStart || scaleType == ScaleType.FitEnd)
             {
-                throw new Core.Exceptions.UnsupportedOperationException(Localization.Errors.ErrorCameraScale);
+                throw new AppError(LocalizationKeys.ErrorCameraScale);
             }
             if (scaleType == ScaleType.Matrix)
             {
@@ -222,7 +223,7 @@ namespace Steepshot.Utils
         {
             if (_mScaleType == ScaleType.FitXy)
             {
-                throw new UnsupportedOperationException(Localization.Errors.ErrorCameraZoom);
+                throw new AppError(LocalizationKeys.ErrorCameraZoom);
             }
             var topLeft = TransformCoordTouchToBitmap(0, 0, true);
             var bottomRight = TransformCoordTouchToBitmap(ViewWidth, ViewHeight, true);
@@ -626,7 +627,7 @@ namespace Steepshot.Utils
             }
             else
             {
-                throw new UnsupportedOperationException(Localization.Errors.ErrorCameraScale);
+                throw new AppError(LocalizationKeys.ErrorCameraScale);
             }
 
             //

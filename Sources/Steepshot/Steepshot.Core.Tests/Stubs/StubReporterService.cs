@@ -7,6 +7,11 @@ namespace Steepshot.Core.Tests.Stubs
 {
     public class StubReporterService : IReporterService
     {
+        public void SendMessage(string message)
+        {
+            Console.WriteLine(message);
+        }
+
         public void SendCrash(Exception ex)
         {
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
@@ -22,5 +27,4 @@ namespace Steepshot.Core.Tests.Stubs
             Console.WriteLine($"{ex.Message}{Environment.NewLine}{ex.StackTrace}{JsonConvert.SerializeObject(param1)}{Environment.NewLine}{JsonConvert.SerializeObject(param2)}");
         }
     }
-
 }

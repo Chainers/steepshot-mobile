@@ -16,6 +16,7 @@ using Steepshot.Fragment;
 using Steepshot.Services;
 using Steepshot.Utils;
 using LruCache = Square.Picasso.LruCache;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Base
 {
@@ -63,12 +64,16 @@ namespace Steepshot.Base
                 var appInfo = new AppInfo();
                 var assetsHelper = new AssetsHelper(assetManagerssets);
                 var connectionService = new ConnectionService();
+                
+                 var localizationManager = new LocalizationManager(assetsHelper.GetLocalization("en-us"));
+
                 builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
                 builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
                 builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
                 builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
                 builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
+                builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
                 var configInfo = assetsHelper.GetConfigInfo();
                 var reporterService = new ReporterService(appInfo, configInfo.RavenClientDsn);
                 builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();

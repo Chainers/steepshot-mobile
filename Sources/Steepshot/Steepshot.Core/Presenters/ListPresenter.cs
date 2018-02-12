@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Presenters
 {
@@ -58,7 +58,7 @@ namespace Steepshot.Core.Presenters
         {
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ApplicationError(Localization.Errors.InternetUnavailable);
+                return new AppError(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -68,7 +68,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new TaskCanceledError();
+                        return new CanceledError();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -79,22 +79,22 @@ namespace Steepshot.Core.Presenters
             }
             catch (OperationCanceledException)
             {
-                return new TaskCanceledError();
+                return new CanceledError();
             }
-            catch (ApplicationExceptionBase ex)
+            catch (ErrorBase ex)
             {
-                return new ApplicationError(ex.Message);
+                return ex;
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
                 {
-                    return new TaskCanceledError();
+                    return new CanceledError();
                 }
                 else
                 {
                     AppSettings.Reporter.SendCrash(ex);
-                    return new ApplicationError(Localization.Errors.UnknownError);
+                    return new AppError(LocalizationKeys.UnknownError);
                 }
             }
             finally
@@ -114,7 +114,7 @@ namespace Steepshot.Core.Presenters
         {
             var available = ConnectionService.IsConnectionAvailable();
             if (!available)
-                return new ApplicationError(Localization.Errors.InternetUnavailable);
+                return new AppError(LocalizationKeys.InternetUnavailable);
 
             CancellationToken ts;
             lock (_sync)
@@ -124,7 +124,7 @@ namespace Steepshot.Core.Presenters
                     if (cancelPrevTask)
                         _singleTaskCancellationTokenSource.Cancel();
                     else
-                        return new TaskCanceledError();
+                        return new CanceledError();
                 }
                 _singleTaskCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(OnDisposeCts.Token);
                 ts = _singleTaskCancellationTokenSource.Token;
@@ -135,22 +135,22 @@ namespace Steepshot.Core.Presenters
             }
             catch (OperationCanceledException)
             {
-                return new TaskCanceledError();
+                return new CanceledError();
             }
-            catch (ApplicationExceptionBase ex)
+            catch (ErrorBase ex)
             {
-                return new ApplicationError(ex.Message);
+                return ex;
             }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
                 {
-                    return new TaskCanceledError();
+                    return new CanceledError();
                 }
                 else
                 {
                     AppSettings.Reporter.SendCrash(ex, param1);
-                    return new ApplicationError(Localization.Errors.UnknownError);
+                    return new AppError(LocalizationKeys.UnknownError);
                 }
             }
             finally

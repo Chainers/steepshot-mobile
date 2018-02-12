@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Threading;
 using Autofac;
 using NUnit.Framework;
 using Steepshot.Core.Authority;
@@ -13,6 +12,7 @@ using Steepshot.Core.Tests.Stubs;
 using Steepshot.Core.Utils;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Tests
 {
@@ -25,21 +25,22 @@ namespace Steepshot.Core.Tests
         static BaseTests()
         {
             var builder = new ContainerBuilder();
-
+            
+            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.txt");
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
             builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(new StubConnectionService()).As<IConnectionService>().SingleInstance();
+            builder.RegisterInstance(new LocalizationManager(JsonConvert.DeserializeObject<LocalizationModel>(jsonLocalization))).As<LocalizationManager>().SingleInstance();
             builder.RegisterType<StubReporterService>().As<IReporterService>().SingleInstance();
-
 
             AppSettings.Container = builder.Build();
             AppSettings.IsDev = IsDev;
 
             Users = new Dictionary<KnownChains, UserInfo>
             {
-                {KnownChains.Steem, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["SteemWif"]}},
-                {KnownChains.Golos, new UserInfo {Login = "joseph.kalu", PostingKey = ConfigurationManager.AppSettings["GolosWif"]}},
+                {KnownChains.Steem, new UserInfo {Login = ConfigurationManager.AppSettings["SteemLogin"], PostingKey = ConfigurationManager.AppSettings["SteemPostingWif"]}},
+                {KnownChains.Golos, new UserInfo {Login = ConfigurationManager.AppSettings["GolosLogin"], PostingKey = ConfigurationManager.AppSettings["GolosPostingWif"]}},
             };
 
             Api = new Dictionary<KnownChains, SteepshotApiClient>
