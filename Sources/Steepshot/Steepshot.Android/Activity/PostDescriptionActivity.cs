@@ -107,7 +107,7 @@ namespace Steepshot.Activity
             else
             {
                 _model = new PreparePostModel(BasePresenter.User.UserInfo);
-                InitPhoto(_path);
+                InitPhoto();
                 SetPostingTimer();
             }
 
@@ -161,7 +161,7 @@ namespace Steepshot.Activity
             Picasso.With(this).Load(editPost.Media[0].Url).Into(_photoFrame);
         }
 
-        private void InitPhoto(string path)
+        private void InitPhoto()
         {
             _path = Intent.GetStringExtra(PhotoExtraPath);
 
