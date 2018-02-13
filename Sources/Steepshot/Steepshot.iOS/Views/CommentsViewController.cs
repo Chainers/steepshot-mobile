@@ -225,6 +225,10 @@ namespace Steepshot.iOS.Views
                 commentTextView.Text = string.Empty;
                 _commentsTextViewDelegate.Placeholder.Hidden = false;
                 commentTextView.ResignFirstResponder();
+                commentTextView.Frame = new CGRect(commentTextView.Frame.Location, new CGSize(commentTextView.Frame.Width, 40));
+                bottomView.Frame = new CGRect(bottomView.Frame.Location, new CGSize(bottomView.Frame.Width, 60));
+                commentsTable.Frame = new CGRect(commentsTable.Frame.Location,
+                                                 new CGSize(commentsTable.Frame.Width, UIScreen.MainScreen.Bounds.Height - bottomView.Frame.Height - View.Frame.Y));
 
                 var error = await _presenter.TryLoadNextComments(Post);
 
