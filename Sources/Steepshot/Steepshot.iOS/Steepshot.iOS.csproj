@@ -215,7 +215,6 @@
     <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
     <InterfaceDefinition Include="Cells\AccountTableViewCell.xib" />
-    <InterfaceDefinition Include="Main.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
