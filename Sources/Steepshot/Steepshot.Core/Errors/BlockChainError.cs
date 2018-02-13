@@ -1,21 +1,30 @@
-﻿using Newtonsoft.Json;
+﻿using System.Linq;
+using Ditch.Core.Errors;
+using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Errors
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class BlockchainError : ErrorBase
+    public sealed class BlockchainError : ErrorBase
     {
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="message">ResponseError message</param>
-        public BlockchainError(string message) : base(message) { }
+        public string FullMessage { get; set; }
 
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="code">ResponseError code</param>
-        /// <param name="message">ResponseError message</param>
-        public BlockchainError(long code, string message) : base(code, message) { }
+        public BlockchainError(LocalizationKeys key) : base(key) { }
+
+        public BlockchainError(ResponseError responseError)
+            : base(ToMessage(responseError))
+        {
+            FullMessage = responseError.Message;
+        }
+
+        private static string ToMessage(ResponseError responseError)
+        {
+            var format = string.Empty;
+            if (responseError.Data.Stack.Any() && !string.IsNullOrEmpty(responseError.Data.Stack[0].Format))
+                format = ": " + responseError.Data.Stack[0].Format;
+
+            return $"{responseError.Data.Code} {responseError.Data.Name}: {responseError.Data.Message}{format}";
+        }
     }
 }

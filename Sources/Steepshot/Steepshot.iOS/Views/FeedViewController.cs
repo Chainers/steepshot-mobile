@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -11,6 +10,8 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -95,15 +96,19 @@ namespace Steepshot.iOS.Views
                     //TODO: pass image
                     myViewController2.ImageForPreview = null;
                     myViewController2.ImageUrl = post.Body;
-                    _navController.PushViewController(myViewController2, true);
+                    TabBarController.NavigationController.PushViewController(myViewController2, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
+                case ActionType.Flagers:
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
+                    break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    _navController.PushViewController(myViewController4, true);
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -120,7 +125,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            _navController.PushViewController(myViewController, true);
+            NavigationController.PushViewController(myViewController, true);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
@@ -160,9 +165,9 @@ namespace Steepshot.iOS.Views
         private void Flag(Post post)
         {
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.FlagPhoto, UIAlertActionStyle.Default, obj => FlagPhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.HidePhoto, UIAlertActionStyle.Default, obj => HidePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(Localization.Messages.Cancel, UIAlertActionStyle.Cancel, null));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
         }
 

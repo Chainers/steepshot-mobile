@@ -10,13 +10,14 @@ using UIKit;
 using Xamarin.TTTAttributedLabel;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Extensions;
-using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {
-    public class NewFeedCollectionViewCell : BaseProfileCell
+    public class NewFeedCollectionViewCell : UICollectionViewCell
     {
         private Post _currentPost;
 
@@ -30,6 +31,7 @@ namespace Steepshot.iOS.Cells
         private UIImageView _secondLikerImage;
         private UIImageView _thirdLikerImage;
         private UILabel _likes;
+        private UIView _likersTapView;
         private UILabel _flags;
         private UILabel _rewards;
         private UIView _verticalSeparator;
@@ -89,14 +91,14 @@ namespace Steepshot.iOS.Cells
 
             var authorX = _avatarImage.Frame.Right + 10;
 
-            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top, _moreButton.Frame.Left - authorX, 16));
+            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _moreButton.Frame.Left - authorX, 18));
             _author.Font = Constants.Semibold14;
             //_author.BackgroundColor = UIColor.Yellow;
             _author.LineBreakMode = UILineBreakMode.TailTruncation;
             _author.TextColor = Constants.R15G24B30;
             ContentView.AddSubview(_author);
 
-            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 14));
+            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 16));
             _timestamp.Font = Constants.Regular12;
             //_timestamp.BackgroundColor = UIColor.Green;
             _timestamp.LineBreakMode = UILineBreakMode.TailTruncation;
@@ -142,6 +144,7 @@ namespace Steepshot.iOS.Cells
             //_flags.BackgroundColor = UIColor.Orange;
             _flags.LineBreakMode = UILineBreakMode.TailTruncation;
             _flags.TextColor = Constants.R15G24B30;
+            _flags.UserInteractionEnabled = true;
             ContentView.AddSubview(_flags);
 
             _rewards = new UILabel();
@@ -196,6 +199,10 @@ namespace Steepshot.iOS.Cells
             _profileTapView.UserInteractionEnabled = true;
             ContentView.AddSubview(_profileTapView);
 
+            _likersTapView = new UIView();
+            _likersTapView.UserInteractionEnabled = true;
+            ContentView.AddSubview(_likersTapView);
+
             var tap = new UITapGestureRecognizer(() =>
             {
                 CellAction?.Invoke(ActionType.Preview, _currentPost);
@@ -223,15 +230,16 @@ namespace Steepshot.iOS.Cells
             {
                 CellAction?.Invoke(ActionType.Voters, _currentPost);
             });
-            _likes.AddGestureRecognizer(netVotesTap);
+            _likersTapView.AddGestureRecognizer(netVotesTap);
+
+            var flagersTap = new UITapGestureRecognizer(() =>
+            {
+                CellAction?.Invoke(ActionType.Flagers, _currentPost);
+            });
+            _flags.AddGestureRecognizer(flagersTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
             _like.TouchDown += LikeTap;
-        }
-
-        public override void UpdateCell(Post post)
-        {
-            //throw new NotImplementedException();
         }
 
         public void UpdateCell(Post post, CellSizeHelper variables)
@@ -327,7 +335,7 @@ namespace Steepshot.iOS.Cells
 
             if (_currentPost.NetLikes != 0)
             {
-                _likes.Text = $"{_currentPost.NetLikes} {Localization.Messages.Likes}";
+                _likes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetLikes);
                 var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _likes.Frame = new CGRect(likesMargin, _bodyImage.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
                 flagMargin = flagsMarginConst;
@@ -335,9 +343,11 @@ namespace Steepshot.iOS.Cells
             else
                 _likes.Frame = new CGRect(likesMargin, _bodyImage.Frame.Bottom, 0, 0);
 
+            _likersTapView.Frame = new CGRect(leftMargin, _bodyImage.Frame.Bottom, _likes.Frame.Right - leftMargin, _likes.Frame.Height);
+
             if (_currentPost.NetFlags != 0)
             {
-                _flags.Text = $"{_currentPost.NetFlags} {Localization.Messages.Flags}";
+                _flags.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
                 var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _bodyImage.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
             }
@@ -362,17 +372,20 @@ namespace Steepshot.iOS.Cells
             var rewardWidth = _rewards.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
             _rewards.Frame = new CGRect(_verticalSeparator.Frame.Left - rewardWidth.Width, _bodyImage.Frame.Bottom, rewardWidth.Width, underPhotoPanelHeight);
             */
+
             _topSeparator.Frame = new CGRect(0, _bodyImage.Frame.Bottom + underPhotoPanelHeight, UIScreen.MainScreen.Bounds.Width, 1);
 
             _attributedLabel.SetText(variables.Text);
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - leftMargin * 2, variables.TextHeight));
 
-            _comments.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
+            _comments.Text = _currentPost.Children == 0
+                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
+                : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
 
-            _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 10, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
+            _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 
-            _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 15, UIScreen.MainScreen.Bounds.Width, 1);
+            _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 10, UIScreen.MainScreen.Bounds.Width, 1);
 
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;

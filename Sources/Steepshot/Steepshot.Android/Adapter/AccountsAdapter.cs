@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Steepshot.Core;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class AccountsAdapter : RecyclerView.Adapter
+    public sealed class AccountsAdapter : RecyclerView.Adapter
     {
         public List<UserInfo> AccountsList;
         public Action<UserInfo> DeleteAccount;
@@ -37,7 +38,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class AccountViewHolder : RecyclerView.ViewHolder
+    public sealed class AccountViewHolder : RecyclerView.ViewHolder
     {
         private readonly TextView _cellText;
         private readonly ImageView _checkImage;
@@ -65,7 +66,7 @@ namespace Steepshot.Adapter
         public void UpdateData(UserInfo userInfo)
         {
             _userInfo = userInfo;
-            _cellText.Text = $"{userInfo.Chain} {Localization.Messages.Account}";
+            _cellText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Account, userInfo.Chain);
             _checkImage.SetImageResource(BasePresenter.Chain == userInfo.Chain ? Resource.Drawable.ic_checked : Resource.Drawable.ic_unchecked);
         }
 

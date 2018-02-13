@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using CoreGraphics;
-using Ditch.Core;
 using Foundation;
-using Steepshot.Core;
-using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.ViewControllers
 {
     public class BaseViewController : UIViewController
     {
-        private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
         public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
@@ -32,22 +29,6 @@ namespace Steepshot.iOS.ViewControllers
         protected NSObject ForegroundToken;
 
         public static bool ShouldProfileUpdate { get; set; }
-
-        static BaseViewController()
-        {
-            BasePresenter.User = new User();
-            BasePresenter.User.Load();
-            //TODO:KOA: endpoint for CurencyConvertation needed
-            CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
-        }
-        /*
-        public override void ViewWillAppear(bool animated)
-        {
-            if (TabBarController != null)
-                TabBarController.TabBar.Hidden = false;
-
-            base.ViewWillAppear(animated);
-        }*/
 
         public override void ViewDidAppear(bool animated)
         {
@@ -128,41 +109,69 @@ namespace Steepshot.iOS.ViewControllers
             UIView.CommitAnimations();
         }
 
-        protected void ShowAlert(string message)
+        protected void ShowAlert(LocalizationKeys key)
         {
+            var message = AppSettings.LocalizationManager.GetText(key);
             var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(Localization.Messages.Ok, UIAlertActionStyle.Cancel, null));
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
             PresentViewController(alert, true, null);
         }
 
         protected void ShowAlert(ErrorBase error)
         {
-            if (error == null)
+            if (error == null || error is CanceledError)
                 return;
-            ShowAlert(error.Message);
-        }
 
-        protected void ShowAlert(OperationResult result)
-        {
-            if (result == null)
+            var message = error.Message;
+            if (string.IsNullOrWhiteSpace(message))
                 return;
-            ShowAlert(result.Error);
-        }
 
-        protected void ShowDialog(string message, string leftButtonText, string rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
-        {
+            var lm = AppSettings.LocalizationManager;
+            if (!lm.ContainsKey(message))
+            {
+                if (error is BlockchainError blError)
+                {
+                    AppSettings.Reporter.SendMessage($"New message: {blError.FullMessage}");
+                }
+                else
+                {
+                    AppSettings.Reporter.SendMessage($"New message: {message}");
+                }
+                message = nameof(LocalizationKeys.UnexpectedError);
+            }
+
             var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(leftButtonText, UIAlertActionStyle.Cancel, leftButtonAction));
-            alert.AddAction(UIAlertAction.Create(rightButtonText, UIAlertActionStyle.Default, rightButtonAction));
+            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
             PresentViewController(alert, true, null);
         }
 
-        public static string ToFormatedCurrencyString(Asset value, string postfix = null)
+        protected void ShowDialog(ErrorBase error, LocalizationKeys leftButtonText, LocalizationKeys rightButtonText, Action<UIAlertAction> leftButtonAction = null, Action<UIAlertAction> rightButtonAction = null)
         {
-            var dVal = value.ToDouble();
-            if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
-                dVal *= CurencyConvertationDic[value.Currency];
-            return $"{BasePresenter.Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
+            if (error == null || error is CanceledError)
+                return;
+
+            var message = error.Message;
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            var lm = AppSettings.LocalizationManager;
+            if (!lm.ContainsKey(message))
+            {
+                if (error is BlockchainError blError)
+                {
+                    AppSettings.Reporter.SendMessage($"New message: {blError.FullMessage}");
+                }
+                else
+                {
+                    AppSettings.Reporter.SendMessage($"New message: {message}");
+                }
+                message = nameof(LocalizationKeys.UnexpectedError);
+            }
+
+            var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
+            alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
+            PresentViewController(alert, true, null);
         }
     }
 }

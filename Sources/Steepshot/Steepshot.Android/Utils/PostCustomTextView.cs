@@ -8,13 +8,14 @@ using Android.Text;
 using Android.Text.Style;
 using Android.Util;
 using Android.Widget;
-using Steepshot.Core;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
-    public class PostCustomTextView : TextView
+    public sealed class PostCustomTextView : TextView
     {
         public Action OnMeasureInvoked;
         public Action<string> TagAction;
@@ -89,7 +90,7 @@ namespace Steepshot.Utils
                 var nLines = layout.LineCount;
                 if (nLines > maxLines)
                 {
-                    textMaxLength = layout.GetLineEnd(maxLines - 1) - Localization.Texts.ShowMoreString.Length;
+                    textMaxLength = layout.GetLineEnd(maxLines - 1) - AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length;
                 }
             }
 
@@ -120,7 +121,7 @@ namespace Steepshot.Utils
             {
                 var translitTaf = tag.TagToRu();
                 var formatedTag = string.Format(tagFormat, translitTaf);
-                if (formatedTag.Length > textMaxLength - builder.Length() - Localization.Texts.ShowMoreString.Length)
+                if (formatedTag.Length > textMaxLength - builder.Length() - AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length)
                     break;
 
                 if (!string.Equals(tag, tagToExclude, StringComparison.OrdinalIgnoreCase))
@@ -143,8 +144,8 @@ namespace Steepshot.Utils
 
             if (textMaxLength != int.MaxValue)
             {
-                var tag = new SpannableString(Localization.Texts.ShowMoreString);
-                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, Localization.Texts.ShowMoreString.Length, 0);
+                var tag = new SpannableString(AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString));
+                tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length, 0);
                 builder.Append(tag);
             }
 

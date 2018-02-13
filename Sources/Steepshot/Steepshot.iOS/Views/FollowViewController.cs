@@ -8,9 +8,10 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Extensions;
 using UIKit;
-using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
@@ -55,7 +56,7 @@ namespace Steepshot.iOS.Views
             var count = _friendsType == FriendsType.Followers ? _user.FollowersCount : _user.FollowingCount;
             var peopleLabel = new UILabel()
             {
-                Text = $"{count:N0} {Localization.Texts.PeopleText}",
+                Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count),
                 Font = Helpers.Constants.Regular14,
                 TextColor = Helpers.Constants.R15G24B30,
             };

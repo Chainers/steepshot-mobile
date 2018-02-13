@@ -6,19 +6,19 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
-    public class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
+    public sealed class CommentsFragment : BaseFragmentWithPresenter<CommentsPresenter>
     {
         private const string PostUrlExtraPath = "url";
         private const string PostNetVotesExtraPath = "count";
@@ -80,8 +80,11 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
+            _commentEditMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
+            _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+
             _commentEditMessage.Typeface = Style.Semibold;
-            _commentEditMessage.Text = Localization.Texts.EditComment;
             _commentEditText.Typeface = Style.Regular;
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
@@ -89,7 +92,6 @@ namespace Steepshot.Fragment
             _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Messages.Comments;
 
             _postBtn.Click += OnPost;
             _rootLayout.Click += OnRootClick;
@@ -98,14 +100,7 @@ namespace Steepshot.Fragment
 
             Presenter.SourceChanged += PresenterSourceChanged;
             _adapter = new CommentAdapter(Context, Presenter, _post);
-            _adapter.LikeAction += LikeAction;
-            _adapter.UserAction += UserAction;
-            _adapter.VotersClick += VotersAction;
-            _adapter.FlagAction += FlagAction;
-            _adapter.HideAction += HideAction;
-            _adapter.ReplyAction += ReplyAction;
-            _adapter.EditAction += EditAction;
-            _adapter.DeleteAction += DeleteAction;
+            _adapter.CommentAction += CommentAction;
             _adapter.RootClickAction += HideKeyboard;
             _adapter.TagAction += TagAction;
 
@@ -192,7 +187,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (resp != null && resp.IsSuccess)
+                if (resp.IsSuccess)
                 {
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
@@ -212,7 +207,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    Context.ShowAlert(resp, ToastLength.Short);
+                    Context.ShowAlert(resp.Error, ToastLength.Short);
                 }
             }
 
@@ -235,76 +230,102 @@ namespace Steepshot.Fragment
             _spinner.Visibility = ViewStates.Gone;
         }
 
-        private void UserAction(Post post)
+        private async void CommentAction(ActionType type, Post post)
         {
-            if (post == null)
-                return;
-
-            if (BasePresenter.User.Login != post.Author)
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
-        }
-
-        private void VotersAction(Post post, VotersType type)
-        {
-            if (post == null)
-                return;
-
-            var isLikers = type == VotersType.Likes;
-            Activity.Intent.PutExtra(PostUrlExtraPath, post.Url.Substring(post.Url.LastIndexOf("@", StringComparison.Ordinal)));
-            Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
-            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
-            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
-        }
-
-        private void ReplyAction(Post post)
-        {
-            if (post == null)
-                return;
-            if (!_textInput.Text.StartsWith($"@{post.Author}"))
+            switch (type)
             {
-                _textInput.Text = $"@{post.Author} {_textInput.Text}";
-                _textInput.SetSelection(_textInput.Text.Length);
-            }
-            OpenKeyboard();
-        }
+                case ActionType.Like:
+                    {
+                        if (BasePresenter.User.IsAuthenticated)
+                        {
+                            var error = await Presenter.TryVote(post);
 
-        private async void LikeAction(Post post)
-        {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                var error = await Presenter.TryVote(post);
+                            if (!IsInitialized)
+                                return;
+                            Context.ShowAlert(error, ToastLength.Short);
+                        }
+                        else
+                        {
+                            var intent = new Intent(Context, typeof(WelcomeActivity));
+                            StartActivity(intent);
+                        }
+                        break;
+                    }
+                case ActionType.Profile:
+                    {
+                        if (post == null)
+                            return;
 
-                if (!IsInitialized)
-                    return;
-                Context.ShowAlert(error, ToastLength.Short);
-            }
-            else
-            {
-                var intent = new Intent(Context, typeof(WelcomeActivity));
-                StartActivity(intent);
-            }
-        }
+                        if (BasePresenter.User.Login != post.Author)
+                            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
+                        break;
+                    }
+                case ActionType.VotersLikes:
+                case ActionType.VotersFlags:
+                    {
+                        if (post == null)
+                            return;
 
-        private async void FlagAction(Post post)
-        {
-            if (BasePresenter.User.IsAuthenticated)
-            {
-                var error = await Presenter.TryFlag(post);
+                        var isLikers = type == ActionType.VotersLikes;
+                        Activity.Intent.PutExtra(PostUrlExtraPath, post.Url.Substring(post.Url.LastIndexOf("@", StringComparison.Ordinal)));
+                        Activity.Intent.PutExtra(PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+                        Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
+                        ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+                        break;
+                    }
+                case ActionType.Flag:
+                    {
+                        if (BasePresenter.User.IsAuthenticated)
+                        {
+                            var error = await Presenter.TryFlag(post);
 
-                if (!IsInitialized)
-                    return;
-                Context.ShowAlert(error, ToastLength.Short);
-            }
-            else
-            {
-                var intent = new Intent(Context, typeof(WelcomeActivity));
-                StartActivity(intent);
-            }
-        }
+                            if (!IsInitialized)
+                                return;
+                            Context.ShowAlert(error, ToastLength.Short);
+                        }
+                        else
+                        {
+                            var intent = new Intent(Context, typeof(WelcomeActivity));
+                            StartActivity(intent);
+                        }
+                        break;
+                    }
+                case ActionType.Hide:
+                    {
+                        Presenter.HidePost(post);
+                        break;
+                    }
+                case ActionType.Reply:
+                    {
+                        if (post == null)
+                            return;
+                        if (!_textInput.Text.StartsWith($"@{post.Author}"))
+                        {
+                            _textInput.Text = $"@{post.Author} {_textInput.Text}";
+                            _textInput.SetSelection(_textInput.Text.Length);
+                        }
+                        OpenKeyboard();
+                        break;
+                    }
+                case ActionType.Edit:
+                    {
+                        _editComment = post;
+                        _textInput.Text = _commentEditText.Text = post.Body;
+                        _textInput.SetSelection(post.Body.Length);
+                        _commentEditBlock.Visibility = ViewStates.Visible;
+                        OpenKeyboard();
+                        break;
+                    }
+                case ActionType.Delete:
+                    {
+                        var error = await Presenter.TryDeleteComment(post, _post);
+                        if (!IsInitialized)
+                            return;
 
-        private void HideAction(Post post)
-        {
-            Presenter.HidePost(post);
+                        Context.ShowAlert(error);
+                        break;
+                    }
+            }
         }
 
         private void HideKeyboard()
@@ -323,24 +344,6 @@ namespace Steepshot.Fragment
             _textInput.Text = _commentEditText.Text = string.Empty;
             _commentEditBlock.Visibility = ViewStates.Gone;
             HideKeyboard();
-        }
-
-        private void EditAction(Post post)
-        {
-            _editComment = post;
-            _textInput.Text = _commentEditText.Text = post.Body;
-            _textInput.SetSelection(post.Body.Length);
-            _commentEditBlock.Visibility = ViewStates.Visible;
-            OpenKeyboard();
-        }
-
-        private async void DeleteAction(Post post)
-        {
-            var error = await Presenter.TryDeleteComment(post, _post);
-            if (!IsInitialized)
-                return;
-
-            Context.ShowAlert(error);
         }
     }
 }

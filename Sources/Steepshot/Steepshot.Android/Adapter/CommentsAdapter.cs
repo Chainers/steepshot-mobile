@@ -9,25 +9,25 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Core;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using System.Threading.Tasks;
 using Android.App;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class CommentAdapter : RecyclerView.Adapter
+    public sealed class CommentAdapter : RecyclerView.Adapter
     {
         private readonly CommentsPresenter _presenter;
         private readonly Context _context;
         private readonly Post _post;
-        public Action<Post> LikeAction, UserAction, FlagAction, HideAction, ReplyAction, EditAction, DeleteAction;
+        public Action<ActionType, Post> CommentAction;
         public Action RootClickAction;
-        public Action<Post, VotersType> VotersClick;
         public Action<string> TagAction;
 
         public override int ItemCount => _presenter.Count + 1;
@@ -63,22 +63,21 @@ namespace Steepshot.Adapter
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_description_item, parent, false);
-                        var vh = new PostDescriptionViewHolder(itemView, UserAction, TagAction);
+                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), TagAction);
                         return vh;
                     }
                 default:
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_comment_item, parent, false);
-                        var vh = new CommentViewHolder(itemView, LikeAction, UserAction, VotersClick, FlagAction,
-                            HideAction, ReplyAction, EditAction, DeleteAction, RootClickAction);
+                        var vh = new CommentViewHolder(itemView, CommentAction, RootClickAction);
                         return vh;
                     }
             }
         }
     }
 
-    public class PostDescriptionViewHolder : RecyclerView.ViewHolder
+    public sealed class PostDescriptionViewHolder : RecyclerView.ViewHolder
     {
         private readonly Action<string> _tagAction;
         private readonly Action<Post> _userAction;
@@ -153,7 +152,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class CommentViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class CommentViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -165,13 +164,7 @@ namespace Steepshot.Adapter
         private readonly TextView _time;
         private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _more;
-        private readonly Action<Post> _likeAction;
-        private readonly Action<Post> _userAction;
-        private readonly Action<Post> _flagAction;
-        private readonly Action<Post> _hideAction;
-        private readonly Action<Post> _replyAction;
-        private readonly Action<Post> _editAction;
-        private readonly Action<Post> _deleteAction;
+        private readonly Action<ActionType, Post> _commentAction;
         private readonly Action<Post, VotersType> _votersAction;
         private readonly Action _rootAction;
         private readonly BottomSheetDialog _moreActionsDialog;
@@ -181,7 +174,7 @@ namespace Steepshot.Adapter
 
         private Post _post;
 
-        public CommentViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> replyAction, Action<Post> editAction, Action<Post> deleteAction, Action rootClickAction) : base(itemView)
+        public CommentViewHolder(View itemView, Action<ActionType, Post> commentAction, Action rootClickAction) : base(itemView)
         {
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
@@ -195,18 +188,13 @@ namespace Steepshot.Adapter
             _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
 
+            _reply.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Reply);
+
             _author.Typeface = Style.Semibold;
             _comment.Typeface = _likes.Typeface = _cost.Typeface = _reply.Typeface = Style.Regular;
 
-            _likeAction = likeAction;
-            _userAction = userAction;
-            _flagAction = flagAction;
-            _hideAction = hideAction;
-            _replyAction = replyAction;
+            _commentAction = commentAction;
             _rootAction = rootClickAction;
-            _votersAction = votersAction;
-            _editAction = editAction;
-            _deleteAction = deleteAction;
 
             _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
@@ -276,19 +264,21 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
-                flag.Text = _post.Flag ? Localization.Texts.UnFlagComment : Localization.Texts.FlagComment;
+                flag.Text = AppSettings.LocalizationManager.GetText(_post.Flag
+                    ? LocalizationKeys.UnFlagComment
+                    : LocalizationKeys.FlagComment);
                 flag.Typeface = Style.Semibold;
 
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
-                hide.Text = Localization.Texts.HidePost;
+                hide.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePost);
                 hide.Typeface = Style.Semibold;
 
                 var edit = dialogView.FindViewById<Button>(Resource.Id.editpost);
-                edit.Text = Localization.Texts.EditComment;
+                edit.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
                 edit.Typeface = Style.Semibold;
 
                 var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
-                delete.Text = Localization.Texts.DeleteComment;
+                delete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteComment);
                 delete.Typeface = Style.Semibold;
 
                 if (_post.Author == BasePresenter.User.Login)
@@ -298,7 +288,7 @@ namespace Steepshot.Adapter
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                cancel.Text = Localization.Texts.Cancel;
+                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
                 flag.Click -= DoFlagAction;
@@ -326,7 +316,7 @@ namespace Steepshot.Adapter
         private void EditOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            _editAction?.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Edit, _post);
         }
 
         private void DeleteOnClick(object sender, EventArgs eventArgs)
@@ -338,22 +328,22 @@ namespace Steepshot.Adapter
             var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
 
             var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
-            alertTitle.Text = Localization.Messages.DeleteAlertTitle;
+            alertTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
             alertTitle.Typeface = Style.Semibold;
 
             var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
-            alertMessage.Text = Localization.Messages.DeleteAlertMessage;
+            alertMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
             alertMessage.Typeface = Style.Light;
 
             var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
-            alertCancel.Text = Localization.Texts.Cancel;
+            alertCancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
             alertCancel.Click += (o, args) => alert.Cancel();
 
             var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
-            alertDelete.Text = Localization.Texts.Delete;
+            alertDelete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
             alertDelete.Click += (o, args) =>
             {
-                _deleteAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Delete, _post);
                 alert.Cancel();
             };
 
@@ -369,13 +359,13 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
-            _flagAction.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Flag, _post);
         }
 
         private void DoHideAction(object sender, EventArgs e)
         {
             _moreActionsDialog.Dismiss();
-            _hideAction.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Hide, _post);
         }
 
         private void DoDialogCancelAction(object sender, EventArgs e)
@@ -385,22 +375,22 @@ namespace Steepshot.Adapter
 
         private void UserAction(object sender, EventArgs e)
         {
-            _userAction?.Invoke(_post);
+            _commentAction?.Invoke(ActionType.Profile, _post);
         }
 
         private void ReplyAction(object sender, EventArgs e)
         {
-            _replyAction?.Invoke(_post);
+            _commentAction.Invoke(ActionType.Reply, _post);
         }
 
         private void DoLikersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Likes);
+            _commentAction?.Invoke(ActionType.VotersLikes, _post);
         }
 
         private void DoFlagersAction(object sender, EventArgs e)
         {
-            _votersAction?.Invoke(_post, VotersType.Flags);
+            _commentAction?.Invoke(ActionType.VotersFlags, _post);
         }
 
         private void Like_Click(object sender, EventArgs e)
@@ -408,9 +398,9 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
             if (_post.Flag)
-                _flagAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Flag, _post);
             else
-                _likeAction?.Invoke(_post);
+                _commentAction?.Invoke(ActionType.Like, _post);
         }
 
         private void Root_Click(object sender, EventArgs e)
@@ -468,14 +458,14 @@ namespace Steepshot.Adapter
             if (post.NetLikes > 0)
             {
                 _likes.Visibility = ViewStates.Visible;
-                _likes.Text = $"{post.NetLikes} {(_post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+                _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
                 _likes.Visibility = ViewStates.Gone;
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = $"{post.NetFlags} {(_post.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
+                _flags.Text = _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
             }
             else
                 _flags.Visibility = ViewStates.Gone;

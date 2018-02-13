@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Steepshot.Core.Presenters
 {
-    public class PostDescriptionPresenter : TagsPresenter
+    public sealed class PostDescriptionPresenter : TagsPresenter
     {
         public async Task<OperationResult<MediaModel>> TryUploadMedia(UploadMediaModel model)
         {

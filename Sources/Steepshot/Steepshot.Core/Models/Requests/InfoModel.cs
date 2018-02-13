@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -15,7 +16,7 @@ namespace Steepshot.Core.Models.Requests
         public int Limit { get; set; }
 
         [JsonProperty]
-        [Required(ErrorMessage = Localization.Errors.EmptyUrlField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUrlField))]
         public string Url { get; }
 
 

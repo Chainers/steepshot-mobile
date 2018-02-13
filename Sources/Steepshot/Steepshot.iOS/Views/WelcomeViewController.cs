@@ -1,13 +1,13 @@
 ﻿using System;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -58,7 +58,7 @@ namespace Steepshot.iOS.Views
         {
             if (!termsSwitcher.On)
             {
-                ShowAlert(Localization.Messages.AcceptToS);
+                ShowAlert(LocalizationKeys.AcceptToS);
                 return;
             }
             var myViewController = new PreLoginViewController();

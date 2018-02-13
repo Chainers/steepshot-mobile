@@ -5,8 +5,8 @@ namespace Steepshot.Fragment
 {
     public class BackStackFragment : Android.Support.V4.App.Fragment
     {
-        protected BaseFragment _fragment;
-        protected bool _isPopped;
+        protected BaseFragment Fragment;
+        protected bool IsPopped;
 
         public bool HandleBackPressed(FragmentManager fm)
         {
@@ -31,9 +31,9 @@ namespace Steepshot.Fragment
             if (HandleBackPressed(ChildFragmentManager))
                 return true;
 
-            if (_fragment != null && _fragment.UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
+            if (Fragment != null && Fragment.UserVisibleHint && ChildFragmentManager.BackStackEntryCount > 0)
             {
-                _isPopped = true;
+                IsPopped = true;
                 ChildFragmentManager.PopBackStack();
                 return true;
             }

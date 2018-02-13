@@ -14,7 +14,7 @@ using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
 {
-    public class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
+    public sealed class PostPagerAdapter<T> : Android.Support.V4.View.PagerAdapter, ViewPager.IPageTransformer
         where T : BasePostPresenter
     {
         private const int CachedPagesCount = 5;
@@ -24,8 +24,7 @@ namespace Steepshot.Adapter
         private readonly List<PostViewHolder> _viewHolders;
         private int _itemsCount;
         private View _loadingView;
-        public Action<Post> LikeAction, UserAction, CommentAction, PhotoClick, FlagAction, HideAction, EditAction, DeleteAction;
-        public Action<Post, VotersType> VotersClick;
+        public Action<ActionType, Post> PostAction;
         public Action<string> TagAction;
         public Action CloseAction;
         public int CurrentItem { get; set; }
@@ -60,8 +59,7 @@ namespace Steepshot.Adapter
             {
                 var itemView = LayoutInflater.From(_context)
                     .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, LikeAction, UserAction, CommentAction, PhotoClick, VotersClick,
-                    FlagAction, HideAction, EditAction, DeleteAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
+                vh = new PostViewHolder(itemView, PostAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
                 _viewHolders[reusePosition] = vh;
                 container.AddView(vh.ItemView);
             }
@@ -196,13 +194,10 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class PostViewHolder : FeedViewHolder
+    public sealed class PostViewHolder : FeedViewHolder
     {
         private readonly Action _closeAction;
-        private readonly ImageButton _closeButton;
-        private readonly RelativeLayout _postHeader;
-        private readonly RelativeLayout _postFooter;
-        public PostViewHolder(View itemView, Action<Post> likeAction, Action<Post> userAction, Action<Post> commentAction, Action<Post> photoAction, Action<Post, VotersType> votersAction, Action<Post> flagAction, Action<Post> hideAction, Action<Post> editAction, Action<Post> deleteAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, likeAction, userAction, commentAction, photoAction, votersAction, flagAction, hideAction, editAction, deleteAction, tagAction, height)
+        public PostViewHolder(View itemView, Action<ActionType, Post> postAction, Action<string> tagAction, Action closeAction, int height) : base(itemView, postAction, tagAction, height)
         {
             PhotoPagerType = PostPagerType.PostScreen;
             _closeAction = closeAction;

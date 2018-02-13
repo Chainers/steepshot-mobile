@@ -2,29 +2,44 @@
 using Steepshot.Core.Authority;
 using System.ComponentModel.DataAnnotations;
 using Ditch.Core.Helpers;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
+using System.Diagnostics;
 
 namespace Steepshot.Core.Models.Requests
 {
+    [DebuggerStepThrough]
     [JsonObject(MemberSerialization.OptIn)]
     public class PreparePostModel : AuthorizedModel
     {
         private string[] _tags;
-        private readonly string _permlink;
+        private string _permlink;
         public const int TagLimit = 20;
 
         [JsonProperty]
         public string Description { get; set; }
+        
+        public string Permlink
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_permlink))
+                    _permlink = OperationHelper.TitleToPermlink(Title);
 
+                return _permlink;
+            }
+        }
+
+        //needed for post/prepare
         [JsonProperty]
-        public string Permlink => string.IsNullOrEmpty(_permlink) ? OperationHelper.TitleToPermlink(Title) : _permlink;
+        public string PostPermlink => $"@{Author}/{Permlink}";
 
         [JsonProperty("username")]
-        [Required(ErrorMessage = Localization.Errors.EmptyLogin)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyLogin))]
         public string Author { get; set; }
 
         [JsonProperty]
-        [MaxLength(TagLimit, ErrorMessage = Localization.Errors.TagLimitError)]
+        [MaxLength(TagLimit, ErrorMessage = nameof(LocalizationKeys.TagLimitError))]
         public string[] Tags
         {
             get { return _tags; }
@@ -43,12 +58,12 @@ namespace Steepshot.Core.Models.Requests
         public bool ShowFooter { get; }
 
         [JsonProperty]
-        [Required(ErrorMessage = Localization.Errors.EmptyFileField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
 
         public MediaModel[] Media { get; set; }
 
         [JsonProperty]
-        [Required(ErrorMessage = Localization.Errors.EmptyTitleField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyTitleField))]
         public string Title { get; set; }
 
         public bool IsEditMode { get; }

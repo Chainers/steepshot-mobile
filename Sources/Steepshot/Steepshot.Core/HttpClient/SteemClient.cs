@@ -16,6 +16,7 @@ using Ditch.Core;
 using Ditch.Steem.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -68,11 +69,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoteResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                    return new OperationResult<VoteResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
@@ -81,7 +82,7 @@ namespace Steepshot.Core.HttpClient
                     weigth = -10000;
 
                 var op = new VoteOperation(model.Login, model.Author, model.Permlink, weigth);
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
                 var result = new OperationResult<VoteResponse>();
                 if (!resp.IsError)
@@ -112,16 +113,16 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 var op = model.Type == FollowType.Follow
                     ? new FollowOperation(model.Login, model.Username, DitchFollowType.Blog, model.Login)
                     : new UnfollowOperation(model.Login, model.Username, model.Login);
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();
 
@@ -139,11 +140,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 var op = new FollowOperation(model.Login, "steepshot", DitchFollowType.Blog, model.Login);
                 var resp = _operationManager.VerifyAuthority(keys, ct, op);
@@ -164,11 +165,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 var op = new CommentOperation(model.ParentAuthor, model.ParentPermlink, model.Author, model.Permlink, model.Title, model.Body, model.JsonMetadata);
 
@@ -189,7 +190,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[] { op };
                 }
 
-                var resp = _operationManager.BroadcastOperations(keys, ct, ops);
+                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, ops);
 
                 var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
@@ -208,14 +209,14 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.PostingKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
                 var op = new DeleteCommentOperation(model.Author, model.Permlink);
-                var resp = _operationManager.BroadcastOperations(keys, ct, op);
+                var resp = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
 
                 var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
@@ -231,11 +232,11 @@ namespace Steepshot.Core.HttpClient
             return await Task.Run(() =>
             {
                 if (!TryReconnectChain(ct))
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
                 var keys = ToKeyArr(model.ActiveKey);
                 if (keys == null)
-                    return new OperationResult<VoidResponse>(new ApplicationError(Localization.Errors.WrongPrivateActimeKey));
+                    return new OperationResult<VoidResponse>(new AppError(LocalizationKeys.WrongPrivateActimeKey));
 
                 var resp = _operationManager.LookupAccountNames(new[] { model.Login }, CancellationToken.None);
                 var result = new OperationResult<VoidResponse>();
@@ -248,14 +249,14 @@ namespace Steepshot.Core.HttpClient
                 var profile = resp.Result.Length == 1 ? resp.Result[0] : null;
                 if (profile == null)
                 {
-                    result.Error = new BlockchainError(Localization.Errors.UnexpectedProfileData);
+                    result.Error = new BlockchainError(LocalizationKeys.UnexpectedProfileData);
                     return result;
                 }
 
                 var editedMeta = UpdateProfileJson(profile.JsonMetadata, model);
 
                 var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
-                var resp2 = _operationManager.BroadcastOperations(keys, ct, op);
+                var resp2 = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
                 if (!resp2.IsError)
                     result.Result = new VoidResponse(true);
                 else
@@ -272,11 +273,11 @@ namespace Steepshot.Core.HttpClient
         public override async Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<string>(new ApplicationError(Localization.Errors.EnableConnectToBlockchain));
+                return new OperationResult<string>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<string>(new ApplicationError(Localization.Errors.WrongPrivatePostingKey));
+                return new OperationResult<string>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
             return await Task.Run(() =>
             {

@@ -1,6 +1,5 @@
 ﻿using System;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
@@ -10,6 +9,8 @@ using Steepshot.iOS.ViewSources;
 using Steepshot.Core.Extensions;
 using UIKit;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -17,11 +18,13 @@ namespace Steepshot.iOS.Views
     {
         private readonly Post _post;
         private readonly VotersType _votersType;
+        private readonly bool _isComment;
 
-        public VotersViewController(Post post, VotersType votersType)
+        public VotersViewController(Post post, VotersType votersType, bool isComment = false)
         {
             _post = post;
             _votersType = votersType;
+            _isComment = isComment;
         }
 
         protected override void CreatePresenter()
@@ -55,7 +58,7 @@ namespace Steepshot.iOS.Views
             var count = _votersType == VotersType.Likes ? _post.NetLikes : _post.NetFlags;
             var peopleLabel = new UILabel()
             {
-                Text = $"{count:N0} {Localization.Texts.PeopleText}",
+                Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count),
                 Font = Helpers.Constants.Regular14,
                 TextColor = Helpers.Constants.R15G24B30,
             };
@@ -100,7 +103,7 @@ namespace Steepshot.iOS.Views
 
         public async void GetItems()
         {
-            var errors = await _presenter.TryLoadNextPostVoters(_post.Url);
+            var errors = await _presenter.TryLoadNextPostVoters(!_isComment ? _post.Url : _post.Url.Substring(_post.Url.LastIndexOf("@", StringComparison.Ordinal)));
             ShowAlert(errors);
             progressBar.StopAnimating();
         }

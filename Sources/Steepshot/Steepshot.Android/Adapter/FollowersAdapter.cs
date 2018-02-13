@@ -7,14 +7,15 @@ using Android.Views;
 using Android.Widget;
 using Refractored.Controls;
 using Square.Picasso;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
-    public class FollowersAdapter : RecyclerView.Adapter
+    public sealed class FollowersAdapter : RecyclerView.Adapter
     {
         private readonly Context _context;
         private readonly ListPresenter<UserFriend> _presenter;
@@ -181,7 +182,7 @@ namespace Steepshot.Adapter
                         {
                             background.SetColors(new int[] { Color.White, Color.White });
                             background.SetStroke(3, Style.R244G244B246);
-                            _followButton.Text = Localization.Messages.Unfollow;
+                            _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Unfollow);
                             _followButton.SetTextColor(Style.R15G24B30);
                         }
                         else
@@ -189,7 +190,7 @@ namespace Steepshot.Adapter
                             background.SetColors(new int[] { Style.R255G121B4, Style.R255G22B5 });
                             background.SetOrientation(GradientDrawable.Orientation.LeftRight);
                             background.SetStroke(0, Color.White);
-                            _followButton.Text = Localization.Messages.Follow;
+                            _followButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Follow);
                             _followButton.SetTextColor(Color.White);
                         }
                         _followButton.Enabled = true;

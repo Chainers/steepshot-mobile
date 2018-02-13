@@ -1,6 +1,6 @@
 ﻿namespace Steepshot.Core.Utils
 {
-    public class ConfigInfo
+    public sealed class ConfigInfo
     {
         public string RavenClientDsn { get; set; }
     }

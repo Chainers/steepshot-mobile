@@ -12,6 +12,7 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Fragment;
@@ -49,6 +50,7 @@ namespace Steepshot.Activity
             InitTabs();
 
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
+            _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
@@ -102,7 +104,7 @@ namespace Steepshot.Activity
                 else
                 {
                     //Replace for Permission request
-                    this.ShowAlert("Check your app permissions");
+                    this.ShowAlert(LocalizationKeys.CheckPermission);
                 }
             }
             else
@@ -110,6 +112,15 @@ namespace Steepshot.Activity
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
                 BasePresenter.User.SelectedTab = e.Tab.Position;
+            }
+        }
+
+        private void OnTabLayoutOnTabReselected(object sender, TabLayout.TabReselectedEventArgs e)
+        {
+            if (_tabLayout.GetTabAt(e.Tab.Position) == _prevTab)
+            {
+                var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
+                hostFragment?.Clear();
             }
         }
 
@@ -171,7 +182,7 @@ namespace Steepshot.Activity
                 if (IsDestroyed)
                     return;
 
-                if (error == null || error is TaskCanceledError)
+                if (error == null || error is CanceledError)
                 {
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                     break;
@@ -186,11 +197,10 @@ namespace Steepshot.Activity
 
         private void SetProfileChart(int size)
         {
-            var isEmpty = Presenter.UserProfileResponse == null || string.IsNullOrEmpty(Presenter.UserProfileResponse.ProfileImage);
             var votingPowerFrame = new VotingPowerFrame(this)
             {
                 Draw = true,
-                VotingPower = isEmpty ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
+                VotingPower = Presenter.UserProfileResponse == null ? 0 : (float)Presenter.UserProfileResponse.VotingPower,
                 VotingPowerWidth = BitmapUtils.DpToPixel(3, Resources)
             };
             var padding = (int)BitmapUtils.DpToPixel(7, Resources);
@@ -201,7 +211,7 @@ namespace Steepshot.Activity
             votingPowerFrame.AddView(avatar);
 
             var profileTab = _tabLayout.GetTabAt(_tabLayout.TabCount - 1);
-            if (!isEmpty)
+            if (!string.IsNullOrEmpty(Presenter.UserProfileResponse?.ProfileImage))
                 Picasso.With(this).Load(Presenter.UserProfileResponse.ProfileImage).NoFade().Resize(size, size)
                     .Placeholder(Resource.Drawable.ic_holder).Into(avatar,
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);

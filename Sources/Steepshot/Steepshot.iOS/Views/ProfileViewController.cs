@@ -188,10 +188,14 @@ namespace Steepshot.iOS.Views
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
                     break;
+                case ActionType.Flagers:
+                    NavigationController.PushViewController(new VotersViewController(post, VotersType.Flags), true);
+                    break;
                 case ActionType.Comments:
                     var myViewController4 = new CommentsViewController();
                     myViewController4.Post = post;
-                    _navController.PushViewController(myViewController4, true);
+                    myViewController4.HidesBottomBarWhenPushed = true;
+                    NavigationController.PushViewController(myViewController4, true);
                     break;
                 case ActionType.Like:
                     Vote(post);
@@ -208,7 +212,7 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
+            _navController.PushViewController(myViewController, true);
         }
 
         private async Task RefreshPage()
@@ -415,7 +419,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             var error = await _presenter.TryVote(post);
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
 
             ShowAlert(error);

@@ -18,15 +18,16 @@ using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Authority;
-using Steepshot.Interfaces;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
+using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -90,15 +91,7 @@ namespace Steepshot.Fragment
                 if (_profilePagerAdapter == null)
                 {
                     _profilePagerAdapter = new PostPagerAdapter<PreSearchPresenter>(Context, Presenter);
-                    _profilePagerAdapter.LikeAction += LikeAction;
-                    _profilePagerAdapter.UserAction += UserAction;
-                    _profilePagerAdapter.CommentAction += CommentAction;
-                    _profilePagerAdapter.VotersClick += VotersAction;
-                    _profilePagerAdapter.PhotoClick += OnPhotoClick;
-                    _profilePagerAdapter.FlagAction += FlagAction;
-                    _profilePagerAdapter.HideAction += HideAction;
-                    _profilePagerAdapter.EditAction += EditAction;
-                    _profilePagerAdapter.DeleteAction += DeleteAction;
+                    _profilePagerAdapter.PostAction += PostAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
                 }
@@ -114,15 +107,7 @@ namespace Steepshot.Fragment
                 if (_profileFeedAdapter == null)
                 {
                     _profileFeedAdapter = new FeedAdapter<PreSearchPresenter>(Context, Presenter);
-                    _profileFeedAdapter.PhotoClick += FeedPhotoClick;
-                    _profileFeedAdapter.LikeAction += LikeAction;
-                    _profileFeedAdapter.UserAction += UserAction;
-                    _profileFeedAdapter.CommentAction += CommentAction;
-                    _profileFeedAdapter.VotersClick += VotersAction;
-                    _profileFeedAdapter.FlagAction += FlagAction;
-                    _profileFeedAdapter.HideAction += HideAction;
-                    _profileFeedAdapter.EditAction += EditAction;
-                    _profileFeedAdapter.DeleteAction += DeleteAction;
+                    _profileFeedAdapter.PostAction += PostAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
@@ -212,6 +197,11 @@ namespace Steepshot.Fragment
 
                 Presenter.SourceChanged += PresenterSourceChanged;
 
+                _hotButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hot);
+                _newButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.New);
+                _trendingButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Top);
+                _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
+
                 _buttonsList = new List<Button> { _newButton, _hotButton, _trendingButton };
                 _bottomPadding = (int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 3, Resources.DisplayMetrics);
                 _currentButton = _hotButton;
@@ -223,12 +213,13 @@ namespace Steepshot.Fragment
                 _newButton.Click += OnNewClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
+                _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
                 _searchView.Typeface = Style.Regular;
                 _clearButton.Typeface = Style.Regular;
                 _clearButton.Visibility = ViewStates.Gone;
                 _clearButton.Click += OnClearClick;
                 _loginButton.Typeface = Style.Semibold;
-                _loginButton.Text = Localization.Texts.SignIn;
+                _loginButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
                 _loginButton.Click += OnLogin;
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += ScrollListnerScrolledToBottom;
@@ -257,7 +248,7 @@ namespace Steepshot.Fragment
                 _refresher.Refresh += RefresherRefresh;
 
                 _emptyQueryLabel.Typeface = Style.Light;
-                _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+                _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
                 _searchToolbarLayout.Click += OnSearch;
 
@@ -377,7 +368,7 @@ namespace Steepshot.Fragment
         {
             CustomTag = null;
             _clearButton.Visibility = ViewStates.Gone;
-            _searchView.Text = Localization.Texts.TapToSearch;
+            _searchView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.TapToSearch);
             _searchView.SetTextColor(Style.R151G155B158);
             _spinner.Visibility = ViewStates.Visible;
             _emptyQueryLabel.Visibility = ViewStates.Invisible;
@@ -491,43 +482,125 @@ namespace Steepshot.Fragment
             StartActivity(intent);
         }
 
-        private async void LikeAction(Post post)
+        private async void PostAction(ActionType type, Post post)
         {
-            if (BasePresenter.User.IsAuthenticated)
+            switch (type)
             {
-                var error = await Presenter.TryVote(post);
-                if (!IsInitialized)
-                    return;
+                case ActionType.Like:
+                    {
+                        if (BasePresenter.User.IsAuthenticated)
+                        {
+                            var error = await Presenter.TryVote(post);
+                            if (!IsInitialized)
+                                return;
 
-                if (error == null && Activity is RootActivity root)
-                    root.TryUpdateProfile();
+                            if (error == null && Activity is RootActivity root)
+                                root.TryUpdateProfile();
 
-                Context.ShowAlert(error);
+                            Context.ShowAlert(error);
+                        }
+                        else
+                        {
+                            OpenLogin();
+                        }
+                        break;
+                    }
+                case ActionType.VotersLikes:
+                case ActionType.VotersFlags:
+                    {
+                        if (post == null)
+                            return;
+
+                        var isLikers = type == ActionType.VotersLikes;
+                        Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
+                        Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
+                        Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
+                        ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
+                        break;
+                    }
+                case ActionType.Comments:
+                    {
+                        if (post == null)
+                            return;
+                        if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+                        {
+                            OpenLogin();
+                            return;
+                        }
+
+                        ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
+                        break;
+                    }
+                case ActionType.Profile:
+                    {
+                        if (post == null)
+                            return;
+
+                        if (BasePresenter.User.Login != post.Author)
+                            ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
+                        break;
+                    }
+                case ActionType.Flag:
+                    {
+                        if (!BasePresenter.User.IsAuthenticated)
+                            return;
+
+                        var error = await Presenter.TryFlag(post);
+                        if (!IsInitialized)
+                            return;
+
+                        if (error == null && Activity is RootActivity root)
+                            root.TryUpdateProfile();
+
+                        Context.ShowAlert(error);
+                        break;
+                    }
+                case ActionType.Hide:
+                    {
+                        Presenter.HidePost(post);
+                        break;
+                    }
+                case ActionType.Edit:
+                    {
+                        var intent = new Intent(Activity, typeof(PostDescriptionActivity));
+                        intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
+                        Activity.StartActivity(intent);
+                        break;
+                    }
+                case ActionType.Delete:
+                    {
+                        var error = await Presenter.TryDeletePost(post);
+                        if (!IsInitialized)
+                            return;
+
+                        Context.ShowAlert(error);
+                        break;
+                    }
+                case ActionType.Share:
+                    {
+                        var shareIntent = new Intent(Intent.ActionSend);
+                        shareIntent.SetType("text/plain");
+                        shareIntent.PutExtra(Intent.ExtraSubject, post.Title);
+                        shareIntent.PutExtra(Intent.ExtraText, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url));
+                        StartActivity(Intent.CreateChooser(shareIntent, AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost)));
+                        break;
+                    }
+                case ActionType.Photo:
+                    {
+                        OpenPost(post);
+                        break;
+                    }
+                case ActionType.Preview:
+                    {
+                        if (post == null)
+                            return;
+
+                        var intent = new Intent(Context, typeof(PostPreviewActivity));
+                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
+                        StartActivity(intent);
+                        break;
+                    }
             }
-            else
-            {
-                OpenLogin();
-            }
-        }
-
-        private async void FlagAction(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-                return;
-
-            var error = await Presenter.TryFlag(post);
-            if (!IsInitialized)
-                return;
-
-            if (error == null && Activity is RootActivity root)
-                root.TryUpdateProfile();
-
-            Context.ShowAlert(error);
-        }
-
-        private void HideAction(Post post)
-        {
-            Presenter.HidePost(post);
         }
 
         private void TagAction(string tag)
@@ -541,58 +614,9 @@ namespace Steepshot.Fragment
                 _adapter.NotifyDataSetChanged();
         }
 
-        private void UserAction(Post post)
-        {
-            if (post == null)
-                return;
-
-            if (BasePresenter.User.Login != post.Author)
-                ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
-        }
-
-        private void CommentAction(Post post)
-        {
-            if (post == null)
-                return;
-            if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
-            {
-                OpenLogin();
-                return;
-            }
-
-            ((BaseActivity)Activity).OpenNewContentFragment(new CommentsFragment(post, post.Children == 0));
-        }
-
-        private void VotersAction(Post post, VotersType type)
-        {
-            if (post == null)
-                return;
-            var isLikers = type == VotersType.Likes;
-            Activity.Intent.PutExtra(FeedFragment.PostUrlExtraPath, post.Url);
-            Activity.Intent.PutExtra(FeedFragment.PostNetVotesExtraPath, isLikers ? post.NetLikes : post.NetFlags);
-            Activity.Intent.PutExtra(VotersFragment.VotersType, isLikers);
-            ((BaseActivity)Activity).OpenNewContentFragment(new VotersFragment());
-        }
-
         private void CloseAction()
         {
             ClosePost();
-        }
-
-        private void EditAction(Post post)
-        {
-            var intent = new Intent(Activity, typeof(PostDescriptionActivity));
-            intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
-            Activity.StartActivity(intent);
-        }
-
-        private async void DeleteAction(Post post)
-        {
-            var error = await Presenter.TryDeletePost(post);
-            if (!IsInitialized)
-                return;
-
-            Context.ShowAlert(error);
         }
 
         private async Task LoadPosts(string tag, bool clearOld)
@@ -612,7 +636,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
 
-            if (error is TaskCanceledError)
+            if (error is CanceledError)
                 return;
 
             Context.ShowAlert(error);

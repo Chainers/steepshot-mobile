@@ -15,7 +15,7 @@ using Com.Lilarcor.Cheeseknife;
 using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
@@ -231,7 +231,7 @@ namespace Steepshot.Fragment
             catch (Java.IO.IOException ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
+                Activity.ShowAlert(LocalizationKeys.CameraSettingError, ToastLength.Short);
             }
         }
 
@@ -456,7 +456,7 @@ namespace Steepshot.Fragment
                 else
                 {
                     AppSettings.Reporter.SendCrash(ex);
-                    Activity.ShowAlert(Localization.Errors.CameraSettingError, ToastLength.Short);
+                    Activity.ShowAlert(LocalizationKeys.CameraSettingError, ToastLength.Short);
                 }
             }
         }

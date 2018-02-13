@@ -8,7 +8,6 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
-using Ditch.Core.Helpers;
 using Steepshot.Core.Models.Common;
 
 namespace Steepshot.Core.Tests.HttpClient
@@ -79,6 +78,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
+        [Ignore("For hand test only")]
         public async Task CreateCommentTest(KnownChains apiName)
         {
             var user = Users[apiName];
@@ -113,6 +113,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
+        [Ignore("For hand test only")]
         public async Task VotePostTest(KnownChains apiName)
         {
             var user = Users[apiName];
@@ -166,6 +167,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem)]
         [TestCase(KnownChains.Golos)]
+        [Ignore("For hand test only")]
         public async Task VoteCommentTest(KnownChains apiName)
         {
             var user = Users[apiName];
@@ -220,6 +222,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem, "asduj")]
         [TestCase(KnownChains.Golos, "pmartynov")]
+        [Ignore("For hand test only")]
         public async Task FollowTest(KnownChains apiName, string followUser)
         {
             var user = Users[apiName];
@@ -241,6 +244,7 @@ namespace Steepshot.Core.Tests.HttpClient
         [Test]
         [TestCase(KnownChains.Steem, "joseph.kalu")]
         [TestCase(KnownChains.Golos, "joseph.kalu")]
+        [Ignore("For hand test only")]
         public async Task UpdateUserProfileTest(KnownChains apiName, string followUser)
         {
             var user = Users[apiName];
@@ -261,9 +265,9 @@ namespace Steepshot.Core.Tests.HttpClient
                 ProfileImage = profile.ProfileImage,
                 Website = profile.Website
             };
-            var responce = await Api[apiName].UpdateUserProfile(updateUserProfileModel, CancellationToken.None);
-            AssertResult(responce);
-            Assert.IsTrue(responce.Result.IsSuccess);
+            var response = await Api[apiName].UpdateUserProfile(updateUserProfileModel, CancellationToken.None);
+            AssertResult(response);
+            Assert.IsTrue(response.Result.IsSuccess);
         }
     }
 }

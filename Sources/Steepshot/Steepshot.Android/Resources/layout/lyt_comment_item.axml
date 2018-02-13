@@ -76,7 +76,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:text="Reply"
             android:textSize="12sp"
             android:textColor="@color/rgb151_155_158"
             android:layout_marginEnd="29dp" />

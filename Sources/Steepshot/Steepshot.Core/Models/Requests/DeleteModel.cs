@@ -16,14 +16,14 @@ namespace Steepshot.Core.Models.Requests
             : base(user.Login, user.PostingKey, string.Empty, post.Category, post.Author, post.Permlink, "*deleted*", "*deleted*", string.Empty)
         {
             IsPost = true;
-            IsEnableToDelete = post.Children == 0 && post.NetLikes == 0 && post.CashoutTime < post.Created;  // TODO:KOA: It`s not all case, research needed
+            IsEnableToDelete = post.Children == 0 && post.NetLikes == 0;  // TODO:KOA: It`s not all case, research needed
         }
 
         public DeleteModel(UserInfo user, Post post, Post parentPost)
             : base(user.Login, user.PostingKey, parentPost.Author, parentPost.Permlink, post.Author, post.Permlink, string.Empty, "*deleted*", string.Empty)
         {
             IsPost = false;
-            IsEnableToDelete = post.Children == 0 && post.NetLikes == 0 && post.CashoutTime < post.Created; // TODO:KOA: It`s not all case, research needed
+            IsEnableToDelete = post.Children == 0 && post.NetLikes == 0; // TODO:KOA: It`s not all case, research needed
         }
     }
 }

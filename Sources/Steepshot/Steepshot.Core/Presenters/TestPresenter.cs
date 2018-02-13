@@ -2,8 +2,8 @@
 
 namespace Steepshot.Core.Presenters
 {
-    public class TestPresenter : BasePresenter
+    public sealed class TestPresenter : BasePresenter
     {
-        public  SteepshotApiClient OpenApi => Api;
+        public SteepshotApiClient OpenApi => Api;
     }
 }

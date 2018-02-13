@@ -1,18 +1,13 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
 namespace Steepshot.Core.Errors
 {
-    public class ValidationError : ErrorBase
+    public sealed class ValidationError : ErrorBase
     {
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="message">ResponseError message</param>
-        public ValidationError(string message) : base(message) { }
-
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="code">ResponseError code</param>
-        /// <param name="message">ResponseError message</param>
-        public ValidationError(long code, string message) : base(code, message) { }
+        public ValidationError(List<ValidationResult> results) : base(results.FirstOrDefault()?.ErrorMessage)
+        {
+        }
     }
 }

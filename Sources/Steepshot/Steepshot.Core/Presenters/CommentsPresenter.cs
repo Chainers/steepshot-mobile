@@ -1,14 +1,14 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.Presenters
 {
-    public class CommentsPresenter : BasePostPresenter
+    public sealed class CommentsPresenter : BasePostPresenter
     {
         private const int ItemsLimit = 60;
 

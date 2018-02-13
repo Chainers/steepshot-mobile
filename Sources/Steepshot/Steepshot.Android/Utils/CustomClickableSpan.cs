@@ -4,7 +4,7 @@ using Android.Views;
 
 namespace Steepshot.Utils
 {
-    public class CustomClickableSpan : ClickableSpan
+    public sealed class CustomClickableSpan : ClickableSpan
     {
         public string Tag;
         public event Action<string> SpanClicked;

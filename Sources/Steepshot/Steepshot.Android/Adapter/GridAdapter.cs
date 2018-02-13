@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -7,10 +6,11 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Adapter
 {
@@ -70,7 +70,7 @@ namespace Steepshot.Adapter
         }
     }
 
-    public class ImageViewHolder : RecyclerView.ViewHolder, ITarget
+    public sealed class ImageViewHolder : RecyclerView.ViewHolder, ITarget
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
@@ -103,7 +103,9 @@ namespace Steepshot.Adapter
         {
             _post = post;
             _context = context;
-            _photoString = post.Media[0].Url;
+
+            var thumbnail = post.Media[0].Thumbnails?[256];
+            _photoString = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
 
             if (_photoString != null)
             {
@@ -112,7 +114,7 @@ namespace Steepshot.Adapter
 
             if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated))
             {
-                _nsfwMaskMessage.Text = _post.IsLowRated ? Localization.Messages.LowRated : Localization.Messages.NSFW;
+                _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(_post.IsLowRated ? LocalizationKeys.LowRated : LocalizationKeys.Nsfw);
                 _nsfwMask.Visibility = ViewStates.Visible;
             }
             else

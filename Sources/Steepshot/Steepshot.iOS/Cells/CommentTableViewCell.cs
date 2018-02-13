@@ -3,12 +3,13 @@ using FFImageLoading;
 using FFImageLoading.Work;
 using Foundation;
 using Steepshot.Core.Models.Common;
-using Steepshot.iOS.ViewControllers;
 using Steepshot.Core.Extensions;
 using UIKit;
-using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using CoreGraphics;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {
@@ -28,8 +29,43 @@ namespace Steepshot.iOS.Cells
             Nib = UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle);
         }
 
-        public override void LayoutSubviews()
+        public void UpdateCell(Post post)
         {
+            _currentPost = post;
+
+            _scheduledWorkAvatar?.Cancel();
+            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+            {
+            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
+                                               .LoadingPlaceholder("ic_noavatar.png")
+                                               .ErrorPlaceholder("ic_noavatar.png")
+                                               .FadeAnimation(false, false, 0)
+                                               .DownSample(200)
+                                               .Into(avatar);
+            }
+            else
+                avatar.Image = UIImage.FromBundle("ic_noavatar");
+
+            if (_currentPost.VoteChanging)
+                Animate();
+            else
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(1f, 1f);
+                likeButton.Selected = _currentPost.Vote;
+                likeButton.Enabled = true;
+            }
+
+            commentText.Text = _currentPost.Body;
+            loginLabel.Text = _currentPost.Author;
+            //costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+
+            timestamp.Text = _currentPost.Created.ToPostTime();
+
+            likeLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, _currentPost.NetLikes);
+            flagLabel.Text = AppSettings.LocalizationManager.GetText(_currentPost.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, _currentPost.NetFlags);
+            //LayoutIfNeeded();
+
+
             if (!_isInitialized)
             {
                 avatar.Layer.CornerRadius = avatar.Frame.Size.Width / 2;
@@ -46,9 +82,19 @@ namespace Steepshot.iOS.Cells
                 {
                     CellAction?.Invoke(ActionType.Reply, _currentPost);
                 });
+                var likersTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Voters, _currentPost);
+                });
+                var flagersTap = new UITapGestureRecognizer(() =>
+                {
+                    CellAction?.Invoke(ActionType.Flagers, _currentPost);
+                });
                 replyButton.AddGestureRecognizer(replyTap);
-                avatar.AddGestureRecognizer(tap);
+                profileTapView.AddGestureRecognizer(tap);
                 costLabel.AddGestureRecognizer(costTap);
+                likeLabel.AddGestureRecognizer(likersTap);
+                flagLabel.AddGestureRecognizer(flagersTap);
 
                 commentText.Font = Helpers.Constants.Regular14;
                 loginLabel.Font = Helpers.Constants.Semibold14;
@@ -72,7 +118,6 @@ namespace Steepshot.iOS.Cells
                 flagLabel.Hidden = false;
                 flagVisibleConstraint.Active = true;
                 flagHiddenConstraint.Active = false;
-                flagLabel.Text = $"{_currentPost.NetFlags} {(_currentPost.NetFlags == 1 ? Localization.Messages.Flag : Localization.Messages.Flags)}";
             }
             else
             {
@@ -80,47 +125,44 @@ namespace Steepshot.iOS.Cells
                 flagHiddenConstraint.Active = true;
                 flagLabel.Hidden = true;
             }
-            base.LayoutSubviews();
-        }
 
-        public void UpdateCell(Post post)
-        {
-            _currentPost = post;
-
-            _scheduledWorkAvatar?.Cancel();
-            if (!string.IsNullOrEmpty(_currentPost.Avatar))
+            if (_currentPost.NetLikes > 0)
             {
-            _scheduledWorkAvatar = ImageService.Instance.LoadUrl(_currentPost.Avatar, TimeSpan.FromDays(30))
-                                               .LoadingPlaceholder("ic_noavatar.png")
-                                               .ErrorPlaceholder("ic_noavatar.png")
-                                               .FadeAnimation(false, false, 0)
-                                               .DownSample(200)
-                                               .Into(avatar);
+                likeLabel.Hidden = false;
+                flagVisibleConstraint.Active = true;
+                likeHiddenConstraint.Active = false;
             }
             else
-                avatar.Image = UIImage.FromBundle("ic_noavatar");
-            
-            commentText.Text = _currentPost.Body;
-            loginLabel.Text = _currentPost.Author;
-            likeLabel.Text = _currentPost.NetVotes.ToString();
-            costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
-            //costLabel.Hidden = true; //!BasePresenter.User.IsNeedRewards;
-            likeButton.Selected = _currentPost.Vote;
-            likeButton.Enabled = true;
-            timestamp.Text = _currentPost.Created.ToPostTime();
+            {
+                likeLabel.Hidden = true;
+                flagVisibleConstraint.Active = false;
+                likeHiddenConstraint.Active = true;
+            }
 
-            likeLabel.Text = $"{_currentPost.NetLikes} {(_currentPost.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
-            LayoutIfNeeded();
         }
 
         private void LikeTap(object sender, EventArgs e)
         {
+            if (_currentPost.VoteChanging)
+                return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
+            if (!BasePresenter.User.IsAuthenticated)
+                return;
+            Animate();
         }
 
         private void MoreTap(object sender, EventArgs e)
         {
             CellAction?.Invoke(ActionType.More, _currentPost);
+        }
+
+        private void Animate()
+        {
+            likeButton.Selected = true;
+            UIView.Animate(0.4, 0, UIViewAnimationOptions.Autoreverse | UIViewAnimationOptions.Repeat | UIViewAnimationOptions.CurveEaseIn, () =>
+            {
+                likeButton.Transform = CGAffineTransform.MakeScale(0.5f, 0.5f);
+            }, null);
         }
     }
 }

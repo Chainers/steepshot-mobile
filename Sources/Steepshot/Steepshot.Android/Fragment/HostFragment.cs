@@ -11,15 +11,15 @@ namespace Steepshot.Fragment
         {
             get
             {
-                if (_fragment != null)
-                    return _fragment.UserVisibleHint;
+                if (Fragment != null)
+                    return Fragment.UserVisibleHint;
                 else
                     return base.UserVisibleHint;
             }
             set
             {
-                if (_fragment != null)
-                    _fragment.UserVisibleHint = value;
+                if (Fragment != null)
+                    Fragment.UserVisibleHint = value;
                 else
                     base.UserVisibleHint = value;
             }
@@ -30,8 +30,8 @@ namespace Steepshot.Fragment
             base.OnCreateView(inflater, container, savedInstanceState);
             var view = inflater.Inflate(Resource.Layout.HostLayout, container, false);
 
-            if (_fragment != null)
-                ReplaceFragment(_fragment, false);
+            if (Fragment != null)
+                ReplaceFragment(Fragment, false);
 
             ChildFragmentManager.BackStackChanged -= BackStackChange;
             ChildFragmentManager.BackStackChanged += BackStackChange;
@@ -41,10 +41,10 @@ namespace Steepshot.Fragment
 
         private void BackStackChange(object sender, System.EventArgs e)
         {
-            if (_isPopped)
+            if (IsPopped)
             {
-                _fragment = (BaseFragment)ChildFragmentManager.Fragments[0];
-                _isPopped = false;
+                Fragment = (BaseFragment)ChildFragmentManager.Fragments[0];
+                IsPopped = false;
             }
         }
 
@@ -52,7 +52,7 @@ namespace Steepshot.Fragment
         {
             var transaction = ChildFragmentManager.BeginTransaction();
             transaction.Replace(Resource.Id.child_fragment_container, fragment);
-            _fragment = fragment;
+            Fragment = fragment;
             if (addToBackstack)
                 transaction.AddToBackStack(null);
 
@@ -61,12 +61,12 @@ namespace Steepshot.Fragment
 
         public static HostFragment NewInstance(BaseFragment fragment)
         {
-            return new HostFragment { _fragment = fragment, _firstFragmentId = fragment.Id };
+            return new HostFragment { Fragment = fragment, _firstFragmentId = fragment.Id };
         }
 
         public void Clear()
         {
-            _isPopped = true;
+            IsPopped = true;
             ChildFragmentManager.PopBackStackImmediate(_firstFragmentId, (int)PopBackStackFlags.Inclusive);
         } 
     }

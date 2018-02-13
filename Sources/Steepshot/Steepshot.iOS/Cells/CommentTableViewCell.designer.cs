@@ -34,6 +34,9 @@ namespace Steepshot.iOS.Cells
 		UIKit.UIButton likeButton { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint likeHiddenConstraint { get; set; }
+
+		[Outlet]
 		UIKit.UILabel likeLabel { get; set; }
 
 		[Outlet]
@@ -41,6 +44,9 @@ namespace Steepshot.iOS.Cells
 
 		[Outlet]
 		UIKit.UIButton otherActionButton { get; set; }
+
+		[Outlet]
+		UIKit.UIView profileTapView { get; set; }
 
 		[Outlet]
 		UIKit.UILabel replyButton { get; set; }
@@ -91,6 +97,11 @@ namespace Steepshot.iOS.Cells
 				likeButton = null;
 			}
 
+			if (likeHiddenConstraint != null) {
+				likeHiddenConstraint.Dispose ();
+				likeHiddenConstraint = null;
+			}
+
 			if (likeLabel != null) {
 				likeLabel.Dispose ();
 				likeLabel = null;
@@ -111,9 +122,9 @@ namespace Steepshot.iOS.Cells
 				replyButton = null;
 			}
 
-			if (timestamp != null) {
-				timestamp.Dispose ();
-				timestamp = null;
+			if (replyHiddenConstraint != null) {
+				replyHiddenConstraint.Dispose ();
+				replyHiddenConstraint = null;
 			}
 
 			if (replyVisibleConstraint != null) {
@@ -121,9 +132,14 @@ namespace Steepshot.iOS.Cells
 				replyVisibleConstraint = null;
 			}
 
-			if (replyHiddenConstraint != null) {
-				replyHiddenConstraint.Dispose ();
-				replyHiddenConstraint = null;
+			if (timestamp != null) {
+				timestamp.Dispose ();
+				timestamp = null;
+			}
+
+			if (profileTapView != null) {
+				profileTapView.Dispose ();
+				profileTapView = null;
 			}
 		}
 	}

@@ -5,7 +5,7 @@ using Android.Widget;
 
 namespace Steepshot.Utils
 {
-	public class TopCropScaleImageView : ImageView
+	public sealed class TopCropScaleImageView : ImageView
 	{
 		public TopCropScaleImageView(Context c) : base(c)
 		{

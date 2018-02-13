@@ -3,7 +3,7 @@ using Android.Views;
 
 namespace Steepshot.Utils
 {
-    public class LoaderViewHolder : RecyclerView.ViewHolder
+    public sealed class LoaderViewHolder : RecyclerView.ViewHolder
     {
         public LoaderViewHolder(View itemView) : base(itemView)
         {

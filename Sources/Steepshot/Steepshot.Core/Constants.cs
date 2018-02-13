@@ -6,8 +6,9 @@
         V1P1
     }
 
-    public class Constants
+    public static class Constants
     {
+        public const string Localization = "Localization";
         public const string UserContextKey = "UserCredentials";
         public const string IsDevKey = "IsDev";
         public const string Steepshot = "Steepshot";

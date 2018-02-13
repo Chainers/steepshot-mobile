@@ -23,7 +23,6 @@
             android:id="@+id/page_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Post settings"
             android:textSize="14sp"
             android:textColor="@color/rgb15_24_30"
             android:layout_centerInParent="true" />
@@ -68,6 +67,7 @@
             android:layout_height="80dp"
             android:scaleType="centerCrop" />
         <ImageView
+            android:id="@+id/rotate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -95,7 +95,6 @@
             android:layout_height="match_parent"
             android:textSize="14sp"
             android:maxLength="255"
-            android:hint="Enter a title of your photo"
             android:background="@android:color/transparent"
             android:textCursorDrawable="@drawable/ic_input"
             android:layout_toRightOf="@id/title_image"
@@ -129,7 +128,6 @@
             android:textSize="14sp"
             android:maxLength="255"
             android:gravity="bottom"
-            android:hint="Enter a description of your photo"
             android:background="@android:color/transparent"
             android:textCursorDrawable="@drawable/ic_input"
             android:layout_toRightOf="@id/description_image"
@@ -182,7 +180,6 @@
                     android:gravity="bottom"
                     android:singleLine="true"
                     android:imeOptions="actionDone"
-                    android:hint="Add Hashtag"
                     android:background="@android:color/transparent"
                     android:textCursorDrawable="@drawable/ic_input"
                     android:layout_toRightOf="@id/hash_tag"

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -22,14 +21,15 @@ using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Activity
 {
@@ -65,6 +65,7 @@ namespace Steepshot.Activity
         [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
         [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [InjectView(Resource.Id.rotate)] private ImageView _rotate;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -73,14 +74,20 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_description);
             Cheeseknife.Inject(this);
 
+            _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddHashtag);
+            _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
+            _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            _pageTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
+
             _pageTitle.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _description.Typeface = Style.Regular;
             _postButton.Typeface = Style.Semibold;
             _postButton.Click += OnPost;
             _photoFrame.Clickable = true;
-            _photoFrame.Click += PhotoFrameOnClick;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _rotate.Click += RotateOnClick;
+
             _postButton.Enabled = true;
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Horizontal, false));
@@ -95,6 +102,7 @@ namespace Steepshot.Activity
                 _editpost = JsonConvert.DeserializeObject<Post>(editPost);
                 _model = new PreparePostModel(BasePresenter.User.UserInfo, _editpost.Permlink);
                 SetEditPost(_editpost);
+                _rotate.Visibility = ViewStates.Gone;
             }
             else
             {
@@ -136,7 +144,7 @@ namespace Steepshot.Activity
                 timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
             }
             _postButton.Enabled = true;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
         }
 
         private void SetEditPost(Post editPost)
@@ -192,7 +200,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 _postButton.Enabled = false;
-                this.ShowAlert(Localization.Errors.UnknownCriticalError);
+                this.ShowAlert(LocalizationKeys.UnknownCriticalError);
                 AppSettings.Reporter.SendCrash(ex);
             }
             finally
@@ -205,7 +213,7 @@ namespace Steepshot.Activity
             return path;
         }
 
-        private void PhotoFrameOnClick(object sender, EventArgs e)
+        private void RotateOnClick(object sender, EventArgs e)
         {
             if (!_photoFrame.Clickable)
                 return;
@@ -391,14 +399,14 @@ namespace Steepshot.Activity
 
             if (!isConnected)
             {
-                this.ShowAlert(Localization.Errors.InternetUnavailable);
+                this.ShowAlert(LocalizationKeys.InternetUnavailable);
                 OnUploadEnded();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
-                this.ShowAlert(Localization.Errors.EmptyTitleField, ToastLength.Long);
+                this.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
                 OnUploadEnded();
                 return;
             }
@@ -420,7 +428,7 @@ namespace Steepshot.Activity
 
                 if (!operationResult.IsSuccess)
                 {
-                    this.ShowAlert(operationResult.Error.Message);
+                    this.ShowAlert(operationResult.Error);
                     OnUploadEnded();
                     return;
                 }
@@ -435,7 +443,7 @@ namespace Steepshot.Activity
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryUpload();
+            TryCreateOrEditPost();
         }
 
 
@@ -457,7 +465,7 @@ namespace Steepshot.Activity
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
             }
             finally
             {
@@ -468,7 +476,7 @@ namespace Steepshot.Activity
             }
         }
 
-        private async void TryUpload()
+        private async void TryCreateOrEditPost()
         {
             if (_model.Media == null)
             {
@@ -485,22 +493,19 @@ namespace Steepshot.Activity
                 BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
-                this.ShowAlert(Localization.Messages.PostDelay, ToastLength.Long);
+                this.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 Finish();
             }
             else
             {
-                if (resp.Error is TaskCanceledError)
-                    return;
-
-                this.ShowInteractiveMessage(resp.Error.Message, TryAgainAction, ForgetAction);
+                this.ShowInteractiveMessage(resp.Error, TryAgainAction, ForgetAction);
             }
         }
 
         private void OnUploadEnded()
         {
             _postButton.Enabled = true;
-            _postButton.Text = Localization.Texts.PublishButtonText;
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
 
             _loadingSpinner.Visibility = ViewStates.Gone;
 
@@ -517,7 +522,7 @@ namespace Steepshot.Activity
 
         private void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            TryUpload();
+            TryCreateOrEditPost();
         }
 
         private void HideTagsList()

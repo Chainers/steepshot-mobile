@@ -6,7 +6,7 @@ using Android.Util;
 
 namespace Steepshot.Utils
 {
-    public class CustomViewPager : ViewPager
+    public sealed class CustomViewPager : ViewPager
     {
         public CustomViewPager(Context context) : base(context)
         {

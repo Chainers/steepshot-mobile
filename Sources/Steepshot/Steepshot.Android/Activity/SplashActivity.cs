@@ -10,6 +10,7 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Activity
 {
@@ -53,7 +54,7 @@ namespace Steepshot.Activity
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
         {
             AppSettings.Reporter.SendCrash(e.Exception);
-            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
+            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
         private void OnCurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -62,13 +63,13 @@ namespace Steepshot.Activity
             if (ex != null)
                 ex = new Exception(e.ExceptionObject.ToString());
             AppSettings.Reporter.SendCrash(ex);
-            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
+            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
 
         private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
             AppSettings.Reporter.SendCrash(e.Exception);
-            this.ShowAlert(Localization.Errors.UnexpectedError, Android.Widget.ToastLength.Short);
+            this.ShowAlert(LocalizationKeys.UnexpectedError, Android.Widget.ToastLength.Short);
         }
     }
 }

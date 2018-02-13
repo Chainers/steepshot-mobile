@@ -6,7 +6,7 @@ using Steepshot.Core.Models.Responses;
 
 namespace Steepshot.Core.Presenters
 {
-    public class SignInPresenter : BasePresenter
+    public sealed class SignInPresenter : BasePresenter
     {
         public async Task<OperationResult<VoidResponse>> TrySignIn(string login, string postingKey)
         {

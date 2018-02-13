@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Foundation;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
@@ -37,9 +38,16 @@ namespace Steepshot.iOS
             var dataProvider = new DataProvider(saverService);
             var appInfo = new AppInfo();
             var connectionService = new ConnectionService();
-            var ravenClientDSN = DebugHelper.GetRavenClientDSN();
+            var assetsHelper = new AssetsHelper();
+
+            var localization = dataProvider.SelectLocalization("en-us") ?? assetsHelper.GetLocalization("en-us");
+            var localizationManager = new LocalizationManager(localization);
+
+            var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
             var reporterService = new ReporterService(appInfo, ravenClientDSN);
 
+            builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
+            builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
             builder.RegisterInstance(appInfo).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(saverService).As<ISaverService>().SingleInstance();
             builder.RegisterInstance(dataProvider).As<IDataProvider>().SingleInstance();
@@ -50,11 +58,11 @@ namespace Steepshot.iOS
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                //AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
+                //AppSettings.Reporter.SendCrash((Error)e.ExceptionObject);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                //AppSettings.Reporter.SendCrash(e.Exception);
+                //AppSettings.Reporter.SendCrash(e.Error);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
@@ -63,7 +71,7 @@ namespace Steepshot.iOS
             else
                 InitialViewController = new PreSearchViewController();
 
-            var navController = new UINavigationController(InitialViewController);
+            var navController = new InteractivePopNavigationController(InitialViewController);
             Window.RootViewController = navController;
             Window.MakeKeyAndVisible();
             return true;

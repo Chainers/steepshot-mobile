@@ -8,6 +8,7 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -47,10 +48,11 @@ namespace Steepshot.iOS.Views
             loginButton.Font = Constants.Semibold14;
             qrButton.Font = Constants.Semibold14;
 #if DEBUG
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             if (BasePresenter.Chain == KnownChains.Steem)
-                password.Text = DebugHelper.GetTestSteemWif();
+                password.Text = di.SteemTestWif;
             else
-                password.Text = DebugHelper.GetTestGolosWif();
+                password.Text = di.GolosTestWif;
 #endif
             loginButton.TouchDown += Login;
             eyeButton.TouchDown += EyeButtonTouch;
@@ -73,7 +75,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.SetLeftBarButtonItem(leftBarButton, true);
             NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
 
-            NavigationItem.Title = Localization.Texts.PasswordViewTitleText;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -112,7 +114,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrWhiteSpace(password.Text))
             {
-                ShowAlert(Localization.Errors.EmptyPostingKey);
+                ShowAlert(LocalizationKeys.EmptyPostingKey);
                 return;
             }
             activityIndicator.StartAnimating();
@@ -122,10 +124,7 @@ namespace Steepshot.iOS.Views
             try
             {
                 var response = await _presenter.TrySignIn(Username, password.Text);
-                if (response == null) // cancelled
-                    return;
-
-                if (response != null && response.IsSuccess)
+                if (response.IsSuccess)
                 {
                     BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain, false);
 
@@ -135,11 +134,11 @@ namespace Steepshot.iOS.Views
                     NavigationController.PopViewController(true);
                 }
                 else
-                    ShowAlert(response);
+                    ShowAlert(response.Error);
             }
             catch (ArgumentNullException)
             {
-                ShowAlert(Localization.Errors.WrongPrivatePostingKey);
+                ShowAlert(LocalizationKeys.WrongPrivatePostingKey);
             }
             catch (Exception ex)
             {
