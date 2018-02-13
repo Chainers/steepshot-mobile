@@ -1,4 +1,5 @@
-﻿using Steepshot.iOS.Helpers;
+﻿using CoreGraphics;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
 
@@ -19,12 +20,8 @@ namespace Steepshot.iOS.ViewControllers
             var browseTab = new InteractivePopNavigationController(new PreSearchViewController());
             browseTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_browse"), 1);
 
-            var createPhotoIcon = UIImage.FromBundle("ic_create");
-            createPhotoIcon.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
-
             var photoTab = new UIViewController() { };
-            photoTab.TabBarItem = new UITabBarItem(null, createPhotoIcon, createPhotoIcon);
-            photoTab.TabBarItem.Tag = 2;
+            photoTab.TabBarItem = new UITabBarItem(null, null, 2);
 
             var profileTab = new InteractivePopNavigationController(new ProfileViewController());
             profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_profile"), 3);
@@ -37,7 +34,6 @@ namespace Steepshot.iOS.ViewControllers
             };
 
             var insets = new UIEdgeInsets(5, 0, -5, 0);
-
             foreach (UIViewController item in ViewControllers)
             {
                 if (item is UINavigationController navController)
@@ -45,9 +41,10 @@ namespace Steepshot.iOS.ViewControllers
                 item.TabBarItem.ImageInsets = insets;
             }
 
-            //photoTab.TabBarItem.Image = createPhotoIcon;
-            //photoTab.TabBarItem.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
-            //photoTab.TabBarItem.SelectedImage.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+            var createPhotoImage = new UIImageView(new CGRect(0, -2, TabBar.Frame.Width / 4, TabBar.Frame.Height));
+            createPhotoImage.Image = UIImage.FromBundle("ic_create");
+            createPhotoImage.ContentMode = UIViewContentMode.Center;
+            TabBar.Subviews[2].AddSubview(createPhotoImage);
         }
 
         public override void ViewWillAppear(bool animated)
