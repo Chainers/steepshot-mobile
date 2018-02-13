@@ -44,7 +44,7 @@
 //            catch (Exception e)
 //            {
 //                //TODO:KOA: remove Console!
-//                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
+//                Console.WriteLine(LocalizationKeys.ErrorCameraPreview + e.Message);
 //            }
 
 //            try
@@ -84,7 +84,7 @@
 //            catch (Exception e)
 //            {
 //                //TODO:KOA: remove Console!
-//                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
+//                Console.WriteLine(LocalizationKeys.ErrorCameraPreview + e.Message);
 //            }
 //        }
 
@@ -98,7 +98,7 @@
 //            catch (Exception e)
 //            {
 //                //TODO:KOA: remove Console!
-//                Console.WriteLine(Localization.Errors.ErrorCameraPreview + e.Message);
+//                Console.WriteLine(LocalizationKeys.ErrorCameraPreview + e.Message);
 //            }
 //        }
 

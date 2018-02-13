@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Extensions;
@@ -75,7 +74,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(results));
 
             var result = await _ditchClient.LoginWithPostingKey(model, ct);
             Trace("login-with-posting", model.Login, result.Error, string.Empty, ct);//.Wait(5000);
@@ -86,7 +85,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoteResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoteResponse>(new ValidationError(results));
 
             var result = await _ditchClient.Vote(model, ct);
             Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
@@ -97,7 +96,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(results));
 
             var result = await _ditchClient.Follow(model, ct);
             Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);//.Wait(5000);
@@ -108,7 +107,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(results));
 
             if (!model.IsEditMode)
             {
@@ -164,7 +163,7 @@ namespace Steepshot.Core.HttpClient
 
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<MediaModel>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<MediaModel>(new ValidationError(results));
 
             var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
 
@@ -180,7 +179,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(results));
 
             if (model.IsEnableToDelete)
             {
@@ -203,7 +202,7 @@ namespace Steepshot.Core.HttpClient
         {
             var results = Validate(model);
             if (results.Any())
-                return new OperationResult<VoidResponse>(new ValidationError(string.Join(Environment.NewLine, results.Select(i => i.ErrorMessage))));
+                return new OperationResult<VoidResponse>(new ValidationError(results));
 
             return await _ditchClient.UpdateUserProfile(model, ct);
         }

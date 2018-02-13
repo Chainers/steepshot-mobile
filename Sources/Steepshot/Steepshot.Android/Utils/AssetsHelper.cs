@@ -2,6 +2,7 @@
 using System.IO;
 using Android.Content.Res;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Services;
 
@@ -24,6 +25,11 @@ namespace Steepshot.Utils
         public ConfigInfo GetConfigInfo()
         {
             return TryReadAsset<ConfigInfo>("Config.txt");
+        }
+
+        public LocalizationModel GetLocalization(string lang)
+        {
+            return TryReadAsset<LocalizationModel>($"Localization.{lang}.txt");
         }
 
         public HashSet<string> TryReadCensoredWords()
@@ -72,5 +78,6 @@ namespace Steepshot.Utils
             }
             return new T();
         }
+
     }
 }

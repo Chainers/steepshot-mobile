@@ -8,19 +8,18 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
-using FFImageLoading.Extensions;
 using System.Threading.Tasks;
-using Steepshot.Core;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Models;
 using System.Threading;
-using Steepshot.Core.Errors;
 using Steepshot.iOS.Helpers;
 using Steepshot.Core.Models.Common;
 using System.Collections.Generic;
 using Steepshot.Core.Models.Enums;
 using System.IO;
 using System.Linq;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -273,7 +272,7 @@ namespace Steepshot.iOS.Views
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
 
-            NavigationItem.Title = Localization.Messages.PostSettings;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostSettings);
             NavigationController.NavigationBar.Translucent = false;
         }
 
@@ -388,7 +387,7 @@ namespace Steepshot.iOS.Views
 
                 var byteArray = ImageAsset.AsJPEG(compression);
 
-                while(byteArray.Count() > maxFileSize && compression > maxCompression)
+                while (byteArray.Count() > maxFileSize && compression > maxCompression)
                 {
                     compression -= 0.1f;
                     byteArray = ImageAsset.AsJPEG(compression);
@@ -401,7 +400,7 @@ namespace Steepshot.iOS.Views
             catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
-                return new OperationResult<MediaModel>(new ApplicationError(Localization.Errors.PhotoProcessingError));
+                return new OperationResult<MediaModel>(new AppError(LocalizationKeys.PhotoProcessingError));
             }
             finally
             {
@@ -414,7 +413,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrEmpty(titleTextField.Text))
             {
-                ShowAlert(Localization.Errors.EmptyTitleField);
+                ShowAlert(LocalizationKeys.EmptyTitleField);
                 return;
             }
 
@@ -449,7 +448,7 @@ namespace Steepshot.iOS.Views
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(photoUploadResponse.Error.Message, "Cancel", "Retry", (arg) =>
+                                ShowDialog(photoUploadResponse.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                                 {
                                     shouldReturn = true;
                                     mre.Set();
@@ -485,14 +484,14 @@ namespace Steepshot.iOS.Views
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(response.Error.Message, "Cancel", "Retry", (arg) =>
-                                {
-                                    mre.Set();
-                                }, (arg) =>
-                                {
-                                    pushToBlockchainRetry = true;
-                                    mre.Set();
-                                });
+                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                 {
+                                     mre.Set();
+                                 }, (arg) =>
+                                 {
+                                     pushToBlockchainRetry = true;
+                                     mre.Set();
+                                 });
                             });
 
                             mre.Reset();

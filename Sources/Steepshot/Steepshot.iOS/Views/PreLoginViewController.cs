@@ -5,6 +5,8 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
@@ -26,10 +28,11 @@ namespace Steepshot.iOS.Views
             loginText.ShouldReturn += LoginShouldReturn;
             loginButton.TouchDown += Login;
 #if DEBUG
+            var di = AppSettings.AssetsesHelper.GetDebugInfo();
             if (BasePresenter.Chain == KnownChains.Steem)
-                loginText.Text = DebugHelper.GetTestSteemLogin();
+                loginText.Text = di.SteemTestLogin;
             else
-                loginText.Text = DebugHelper.GetTestGolosLogin();
+                loginText.Text = di.GolosTestLogin;
 #endif
             NavigationController.SetNavigationBarHidden(false, false);
             SetBackButton();
@@ -65,7 +68,7 @@ namespace Steepshot.iOS.Views
         {
             if (string.IsNullOrWhiteSpace(loginText.Text))
             {
-                ShowAlert(Localization.Errors.EmptyLogin);
+                ShowAlert(LocalizationKeys.EmptyLogin);
                 return;
             }
 
@@ -73,7 +76,7 @@ namespace Steepshot.iOS.Views
             loginButton.Enabled = false;
 
             var response = await _presenter.TryGetAccountInfo(loginText.Text);
-            if (response != null && response.IsSuccess)
+            if (response.IsSuccess)
             {
                 var myViewController = new LoginViewController
                 {
@@ -83,7 +86,7 @@ namespace Steepshot.iOS.Views
                 NavigationController.PushViewController(myViewController, true);
             }
             else
-                ShowAlert(response);
+                ShowAlert(response.Error);
 
             loginButton.Enabled = true;
             activityIndicator.StopAnimating();

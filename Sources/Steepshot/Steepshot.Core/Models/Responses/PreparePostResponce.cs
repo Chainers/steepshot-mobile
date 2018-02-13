@@ -1,6 +1,6 @@
 ﻿namespace Steepshot.Core.Models.Responses
 {
-    public class PreparePostResponce
+    public class PreparePostResponse
     {
         public string Body { get; set; }
 

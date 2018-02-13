@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -231,7 +231,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\DebugHelper.cs" />
+    <Compile Include="Helpers\AssetsHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
     <Compile Include="ViewControllers\MainTabBarController.cs" />
@@ -445,16 +445,31 @@
     <BundleResource Include="Resources\ic_logo_main%402x.png" />
     <BundleResource Include="Resources\ic_logo_main%403x.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
+      <Link>Localization.en-us.txt</Link>
+    </BundleResource>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Steepshot.Core\Steepshot.Core.csproj">
       <Project>{8C01B785-CFC3-4308-8BE9-BB2F043631DA}</Project>
       <Name>Steepshot.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Models\" />
+    <BundleResource Include="..\Steepshot.Android\Assets\Config.txt">
+      <Link>Config.txt</Link>
+    </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\CensoredWords.txt">
+      <Link>CensoredWords.txt</Link>
+    </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
+      <Link>DebugWif.txt</Link>
+    </BundleResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />

@@ -6,13 +6,13 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Activity;
 using Android.Content;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
 
@@ -80,8 +80,11 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
+            _commentEditMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditComment);
+            _textInput.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.PutYourComment);
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Comments);
+
             _commentEditMessage.Typeface = Style.Semibold;
-            _commentEditMessage.Text = Localization.Texts.EditComment;
             _commentEditText.Typeface = Style.Regular;
             _textInput.Typeface = Style.Regular;
             _viewTitle.Typeface = Style.Semibold;
@@ -89,7 +92,6 @@ namespace Steepshot.Fragment
             _backButton.Click += OnBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Messages.Comments;
 
             _postBtn.Click += OnPost;
             _rootLayout.Click += OnRootClick;
@@ -185,7 +187,7 @@ namespace Steepshot.Fragment
                 if (!IsInitialized)
                     return;
 
-                if (resp != null && resp.IsSuccess)
+                if (resp.IsSuccess)
                 {
                     _textInput.Text = string.Empty;
                     _textInput.ClearFocus();
@@ -205,7 +207,7 @@ namespace Steepshot.Fragment
                 }
                 else
                 {
-                    Context.ShowAlert(resp, ToastLength.Short);
+                    Context.ShowAlert(resp.Error, ToastLength.Short);
                 }
             }
 

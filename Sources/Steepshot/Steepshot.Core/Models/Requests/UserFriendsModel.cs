@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Models.Requests
@@ -16,7 +17,7 @@ namespace Steepshot.Core.Models.Requests
         public int Limit { get; set; }
 
         [JsonProperty]
-        [Required(ErrorMessage = Localization.Errors.EmptyUsernameField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyUsernameField))]
         public string Username { get; }
 
         [JsonProperty]

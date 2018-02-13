@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using Foundation;
-using Steepshot.Core;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -11,6 +10,8 @@ using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
+using Steepshot.Core.Utils;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -60,7 +61,7 @@ namespace Steepshot.iOS.Views
             searchTextField.BecomeFirstResponder();
             searchTextField.Font = Helpers.Constants.Regular14;
             noTagsLabel.Font = Helpers.Constants.Light27;
-            noTagsLabel.Text = Localization.Texts.EmptyQuery;
+            noTagsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
             searchTextField.ShouldReturn += ShouldReturn;
             searchTextField.EditingChanged += EditingChanged;

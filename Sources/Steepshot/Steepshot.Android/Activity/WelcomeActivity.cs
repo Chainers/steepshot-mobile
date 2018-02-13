@@ -11,6 +11,7 @@ using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -39,9 +40,10 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_welcome);
             Cheeseknife.Inject(this);
 
+            var msg = AppSettings.LocalizationManager.GetText(LocalizationKeys.TitleForAcceptToS);
             _termsTextView.TextFormatted = Build.VERSION.SdkInt >= Build.VERSION_CODES.N
-                ? Html.FromHtml(Localization.Messages.TitleForAcceptToS, FromHtmlOptions.ModeLegacy)
-                : Html.FromHtml(Localization.Messages.TitleForAcceptToS);
+                ? Html.FromHtml(msg, FromHtmlOptions.ModeLegacy)
+                : Html.FromHtml(msg);
 
             _termsTextView.MovementMethod = new LinkMovementMethod();
 
@@ -50,9 +52,9 @@ namespace Steepshot.Activity
             _golosLogin.Typeface = Style.Semibold;
             _regButton.Typeface = Style.Semibold;
 
-            _steemLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Steem");
-            _golosLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Golos");
-            _regButton.Text = Localization.Texts.CreateButtonText;
+            _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
+            _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
+            _regButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateButtonText);
             _devSwitcher.Checked = AppSettings.IsDev;
             _devSwitcher.CheckedChange += OnDevSwitcherOnCheckedChange;
 
@@ -81,7 +83,7 @@ namespace Steepshot.Activity
 
             _steemLoader.Visibility = ViewStates.Gone;
             _steemLogin.Enabled = true;
-            _steemLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Steem");
+            _steemLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Steem");
         }
 
         private async void GolosLogin(object sender, EventArgs e)
@@ -96,7 +98,7 @@ namespace Steepshot.Activity
 
             _golosLoder.Visibility = ViewStates.Gone;
             _golosLogin.Enabled = true;
-            _golosLogin.Text = string.Format(Localization.Texts.SignInButtonText, "Golos");
+            _golosLogin.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignInButtonText, "Golos");
         }
 
         private void RegistrationClick(object sender, EventArgs e)

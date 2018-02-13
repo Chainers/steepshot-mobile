@@ -3,7 +3,6 @@ using Autofac;
 using Foundation;
 using MessageUI;
 using PureLayout.Net;
-using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
@@ -14,6 +13,7 @@ using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
@@ -61,7 +61,7 @@ namespace Steepshot.iOS.Views
             forwardImage3.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
 
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
-            versionLabel.Text = Localization.Messages.AppVersion(appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
+            versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
             reportButton.TouchDown += SendReport;
             termsButton.TouchDown += ShowTos;
@@ -85,7 +85,7 @@ namespace Steepshot.iOS.Views
                 PresentViewController(mailController, true, null);
             }
             else
-                ShowAlert("Setup your mail please");
+                ShowAlert(LocalizationKeys.SetupMail);
         }
 
         private void SwitchNSFW(object sender, EventArgs e)
@@ -131,7 +131,7 @@ namespace Steepshot.iOS.Views
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.LeftBarButtonItem = leftBarButton;
             NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
-            NavigationItem.Title = Localization.Texts.AppSettingsTitle;
+            NavigationItem.Title = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppSettingsTitle);
         }
 
         private void GoBack(object sender, EventArgs e)

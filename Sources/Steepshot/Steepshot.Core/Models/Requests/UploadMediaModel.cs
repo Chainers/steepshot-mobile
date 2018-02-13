@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Newtonsoft.Json;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
@@ -9,7 +10,7 @@ namespace Steepshot.Core.Models.Requests
     [JsonObject(MemberSerialization.OptIn)]
     public class UploadMediaModel : AuthorizedModel
     {
-        [Required(ErrorMessage = Localization.Errors.EmptyFileField)]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyFileField))]
         public Stream File { get; }
 
         public string ContentType { get; }

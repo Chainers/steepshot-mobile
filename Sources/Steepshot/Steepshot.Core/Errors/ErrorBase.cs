@@ -1,52 +1,19 @@
-﻿using System;
+﻿using Steepshot.Core.Localization;
+using System;
 
 namespace Steepshot.Core.Errors
 {
-    /// <summary>
-    /// Iformation about error
-    /// </summary>
-    public class ErrorBase
+    [Serializable]
+    public abstract class ErrorBase : Exception
     {
-        /// <summary>
-        /// ResponseError message
-        /// </summary>
-        public string Message { get; set; }
-        
-        public long Code { get; set; }
-
-
-        public override string ToString()
-        {
-            return $"{base.ToString()}. Code: '{Code}'. Message: '{Message}'";
-        }
-
-
-        /// <summary>
-        /// Default constructor of class
-        /// </summary>
-        protected ErrorBase()
-            : this(String.Empty)
+        public ErrorBase()
         {
         }
 
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="message">ResponseError message</param>
-        protected ErrorBase(string message)
-        {
-            Message = message;
-        }
+        protected ErrorBase(string key)
+            : base(key) { }
 
-        /// <summary>
-        /// Constructor of class
-        /// </summary>
-        /// <param name="code">ResponseError code</param>
-        /// <param name="message">ResponseError message</param>
-        protected ErrorBase(long code, string message)
-        {
-            Code = code;
-            Message = message;
-        }
+        public ErrorBase(LocalizationKeys key)
+            : base(key.ToString()) { }
     }
 }

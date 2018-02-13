@@ -7,7 +7,6 @@ using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
-using Steepshot.Core;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -22,6 +21,7 @@ using System.Collections.Generic;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Adapter
@@ -228,20 +228,20 @@ namespace Steepshot.Adapter
             {
                 dialogView.SetMinimumWidth((int)(ItemView.Width * 0.8));
                 var flag = dialogView.FindViewById<Button>(Resource.Id.flag);
-                flag.Text = Post.Flag ? Localization.Texts.UnFlagPost : Localization.Texts.FlagPost;
+                flag.Text = AppSettings.LocalizationManager.GetText(Post.Flag ? LocalizationKeys.UnFlagPost : LocalizationKeys.FlagPost);
                 flag.Typeface = Style.Semibold;
 
                 var hide = dialogView.FindViewById<Button>(Resource.Id.hide);
-                hide.Text = Localization.Texts.HidePost;
+                hide.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePost);
                 hide.Typeface = Style.Semibold;
                 hide.Visibility = ViewStates.Visible;
 
                 var edit = dialogView.FindViewById<Button>(Resource.Id.editpost);
-                edit.Text = Localization.Texts.EditPost;
+                edit.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EditPost);
                 edit.Typeface = Style.Semibold;
 
                 var delete = dialogView.FindViewById<Button>(Resource.Id.deletepost);
-                delete.Text = Localization.Texts.DeletePost;
+                delete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost);
                 delete.Typeface = Style.Semibold;
 
                 if (Post.Author == BasePresenter.User.Login)
@@ -251,17 +251,17 @@ namespace Steepshot.Adapter
                 }
 
                 var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
-                sharepost.Text = Localization.Texts.Sharepost;
+                sharepost.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost);
                 sharepost.Typeface = Style.Semibold;
                 sharepost.Visibility = ViewStates.Visible;
 
                 var copylink = dialogView.FindViewById<Button>(Resource.Id.copylink);
-                copylink.Text = Localization.Texts.CopyLink;
+                copylink.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CopyLink);
                 copylink.Typeface = Style.Semibold;
                 copylink.Visibility = ViewStates.Visible;
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
-                cancel.Text = Localization.Texts.Cancel;
+                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
                 cancel.Typeface = Style.Semibold;
 
                 flag.Click -= DoFlagAction;
@@ -307,19 +307,19 @@ namespace Steepshot.Adapter
             var alertView = inflater.Inflate(Resource.Layout.lyt_deletion_alert, null);
 
             var alertTitle = alertView.FindViewById<TextView>(Resource.Id.deletion_title);
-            alertTitle.Text = Localization.Messages.DeleteAlertTitle;
+            alertTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
             alertTitle.Typeface = Style.Semibold;
 
             var alertMessage = alertView.FindViewById<TextView>(Resource.Id.deletion_message);
-            alertMessage.Text = Localization.Messages.DeleteAlertMessage;
+            alertMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
             alertMessage.Typeface = Style.Light;
 
             var alertCancel = alertView.FindViewById<Button>(Resource.Id.cancel);
-            alertCancel.Text = Localization.Texts.Cancel;
+            alertCancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
             alertCancel.Click += (o, args) => alert.Cancel();
 
             var alertDelete = alertView.FindViewById<Button>(Resource.Id.delete);
-            alertDelete.Text = Localization.Texts.Delete;
+            alertDelete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
             alertDelete.Click += (o, args) =>
             {
                 _postAction?.Invoke(ActionType.Delete, Post);
@@ -357,9 +357,9 @@ namespace Steepshot.Adapter
         {
             _moreActionsDialog.Dismiss();
             var clipboard = (ClipboardManager)Context.GetSystemService(Context.ClipboardService);
-            var clip = ClipData.NewPlainText(ClipboardTitle, string.Format(Localization.Texts.PostLink, Post.Url));
+            var clip = ClipData.NewPlainText(ClipboardTitle, AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, Post.Url));
             clipboard.PrimaryClip = clip;
-            Context.ShowAlert(Localization.Texts.Copied, ToastLength.Short);
+            Context.ShowAlert(LocalizationKeys.Copied, ToastLength.Short);
             clip.Dispose();
             clipboard.Dispose();
         }
@@ -449,7 +449,7 @@ namespace Steepshot.Adapter
             if (post.NetLikes > 0)
             {
                 _likes.Visibility = ViewStates.Visible;
-                _likes.Text = $"{post.NetLikes} {(Post.NetLikes == 1 ? Localization.Messages.Like : Localization.Messages.Likes)}";
+                _likes.Text = AppSettings.LocalizationManager.GetText(Post.NetLikes == 1 ? LocalizationKeys.Like : LocalizationKeys.Likes, post.NetLikes);
             }
             else
                 _likes.Visibility = ViewStates.Gone;
@@ -500,9 +500,11 @@ namespace Steepshot.Adapter
 
             _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
 
-            _commentSubtitle.Text = post.Children > 0
-                ? string.Format(context.GetString(post.Children == 1 ? Resource.String.view_comment : Resource.String.view_n_comments), post.Children)
-                : context.GetString(Resource.String.first_title_comment);
+            _commentSubtitle.Text = post.Children == 0
+                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
+                : post.Children == 1
+                    ? AppSettings.LocalizationManager.GetText(LocalizationKeys.SeeComment)
+                    : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, post.Children);
 
             if (_isAnimationRuning && !post.VoteChanging)
             {
@@ -541,16 +543,16 @@ namespace Steepshot.Adapter
             {
                 NsfwMask.Visibility = ViewStates.Visible;
                 _nsfwMaskCloseButton.Visibility = ViewStates.Visible;
-                _nsfwMaskMessage.Text = Localization.Messages.FlagMessage;
-                NsfwMaskSubMessage.Text = Localization.Messages.FlagSubMessage;
-                _nsfwMaskActionButton.Text = Localization.Texts.UnFlagPost;
+                _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagMessage);
+                NsfwMaskSubMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagSubMessage);
+                _nsfwMaskActionButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnFlagPost);
             }
             else if (Post.ShowMask && (Post.IsLowRated || Post.IsNsfw))
             {
                 NsfwMask.Visibility = ViewStates.Visible;
-                _nsfwMaskMessage.Text = Post.IsLowRated ? Localization.Messages.LowRatedContent : Localization.Messages.NSFWContent;
-                NsfwMaskSubMessage.Text = Post.IsLowRated ? Localization.Messages.LowRatedContentExplanation : Localization.Messages.NSFWContentExplanation;
-                _nsfwMaskActionButton.Text = Localization.Messages.NSFWShow;
+                _nsfwMaskMessage.Text = AppSettings.LocalizationManager.GetText(Post.IsLowRated ? LocalizationKeys.LowRatedContent : LocalizationKeys.NsfwContent);
+                NsfwMaskSubMessage.Text = AppSettings.LocalizationManager.GetText(Post.IsLowRated ? LocalizationKeys.LowRatedContentExplanation : LocalizationKeys.NsfwContentExplanation);
+                _nsfwMaskActionButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NsfwShow);
             }
             else
                 NsfwMask.Visibility = _nsfwMaskCloseButton.Visibility = ViewStates.Gone;

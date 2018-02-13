@@ -79,7 +79,6 @@
         android:id="@+id/qr_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Scan the QR code"
         android:textColor="@color/rgb15_24_30"
         android:background="@drawable/circle_border"
         android:textSize="@dimen/dp_button_text"

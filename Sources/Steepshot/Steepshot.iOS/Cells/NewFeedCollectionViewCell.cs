@@ -10,9 +10,10 @@ using UIKit;
 using Xamarin.TTTAttributedLabel;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Extensions;
-using Steepshot.Core;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Cells
 {
@@ -346,7 +347,7 @@ namespace Steepshot.iOS.Cells
 
             if (_currentPost.NetLikes != 0)
             {
-                _likes.Text = $"{_currentPost.NetLikes} {Localization.Messages.Likes}";
+                _likes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetLikes);
                 var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _likes.Frame = new CGRect(likesMargin, _bodyImage.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
                 flagMargin = flagsMarginConst;
@@ -358,7 +359,7 @@ namespace Steepshot.iOS.Cells
 
             if (_currentPost.NetFlags != 0)
             {
-                _flags.Text = $"{_currentPost.NetFlags} {Localization.Messages.Flags}";
+                _flags.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Flags, _currentPost.NetFlags);
                 var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
                 _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _bodyImage.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
             }
@@ -390,7 +391,9 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
                                                 new CGSize(UIScreen.MainScreen.Bounds.Width - leftMargin * 2, variables.TextHeight));
 
-            _comments.Text = _currentPost.Children == 0 ? Localization.Messages.PostFirstComment : string.Format(Localization.Messages.ViewComments, _currentPost.Children);
+            _comments.Text = _currentPost.Children == 0
+                ? AppSettings.LocalizationManager.GetText(LocalizationKeys.PostFirstComment)
+                : AppSettings.LocalizationManager.GetText(LocalizationKeys.ViewComments, _currentPost.Children);
 
             _comments.Frame = new CGRect(leftMargin - 5, _attributedLabel.Frame.Bottom + 5, _comments.SizeThatFits(new CGSize(10, 20)).Width + 10, 20 + 10);
 

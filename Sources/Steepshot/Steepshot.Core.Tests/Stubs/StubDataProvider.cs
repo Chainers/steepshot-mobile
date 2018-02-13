@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using Steepshot.Core.Authority;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Tests.Stubs
 {
@@ -58,6 +59,16 @@ namespace Steepshot.Core.Tests.Stubs
                     _set[i] = currentUser;
                 }
             }
+        }
+
+        public LocalizationModel SelectLocalization(string lang)
+        {
+            return null;
+        }
+
+        public void UpdateLocalization(LocalizationModel model)
+        {
+            //todo nothing
         }
     }
 }

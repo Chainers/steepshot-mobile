@@ -8,13 +8,14 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
-using Steepshot.Core;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
@@ -63,7 +64,7 @@ namespace Steepshot.Fragment
             Presenter.SourceChanged += PresenterSourceChanged;
 
             var count = Activity.Intent.GetIntExtra(CountExtra, 0);
-            _peopleCount.Text = $"{count:N0} {Localization.Texts.PeopleText}";
+            _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count);
             _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? BasePresenter.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
@@ -87,7 +88,7 @@ namespace Steepshot.Fragment
             _followersList.AddOnScrollListener(scrollListner);
 
             _emptyQueryLabel.Typeface = Style.Light;
-            _emptyQueryLabel.Text = Localization.Texts.EmptyQuery;
+            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
 
             LoadItems();
         }
@@ -109,7 +110,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
                 return;
             if (!_isFollowers && _username == BasePresenter.User.Login)
-                _peopleCount.Text = $"{Presenter.FindAll(u => u.HasFollowed).Count:N0} {Localization.Texts.PeopleText}";
+                _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, Presenter.FindAll(u => u.HasFollowed).Count);
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
             BasePresenter.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
         }

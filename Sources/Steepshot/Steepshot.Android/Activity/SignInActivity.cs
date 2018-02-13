@@ -14,6 +14,7 @@ using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Core;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -59,8 +60,9 @@ namespace Steepshot.Activity
             _backButton.Click += GoBack;
             _switcher.Visibility = ViewStates.Gone;
             _settings.Visibility = ViewStates.Gone;
-            _viewTitle.Text = Localization.Texts.PasswordViewTitleText;
-            _signInBtn.Text = Localization.Texts.SignIn;
+            _viewTitle.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PasswordViewTitleText);
+            _signInBtn.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SignIn);
+            _buttonScanDefaultView.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ScanQRCode);
 
             _viewTitle.Typeface = Style.Semibold;
             _password.Typeface = Style.Semibold;
@@ -102,8 +104,8 @@ namespace Steepshot.Activity
                     _scanner.UseCustomOverlay = false;
 
                     //We can customize the top and bottom text of the default overlay
-                    _scanner.TopText = Localization.Messages.CameraHoldUp;
-                    _scanner.BottomText = Localization.Messages.WaitforScan;
+                    _scanner.TopText = AppSettings.LocalizationManager.GetText(LocalizationKeys.CameraHoldUp);
+                    _scanner.BottomText = AppSettings.LocalizationManager.GetText(LocalizationKeys.WaitforScan);
 
                     //Start scanning
                     var result = await _scanner.Scan();
@@ -120,13 +122,13 @@ namespace Steepshot.Activity
                 catch (Exception ex)
                 {
                     AppSettings.Reporter.SendCrash(ex);
-                    this.ShowAlert(Localization.Errors.UnknownError, ToastLength.Short);
+                    this.ShowAlert(LocalizationKeys.UnknownError, ToastLength.Short);
                 }
             }
             else
             {
                 //Replace for Permission request
-                this.ShowAlert("Check your app permissions");
+                this.ShowAlert(LocalizationKeys.CheckPermission);
             }
         }
 
@@ -144,7 +146,7 @@ namespace Steepshot.Activity
 
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
             {
-                this.ShowAlert(Localization.Errors.EmptyLogin, ToastLength.Short);
+                this.ShowAlert(LocalizationKeys.EmptyLogin, ToastLength.Short);
                 return;
             }
 
@@ -156,7 +158,7 @@ namespace Steepshot.Activity
             if (IsFinishing || IsDestroyed)
                 return;
 
-            if (response != null && response.IsSuccess)
+            if (response.IsSuccess)
             {
                 BasePresenter.User.AddAndSwitchUser(login, pass, BasePresenter.Chain, true);
                 var intent = new Intent(this, typeof(RootActivity));
@@ -165,11 +167,11 @@ namespace Steepshot.Activity
             }
             else
             {
-                this.ShowAlert(response);
+                this.ShowAlert(response.Error);
             }
 
             appCompatButton.Enabled = true;
-            appCompatButton.Text = Localization.Texts.EnterAccountText;
+            appCompatButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterAccountText);
             _spinner.Visibility = ViewStates.Invisible;
         }
 

@@ -9,10 +9,10 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
-using Steepshot.Core.Exceptions;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
+using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Presenters
 {
@@ -29,7 +29,7 @@ namespace Steepshot.Core.Presenters
         protected CancellationTokenSource OnDisposeCts;
 
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
-        public static event Action<string> OnAllert;
+        public static event Action<LocalizationKeys> OnAllert;
         public static readonly User User;
 
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
@@ -63,21 +63,31 @@ namespace Steepshot.Core.Presenters
             LazyLoadTimer = new Timer(Callback, null, 9000, Int32.MaxValue);
         }
 
+        protected BasePresenter()
+        {
+            OnDisposeCts = new CancellationTokenSource();
+        }
+
+
         private static void Callback(object state)
         {
             var ts = GetReconectToken();
             TryRunTask(TryСonect, ts);
             // static constructor initialization.
             var init = new Secp256k1Manager();
+            UpdateLocalizationAsync();
             LazyLoadTimer.Dispose();
         }
 
-
-        protected BasePresenter()
+        private static async Task UpdateLocalizationAsync()
         {
-            OnDisposeCts = new CancellationTokenSource();
+            var content = await Api.Gateway.Get(LocalizationManager.UpdateUrl);
+            var changed = AppSettings.LocalizationManager.Reset(content);
+            if (changed)
+            {
+                AppSettings.DataProvider.UpdateLocalization(AppSettings.LocalizationManager.Model);
+            }
         }
-
 
         private static Task<ErrorBase> TryСonect(CancellationToken token)
         {
@@ -89,7 +99,7 @@ namespace Steepshot.Core.Presenters
 
                     var isConnected = Api.TryReconnectChain(token);
                     if (!isConnected)
-                        OnAllert?.Invoke(Localization.Errors.EnableConnectToBlockchain);
+                        OnAllert?.Invoke(LocalizationKeys.EnableConnectToBlockchain);
                     else
                         return (ErrorBase)null;
 
@@ -171,29 +181,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.InternetUnavailable));
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
 
                 return await func(ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new OperationResult<TResult>(new TaskCanceledError());
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new OperationResult<TResult>(new ApplicationError(ex.Message));
+                return new OperationResult<TResult>(ex);
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new OperationResult<TResult>(new TaskCanceledError());
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new OperationResult<TResult>(new CanceledError());
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
             }
         }
 
@@ -203,29 +205,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.InternetUnavailable));
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new OperationResult<TResult>(new TaskCanceledError());
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new OperationResult<TResult>(new ApplicationError(ex.Message));
+                return new OperationResult<TResult>(ex);
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new OperationResult<TResult>(new TaskCanceledError());
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex, param1);
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new OperationResult<TResult>(new CanceledError());
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
             }
         }
 
@@ -235,29 +229,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.InternetUnavailable));
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
 
                 return await func(param1, param2, ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new OperationResult<TResult>(new TaskCanceledError());
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new OperationResult<TResult>(new ApplicationError(ex.Message));
+                return new OperationResult<TResult>(ex);
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new OperationResult<TResult>(new TaskCanceledError());
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex, param1, param2);
-                    return new OperationResult<TResult>(new ApplicationError(Localization.Errors.UnknownError));
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new OperationResult<TResult>(new CanceledError());
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
             }
         }
 
@@ -268,29 +254,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ApplicationError(Localization.Errors.InternetUnavailable);
+                    return new AppError(LocalizationKeys.InternetUnavailable);
 
                 return await func(ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new TaskCanceledError();
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new ApplicationError(ex.Message);
+                return ex;
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new TaskCanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new ApplicationError(Localization.Errors.UnknownError);
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new CanceledError();
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
         }
 
@@ -300,29 +278,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ApplicationError(Localization.Errors.InternetUnavailable);
+                    return new AppError(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new TaskCanceledError();
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new ApplicationError(ex.Message);
+                return ex;
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new TaskCanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex, param1);
-                    return new ApplicationError(Localization.Errors.UnknownError);
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new CanceledError();
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
         }
 
@@ -332,29 +302,21 @@ namespace Steepshot.Core.Presenters
             {
                 var available = ConnectionService.IsConnectionAvailable();
                 if (!available)
-                    return new ApplicationError(Localization.Errors.InternetUnavailable);
+                    return new AppError(LocalizationKeys.InternetUnavailable);
 
                 return await func(param1, param2, ct);
             }
-            catch (OperationCanceledException)
+            catch (ErrorBase ex)
             {
-                return new TaskCanceledError();
-            }
-            catch (ApplicationExceptionBase ex)
-            {
-                return new ApplicationError(ex.Message);
+                return ex;
             }
             catch (Exception ex)
             {
-                if (ct.IsCancellationRequested)
-                {
-                    return new TaskCanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex, param1, param2);
-                    return new ApplicationError(Localization.Errors.UnknownError);
-                }
+                if (ct.IsCancellationRequested || ex is OperationCanceledException)
+                    return new CanceledError();
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
         }
 

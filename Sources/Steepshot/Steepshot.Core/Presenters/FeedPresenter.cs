@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
