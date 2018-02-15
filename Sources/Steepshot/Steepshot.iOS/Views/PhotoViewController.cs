@@ -125,9 +125,9 @@ namespace Steepshot.iOS.Views
             var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
 
             var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
-            settings.FlashMode = AVCaptureFlashMode.Auto;
+            if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
+                settings.FlashMode = AVCaptureFlashMode.Auto;
 
-            //_photoOrientation = UIDevice.CurrentDevice.Orientation;
             _capturePhotoOutput.CapturePhoto(settings, this);
         }
 
