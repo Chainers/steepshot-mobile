@@ -334,6 +334,8 @@ namespace Steepshot.iOS.Views
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
                         collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
+                        if(collectionView.Hidden)
+                            collectionView.ContentOffset = new CGPoint(0, -size.Height);
                         collectionView.Hidden = false;
                     }
                 }

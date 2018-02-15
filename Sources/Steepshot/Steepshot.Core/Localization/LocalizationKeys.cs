@@ -168,5 +168,6 @@
         Sharepost,
         CheckPermission,
         SetupMail,
+        EmptyQuery,
     }
 }

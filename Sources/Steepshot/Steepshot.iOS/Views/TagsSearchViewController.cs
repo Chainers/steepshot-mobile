@@ -61,7 +61,7 @@ namespace Steepshot.iOS.Views
             searchTextField.BecomeFirstResponder();
             searchTextField.Font = Helpers.Constants.Regular14;
             noTagsLabel.Font = Helpers.Constants.Light27;
-            noTagsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+            noTagsLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
 
             searchTextField.ShouldReturn += ShouldReturn;
             searchTextField.EditingChanged += EditingChanged;
