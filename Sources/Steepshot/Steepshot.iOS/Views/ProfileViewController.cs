@@ -122,22 +122,6 @@ namespace Steepshot.iOS.Views
             collectionView.ReloadData();
         }
 
-        /*
-        public override void ViewWillAppear(bool animated)
-        {
-            if (Username == BasePresenter.User.Login)
-            {
-                NavigationController.SetNavigationBarHidden(true, false);
-                if (TabBarController != null)
-                    TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-            }
-            else
-            {
-                NavigationController.SetNavigationBarHidden(false, false);
-            }
-            base.ViewWillAppear(animated);
-        }*/
-
         private void ProfileHeaderLoaded()
         {
             _profileHeader.FollowButton.TouchDown += (object sender, EventArgs e) =>
@@ -280,14 +264,14 @@ namespace Steepshot.iOS.Views
 
                     var buttonsAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Semibold20,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R15G24B30,
+                        Font = Constants.Semibold20,
+                        ForegroundColor = Constants.R15G24B30,
                     };
 
                     var textAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Regular12,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R151G155B158,
+                        Font = Constants.Regular12,
+                        ForegroundColor = Constants.R151G155B158,
                     };
 
                     NSMutableAttributedString photosString = new NSMutableAttributedString();
@@ -339,10 +323,6 @@ namespace Steepshot.iOS.Views
                         collectionView.Hidden = false;
                     }
                 }
-                else
-                {
-                    //Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
-                }
             }
             catch (Exception ex)
             {
@@ -385,7 +365,7 @@ namespace Steepshot.iOS.Views
             }
 
             collectionView.ReloadData();
-            collectionView.SetContentOffset(new CGPoint(0, 0), false);
+            collectionView.ContentOffset = new CGPoint(0, -_profileHeader.View.Frame.Height);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)

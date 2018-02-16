@@ -74,14 +74,11 @@ namespace Steepshot.iOS.Helpers
 
         public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
         {
-            if (IsGrid)
-                return Constants.CellSize;
-            else
+            if (Variables.Count > indexPath.Item)
             {
-                if (Variables.Count > indexPath.Item)
-                {
-                    return new CGSize(UIScreen.MainScreen.Bounds.Width, Variables[(int)indexPath.Item].CellHeight);
-                }
+                if (IsGrid)
+                    return Constants.CellSize;
+                return new CGSize(UIScreen.MainScreen.Bounds.Width, Variables[(int)indexPath.Item].CellHeight);
             }
             //loader height
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
