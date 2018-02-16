@@ -103,7 +103,7 @@ namespace Steepshot.iOS.Views
 
         private void SameTabTapped()
         {
-            collectionView.SetContentOffset(new CGPoint(0, -size.Height), true);
+            collectionView.SetContentOffset(new CGPoint(0, -_profileHeader.View.Frame.Height), true);
         }
 
         private async void ScrolledToBottom()
