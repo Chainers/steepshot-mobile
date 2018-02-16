@@ -17,8 +17,6 @@ namespace Steepshot.iOS.Views
         private UIImagePickerController _imagePicker;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
-        private bool _isCameraAccessDenied;
-        //private UIDeviceOrientation _photoOrientation;
 
         public override void ViewDidLoad()
         {
@@ -29,12 +27,9 @@ namespace Steepshot.iOS.Views
             photoButton.TouchDown += CapturePhoto;
             closeButton.TouchDown += GoBack;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+            enableCameraAccess.TouchDown += EnableCameraAccess;
 
-            var galleryTap = new UITapGestureRecognizer(() =>
-            {
-                NavigationController.PresentModalViewController(_imagePicker, true);
-            });
-
+            var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
 
             _imagePicker = new UIImagePickerController();
@@ -43,6 +38,19 @@ namespace Steepshot.iOS.Views
 
             _imagePicker.FinishedPickingMedia += FinishedPickingMedia;
             _imagePicker.Canceled += Handle_Canceled;
+        }
+
+        private void EnableCameraAccess(object sender, EventArgs e)
+        {
+            UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
+        }
+
+        private void GalleryTap()
+        {
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized)
+                NavigationController.PresentModalViewController(_imagePicker, true);
+            else
+                UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
         }
 
         private void Handle_Canceled(object sender, EventArgs e)
@@ -173,7 +181,7 @@ namespace Steepshot.iOS.Views
             {
                 if (!await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video))
                 {
-                    _isCameraAccessDenied = true;
+                    enableCameraAccess.Hidden = false;
                     return;
                 }
             }
