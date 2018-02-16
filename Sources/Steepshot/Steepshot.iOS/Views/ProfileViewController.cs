@@ -72,6 +72,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
+            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
             GetUserInfo();
@@ -98,6 +99,11 @@ namespace Steepshot.iOS.Views
                 NavigationItem.LeftBarButtonItem = leftBarButton;
                 NavigationItem.RightBarButtonItem = switchButton;
             }
+        }
+
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, -size.Height), true);
         }
 
         private async void ScrolledToBottom()

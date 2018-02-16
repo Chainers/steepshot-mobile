@@ -93,6 +93,7 @@ namespace Steepshot.iOS.Views
 
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
+            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
         }
@@ -128,6 +129,11 @@ namespace Steepshot.iOS.Views
         {
             _presenter = new PreSearchPresenter();
             _presenter.SourceChanged += SourceChanged;
+        }
+
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, 0), true);
         }
 
         private void SwitchSearchType(PostType postType)
