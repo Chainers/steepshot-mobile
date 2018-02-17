@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Newtonsoft.Json;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Models.Requests
 {
@@ -19,11 +18,11 @@ namespace Steepshot.Core.Models.Requests
 
         public bool GenerateThumbnail { get; set; } = true;
 
-        public UploadMediaModel(UserInfo user, Stream file, string extension)
+        public UploadMediaModel(UserInfo user, Stream file, string contentType)
             : base(user)
         {
             File = file;
-            ContentType = MimeTypeHelper.GetMimeType(extension);
+            ContentType = contentType;
         }
     }
 }

@@ -5,6 +5,9 @@ namespace Steepshot.Core.Utils
 {
     public sealed class MimeTypeHelper
     {
+        public const string Mp4 = "video/mp4";
+        public const string Jpeg = "image/jpeg";
+
         private static readonly IDictionary<string, string> Mappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -212,9 +215,9 @@ namespace Steepshot.Core.Utils
                 {".jfif", "image/pjpeg"},
                 {".jnlp", "application/x-java-jnlp-file"},
                 {".jpb", "application/octet-stream"},
-                {".jpe", "image/jpeg"},
-                {".jpeg", "image/jpeg"},
-                {".jpg", "image/jpeg"},
+                {".jpe", Jpeg},
+                {".jpeg", Jpeg},
+                {".jpg", Jpeg},
                 {".js", "application/x-javascript"},
                 {".json", "application/json"},
                 {".jsx", "text/jscript"},
@@ -268,8 +271,8 @@ namespace Steepshot.Core.Utils
                 {".mp2", "video/mpeg"},
                 {".mp2v", "video/mpeg"},
                 {".mp3", "audio/mpeg"},
-                {".mp4", "video/mp4"},
-                {".mp4v", "video/mp4"},
+                {".mp4", Mp4},
+                {".mp4v", Mp4},
                 {".mpa", "video/mpeg"},
                 {".mpe", "video/mpeg"},
                 {".mpeg", "video/mpeg"},

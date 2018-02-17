@@ -558,7 +558,8 @@ namespace Steepshot.Utils
             var drawable = Drawable;
             if (drawable == null || drawable.IntrinsicWidth == 0 || drawable.IntrinsicHeight == 0)
             {
-                SetMeasuredDimension(0, 0);
+                base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+                //SetMeasuredDimension(0, 0);
                 return;
             }
             var drawableWidth = drawable.IntrinsicWidth;

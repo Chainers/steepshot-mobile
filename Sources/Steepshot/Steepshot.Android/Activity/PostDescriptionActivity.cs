@@ -36,12 +36,14 @@ namespace Steepshot.Activity
     [Activity(Label = "PostDescriptionActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, WindowSoftInputMode = SoftInput.StateVisible | SoftInput.AdjustPan)]
     public sealed class PostDescriptionActivity : BaseActivityWithPresenter<PostDescriptionPresenter>
     {
-        public const string PhotoExtraPath = "PhotoExtraPath";
+        public const string MediaPathExtra = "MediaPathExtra";
+        public const string MediaTypeExtra = "MediaTypeExtra";
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
         public const string EditPost = "EditPost";
         private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
 
         private string _path;
+        private string _mediaType;
         private bool _shouldCompress;
         private Post _editpost;
         private Timer _timer;
@@ -107,7 +109,7 @@ namespace Steepshot.Activity
             else
             {
                 _model = new PreparePostModel(BasePresenter.User.UserInfo);
-                InitPhoto();
+                MediaPhoto();
                 SetPostingTimer();
             }
 
@@ -161,9 +163,17 @@ namespace Steepshot.Activity
             Picasso.With(this).Load(editPost.Media[0].Url).Into(_photoFrame);
         }
 
-        private void InitPhoto()
+        private void MediaPhoto()
         {
-            _path = Intent.GetStringExtra(PhotoExtraPath);
+            _path = Intent.GetStringExtra(MediaPathExtra);
+            _mediaType = Intent.GetStringExtra(MediaTypeExtra);
+
+            if (_mediaType.Equals(MimeTypeHelper.Mp4))
+            {
+                Picasso.With(this).Load(_path).Into(_photoFrame);
+                _rotate.Visibility = ViewStates.Gone;
+                return;
+            }
 
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             if (_shouldCompress)
@@ -175,16 +185,12 @@ namespace Steepshot.Activity
 
         private string Compress(string path)
         {
-            var photoUri = Android.Net.Uri.Parse(path);
-
-            FileDescriptor fileDescriptor = null;
             Bitmap btmp = null;
             System.IO.FileStream stream = null;
             try
             {
-                fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                btmp = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 1600, 1600);
-                btmp = BitmapUtils.RotateImageIfRequired(btmp, fileDescriptor, path);
+                btmp = BitmapUtils.DecodeSampledBitmap(path, 1600, 1600);
+                btmp = BitmapUtils.RotateImageIfRequired(btmp, path);
 
                 var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
                 var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
@@ -205,7 +211,6 @@ namespace Steepshot.Activity
             }
             finally
             {
-                fileDescriptor?.Dispose();
                 btmp?.Recycle();
                 btmp?.Dispose();
                 stream?.Dispose();
@@ -413,21 +418,13 @@ namespace Steepshot.Activity
 
             if (_editpost == null)
             {
-                var operationResult = await UploadPhoto(_path);
+                var operationResult = await UploadMedia(_path);
                 if (IsFinishing || IsDestroyed)
                     return;
 
                 if (!operationResult.IsSuccess)
                 {
                     SplashActivity.Cache.EvictAll();
-                    operationResult = await UploadPhoto(_path);
-
-                    if (IsFinishing || IsDestroyed)
-                        return;
-                }
-
-                if (!operationResult.IsSuccess)
-                {
                     this.ShowAlert(operationResult.Error);
                     OnUploadEnded();
                     return;
@@ -447,7 +444,7 @@ namespace Steepshot.Activity
         }
 
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
+        private async Task<OperationResult<MediaModel>> UploadMedia(string path)
         {
             Stream stream = null;
             FileInputStream fileInputStream = null;
@@ -458,7 +455,7 @@ namespace Steepshot.Activity
                 fileInputStream = new FileInputStream(photo);
                 stream = new StreamConverter(fileInputStream, null);
 
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, _mediaType);
                 var serverResult = await Presenter.TryUploadMedia(request);
                 return serverResult;
             }

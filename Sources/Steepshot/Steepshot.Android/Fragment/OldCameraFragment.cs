@@ -75,7 +75,7 @@ namespace Steepshot.Fragment
 
         private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            Camera.Parameters cameraParams = _camera.GetParameters();
+            var cameraParams = _camera.GetParameters();
             var action = touchEventArgs.Event.Action;
 
             if (touchEventArgs.Event.PointerCount > 1)
@@ -95,9 +95,9 @@ namespace Steepshot.Fragment
 
         private void HandleZoom(MotionEvent e, Camera.Parameters p)
         {
-            int maxZoom = p.MaxZoom;
-            int zoom = p.Zoom;
-            float newDist = GetFingerSpacing(e);
+            var maxZoom = p.MaxZoom;
+            var zoom = p.Zoom;
+            var newDist = GetFingerSpacing(e);
             if (newDist > _dist)
             {
                 if (zoom < maxZoom)
@@ -115,8 +115,8 @@ namespace Steepshot.Fragment
 
         private float GetFingerSpacing(MotionEvent e)
         {
-            float x = e.GetX(0) - e.GetX(1);
-            float y = e.GetY(0) - e.GetY(1);
+            var x = e.GetX(0) - e.GetX(1);
+            var y = e.GetY(0) - e.GetY(1);
             return (float)Math.Sqrt(x * x + y * y);
         }
 
@@ -155,7 +155,8 @@ namespace Steepshot.Fragment
             if (resultCode == -1 && requestCode == GalleryRequestCode)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
+                i.PutExtra(PostDescriptionActivity.MediaPathExtra, data.Data.LastPathSegment);
+                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, data.Type);
                 StartActivity(i);
                 Activity.Finish();
             }
@@ -191,6 +192,7 @@ namespace Steepshot.Fragment
             var intent = new Intent();
             intent.SetAction(Intent.ActionGetContent);
             intent.SetType("image/*");
+            intent.SetType(MimeTypeHelper.Mp4);
             StartActivityForResult(intent, GalleryRequestCode);
         }
 
@@ -394,7 +396,8 @@ namespace Steepshot.Fragment
                 }
 
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
+                i.PutExtra(PostDescriptionActivity.MediaPathExtra, photoUri);
+                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, MimeTypeHelper.Jpeg);
                 i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
 
                 Activity.RunOnUiThread(() =>
@@ -476,16 +479,10 @@ namespace Steepshot.Fragment
             if (cursor.MoveToFirst())
             {
                 var imageLocation = cursor.GetString(1);
-                var imageFile = new Java.IO.File(imageLocation);
-                if (imageFile.Exists())
-                {
-                    using (var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor)
-                    {
-                        var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
-                        bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
-                        _galleryIcon.SetImageBitmap(bitmap);
-                    }
-                }
+
+                var bitmap = BitmapUtils.DecodeSampledBitmap(imageLocation, 300, 300);
+                bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageLocation);
+                _galleryIcon.SetImageBitmap(bitmap);
             }
         }
     }

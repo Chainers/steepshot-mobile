@@ -12,7 +12,7 @@ namespace Steepshot.Activity
     [Activity(Label = "PostPreviewActivity", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public sealed class PostPreviewActivity : BaseActivity, ITarget
     {
-        public const string PhotoExtraPath = "PhotoExtraPath";
+        public const string MediaPathExtra = "MediaPathExtra";
         private string path;
 
 #pragma warning disable 0649, 4014
@@ -26,7 +26,7 @@ namespace Steepshot.Activity
             SetContentView(Resource.Layout.lyt_post_preview);
             Cheeseknife.Inject(this);
 
-            path = Intent.GetStringExtra(PhotoExtraPath);
+            path = Intent.GetStringExtra(MediaPathExtra);
             if (!string.IsNullOrWhiteSpace(path))
                 Picasso.With(this)
                        .Load(path)

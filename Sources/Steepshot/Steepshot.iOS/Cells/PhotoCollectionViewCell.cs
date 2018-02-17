@@ -42,8 +42,7 @@ namespace Steepshot.iOS.Cells
                 isInitialized = true;
             }
 
-            var thumbnail = post.Media[0].Thumbnails?[256];
-            ImageUrl = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
+            ImageUrl = post.Media[0].Thumbnails?.S256 ?? post.Media[0].Url;
 
             photoImg.Image = null;
             _scheduledWork?.Cancel();
@@ -51,10 +50,10 @@ namespace Steepshot.iOS.Cells
                 _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
                                              .Retry(5)
                                              .WithPriority(LoadingPriority.High)
-                                            /* .DownloadProgress((DownloadProgress obj) =>
-                                                {
-                                                    Debug.WriteLine(obj.Current + " of " + obj.Total);
-                                                })*/
+                                             /* .DownloadProgress((DownloadProgress obj) =>
+                                                 {
+                                                     Debug.WriteLine(obj.Current + " of " + obj.Total);
+                                                 })*/
                                              .FadeAnimation(false)
                                              .DownSample(width: _downSampleWidth)
                                              .Into(photoImg);

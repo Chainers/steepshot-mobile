@@ -10,12 +10,11 @@ namespace Steepshot.Utils
 {
     public static class BitmapUtils
     {
-        public static Bitmap RotateImageIfRequired(Bitmap img, FileDescriptor fd, string url)
+        public static Bitmap RotateImageIfRequired(Bitmap img, string url)
         {
             Orientation orientation;
-            if (!TryGetOrientation(fd, out orientation))
-                if (!TryGetOrientation(url, out orientation))
-                    return img;
+            if (!TryGetOrientation(url, out orientation))
+                return img;
 
             switch (orientation)
             {
@@ -28,22 +27,6 @@ namespace Steepshot.Utils
                 default:
                     return img;
             }
-        }
-
-        private static bool TryGetOrientation(FileDescriptor fd, out Orientation rez)
-        {
-            try
-            {
-                var ei = new ExifInterface(fd);
-                rez = (Orientation)ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
-                return true;
-            }
-            catch
-            {
-                //nothing to do
-            }
-            rez = Orientation.Normal;
-            return false;
         }
 
         private static bool TryGetOrientation(string url, out Orientation rez)
@@ -70,14 +53,13 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
-        public static Bitmap DecodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        public static Bitmap DecodeSampledBitmap(string file, int reqWidth, int reqHeight)
         {
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            BitmapFactory.DecodeFile(file, options);
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
             options.InJustDecodeBounds = false;
-            // options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
-            return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            return BitmapFactory.DecodeFile(file, options);
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)

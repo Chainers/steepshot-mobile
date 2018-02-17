@@ -37,7 +37,8 @@ namespace Steepshot.Activity
                 {
                     intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                    intent.PutExtra(PostDescriptionActivity.PhotoExtraPath, uri.ToString());
+                    intent.PutExtra(PostDescriptionActivity.MediaPathExtra, uri.LastPathSegment);
+                    intent.PutExtra(PostDescriptionActivity.MediaTypeExtra, uri.LastPathSegment.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) ? MimeTypeHelper.Mp4 : MimeTypeHelper.Jpeg);
                 }
                 else
                 {

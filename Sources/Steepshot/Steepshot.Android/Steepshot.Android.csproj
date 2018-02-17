@@ -87,6 +87,7 @@
     <Compile Include="Adapter\TagsAdapter.cs" />
     <AndroidEnvironment Include="environment.txt" />
     <Compile Include="Fragment\CameraFragment.cs" />
+    <Compile Include="Activity\VideoActivity.cs" />
     <Compile Include="Interfaces\ICanOpenPost.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -197,9 +198,8 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_flash_off.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_flash_off.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_flash_off.png" />
-    <AndroidResource Include="Resources\layout\lyt_post_view_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_post_view_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_video.axml" />
     <AndroidResource Include="Resources\layout\lyt_postcard_loading.axml" />
     <AndroidResource Include="Resources\layout\lyt_nsfw_mask.axml" />
     <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
@@ -229,16 +229,10 @@
     <AndroidResource Include="Resources\drawable\white_solid_btn.xml" />
     <AndroidResource Include="Resources\drawable\white_top_shadow.xml" />
     <AndroidResource Include="Resources\layout\lyt_search_tag.axml" />
-    <AndroidResource Include="Resources\layout\lyt_comment_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_comment_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_comments.axml" />
-    <AndroidResource Include="Resources\layout\lyt_feed_item.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_feed.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_feed_item.axml" />
+    <AndroidResource Include="Resources\layout\lyt_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />

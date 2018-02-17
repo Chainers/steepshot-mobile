@@ -191,25 +191,7 @@ namespace Steepshot.Fragment
 
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
-
-        private void PhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-            StartActivity(intent);
-        }
-
-        private void FeedPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            OpenPost(post);
-        }
-
+        
         public void OpenPost(Post post)
         {
             if (Activity is RootActivity activity)
@@ -332,14 +314,26 @@ namespace Steepshot.Fragment
                         if (post == null)
                             return;
 
-                        var intent = new Intent(Context, typeof(PostPreviewActivity));
-                        intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
+                        var media = post.Media[0].Url;
+
+                        Intent intent;
+                        if (media.EndsWith(".mp4"))
+                        {
+                            intent = new Intent(Context, typeof(VideoActivity));
+                            intent.PutExtra(VideoActivity.VideoExtraPath, media);
+                        }
+                        else
+                        {
+                            intent = new Intent(Context, typeof(PostPreviewActivity));
+                            intent.PutExtra(PostPreviewActivity.MediaPathExtra, media);
+                        }
+
                         StartActivity(intent);
                         break;
                     }
             }
         }
-
+        
         private void TagAction(string tag)
         {
             if (tag != null)

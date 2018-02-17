@@ -61,7 +61,7 @@
 //        {
 //            _camera.StopPreview();
 //            var i = new Intent(Context, typeof(PostDescriptionActivity));
-//            i.PutExtra(PostDescriptionActivity.PhotoExtraPath, path);
+//            i.PutExtra(PostDescriptionActivity.MediaPathExtra, path);
 //            Context.StartActivity(i);
 //        }
 
