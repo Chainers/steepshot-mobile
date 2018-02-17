@@ -30,6 +30,8 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
+using Android.Media;
+using Android.Provider;
 
 namespace Steepshot.Activity
 {
@@ -170,7 +172,8 @@ namespace Steepshot.Activity
 
             if (_mediaType.Equals(MimeTypeHelper.Mp4))
             {
-                Picasso.With(this).Load(_path).Into(_photoFrame);
+                var thumbnail = ThumbnailUtils.CreateVideoThumbnail(_path, ThumbnailKind.MiniKind);
+                _photoFrame.SetImageBitmap(thumbnail);
                 _rotate.Visibility = ViewStates.Gone;
                 return;
             }
@@ -446,7 +449,7 @@ namespace Steepshot.Activity
 
         private async Task<OperationResult<MediaModel>> UploadMedia(string path)
         {
-            Stream stream = null;
+            System.IO.Stream stream = null;
             FileInputStream fileInputStream = null;
 
             try
