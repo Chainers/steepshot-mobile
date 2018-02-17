@@ -25,7 +25,7 @@ namespace Steepshot.Utils
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace Steepshot.Utils
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
@@ -90,13 +90,13 @@ namespace Steepshot.Utils
             var message = error.Message;
             if (string.IsNullOrWhiteSpace(message))
                 return;
-            
+
             var lm = AppSettings.LocalizationManager;
             if (!lm.ContainsKey(message))
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
@@ -104,7 +104,7 @@ namespace Steepshot.Utils
                 }
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
-            
+
             var alert = new AlertDialog.Builder(context);
             alert.SetMessage(lm.GetText(message));
             alert.SetNegativeButton(lm.GetText(LocalizationKeys.Forget), forgetAction);
