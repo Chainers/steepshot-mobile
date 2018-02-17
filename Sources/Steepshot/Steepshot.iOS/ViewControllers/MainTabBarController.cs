@@ -1,4 +1,5 @@
-﻿using CoreGraphics;
+﻿using System;
+using CoreGraphics;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -8,6 +9,7 @@ namespace Steepshot.iOS.ViewControllers
     public class MainTabBarController : UITabBarController
     {
         private bool _isInitialized;
+        public event Action SameTabTapped;
 
         public MainTabBarController()
         {
@@ -51,7 +53,12 @@ namespace Steepshot.iOS.ViewControllers
         {
             if (!_isInitialized)
             {
-                Delegate = new TabBarDelegate(NavigationController);
+                var tabBarDelegate  = new TabBarDelegate(NavigationController);
+                tabBarDelegate.SameTabTapped += () =>
+                {
+                    SameTabTapped.Invoke();
+                };
+                Delegate = tabBarDelegate;
                 _isInitialized = true;
             }
             if (BaseViewController.ShouldProfileUpdate)

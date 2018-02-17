@@ -218,19 +218,17 @@ namespace Steepshot.iOS.Views
 
         private void AnimateView(bool tagsOpened)
         {
-            View.LayoutIfNeeded();
+            tagDefault.Active = !tagsOpened;
+            tagToTop.Active = tagsOpened;
+
             UIView.Animate(0.2, () =>
             {
-                tagDefault.Active = !tagsOpened;
-                tagToTop.Active = tagsOpened;
-
                 rotateImage.Hidden = tagsOpened;
                 photoView.Hidden = tagsOpened;
                 titleEditImage.Hidden = tagsOpened;
                 titleTextField.Hidden = tagsOpened;
                 tagsTableView.Hidden = !tagsOpened;
                 titleBottomView.Hidden = tagsOpened;
-
                 View.LayoutIfNeeded();
             });
         }

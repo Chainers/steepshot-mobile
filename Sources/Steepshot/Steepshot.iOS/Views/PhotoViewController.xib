@@ -12,6 +12,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PhotoViewController">
             <connections>
                 <outlet property="closeButton" destination="R2x-Io-yoi" id="BCd-lH-qgQ"/>
+                <outlet property="enableCameraAccess" destination="Tmr-yi-g89" id="4nt-HL-mf3"/>
                 <outlet property="flashButton" destination="Pzd-O0-Qtn" id="ALH-je-gaq"/>
                 <outlet property="galleryButton" destination="hT2-FI-jcS" id="lz7-2X-f5q"/>
                 <outlet property="liveCameraStream" destination="8P0-hY-qAM" id="ECR-NT-Zef"/>
@@ -29,6 +30,12 @@
                     <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-yi-g89">
+                    <rect key="frame" x="130.66666666666666" y="353" width="152.99999999999997" height="30"/>
+                    <state key="normal" title="Enable camera access">
+                        <color key="titleColor" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pzd-O0-Qtn">
                     <rect key="frame" x="359" y="15" width="40" height="40"/>
                     <constraints>
@@ -47,6 +54,7 @@
                 </button>
                 <imageView clipsSubviews="YES" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hT2-FI-jcS">
                     <rect key="frame" x="15" y="675" width="40" height="40"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="Ons-bX-1wh"/>
                         <constraint firstAttribute="width" constant="40" id="jrR-w4-lHJ"/>
@@ -72,6 +80,7 @@
             </subviews>
             <color key="backgroundColor" red="0.90972399709999996" green="0.90985494850000004" blue="0.9096954465" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="Tmr-yi-g89" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="1ac-9b-xvM"/>
                 <constraint firstItem="hT2-FI-jcS" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" constant="15" id="5fc-56-tiw"/>
                 <constraint firstAttribute="trailing" secondItem="gM4-Oo-cms" secondAttribute="trailing" constant="15" id="HCE-q0-OZz"/>
                 <constraint firstItem="R2x-Io-yoi" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="I9i-5r-hjE"/>
@@ -82,6 +91,7 @@
                 <constraint firstItem="8P0-hY-qAM" firstAttribute="leading" secondItem="k75-MS-fV5" secondAttribute="leading" id="RZ8-Hb-YJC"/>
                 <constraint firstAttribute="trailing" secondItem="Pzd-O0-Qtn" secondAttribute="trailing" constant="15" id="Rbs-hk-h3o"/>
                 <constraint firstAttribute="trailing" secondItem="8P0-hY-qAM" secondAttribute="trailing" id="SH4-9s-rn6"/>
+                <constraint firstItem="Tmr-yi-g89" firstAttribute="centerY" secondItem="k75-MS-fV5" secondAttribute="centerY" id="V69-Jv-Og9"/>
                 <constraint firstItem="obZ-CS-DFE" firstAttribute="centerX" secondItem="k75-MS-fV5" secondAttribute="centerX" id="dT4-UX-OeZ"/>
                 <constraint firstItem="Pzd-O0-Qtn" firstAttribute="top" secondItem="k75-MS-fV5" secondAttribute="top" constant="15" id="oMo-xz-nHy"/>
                 <constraint firstAttribute="bottom" secondItem="obZ-CS-DFE" secondAttribute="bottom" constant="21" id="qIp-Wf-920"/>

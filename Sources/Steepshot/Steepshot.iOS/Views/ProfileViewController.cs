@@ -72,6 +72,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
+            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
             GetUserInfo();
@@ -100,6 +101,11 @@ namespace Steepshot.iOS.Views
             }
         }
 
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, -_profileHeader.View.Frame.Height), true);
+        }
+
         private async void ScrolledToBottom()
         {
             await GetUserPosts();
@@ -121,22 +127,6 @@ namespace Steepshot.iOS.Views
             _gridDelegate.GenerateVariables();
             collectionView.ReloadData();
         }
-
-        /*
-        public override void ViewWillAppear(bool animated)
-        {
-            if (Username == BasePresenter.User.Login)
-            {
-                NavigationController.SetNavigationBarHidden(true, false);
-                if (TabBarController != null)
-                    TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-            }
-            else
-            {
-                NavigationController.SetNavigationBarHidden(false, false);
-            }
-            base.ViewWillAppear(animated);
-        }*/
 
         private void ProfileHeaderLoaded()
         {
@@ -280,14 +270,14 @@ namespace Steepshot.iOS.Views
 
                     var buttonsAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Semibold20,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R15G24B30,
+                        Font = Constants.Semibold20,
+                        ForegroundColor = Constants.R15G24B30,
                     };
 
                     var textAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Regular12,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R151G155B158,
+                        Font = Constants.Regular12,
+                        ForegroundColor = Constants.R151G155B158,
                     };
 
                     NSMutableAttributedString photosString = new NSMutableAttributedString();
@@ -334,12 +324,10 @@ namespace Steepshot.iOS.Views
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
                         collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
+                        if(collectionView.Hidden)
+                            collectionView.ContentOffset = new CGPoint(0, -size.Height);
                         collectionView.Hidden = false;
                     }
-                }
-                else
-                {
-                    //Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
@@ -383,7 +371,7 @@ namespace Steepshot.iOS.Views
             }
 
             collectionView.ReloadData();
-            collectionView.SetContentOffset(new CGPoint(0, 0), false);
+            collectionView.ContentOffset = new CGPoint(0, -_profileHeader.View.Frame.Height);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)

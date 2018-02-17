@@ -72,7 +72,7 @@ namespace Steepshot.Fragment
             _tagsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Tag);
             _peopleButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Users);
             _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
-            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+            _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyQuery);
 
             _searchView.TextChanged += OnSearchViewOnTextChanged;
 

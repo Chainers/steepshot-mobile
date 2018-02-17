@@ -16,6 +16,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton closeButton { get; set; }
 
 		[Outlet]
+		UIKit.UIButton enableCameraAccess { get; set; }
+
+		[Outlet]
 		UIKit.UIButton flashButton { get; set; }
 
 		[Outlet]
@@ -42,6 +45,11 @@ namespace Steepshot.iOS.Views
 				flashButton = null;
 			}
 
+			if (galleryButton != null) {
+				galleryButton.Dispose ();
+				galleryButton = null;
+			}
+
 			if (liveCameraStream != null) {
 				liveCameraStream.Dispose ();
 				liveCameraStream = null;
@@ -57,9 +65,9 @@ namespace Steepshot.iOS.Views
 				swapCameraButton = null;
 			}
 
-			if (galleryButton != null) {
-				galleryButton.Dispose ();
-				galleryButton = null;
+			if (enableCameraAccess != null) {
+				enableCameraAccess.Dispose ();
+				enableCameraAccess = null;
 			}
 		}
 	}

@@ -93,6 +93,8 @@ namespace Steepshot.iOS.Views
 
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
+            if(TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
         }
@@ -130,12 +132,36 @@ namespace Steepshot.iOS.Views
             _presenter.SourceChanged += SourceChanged;
         }
 
-        private async void SwitchSearchType(PostType postType)
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, 0), true);
+        }
+
+        private void SwitchSearchType(PostType postType)
         {
             if (postType == _presenter.PostType)
                 return;
             _presenter.PostType = postType;
-            await GetPosts(true, true);
+            switch (postType)
+            {
+                case PostType.Hot:
+                    hotConstrain.Active = true;
+                    topConstraint.Active = newConstraint.Active = false;
+                    break;
+                case PostType.New:
+                    newConstraint.Active = true;
+                    topConstraint.Active = hotConstrain.Active = false;
+                    break;
+                case PostType.Top:
+                    topConstraint.Active = true;
+                    hotConstrain.Active = newConstraint.Active = false;
+                    break;
+            }
+            UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
+            {
+                View.LayoutIfNeeded();
+            }, null);
+            GetPosts(true, true);
         }
 
         private async void ScrolledToBottom()
