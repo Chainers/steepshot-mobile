@@ -315,7 +315,8 @@ namespace Steepshot.iOS.Cells
 
         public override void DidSelectLinkWithURL(TTTAttributedLabel label, NSUrl url)
         {
-            _tagAction?.Invoke(url.Description);
+            var t = url.Description.Replace('#', ' ');
+            _tagAction?.Invoke(t);
         }
     }
 }

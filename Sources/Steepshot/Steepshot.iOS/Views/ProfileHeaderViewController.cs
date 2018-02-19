@@ -49,6 +49,9 @@ namespace Steepshot.iOS.Views
             locationLabel.Font = Constants.Regular12;
             balanceLabel.Font = Constants.Regular14;
             balanceValue.Font = Constants.Regular14;
+#if !DEBUG
+            accountViewHeight.Constant = 0;
+#endif
         }
 
         public void DecorateFollowButton(bool? hasFollowed, string currentUsername)

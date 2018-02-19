@@ -72,7 +72,8 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
-            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
             GetUserInfo();

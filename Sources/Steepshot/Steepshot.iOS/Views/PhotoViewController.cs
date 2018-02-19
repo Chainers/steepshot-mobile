@@ -6,11 +6,13 @@ using CoreGraphics;
 using CoreMedia;
 using Foundation;
 using Photos;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PhotoViewController : UIViewController, IAVCapturePhotoCaptureDelegate
+    public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate
     {
         private AVCaptureSession _captureSession;
         private AVCaptureDeviceInput _captureDeviceInput;
@@ -142,10 +144,17 @@ namespace Steepshot.iOS.Views
         [Export("captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:")]
         public void DidFinishProcessingPhoto(AVCapturePhotoOutput captureOutput, CMSampleBuffer photoSampleBuffer, CMSampleBuffer previewPhotoSampleBuffer, AVCaptureResolvedPhotoSettings resolvedSettings, AVCaptureBracketedStillImageSettings bracketSettings, NSError error)
         {
-            var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
-            var h = UIImage.LoadFromData(jpegData);
-
-            GoToDescription(h);
+            try
+            {
+                var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
+                var photo = UIImage.LoadFromData(jpegData);
+                GoToDescription(photo);
+            }
+            catch(Exception ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+                ShowAlert(Core.Localization.LocalizationKeys.PhotoProcessingError);
+            }
         }
 
         private UIImage CropImage(UIImage sourceImage, int cropX, int cropY, int width, int height)

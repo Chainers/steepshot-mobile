@@ -48,10 +48,13 @@ namespace Steepshot.iOS.ViewControllers
 
         public override void ViewDidDisappear(bool animated)
         {
-            NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
-            ShowKeyboardToken.Dispose();
-            CloseKeyboardToken.Dispose();
-            ForegroundToken.Dispose();
+            if (ShowKeyboardToken != null)
+            {
+                NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
+                ShowKeyboardToken.Dispose();
+                CloseKeyboardToken.Dispose();
+                ForegroundToken.Dispose();
+            }
             base.ViewDidDisappear(animated);
         }
 
