@@ -6,20 +6,19 @@ using CoreGraphics;
 using CoreMedia;
 using Foundation;
 using Photos;
+using Steepshot.Core.Utils;
+using Steepshot.iOS.ViewControllers;
 using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PhotoViewController : UIViewController, IAVCapturePhotoCaptureDelegate
+    public partial class PhotoViewController : BaseViewController, IAVCapturePhotoCaptureDelegate
     {
         private AVCaptureSession _captureSession;
         private AVCaptureDeviceInput _captureDeviceInput;
         private UIImagePickerController _imagePicker;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
-        private bool _isCameraAccessDenied;
-        //private UIDeviceOrientation _photoOrientation;
-
 
         public override void ViewDidLoad()
         {
@@ -30,12 +29,9 @@ namespace Steepshot.iOS.Views
             photoButton.TouchDown += CapturePhoto;
             closeButton.TouchDown += GoBack;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
+            enableCameraAccess.TouchDown += EnableCameraAccess;
 
-            var galleryTap = new UITapGestureRecognizer(() =>
-            {
-                NavigationController.PresentModalViewController(_imagePicker, true);
-            });
-
+            var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
 
             _imagePicker = new UIImagePickerController();
@@ -43,7 +39,25 @@ namespace Steepshot.iOS.Views
             //_imagePicker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
 
             _imagePicker.FinishedPickingMedia += FinishedPickingMedia;
-            //imagePicker.Canceled += Handle_Canceled;
+            _imagePicker.Canceled += Handle_Canceled;
+        }
+
+        private void EnableCameraAccess(object sender, EventArgs e)
+        {
+            UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
+        }
+
+        private void GalleryTap()
+        {
+            if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized)
+                NavigationController.PresentModalViewController(_imagePicker, true);
+            else
+                UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
+        }
+
+        private void Handle_Canceled(object sender, EventArgs e)
+        {
+            _imagePicker.DismissViewControllerAsync(false);
         }
 
         public override bool PrefersStatusBarHidden()
@@ -121,47 +135,26 @@ namespace Steepshot.iOS.Views
             var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
 
             var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
-            settings.FlashMode = AVCaptureFlashMode.Auto;
+            if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
+                settings.FlashMode = AVCaptureFlashMode.Auto;
 
-            //_photoOrientation = UIDevice.CurrentDevice.Orientation;
             _capturePhotoOutput.CapturePhoto(settings, this);
         }
 
         [Export("captureOutput:didFinishProcessingPhotoSampleBuffer:previewPhotoSampleBuffer:resolvedSettings:bracketSettings:error:")]
         public void DidFinishProcessingPhoto(AVCapturePhotoOutput captureOutput, CMSampleBuffer photoSampleBuffer, CMSampleBuffer previewPhotoSampleBuffer, AVCaptureResolvedPhotoSettings resolvedSettings, AVCaptureBracketedStillImageSettings bracketSettings, NSError error)
-        {/*
+        {
             try
             {
-                using (var pixelBuffer = photoSampleBuffer.GetImageBuffer() as CVPixelBuffer)
-                {
-                    pixelBuffer.Lock(CVPixelBufferLock.None);
-                    var j = CIImage.FromImageBuffer(pixelBuffer);
-                    pixelBuffer.Unlock(CVPixelBufferLock.None);
-                }
-
-                using(var t = photoSampleBuffer.GetImageBuffer())
-                {
-                    
-                }
-
-
-                //var i = new CGAffineTransform();
-                //i.Rotate(90);
-
-                //u = lol.ImageByApplyingTransform(y);
-           
-                //var filter = CIFilter.GetFilter("CIAffineTransform", );
-
-
+                var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
+                var photo = UIImage.LoadFromData(jpegData);
+                GoToDescription(photo);
             }
             catch(Exception ex)
             {
-                
-            }*/
-            var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
-            var h = UIImage.LoadFromData(jpegData);
-
-            GoToDescription(h);
+                AppSettings.Reporter.SendCrash(ex);
+                ShowAlert(Core.Localization.LocalizationKeys.PhotoProcessingError);
+            }
         }
 
         private UIImage CropImage(UIImage sourceImage, int cropX, int cropY, int width, int height)
@@ -197,7 +190,7 @@ namespace Steepshot.iOS.Views
             {
                 if (!await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video))
                 {
-                    _isCameraAccessDenied = true;
+                    enableCameraAccess.Hidden = false;
                     return;
                 }
             }
@@ -329,9 +322,6 @@ namespace Steepshot.iOS.Views
         {
             var descriptionViewController = new DescriptionViewController(image, "jpg");
             NavigationController.PushViewController(descriptionViewController, true);
-            //var mainTabBar = NavigationController.ViewControllers[0];
-            //NavigationController.ViewControllers = new UIViewController[] { mainTabBar, descriptionViewController };
-            //NavigationController.PopViewController(true);
         }
     }
 }

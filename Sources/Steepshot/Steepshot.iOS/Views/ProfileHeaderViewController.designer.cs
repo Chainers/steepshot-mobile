@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Views
 	partial class ProfileHeaderViewController
 	{
 		[Outlet]
+		UIKit.NSLayoutConstraint accountViewHeight { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView avatar { get; set; }
 
 		[Outlet]
@@ -117,6 +120,11 @@ namespace Steepshot.iOS.Views
 				photosButton = null;
 			}
 
+			if (progressBar != null) {
+				progressBar.Dispose ();
+				progressBar = null;
+			}
+
 			if (username != null) {
 				username.Dispose ();
 				username = null;
@@ -137,9 +145,9 @@ namespace Steepshot.iOS.Views
 				websiteView = null;
 			}
 
-			if (progressBar != null) {
-				progressBar.Dispose ();
-				progressBar = null;
+			if (accountViewHeight != null) {
+				accountViewHeight.Dispose ();
+				accountViewHeight = null;
 			}
 		}
 	}

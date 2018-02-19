@@ -48,10 +48,13 @@ namespace Steepshot.iOS.ViewControllers
 
         public override void ViewDidDisappear(bool animated)
         {
-            NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
-            ShowKeyboardToken.Dispose();
-            CloseKeyboardToken.Dispose();
-            ForegroundToken.Dispose();
+            if (ShowKeyboardToken != null)
+            {
+                NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
+                ShowKeyboardToken.Dispose();
+                CloseKeyboardToken.Dispose();
+                ForegroundToken.Dispose();
+            }
             base.ViewDidDisappear(animated);
         }
 
@@ -131,7 +134,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
                 }
                 else
                 {
@@ -159,7 +162,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
                 }
                 else
                 {

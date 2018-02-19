@@ -20,16 +20,7 @@ namespace Steepshot.iOS
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
-        // class-level declarations
-
-        public override UIWindow Window
-        {
-            get;
-            set;
-        }
-
-        public static UIStoryboard Storyboard = UIStoryboard.FromName("Main", null);
-        public static UIViewController InitialViewController;
+        public override UIWindow Window { get; set; }
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
@@ -58,21 +49,24 @@ namespace Steepshot.iOS
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
-                //AppSettings.Reporter.SendCrash((Error)e.ExceptionObject);
+                AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);
             };
             TaskScheduler.UnobservedTaskException += (object sender, UnobservedTaskExceptionEventArgs e) =>
             {
-                //AppSettings.Reporter.SendCrash(e.Error);
+                AppSettings.Reporter.SendCrash(e.Exception);
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
+            UIViewController initialViewController;
             if (BasePresenter.User.IsAuthenticated)
-                InitialViewController = new MainTabBarController();
+                initialViewController = new MainTabBarController();
             else
-                InitialViewController = new PreSearchViewController();
+                initialViewController = new PreSearchViewController();
 
-            var navController = new InteractivePopNavigationController(InitialViewController);
-            Window.RootViewController = navController;
+            if (BasePresenter.User.IsAuthenticated && !BasePresenter.User.IsNeedRewards)
+                BasePresenter.User.IsNeedRewards = true; // for ios users set true by default
+
+            Window.RootViewController = new InteractivePopNavigationController(initialViewController);
             Window.MakeKeyAndVisible();
             return true;
         }
@@ -103,15 +97,6 @@ namespace Steepshot.iOS
 
         public override void OnResignActivation(UIApplication application)
         {
-            /*
-			try
-			{
-				NSNotificationCenter.DefaultCenter.PostNotification(new NSNotification(new NSCoder()));
-			}
-			catch (Exception ex)
-			{
-				
-			} */
             // Invoked when the application is about to move from active to inactive state.
             // This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) 
             // or when the BasePresenter.User quits the application and it begins the transition to the background state.

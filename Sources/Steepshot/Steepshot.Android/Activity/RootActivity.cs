@@ -121,6 +121,9 @@ namespace Steepshot.Activity
             {
                 var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
                 hostFragment?.Clear();
+                var fragments = hostFragment.ChildFragmentManager.Fragments;
+                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
+                    fragment.ClosePost();
             }
         }
 
@@ -134,14 +137,13 @@ namespace Steepshot.Activity
                 tabView.LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, _tabHeight);
                 tab.SetCustomView(tabView);
 
-                if (i == 0)
-                    _prevTab = tab;
                 _tabLayout.AddTab(tab);
                 if (i == _adapter.TabIconsInactive.Length - 1)
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
             SelectTab(BasePresenter.User.SelectedTab);
+            _prevTab = _tabLayout.GetTabAt(BasePresenter.User.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 

@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -14,13 +15,17 @@
                 <outlet property="activityIndicator" destination="vXC-ns-gD7" id="6D0-cP-X1Z"/>
                 <outlet property="collectionView" destination="Sju-E1-39z" id="9WR-jn-Prb"/>
                 <outlet property="hotButton" destination="9n7-k6-qWo" id="cpQ-vV-SpI"/>
+                <outlet property="hotConstrain" destination="m63-Sy-ird" id="g0f-0U-OWJ"/>
                 <outlet property="loginButton" destination="FA9-GS-ZPk" id="pLk-m0-sV3"/>
                 <outlet property="newButton" destination="AAi-8u-Fxc" id="teR-K8-iIG"/>
+                <outlet property="newConstraint" destination="qWM-fm-btF" id="yZW-Uc-JZo"/>
                 <outlet property="noFeedLabel" destination="lNO-d0-qmR" id="S2X-rh-Zks"/>
                 <outlet property="searchButton" destination="iYy-X8-jGG" id="WMm-kN-X3c"/>
                 <outlet property="searchHeight" destination="aaP-V5-Z6d" id="G7S-z9-edp"/>
                 <outlet property="searchTopMargin" destination="GFV-RE-HMj" id="xCB-5S-Kit"/>
+                <outlet property="switcher" destination="DgU-q8-f8k" id="efp-XC-rEg"/>
                 <outlet property="topButton" destination="RiB-Oh-gJP" id="ghM-an-aac"/>
+                <outlet property="topConstraint" destination="aGz-1B-4pe" id="kjJ-8L-6Mb"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
             </connections>
         </placeholder>
@@ -98,20 +103,49 @@
                                 <color key="titleColor" red="0.058823529411764705" green="0.094117647058823528" blue="0.11764705882352941" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DgU-q8-f8k">
+                            <rect key="frame" x="315" y="0.0" width="60" height="60"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="DgU-q8-f8k" secondAttribute="height" multiplier="1:1" id="8d6-6p-U81"/>
+                            </constraints>
+                            <state key="normal" image="ic_grid_nonactive.png"/>
+                            <state key="selected" image="ic_grid_active.png"/>
+                        </button>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BbL-pO-NqE">
+                            <rect key="frame" x="20" y="58" width="50" height="2"/>
+                            <color key="backgroundColor" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="50" id="4RW-z0-DmR"/>
+                                <constraint firstAttribute="height" constant="2" id="WrX-5A-jrp"/>
+                            </constraints>
+                        </view>
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <constraints>
                         <constraint firstItem="9n7-k6-qWo" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="top" id="1mr-v0-CAg"/>
                         <constraint firstItem="9n7-k6-qWo" firstAttribute="leading" secondItem="hnw-jm-3iE" secondAttribute="leading" id="5w1-y7-27I"/>
                         <constraint firstItem="AAi-8u-Fxc" firstAttribute="leading" secondItem="9n7-k6-qWo" secondAttribute="trailing" id="6DD-wn-T1F"/>
+                        <constraint firstAttribute="trailing" secondItem="DgU-q8-f8k" secondAttribute="trailing" id="7FA-Iv-WhG"/>
                         <constraint firstItem="AAi-8u-Fxc" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="top" id="9Fn-N6-1um"/>
                         <constraint firstAttribute="bottom" secondItem="9n7-k6-qWo" secondAttribute="bottom" id="9Kn-R1-aQp"/>
                         <constraint firstItem="RiB-Oh-gJP" firstAttribute="leading" secondItem="AAi-8u-Fxc" secondAttribute="trailing" id="BKx-na-wg7"/>
                         <constraint firstAttribute="bottom" secondItem="RiB-Oh-gJP" secondAttribute="bottom" id="BLB-Yw-55E"/>
                         <constraint firstAttribute="bottom" secondItem="AAi-8u-Fxc" secondAttribute="bottom" id="M4B-1b-rO1"/>
+                        <constraint firstItem="BbL-pO-NqE" firstAttribute="bottom" secondItem="9n7-k6-qWo" secondAttribute="bottom" id="Pqn-sW-nn3"/>
                         <constraint firstItem="RiB-Oh-gJP" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="top" id="SpG-LE-I4Z"/>
                         <constraint firstAttribute="height" constant="60" id="TxW-Kv-pEU"/>
+                        <constraint firstItem="RiB-Oh-gJP" firstAttribute="centerX" secondItem="BbL-pO-NqE" secondAttribute="centerX" id="aGz-1B-4pe"/>
+                        <constraint firstItem="BbL-pO-NqE" firstAttribute="centerX" secondItem="9n7-k6-qWo" secondAttribute="centerX" id="m63-Sy-ird"/>
+                        <constraint firstAttribute="bottom" secondItem="DgU-q8-f8k" secondAttribute="bottom" id="nAi-1A-D5K"/>
+                        <constraint firstItem="DgU-q8-f8k" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="top" id="nYm-mf-nza"/>
+                        <constraint firstItem="AAi-8u-Fxc" firstAttribute="centerX" secondItem="BbL-pO-NqE" secondAttribute="centerX" id="qWM-fm-btF"/>
                     </constraints>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="qWM-fm-btF"/>
+                            <exclude reference="aGz-1B-4pe"/>
+                        </mask>
+                    </variation>
                 </view>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-E1-39z">
                     <rect key="frame" x="0.0" y="145" width="375" height="522"/>
@@ -171,6 +205,8 @@
         </view>
     </objects>
     <resources>
+        <image name="ic_grid_active.png" width="22" height="22"/>
+        <image name="ic_grid_nonactive.png" width="22" height="22"/>
         <image name="ic_search_small.png" width="12" height="12"/>
     </resources>
 </document>

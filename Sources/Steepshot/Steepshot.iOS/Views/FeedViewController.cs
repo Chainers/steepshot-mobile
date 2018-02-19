@@ -12,6 +12,7 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
+using CoreGraphics;
 
 namespace Steepshot.iOS.Views
 {
@@ -33,6 +34,13 @@ namespace Steepshot.iOS.Views
         {
             _gridDelegate.GenerateVariables();
             feedCollection.ReloadData();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            if (!IsMovingToParentViewController)
+                feedCollection.ReloadData();
+            base.ViewWillAppear(animated);
         }
 
         public override void ViewDidLoad()
@@ -67,8 +75,15 @@ namespace Steepshot.iOS.Views
                 TabBarController.NavigationController.SetNavigationBarHidden(true, false);
             }
 
+            ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
+
             SetNavBar();
             GetPosts();
+        }
+
+        private void SameTabTapped()
+        {
+            feedCollection.SetContentOffset(new CGPoint(0, 0), true);
         }
 
         private async void OnRefresh(object sender, EventArgs e)

@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ProfileHeaderViewController">
             <connections>
+                <outlet property="accountViewHeight" destination="FMO-Sn-UCt" id="KnC-ph-dNW"/>
                 <outlet property="avatar" destination="6GR-YN-5de" id="dcO-dH-uBo"/>
                 <outlet property="balanceLabel" destination="quF-eF-5Vv" id="okf-8r-e6u"/>
                 <outlet property="balanceValue" destination="GIH-UU-aE8" id="GbT-hm-mve"/>
@@ -140,7 +141,7 @@
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rF0-jB-rVP">
                     <rect key="frame" x="174" y="178" width="30" height="30"/>
                 </button>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qTC-aR-aPa">
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qTC-aR-aPa">
                     <rect key="frame" x="0.0" y="271" width="348" height="50"/>
                     <subviews>
                         <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_balance.png" translatesAutoresizingMaskIntoConstraints="NO" id="EpG-QJ-kyc">

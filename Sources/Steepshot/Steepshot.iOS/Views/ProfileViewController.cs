@@ -56,6 +56,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _gridDelegate.CellClicked += CellAction;
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
             _collectionViewSource.CellAction += CellAction;
@@ -71,6 +72,8 @@ namespace Steepshot.iOS.Views
             _refreshControl.ValueChanged += RefreshControl_ValueChanged;
             collectionView.Add(_refreshControl);
 
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
             GetUserInfo();
@@ -80,23 +83,28 @@ namespace Steepshot.iOS.Views
         private void SetBackButton()
         {
             switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
-            switchButton.TintColor = Helpers.Constants.R151G155B158;
+            switchButton.TintColor = Constants.R151G155B158;
 
             if (Username == BasePresenter.User.Login)
             {
                 NavigationItem.Title = "My Profile";
                 var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
-                settingsButton.TintColor = Helpers.Constants.R151G155B158;
+                settingsButton.TintColor = Constants.R151G155B158;
                 NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
             }
             else
             {
                 NavigationItem.Title = Username;
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-                leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+                leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
                 NavigationItem.RightBarButtonItem = switchButton;
             }
+        }
+
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, -_profileHeader.View.Frame.Height), true);
         }
 
         private async void ScrolledToBottom()
@@ -121,22 +129,6 @@ namespace Steepshot.iOS.Views
             collectionView.ReloadData();
         }
 
-        /*
-        public override void ViewWillAppear(bool animated)
-        {
-            if (Username == BasePresenter.User.Login)
-            {
-                NavigationController.SetNavigationBarHidden(true, false);
-                if (TabBarController != null)
-                    TabBarController.NavigationController.SetNavigationBarHidden(true, false);
-            }
-            else
-            {
-                NavigationController.SetNavigationBarHidden(false, false);
-            }
-            base.ViewWillAppear(animated);
-        }*/
-
         private void ProfileHeaderLoaded()
         {
             _profileHeader.FollowButton.TouchDown += (object sender, EventArgs e) =>
@@ -157,9 +149,17 @@ namespace Steepshot.iOS.Views
             };
         }
 
+        public override void ViewWillAppear(bool animated)
+        {
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
+            base.ViewWillAppear(animated);
+        }
+
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
+
             if (ShouldProfileUpdate)
             {
                 RefreshPage();
@@ -271,14 +271,14 @@ namespace Steepshot.iOS.Views
 
                     var buttonsAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Semibold20,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R15G24B30,
+                        Font = Constants.Semibold20,
+                        ForegroundColor = Constants.R15G24B30,
                     };
 
                     var textAttributes = new UIStringAttributes
                     {
-                        Font = Steepshot.iOS.Helpers.Constants.Regular12,
-                        ForegroundColor = Steepshot.iOS.Helpers.Constants.R151G155B158,
+                        Font = Constants.Regular12,
+                        ForegroundColor = Constants.R151G155B158,
                     };
 
                     NSMutableAttributedString photosString = new NSMutableAttributedString();
@@ -325,12 +325,10 @@ namespace Steepshot.iOS.Views
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
                         collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
+                        if(collectionView.Hidden)
+                            collectionView.ContentOffset = new CGPoint(0, -size.Height);
                         collectionView.Hidden = false;
                     }
-                }
-                else
-                {
-                    //Reporter.SendCrash(response.Errors[0], BasePresenter.User.Login, AppVersion);
                 }
             }
             catch (Exception ex)
@@ -356,7 +354,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
-                switchButton.TintColor = Helpers.Constants.R231G72B0;
+                switchButton.TintColor = Constants.R231G72B0;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 1,
@@ -365,7 +363,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                switchButton.TintColor = Helpers.Constants.R151G155B158;
+                switchButton.TintColor = Constants.R151G155B158;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 0,
@@ -374,7 +372,7 @@ namespace Steepshot.iOS.Views
             }
 
             collectionView.ReloadData();
-            collectionView.SetContentOffset(new CGPoint(0, 0), false);
+            collectionView.ContentOffset = new CGPoint(0, -_profileHeader.View.Frame.Height);
         }
 
         private async Task GetUserPosts(bool needRefresh = false)

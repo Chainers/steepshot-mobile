@@ -1,4 +1,5 @@
 ﻿using System;
+using Steepshot.Core.Utils;
 using UIKit;
 
 namespace Steepshot.iOS
@@ -16,7 +17,7 @@ namespace Steepshot.iOS
             }
             catch (Exception ex)
             {
-                //AppSettings.Reporter.SendCrash(ex);
+                AppSettings.Reporter.SendCrash(ex);
             }
         }
     }

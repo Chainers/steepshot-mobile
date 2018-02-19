@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
@@ -31,16 +32,14 @@ namespace Steepshot.iOS.Views
             base.ViewDidLoad();
 
             _navController = TabBarController != null ? TabBarController.NavigationController : NavigationController;
+            _navController.NavigationBar.Translucent = false;
 
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
             _gridDelegate.IsGrid = false;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
+            _gridDelegate.CellClicked += CellAction;
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
-
-            if (_navController != null)
-                _navController.NavigationBar.Translucent = false;
-
             _collectionViewSource.IsGrid = false;
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
@@ -90,8 +89,12 @@ namespace Steepshot.iOS.Views
                 SwitchSearchType(PostType.New);
             };
 
+            switcher.TouchDown += SwitchLayout;
+
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
+            if(TabBarController != null)
+                ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
         }
@@ -104,11 +107,13 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillAppear(bool animated)
         {
+            if (!IsMovingToParentViewController)
+                collectionView.ReloadData();
             if (CurrentPostCategory != null)
             {
                 NavigationItem.Title = CurrentPostCategory;
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
-                leftBarButton.TintColor = Helpers.Constants.R15G24B30;
+                leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
                 NavigationController.SetNavigationBarHidden(false, false);
 
@@ -127,12 +132,36 @@ namespace Steepshot.iOS.Views
             _presenter.SourceChanged += SourceChanged;
         }
 
-        private async void SwitchSearchType(PostType postType)
+        private void SameTabTapped()
+        {
+            collectionView.SetContentOffset(new CGPoint(0, 0), true);
+        }
+
+        private void SwitchSearchType(PostType postType)
         {
             if (postType == _presenter.PostType)
                 return;
             _presenter.PostType = postType;
-            await GetPosts(true, true);
+            switch (postType)
+            {
+                case PostType.Hot:
+                    hotConstrain.Active = true;
+                    topConstraint.Active = newConstraint.Active = false;
+                    break;
+                case PostType.New:
+                    newConstraint.Active = true;
+                    topConstraint.Active = hotConstrain.Active = false;
+                    break;
+                case PostType.Top:
+                    topConstraint.Active = true;
+                    hotConstrain.Active = newConstraint.Active = false;
+                    break;
+            }
+            UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut, () =>
+            {
+                View.LayoutIfNeeded();
+            }, null);
+            GetPosts(true, true);
         }
 
         private async void ScrolledToBottom()
@@ -256,10 +285,10 @@ namespace Steepshot.iOS.Views
 
         private void SwitchLayout(object sender, EventArgs e)
         {
-            _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+            _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
+            switcher.Selected = _collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
-                //switchButton.TintColor = Helpers.Constants.R231G72B0;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 1,
@@ -268,17 +297,16 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                //switchButton.TintColor = Helpers.Constants.R151G155B158;
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 0,
                     MinimumInteritemSpacing = 0,
                 }, false);
-
             }
 
             collectionView.ReloadData();
-            //collectionView.SetContentOffset(new CGPoint(0, 0), false);
+            //collectionView.ScrollToItem(_gridDelegate.TopCurrentPosition, UICollectionViewScrollPosition.Top, false);
+            collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)

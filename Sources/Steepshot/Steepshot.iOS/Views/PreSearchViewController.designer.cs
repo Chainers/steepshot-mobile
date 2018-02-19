@@ -22,10 +22,16 @@ namespace Steepshot.iOS.Views
 		UIKit.UIButton hotButton { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint hotConstrain { get; set; }
+
+		[Outlet]
 		UIKit.UIButton loginButton { get; set; }
 
 		[Outlet]
 		UIKit.UIButton newButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint newConstraint { get; set; }
 
 		[Outlet]
 		UIKit.UILabel noFeedLabel { get; set; }
@@ -40,7 +46,13 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint searchTopMargin { get; set; }
 
 		[Outlet]
+		UIKit.UIButton switcher { get; set; }
+
+		[Outlet]
 		UIKit.UIButton topButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint topConstraint { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -79,11 +91,6 @@ namespace Steepshot.iOS.Views
 				searchButton = null;
 			}
 
-			if (topButton != null) {
-				topButton.Dispose ();
-				topButton = null;
-			}
-
 			if (searchHeight != null) {
 				searchHeight.Dispose ();
 				searchHeight = null;
@@ -92,6 +99,31 @@ namespace Steepshot.iOS.Views
 			if (searchTopMargin != null) {
 				searchTopMargin.Dispose ();
 				searchTopMargin = null;
+			}
+
+			if (switcher != null) {
+				switcher.Dispose ();
+				switcher = null;
+			}
+
+			if (topButton != null) {
+				topButton.Dispose ();
+				topButton = null;
+			}
+
+			if (hotConstrain != null) {
+				hotConstrain.Dispose ();
+				hotConstrain = null;
+			}
+
+			if (newConstraint != null) {
+				newConstraint.Dispose ();
+				newConstraint = null;
+			}
+
+			if (topConstraint != null) {
+				topConstraint.Dispose ();
+				topConstraint = null;
 			}
 		}
 	}

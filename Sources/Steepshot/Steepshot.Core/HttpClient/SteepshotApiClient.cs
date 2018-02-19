@@ -125,7 +125,8 @@ namespace Steepshot.Core.HttpClient
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
-            Trace($"post/@{model.Author}/{model.Permlink}/comment", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+            //log parent post to perform update
+            Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Error, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);//.Wait(5000);
             return result;
         }
 

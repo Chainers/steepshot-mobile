@@ -1,6 +1,6 @@
 {
     "Lang": "en-us",
-    "Version": 2,
+    "Version": 3,
     "Map": {
         "WrongPrivatePostingKey": "It`s not a valid Private Posting key! Check - Private key looks like 5********...",
         "WrongPrivateActimeKey": "It`s not a valid Private Active key! Check - Private key looks like 5********...",
@@ -165,6 +165,7 @@
         "GatewayTimeout": "{statusCode} GatewayTimeout. (The server was acting as a gateway or proxy and did not receive a timely response from the upstream server. Try repeat request a little later.)",
         "HttpErrorCode": "({statusCode}) Some error on server side.",
         "<h1>Server Error (500)</h1>": "(500) Server Error",
+        "504 Gateway Time-out": "(504) Gateway Time-out",
         "Query should have at least 3 characters": "Query should have at least 3 characters",
         "Username used for offset was not found": "Username used for offset was not found",
         "User not found": "User not found",
@@ -180,6 +181,8 @@
 		"4100000 plugin_exception: plugin exception: The comment is archived":"The comment is archived",
 		"4100000 plugin_exception: plugin exception Account: steem bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Steem bandwidth limit exceeded. Please wait to transact or power up STEEM.",
 		"4100000 plugin_exception: plugin exception: Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.":"Bandwidth limit exceeded. Please wait to transact or power up STEEM.",
+		"3030000 tx_missing_posting_auth: missing required posting authority":"Missing Posting Authority",		
+		"Size of the uploaded file is too big. Max size: 10 MB.":"Size of the uploaded file is too big. Max size: 10 MB.",
 		"Sharepost":"Share post",
 		"Retry":"Retry",
 		"CheckPermission":"Check your app permissions",
