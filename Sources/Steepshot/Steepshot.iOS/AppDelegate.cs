@@ -62,10 +62,7 @@ namespace Steepshot.iOS
                 initialViewController = new MainTabBarController();
             else
                 initialViewController = new PreSearchViewController();
-
-            if (BasePresenter.User.IsAuthenticated && !BasePresenter.User.IsNeedRewards)
-                BasePresenter.User.IsNeedRewards = true; // for ios users set true by default
-
+            
             Window.RootViewController = new InteractivePopNavigationController(initialViewController);
             Window.MakeKeyAndVisible();
             return true;

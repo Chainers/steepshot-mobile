@@ -70,9 +70,6 @@ namespace Steepshot.Core.Models.Requests
 
         public PreparePostModel(UserInfo user) : base(user)
         {
-            if (!user.IsNeedRewards)
-                BeneficiariesSet = "steepshot_no_rewards";
-
             ShowFooter = user.ShowFooter;
             Author = user.Login;
             IsEditMode = false;
@@ -80,9 +77,6 @@ namespace Steepshot.Core.Models.Requests
 
         public PreparePostModel(UserInfo user, string permlink) : base(user)
         {
-            if (!user.IsNeedRewards)
-                BeneficiariesSet = "steepshot_no_rewards";
-
             ShowFooter = user.ShowFooter;
             Author = user.Login;
             _permlink = permlink;

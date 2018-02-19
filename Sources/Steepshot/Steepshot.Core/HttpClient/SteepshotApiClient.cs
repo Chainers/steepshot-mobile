@@ -111,14 +111,14 @@ namespace Steepshot.Core.HttpClient
 
             if (!model.IsEditMode)
             {
-                var bKey = $"{_ditchClient.GetType()}{model.IsNeedRewards}";
+                var bKey = $"{_ditchClient.GetType()}";
                 if (_beneficiariesCash.ContainsKey(bKey))
                 {
                     model.Beneficiaries = _beneficiariesCash[bKey];
                 }
                 else
                 {
-                    var beneficiaries = await GetBeneficiaries(model.IsNeedRewards, ct);
+                    var beneficiaries = await GetBeneficiaries(true, ct);
                     if (beneficiaries.IsSuccess)
                         _beneficiariesCash[bKey] = model.Beneficiaries = beneficiaries.Result.Beneficiaries;
                 }

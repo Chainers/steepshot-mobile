@@ -130,7 +130,6 @@ namespace Steepshot.iOS.Cells
                 thirdLiker.Hidden = true;
 
             cellText.Text = _currentPost.Author;
-            rewards.Hidden = !BasePresenter.User.IsNeedRewards;
             //rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
 
             netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Like, _currentPost.NetVotes);
@@ -223,8 +222,6 @@ namespace Steepshot.iOS.Cells
                 likeButton.TouchDown += LikeTap;
 
                 _isButtonBinded = true;
-
-                Debug.WriteLine("Cell created");
             }
 
             var noLinkAttribute = new UIStringAttributes
