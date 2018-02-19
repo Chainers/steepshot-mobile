@@ -24,6 +24,7 @@ using Steepshot.Utils.Animations;
 using Steepshot.Utils.Animations.Interfaces;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Utils;
+using System.Collections.Generic;
 
 namespace Steepshot.Fragment
 {
@@ -253,20 +254,16 @@ namespace Steepshot.Fragment
         private void OnPostPagerGlobalLayout(object sender, EventArgs e)
         {
             _postPager.ViewTreeObserver.GlobalLayout -= OnPostPagerGlobalLayout;
-            var storyboard = new Storyboard();
-            storyboard.OnFinish += (s) => { _postsList.Visibility = ViewStates.Gone; _postsList.Alpha = 0; };
             var sliderStoryboard = _profilePagerAdapter.Storyboard;
-            storyboard.AddRange(new IAnimator[]{
+            var storyboard = Storyboard.From(new List<IAnimator>(new[]{
                     _postsList.Opacity(1, 0, 300, Easing.CubicOut),
                     _postPager.Opacity(0, 1, 300, Easing.CubicOut),
-                    sliderStoryboard
-                });
-            var reversed = storyboard.Reversed as Storyboard;
-            reversed.OnFinish += (s) => { sliderStoryboard.Reversed.Reset(); _postPager.Visibility = ViewStates.Gone; _postPager.Alpha = 0; };
+                    sliderStoryboard }));
+            var rstoryboard = storyboard.Reversed as Storyboard;
             if (_postPager.Alpha == 0)
-                storyboard.Animate();
+                storyboard.FinishWith((s) => { _postsList.Visibility = ViewStates.Gone; storyboard[0]?.Reset(); }).Animate();
             else
-                reversed.Animate();
+                rstoryboard.FinishWith((s) => { sliderStoryboard.Reversed.Reset(); _postPager.Visibility = ViewStates.Invisible; storyboard[1]?.Reset(); }).Animate();
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)

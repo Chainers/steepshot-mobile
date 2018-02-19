@@ -19,6 +19,9 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Utils;
+using Steepshot.Utils.Animations;
+using Steepshot.Utils.Animations.Interfaces;
+using System.Collections.Generic;
 
 namespace Steepshot.Fragment
 {
@@ -106,6 +109,21 @@ namespace Steepshot.Fragment
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }
+        }
+
+        private void OnPostPagerGlobalLayout(object sender, EventArgs e)
+        {
+            _postPager.ViewTreeObserver.GlobalLayout -= OnPostPagerGlobalLayout;
+            var sliderStoryboard = _postPagerAdapter.Storyboard;
+            var storyboard = Storyboard.From(new List<IAnimator>(new[]{
+                    _feedList.Opacity(1, 0, 300, Easing.CubicOut),
+                    _postPager.Opacity(0, 1, 300, Easing.CubicOut),
+                    sliderStoryboard }));
+            var rstoryboard = storyboard.Reversed as Storyboard;
+            if (_postPager.Alpha == 0)
+                storyboard.FinishWith((s) => { _feedList.Visibility = ViewStates.Gone; storyboard[0]?.Reset(); }).Animate();
+            else
+                rstoryboard.FinishWith((s) => { sliderStoryboard.Reversed.Reset(); _postPager.Visibility = ViewStates.Invisible; storyboard[1]?.Reset(); }).Animate();
         }
 
         public override void OnResume()
@@ -217,8 +235,9 @@ namespace Steepshot.Fragment
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();
+            _postPager.Alpha = 0;
             _postPager.Visibility = ViewStates.Visible;
-            _feedList.Visibility = ViewStates.Gone;
+            _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
         }
 
         public bool ClosePost()
@@ -228,9 +247,10 @@ namespace Steepshot.Fragment
                 if (Activity is RootActivity activity)
                     activity._tabLayout.Visibility = ViewStates.Visible;
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
-                _postPager.Visibility = ViewStates.Gone;
-                _feedList.Visibility = ViewStates.Visible;
                 _feedList.GetAdapter().NotifyDataSetChanged();
+                _feedList.Alpha = 0;
+                _feedList.Visibility = ViewStates.Visible;
+                _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
                 return true;
             }
             return false;

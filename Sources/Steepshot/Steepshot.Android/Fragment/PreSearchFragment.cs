@@ -28,6 +28,8 @@ using Steepshot.Core.Localization;
 using Steepshot.Interfaces;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.Utils.Animations;
+using Steepshot.Utils.Animations.Interfaces;
 
 namespace Steepshot.Fragment
 {
@@ -278,6 +280,21 @@ namespace Steepshot.Fragment
             }
         }
 
+        private void OnPostPagerGlobalLayout(object sender, EventArgs e)
+        {
+            _postPager.ViewTreeObserver.GlobalLayout -= OnPostPagerGlobalLayout;
+            var sliderStoryboard = _profilePagerAdapter.Storyboard;
+            var storyboard = Storyboard.From(new List<IAnimator>(new[]{
+                    _postsList.Opacity(1, 0, 300, Easing.CubicOut),
+                    _postPager.Opacity(0, 1, 300, Easing.CubicOut),
+                    sliderStoryboard }));
+            var rstoryboard = storyboard.Reversed as Storyboard;
+            if (_postPager.Alpha == 0)
+                storyboard.FinishWith((s) => { _postsList.Visibility = ViewStates.Gone; storyboard[0]?.Reset(); }).Animate();
+            else
+                rstoryboard.FinishWith((s) => { sliderStoryboard.Reversed.Reset(); _postPager.Visibility = ViewStates.Invisible; storyboard[1]?.Reset(); }).Animate();
+        }
+
         public override void OnResume()
         {
             base.OnResume();
@@ -328,8 +345,9 @@ namespace Steepshot.Fragment
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
+            _postPager.Alpha = 0;
             _postPager.Visibility = ViewStates.Visible;
-            _postsList.Visibility = ViewStates.Gone;
+            _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
         }
 
         public bool ClosePost()
@@ -338,9 +356,10 @@ namespace Steepshot.Fragment
             {
                 if (Activity is RootActivity activity)
                     activity._tabLayout.Visibility = ViewStates.Visible;
-                _postPager.Visibility = ViewStates.Gone;
-                _postsList.Visibility = ViewStates.Visible;
                 _postsList.GetAdapter().NotifyDataSetChanged();
+                _postsList.Alpha = 0;
+                _postsList.Visibility = ViewStates.Visible;
+                _postPager.ViewTreeObserver.GlobalLayout += OnPostPagerGlobalLayout;
                 if (_postsList.GetAdapter() == ProfileGridAdapter)
                 {
                     var seenItem = _postsList.FindViewHolderForAdapterPosition(_postPager.CurrentItem)?.ItemView

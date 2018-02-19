@@ -10,6 +10,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Utils.Animations;
+using Steepshot.Utils.Animations.Interfaces;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -65,7 +66,6 @@ namespace Steepshot.Adapter
             }
             else
                 vh = _viewHolders[reusePosition];
-
             vh.UpdateData(_presenter[position], _context);
             return vh.ItemView;
         }
@@ -155,15 +155,15 @@ namespace Steepshot.Adapter
                     var subtitle = itemView.FindViewById<RelativeLayout>(Resource.Id.subtitle);
                     var footer = itemView.FindViewById<LinearLayout>(Resource.Id.comment_footer);
 
-                    var storyboard = new Storyboard();
-                    storyboard.AddRange(new[]
+                    var entities = new List<IAnimator>();
+                    entities.AddRange(new[]
                     {
                         photoPager.Translation(-photoPager.Width,itemView.Height,0,0,300,Easing.CubicOut),
                         photoPager.Scaling(0,0,1,1,300,Easing.CubicOut),
                         headerLeft.Translation(-headerLeft.Width,0,0,0,300,Easing.CubicOut),
                         headerRight.Translation(headerRight.Width,0,0,0,300,Easing.CubicOut),
-                        subtitle.Translation(0,itemView.Height,0,0,300,Easing.CubicOut,50),
-                        footer.Translation(0,itemView.Height,0,0,300,Easing.CubicOut,100)
+                        subtitle.Translation(0,itemView.Height,0,0,300,Easing.CubicOut).WithDelay(50),
+                        footer.Translation(0,itemView.Height,0,0,300,Easing.CubicOut).WithDelay(100)
                     });
 
                     if (CurrentItem - 1 >= 0)
@@ -173,7 +173,7 @@ namespace Steepshot.Adapter
                         if (itemView != null)
                         {
                             photoPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
-                            storyboard.Add(photoPager.Translation(-_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
+                            entities.Add(photoPager.Translation(-_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
                         }
                     }
 
@@ -184,10 +184,10 @@ namespace Steepshot.Adapter
                         if (itemView != null)
                         {
                             photoPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
-                            storyboard.Add(photoPager.Translation(_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
+                            entities.Add(photoPager.Translation(_pageOffset, 0, 0, 0, 300, Easing.CubicOut));
                         }
                     }
-                    return storyboard;
+                    return Storyboard.From(entities);
                 }
                 return null;
             }

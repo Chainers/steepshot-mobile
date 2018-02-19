@@ -1,11 +1,13 @@
 ﻿using System;
 using Android.OS;
+using Android.Util;
 using Steepshot.Utils.Animations.Interfaces;
 
 namespace Steepshot.Utils.Animations
 {
     public class UIInvoker : IOnUIInvoker
     {
+        public bool InvokeRequired => Looper.MyLooper() != Looper.MainLooper;
         private Handler _handler;
         public UIInvoker()
         {
@@ -14,7 +16,11 @@ namespace Steepshot.Utils.Animations
         public void RunOnUIThread(Action action)
         {
             if (action != null)
-                _handler.Post(action);
+                if (InvokeRequired)
+                    _handler?.Post(action);
+                else
+                    action?.Invoke();
+            Log.WriteLine(LogPriority.Debug, "steepshot", InvokeRequired.ToString());
         }
     }
 }

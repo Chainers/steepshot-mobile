@@ -69,8 +69,7 @@
     <Compile Include="Utils\Animations\AnimationEntity.cs" />
     <Compile Include="Utils\Animations\AnimationExtensions.cs" />
     <Compile Include="Utils\Animations\AnimationTimer.cs" />
-    <Compile Include="Utils\Animations\Base\BaseAnimationEntity.cs" />
-    <Compile Include="Utils\Animations\Base\BaseStoryboard.cs" />
+    <Compile Include="Utils\Animations\Base\BaseAnimator.cs" />
     <Compile Include="Utils\Animations\Easing.cs" />
     <Compile Include="Utils\Animations\Interfaces\IAnimator.cs" />
     <Compile Include="Utils\Animations\Interfaces\IOnUIInvoker.cs" />

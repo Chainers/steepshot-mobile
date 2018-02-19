@@ -1,32 +1,43 @@
 ﻿using System;
-using System.Threading;
+using Android.Animation;
 using Steepshot.Utils.Animations.Interfaces;
 
 namespace Steepshot.Utils.Animations
 {
     public class AnimationTimer : ITimer
     {
-        private Timer _timer;
-        public uint TimeStep { get; private set; }
+        private TimeAnimator _timer;
+        private Action<object> _callback;
+        public long TimeStep { get; private set; }
+        public long ElapsedTime { get; private set; }
 
-        public uint ElapsedTime { get; private set; }
-
-        public AnimationTimer(uint timeStep = 12)
+        public AnimationTimer()
         {
-            TimeStep = timeStep;
+            _timer = new TimeAnimator();
         }
 
-        public void Start(Action<object> callback, uint startAt = 0)
+        public void Start(Action<object> callback)
         {
-            _timer = new Timer((o) =>
-            {
-                ElapsedTime += TimeStep;
-                callback?.Invoke(o);
-            }, ElapsedTime, startAt, TimeStep);
+            _callback = callback;
+            _timer.Time += OnTime;
+            _timer.Start();
+        }
+
+        private void OnTime(object sender, TimeAnimator.TimeEventArgs e)
+        {
+            _callback?.Invoke(e.TotalTime);
+            ElapsedTime = e.TotalTime;
+        }
+
+        public void Stop()
+        {
+            Dispose();
+            _timer = new TimeAnimator();
         }
 
         public void Dispose()
         {
+            _timer.Time -= OnTime;
             _timer?.Dispose();
         }
     }
