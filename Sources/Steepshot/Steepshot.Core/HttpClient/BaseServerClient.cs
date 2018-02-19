@@ -296,13 +296,12 @@ namespace Steepshot.Core.HttpClient
             return null;
         }
 
-        public async Task<OperationResult<BeneficiariesResponse>> GetBeneficiaries(bool isNeedRewards, CancellationToken token)
+        public async Task<OperationResult<BeneficiariesResponse>> GetBeneficiaries(CancellationToken token)
         {
             if (!EnableRead)
                 return null;
 
             var parameters = new Dictionary<string, object>();
-            SetBeneficiaryParameters(parameters, isNeedRewards);
 
             var endpoint = "beneficiaries";
             return await Gateway.Get<BeneficiariesResponse>(GatewayVersion.V1, endpoint, parameters, token);
@@ -336,13 +335,7 @@ namespace Steepshot.Core.HttpClient
             if (limit > 0)
                 parameters.Add("limit", limit);
         }
-
-        private void SetBeneficiaryParameters(Dictionary<string, object> parameters, bool isNeedRewards)
-        {
-            if (!isNeedRewards)
-                parameters.Add("set_beneficiary", "steepshot_no_rewards");
-        }
-
+        
         private void AddVotersTypeParameters(Dictionary<string, object> parameters, VotersType type)
         {
             if (type != VotersType.All)

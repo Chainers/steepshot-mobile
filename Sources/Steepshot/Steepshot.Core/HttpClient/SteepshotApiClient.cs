@@ -118,7 +118,7 @@ namespace Steepshot.Core.HttpClient
                 }
                 else
                 {
-                    var beneficiaries = await GetBeneficiaries(true, ct);
+                    var beneficiaries = await GetBeneficiaries(ct);
                     if (beneficiaries.IsSuccess)
                         _beneficiariesCash[bKey] = model.Beneficiaries = beneficiaries.Result.Beneficiaries;
                 }

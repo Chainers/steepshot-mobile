@@ -109,7 +109,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public void AddAndSwitchUser(string login, string pass, KnownChains chain, bool isNeedRewards)
+        public void AddAndSwitchUser(string login, string pass, KnownChains chain)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {

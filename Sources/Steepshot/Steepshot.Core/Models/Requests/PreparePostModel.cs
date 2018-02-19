@@ -51,9 +51,6 @@ namespace Steepshot.Core.Models.Requests
             }
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string BeneficiariesSet { get; }
-
         [JsonProperty]
         public bool ShowFooter { get; }
 
