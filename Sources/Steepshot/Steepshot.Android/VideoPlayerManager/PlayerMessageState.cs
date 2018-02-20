@@ -1,0 +1,30 @@
+﻿namespace Steepshot.VideoPlayerManager
+{
+    public enum PlayerMessageState
+    {
+        SettingNewPlayer,
+        Idle,
+        Initialized,
+        Preparing,
+        Prepared,
+        Starting,
+        Started,
+        Pausing,
+        Paused,
+        Stopping,
+        Stopped,
+        Releasing,
+        Released,
+        Resetting,
+        Reset,
+        ClearingPlayerInstance,
+        PlayerInstanceCleared,
+        CreatingPlayerInstance,
+        PlayerInstanceCreated,
+        SettingDataSource,
+        DataSourceSet,
+        PlaybackCompleted,
+        End,
+        Error,
+    }
+}

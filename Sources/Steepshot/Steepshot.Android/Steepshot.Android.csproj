@@ -134,6 +134,21 @@
     <Compile Include="Utils\PostCustomTextView.cs" />
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
+    <Compile Include="VideoPlayerManager\HandlerThreadExtension.cs" />
+    <Compile Include="VideoPlayerManager\IBackgroundThreadMediaPlayerListener.cs" />
+    <Compile Include="VideoPlayerManager\IMainThreadMediaPlayerListener.cs" />
+    <Compile Include="VideoPlayerManager\IMetaData.cs" />
+    <Compile Include="VideoPlayerManager\IVideoPlayerManager.cs" />
+    <Compile Include="VideoPlayerManager\IVideoPlayerManagerCallback.cs" />
+    <Compile Include="VideoPlayerManager\IVideoStateListener.cs" />
+    <Compile Include="VideoPlayerManager\MediaPlayerWrapper.cs" />
+    <Compile Include="VideoPlayerManager\PlayerMessageState.cs" />
+    <Compile Include="VideoPlayerManager\ReadyForPlaybackIndicator.cs" />
+    <Compile Include="VideoPlayerManager\SingleVideoPlayerManager.cs" />
+    <Compile Include="VideoPlayerManager\State.cs" />
+    <Compile Include="VideoPlayerManager\VideoPlayerView.cs" />
+    <Compile Include="VideoPlayerManager\ScalableTextureView.cs" />
+    <Compile Include="VideoPlayerManager\ScaleType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
