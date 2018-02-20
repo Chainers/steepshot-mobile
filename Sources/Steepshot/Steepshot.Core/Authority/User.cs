@@ -43,17 +43,6 @@ namespace Steepshot.Core.Authority
                     _data.Update(UserInfo);
             }
         }
-
-        public bool IsNeedRewards
-        {
-            get => UserInfo.IsNeedRewards;
-            set
-            {
-                UserInfo.IsNeedRewards = value;
-                if (IsAuthenticated)
-                    _data.Update(UserInfo);
-            }
-        }
         
         public bool ShowFooter
         {
@@ -120,7 +109,7 @@ namespace Steepshot.Core.Authority
             }
         }
 
-        public void AddAndSwitchUser(string login, string pass, KnownChains chain, bool isNeedRewards)
+        public void AddAndSwitchUser(string login, string pass, KnownChains chain)
         {
             if (!string.IsNullOrEmpty(Login) && UserInfo.PostingKey == null)
             {
@@ -134,7 +123,6 @@ namespace Steepshot.Core.Authority
                 Login = login,
                 Chain = chain,
                 PostingKey = pass,
-                IsNeedRewards = isNeedRewards
             };
 
             _data.Insert(userInfo);
