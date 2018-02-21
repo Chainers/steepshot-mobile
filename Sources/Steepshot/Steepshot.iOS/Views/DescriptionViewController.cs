@@ -34,15 +34,13 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
-        private UIDeviceOrientation _rotation;
         private string _identifier;
         private NSDictionary _metadata;
 
-        public DescriptionViewController(UIImage imageAsset, string extension, UIDeviceOrientation rotation, string typeIdentifier, NSDictionary metadata)
+        public DescriptionViewController(UIImage imageAsset, string extension, string typeIdentifier, NSDictionary metadata)
         {
             ImageAsset = imageAsset;
             ImageExtension = extension;
-            _rotation = rotation;
             _identifier = typeIdentifier;
             _metadata = metadata;
         }
@@ -87,9 +85,7 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            var rotateTap = new UITapGestureRecognizer(RotateTap);
-            rotateImage.AddGestureRecognizer(rotateTap);
-
+            photoView.Image = ImageAsset;
             postPhotoButton.TouchDown += PostPhoto;
 
             _presenter.SourceChanged += SourceChanged;
@@ -98,59 +94,6 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SearchTextChanged();
             SetPlaceholder();
-        }
-
-        private void RotatePhotoIfNeeded()
-        {
-            if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
-                return;
-
-            UIImageOrientation orientation;
-
-            switch (_rotation)
-            {
-                case UIDeviceOrientation.Portrait:
-                    orientation = UIImageOrientation.Up;
-                    break;
-                case UIDeviceOrientation.PortraitUpsideDown:
-                    orientation = UIImageOrientation.Down;
-                    break;
-                case UIDeviceOrientation.LandscapeLeft:
-                    orientation = UIImageOrientation.Left;
-                    break;
-                case UIDeviceOrientation.LandscapeRight:
-                    orientation = UIImageOrientation.Right;
-                    break;
-                default:
-                    orientation = UIImageOrientation.Up;
-                    break;
-            }
-            RotateImage(orientation);
-        }
-
-        private void RotateTap()
-        {
-            UIImageOrientation orientation;
-
-            switch (photoView.Image.Orientation)
-            {
-                case UIImageOrientation.Up:
-                    orientation = UIImageOrientation.Right;
-                    break;
-                case UIImageOrientation.Right:
-                    orientation = UIImageOrientation.Down;
-                    break;
-                case UIImageOrientation.Down:
-                    orientation = UIImageOrientation.Left;
-                    break;
-                case UIImageOrientation.Left:
-                    orientation = UIImageOrientation.Up;
-                    break;
-                default:
-                    orientation = UIImageOrientation.Up;
-                    break;
-            }
-            RotateImage(orientation);
         }
 
         private void SetPlaceholder()
@@ -282,7 +225,6 @@ namespace Steepshot.iOS.Views
 
             UIView.Animate(0.2, () =>
             {
-                rotateImage.Hidden = tagsOpened;
                 photoView.Hidden = tagsOpened;
                 titleEditImage.Hidden = tagsOpened;
                 titleTextField.Hidden = tagsOpened;
@@ -358,60 +300,9 @@ namespace Steepshot.iOS.Views
             NavigationItem.RightBarButtonItem = null;
         }
 
-        public override async void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-            ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
-            RotatePhotoIfNeeded();
-        }
-
         protected override void CreatePresenter()
         {
             _presenter = new PostDescriptionPresenter();
-        }
-
-        private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
-        {
-            var height = sourceImage.Size.Height;
-            var width = sourceImage.Size.Width;
-            var inSampleSize = 1.0;
-            if (height > reqHeight)
-            {
-                inSampleSize = reqHeight / height;
-            }
-            if (width > reqWidth)
-            {
-                inSampleSize = Math.Min(inSampleSize, reqWidth / width);
-            }
-
-            return new CGSize(width * inSampleSize, height * inSampleSize);
-        }
-
-        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
-        {
-            return await Task.Run(() =>
-            {
-                var imgSize = sourceImage.Size;
-                var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
-                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
-
-                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
-                sourceImage.Draw(drawRect);
-                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-                UIGraphics.EndImageContext();
-
-                return modifiedImage;
-            });
-        }
-
-        private void RotateImage(UIImageOrientation orientation)
-        {
-            var rotated = new UIImage(photoView.Image.CGImage, photoView.Image.CurrentScale, orientation);
-            UIGraphics.BeginImageContextWithOptions(rotated.Size, false, rotated.CurrentScale);
-            var drawRect = new CGRect(0, 0, rotated.Size.Width, rotated.Size.Height);
-            rotated.Draw(drawRect);
-            ImageAsset = photoView.Image = UIGraphics.GetImageFromCurrentImageContext();
-            UIGraphics.EndImageContext();
         }
 
         private async Task<OperationResult<MediaModel>> UploadPhoto()

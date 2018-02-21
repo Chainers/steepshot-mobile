@@ -91,6 +91,7 @@ namespace Steepshot.iOS.Views
                 NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationChangeEventToken);
                 _orientationChangeEventToken.Dispose();
             }
+            orientationOnPhoto = UIDeviceOrientation.Portrait;
         }
 
         private void CheckDeviceOrientation(NSNotification notification)
@@ -364,7 +365,7 @@ namespace Steepshot.iOS.Views
 
         private void GoToDescription(UIImage image, NSDictionary metadata = null, string identifier = null)
         {
-            var descriptionViewController = new DescriptionViewController(image, "jpg", orientationOnPhoto, identifier, metadata);
+            var descriptionViewController = new PhotoPreviewViewController(image, orientationOnPhoto, identifier, metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
     }

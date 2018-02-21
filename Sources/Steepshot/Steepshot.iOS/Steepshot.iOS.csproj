@@ -215,6 +215,7 @@
     <InterfaceDefinition Include="Cells\LocalTagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
     <InterfaceDefinition Include="Cells\AccountTableViewCell.xib" />
+    <InterfaceDefinition Include="Views\PhotoPreviewViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -363,6 +364,10 @@
     <Compile Include="Helpers\CellHeightCalculator.cs" />
     <Compile Include="Models\CellSizeHelper.cs" />
     <Compile Include="Helpers\PostTitleTextViewDelegate.cs" />
+    <Compile Include="Views\PhotoPreviewViewController.cs" />
+    <Compile Include="Views\PhotoPreviewViewController.designer.cs">
+      <DependentUpon>PhotoPreviewViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -431,6 +436,8 @@
     <BundleResource Include="Resources\ic_grid_active%403x.png" />
     <BundleResource Include="Resources\ic_logo_main%402x.png" />
     <BundleResource Include="Resources\ic_logo_main%403x.png" />
+    <BundleResource Include="Resources\ic_forward_arrow%402x.png" />
+    <BundleResource Include="Resources\ic_forward_arrow%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
