@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using ImageIO;
 
 namespace Steepshot.iOS.Views
 {
@@ -33,11 +34,17 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
+        private UIDeviceOrientation _rotation;
+        private string _identifier;
+        private NSDictionary _metadata;
 
-        public DescriptionViewController(UIImage imageAsset, string extension)
+        public DescriptionViewController(UIImage imageAsset, string extension, UIDeviceOrientation rotation, string typeIdentifier, NSDictionary metadata)
         {
             ImageAsset = imageAsset;
             ImageExtension = extension;
+            _rotation = rotation;
+            _identifier = typeIdentifier;
+            _metadata = metadata;
         }
 
         public override void ViewDidLoad()
@@ -80,7 +87,7 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            var rotateTap = new UITapGestureRecognizer(RotateImage);
+            var rotateTap = new UITapGestureRecognizer(RotateTap);
             rotateImage.AddGestureRecognizer(rotateTap);
 
             postPhotoButton.TouchDown += PostPhoto;
@@ -91,6 +98,59 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SearchTextChanged();
             SetPlaceholder();
+        }
+
+        private void RotatePhotoIfNeeded()
+        {
+            if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
+                return;
+
+            UIImageOrientation orientation;
+
+            switch (_rotation)
+            {
+                case UIDeviceOrientation.Portrait:
+                    orientation = UIImageOrientation.Up;
+                    break;
+                case UIDeviceOrientation.PortraitUpsideDown:
+                    orientation = UIImageOrientation.Down;
+                    break;
+                case UIDeviceOrientation.LandscapeLeft:
+                    orientation = UIImageOrientation.Left;
+                    break;
+                case UIDeviceOrientation.LandscapeRight:
+                    orientation = UIImageOrientation.Right;
+                    break;
+                default:
+                    orientation = UIImageOrientation.Up;
+                    break;
+            }
+            RotateImage(orientation);
+        }
+
+        private void RotateTap()
+        {
+            UIImageOrientation orientation;
+
+            switch (photoView.Image.Orientation)
+            {
+                case UIImageOrientation.Up:
+                    orientation = UIImageOrientation.Right;
+                    break;
+                case UIImageOrientation.Right:
+                    orientation = UIImageOrientation.Down;
+                    break;
+                case UIImageOrientation.Down:
+                    orientation = UIImageOrientation.Left;
+                    break;
+                case UIImageOrientation.Left:
+                    orientation = UIImageOrientation.Up;
+                    break;
+                default:
+                    orientation = UIImageOrientation.Up;
+                    break;
+            }
+            RotateImage(orientation);
         }
 
         private void SetPlaceholder()
@@ -114,7 +174,6 @@ namespace Steepshot.iOS.Views
 
             titleTextField.AddSubview(titlePlaceholderLabel);
             _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
-
 
             var _descriptionTextViewDelegate = new PostTitleTextViewDelegate();
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
@@ -303,6 +362,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidAppear(animated);
             ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
+            RotatePhotoIfNeeded();
         }
 
         protected override void CreatePresenter()
@@ -344,28 +404,8 @@ namespace Steepshot.iOS.Views
             });
         }
 
-        private void RotateImage()
+        private void RotateImage(UIImageOrientation orientation)
         {
-            UIImageOrientation orientation;
-            switch (photoView.Image.Orientation)
-            {
-                case UIImageOrientation.Up:
-                    orientation = UIImageOrientation.Right;
-                    break;
-                case UIImageOrientation.Right:
-                    orientation = UIImageOrientation.Down;
-                    break;
-                case UIImageOrientation.Down:
-                    orientation = UIImageOrientation.Left;
-                    break;
-                case UIImageOrientation.Left:
-                    orientation = UIImageOrientation.Up;
-                    break;
-                default:
-                    orientation = UIImageOrientation.Up;
-                    break;
-            }
-
             var rotated = new UIImage(photoView.Image.CGImage, photoView.Image.CurrentScale, orientation);
             UIGraphics.BeginImageContextWithOptions(rotated.Size, false, rotated.CurrentScale);
             var drawRect = new CGRect(0, 0, rotated.Size.Width, rotated.Size.Height);
@@ -390,8 +430,19 @@ namespace Steepshot.iOS.Views
                     compression -= 0.1f;
                     byteArray = ImageAsset.AsJPEG(compression);
                 }
-
-                stream = byteArray.AsStream();
+                if (_metadata != null)
+                {
+                    //exif setup
+                    var editedExifData = RemakeMetadata(_metadata);
+                    var newImageDataWithExif = new NSMutableData();
+                    var imageDestination = CGImageDestination.Create(newImageDataWithExif, _identifier, 0);
+                    imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
+                    imageDestination.Close();
+                    stream = newImageDataWithExif.AsStream();
+                }
+                else
+                    stream = byteArray.AsStream();
+                
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
                 return await _presenter.TryUploadMedia(request);
             }
@@ -405,6 +456,36 @@ namespace Steepshot.iOS.Views
                 stream?.Flush();
                 stream?.Dispose();
             }
+        }
+
+        private NSDictionary RemakeMetadata(NSDictionary metadata)
+        {
+            var keys = new List<object>();
+            var values = new List<object>();
+
+            foreach (var item in metadata)
+            {
+                keys.Add(item.Key);
+                switch (item.Key.ToString())
+                {
+                    case "Orientation":
+                        values.Add(new NSNumber(1));
+                        break;
+                    case "PixelHeight":
+                        values.Add(ImageAsset.Size.Height);
+                        break;
+                    case "PixelWidth":
+                        values.Add(ImageAsset.Size.Width);
+                        break;
+                    case "{TIFF}":
+                        values.Add(RemakeMetadata((NSDictionary)item.Value));
+                        break;
+                    default:
+                        values.Add(item.Value);
+                        break;
+                }
+            }
+            return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
         }
 
         private async void PostPhoto(object sender, EventArgs e)

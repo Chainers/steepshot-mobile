@@ -5,6 +5,7 @@ using AVFoundation;
 using CoreGraphics;
 using CoreMedia;
 using Foundation;
+using ImageIO;
 using Photos;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
@@ -19,6 +20,9 @@ namespace Steepshot.iOS.Views
         private UIImagePickerController _imagePicker;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
+        private UIDeviceOrientation currentOrientation;
+        private UIDeviceOrientation orientationOnPhoto;
+        private NSObject _orientationChangeEventToken;
 
         public override void ViewDidLoad()
         {
@@ -73,10 +77,41 @@ namespace Steepshot.iOS.Views
 
         public override void ViewDidAppear(bool animated)
         {
+            _orientationChangeEventToken = NSNotificationCenter.DefaultCenter.AddObserver(UIDevice.OrientationDidChangeNotification, CheckDeviceOrientation);
             if (_captureSession == null)
                 AuthorizeCameraUse();
             else if (!_captureSession.Running)
                 _captureSession.StartRunning();
+        }
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            if (_orientationChangeEventToken != null)
+            {
+                NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationChangeEventToken);
+                _orientationChangeEventToken.Dispose();
+            }
+        }
+
+        private void CheckDeviceOrientation(NSNotification notification)
+        {
+            if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Front)
+            {
+                switch (UIDevice.CurrentDevice.Orientation)
+                {
+                    case UIDeviceOrientation.LandscapeLeft:
+                        currentOrientation = UIDeviceOrientation.LandscapeRight;
+                        break;
+                    case UIDeviceOrientation.LandscapeRight:
+                        currentOrientation = UIDeviceOrientation.LandscapeLeft;
+                        break;
+                    default:
+                        currentOrientation = UIDevice.CurrentDevice.Orientation;
+                        break;
+                }
+            }
+            else
+                currentOrientation = UIDevice.CurrentDevice.Orientation;
         }
 
         private async void SetGalleryButton()
@@ -109,8 +144,15 @@ namespace Steepshot.iOS.Views
         private void FinishedPickingMedia(object sender, UIImagePickerMediaPickedEventArgs e)
         {
             var originalImage = e.Info[UIImagePickerController.OriginalImage] as UIImage;
-            GoToDescription(originalImage);
-            _imagePicker.DismissViewControllerAsync(false);
+            var imageManager = new PHImageManager();
+            imageManager.RequestImageData(e.PHAsset, null, (data, dataUti, orientation, info) =>
+            {
+                var source = CGImageSource.FromData(data);
+                var metadata = source.GetProperties(0).Dictionary;
+
+                GoToDescription(originalImage, metadata, source.TypeIdentifier);
+                _imagePicker.DismissViewControllerAsync(false);
+            });
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -138,6 +180,7 @@ namespace Steepshot.iOS.Views
             if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
                 settings.FlashMode = AVCaptureFlashMode.Auto;
 
+            orientationOnPhoto = currentOrientation;
             _capturePhotoOutput.CapturePhoto(settings, this);
         }
 
@@ -305,6 +348,7 @@ namespace Steepshot.iOS.Views
             _captureDeviceInput = AVCaptureDeviceInput.FromDevice(device);
             _captureSession.AddInput(_captureDeviceInput);
             _captureSession.CommitConfiguration();
+            CheckDeviceOrientation(null);
         }
 
         private AVCaptureDevice GetCameraForOrientation(AVCaptureDevicePosition orientation)
@@ -318,9 +362,9 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private void GoToDescription(UIImage image)
+        private void GoToDescription(UIImage image, NSDictionary metadata = null, string identifier = null)
         {
-            var descriptionViewController = new DescriptionViewController(image, "jpg");
+            var descriptionViewController = new DescriptionViewController(image, "jpg", orientationOnPhoto, identifier, metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
     }

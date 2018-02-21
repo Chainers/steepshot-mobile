@@ -67,7 +67,7 @@ namespace Steepshot.iOS
             Window.MakeKeyAndVisible();
             return true;
         }
-
+        /*
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
             var tabController = Window.RootViewController as UINavigationController;
@@ -80,7 +80,7 @@ namespace Steepshot.iOS
                     var imageData = nsFileManager.Contents(urlCollection[0]);
                     var sharedPhoto = UIImage.LoadFromData(imageData);
                     //TODO:KOA: Test System.IO.Path.GetExtension(urlCollection[0] expected something like .jpg / .gif etc.
-                    var descriptionViewController = new DescriptionViewController(sharedPhoto, System.IO.Path.GetExtension(urlCollection[0]));
+                    var descriptionViewController = new DescriptionViewController(sharedPhoto, System.IO.Path.GetExtension(urlCollection[0]), UIDeviceOrientation.Portrait);
                     tabController.PushViewController(descriptionViewController, true);
                 }
                 else
@@ -91,7 +91,7 @@ namespace Steepshot.iOS
             }));
             return true;
         }
-
+*/
         public override void OnResignActivation(UIApplication application)
         {
             // Invoked when the application is about to move from active to inactive state.
