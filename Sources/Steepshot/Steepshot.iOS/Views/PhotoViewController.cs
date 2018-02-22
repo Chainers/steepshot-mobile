@@ -73,6 +73,15 @@ namespace Steepshot.iOS.Views
         {
             NavigationController.SetNavigationBarHidden(true, false);
             SetGalleryButton();
+            ToogleButtons(true);
+        }
+
+        private void ToogleButtons(bool isEnabled)
+        {
+            photoButton.Enabled = isEnabled;
+            closeButton.Enabled = isEnabled;
+            swapCameraButton.Enabled = isEnabled;
+            galleryButton.UserInteractionEnabled = isEnabled;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -163,6 +172,7 @@ namespace Steepshot.iOS.Views
 
         private void CapturePhoto(object sender, EventArgs e)
         {
+            ToogleButtons(false);
             var settingKeys = new object[]
             {
                     AVVideo.CodecKey,
@@ -172,7 +182,7 @@ namespace Steepshot.iOS.Views
             var settingObjects = new object[]
             {
                     new NSString("jpeg"),
-                    new NSDictionary(AVVideo.QualityKey, 0.5),
+                    new NSDictionary(AVVideo.QualityKey, 1),
             };
 
             var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
