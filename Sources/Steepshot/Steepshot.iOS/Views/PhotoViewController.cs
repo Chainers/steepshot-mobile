@@ -105,7 +105,7 @@ namespace Steepshot.iOS.Views
 
         private void CheckDeviceOrientation(NSNotification notification)
         {
-            if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Front)
+            if (_captureDeviceInput?.Device?.Position == AVCaptureDevicePosition.Front)
             {
                 switch (UIDevice.CurrentDevice.Orientation)
                 {

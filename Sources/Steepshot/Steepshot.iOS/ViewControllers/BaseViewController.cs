@@ -134,7 +134,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
@@ -162,7 +162,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
