@@ -72,6 +72,7 @@ namespace Steepshot.iOS.Views
         public override void ViewWillAppear(bool animated)
         {
             NavigationController.SetNavigationBarHidden(true, false);
+            CheckDeviceOrientation(null);
             SetGalleryButton();
             ToogleButtons(true);
         }
@@ -100,7 +101,6 @@ namespace Steepshot.iOS.Views
                 NSNotificationCenter.DefaultCenter.RemoveObserver(_orientationChangeEventToken);
                 _orientationChangeEventToken.Dispose();
             }
-            orientationOnPhoto = UIDeviceOrientation.Portrait;
         }
 
         private void CheckDeviceOrientation(NSNotification notification)
@@ -160,7 +160,7 @@ namespace Steepshot.iOS.Views
                 var source = CGImageSource.FromData(data);
                 var metadata = source.GetProperties(0).Dictionary;
 
-                GoToDescription(originalImage, metadata, source.TypeIdentifier);
+                GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata, source.TypeIdentifier);
                 _imagePicker.DismissViewControllerAsync(false);
             });
         }
@@ -202,7 +202,7 @@ namespace Steepshot.iOS.Views
             {
                 var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
                 var photo = UIImage.LoadFromData(jpegData);
-                GoToDescription(photo);
+                GoToDescription(photo, orientationOnPhoto);
             }
             catch(Exception ex)
             {
@@ -229,7 +229,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            if (_captureSession.Running)
+            if (_captureSession != null && _captureSession.Running)
                 _captureSession.StopRunning();
 
             NavigationController.SetNavigationBarHidden(false, false);
@@ -245,6 +245,10 @@ namespace Steepshot.iOS.Views
                 if (!await AVCaptureDevice.RequestAccessForMediaTypeAsync(AVMediaType.Video))
                 {
                     enableCameraAccess.Hidden = false;
+
+                    photoButton.Hidden = true;
+                    flashButton.Hidden = true;
+                    swapCameraButton.Hidden = true;
                     return;
                 }
             }
@@ -269,7 +273,6 @@ namespace Steepshot.iOS.Views
             _capturePhotoOutput = new AVCapturePhotoOutput();
             _capturePhotoOutput.IsHighResolutionCaptureEnabled = true;
             _capturePhotoOutput.IsLivePhotoCaptureEnabled = false;
-
 
             if (!_captureSession.CanAddOutput(_capturePhotoOutput))
                 return;
@@ -373,9 +376,9 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private void GoToDescription(UIImage image, NSDictionary metadata = null, string identifier = null)
+        private void GoToDescription(UIImage image, UIDeviceOrientation orientation, NSDictionary metadata = null, string identifier = null)
         {
-            var descriptionViewController = new PhotoPreviewViewController(image, orientationOnPhoto, identifier, metadata);
+            var descriptionViewController = new PhotoPreviewViewController(image, orientation, identifier, metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
     }
