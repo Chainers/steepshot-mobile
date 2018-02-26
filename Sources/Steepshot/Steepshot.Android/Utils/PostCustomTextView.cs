@@ -17,9 +17,12 @@ namespace Steepshot.Utils
 {
     public sealed class PostCustomTextView : TextView
     {
-        public Action OnMeasureInvoked;
         public Action<string> TagAction;
         private List<CustomClickableSpan> _tags;
+        private Post _post;
+        private string _tagToExclude, _tagFormat;
+        private bool _isExpanded;
+        private int _maxLines;
 
         private void Init()
         {
@@ -54,21 +57,20 @@ namespace Steepshot.Utils
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
             base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
-            OnMeasureInvoked?.Invoke();
-            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
+            MeasureAndSetText();
         }
 
-        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
+        private void MeasureAndSetText()
         {
             var textMaxLength = int.MaxValue;
-            var censorTitle = post.Title.CensorText();
-            var censorDescription = post.Description.CensorText();
+            var censorTitle = _post.Title.CensorText();
+            var censorDescription = _post.Description.CensorText();
             var censorDescriptionHtml = Html.FromHtml(censorDescription);
-            var censorDescriptionWithoutHtml = string.IsNullOrEmpty(post.Description)
+            var censorDescriptionWithoutHtml = string.IsNullOrEmpty(_post.Description)
                 ? string.Empty
                 : censorDescriptionHtml.ToString();
 
-            if (!isExpanded)
+            if (!_isExpanded)
             {
                 if (MeasuredWidth == 0)
                     return;
@@ -80,17 +82,17 @@ namespace Steepshot.Utils
                     titleWithTags.Append(censorDescriptionWithoutHtml);
                 }
 
-                foreach (var item in post.Tags)
+                foreach (var item in _post.Tags)
                 {
-                    if (item != tagToExclude)
-                        titleWithTags.AppendFormat(tagFormat, item.TagToRu());
+                    if (item != _tagToExclude)
+                        titleWithTags.AppendFormat(_tagFormat, item.TagToRu());
                 }
 
                 var layout = new StaticLayout(titleWithTags.ToString(), Paint, MeasuredWidth, Layout.Alignment.AlignNormal, 1, 1, true);
                 var nLines = layout.LineCount;
-                if (nLines > maxLines)
+                if (nLines > _maxLines)
                 {
-                    textMaxLength = layout.GetLineEnd(maxLines - 1) - AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length;
+                    textMaxLength = layout.GetLineEnd(_maxLines - 1) - AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length;
                 }
             }
 
@@ -115,16 +117,16 @@ namespace Steepshot.Utils
             }
 
             var j = 0;
-            var tags = post.Tags.Distinct();
+            var tags = _post.Tags.Distinct();
 
             foreach (var tag in tags)
             {
                 var translitTaf = tag.TagToRu();
-                var formatedTag = string.Format(tagFormat, translitTaf);
+                var formatedTag = string.Format(_tagFormat, translitTaf);
                 if (formatedTag.Length > textMaxLength - builder.Length() - AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length)
                     break;
 
-                if (!string.Equals(tag, tagToExclude, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(tag, _tagToExclude, StringComparison.OrdinalIgnoreCase))
                 {
                     if (j >= _tags.Count)
                     {
@@ -148,8 +150,18 @@ namespace Steepshot.Utils
                 tag.SetSpan(new ForegroundColorSpan(Style.R151G155B158), 0, AppSettings.LocalizationManager.GetText(LocalizationKeys.ShowMoreString).Length, 0);
                 builder.Append(tag);
             }
-
             SetText(builder, BufferType.Spannable);
+        }
+
+        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
+        {
+            _post = post;
+            _tagToExclude = tagToExclude;
+            _tagFormat = tagFormat;
+            _maxLines = maxLines;
+            _isExpanded = isExpanded;
+            if (Width != 0)
+                MeasureAndSetText();
         }
     }
 }

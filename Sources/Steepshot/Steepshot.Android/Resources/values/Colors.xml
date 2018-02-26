@@ -26,4 +26,5 @@
   <item name="rgb18_148_246" type="color">#1294f6</item>
   <item name="rgb255_121_4" type="color">#FF7904</item>
   <item name="rgb255_22_5" type="color">#FF1605</item>
+  <item name="argb66_00_00_00" type="color">#66000000</item>
 </resources>

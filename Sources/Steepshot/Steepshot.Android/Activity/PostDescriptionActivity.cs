@@ -167,10 +167,10 @@ namespace Steepshot.Activity
 
         private void MediaPhoto()
         {
-            _path = Intent.GetStringExtra(MediaPathExtra);
+            _path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(MediaPathExtra)));
             _mediaType = Intent.GetStringExtra(MediaTypeExtra);
 
-            if (_mediaType.Equals(MimeTypeHelper.Mp4))
+            if (_mediaType.StartsWith("video"))
             {
                 var thumbnail = ThumbnailUtils.CreateVideoThumbnail(_path, ThumbnailKind.MiniKind);
                 _photoFrame.SetImageBitmap(thumbnail);
@@ -178,7 +178,7 @@ namespace Steepshot.Activity
                 return;
             }
 
-            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true) && !_mediaType.EndsWith("gif");
             if (_shouldCompress)
                 _path = Compress(_path);
 
@@ -454,8 +454,7 @@ namespace Steepshot.Activity
 
             try
             {
-                var photo = new Java.IO.File(path);
-                fileInputStream = new FileInputStream(photo);
+                fileInputStream = new FileInputStream(path);
                 stream = new StreamConverter(fileInputStream, null);
 
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, _mediaType);

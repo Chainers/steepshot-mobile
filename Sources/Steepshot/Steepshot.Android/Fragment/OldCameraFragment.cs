@@ -27,13 +27,20 @@ namespace Steepshot.Fragment
     {
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
+        private const int MAX_VIDEO_DURATION = 20000;//20 sec
+        private const int MAX_VIDEO_SIZE = 2000000;//2mb
+        private const byte CLICK_ACTION_THRESOLD = 120;//120ms
 
         private ISurfaceHolder _holder;
         private Camera _camera;
+        private MediaRecorder _videoRecorder;
+        private string _videoOutput;
+        private bool _isVideoRecording;
         private int _cameraId;
         private int _currentRotation;
         private int _rotationOnShutter;
         private float _dist;
+        private DateTime _clickTime;
         private CameraOrientationEventListener _orientationListner;
 
         [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
@@ -44,6 +51,8 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.close_button)] private ImageButton _closeButton;
         [InjectView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
         [InjectView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
+        [InjectView(Resource.Id.video_indicator)] private PowerIndicator _videoIndicator;
+        [InjectView(Resource.Id.elapsed_time)] private TextView _elapsedTime;
 
 #pragma warning restore 0649
 
@@ -62,7 +71,7 @@ namespace Steepshot.Fragment
                 _revertButton.Visibility = ViewStates.Gone;
 
             _flashButton.Click += FlashClick;
-            _shotButton.Click += TakePhotoClick;
+            _shotButton.Touch += ShotButtonTouch;
             _closeButton.Click += GoBack;
             _galleryButton.Click += OpenGallery;
             _revertButton.Click += SwitchCamera;
@@ -71,6 +80,99 @@ namespace Steepshot.Fragment
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
             _orientationListner.OrientationChanged += OnOrientationChanged;
             GetGalleryIcon();
+        }
+
+        private async void ShotButtonTouch(object sender, View.TouchEventArgs e)
+        {
+            switch (e.Event.Action)
+            {
+                case MotionEventActions.Down:
+                    _clickTime = DateTime.Now;
+                    break;
+                case MotionEventActions.Move:
+                    if (!_isVideoRecording && (DateTime.Now - _clickTime).TotalMilliseconds > CLICK_ACTION_THRESOLD)
+                    {
+                        PrepareVideoRecorder(_holder.Surface);
+                        _videoIndicator.Draw = true;
+                        _isVideoRecording = true;
+                        var startTime = DateTime.Now;
+                        _videoRecorder.Start();
+                        while (_isVideoRecording)
+                        {
+                            var elapsedTime = DateTime.Now - startTime;
+                            _elapsedTime.Text = elapsedTime.ToString("mm\\:ss");
+                            _videoIndicator.Power = (float)(100 * elapsedTime.TotalMilliseconds / MAX_VIDEO_DURATION);
+                            if (elapsedTime.TotalMilliseconds >= MAX_VIDEO_DURATION)
+                            {
+                                _shotButton.Touch -= ShotButtonTouch;
+                                OnVideoRecorded();
+                                return;
+                            }
+                            await Task.Delay(100);
+                        }
+                    }
+                    break;
+                case MotionEventActions.Up:
+                    if ((DateTime.Now - _clickTime).TotalMilliseconds < CLICK_ACTION_THRESOLD)
+                        TakePhotoClick();
+                    else
+                        OnVideoRecorded();
+                    break;
+            }
+        }
+
+        private void OnVideoRecorded()
+        {
+            if (_isVideoRecording)
+            {
+                _isVideoRecording = false;
+                _videoRecorder?.Stop();
+                DisposeVideoRecorder();
+                var i = new Intent(Context, typeof(PostDescriptionActivity));
+                i.PutExtra(PostDescriptionActivity.MediaPathExtra, _videoOutput);
+                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, MimeTypeHelper.Mp4);
+                StartActivity(i);
+                Activity?.Finish();
+            }
+        }
+
+        private void PrepareVideoRecorder(Surface surface)
+        {
+            if (_camera == null)
+                return;
+            try
+            {
+                _camera.Unlock();
+                _videoRecorder = new MediaRecorder();
+                _videoRecorder.SetCamera(_camera);
+
+                _videoRecorder.SetAudioSource(AudioSource.Camcorder);
+                _videoRecorder.SetVideoSource(VideoSource.Camera);
+                if (CamcorderProfile.HasProfile(CamcorderQuality.Q480p))
+                    _videoRecorder.SetProfile(CamcorderProfile.Get(CamcorderQuality.Q480p));
+                else if (CamcorderProfile.HasProfile(CamcorderQuality.Low))
+                    _videoRecorder.SetProfile(CamcorderProfile.Get(CamcorderQuality.Low));
+                var directory = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDcim);
+                _videoOutput = $"{directory}/{Guid.NewGuid()}.mp4";
+                _videoRecorder.SetOutputFile(_videoOutput);
+                _videoRecorder.SetMaxDuration(MAX_VIDEO_DURATION);
+                _videoRecorder.SetMaxFileSize(MAX_VIDEO_SIZE);
+                _videoRecorder.SetOrientationHint(_currentRotation);
+                _videoRecorder.SetPreviewDisplay(surface);
+                _videoRecorder.Prepare();
+            }
+            catch
+            {
+                DisposeVideoRecorder();
+            }
+        }
+
+        private void DisposeVideoRecorder()
+        {
+            _videoRecorder?.Reset();
+            _videoRecorder?.Release();
+            _videoRecorder?.Dispose();
+            _videoRecorder = null;
         }
 
         private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
@@ -155,8 +257,8 @@ namespace Steepshot.Fragment
             if (resultCode == -1 && requestCode == GalleryRequestCode)
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.MediaPathExtra, data.Data.LastPathSegment);
-                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, data.Type);
+                i.PutExtra(PostDescriptionActivity.MediaPathExtra, data.Data.ToString());
+                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, Activity.ContentResolver.GetType(data.Data));
                 StartActivity(i);
                 Activity.Finish();
             }
@@ -177,7 +279,7 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void TakePhotoClick(object sender, EventArgs e)
+        private void TakePhotoClick()
         {
             _camera?.TakePicture(this, null, this);
         }
@@ -191,14 +293,13 @@ namespace Steepshot.Fragment
         {
             var intent = new Intent();
             intent.SetAction(Intent.ActionGetContent);
-            intent.SetType("image/*");
-            intent.SetType(MimeTypeHelper.Mp4);
+            intent.SetType("image/* video/*");
             StartActivityForResult(intent, GalleryRequestCode);
         }
 
         private void OnOrientationChanged(int orientation)
         {
-            if (_camera == null)
+            if (_camera == null || _isVideoRecording)
                 return;
 
             var parameters = _camera.GetParameters();
@@ -214,7 +315,6 @@ namespace Steepshot.Fragment
             parameters.SetRotation(rotation);
             _camera.SetParameters(parameters);
         }
-
 
         public void SurfaceChanged(ISurfaceHolder holder, [GeneratedEnum] Format format, int width, int height)
         {

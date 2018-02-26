@@ -8,4 +8,11 @@
         Comment,
         Post
     }
+
+    public enum MediaType
+    {
+        Image,
+        Video,
+        Gif
+    }
 }

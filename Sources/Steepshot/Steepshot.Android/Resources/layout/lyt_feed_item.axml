@@ -8,24 +8,20 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_feed_item_header_height"
         android:background="@android:color/white">
-        <LinearLayout
-            android:id="@+id/avatar_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <refractored.controls.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp">
-            <refractored.controls.CircleImageView
-                android:id="@+id/profile_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_holder" />
-        </LinearLayout>
-        <RelativeLayout
+            android:src="@drawable/ic_holder" />
+        <LinearLayout
             android:id="@+id/text_container"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/avatar_container"
+            android:layout_toRightOf="@id/profile_image"
             android:layout_centerVertical="true">
             <TextView
                 android:id="@+id/author_name"
@@ -46,7 +42,7 @@
                 android:textColor="@color/rgb151_155_158"
                 android:maxLines="1"
                 android:text="34 min ago" />
-        </RelativeLayout>
+        </LinearLayout>
         <ImageButton
             android:id="@+id/more"
             android:layout_width="40dp"
@@ -57,24 +53,19 @@
             android:layout_marginRight="10dp"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/photos_container"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/post_photos_pager"
         android:layout_below="@id/title"
+        android:background="@android:color/white"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v4.view.ViewPager
-            android:id="@+id/post_photos_pager"
-            android:background="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="250dp" />
-    </RelativeLayout>
+        android:layout_height="250dp" />
     <include
         layout="@layout/lyt_nsfw_mask"
         android:layout_height="match_parent"
         android:visibility="gone" />
     <RelativeLayout
         android:id="@+id/subtitle"
-        android:layout_below="@id/photos_container"
+        android:layout_below="@id/post_photos_pager"
         android:layout_width="match_parent"
         android:layout_height="59dp">
         <LinearLayout

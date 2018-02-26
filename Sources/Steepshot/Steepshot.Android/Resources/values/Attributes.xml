@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <resources>
-  <declare-styleable name="VotingPowerFrame">
-    <attr name="votingPower" format="float"/>
-    <attr name="votingPowerWidth" format="dimension"/>
+  <declare-styleable name="PowerFrame">
+    <attr name="power" format="float"/>
+    <attr name="powerWidth" format="dimension"/>
+    <attr name="backgroundColor" format="color"/>
   </declare-styleable>
 </resources>

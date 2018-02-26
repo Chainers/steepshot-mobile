@@ -23,6 +23,7 @@ using Android.Graphics.Drawables;
 using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Utils.MediaView;
 
 namespace Steepshot.Adapter
 {
@@ -46,6 +47,12 @@ namespace Steepshot.Adapter
         {
             Context = context;
             Presenter = presenter;
+            HasStableIds = true;
+        }
+
+        public override long GetItemId(int position)
+        {
+            return position;
         }
 
         public override int GetItemViewType(int position)
@@ -125,11 +132,10 @@ namespace Steepshot.Adapter
             _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
 
             var parameters = _photosViewPager.LayoutParameters;
-            parameters.Height = height;
+            parameters.Width = parameters.Height = height;
 
             _photosViewPager.LayoutParameters = parameters;
-
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post));
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, (post) => postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post));
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -181,11 +187,6 @@ namespace Steepshot.Adapter
 
             _title.Click += OnTitleOnClick;
             _title.TagAction += _tagAction;
-
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
@@ -219,6 +220,7 @@ namespace Steepshot.Adapter
         {
             Post.IsExpanded = true;
             _tagAction?.Invoke(null);
+            _title.RequestLayout();
         }
 
         private void DoMoreAction(object sender, EventArgs e)
@@ -566,7 +568,7 @@ namespace Steepshot.Adapter
 
         private void OnPicassoError()
         {
-            Picasso.With(Context).Load(Post.Avatar).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
+            Picasso.With(Context).Load(Post.Avatar).Priority(Picasso.Priority.Low).Placeholder(Resource.Drawable.ic_holder).NoFade().Into(_avatar);
         }
 
         protected enum PostPagerType
@@ -580,16 +582,14 @@ namespace Steepshot.Adapter
             private const int CachedPagesCount = 5;
             private readonly List<CardView> _photoHolders;
             private readonly Context _context;
-            private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
             private PostPagerType _type;
             private Post _post;
             private MediaModel _photo; //TODO:KOA: Already contained in _post
 
-            public PostPhotosPagerAdapter(Context context, ViewGroup.LayoutParams layoutParams, Action<Post> photoAction)
+            public PostPhotosPagerAdapter(Context context, Action<Post> photoAction)
             {
                 _context = context;
-                _layoutParams = layoutParams;
                 _photoAction = photoAction;
                 _photoHolders = new List<CardView>(Enumerable.Repeat<CardView>(null, CachedPagesCount));
             }
@@ -603,20 +603,14 @@ namespace Steepshot.Adapter
                 NotifyDataSetChanged();
                 var cardView = _photoHolders[0];
                 if (cardView != null)
-                    LoadPhoto(_post.Media[0], cardView);
+                    LoadPhoto(_photo, cardView);
             }
 
             private void LoadPhoto(MediaModel mediaModel, CardView photoCard)
             {
                 if (mediaModel != null)
                 {
-                    var photo = (ImageView)photoCard.GetChildAt(0);
-                    Picasso.With(_context).Load(mediaModel.Url).NoFade()
-                        .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
-                        .Into(photo, null, () =>
-                        {
-                            Picasso.With(_context).Load(mediaModel.Url).NoFade().Priority(Picasso.Priority.High).Into(photo);
-                        });
+                    var media = (MediaView)photoCard.GetChildAt(0);
 
                     if (_type == PostPagerType.PostScreen)
                     {
@@ -627,7 +621,8 @@ namespace Steepshot.Adapter
                     var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
                     photoCard.LayoutParameters.Height = height;
                     ((View)photoCard.Parent).LayoutParameters.Height = height;
-                    photo.LayoutParameters.Height = height;
+                    media.LayoutParameters.Height = height;
+                    media.MediaSource = mediaModel;
                 }
             }
 
@@ -636,14 +631,12 @@ namespace Steepshot.Adapter
                 var reusePosition = position % CachedPagesCount;
                 if (_photoHolders[reusePosition] == null)
                 {
-                    var photoCard = new CardView(_context) { LayoutParameters = _layoutParams };
+                    var photoCard = new CardView(_context) { LayoutParameters = container.LayoutParameters };
                     if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
                         photoCard.Elevation = 0;
-                    var photo = new ImageView(_context) { LayoutParameters = _layoutParams };
-                    photo.SetImageDrawable(null);
-                    photo.SetScaleType(ImageView.ScaleType.CenterCrop);
-                    photo.Click += PhotoOnClick;
-                    photoCard.AddView(photo);
+                    var media = new MediaView(_context) { LayoutParameters = container.LayoutParameters };
+                    media.OnClick += MediaClick;
+                    photoCard.AddView(media);
                     _photoHolders[reusePosition] = photoCard;
                     container.AddView(photoCard);
                     LoadPhoto(_photo, photoCard);
@@ -651,9 +644,14 @@ namespace Steepshot.Adapter
                 return _photoHolders[reusePosition];
             }
 
-            private void PhotoOnClick(object sender, EventArgs eventArgs)
+            private void MediaClick(MediaType mediaType)
             {
-                _photoAction?.Invoke(_post);
+                switch (mediaType)
+                {
+                    case MediaType.Image:
+                        _photoAction?.Invoke(_post);
+                        break;
+                }
             }
 
             public override void DestroyItem(ViewGroup container, int position, Java.Lang.Object obj)

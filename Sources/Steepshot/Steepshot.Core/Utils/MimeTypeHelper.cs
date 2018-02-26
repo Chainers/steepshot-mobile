@@ -6,6 +6,7 @@ namespace Steepshot.Core.Utils
     public sealed class MimeTypeHelper
     {
         public const string Mp4 = "video/mp4";
+        public const string _3gp = "video/3gpp";
         public const string Jpeg = "image/jpeg";
 
         private static readonly IDictionary<string, string> Mappings =

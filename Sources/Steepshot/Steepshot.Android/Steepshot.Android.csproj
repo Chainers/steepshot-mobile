@@ -66,7 +66,21 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Utils\VotingPowerFrame.cs" />
+    <Compile Include="Utils\GifDecoder\GifDecoder.cs" />
+    <Compile Include="Utils\GifDecoder\GifFrame.cs" />
+    <Compile Include="Utils\GifDecoder\GifHeader.cs" />
+    <Compile Include="Utils\GifDecoder\GifHeaderParser.cs" />
+    <Compile Include="Utils\GifDecoder\IBitmapProvider.cs" />
+    <Compile Include="Utils\GifDecoder\SimpleBitmapProvider.cs" />
+    <Compile Include="Utils\GifDecoder\SimpleGifLoader.cs" />
+    <Compile Include="Utils\MediaView\GifProducer.cs" />
+    <Compile Include="Utils\MediaView\ImageProducer.cs" />
+    <Compile Include="Utils\MediaView\IMediaPerformer.cs" />
+    <Compile Include="Utils\MediaView\IMediaProducer.cs" />
+    <Compile Include="Utils\MediaView\MediaView.cs" />
+    <Compile Include="Utils\MediaView\VideoProducer.cs" />
+    <Compile Include="Utils\PathHelper.cs" />
+    <Compile Include="Utils\PowerIndicator.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />

@@ -97,7 +97,7 @@ namespace Steepshot.Adapter
         private readonly RelativeLayout _balanceContainer;
         private readonly Button _followButton;
         private readonly ProgressBar _loadingSpinner;
-        private readonly VotingPowerFrame _votingPower;
+        private readonly PowerIndicator _votingPower;
 
         private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
 
@@ -120,7 +120,7 @@ namespace Steepshot.Adapter
             _followersTitle = itemView.FindViewById<TextView>(Resource.Id.followers_title);
             _balanceText = itemView.FindViewById<TextView>(Resource.Id.balance_text);
             _balance = itemView.FindViewById<TextView>(Resource.Id.balance);
-            _votingPower = itemView.FindViewById<VotingPowerFrame>(Resource.Id.voting_power);
+            _votingPower = itemView.FindViewById<PowerIndicator>(Resource.Id.voting_power);
             _votingPowerText = itemView.FindViewById<TextView>(Resource.Id.voting_power_message);
 
             _profileImage = itemView.FindViewById<Refractored.Controls.CircleImageView>(Resource.Id.profile_image);
@@ -225,7 +225,7 @@ namespace Steepshot.Adapter
 
             if (profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase))
             {
-                _votingPower.VotingPower = (float)profile.VotingPower;
+                _votingPower.Power = (float)profile.VotingPower;
                 _votingPower.Draw = true;
             }
 

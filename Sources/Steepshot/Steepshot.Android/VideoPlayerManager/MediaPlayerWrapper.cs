@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Steepshot.VideoPlayerManager
 {
-    public class MediaPlayerWrapper :
+    public class MediaPlayerWrapper : Java.Lang.Object,
         MediaPlayer.IOnErrorListener,
         MediaPlayer.IOnBufferingUpdateListener,
         MediaPlayer.IOnInfoListener,

@@ -111,10 +111,6 @@ namespace Steepshot.Adapter
             _title.SetHighlightColor(Color.Transparent);
             _title.Click += TitleOnClick;
             _title.TagAction = tagAction;
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
         }
 
         private void AvatarOnClick(object sender, EventArgs eventArgs)
