@@ -52,12 +52,12 @@ namespace Steepshot.iOS.ViewSources
                     cell = (NewFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(NewFeedCollectionViewCell), indexPath);
 
                     if (post != null)
-                        ((NewFeedCollectionViewCell)cell).UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item]);
+                        ((NewFeedCollectionViewCell)cell).Cell.UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item]);
 
-                    if (!((NewFeedCollectionViewCell)cell).IsCellActionSet)
+                    if (!((NewFeedCollectionViewCell)cell).Cell.IsCellActionSet)
                     {
-                        ((NewFeedCollectionViewCell)cell).CellAction += CellAction;
-                        ((NewFeedCollectionViewCell)cell).TagAction += TagAction;
+                        ((NewFeedCollectionViewCell)cell).Cell.CellAction += CellAction;
+                        ((NewFeedCollectionViewCell)cell).Cell.TagAction += TagAction;
                     }
                 }
                 return cell;

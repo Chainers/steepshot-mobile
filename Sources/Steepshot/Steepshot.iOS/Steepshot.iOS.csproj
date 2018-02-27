@@ -216,6 +216,7 @@
     <InterfaceDefinition Include="Cells\TagTableViewCell.xib" />
     <InterfaceDefinition Include="Cells\AccountTableViewCell.xib" />
     <InterfaceDefinition Include="Views\PhotoPreviewViewController.xib" />
+    <InterfaceDefinition Include="Views\PostViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -367,6 +368,10 @@
     <Compile Include="Views\PhotoPreviewViewController.cs" />
     <Compile Include="Views\PhotoPreviewViewController.designer.cs">
       <DependentUpon>PhotoPreviewViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PostViewController.cs" />
+    <Compile Include="Views\PostViewController.designer.cs">
+      <DependentUpon>PostViewController.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -179,11 +179,10 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    var myViewController2 = new ImagePreviewViewController();
-                    //TODO: pass image
-                    myViewController2.ImageForPreview = null;
-                    myViewController2.ImageUrl = post.Body;
-                    _navController.PushViewController(myViewController2, true);
+                    if (_collectionViewSource.IsGrid)
+                        NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
+                    else
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -219,14 +218,6 @@ namespace Steepshot.iOS.Views
         {
             GetUserInfo();
             await GetUserPosts(true);
-        }
-
-        private void PreviewPhoto(UIImage image, string url)
-        {
-            var myViewController = new ImagePreviewViewController();
-            myViewController.ImageForPreview = image;
-            myViewController.ImageUrl = url;
-            _navController.PushViewController(myViewController, true);
         }
 
         private async Task GetUserInfo()

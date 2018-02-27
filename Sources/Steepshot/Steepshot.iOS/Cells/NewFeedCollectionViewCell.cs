@@ -19,7 +19,20 @@ namespace Steepshot.iOS.Cells
 {
     public class NewFeedCollectionViewCell : UICollectionViewCell
     {
+        public FeedCellBuilder Cell;
+
+        protected NewFeedCollectionViewCell(IntPtr handle) : base(handle)
+        {
+            Cell = new FeedCellBuilder(ContentView);
+        }
+    }
+
+    public class FeedCellBuilder : UIView
+    {
         private Post _currentPost;
+        private UIView _contentView;
+
+        private UIView _lol;
 
         private UIImageView _avatarImage;
         private UILabel _author;
@@ -36,6 +49,8 @@ namespace Steepshot.iOS.Cells
         private UILabel _rewards;
         private UIView _verticalSeparator;
         private UIImageView _like;
+
+        public UIImage PostImage => _bodyImage.Image;
 
         private UIView _topSeparator;
         private TTTAttributedLabel _attributedLabel;
@@ -73,21 +88,21 @@ namespace Steepshot.iOS.Cells
             }
         }
 
-        protected NewFeedCollectionViewCell(IntPtr handle) : base(handle)
+        public FeedCellBuilder(UIView contentView)
         {
-            //ContentView.BackgroundColor = UIColor.Cyan;
+            _contentView = contentView;
 
             _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
             _avatarImage.Layer.CornerRadius = _avatarImage.Frame.Size.Width / 2;
             _avatarImage.ClipsToBounds = true;
             _avatarImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            ContentView.AddSubview(_avatarImage);
+            _contentView.AddSubview(_avatarImage);
 
             _moreButton = new UIButton();
-            _moreButton.Frame = new CGRect(ContentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
+            _moreButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
             _moreButton.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
             //_moreButton.BackgroundColor = UIColor.Black;
-            ContentView.AddSubview(_moreButton);
+            _contentView.AddSubview(_moreButton);
 
             var authorX = _avatarImage.Frame.Right + 10;
 
@@ -96,20 +111,20 @@ namespace Steepshot.iOS.Cells
             //_author.BackgroundColor = UIColor.Yellow;
             _author.LineBreakMode = UILineBreakMode.TailTruncation;
             _author.TextColor = Constants.R15G24B30;
-            ContentView.AddSubview(_author);
+            _contentView.AddSubview(_author);
 
             _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 16));
             _timestamp.Font = Constants.Regular12;
             //_timestamp.BackgroundColor = UIColor.Green;
             _timestamp.LineBreakMode = UILineBreakMode.TailTruncation;
             _timestamp.TextColor = Constants.R151G155B158;
-            ContentView.AddSubview(_timestamp);
+            _contentView.AddSubview(_timestamp);
 
             _bodyImage = new UIImageView();
             _bodyImage.ClipsToBounds = true;
             _bodyImage.UserInteractionEnabled = true;
             _bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            ContentView.AddSubview(_bodyImage);
+            _contentView.AddSubview(_bodyImage);
 
             var likersCornerRadius = likersImageSide / 2;
 
@@ -117,27 +132,26 @@ namespace Steepshot.iOS.Cells
             _firstLikerImage.Layer.CornerRadius = likersCornerRadius;
             _firstLikerImage.ClipsToBounds = true;
             _firstLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            ContentView.AddSubview(_firstLikerImage);
+            _contentView.AddSubview(_firstLikerImage);
 
             _secondLikerImage = new UIImageView();
             _secondLikerImage.Layer.CornerRadius = likersCornerRadius;
             _secondLikerImage.ClipsToBounds = true;
             _secondLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            ContentView.AddSubview(_secondLikerImage);
+            _contentView.AddSubview(_secondLikerImage);
 
             _thirdLikerImage = new UIImageView();
             _thirdLikerImage.Layer.CornerRadius = likersCornerRadius;
             _thirdLikerImage.ClipsToBounds = true;
             _thirdLikerImage.ContentMode = UIViewContentMode.ScaleAspectFill;
-            ContentView.AddSubview(_thirdLikerImage);
+            _contentView.AddSubview(_thirdLikerImage);
 
             _likes = new UILabel();
             _likes.Font = Constants.Semibold14;
-            //_likes.BackgroundColor = UIColor.Magenta;
             _likes.LineBreakMode = UILineBreakMode.TailTruncation;
             _likes.TextColor = Constants.R15G24B30;
             _likes.UserInteractionEnabled = true;
-            ContentView.AddSubview(_likes);
+            _contentView.AddSubview(_likes);
 
             _flags = new UILabel();
             _flags.Font = Constants.Semibold14;
@@ -145,7 +159,7 @@ namespace Steepshot.iOS.Cells
             _flags.LineBreakMode = UILineBreakMode.TailTruncation;
             _flags.TextColor = Constants.R15G24B30;
             _flags.UserInteractionEnabled = true;
-            ContentView.AddSubview(_flags);
+            _contentView.AddSubview(_flags);
 
             _rewards = new UILabel();
             _rewards.Font = Constants.Semibold14;
@@ -153,19 +167,19 @@ namespace Steepshot.iOS.Cells
             _rewards.LineBreakMode = UILineBreakMode.TailTruncation;
             _rewards.TextColor = Constants.R15G24B30;
             _rewards.UserInteractionEnabled = true;
-            ContentView.AddSubview(_rewards);
+            _contentView.AddSubview(_rewards);
 
             _like = new UIImageView();
             _like.ContentMode = UIViewContentMode.Center;
-            ContentView.AddSubview(_like);
+            _contentView.AddSubview(_like);
 
             _verticalSeparator = new UIView();
             _verticalSeparator.BackgroundColor = Constants.R244G244B246;
-            ContentView.AddSubview(_verticalSeparator);
+            _contentView.AddSubview(_verticalSeparator);
 
             _topSeparator = new UIView();
             _topSeparator.BackgroundColor = Constants.R244G244B246;
-            ContentView.AddSubview(_topSeparator);
+            _contentView.AddSubview(_topSeparator);
 
             _attributedLabel = new TTTAttributedLabel();
             _attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
@@ -177,7 +191,7 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.UserInteractionEnabled = true;
             _attributedLabel.Enabled = true;
             //_attributedLabel.BackgroundColor = UIColor.Blue;
-            ContentView.AddSubview(_attributedLabel);
+            _contentView.AddSubview(_attributedLabel);
 
             _comments = new UILabel();
             _comments.Font = Constants.Regular14;
@@ -186,19 +200,19 @@ namespace Steepshot.iOS.Cells
             _comments.TextColor = Constants.R151G155B158;
             _comments.UserInteractionEnabled = true;
             _comments.TextAlignment = UITextAlignment.Center;
-            ContentView.AddSubview(_comments);
+            _contentView.AddSubview(_comments);
 
             _bottomSeparator = new UIView();
             _bottomSeparator.BackgroundColor = Constants.R244G244B246;
-            ContentView.AddSubview(_bottomSeparator);
+            _contentView.AddSubview(_bottomSeparator);
 
             _profileTapView = new UIView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width / 2, likeButtonWidthConst));
             _profileTapView.UserInteractionEnabled = true;
-            ContentView.AddSubview(_profileTapView);
+            _contentView.AddSubview(_profileTapView);
 
             _likersTapView = new UIView();
             _likersTapView.UserInteractionEnabled = true;
-            ContentView.AddSubview(_likersTapView);
+            _contentView.AddSubview(_likersTapView);
 
             var liketap = new UITapGestureRecognizer(LikeTap);
             _like.AddGestureRecognizer(liketap);
@@ -241,7 +255,7 @@ namespace Steepshot.iOS.Cells
             _moreButton.TouchDown += FlagButton_TouchDown;
         }
 
-        public void UpdateCell(Post post, CellSizeHelper variables)
+        public nfloat UpdateCell(Post post, CellSizeHelper variables)
         {
             _currentPost = post;
 
@@ -276,15 +290,6 @@ namespace Steepshot.iOS.Cells
             _timestamp.Text = _currentPost.Created.ToPostTime();
 
             _bodyImage.Frame = new CGRect(0, _avatarImage.Frame.Bottom + 20, UIScreen.MainScreen.Bounds.Width, variables.PhotoHeight);
-            /*_bodyImage.Image = null;
-            _scheduledWorkBody?.Cancel();
-            _scheduledWorkBody = ImageService.Instance.LoadUrl(_currentPost.Media[0].Url, Constants.ImageCacheDuration)
-                                             .Retry(5)
-                                             .FadeAnimation(false)
-                                             .WithCache(FFImageLoading.Cache.CacheType.All)
-                                             .DownSample((int)UIScreen.MainScreen.Bounds.Width)
-                                             .WithPriority(LoadingPriority.Highest)
-                                             .Into(_bodyImage);*/
 
             if (_currentPost.TopLikersAvatars.Count() >= 1 && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
@@ -366,18 +371,20 @@ namespace Steepshot.iOS.Cells
             else
                 _flags.Frame = new CGRect(likesMargin, _bodyImage.Frame.Bottom, 0, 0);
 
-            _like.Frame = new CGRect(ContentView.Frame.Width - likeButtonWidthConst, _bodyImage.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
+            _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _bodyImage.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
 
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
             if (_currentPost.VoteChanging)
                 Animate();
             else
             {
+                _like.Layer.RemoveAllAnimations();
+                _like.LayoutIfNeeded();
                 _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
                 _like.UserInteractionEnabled = true;
             }
 
-            _verticalSeparator.Frame = new CGRect(ContentView.Frame.Width - likeButtonWidthConst - 1, _bodyImage.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
+            _verticalSeparator.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst - 1, _bodyImage.Frame.Bottom + underPhotoPanelHeight / 2 - verticalSeparatorHeight / 2, 1, verticalSeparatorHeight);
 
             /*
             _rewards.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
@@ -399,6 +406,7 @@ namespace Steepshot.iOS.Cells
 
             _bottomSeparator.Frame = new CGRect(0, _comments.Frame.Bottom + 10, UIScreen.MainScreen.Bounds.Width, 1);
 
+            return _bottomSeparator.Frame.Bottom;
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
         }
