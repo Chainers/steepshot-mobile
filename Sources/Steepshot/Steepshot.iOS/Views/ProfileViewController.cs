@@ -83,7 +83,7 @@ namespace Steepshot.iOS.Views
         private void SetBackButton()
         {
             switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
-            switchButton.TintColor = Constants.R151G155B158;
+            switchButton.TintColor = Constants.R231G72B0;
 
             if (Username == BasePresenter.User.Login)
             {
@@ -345,7 +345,7 @@ namespace Steepshot.iOS.Views
             _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
             if (_collectionViewSource.IsGrid)
             {
-                switchButton.TintColor = Constants.R231G72B0;
+                switchButton.Image = UIImage.FromBundle("ic_grid_active");
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 1,
@@ -354,7 +354,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                switchButton.TintColor = Constants.R151G155B158;
+                switchButton.Image = UIImage.FromBundle("ic_grid_nonactive");
                 collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
                 {
                     MinimumLineSpacing = 0,
