@@ -129,7 +129,7 @@ namespace Steepshot.iOS.Views
                     BasePresenter.User.AddAndSwitchUser(Username, password.Text, BasePresenter.Chain);
 
                     var myViewController = new MainTabBarController();
-
+                    AppDelegate.InitialViewController = myViewController;
                     NavigationController.ViewControllers = new UIViewController[] { myViewController, this };
                     NavigationController.PopViewController(true);
                 }

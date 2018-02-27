@@ -396,7 +396,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task Vote(Post post)
+        private async void Vote(Post post)
         {
             if (!BasePresenter.User.IsAuthenticated)
             {
@@ -416,11 +416,6 @@ namespace Steepshot.iOS.Views
 
         private void Flagged(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped();
-                return;
-            }
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(post)));
@@ -451,6 +446,12 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(Post post)
         {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
             if (post == null)
                 return;
 
@@ -469,7 +470,7 @@ namespace Steepshot.iOS.Views
                 ShowAlert(error);
         }
 
-        void LoginTapped()
+        private void LoginTapped()
         {
             var myViewController = new WelcomeViewController();
             NavigationController.PushViewController(myViewController, true);

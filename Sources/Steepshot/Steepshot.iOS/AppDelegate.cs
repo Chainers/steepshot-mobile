@@ -21,6 +21,7 @@ namespace Steepshot.iOS
     public class AppDelegate : UIApplicationDelegate
     {
         public override UIWindow Window { get; set; }
+        public static UIViewController InitialViewController;
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
@@ -57,13 +58,12 @@ namespace Steepshot.iOS
             };
 
             Window = new UIWindow(UIScreen.MainScreen.Bounds);
-            UIViewController initialViewController;
             if (BasePresenter.User.IsAuthenticated)
-                initialViewController = new MainTabBarController();
+                InitialViewController = new MainTabBarController();
             else
-                initialViewController = new PreSearchViewController();
-            
-            Window.RootViewController = new InteractivePopNavigationController(initialViewController);
+                InitialViewController = new PreSearchViewController();
+
+            Window.RootViewController = new InteractivePopNavigationController(InitialViewController);
             Window.MakeKeyAndVisible();
             return true;
         }
@@ -108,6 +108,7 @@ namespace Steepshot.iOS
 
         public override void WillEnterForeground(UIApplication application)
         {
+            ((IWillEnterForeground)InitialViewController).WillEnterForeground();
             // Called as part of the transiton from background to active state.
             // Here you can undo many of the changes made on entering the background.
         }

@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using UIKit;
 using Steepshot.Core.Localization;
@@ -12,7 +11,7 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class BaseViewController : UIViewController
+    public class BaseViewController : UIViewController, IWillEnterForeground
     {
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
@@ -44,10 +43,19 @@ namespace Steepshot.iOS.ViewControllers
 
             CloseKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
             (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
+        }
+
+        public void WillEnterForeground()
+        {
+            View.EndEditing(true);
         }
 
         public override void ViewDidDisappear(bool animated)
         {
+            if (TabBarController != null)
+                ((MainTabBarController)TabBarController).WillEnterForegroundAction -= WillEnterForeground;
             if (ShowKeyboardToken != null)
             {
                 NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
@@ -176,5 +184,10 @@ namespace Steepshot.iOS.ViewControllers
             alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);
         }
+    }
+
+    public interface IWillEnterForeground
+    {
+        void WillEnterForeground();
     }
 }

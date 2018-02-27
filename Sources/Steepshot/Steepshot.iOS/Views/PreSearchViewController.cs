@@ -35,12 +35,12 @@ namespace Steepshot.iOS.Views
             _navController.NavigationBar.Translucent = false;
 
             _gridDelegate = new CollectionViewFlowDelegate(collectionView, _presenter);
-            _gridDelegate.IsGrid = false;
+            _gridDelegate.IsGrid = true;
             _gridDelegate.ScrolledToBottom += ScrolledToBottom;
             _gridDelegate.CellClicked += CellAction;
 
             _collectionViewSource = new ProfileCollectionViewSource(_presenter, _gridDelegate);
-            _collectionViewSource.IsGrid = false;
+            _collectionViewSource.IsGrid = true;
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -241,11 +241,6 @@ namespace Steepshot.iOS.Views
 
         private void Flagged(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped(null, null);
-                return;
-            }
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(post)));
@@ -275,6 +270,12 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(Post post)
         {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped(null, null);
+                return;
+            }
+
             if (post == null)
                 return;
 

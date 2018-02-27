@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CoreGraphics;
+using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -123,9 +124,21 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async Task Vote(Post post)
+        private async void Vote(Post post)
         {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
+            if (post == null)
+                return;
+
             var error = await _presenter.TryVote(post);
+            if (error is CanceledError)
+                return;
+
             ShowAlert(error);
         }
 
@@ -148,6 +161,12 @@ namespace Steepshot.iOS.Views
 
         private async Task FlagPhoto(Post post)
         {
+            if (!BasePresenter.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
             if (post == null)
                 return;
 
@@ -158,6 +177,11 @@ namespace Steepshot.iOS.Views
         private void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(false);
+        }
+
+        private void LoginTapped()
+        {
+            NavigationController.PushViewController(new WelcomeViewController(), true);
         }
     }
 }

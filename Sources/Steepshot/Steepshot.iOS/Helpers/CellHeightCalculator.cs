@@ -42,10 +42,18 @@ namespace Steepshot.iOS.Helpers
             {
                 if (tag == "steepshot")
                     continue;
-                var tagWithoutWhitespaces = tag.Replace(' ', '#');
+                NSUrl tagUrlWithoutWhitespaces = null;
+                try
+                {
+                    tagUrlWithoutWhitespaces = new NSUrl(tag.Replace(' ', '#'));
+                }
+                catch(Exception ex)
+                {
+                    AppSettings.Reporter.SendCrash(ex);
+                }
                 var linkAttribute = new UIStringAttributes
                 {
-                    Link = new NSUrl(tagWithoutWhitespaces),
+                    Link = tagUrlWithoutWhitespaces,
                     Font = Constants.Regular14,
                     ForegroundColor = Constants.R231G72B0,
                 };

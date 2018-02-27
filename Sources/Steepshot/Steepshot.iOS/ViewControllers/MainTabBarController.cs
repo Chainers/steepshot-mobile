@@ -6,10 +6,11 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public class MainTabBarController : UITabBarController
+    public class MainTabBarController : UITabBarController, IWillEnterForeground
     {
         private bool _isInitialized;
         public event Action SameTabTapped;
+        public event Action WillEnterForegroundAction;
 
         public MainTabBarController()
         {
@@ -71,6 +72,11 @@ namespace Steepshot.iOS.ViewControllers
         {
             NavigationController.SetNavigationBarHidden(false, true);
             base.ViewWillDisappear(animated);
+        }
+
+        public void WillEnterForeground()
+        {
+            WillEnterForegroundAction?.Invoke();
         }
     }
 
