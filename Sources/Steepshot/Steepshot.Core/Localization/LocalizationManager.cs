@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text;
+using Newtonsoft.Json;
 
 namespace Steepshot.Core.Localization
 {
@@ -53,9 +54,9 @@ namespace Steepshot.Core.Localization
         public bool ContainsKey(string key)
         {
             var contains = Model.Map.ContainsKey(key);
-
             if (!contains)
             {
+                key = NormalizeKey(key);
                 foreach (var item in Model.Map)
                 {
                     if (key.StartsWith(item.Key))
@@ -63,6 +64,11 @@ namespace Steepshot.Core.Localization
                 }
             }
             return contains;
+        }
+
+        public static string NormalizeKey(string key)
+        {
+            return key.Replace('\r', ' ').Replace('\n', ' ').Replace("  ", " ");
         }
 
         public string GetText(string key, params object[] args)
@@ -78,6 +84,7 @@ namespace Steepshot.Core.Localization
             }
             else
             {
+                key = NormalizeKey(key);
                 foreach (var item in Model.Map)
                 {
                     if (key.StartsWith(item.Key))

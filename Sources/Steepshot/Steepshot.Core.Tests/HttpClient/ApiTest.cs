@@ -39,7 +39,6 @@ namespace Steepshot.Core.Tests.HttpClient
             // 1) Create new post
             var path = GetTestImagePath();
             var stream = new FileStream(GetTestImagePath(), FileMode.Open);
-            user.IsNeedRewards = false;
             var uploadImageModel = new UploadMediaModel(user, stream, Path.GetExtension(path));
             var servResp = await Api[apiName].UploadMedia(uploadImageModel, CancellationToken.None);
             AssertResult(servResp);
