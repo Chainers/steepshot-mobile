@@ -26,7 +26,7 @@ namespace Steepshot.Core.Tests
         {
             var builder = new ContainerBuilder();
             
-            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.txt");
+            var jsonLocalization = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}\\Localization.en-us.txt");
             builder.RegisterInstance(new StubAppInfo()).As<IAppInfo>().SingleInstance();
             builder.RegisterInstance(new StubDataProvider()).As<IDataProvider>().SingleInstance();
             builder.RegisterInstance(new StubSaverService()).As<ISaverService>().SingleInstance();

@@ -142,11 +142,11 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {message}");
+                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
                 }
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
@@ -170,11 +170,11 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (error is BlockchainError blError)
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {blError.Message}{Environment.NewLine}Full Message:{blError.FullMessage}");
+                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(blError.Message)}{Environment.NewLine}Full Message:{blError.FullMessage}");
                 }
                 else
                 {
-                    AppSettings.Reporter.SendMessage($"New message: {message}");
+                    AppSettings.Reporter.SendMessage($"New message: {LocalizationManager.NormalizeKey(message)}");
                 }
                 message = nameof(LocalizationKeys.UnexpectedError);
             }

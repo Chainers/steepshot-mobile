@@ -39,6 +39,7 @@
     <Compile Include="HttpClient\BaseDitchClientTests.cs" />
     <Compile Include="HttpClient\ApiGatewayTest.cs" />
     <Compile Include="LocalizationManagerTest.cs" />
+    <Compile Include="Localization\MessageTest.cs" />
     <Compile Include="ServerResponceTests.cs" />
     <Compile Include="Stubs\ApiPositiveStub.cs" />
     <Compile Include="BaseTests.cs" />
@@ -65,8 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\cat.jpg" />
-    <None Include="Localization.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
+      <Link>Localization.en-us.txt</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
