@@ -111,10 +111,6 @@ namespace Steepshot.Adapter
             _title.SetHighlightColor(Color.Transparent);
             _title.Click += TitleOnClick;
             _title.TagAction = tagAction;
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
         }
 
         private void AvatarOnClick(object sender, EventArgs eventArgs)
@@ -126,11 +122,7 @@ namespace Steepshot.Adapter
         {
             _post.IsExpanded = true;
             _tagAction?.Invoke(null);
-        }
-
-        private void OnTitleOnMeasureInvoked()
-        {
-            _title.UpdateText(_post, tagToExclude, _tagFormat, _maxLines, _post.IsExpanded);
+            _title.IsExpanded = _post.IsExpanded;
         }
 
         public void UpdateData(Post post, Context context)

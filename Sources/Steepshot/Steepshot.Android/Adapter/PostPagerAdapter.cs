@@ -40,6 +40,26 @@ namespace Steepshot.Adapter
             _pageOffset = BitmapUtils.DpToPixel(20, _context.Resources);
         }
 
+        public void BeginInflating(ViewGroup container)
+        {
+            for (int i = 0; i < _viewHolders.Count; i++)
+            {
+                InfalteViewholder(container, i);
+            }
+        }
+
+        private void InfalteViewholder(ViewGroup container, int number)
+        {
+            if (_viewHolders[number] == null)
+            {
+                var itemView = LayoutInflater.From(_context)
+                    .Inflate(Resource.Layout.lyt_post_view_item, container, false);
+                var vh = new PostViewHolder(itemView, PostAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
+                _viewHolders[number] = vh;
+                container.AddView(vh.ItemView);
+            }
+        }
+
         public override Object InstantiateItem(ViewGroup container, int position)
         {
             if (position == _presenter.Count)
@@ -55,17 +75,8 @@ namespace Steepshot.Adapter
             }
 
             var reusePosition = position % CachedPagesCount;
-            PostViewHolder vh;
-            if (_viewHolders[reusePosition] == null)
-            {
-                var itemView = LayoutInflater.From(_context)
-                    .Inflate(Resource.Layout.lyt_post_view_item, container, false);
-                vh = new PostViewHolder(itemView, PostAction, TagAction, CloseAction, _context.Resources.DisplayMetrics.WidthPixels);
-                _viewHolders[reusePosition] = vh;
-                container.AddView(vh.ItemView);
-            }
-            else
-                vh = _viewHolders[reusePosition];
+            InfalteViewholder(container, reusePosition);
+            var vh = _viewHolders[reusePosition];
             vh.UpdateData(_presenter[position], _context);
             return vh.ItemView;
         }

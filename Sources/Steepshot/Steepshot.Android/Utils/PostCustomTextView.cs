@@ -17,13 +17,29 @@ namespace Steepshot.Utils
 {
     public sealed class PostCustomTextView : TextView
     {
-        public Action OnMeasureInvoked;
         public Action<string> TagAction;
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                _isExpanded = value;
+                RequestLayout();
+            }
+        }
         private List<CustomClickableSpan> _tags;
+        private Action<bool> AfterLayout;
 
         private void Init()
         {
             _tags = new List<CustomClickableSpan>();
+            ViewTreeObserver.GlobalLayout += GlobalLayout;
+        }
+
+        private void GlobalLayout(object sender, EventArgs e)
+        {            
+            AfterLayout?.Invoke(IsExpanded);
         }
 
         public PostCustomTextView(Context context) : base(context)
@@ -51,14 +67,7 @@ namespace Steepshot.Utils
             Init();
         }
 
-        protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
-        {
-            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
-            OnMeasureInvoked?.Invoke();
-            base.OnMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-
-        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
+        private void SetTextInternal(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
         {
             var textMaxLength = int.MaxValue;
             var censorTitle = post.Title.CensorText();
@@ -150,6 +159,11 @@ namespace Steepshot.Utils
             }
 
             SetText(builder, BufferType.Spannable);
+        }
+
+        public void UpdateText(Post post, string tagToExclude, string tagFormat, int maxLines, bool isExpanded)
+        {
+            AfterLayout = (x) => SetTextInternal(post, tagToExclude, tagFormat, maxLines, x);
         }
     }
 }

@@ -181,11 +181,6 @@ namespace Steepshot.Adapter
 
             _title.Click += OnTitleOnClick;
             _title.TagAction += _tagAction;
-
-            if (_title.OnMeasureInvoked == null)
-            {
-                _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
-            }
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
@@ -210,15 +205,11 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Visibility = ViewStates.Gone;
         }
 
-        private void OnTitleOnMeasureInvoked()
-        {
-            _title.UpdateText(Post, TagToExclude, TagFormat, MaxLines, Post.IsExpanded || PhotoPagerType == PostPagerType.PostScreen);
-        }
-
         protected virtual void OnTitleOnClick(object sender, EventArgs e)
         {
             Post.IsExpanded = true;
             _tagAction?.Invoke(null);
+            _title.IsExpanded = Post.IsExpanded;
         }
 
         private void DoMoreAction(object sender, EventArgs e)

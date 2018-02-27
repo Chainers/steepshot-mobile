@@ -245,6 +245,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
                 _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
+                ProfilePagerAdapter.BeginInflating(_postPager);
 
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;

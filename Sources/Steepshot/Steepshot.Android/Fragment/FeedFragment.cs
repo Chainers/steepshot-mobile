@@ -92,6 +92,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = _postPagerAdapter;
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
+                _postPagerAdapter.BeginInflating(_postPager);
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
