@@ -326,7 +326,7 @@ namespace Steepshot.iOS.Views
                     //exif setup
                     var editedExifData = RemakeMetadata(_metadata);
                     var newImageDataWithExif = new NSMutableData();
-                    var imageDestination = CGImageDestination.Create(newImageDataWithExif, _identifier, 0);
+                    var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
                     imageDestination.Close();
                     stream = newImageDataWithExif.AsStream();
