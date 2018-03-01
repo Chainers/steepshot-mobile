@@ -210,6 +210,7 @@ namespace Steepshot.Activity
                 btmp?.Dispose();
                 stream?.Dispose();
             }
+
             return path;
         }
 

@@ -393,9 +393,8 @@ namespace Steepshot.Fragment
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
-                var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
-                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
+                var i = new Intent(Context, typeof(PostPreviewActivity));
+                i.PutExtra(PostPreviewActivity.PhotoExtraPath, photoUri);
 
                 Activity.RunOnUiThread(() =>
                 {
