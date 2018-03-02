@@ -168,7 +168,7 @@
                     <color key="color" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                 </activityIndicatorView>
                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FA9-GS-ZPk">
-                    <rect key="frame" x="146" y="610" width="84" height="40"/>
+                    <rect key="frame" x="20" y="610" width="335" height="40"/>
                     <color key="backgroundColor" red="0.070588235294117646" green="0.58039215686274503" blue="0.96470588235294119" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="40" id="gfX-1C-pOI"/>
@@ -192,6 +192,8 @@
                 <constraint firstAttribute="trailing" secondItem="lNO-d0-qmR" secondAttribute="trailing" constant="25" id="GlG-P7-pPA"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="HDl-b4-6mV"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="LXh-B7-Vqp"/>
+                <constraint firstItem="FA9-GS-ZPk" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" id="MXt-Ga-64n"/>
+                <constraint firstAttribute="trailing" secondItem="FA9-GS-ZPk" secondAttribute="trailing" constant="20" id="PjJ-gU-Aus"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="UFa-mb-S2K"/>
                 <constraint firstAttribute="trailing" secondItem="Sju-E1-39z" secondAttribute="trailing" id="Uli-H0-fiN"/>
                 <constraint firstItem="Sju-E1-39z" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="bottom" id="bNb-fP-BBb"/>
@@ -205,8 +207,8 @@
         </view>
     </objects>
     <resources>
-        <image name="ic_grid_active.png" width="22" height="22"/>
-        <image name="ic_grid_nonactive.png" width="22" height="22"/>
+        <image name="ic_grid_active.png" width="20" height="20"/>
+        <image name="ic_grid_nonactive.png" width="20" height="20"/>
         <image name="ic_search_small.png" width="12" height="12"/>
     </resources>
 </document>
