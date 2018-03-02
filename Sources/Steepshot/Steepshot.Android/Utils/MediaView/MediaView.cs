@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
@@ -27,7 +28,7 @@ namespace Steepshot.Utils.MediaView
                 if (_mediaSource != value)
                 {
                     _mediaSource = value;
-                    _buffer?.Recycle();
+                    ReleaseBuffer();
                     var extension = _mediaSource.Url.Substring(_mediaSource.Url.LastIndexOf('.'));
                     var mimeType = MimeTypeHelper.GetMimeType(extension);
                     if (mimeType.StartsWith("video"))
@@ -119,7 +120,7 @@ namespace Steepshot.Utils.MediaView
                 if (!IsAvailable) return;
                 var canvas = LockCanvas();
                 canvas.DrawColor(Color.White);
-                if (_buffer != null && !_buffer.IsRecycled)
+                if (_buffer?.Handle != IntPtr.Zero && _buffer != null && !_buffer.IsRecycled)
                     canvas.DrawBitmap(_buffer, 0, 0, null);
                 UnlockCanvasAndPost(canvas);
                 Invalidate();
@@ -128,21 +129,27 @@ namespace Steepshot.Utils.MediaView
 
         public Task<bool> PrepareBufferAsync(Bitmap bitmap)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 try
                 {
-                    _buffer?.Recycle();
+                    ReleaseBuffer();
                     var cropped = Bitmap.CreateBitmap(bitmap, Math.Max((bitmap.Width - LayoutParameters.Width) / 2, 0),
                                                               Math.Max((bitmap.Height - LayoutParameters.Height) / 2, 0),
                                                               Math.Min(bitmap.Width, LayoutParameters.Width),
                                                               Math.Min(bitmap.Height, LayoutParameters.Height));
-                    bitmap.Recycle();
+                    BitmapUtils.ReleaseBitmap(bitmap);
                     _buffer = Bitmap.CreateScaledBitmap(cropped, LayoutParameters.Width, LayoutParameters.Height, false);
-                    cropped.Recycle();
+                    BitmapUtils.ReleaseBitmap(cropped);
                     return true;
                 }
-                catch
+                catch (Java.Lang.OutOfMemoryError e)
+                {
+                    ReleaseBuffer();
+                    GC.Collect(GC.MaxGeneration);
+                    return await PrepareBufferAsync(bitmap);
+                }
+                catch (Exception e)
                 {
                     return false;
                 }
@@ -151,7 +158,7 @@ namespace Steepshot.Utils.MediaView
 
         public void ReleaseBuffer()
         {
-            _buffer?.Recycle();
+            BitmapUtils.ReleaseBitmap(_buffer);
         }
 
         protected override void Dispose(bool disposing)

@@ -3,7 +3,7 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Media;
 using Android.Views;
-using Java.IO;
+using System;
 using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Utils
@@ -91,6 +91,14 @@ namespace Steepshot.Utils
             view.Draw(canvas);
 
             return new BitmapDrawable(view.Context.Resources, bitmap);
+        }
+
+        public static void ReleaseBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null || bitmap.Handle == IntPtr.Zero) return;
+            bitmap?.Recycle();
+            bitmap?.Dispose();
+            bitmap = null;
         }
 
         /*
