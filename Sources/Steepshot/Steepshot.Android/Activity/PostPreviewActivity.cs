@@ -61,7 +61,7 @@ namespace Steepshot.Activity
             btmp = BitmapUtils.RotateImage(btmp, 90);
             using (var stream = new System.IO.FileStream(path, System.IO.FileMode.Create))
             {
-                btmp.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+                btmp.Compress(Bitmap.CompressFormat.Png, 100, stream);
             }
 
             btmp.Recycle();
