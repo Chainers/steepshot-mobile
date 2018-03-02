@@ -26,8 +26,6 @@ namespace Steepshot.Activity
         
         private string path;
 
-        private bool _shouldCompress;
-
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
         [InjectView(Resource.Id.btn_post_back)] private ImageButton _backButton;
@@ -59,7 +57,6 @@ namespace Steepshot.Activity
 
             _photoFrame.Clickable = false;
             var btmp = BitmapFactory.DecodeFile(path);
-            _shouldCompress = true;
 
             btmp = BitmapUtils.RotateImage(btmp, 90);
             using (var stream = new System.IO.FileStream(path, System.IO.FileMode.Create))
@@ -114,7 +111,7 @@ namespace Steepshot.Activity
 
         private void InitPhoto()
         {
-            path = Intent.GetStringExtra(PhotoExtraPath);
+            path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
 
             var photoUri = Android.Net.Uri.Parse(path);
             _photoFrame.SetImageURI(photoUri);

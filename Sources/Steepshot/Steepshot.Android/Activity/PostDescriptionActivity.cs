@@ -163,7 +163,7 @@ namespace Steepshot.Activity
 
         private void InitPhoto()
         {
-            _path = Intent.GetStringExtra(PhotoExtraPath);
+            _path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
 
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             if (_shouldCompress)

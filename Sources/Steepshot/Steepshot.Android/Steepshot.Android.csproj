@@ -66,6 +66,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils\PathHelper.cs" />
     <Compile Include="Utils\VotingPowerFrame.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />
