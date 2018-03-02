@@ -123,5 +123,18 @@ namespace Steepshot.Core.Presenters
             var response = await Api.UpdateUserProfile(model, ct);
             return response.Error;
         }
+
+        public async Task<ErrorBase> TrySubscribeForPushes(string playerId, PushSubscription[] subscriptions = null)
+        {
+            var model = new PushNotificationsModel(User.UserInfo, playerId, subscriptions, true);
+            var error = await TryRunTask(SubscribeForPushes, OnDisposeCts.Token, model);
+            return error;
+        }
+
+        private async Task<ErrorBase> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
+        {
+            var response = await Api.SubscribeForPushes(model, OnDisposeCts.Token);
+            return response.Error;
+        }
     }
 }

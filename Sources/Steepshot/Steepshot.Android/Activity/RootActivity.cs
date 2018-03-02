@@ -8,6 +8,8 @@ using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Com.OneSignal;
+using Com.OneSignal.Abstractions;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
@@ -38,6 +40,9 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
 
+            if (BasePresenter.User.IsAuthenticated)
+                InitPushes();
+
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Inject(this);
 
@@ -48,6 +53,25 @@ namespace Steepshot.Activity
 
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
+        }
+
+        private async Task InitPushes() => await Task.Run(() =>
+                                                     {
+                                                         OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                                                         .HandleNotificationReceived(OneSignalNotificationRecieved)
+                                                         .EndInit();
+                                                         OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+                                                         OneSignal.Current.IdsAvailable(OneSignalCallback);
+                                                     });
+
+        private void OneSignalNotificationRecieved(OSNotification notification)
+        {
+            //do nothing
+        }
+
+        private void OneSignalCallback(string playerId, string pushToken)
+        {
+            Presenter.TrySubscribeForPushes(playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.CommentUpvote });
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)

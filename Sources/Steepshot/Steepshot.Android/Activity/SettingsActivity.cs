@@ -7,6 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
+using Com.OneSignal;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core;
@@ -149,6 +150,7 @@ namespace Steepshot.Activity
             if (userInfo == null)
                 return;
 
+            OneSignal.Current.DeleteTag("username");
             var chainToDelete = userInfo.Chain;
             BasePresenter.User.Delete(userInfo);
             RemoveChain(chainToDelete);

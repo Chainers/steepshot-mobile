@@ -171,7 +171,7 @@ namespace Steepshot.Core.HttpClient
             if (!trxResp.IsSuccess)
                 return new OperationResult<MediaModel>(trxResp.Error);
 
-            model.VerifyTransaction = trxResp.Result;
+            model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
 
             return await Gateway.UploadMedia(GatewayVersion.V1P1, "media/upload", model, ct);
         }
@@ -206,6 +206,22 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(results));
 
             return await _ditchClient.UpdateUserProfile(model, ct);
+        }
+
+        public async Task<OperationResult<object>> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
+        {
+            var results = Validate(model);
+            if (results.Any())
+                return new OperationResult<object>(new ValidationError(results));
+
+            var trxResp = await _ditchClient.GetVerifyTransaction(model, ct);
+
+            if (!trxResp.IsSuccess)
+                return new OperationResult<object>(trxResp.Error);
+
+            model.VerifyTransaction = trxResp.Result;
+
+            return await Gateway.Post<object, PushNotificationsModel>(GatewayVersion.V1P1, model.Subscribe ? "subscribe" : "unsubscribe", model, ct);
         }
     }
 }
