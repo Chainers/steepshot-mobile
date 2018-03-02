@@ -123,6 +123,7 @@ namespace Steepshot.iOS.Views
             attributedLabel.AutoAlignAxis(axis: ALAxis.Horizontal, otherView: termsSwitcher);
             attributedLabel.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
             termsSwitcher.AutoPinEdge(ALEdge.Left, ALEdge.Right, attributedLabel, 5f);
+            termsSwitcher.Layer.CornerRadius = 16;
         }
     }
 

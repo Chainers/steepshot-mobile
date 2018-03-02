@@ -11,14 +11,12 @@ namespace Steepshot.iOS.Views
     {
         private UIImage ImageAsset;
         private UIDeviceOrientation _rotation;
-        private string _identifier;
         private NSDictionary _metadata;
 
-        public PhotoPreviewViewController(UIImage imageAsset, UIDeviceOrientation rotation, string typeIdentifier, NSDictionary metadata)
+        public PhotoPreviewViewController(UIImage imageAsset, UIDeviceOrientation rotation, NSDictionary metadata)
         {
             ImageAsset = imageAsset;
             _rotation = rotation;
-            _identifier = typeIdentifier;
             _metadata = metadata;
         }
 
@@ -60,7 +58,7 @@ namespace Steepshot.iOS.Views
 
         private void GoForward(object sender, EventArgs e)
         {
-            var descriptionViewController = new DescriptionViewController(ImageAsset, "jpg", _identifier, _metadata);
+            var descriptionViewController = new DescriptionViewController(ImageAsset, "jpg", _metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
