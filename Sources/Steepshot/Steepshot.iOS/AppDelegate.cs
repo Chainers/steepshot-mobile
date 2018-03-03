@@ -47,8 +47,6 @@ namespace Steepshot.iOS
             builder.RegisterInstance(reporterService).As<IReporterService>().SingleInstance();
             builder.RegisterInstance(connectionService).As<IConnectionService>().SingleInstance();
 
-            ImageService.Instance.Config.HttpHeadersTimeout = 20;
-
             AppSettings.Container = builder.Build();
 
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>

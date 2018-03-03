@@ -32,7 +32,7 @@ namespace Steepshot.iOS.ViewSources
             _m.RequestImageForAsset((PHAsset)_fetchResults[indexPath.Item], new CoreGraphics.CGSize(150, 150),
                                    PHImageContentMode.AspectFit, new PHImageRequestOptions(), (img, info) =>
               {
-                  imageCell.UpdateImage(img, (PHAsset)_fetchResults[indexPath.Item]);
+                  //imageCell.UpdateImage(img, (PHAsset)_fetchResults[indexPath.Item]);
               });
             return imageCell;
         }
