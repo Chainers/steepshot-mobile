@@ -372,6 +372,7 @@
     <Compile Include="Views\PostViewController.designer.cs">
       <DependentUpon>PostViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cells\SliderFeedCollectionViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

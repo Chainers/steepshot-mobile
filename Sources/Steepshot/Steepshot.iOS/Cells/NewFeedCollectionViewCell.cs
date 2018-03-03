@@ -14,8 +14,6 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace Steepshot.iOS.Cells
 {
