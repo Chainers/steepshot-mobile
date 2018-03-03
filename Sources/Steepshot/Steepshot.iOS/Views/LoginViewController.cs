@@ -91,7 +91,10 @@ namespace Steepshot.iOS.Views
         private bool ShouldCharactersChange(UITextField textField, Foundation.NSRange range, string replacementString)
         {
             if (textField.Text.Length + replacementString.Length > 51 || replacementString == " ")
+            {
+                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey2, textField);
                 return false;
+            }
             return true;
         }
 

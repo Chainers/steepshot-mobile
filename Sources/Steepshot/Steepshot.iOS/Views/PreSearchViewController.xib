@@ -150,7 +150,7 @@
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-E1-39z">
                     <rect key="frame" x="0.0" y="145" width="375" height="522"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="zqN-ol-d9X">
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="5" minimumInteritemSpacing="0.0" id="zqN-ol-d9X">
                         <size key="itemSize" width="50" height="50"/>
                         <size key="headerReferenceSize" width="0.0" height="0.0"/>
                         <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -168,10 +168,10 @@
                     <color key="color" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                 </activityIndicatorView>
                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FA9-GS-ZPk">
-                    <rect key="frame" x="146" y="610" width="84" height="40"/>
+                    <rect key="frame" x="30" y="600" width="315" height="50"/>
                     <color key="backgroundColor" red="0.070588235294117646" green="0.58039215686274503" blue="0.96470588235294119" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="gfX-1C-pOI"/>
+                        <constraint firstAttribute="height" constant="50" id="gfX-1C-pOI"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <inset key="contentEdgeInsets" minX="20" minY="0.0" maxX="20" maxY="0.0"/>
@@ -192,6 +192,8 @@
                 <constraint firstAttribute="trailing" secondItem="lNO-d0-qmR" secondAttribute="trailing" constant="25" id="GlG-P7-pPA"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="HDl-b4-6mV"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="LXh-B7-Vqp"/>
+                <constraint firstItem="FA9-GS-ZPk" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="30" id="MXt-Ga-64n"/>
+                <constraint firstAttribute="trailing" secondItem="FA9-GS-ZPk" secondAttribute="trailing" constant="30" id="PjJ-gU-Aus"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="UFa-mb-S2K"/>
                 <constraint firstAttribute="trailing" secondItem="Sju-E1-39z" secondAttribute="trailing" id="Uli-H0-fiN"/>
                 <constraint firstItem="Sju-E1-39z" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="bottom" id="bNb-fP-BBb"/>
@@ -205,8 +207,8 @@
         </view>
     </objects>
     <resources>
-        <image name="ic_grid_active.png" width="22" height="22"/>
-        <image name="ic_grid_nonactive.png" width="22" height="22"/>
+        <image name="ic_grid_active.png" width="20" height="20"/>
+        <image name="ic_grid_nonactive.png" width="20" height="20"/>
         <image name="ic_search_small.png" width="12" height="12"/>
     </resources>
 </document>

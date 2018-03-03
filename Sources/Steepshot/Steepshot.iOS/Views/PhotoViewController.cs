@@ -160,7 +160,7 @@ namespace Steepshot.iOS.Views
                 var source = CGImageSource.FromData(data);
                 var metadata = source.GetProperties(0).Dictionary;
 
-                GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata, source.TypeIdentifier);
+                GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata);
                 _imagePicker.DismissViewControllerAsync(false);
             });
         }
@@ -376,9 +376,9 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private void GoToDescription(UIImage image, UIDeviceOrientation orientation, NSDictionary metadata = null, string identifier = null)
+        private void GoToDescription(UIImage image, UIDeviceOrientation orientation, NSDictionary metadata = null)
         {
-            var descriptionViewController = new PhotoPreviewViewController(image, orientation, identifier, metadata);
+            var descriptionViewController = new PhotoPreviewViewController(image, orientation, metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
     }

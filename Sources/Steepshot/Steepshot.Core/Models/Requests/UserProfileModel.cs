@@ -22,7 +22,7 @@ namespace Steepshot.Core.Models.Requests
 
         public UserProfileModel(string username)
         {
-            Username = username;
+            Username = username.Trim().Replace(" ", string.Empty);
         }
     }
 }

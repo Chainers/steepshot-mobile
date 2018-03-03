@@ -1,8 +1,9 @@
 {
     "Lang": "en-us",
-    "Version": 4,
+    "Version": 5,
     "Map": {
         "WrongPrivatePostingKey": "It`s not a valid Private Posting key! Check - Private key looks like 5********...",
+        "WrongPrivatePostingKey2": "The key you've entered is not a private posting key. If you're not able to sign in this [video] (https://www.youtube.com/watch?v=XAVapBwbS1U) might be helpful.",
         "WrongPrivateActimeKey": "It`s not a valid Private Active key! Check - Private key looks like 5********...",
         "EmptyResponseContent": "Empty response content",
         "ResponseContentContainsHtml": "Response content contains HTML: ",

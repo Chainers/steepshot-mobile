@@ -38,23 +38,18 @@
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                 </button>
-                <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ou5-Px-0jP">
-                    <rect key="frame" x="0.0" y="577" width="375" height="90"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="90" id="ibq-B2-H5d"/>
-                    </constraints>
-                </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xVx-Y3-9au">
                     <rect key="frame" x="0.0" y="577" width="375" height="90"/>
                     <subviews>
                         <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="fmS-QG-UJb">
                             <rect key="frame" x="311" y="30" width="51" height="31"/>
+                            <color key="backgroundColor" red="0.81960784313725488" green="0.83529411764705885" blue="0.84705882352941175" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <color key="onTintColor" red="1" green="0.086274509803921567" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="thumbTintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         </switch>
                     </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="fmS-QG-UJb" firstAttribute="centerY" secondItem="xVx-Y3-9au" secondAttribute="centerY" id="P7m-hW-H3S"/>
                         <constraint firstAttribute="trailing" secondItem="fmS-QG-UJb" secondAttribute="trailing" constant="15" id="gPi-qA-zDr"/>
@@ -98,10 +93,8 @@
             <constraints>
                 <constraint firstItem="BiT-jF-9yo" firstAttribute="top" secondItem="2" secondAttribute="top" id="2SW-YE-tnY"/>
                 <constraint firstAttribute="bottom" secondItem="xVx-Y3-9au" secondAttribute="bottom" id="7tW-cB-rQn"/>
-                <constraint firstAttribute="trailing" secondItem="ou5-Px-0jP" secondAttribute="trailing" id="CMl-QE-MR3"/>
                 <constraint firstItem="xVx-Y3-9au" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="FIw-hu-5Yc"/>
                 <constraint firstAttribute="trailing" secondItem="xVx-Y3-9au" secondAttribute="trailing" id="KmY-S5-nzA"/>
-                <constraint firstAttribute="bottom" secondItem="ou5-Px-0jP" secondAttribute="bottom" id="N7o-Jh-L9N"/>
                 <constraint firstItem="BiT-jF-9yo" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="Olb-Wo-uoj"/>
                 <constraint firstItem="ARe-to-0ce" firstAttribute="top" secondItem="2" secondAttribute="top" id="Paw-p6-CFc"/>
                 <constraint firstAttribute="bottom" secondItem="BiT-jF-9yo" secondAttribute="bottom" id="Wb9-ez-hUg"/>
@@ -110,14 +103,13 @@
                 <constraint firstAttribute="trailing" secondItem="BiT-jF-9yo" secondAttribute="trailing" id="eeN-Oz-xjG"/>
                 <constraint firstAttribute="trailing" secondItem="OPT-2g-hiz" secondAttribute="trailing" constant="15" id="jDh-82-cm5"/>
                 <constraint firstAttribute="trailing" secondItem="2y4-ny-kes" secondAttribute="trailing" constant="15" id="kjJ-7x-nE1"/>
-                <constraint firstItem="ou5-Px-0jP" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="mSp-e7-2q7"/>
-                <constraint firstItem="ou5-Px-0jP" firstAttribute="top" secondItem="OPT-2g-hiz" secondAttribute="bottom" constant="30" id="p1I-1k-cou"/>
                 <constraint firstItem="2y4-ny-kes" firstAttribute="top" secondItem="ARe-to-0ce" secondAttribute="bottom" id="ska-bg-OdJ"/>
                 <constraint firstAttribute="trailing" secondItem="ARe-to-0ce" secondAttribute="trailing" id="tUc-uo-QqG"/>
                 <constraint firstItem="2y4-ny-kes" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="tcK-iu-EYe"/>
                 <constraint firstItem="OPT-2g-hiz" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="zdZ-Le-gD6"/>
+                <constraint firstItem="xVx-Y3-9au" firstAttribute="top" secondItem="OPT-2g-hiz" secondAttribute="bottom" constant="30" id="zvH-mZ-reb"/>
             </constraints>
-            <point key="canvasLocation" x="25.5" y="52.5"/>
+            <point key="canvasLocation" x="23" y="54"/>
         </view>
     </objects>
     <resources>

@@ -59,8 +59,8 @@ namespace Steepshot.iOS.Views
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                MinimumLineSpacing = 0,
-                MinimumInteritemSpacing = 0,
+                MinimumLineSpacing = 1,
+                MinimumInteritemSpacing = 1,
             }, false);
 
             collectionView.Delegate = _gridDelegate;
@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Views
             if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
-                loginButton.Layer.CornerRadius = 20;
+                loginButton.Layer.CornerRadius = 25;
                 loginButton.Layer.BorderWidth = 0;
             }
 

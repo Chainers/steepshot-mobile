@@ -34,14 +34,12 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
-        private string _identifier;
         private NSDictionary _metadata;
 
-        public DescriptionViewController(UIImage imageAsset, string extension, string typeIdentifier, NSDictionary metadata)
+        public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
             ImageAsset = imageAsset;
             ImageExtension = extension;
-            _identifier = typeIdentifier;
             _metadata = metadata;
         }
 
