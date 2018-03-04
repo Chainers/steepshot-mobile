@@ -156,6 +156,7 @@ namespace Steepshot.Fragment
             {
                 var i = new Intent(Context, typeof(PostPreviewActivity));
                 i.PutExtra(PostPreviewActivity.PhotoExtraPath, data.Data.ToString());
+                i.PutExtra(PostPreviewActivity.IsNeedCompressExtraPath, true);
                 StartActivity(i);
                 Activity.Finish();
             }
@@ -396,6 +397,7 @@ namespace Steepshot.Fragment
 
                 var i = new Intent(Context, typeof(PostPreviewActivity));
                 i.PutExtra(PostPreviewActivity.PhotoExtraPath, photoUri);
+                i.PutExtra(PostPreviewActivity.IsNeedCompressExtraPath, false);
 
                 Activity.RunOnUiThread(() =>
                 {

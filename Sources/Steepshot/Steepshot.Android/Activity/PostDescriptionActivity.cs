@@ -165,9 +165,9 @@ namespace Steepshot.Activity
         {
             _path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
 
-            _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
-            if (_shouldCompress)
-                _path = Compress(_path);
+            //_shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
+            //if (_shouldCompress)
+            //    _path = Compress(_path);
 
             var photoUri = Android.Net.Uri.Parse(_path);
             _photoFrame.SetImageURI(photoUri);

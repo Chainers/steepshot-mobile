@@ -7,13 +7,22 @@ namespace Steepshot.Utils
     {
         public static string GetFilePath(Context context, Android.Net.Uri uri)
         {
-            if (!uri.ToString().Contains("content")) return uri.ToString();
+            string path = uri.ToString();
+
+            if (!path.Contains("content"))
+            {
+                if (path.Contains("file://"))
+                    path = path.Remove(0, 7);
+                return path;
+            }
+
             string[] proj = { MediaStore.MediaColumns.Data };
             var cursor = context.ContentResolver.Query(uri, proj, null, null, null);
             var colIndex = cursor.GetColumnIndex(MediaStore.MediaColumns.Data);
             cursor.MoveToFirst();
-            var path = cursor.GetString(colIndex);
+            path = cursor.GetString(colIndex);
             cursor.Close();
+
             return path;
         }
     }

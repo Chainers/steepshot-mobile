@@ -70,14 +70,38 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
+        public static int GetCompressionQuality(Bitmap bitmap, long maxSize)
+        {
+            var quality = 100;
+
+            using (var memoryStream = new System.IO.MemoryStream())
+            {
+                do
+                {
+                    memoryStream.SetLength(0);
+                    bitmap.Compress(Bitmap.CompressFormat.Jpeg, quality, memoryStream);
+                    quality -= 5;
+                } while (memoryStream.Length > maxSize);
+            }
+
+            return quality + 5;
+        }
+
         public static Bitmap DecodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
         {
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
             options.InJustDecodeBounds = false;
-            // options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
+            // options.InPreferredConfig = Bitmap.Config.Rgb565; // TODO:KOA:Perhaps Argb8888 will look better о.О
             return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+        }
+
+        public static Bitmap DecodeSampledBitmapFromUri(string path, int reqWidth, int reqHeight)
+        {
+            var btmp = BitmapFactory.DecodeFile(path);
+            var bitmapScalled = Bitmap.CreateScaledBitmap(btmp, reqWidth, reqHeight, true);
+
+            return bitmapScalled; 
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)

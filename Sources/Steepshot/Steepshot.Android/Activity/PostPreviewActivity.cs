@@ -25,6 +25,7 @@ namespace Steepshot.Activity
         public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
         
         private string path;
+        private bool shouldCompress;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
@@ -79,7 +80,7 @@ namespace Steepshot.Activity
             {
                 var i = new Intent(this, typeof(PostDescriptionActivity));
                 i.PutExtra(PostDescriptionActivity.PhotoExtraPath, path);
-                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
+                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, true);
 
                 RunOnUiThread(() =>
                 {
@@ -111,14 +112,62 @@ namespace Steepshot.Activity
 
         private void InitPhoto()
         {
-            path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
+            shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, false);
+            path = shouldCompress ? Intent.GetStringExtra(PhotoExtraPath) : PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
+
+            if (shouldCompress)
+                path = Compress(path);
 
             var photoUri = Android.Net.Uri.Parse(path);
             _photoFrame.SetImageURI(photoUri);
         }
-
-        public void OnPrepareLoad(Drawable p0)
+        
+        private string Compress(string path)
         {
+            var photoUri = Android.Net.Uri.Parse(path);
+
+            FileDescriptor fileDescriptor = null;
+            Bitmap btmp = null;
+            System.IO.FileStream stream = null;
+
+            try
+            {
+                fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
+                btmp = BitmapUtils.DecodeSampledBitmapFromUri(PathHelper.GetFilePath(this, photoUri), 1200, 1200);
+                btmp = BitmapUtils.RotateImageIfRequired(btmp, fileDescriptor, path);
+                var quality = BitmapUtils.GetCompressionQuality(btmp, 1024 * 1024);
+                
+                var directoryPictures = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryPictures);
+                var directory = new Java.IO.File(directoryPictures, Constants.Steepshot);
+                if (!directory.Exists())
+                    directory.Mkdirs();
+
+                path = $"{directory}/{Guid.NewGuid()}.jpeg";
+                
+                using (var fs = new System.IO.FileStream(path, System.IO.FileMode.CreateNew))
+                {
+                    btmp.Compress(Bitmap.CompressFormat.Jpeg, quality, fs);
+                }
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                //_postButton.Enabled = false;
+                this.ShowAlert(LocalizationKeys.UnknownCriticalError);
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            finally
+            {
+                fileDescriptor?.Dispose();
+                btmp?.Recycle();
+                btmp?.Dispose();
+                stream?.Dispose();
+            }
+
+            return path;
         }
+
+        public void OnPrepareLoad(Drawable p0) { }
     }
 }
