@@ -198,7 +198,7 @@ namespace Steepshot.Fragment
                         return;
 
                     Context.ShowAlert(error, ToastLength.Short);
-                    _comments.MoveToPosition(Presenter.Count - 1);
+                    _comments.MoveToPosition(Presenter.Count);
 
                     _counter++;
 
