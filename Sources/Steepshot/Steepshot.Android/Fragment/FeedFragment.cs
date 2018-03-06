@@ -189,6 +189,7 @@ namespace Steepshot.Fragment
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
 
+            // posts count checking
             _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 

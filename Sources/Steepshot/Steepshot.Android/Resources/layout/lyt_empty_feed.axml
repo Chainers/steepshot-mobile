@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@android:color/white"
+    android:layout_height="wrap_content"
+    android:paddingTop="69"
+    android:paddingBottom="49dp">
+    <Button
+        android:id="@+id/reg_button"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/steem_login_border"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:text="Go to Browse"
+        android:textAllCaps="false" />
+    <RelativeLayout
+        android:id="@+id/hint_message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="20dp"
+        android:layout_above="@id/reg_button"
+        android:background="@android:color/transparent">
+        <TextView
+            android:id="@+id/hint_message"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:textSize="14sp"
+            android:textColor="@color/rgb15_24_30"
+            android:gravity="center"
+            android:text="Click the button below to go to the Search for interesting people and publications" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/main_message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/transparent"
+        android:layout_above="@id/hint_message_layout">
+        <TextView
+            android:id="@+id/main_message"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:textSize="27sp"
+            android:textColor="@color/rgb15_24_30"
+            android:gravity="center"
+            android:text="Hello! It's time to find the coolest content for you!" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/steepshot_logo_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/main_message_layout">
+        <ImageView
+            android:id="@+id/ilustration_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_ilustration"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</RelativeLayout>
