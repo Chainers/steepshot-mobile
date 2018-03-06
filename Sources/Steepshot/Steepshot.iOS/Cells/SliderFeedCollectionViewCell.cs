@@ -26,6 +26,7 @@ namespace Steepshot.iOS.Cells
         private UILabel _author;
         private UILabel _timestamp;
         private UIButton _moreButton;
+        private UIButton _closeButton;
         private UIImageView[] _bodyImage;
         private UIView _profileTapView;
         private UIImageView _firstLikerImage;
@@ -91,19 +92,25 @@ namespace Steepshot.iOS.Cells
             //_moreButton.BackgroundColor = UIColor.Black;
             _contentView.AddSubview(_moreButton);
 
+            _closeButton = new UIButton();
+            _closeButton.Frame = new CGRect(_moreButton.Frame.Left - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
+            _closeButton.SetImage(UIImage.FromBundle("ic_close_black"), UIControlState.Normal);
+            //_closeButton.BackgroundColor = UIColor.Yellow;
+            _contentView.AddSubview(_closeButton);
+
             _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
             _contentView.AddSubview(_avatarImage);
 
             var authorX = _avatarImage.Frame.Right + 10;
 
-            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _moreButton.Frame.Left - authorX, 18));
+            _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _closeButton.Frame.Left - authorX, 18));
             _author.Font = Constants.Semibold14;
             //_author.BackgroundColor = UIColor.Yellow;
             _author.LineBreakMode = UILineBreakMode.TailTruncation;
             _author.TextColor = Constants.R15G24B30;
             _contentView.AddSubview(_author);
 
-            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _moreButton.Frame.Left - authorX, 16));
+            _timestamp = new UILabel(new CGRect(authorX, _author.Frame.Bottom, _closeButton.Frame.Left - authorX, 16));
             _timestamp.Font = Constants.Regular12;
             //_timestamp.BackgroundColor = UIColor.Green;
             _timestamp.LineBreakMode = UILineBreakMode.TailTruncation;
@@ -224,6 +231,7 @@ namespace Steepshot.iOS.Cells
             _flags.AddGestureRecognizer(flagersTap);
 
             _moreButton.TouchDown += FlagButton_TouchDown;
+            _closeButton.TouchDown += Close_TouchDown;
         }
 
         public nfloat UpdateCell(Post post, CellSizeHelper variables)
@@ -494,6 +502,11 @@ namespace Steepshot.iOS.Cells
         private void FlagButton_TouchDown(object sender, EventArgs e)
         {
             CellAction?.Invoke(ActionType.More, _currentPost);
+        }
+
+        private void Close_TouchDown(object sender, EventArgs e)
+        {
+            CellAction?.Invoke(ActionType.Close, _currentPost);
         }
 
         private void Animate()

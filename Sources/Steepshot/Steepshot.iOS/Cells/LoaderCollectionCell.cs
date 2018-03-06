@@ -32,7 +32,6 @@ namespace Steepshot.iOS.Cells
                 ContentView.AddSubview(loader);
                 loader.AutoCenterInSuperview();
                 loader.AutoSetDimensionsToSize(new CGSize(35, 35));
-                //ContentView.AutoSetDimensionsToSize(new CGSize(UIScreen.MainScreen.Bounds.Width, 80));
             }
             loader.StartAnimating();
         }

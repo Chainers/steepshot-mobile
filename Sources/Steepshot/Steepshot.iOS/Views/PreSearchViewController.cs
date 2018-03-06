@@ -242,6 +242,13 @@ namespace Steepshot.iOS.Views
                 case ActionType.More:
                     Flagged(post);
                     break;
+                case ActionType.Close:
+                    collectionView.Hidden = false;
+                    sliderCollection.Hidden = true;
+                    _gridDelegate.GenerateVariables();
+                    collectionView.ReloadData();
+                    collectionView.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
+                    break;
                 default:
                     break;
             }
