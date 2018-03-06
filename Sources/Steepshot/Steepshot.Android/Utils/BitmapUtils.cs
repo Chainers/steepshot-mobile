@@ -1,9 +1,11 @@
-﻿using Android.Content.Res;
+﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Media;
 using Android.Views;
 using Java.IO;
+using Java.Lang;
 using Orientation = Android.Media.Orientation;
 
 namespace Steepshot.Utils
@@ -101,7 +103,7 @@ namespace Steepshot.Utils
             var btmp = BitmapFactory.DecodeFile(path);
             var bitmapScalled = Bitmap.CreateScaledBitmap(btmp, reqWidth, reqHeight, true);
 
-            return bitmapScalled; 
+            return bitmapScalled;
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)

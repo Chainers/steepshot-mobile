@@ -22,10 +22,10 @@ namespace Steepshot.Activity
     public sealed class PostPreviewActivity : BaseActivity, ITarget
     {
         public const string PhotoExtraPath = "PhotoExtraPath";
-        public const string IsNeedCompressExtraPath = "SHOULD_COMPRESS";
+        public const string IsNeedParseExtraPath = "SHOULD_COMPRESS";
         
         private string path;
-        private bool shouldCompress;
+        private bool shouldParse;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
@@ -112,11 +112,13 @@ namespace Steepshot.Activity
 
         private void InitPhoto()
         {
-            shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, false);
-            path = shouldCompress ? Intent.GetStringExtra(PhotoExtraPath) : PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
+            shouldParse = Intent.GetBooleanExtra(IsNeedParseExtraPath, false);
+            path = shouldParse ? PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath))) : Intent.GetStringExtra(PhotoExtraPath);
 
-            if (shouldCompress)
-                path = Compress(path);
+            if (shouldParse)
+                path = $"file://{path}"; // for photos taken from the camera
+
+            path = Compress(path);
 
             var photoUri = Android.Net.Uri.Parse(path);
             _photoFrame.SetImageURI(photoUri);
@@ -133,7 +135,13 @@ namespace Steepshot.Activity
             try
             {
                 fileDescriptor = ContentResolver.OpenFileDescriptor(photoUri, "r").FileDescriptor;
-                btmp = BitmapUtils.DecodeSampledBitmapFromUri(PathHelper.GetFilePath(this, photoUri), 1200, 1200);
+                //btmp = BitmapUtils.DecodeSampledBitmapFromUri(PathHelper.GetFilePath(this, photoUri), 1200, 1200);
+
+                btmp = Android.Provider.MediaStore.Images.Media.GetBitmap(this.ContentResolver, photoUri);
+
+                var bitmapScalled = Bitmap.CreateScaledBitmap(btmp, 1200, 1200, true);
+                btmp = bitmapScalled;
+
                 btmp = BitmapUtils.RotateImageIfRequired(btmp, fileDescriptor, path);
                 var quality = BitmapUtils.GetCompressionQuality(btmp, 1024 * 1024);
                 
