@@ -46,6 +46,9 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint searchTopMargin { get; set; }
 
 		[Outlet]
+		UIKit.UICollectionView sliderCollection { get; set; }
+
+		[Outlet]
 		UIKit.UIButton switcher { get; set; }
 
 		[Outlet]
@@ -71,6 +74,11 @@ namespace Steepshot.iOS.Views
 				hotButton = null;
 			}
 
+			if (hotConstrain != null) {
+				hotConstrain.Dispose ();
+				hotConstrain = null;
+			}
+
 			if (loginButton != null) {
 				loginButton.Dispose ();
 				loginButton = null;
@@ -79,6 +87,11 @@ namespace Steepshot.iOS.Views
 			if (newButton != null) {
 				newButton.Dispose ();
 				newButton = null;
+			}
+
+			if (newConstraint != null) {
+				newConstraint.Dispose ();
+				newConstraint = null;
 			}
 
 			if (noFeedLabel != null) {
@@ -111,19 +124,14 @@ namespace Steepshot.iOS.Views
 				topButton = null;
 			}
 
-			if (hotConstrain != null) {
-				hotConstrain.Dispose ();
-				hotConstrain = null;
-			}
-
-			if (newConstraint != null) {
-				newConstraint.Dispose ();
-				newConstraint = null;
-			}
-
 			if (topConstraint != null) {
 				topConstraint.Dispose ();
 				topConstraint = null;
+			}
+
+			if (sliderCollection != null) {
+				sliderCollection.Dispose ();
+				sliderCollection = null;
 			}
 		}
 	}

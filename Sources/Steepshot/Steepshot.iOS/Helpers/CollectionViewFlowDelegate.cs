@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CoreGraphics;
 using Foundation;
@@ -82,6 +83,64 @@ namespace Steepshot.iOS.Helpers
             }
             //loader height
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
-        } 
+        }
+    }
+
+    public class SliderCollectionViewFlowDelegate : CollectionViewFlowDelegate
+    {
+        public SliderCollectionViewFlowDelegate(UICollectionView collection, BasePostPresenter presenter = null) : base(collection, presenter)
+        {
+        }
+
+        public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+        {
+            return new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, collectionView.Frame.Height);
+        }
+    }
+
+    public class SliderFlowLayout : UICollectionViewFlowLayout
+    {
+        private CGPoint mostRecentOffset = new CGPoint();
+
+        public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
+        {
+            if (scrollingVelocity.X == 0)
+                return mostRecentOffset;
+
+            if (CollectionView != null)
+            {
+                var cv = CollectionView;
+                var cvBounds = cv.Bounds;
+                var halfWidth = cvBounds.Size.Width * 0.5;
+
+                var attributesForVisibleCells = LayoutAttributesForElementsInRect(cvBounds);
+
+                UICollectionViewLayoutAttributes candidateAttributes = null;
+
+                foreach (var attributes in attributesForVisibleCells)
+                {
+                    // == Skip comparison with non-cell items (headers and footers) == //
+                    if (attributes.RepresentedElementCategory != UICollectionElementCategory.Cell)
+                        continue;
+
+                    if ((attributes.Center.X == 0) || (attributes.Center.X > (cv.ContentOffset.X + halfWidth) && scrollingVelocity.X < 0))
+                        continue;
+
+                    candidateAttributes = attributes;
+                }
+
+                // Beautification step , I don't know why it works!
+                if (proposedContentOffset.X == -(cv.ContentInset.Left))
+                    return proposedContentOffset;
+
+                if (candidateAttributes == null)
+                    return mostRecentOffset;
+
+                mostRecentOffset = new CGPoint(Math.Floor(candidateAttributes.Center.X - halfWidth), proposedContentOffset.Y);
+                return mostRecentOffset;
+            }
+
+            return base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
+        }
     }
 }
