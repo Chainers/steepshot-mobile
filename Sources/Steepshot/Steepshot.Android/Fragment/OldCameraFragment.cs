@@ -154,8 +154,10 @@ namespace Steepshot.Fragment
         {
             if (resultCode == -1 && requestCode == GalleryRequestCode)
             {
-                var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
+                // from gallery
+                var i = new Intent(Context, typeof(PostPreviewActivity));
+                i.PutExtra(PostPreviewActivity.PhotoExtraPath, data.Data.ToString());
+                i.PutExtra(PostPreviewActivity.IsNeedParseExtraPath, false);
                 StartActivity(i);
                 Activity.Finish();
             }
@@ -391,11 +393,13 @@ namespace Steepshot.Fragment
                     bitmap = BitmapUtils.RotateImage(bitmap, _rotationOnShutter);
                     var rotationStream = new System.IO.FileStream(photoUri, System.IO.FileMode.Create);
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
+                    rotationStream.Close();
                 }
 
-                var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
-                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
+                // from camera
+                var i = new Intent(Context, typeof(PostPreviewActivity));
+                i.PutExtra(PostPreviewActivity.PhotoExtraPath, photoUri);
+                i.PutExtra(PostPreviewActivity.IsNeedParseExtraPath, true);
 
                 Activity.RunOnUiThread(() =>
                 {
