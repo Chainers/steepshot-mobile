@@ -1,8 +1,8 @@
-using Android.App;
+﻿using Android.App;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.OS;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Square.Picasso;
 using Steepshot.Base;
 using Steepshot.Utils;
@@ -16,7 +16,7 @@ namespace Steepshot.Activity
         private string path;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.photo)] private ScaleImageView _photo;
+        [CheeseBind.BindView(Resource.Id.photo)] private ScaleImageView _photo;
 #pragma warning restore 0649
 
 
@@ -24,7 +24,7 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_post_preview);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
 
             path = Intent.GetStringExtra(PhotoExtraPath);
             if (!string.IsNullOrWhiteSpace(path))

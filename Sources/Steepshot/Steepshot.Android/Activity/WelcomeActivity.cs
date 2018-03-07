@@ -8,7 +8,7 @@ using Android.Text;
 using Android.Text.Method;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Localization;
@@ -24,21 +24,21 @@ namespace Steepshot.Activity
         private int _clickCount;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.steem_login)] private Button _steemLogin;
-        [InjectView(Resource.Id.golos_login)] private Button _golosLogin;
-        [InjectView(Resource.Id.reg_button)] private Button _regButton;
-        [InjectView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
-        [InjectView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
-        [InjectView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
-        [InjectView(Resource.Id.terms)] private TextView _termsTextView;
-        [InjectView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
+        [CheeseBind.BindView(Resource.Id.steem_login)] private Button _steemLogin;
+        [CheeseBind.BindView(Resource.Id.golos_login)] private Button _golosLogin;
+        [CheeseBind.BindView(Resource.Id.reg_button)] private Button _regButton;
+        [CheeseBind.BindView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
+        [CheeseBind.BindView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
+        [CheeseBind.BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
+        [CheeseBind.BindView(Resource.Id.terms)] private TextView _termsTextView;
+        [CheeseBind.BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_welcome);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
 
             var msg = AppSettings.LocalizationManager.GetText(LocalizationKeys.TitleForAcceptToS);
             _termsTextView.TextFormatted = Build.VERSION.SdkInt >= Build.VERSION_CODES.N

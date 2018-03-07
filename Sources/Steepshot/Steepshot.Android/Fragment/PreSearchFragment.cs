@@ -13,7 +13,7 @@ using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
@@ -54,27 +54,27 @@ namespace Steepshot.Fragment
         private Button _currentButton;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.search_list)] private RecyclerView _postsList;
-        [InjectView(Resource.Id.search_view)] private TextView _searchView;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [InjectView(Resource.Id.trending_button)] private Button _trendingButton;
-        [InjectView(Resource.Id.hot_button)] private Button _hotButton;
-        [InjectView(Resource.Id.new_button)] private Button _newButton;
-        [InjectView(Resource.Id.clear_button)] private Button _clearButton;
-        [InjectView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
-        [InjectView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.login)] private Button _loginButton;
-        [InjectView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
-        [InjectView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
-        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
-        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
-        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [InjectView(Resource.Id.btn_switcher)] private ImageButton _panelSwitcher;
-        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [InjectView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
-        [InjectView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
-        [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [CheeseBind.BindView(Resource.Id.search_list)] private RecyclerView _postsList;
+        [CheeseBind.BindView(Resource.Id.search_view)] private TextView _searchView;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [CheeseBind.BindView(Resource.Id.trending_button)] private Button _trendingButton;
+        [CheeseBind.BindView(Resource.Id.hot_button)] private Button _hotButton;
+        [CheeseBind.BindView(Resource.Id.new_button)] private Button _newButton;
+        [CheeseBind.BindView(Resource.Id.clear_button)] private Button _clearButton;
+        [CheeseBind.BindView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
+        [CheeseBind.BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [CheeseBind.BindView(Resource.Id.login)] private Button _loginButton;
+        [CheeseBind.BindView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
+        [CheeseBind.BindView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
+        [CheeseBind.BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _panelSwitcher;
+        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [CheeseBind.BindView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
+        [CheeseBind.BindView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
+        [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
         private string CustomTag
@@ -180,7 +180,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_presearch, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
             ToggleTabBar();
             return InflatedView;
