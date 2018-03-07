@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -7,7 +7,7 @@ using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -32,13 +32,13 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.feed_list)] private RecyclerView _feedList;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
-        [InjectView(Resource.Id.logo)] private ImageView _logo;
-        [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
-        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
-        [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [CheeseBind.BindView(Resource.Id.feed_list)] private RecyclerView _feedList;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [CheeseBind.BindView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [CheeseBind.BindView(Resource.Id.logo)] private ImageView _logo;
+        [CheeseBind.BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
 
@@ -47,7 +47,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_feed, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
             ToggleTabBar();
             return InflatedView;

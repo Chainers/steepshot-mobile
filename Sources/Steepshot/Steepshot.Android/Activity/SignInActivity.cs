@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -9,7 +9,7 @@ using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
@@ -33,23 +33,23 @@ namespace Steepshot.Activity
         private string _profileImageUrl;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.profile_image)] private CircleImageView _profileImage;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [InjectView(Resource.Id.input_password)] private EditText _password;
-        [InjectView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
-        [InjectView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
-        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [CheeseBind.BindView(Resource.Id.profile_image)] private CircleImageView _profileImage;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [CheeseBind.BindView(Resource.Id.input_password)] private EditText _password;
+        [CheeseBind.BindView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
+        [CheeseBind.BindView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
+        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [CheeseBind.BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_sign_in);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
 
             MobileBarcodeScanner.Initialize(Application);
             _scanner = new MobileBarcodeScanner();

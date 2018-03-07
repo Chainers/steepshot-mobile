@@ -4,7 +4,7 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -25,14 +25,14 @@ namespace Steepshot.Fragment
         private bool _isLikers;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [InjectView(Resource.Id.followers_list)] private RecyclerView _votersList;
-        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [InjectView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [InjectView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [InjectView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [InjectView(Resource.Id.people_count)] private TextView _peopleCount;
-        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [CheeseBind.BindView(Resource.Id.followers_list)] private RecyclerView _votersList;
+        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [CheeseBind.BindView(Resource.Id.people_count)] private TextView _peopleCount;
+        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -40,7 +40,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_followers, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
             ToggleTabBar();
             return InflatedView;
