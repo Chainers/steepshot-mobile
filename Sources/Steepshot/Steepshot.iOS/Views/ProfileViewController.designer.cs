@@ -1,11 +1,11 @@
 // WARNING
 //
-// This file has been generated automatically by Xamarin Studio to store outlets and
+// This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
 // Manual changes to this file may not be handled correctly.
 //
-
 using Foundation;
+using System.CodeDom.Compiler;
 
 namespace Steepshot.iOS.Views
 {
@@ -20,6 +20,9 @@ namespace Steepshot.iOS.Views
 
 		[Outlet]
 		UIKit.UIActivityIndicatorView loading { get; set; }
+
+		[Outlet]
+		UIKit.UICollectionView sliderCollection { get; set; }
 
 		[Outlet]
 		UIKit.NSLayoutConstraint topViewHeight { get; set; }
@@ -44,6 +47,11 @@ namespace Steepshot.iOS.Views
 			if (topViewHeight != null) {
 				topViewHeight.Dispose ();
 				topViewHeight = null;
+			}
+
+			if (sliderCollection != null) {
+				sliderCollection.Dispose ();
+				sliderCollection = null;
 			}
 		}
 	}
