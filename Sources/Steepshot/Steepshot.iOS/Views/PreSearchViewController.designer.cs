@@ -49,6 +49,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UICollectionView sliderCollection { get; set; }
 
 		[Outlet]
+		UIKit.NSLayoutConstraint sliderCollectionOffset { get; set; }
+
+		[Outlet]
 		UIKit.UIButton switcher { get; set; }
 
 		[Outlet]
@@ -114,6 +117,11 @@ namespace Steepshot.iOS.Views
 				searchTopMargin = null;
 			}
 
+			if (sliderCollection != null) {
+				sliderCollection.Dispose ();
+				sliderCollection = null;
+			}
+
 			if (switcher != null) {
 				switcher.Dispose ();
 				switcher = null;
@@ -129,9 +137,9 @@ namespace Steepshot.iOS.Views
 				topConstraint = null;
 			}
 
-			if (sliderCollection != null) {
-				sliderCollection.Dispose ();
-				sliderCollection = null;
+			if (sliderCollectionOffset != null) {
+				sliderCollectionOffset.Dispose ();
+				sliderCollectionOffset = null;
 			}
 		}
 	}

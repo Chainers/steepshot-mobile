@@ -24,6 +24,7 @@
                 <outlet property="searchHeight" destination="aaP-V5-Z6d" id="G7S-z9-edp"/>
                 <outlet property="searchTopMargin" destination="GFV-RE-HMj" id="xCB-5S-Kit"/>
                 <outlet property="sliderCollection" destination="cVd-qK-OJW" id="SiY-2w-M91"/>
+                <outlet property="sliderCollectionOffset" destination="LsF-BV-SQX" id="ZKE-SC-T1F"/>
                 <outlet property="switcher" destination="DgU-q8-f8k" id="efp-XC-rEg"/>
                 <outlet property="topButton" destination="RiB-Oh-gJP" id="ghM-an-aac"/>
                 <outlet property="topConstraint" destination="aGz-1B-4pe" id="kjJ-8L-6Mb"/>

@@ -143,6 +143,7 @@ namespace Steepshot.iOS.Views
 
                 searchHeight.Constant = 0;
                 searchTopMargin.Constant = 0;
+                sliderCollectionOffset.Constant = 0;
             }
             else
                 NavigationController.SetNavigationBarHidden(true, false);
