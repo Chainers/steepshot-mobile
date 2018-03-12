@@ -70,9 +70,9 @@ namespace Steepshot.iOS.ViewSources
         public event Action<ActionType, Post> CellAction;
         public event Action<string> TagAction;
         private readonly BasePostPresenter _presenter;
-        private CollectionViewFlowDelegate _flowDelegate;
+        private SliderCollectionViewFlowDelegate _flowDelegate;
 
-        public SliderCollectionViewSource(BasePostPresenter presenter, CollectionViewFlowDelegate flowDelegate)
+        public SliderCollectionViewSource(BasePostPresenter presenter, SliderCollectionViewFlowDelegate flowDelegate)
         {
             _presenter = presenter;
             _flowDelegate = flowDelegate;
@@ -94,18 +94,19 @@ namespace Steepshot.iOS.ViewSources
             }
             else
             {
-                UICollectionViewCell cell;
                 var post = _presenter[(int)indexPath.Item];
 
-                cell = (SliderFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(SliderFeedCollectionViewCell), indexPath);
+                var cell = (SliderFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(SliderFeedCollectionViewCell), indexPath);
+
+                var offset = collectionView.GetLayoutAttributesForItem(indexPath).Frame.X - 15 - collectionView.ContentOffset.X;
 
                 if (post != null)
-                    ((SliderFeedCollectionViewCell)cell).UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item]);
+                    cell.UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item], offset);
 
-                if (!((SliderFeedCollectionViewCell)cell).IsCellActionSet)
+                if (!cell.IsCellActionSet)
                 {
-                    ((SliderFeedCollectionViewCell)cell).CellAction += CellAction;
-                    ((SliderFeedCollectionViewCell)cell).TagAction += TagAction;
+                    cell.CellAction += CellAction;
+                    cell.TagAction += TagAction;
                 }
                 return cell;
             }

@@ -57,7 +57,7 @@ namespace Steepshot.iOS.Cells
 
         private readonly nfloat likersY;
         private nfloat likesMargin;
-        private readonly nfloat leftMargin = 0;
+        private nfloat leftMargin = 0;
         private readonly nfloat likesMarginConst = 10;
         private readonly nfloat flagsMarginConst = 10;
         private readonly nfloat likeButtonWidthConst = 70;
@@ -67,19 +67,42 @@ namespace Steepshot.iOS.Cells
         private readonly nfloat verticalSeparatorHeight = 30;
         private readonly nfloat moreButtonWidth = 50;
         private readonly nfloat likersCornerRadius;
+        private readonly nfloat distinction = 5f / (UIScreen.MainScreen.Bounds.Width - 10);
+        private nfloat authorX;
 
         public bool IsCellActionSet => CellAction != null;
         public event Action<ActionType, Post> CellAction;
+        private Action<string> _tagAction;
+
         public event Action<string> TagAction
         {
             add
             {
                 _attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(value);
+                _tagAction = value;
             }
             remove
             {
                 throw new NotImplementedException();
             }
+        }
+
+
+        public void MoveData(nfloat step)
+        {
+            leftMargin += step * distinction;
+       
+            _avatarImage.Frame = new CGRect(leftMargin, 20, 30, 30);
+            _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
+                                                _attributedLabel.Frame.Size);
+            _comments.Frame = new CGRect(new CGPoint(leftMargin - 5, _attributedLabel.Frame.Bottom + 5), _comments.Frame.Size);
+            if(_firstLikerImage != null)
+                _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+            if (_secondLikerImage != null)
+                _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+            if (_thirdLikerImage != null)
+                _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+            _topSeparator.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + underPhotoPanelHeight, _contentScroll.Frame.Width, 1);
         }
 
         protected SliderFeedCollectionViewCell(IntPtr handle) : base(handle)
@@ -98,10 +121,11 @@ namespace Steepshot.iOS.Cells
             //_closeButton.BackgroundColor = UIColor.Yellow;
             _contentView.AddSubview(_closeButton);
 
-            _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
+            _avatarImage = new UIImageView();
+            _avatarImage.Frame = new CGRect(leftMargin, 20, 30, 30);
             _contentView.AddSubview(_avatarImage);
 
-            var authorX = _avatarImage.Frame.Right + 10;
+            authorX = _avatarImage.Frame.Right + 10;
 
             _author = new UILabel(new CGRect(authorX, _avatarImage.Frame.Top - 2, _closeButton.Frame.Left - authorX, 18));
             _author.Font = Constants.Semibold14;
@@ -234,10 +258,17 @@ namespace Steepshot.iOS.Cells
             _closeButton.TouchDown += Close_TouchDown;
         }
 
-        public nfloat UpdateCell(Post post, CellSizeHelper variables)
+        public nfloat UpdateCell(Post post, CellSizeHelper variables, nfloat direction)
         {
             _currentPost = post;
             likesMargin = leftMargin;
+
+            if(direction == 0)
+                leftMargin = 0;
+            else if(direction > 0)
+                leftMargin = 5;
+            else
+                leftMargin = -5;
 
             _avatarImage?.RemoveFromSuperview();
             _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
@@ -292,9 +323,9 @@ namespace Steepshot.iOS.Cells
                                              .FadeAnimation(false)
                                              .WithCache(FFImageLoading.Cache.CacheType.All)
                                              .WithPriority(LoadingPriority.Highest)
-                                              /* .DownloadProgress((f)=>
-                                             {
-                                             })*/
+                                               //.DownloadProgress((f)=>
+                                             //{
+                                             //})
                                               .Into(_bodyImage[i]);
             }
 
@@ -470,6 +501,7 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.Enabled = true;
             //_attributedLabel.BackgroundColor = UIColor.Blue;
             _contentScroll.AddSubview(_attributedLabel);
+            _attributedLabel.Delegate = new TTTAttributedLabelFeedDelegate(_tagAction);
             _attributedLabel.SetText(at);
 
             var textHeight = _attributedLabel.SizeThatFits(new CGSize(_contentScroll.Frame.Width, 0)).Height;

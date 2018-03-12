@@ -355,6 +355,7 @@ namespace Steepshot.iOS.Views
 
             if (clearOld)
             {
+                _sliderGridDelegate.ClearPosition();
                 _gridDelegate.ClearPosition();
                 _presenter.Clear();
             }
