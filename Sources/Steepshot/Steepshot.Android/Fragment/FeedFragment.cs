@@ -39,6 +39,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
         [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [InjectView(Resource.Id.feed_container)] private FrameLayout _feedContainer;
 #pragma warning restore 0649
 
 
@@ -58,7 +59,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 base.OnViewCreated(view, savedInstanceState);
-
+                
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
@@ -68,7 +69,7 @@ namespace Steepshot.Fragment
                 _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
-
+                
                 _logo.Click += OnLogoClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
@@ -190,7 +191,14 @@ namespace Steepshot.Fragment
             _refresher.Refreshing = false;
 
             // posts count checking
-            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            //_emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+
+            if (Presenter.Count == 0)
+            {
+                LayoutInflater vi = (LayoutInflater)Activity.GetSystemService(Context.LayoutInflaterService);
+                View v = vi.Inflate(Resource.Layout.lyt_empty_feed, null);
+                _feedContainer.AddView(v);
+            }
         }
 
         private void PhotoClick(Post post)
