@@ -96,12 +96,22 @@ namespace Steepshot.iOS.Cells
             _attributedLabel.Frame = new CGRect(new CGPoint(leftMargin, _topSeparator.Frame.Bottom + 15),
                                                 _attributedLabel.Frame.Size);
             _comments.Frame = new CGRect(new CGPoint(leftMargin - 5, _attributedLabel.Frame.Bottom + 5), _comments.Frame.Size);
-            if(_firstLikerImage != null)
+            if (_firstLikerImage != null && !_firstLikerImage.Hidden)
+            {
                 _firstLikerImage.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
-            if (_secondLikerImage != null)
+                likesMargin = _firstLikerImage.Frame.Right + likesMarginConst;
+            }
+            if (_secondLikerImage != null && !_secondLikerImage.Hidden)
+            {
                 _secondLikerImage.Frame = new CGRect(_firstLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
-            if (_thirdLikerImage != null)
+                likesMargin = _secondLikerImage.Frame.Right + likesMarginConst;
+            }
+            if (_thirdLikerImage != null && !_thirdLikerImage.Hidden)
+            {
                 _thirdLikerImage.Frame = new CGRect(_secondLikerImage.Frame.Right - likersMargin, _photoScroll.Frame.Bottom + likersY, likersImageSide, likersImageSide);
+                likesMargin = _thirdLikerImage.Frame.Right + likesMarginConst;
+            }
+            SetLikesFrame();
             _topSeparator.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom + underPhotoPanelHeight, _contentScroll.Frame.Width, 1);
         }
 
@@ -261,7 +271,6 @@ namespace Steepshot.iOS.Cells
         public nfloat UpdateCell(Post post, CellSizeHelper variables, nfloat direction)
         {
             _currentPost = post;
-            likesMargin = leftMargin;
 
             if(direction == 0)
                 leftMargin = 0;
@@ -269,6 +278,8 @@ namespace Steepshot.iOS.Cells
                 leftMargin = 5;
             else
                 leftMargin = -5;
+
+            likesMargin = leftMargin;
 
             _avatarImage?.RemoveFromSuperview();
             _avatarImage = new UIImageView(new CGRect(leftMargin, 20, 30, 30));
@@ -522,6 +533,30 @@ namespace Steepshot.iOS.Cells
             return _bottomSeparator.Frame.Bottom;
             //for constant size checking
             //var constantsSize = _bottomSeparator.Frame.Bottom - _attributedLabel.Frame.Height - _bodyImage.Frame.Height;
+        }
+
+        private void SetLikesFrame()
+        {
+            nfloat flagMargin = 0;
+
+            if (_currentPost.NetLikes != 0)
+            {
+                var likesWidth = _likes.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
+                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, likesWidth.Width, underPhotoPanelHeight);
+                flagMargin = flagsMarginConst;
+            }
+            else
+                _likes.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
+
+            _likersTapView.Frame = new CGRect(leftMargin, _photoScroll.Frame.Bottom, _likes.Frame.Right - leftMargin, _likes.Frame.Height);
+
+            if (_currentPost.NetFlags != 0)
+            {
+                var flagsWidth = _flags.SizeThatFits(new CGSize(0, underPhotoPanelHeight));
+                _flags.Frame = new CGRect(likesMargin + _likes.Frame.Width + flagMargin, _photoScroll.Frame.Bottom, flagsWidth.Width, underPhotoPanelHeight);
+            }
+            else
+                _flags.Frame = new CGRect(likesMargin, _photoScroll.Frame.Bottom, 0, 0);
         }
 
         private void LikeTap()
