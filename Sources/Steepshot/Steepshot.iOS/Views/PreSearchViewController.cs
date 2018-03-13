@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using iOS.Hardware;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -146,7 +147,11 @@ namespace Steepshot.iOS.Views
                 sliderCollectionOffset.Constant = 0;
             }
             else
+            {
+                if(DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                    sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
+            }
 
             base.ViewWillAppear(animated);
         }
