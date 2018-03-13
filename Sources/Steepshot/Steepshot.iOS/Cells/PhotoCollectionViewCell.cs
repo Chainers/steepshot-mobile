@@ -37,6 +37,7 @@ namespace Steepshot.iOS.Cells
             _bodyImage.UserInteractionEnabled = true;
             _bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
             _bodyImage.Frame = new CGRect(new CGPoint(0, 0), Constants.CellSize);
+            _bodyImage.BackgroundColor = UIColor.FromRGB(244, 244, 246);
 
             ContentView.AddSubview(_bodyImage);
 

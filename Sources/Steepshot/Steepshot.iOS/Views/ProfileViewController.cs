@@ -147,7 +147,7 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            if (!collectionView.Hidden)
+            if (sliderCollection.Hidden)
             {
                 _gridDelegate.GenerateVariables();
                 collectionView.ReloadData();

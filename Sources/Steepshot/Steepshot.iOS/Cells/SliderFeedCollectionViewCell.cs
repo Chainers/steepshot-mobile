@@ -119,17 +119,17 @@ namespace Steepshot.iOS.Cells
         {
             _contentView = ContentView;
 
-            _moreButton = new UIButton();
-            _moreButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
-            _moreButton.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
-            //_moreButton.BackgroundColor = UIColor.Black;
-            _contentView.AddSubview(_moreButton);
-
             _closeButton = new UIButton();
-            _closeButton.Frame = new CGRect(_moreButton.Frame.Left - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
+            _closeButton.Frame = new CGRect(_contentView.Frame.Width - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
             _closeButton.SetImage(UIImage.FromBundle("ic_close_black"), UIControlState.Normal);
             //_closeButton.BackgroundColor = UIColor.Yellow;
             _contentView.AddSubview(_closeButton);
+
+            _moreButton = new UIButton();
+            _moreButton.Frame = new CGRect(_closeButton.Frame.Left - moreButtonWidth, 0, moreButtonWidth, likeButtonWidthConst);
+            _moreButton.SetImage(UIImage.FromBundle("ic_more"), UIControlState.Normal);
+            //_moreButton.BackgroundColor = UIColor.Black;
+            _contentView.AddSubview(_moreButton);
 
             _avatarImage = new UIImageView();
             _avatarImage.Frame = new CGRect(leftMargin, 20, 30, 30);
