@@ -45,13 +45,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <FrameLayout
-                    android:id="@+id/feed_container"
+                    android:id="@+id/feed_frame"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/feed_list"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
+                    <RelativeLayout
+                        android:id="@+id/feed_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone">
+                        <include
+                            layout="@layout/lyt_empty_feed" />
+                  </RelativeLayout>
                 </FrameLayout>
             </android.support.v4.widget.SwipeRefreshLayout>
             <TextView

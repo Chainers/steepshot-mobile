@@ -18,47 +18,35 @@
         android:textSize="14sp"
         android:text="Go to Browse"
         android:textAllCaps="false" />
-    <RelativeLayout
-        android:id="@+id/hint_message_layout"
+    <TextView
+        android:id="@+id/hint_message"
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_marginRight="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginBottom="20dp"
         android:layout_above="@id/browse_button"
-        android:background="@android:color/transparent">
-        <TextView
-            android:id="@+id/hint_message"
-            android:layout_width="match_parent"
-            android:layout_height="38dp"
-            android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30"
-            android:gravity="center"
-            android:text="Click the button below to go to the Search for interesting people and publications" />
-    </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/main_message_layout"
+        android:textSize="14sp"
+        android:textColor="@color/rgb15_24_30"
+        android:gravity="center"
+        android:text="Click the button below to go to the Search for interesting people and publications" />
+    <TextView
+        android:id="@+id/main_message"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginRight="14dp"
         android:layout_marginLeft="15dp"
         android:layout_marginBottom="20dp"
-        android:background="@android:color/transparent"
-        android:layout_above="@id/hint_message_layout">
-        <TextView
-            android:id="@+id/main_message"
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:textSize="27sp"
-            android:textColor="@color/rgb15_24_30"
-            android:gravity="center"
-            android:text="Hello! It's time to find the coolest content for you!" />
-    </RelativeLayout>
+        android:layout_above="@id/hint_message"
+        android:textSize="27sp"
+        android:textColor="@color/rgb15_24_30"
+        android:gravity="center"
+        android:text="Hello! It's time to find the coolest content for you!" />
     <RelativeLayout
         android:id="@+id/steepshot_logo_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/main_message_layout">
+        android:layout_above="@id/main_message">
         <ImageView
             android:id="@+id/ilustration_logo"
             android:layout_width="wrap_content"

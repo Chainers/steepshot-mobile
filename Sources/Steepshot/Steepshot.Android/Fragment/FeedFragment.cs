@@ -39,7 +39,8 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
         [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
         [InjectView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
-        [InjectView(Resource.Id.feed_container)] private FrameLayout _feedContainer;
+        [InjectView(Resource.Id.feed_container)] private RelativeLayout _feedContainer;
+        [InjectView(Resource.Id.browse_button)] private Button _browseButton;
 #pragma warning restore 0649
 
 
@@ -71,6 +72,7 @@ namespace Steepshot.Fragment
                 _postPagerAdapter.CloseAction += CloseAction;
                 
                 _logo.Click += OnLogoClick;
+                _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
                 _scrollListner = new ScrollListener();
@@ -189,17 +191,12 @@ namespace Steepshot.Fragment
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
-
-            // posts count checking
-            //_emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            
+            _feedContainer.Visibility = ViewStates.Invisible;
 
             if (Presenter.Count == 0)
             {
-                LayoutInflater vi = (LayoutInflater)Activity.GetSystemService(Context.LayoutInflaterService);
-                View v = vi.Inflate(Resource.Layout.lyt_empty_feed, null);
-                _feedContainer.AddView(v);
-
-                v.FindViewById<Button>(Resource.Id.browse_button).Click += GoToBrowseButtonClick;
+                _feedContainer.Visibility = ViewStates.Visible;
             }
         }
 
