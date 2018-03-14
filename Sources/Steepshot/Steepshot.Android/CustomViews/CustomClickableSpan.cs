@@ -2,7 +2,7 @@
 using Android.Text.Style;
 using Android.Views;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
     public sealed class CustomClickableSpan : ClickableSpan
     {

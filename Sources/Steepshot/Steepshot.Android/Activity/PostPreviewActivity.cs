@@ -5,7 +5,7 @@ using Android.OS;
 using Com.Lilarcor.Cheeseknife;
 using Square.Picasso;
 using Steepshot.Base;
-using Steepshot.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Activity
 {

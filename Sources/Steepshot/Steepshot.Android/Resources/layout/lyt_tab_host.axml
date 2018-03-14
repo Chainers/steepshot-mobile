@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:background="@android:color/white"
     android:layout_height="match_parent">
-    <Steepshot.Utils.CustomViewPager
+    <Steepshot.CustomViews.CustomViewPager
         android:id="@+id/view_pager"
         android:layout_above="@+id/tab_layout"
         android:layout_width="match_parent"

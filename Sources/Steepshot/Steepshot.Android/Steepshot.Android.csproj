@@ -66,11 +66,19 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Utils\VotingPowerFrame.cs" />
+    <Compile Include="Adapter\GalleryGridAdapter.cs" />
+    <Compile Include="Adapter\GalleryHorizontalAdapter.cs" />
+    <Compile Include="CustomViews\CoordinatorLinearLayout.cs" />
+    <Compile Include="CustomViews\CoordinatorRecyclerView.cs" />
+    <Compile Include="CustomViews\ICoordinatorListener.cs" />
+    <Compile Include="Fragment\GalleryFragment.cs" />
+    <Compile Include="Fragment\PostEditFragment.cs" />
+    <Compile Include="Utils\GalleryMediaModel.cs" />
+    <Compile Include="CustomViews\SelectableImageView.cs" />
+    <Compile Include="CustomViews\VotingPowerFrame.cs" />
     <Compile Include="Utils\StreamConverter.cs" />
     <Compile Include="Activity\PostPreviewActivity.cs" />
     <Compile Include="Activity\GuestActivity.cs" />
-    <Compile Include="Activity\PostDescriptionActivity.cs" />
     <Compile Include="Activity\RootActivity.cs" />
     <Compile Include="Activity\TestActivity.cs" />
     <Compile Include="Activity\SettingsActivity.cs" />
@@ -95,12 +103,12 @@
     <Compile Include="Utils\AnimationHelper.cs" />
     <Compile Include="Utils\AssetsHelper.cs" />
     <Compile Include="Utils\CameraPreview.cs" />
-    <Compile Include="Utils\CustomViewPager.cs" />
+    <Compile Include="CustomViews\CustomViewPager.cs" />
     <Compile Include="Utils\GridItemdecoration.cs" />
     <Compile Include="Utils\MessageHelper.cs" />
-    <Compile Include="Utils\ScaleImageView.cs" />
+    <Compile Include="CustomViews\ScaleImageView.cs" />
     <Compile Include="Utils\Style.cs" />
-    <Compile Include="Utils\TopCropScaleImageView.cs" />
+    <Compile Include="CustomViews\TopCropScaleImageView.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="Fragment\FeedFragment.cs" />
     <Compile Include="Fragment\ProfileFragment.cs" />
@@ -129,8 +137,8 @@
     <Compile Include="Adapter\AccountsAdapter.cs" />
     <Compile Include="Utils\LoaderViewHolder.cs" />
     <Compile Include="Utils\SpanSizeLookups.cs" />
-    <Compile Include="Utils\CustomClickableSpan.cs" />
-    <Compile Include="Utils\PostCustomTextView.cs" />
+    <Compile Include="CustomViews\CustomClickableSpan.cs" />
+    <Compile Include="CustomViews\PostCustomTextView.cs" />
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
   </ItemGroup>
@@ -205,6 +213,12 @@
     <AndroidResource Include="Resources\layout\lyt_grid_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_description_item.axml" />
     <AndroidResource Include="Resources\layout\lyt_deletion_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_gallery.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_gallery_top.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -243,7 +257,9 @@
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
-    <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
+    <AndroidResource Include="Resources\layout\lyt_post_description.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\lyt_profile_header.axml" />
     <AndroidResource Include="Resources\layout\lyt_search.axml" />
     <AndroidResource Include="Resources\layout\lyt_settings.axml" />
@@ -314,6 +330,9 @@
     <AndroidResource Include="Resources\layout\lyt_presearch.axml" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="AndroidFlowLayout, Version=1.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AndroidFlowLayout.1.9.0.1\lib\monoandroid403\AndroidFlowLayout.dll</HintPath>
+    </Reference>
     <Reference Include="Autofac, Version=4.6.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.2\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
@@ -578,6 +597,45 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_separator.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

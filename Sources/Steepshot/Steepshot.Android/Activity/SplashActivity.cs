@@ -32,18 +32,15 @@ namespace Steepshot.Activity
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
-                Intent intent;
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                    intent.PutExtra(PostDescriptionActivity.PhotoExtraPath, uri.ToString());
                 }
                 else
                 {
-                    intent = new Intent(this, typeof(PreSignInActivity));
+                    var intent = new Intent(this, typeof(PreSignInActivity));
+                    StartActivity(intent);
                 }
-                StartActivity(intent);
             }
             else
             {

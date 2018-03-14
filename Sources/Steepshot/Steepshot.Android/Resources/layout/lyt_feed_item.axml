@@ -158,7 +158,7 @@
         android:orientation="vertical"
         android:paddingRight="15dp"
         android:minHeight="70dp">
-        <Steepshot.Utils.PostCustomTextView
+        <Steepshot.CustomViews.PostCustomTextView
             android:id="@+id/first_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

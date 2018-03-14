@@ -3,7 +3,7 @@
     android:id="@+id/tag_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/white_rounded_border"
+    android:background="@drawable/tags_rounded_border"
     android:clickable="true">
     <LinearLayout
         android:orientation="horizontal"

@@ -4,7 +4,7 @@ using Android.Runtime;
 using Android.Support.V4.View;
 using Android.Util;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
     public sealed class CustomViewPager : ViewPager
     {

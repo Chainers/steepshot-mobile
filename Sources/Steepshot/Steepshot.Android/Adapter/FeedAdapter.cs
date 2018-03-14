@@ -23,6 +23,7 @@ using Android.Graphics.Drawables;
 using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Adapter
 {
