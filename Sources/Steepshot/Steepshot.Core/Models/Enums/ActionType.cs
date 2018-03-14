@@ -19,6 +19,7 @@
         Edit,
         Hide,
         Photo,
-        Share
+        Share,
+        Close,
     }
 }

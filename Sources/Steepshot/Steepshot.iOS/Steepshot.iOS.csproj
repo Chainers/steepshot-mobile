@@ -143,9 +143,6 @@
     <Reference Include="PureLayout.Net">
       <HintPath>..\packages\PureLayout.Net.1.0.0\lib\xamarinios10\PureLayout.Net.dll</HintPath>
     </Reference>
-    <Reference Include="WebP.Touch">
-      <HintPath>..\packages\WebP.Touch.1.0.7\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
-    </Reference>
     <Reference Include="FFImageLoading">
       <HintPath>..\packages\Xamarin.FFImageLoading.2.3.4\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
     </Reference>
@@ -166,6 +163,10 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="WebP.Touch">
+      <HintPath>..\packages\WebP.Touch.1.0.8\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -189,7 +190,6 @@
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
-    <InterfaceDefinition Include="Cells\PhotoCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\TagCollectionViewCell.xib" />
     <InterfaceDefinition Include="Cells\FollowViewCell.xib" />
     <InterfaceDefinition Include="Cells\CommentTableViewCell.xib" />
@@ -373,6 +373,7 @@
     <Compile Include="Views\PostViewController.designer.cs">
       <DependentUpon>PostViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="Cells\SliderFeedCollectionViewCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

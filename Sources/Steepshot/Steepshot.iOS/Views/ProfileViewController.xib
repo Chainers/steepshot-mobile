@@ -14,6 +14,7 @@
                 <outlet property="collectionView" destination="8eL-0T-rg0" id="jGC-sy-yAU"/>
                 <outlet property="errorMessage" destination="29q-YF-Bwm" id="8uw-DZ-adX"/>
                 <outlet property="loading" destination="OVk-8Q-Ffh" id="cS2-pm-BTG"/>
+                <outlet property="sliderCollection" destination="ThR-ON-Kcs" id="fid-5P-gDg"/>
                 <outlet property="view" destination="AP1-eW-mk8" id="vYj-TV-Npb"/>
             </connections>
         </placeholder>
@@ -68,17 +69,31 @@
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
+                <collectionView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="ThR-ON-Kcs">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="396-gi-3iD">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="OVk-8Q-Ffh" firstAttribute="centerX" secondItem="AP1-eW-mk8" secondAttribute="centerX" id="5Qs-CZ-my6"/>
                 <constraint firstAttribute="trailing" secondItem="8eL-0T-rg0" secondAttribute="trailing" id="CcF-vW-RQG"/>
+                <constraint firstAttribute="bottom" secondItem="ThR-ON-Kcs" secondAttribute="bottom" id="JxH-0q-gZ0"/>
                 <constraint firstItem="29q-YF-Bwm" firstAttribute="centerY" secondItem="AP1-eW-mk8" secondAttribute="centerY" id="Mlr-nY-2yp"/>
                 <constraint firstItem="8eL-0T-rg0" firstAttribute="leading" secondItem="AP1-eW-mk8" secondAttribute="leading" id="OB8-ou-VTk"/>
                 <constraint firstItem="29q-YF-Bwm" firstAttribute="centerX" secondItem="AP1-eW-mk8" secondAttribute="centerX" id="PYv-cD-axr"/>
+                <constraint firstItem="ThR-ON-Kcs" firstAttribute="top" secondItem="AP1-eW-mk8" secondAttribute="top" id="fal-Uo-sTC"/>
                 <constraint firstItem="OVk-8Q-Ffh" firstAttribute="centerY" secondItem="AP1-eW-mk8" secondAttribute="centerY" id="kcQ-8I-Ou3"/>
+                <constraint firstAttribute="trailing" secondItem="ThR-ON-Kcs" secondAttribute="trailing" id="oKH-2t-wNO"/>
                 <constraint firstItem="8eL-0T-rg0" firstAttribute="top" secondItem="AP1-eW-mk8" secondAttribute="top" id="qH7-oT-UZ1"/>
                 <constraint firstAttribute="bottom" secondItem="8eL-0T-rg0" secondAttribute="bottom" id="uW6-US-xza"/>
+                <constraint firstItem="ThR-ON-Kcs" firstAttribute="leading" secondItem="AP1-eW-mk8" secondAttribute="leading" id="xTA-z3-LTn"/>
             </constraints>
         </view>
     </objects>

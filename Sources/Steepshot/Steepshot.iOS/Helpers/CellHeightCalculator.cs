@@ -25,10 +25,11 @@ namespace Steepshot.iOS.Helpers
 
         public static CellSizeHelper Calculate(Post post)
         {
-            var attributedLabel = new TTTAttributedLabel();
-            var at = new NSMutableAttributedString();
             var photoHeight = (int)(OptimalPhotoSize.Get(new Size() { Height = post.Media[0].Size.Height, Width = post.Media[0].Size.Width },
                                                          (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
+
+            var attributedLabel = new TTTAttributedLabel();
+            var at = new NSMutableAttributedString();
 
             at.Append(new NSAttributedString(post.Title, _noLinkAttribute));
             if (!string.IsNullOrEmpty(post.Description))

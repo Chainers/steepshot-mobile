@@ -33,6 +33,7 @@ namespace Steepshot.iOS.Views
         private bool _isPostsLoading;
         private ProfileHeaderViewController _profileHeader;
         private CollectionViewFlowDelegate _gridDelegate;
+        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
         private UINavigationController _navController;
         private UIBarButtonItem switchButton;
         private bool _userDataLoaded;
@@ -45,7 +46,6 @@ namespace Steepshot.iOS.Views
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
-            collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
 
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
@@ -63,6 +63,28 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.TagAction += TagAction;
             collectionView.Source = _collectionViewSource;
             collectionView.Delegate = _gridDelegate;
+
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+            _sliderCollectionViewSource.CellAction += CellAction;
+            _sliderCollectionViewSource.TagAction += TagAction;
+            sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
+            sliderCollection.ShowsHorizontalScrollIndicator = false;
+
+            sliderCollection.SetCollectionViewLayout(new SliderFlowLayout()
+            {
+                MinimumLineSpacing = 10,
+                MinimumInteritemSpacing = 0,
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                SectionInset = new UIEdgeInsets(0, 15, 0, 15),
+            }, false);
+
+            sliderCollection.Source = _sliderCollectionViewSource;
+            sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
+            sliderCollection.Delegate = _sliderGridDelegate;
 
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
             collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
@@ -125,8 +147,16 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            _gridDelegate.GenerateVariables();
-            collectionView.ReloadData();
+            if (sliderCollection.Hidden)
+            {
+                _gridDelegate.GenerateVariables();
+                collectionView.ReloadData();
+            }
+            else
+            {
+                _sliderGridDelegate.GenerateVariables();
+                sliderCollection.ReloadData();
+            }
         }
 
         private void ProfileHeaderLoaded()
@@ -179,10 +209,17 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    if (_collectionViewSource.IsGrid)
-                        NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                    else
+                    if (collectionView.Hidden)
+                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                    else
+                    {
+                        collectionView.Hidden = true;
+                        sliderCollection.Hidden = false;
+                        _sliderGridDelegate.GenerateVariables();
+                        sliderCollection.ReloadData();
+                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+                    }
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -201,6 +238,13 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.More:
                     Flagged(post);
+                    break;
+                case ActionType.Close:
+                    collectionView.Hidden = false;
+                    sliderCollection.Hidden = true;
+                    _gridDelegate.GenerateVariables();
+                    collectionView.ReloadData();
+                    collectionView.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
                     break;
                 default:
                     break;
@@ -376,6 +420,7 @@ namespace Steepshot.iOS.Views
             {
                 _presenter.Clear();
                 _gridDelegate.ClearPosition();
+                _sliderGridDelegate.ClearPosition();
             }
 
             var error = await _presenter.TryLoadNextPosts();
