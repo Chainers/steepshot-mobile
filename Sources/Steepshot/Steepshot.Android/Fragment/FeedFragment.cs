@@ -64,7 +64,7 @@ namespace Steepshot.Fragment
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
-
+                
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
                 _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
@@ -198,7 +198,14 @@ namespace Steepshot.Fragment
                 LayoutInflater vi = (LayoutInflater)Activity.GetSystemService(Context.LayoutInflaterService);
                 View v = vi.Inflate(Resource.Layout.lyt_empty_feed, null);
                 _feedContainer.AddView(v);
+
+                v.FindViewById<Button>(Resource.Id.browse_button).Click += GoToBrowseButtonClick;
             }
+        }
+
+        private void GoToBrowseButtonClick(object sender, EventArgs e)
+        {
+            ((RootActivity)Activity).SelectTab(1);
         }
 
         private void PhotoClick(Post post)

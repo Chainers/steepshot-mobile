@@ -6,7 +6,7 @@
     android:paddingTop="49dp"
     android:paddingBottom="49dp">
     <Button
-        android:id="@+id/reg_button"
+        android:id="@+id/browse_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginRight="30dp"
@@ -25,7 +25,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginLeft="30dp"
         android:layout_marginBottom="20dp"
-        android:layout_above="@id/reg_button"
+        android:layout_above="@id/browse_button"
         android:background="@android:color/transparent">
         <TextView
             android:id="@+id/hint_message"
