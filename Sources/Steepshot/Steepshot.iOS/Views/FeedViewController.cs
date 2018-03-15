@@ -179,6 +179,7 @@ namespace Steepshot.iOS.Views
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.CopyLink), UIAlertActionStyle.Default, obj => CopyLink(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
         }
@@ -204,6 +205,18 @@ namespace Steepshot.iOS.Views
         {
             UIPasteboard clipboard = UIPasteboard.General;
             clipboard.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+
+            ShowAlert(LocalizationKeys.Copied);
+        }
+
+        private void SharePhoto(Post post)
+        {
+            var item = NSObject.FromObject("HI");
+            var activityItems = new NSObject[] { item };
+            UIActivity[] applicationActivities = null;
+
+            var activityController = new UIActivityViewController(activityItems, applicationActivities);
+            PresentViewController(activityController, true, null);
         }
 
         private void SetNavBar()
