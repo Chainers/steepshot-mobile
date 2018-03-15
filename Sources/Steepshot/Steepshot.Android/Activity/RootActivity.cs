@@ -58,6 +58,7 @@ namespace Steepshot.Activity
         private async Task InitPushes() => await Task.Run(() =>
                                                      {
                                                          OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                                                         .InFocusDisplaying(OSInFocusDisplayOption.None)
                                                          .HandleNotificationReceived(OneSignalNotificationRecieved)
                                                          .EndInit();
                                                          OneSignal.Current.SendTag("username", BasePresenter.User.Login);
