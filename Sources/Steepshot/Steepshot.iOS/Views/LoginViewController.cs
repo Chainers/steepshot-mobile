@@ -103,8 +103,10 @@ namespace Steepshot.iOS.Views
             var scanner = new ZXing.Mobile.MobileBarcodeScanner();
             var result = await scanner.Scan();
 
-            if (result != null)
+            if (result != null && result.Text.Length == 51)
                 password.Text = result.Text;
+            else
+                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey2, password);
         }
 
         private bool PasswordShouldReturn(UITextField textField)
