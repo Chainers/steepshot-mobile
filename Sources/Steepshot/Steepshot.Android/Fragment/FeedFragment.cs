@@ -41,6 +41,8 @@ namespace Steepshot.Fragment
         [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
         [CheeseBind.BindView(Resource.Id.feed_container)] private RelativeLayout _feedContainer;
         [CheeseBind.BindView(Resource.Id.browse_button)] private Button _browseButton;
+        [CheeseBind.BindView(Resource.Id.main_message)] private TextView _mainMessage;
+        [CheeseBind.BindView(Resource.Id.hint_message)] private TextView _hintMessage;
 #pragma warning restore 0649
 
 
@@ -95,6 +97,10 @@ namespace Steepshot.Fragment
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+
+                _mainMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Greeting);
+                _hintMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyFeedHint);
+                _browseButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GoToBrowse);
 
                 LoadPosts();
             }

@@ -170,5 +170,8 @@
         CheckPermission,
         SetupMail,
         EmptyQuery,
+        Greeting,
+        EmptyFeedHint,
+        GoToBrowse,
     }
 }

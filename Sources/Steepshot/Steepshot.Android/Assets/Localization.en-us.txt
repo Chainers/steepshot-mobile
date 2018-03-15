@@ -171,6 +171,9 @@
 		"Retry":"Retry",
 		"CheckPermission":"Check your app permissions",
         "SetupMail":"Setup your mail please",
+		"Greeting":"Hello! It's time to find the coolest content for you!",
+		"EmptyFeedHint":"Click the button below to go to the Search for interesting people and publications",
+		"GoToBrowse":"Go to Browse",
 		
 		"<h1>Server Error (500)</h1>": "(500) Server Error",
         "504 Gateway Time-out": "(504) Gateway Time-out",
