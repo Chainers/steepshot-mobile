@@ -151,6 +151,7 @@ namespace Steepshot.Activity
                 return;
 
             OneSignal.Current.DeleteTag("username");
+            OneSignal.Current.DeleteTag("player_id");
             var chainToDelete = userInfo.Chain;
             BasePresenter.User.Delete(userInfo);
             RemoveChain(chainToDelete);

@@ -4,6 +4,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Support.Design.Widget;
+using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
@@ -61,18 +62,28 @@ namespace Steepshot.Activity
                                                          .InFocusDisplaying(OSInFocusDisplayOption.None)
                                                          .HandleNotificationReceived(OneSignalNotificationRecieved)
                                                          .EndInit();
-                                                         OneSignal.Current.SendTag("username", BasePresenter.User.Login);
                                                          OneSignal.Current.IdsAvailable(OneSignalCallback);
                                                      });
 
         private void OneSignalNotificationRecieved(OSNotification notification)
         {
-            //do nothing
+            var builder =
+                new NotificationCompat.Builder(this)
+                    .SetSmallIcon(Resource.Drawable.ic_holder)
+                    .SetContentTitle(notification.payload.title)
+                    .SetContentText(notification.payload.title)
+                    .SetShowWhen(true);
+
+            var push = builder.Build();
+            var notificationManager = (NotificationManager)GetSystemService(NotificationService);
+            notificationManager.Notify(notification.androidNotificationId, push);
         }
 
         private void OneSignalCallback(string playerId, string pushToken)
         {
-            Presenter.TrySubscribeForPushes(playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.CommentUpvote });
+            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+            Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.CommentUpvote });
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
@@ -143,8 +154,8 @@ namespace Steepshot.Activity
             {
                 var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
                 hostFragment?.Clear();
-                var fragments = hostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
+                var fragments = hostFragment?.ChildFragmentManager.Fragments;
+                if (fragments != null && fragments[fragments.Count - 1] is ICanOpenPost fragment)
                     fragment.ClosePost();
             }
         }

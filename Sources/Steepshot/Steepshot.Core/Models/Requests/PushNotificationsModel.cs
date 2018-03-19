@@ -21,8 +21,10 @@ namespace Steepshot.Core.Models.Requests
         [JsonProperty]
         [Required]
         public string PlayerId { get; }
-        [JsonProperty]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public PushSubscription[] Subscriptions { get; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string WatchedUser { get; }
         [JsonIgnore]
         public bool Subscribe { get; }
         public PushNotificationsModel(UserInfo user, string playerId, bool subscribe) : base(user)
@@ -34,6 +36,11 @@ namespace Steepshot.Core.Models.Requests
         public PushNotificationsModel(UserInfo user, string playerId, PushSubscription[] subscriptions, bool subscribe) : this(user, playerId, subscribe)
         {
             Subscriptions = subscriptions;
+        }
+
+        public PushNotificationsModel(UserInfo user, string playerId, string watchedUser, bool subscribe) : this(user, playerId, subscribe)
+        {
+            WatchedUser = watchedUser;
         }
     }
 }
