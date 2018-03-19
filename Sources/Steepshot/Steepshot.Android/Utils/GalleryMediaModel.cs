@@ -1,18 +1,15 @@
 ﻿using System;
-using Newtonsoft.Json;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
 {
     public class GalleryMediaModel
     {
-        [JsonIgnore]
         public Action ModelChanged;
         public string Id { get; set; }
         public string Path { get; set; }
         public string Thumbnail { get; set; }
-        [JsonIgnore]
         private bool _selected;
-        [JsonIgnore]
         public bool Selected
         {
             get => _selected;
@@ -32,5 +29,6 @@ namespace Steepshot.Utils
                 ModelChanged?.Invoke();
             }
         }
+        public CropView.FocusedScale PreviewScale { get; set; }
     }
 }

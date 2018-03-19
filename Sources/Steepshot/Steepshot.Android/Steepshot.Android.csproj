@@ -70,6 +70,8 @@
     <Compile Include="Adapter\GalleryHorizontalAdapter.cs" />
     <Compile Include="CustomViews\CoordinatorLinearLayout.cs" />
     <Compile Include="CustomViews\CoordinatorRecyclerView.cs" />
+    <Compile Include="CustomViews\CropViewGrid.cs" />
+    <Compile Include="CustomViews\CropView.cs" />
     <Compile Include="CustomViews\ICoordinatorListener.cs" />
     <Compile Include="Fragment\GalleryFragment.cs" />
     <Compile Include="Fragment\PostEditFragment.cs" />
@@ -636,6 +638,15 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />

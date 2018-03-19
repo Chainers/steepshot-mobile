@@ -11,7 +11,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Java.IO;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -29,10 +28,11 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.folders_spinner)] private Spinner _folders;
         [InjectView(Resource.Id.coordinator)] private CoordinatorLinearLayout _coordinator;
         [InjectView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
+        [InjectView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
         [InjectView(Resource.Id.multiselect)] private ImageButton _multiselectBtn;
         [InjectView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [InjectView(Resource.Id.arrow_next)] private ImageButton _nextBtn;
-        [InjectView(Resource.Id.photo_preview)] private ImageView _preview;
+        [InjectView(Resource.Id.photo_preview)] private CropView _preview;
         [InjectView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
 #pragma warning restore 0649
 
@@ -45,6 +45,7 @@ namespace Steepshot.Fragment
         private Dictionary<string, string> _thumbnails;
         private Dictionary<string, List<GalleryMediaModel>> _gallery;
         private List<GalleryMediaModel> _selectedItems;
+        private GalleryMediaModel _prevSelected;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _multiSelect;
 
@@ -113,6 +114,7 @@ namespace Steepshot.Fragment
             _gridView.SetAdapter(GridAdapter);
             _gridView.SetCoordinatorListener(_coordinator);
 
+            _ratioBtn.Click += RatioBtnOnClick;
             _multiselectBtn.Click += MultiselectBtnOnClick;
             _backBtn.Click += BackBtnOnClick;
             _nextBtn.Click += NextBtnOnClick;
@@ -120,6 +122,12 @@ namespace Steepshot.Fragment
             _gallery = new Dictionary<string, List<GalleryMediaModel>>();
             _selectedItems = new List<GalleryMediaModel>();
         }
+
+        private void RatioBtnOnClick(object sender, EventArgs eventArgs)
+        {
+            _preview.SwitchScale();
+        }
+
         public override void OnDetach()
         {
             base.OnDetach();
@@ -162,6 +170,10 @@ namespace Steepshot.Fragment
             if (selected != null) selected.Selected = false;
             if (_multiSelect)
             {
+                if (_prevSelected != null)
+                    _prevSelected.PreviewScale = _preview.DrawableFocusedScale;
+                _prevSelected = model;
+
                 if (!_selectedItems.Contains(model))
                 {
                     _selectedItems.Add(model);
@@ -185,15 +197,9 @@ namespace Steepshot.Fragment
             }
 
             model.Selected = true;
-            _preview.SetImageBitmap(null);
-            Task.Run(() =>
-            {
-                using (var fileInput = new FileInputStream(Uri.Parse(_media[model.Id]).Path))
-                {
-                    var preview = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInput.FD, 1000, 1000);
-                    Activity.RunOnUiThread(() => _preview.SetImageBitmap(preview));
-                }
-            });
+            _preview.SetImageUri(Uri.Parse(model.Path));
+            if (model.PreviewScale != null)
+                _preview.SetScaleKeepingFocus(model.PreviewScale.Scale, model.PreviewScale.FocusedScaleX, model.PreviewScale.FocusedScaleY);
         }
 
         private void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
