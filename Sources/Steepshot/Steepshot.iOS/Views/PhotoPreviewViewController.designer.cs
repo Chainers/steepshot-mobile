@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Views
 	partial class PhotoPreviewViewController
 	{
 		[Outlet]
+		UIKit.UICollectionView photoCollection { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView photoView { get; set; }
 
 		[Outlet]
@@ -28,6 +31,11 @@ namespace Steepshot.iOS.Views
 			if (rotate != null) {
 				rotate.Dispose ();
 				rotate = null;
+			}
+
+			if (photoCollection != null) {
+				photoCollection.Dispose ();
+				photoCollection = null;
 			}
 		}
 	}

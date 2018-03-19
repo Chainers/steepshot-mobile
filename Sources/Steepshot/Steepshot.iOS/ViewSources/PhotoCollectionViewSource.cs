@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreGraphics;
 using Foundation;
 using Photos;
 using Steepshot.iOS.Cells;
@@ -29,10 +30,10 @@ namespace Steepshot.iOS.ViewSources
         {
             var imageCell = (PhotoCollectionViewCell)collectionView.DequeueReusableCell(nameof(PhotoCollectionViewCell), indexPath);
 
-            _m.RequestImageForAsset((PHAsset)_fetchResults[indexPath.Item], new CoreGraphics.CGSize(150, 150),
-                                   PHImageContentMode.AspectFit, new PHImageRequestOptions(), (img, info) =>
+            _m.RequestImageForAsset((PHAsset)_fetchResults[indexPath.Item], new CGSize(300, 300),
+                                    PHImageContentMode.AspectFill, new PHImageRequestOptions(), (img, info) =>
               {
-                  //imageCell.UpdateImage(img, (PHAsset)_fetchResults[indexPath.Item]);
+                imageCell.UpdateImage(img);//, (PHAsset)_fetchResults[indexPath.Item]);
               });
             return imageCell;
         }

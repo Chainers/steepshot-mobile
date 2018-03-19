@@ -2,7 +2,10 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
+using Steepshot.iOS.ViewSources;
 using UIKit;
 
 namespace Steepshot.iOS.Views
@@ -26,6 +29,18 @@ namespace Steepshot.iOS.Views
 
             var rotateTap = new UITapGestureRecognizer(RotateTap);
             rotate.AddGestureRecognizer(rotateTap);
+
+            photoCollection.Source = new PhotoCollectionViewSource();
+            photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
+
+            photoCollection.SetCollectionViewLayout(new UICollectionViewFlowLayout()
+            {
+                ItemSize = Constants.CellSize,
+                MinimumLineSpacing = 1,
+                MinimumInteritemSpacing = 1,
+            }, false);
+
+            //photoCollection.CollectionViewLayout.CollectionViewContentSize
 
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();

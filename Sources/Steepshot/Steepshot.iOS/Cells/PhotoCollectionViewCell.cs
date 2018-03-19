@@ -17,12 +17,22 @@ namespace Steepshot.iOS.Cells
 
         protected PhotoCollectionViewCell(IntPtr handle) : base(handle) { }
 
-        /*
         public void UpdateImage(UIImage photo)
         {
-            photoImg.Image = photo;
+            if(_bodyImage == null)
+            {
+                _bodyImage = new UIImageView();
+                _bodyImage.ClipsToBounds = true;
+                _bodyImage.UserInteractionEnabled = true;
+                _bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+                _bodyImage.Frame = new CGRect(new CGPoint(0, 0), Constants.CellSize);
+                _bodyImage.BackgroundColor = UIColor.FromRGB(244, 244, 246);
+                ContentView.AddSubview(_bodyImage);
+            }
+            _bodyImage.Image = photo;
+
             //Asset = asset;
-        }*/
+        }
 
         public void UpdateCell(Post post)
         {
