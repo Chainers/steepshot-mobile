@@ -48,6 +48,8 @@ namespace Steepshot.iOS
 
             AppSettings.Container = builder.Build();
 
+            GAService.Instance().InitializeGAService();
+
             AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs e) =>
             {
                 AppSettings.Reporter.SendCrash((Exception)e.ExceptionObject);

@@ -77,6 +77,8 @@ namespace Steepshot.iOS.Views
 
             ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
+            Services.GAService.Instance().TrackAppPage("feed screen");
+
             SetNavBar();
             GetPosts();
         }
