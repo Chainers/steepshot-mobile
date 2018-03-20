@@ -19,6 +19,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Utils;
+using Steepshot.Services;
 
 namespace Steepshot.Fragment
 {
@@ -111,6 +112,9 @@ namespace Steepshot.Fragment
         public override void OnResume()
         {
             base.OnResume();
+
+            GAService.Instance().TrackAppPage("feed android page");
+
             if (_postPager.Visibility == ViewStates.Visible)
                 if (Activity is RootActivity activity)
                     activity._tabLayout.Visibility = ViewStates.Invisible;
