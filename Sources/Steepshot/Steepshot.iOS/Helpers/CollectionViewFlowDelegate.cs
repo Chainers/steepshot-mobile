@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using CoreGraphics;
 using Foundation;
+using Photos;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Models;
+using Steepshot.iOS.ViewSources;
 using UIKit;
 
 namespace Steepshot.iOS.Helpers
@@ -156,6 +158,27 @@ namespace Steepshot.iOS.Helpers
             }
 
             return base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
+        }
+    }
+
+    public class PhotoCollectionViewFlowDelegate : UICollectionViewDelegateFlowLayout
+    {
+        public Action<ActionType, Tuple<NSIndexPath, PHAsset>> CellClicked;
+        private readonly PhotoCollectionViewSource _vs;
+
+        public PhotoCollectionViewFlowDelegate(PhotoCollectionViewSource viewSource)
+        {
+            _vs = viewSource;
+        }
+
+        public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
+        {
+            CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, _vs.GetPHAsset((int)indexPath.Item)));
+
+            if (_vs.CurrentlySelectedItem != null)
+                ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem))?.ToggleCell(false);
+            ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
+            _vs.CurrentlySelectedItem = indexPath;
         }
     }
 }

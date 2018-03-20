@@ -12,6 +12,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PhotoPreviewViewController">
             <connections>
+                <outlet property="multiSelect" destination="ZX2-xv-CS8" id="SlY-gW-4Fb"/>
                 <outlet property="photoCollection" destination="5EM-QE-kdf" id="2Ge-yM-TP0"/>
                 <outlet property="photoView" destination="aw2-Ox-UaG" id="ZwO-cC-6WE"/>
                 <outlet property="rotate" destination="oXE-wc-bSX" id="APn-eC-CAV"/>
@@ -30,7 +31,7 @@
                     </constraints>
                 </imageView>
                 <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_rotate.png" translatesAutoresizingMaskIntoConstraints="NO" id="oXE-wc-bSX">
-                    <rect key="frame" x="187.33333333333334" y="187.33333333333334" width="40" height="40"/>
+                    <rect key="frame" x="0.0" y="374" width="40" height="40"/>
                 </imageView>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="5EM-QE-kdf">
                     <rect key="frame" x="0.0" y="414" width="414" height="322"/>
@@ -42,23 +43,33 @@
                         <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                     </collectionViewFlowLayout>
                 </collectionView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_multiselect.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZX2-xv-CS8">
+                    <rect key="frame" x="374" y="374" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="giw-ta-bru"/>
+                        <constraint firstAttribute="height" constant="40" id="vDr-sC-REp"/>
+                    </constraints>
+                </imageView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="D6H-wp-Xfb"/>
+                <constraint firstItem="oXE-wc-bSX" firstAttribute="bottom" secondItem="aw2-Ox-UaG" secondAttribute="bottom" id="MGS-L4-Ep5"/>
                 <constraint firstAttribute="trailing" secondItem="5EM-QE-kdf" secondAttribute="trailing" id="PB4-mr-GPs"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="aw2-Ox-UaG" secondAttribute="bottom" id="T4e-Wx-SfX"/>
-                <constraint firstItem="oXE-wc-bSX" firstAttribute="centerX" secondItem="aw2-Ox-UaG" secondAttribute="centerX" id="be9-oY-DLn"/>
+                <constraint firstItem="oXE-wc-bSX" firstAttribute="leading" secondItem="aw2-Ox-UaG" secondAttribute="leading" id="cJp-WG-joM"/>
                 <constraint firstItem="aw2-Ox-UaG" firstAttribute="top" secondItem="2" secondAttribute="top" id="dbV-M6-yh1"/>
                 <constraint firstAttribute="bottom" secondItem="5EM-QE-kdf" secondAttribute="bottom" id="eZx-CR-Sde"/>
                 <constraint firstItem="aw2-Ox-UaG" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="hAN-D2-XKd"/>
-                <constraint firstItem="oXE-wc-bSX" firstAttribute="centerY" secondItem="aw2-Ox-UaG" secondAttribute="centerY" id="qtM-xb-kab"/>
+                <constraint firstItem="ZX2-xv-CS8" firstAttribute="bottom" secondItem="aw2-Ox-UaG" secondAttribute="bottom" id="ldA-CQ-mQN"/>
                 <constraint firstAttribute="trailing" secondItem="aw2-Ox-UaG" secondAttribute="trailing" id="wBl-wV-YrO"/>
+                <constraint firstItem="ZX2-xv-CS8" firstAttribute="trailing" secondItem="aw2-Ox-UaG" secondAttribute="trailing" id="wI2-F4-EJG"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
         </view>
     </objects>
     <resources>
+        <image name="ic_multiselect.png" width="40" height="40"/>
         <image name="ic_rotate.png" width="40" height="40"/>
     </resources>
 </document>

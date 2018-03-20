@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using Photos;
+using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -12,16 +16,20 @@ namespace Steepshot.iOS.Views
 {
     public partial class PhotoPreviewViewController : BaseViewController
     {
-        private UIImage ImageAsset;
         private UIDeviceOrientation _rotation;
         private NSDictionary _metadata;
+        private readonly PHImageManager _m;
 
         public PhotoPreviewViewController(UIImage imageAsset, UIDeviceOrientation rotation, NSDictionary metadata)
         {
-            ImageAsset = imageAsset;
+            //ImageAssets = imageAsset;
             _rotation = rotation;
             _metadata = metadata;
+            _m = new PHImageManager();
         }
+
+        PhotoCollectionViewSource source;
+        PhotoCollectionViewFlowDelegate delegateP;
 
         public override void ViewDidLoad()
         {
@@ -30,7 +38,8 @@ namespace Steepshot.iOS.Views
             var rotateTap = new UITapGestureRecognizer(RotateTap);
             rotate.AddGestureRecognizer(rotateTap);
 
-            photoCollection.Source = new PhotoCollectionViewSource();
+            source = new PhotoCollectionViewSource();
+            photoCollection.Source = source;
             photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
 
             photoCollection.SetCollectionViewLayout(new UICollectionViewFlowLayout()
@@ -40,17 +49,40 @@ namespace Steepshot.iOS.Views
                 MinimumInteritemSpacing = 1,
             }, false);
 
-            //photoCollection.CollectionViewLayout.CollectionViewContentSize
+            delegateP = new PhotoCollectionViewFlowDelegate(source);
+            photoCollection.Delegate = delegateP;
+
+            delegateP.CellClicked += CellAction;
 
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();
         }
 
-        public override async void ViewDidAppear(bool animated)
+        private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
+        {
+            _m.RequestImageForAsset(photo.Item2, CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), 1200, 1200),
+                                    PHImageContentMode.Default, new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat }, (img, info) =>
+                                                 {
+                                                     if (source.MultiPickMode)
+                                                     {
+                                                         if (!source.ImageAssets.Any(a => a.Item1 == photo.Item2.LocalIdentifier))
+                                                             source.ImageAssets.Add(new Tuple<string, UIImage>(photo.Item2.LocalIdentifier, img));
+                                                         else
+                                                             source.ImageAssets.Remove(source.ImageAssets.First(a => a.Item1 == photo.Item2.LocalIdentifier));
+                                                         photoCollection.ReloadData();
+                                                         //photoCollection.ReloadItems(new NSIndexPath[1] { photo.Item1 });
+                                                     }
+                                                 });
+        }
+
+        public override void ViewDidAppear(bool animated)
         {
             if (IsMovingToParentViewController)
             {
-                ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
+                delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
+                //photoCollection.SelectItem(NSIndexPath.FromIndex(0), false, UICollectionViewScrollPosition.Top);
+                //CellAction(ActionType.Preview, source.GetPHAsset(0));
+                //ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
                 RotatePhotoIfNeeded();
             }
         }
@@ -73,7 +105,7 @@ namespace Steepshot.iOS.Views
 
         private void GoForward(object sender, EventArgs e)
         {
-            var descriptionViewController = new DescriptionViewController(ImageAsset, "jpg", _metadata);
+            var descriptionViewController = new DescriptionViewController(source.ImageAssets[0].Item2 , "jpg", _metadata);
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
@@ -130,11 +162,11 @@ namespace Steepshot.iOS.Views
             RotateImage(orientation);
         }
 
-        private CGSize CalculateInSampleSize(UIImage sourceImage, int reqWidth, int reqHeight)
+        private CGSize CalculateInSampleSize(CGSize imageSize, float reqWidth, float reqHeight)
         {
-            var height = sourceImage.Size.Height;
-            var width = sourceImage.Size.Width;
-            var inSampleSize = 1.0;
+            var height = (float)imageSize.Height;
+            var width = (float)imageSize.Width;
+            var inSampleSize = 1f;
             if (height > reqHeight)
             {
                 inSampleSize = reqHeight / height;
@@ -152,7 +184,7 @@ namespace Steepshot.iOS.Views
             return await Task.Run(() =>
             {
                 var imgSize = sourceImage.Size;
-                var inSampleSize = CalculateInSampleSize(sourceImage, 1200, 1200);
+                var inSampleSize = CalculateInSampleSize(sourceImage.Size, 1200, 1200);
                 UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
 
                 var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
@@ -170,7 +202,7 @@ namespace Steepshot.iOS.Views
             UIGraphics.BeginImageContextWithOptions(rotated.Size, false, rotated.CurrentScale);
             var drawRect = new CGRect(0, 0, rotated.Size.Width, rotated.Size.Height);
             rotated.Draw(drawRect);
-            ImageAsset = photoView.Image = UIGraphics.GetImageFromCurrentImageContext();
+            //ImageAsset = photoView.Image = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
         }
     }
