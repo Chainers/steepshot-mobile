@@ -9,11 +9,10 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
-using Steepshot.Core.Localization;
 
 namespace Steepshot.Core.Presenters
 {
-    public class BasePostPresenter : ListPresenter<Post>
+    public class BasePostPresenter : ListPresenter<Post>, IDisposable
     {
         private const int VoteDelay = 3000;
         public static bool IsEnableVote { get; set; }
@@ -42,6 +41,7 @@ namespace Steepshot.Core.Presenters
                 lock (Items)
                 {
                     Items.Remove(post);
+                    CashPresenterManager.RemoveRef(post);
                 }
             }
             return response.Error;
@@ -141,7 +141,8 @@ namespace Steepshot.Core.Presenters
                             if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))
                                 && (enableEmptyMedia || IsValidMedia(item)))
                             {
-                                Items.Add(item);
+                                var refItem = CashPresenterManager.Add(item);
+                                Items.Add(refItem);
                                 isAdded = true;
                             }
                         }
@@ -223,7 +224,7 @@ namespace Steepshot.Core.Presenters
                 post.TotalPayoutReward = response.Result.NewTotalPayoutReward;
             }
             else if (response.Error is BlockchainError
-                && response.Error.Message.Equals(LocalizationKeys.VotedInASimilarWay)) //TODO:KOA: unstable solution
+                     && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
             {
                 response.Error = null;
                 ChangeLike(post, wasFlaged);
@@ -276,7 +277,7 @@ namespace Steepshot.Core.Presenters
                     await Task.Delay(VoteDelay - td.Milliseconds, ct);
             }
             else if (response.Error is BlockchainError
-                     && response.Error.Message.Equals(LocalizationKeys.VotedInASimilarWay)) //TODO:KOA: unstable solution
+                && (response.Error.Message.Contains(Constants.VotedInASimilarWaySteem) || response.Error.Message.Contains(Constants.VotedInASimilarWayGolos))) //TODO:KOA: unstable solution
             {
                 response.Error = null;
                 ChangeFlag(post, wasVote);
@@ -291,6 +292,20 @@ namespace Steepshot.Core.Presenters
             post.NetFlags = post.Flag ? post.NetFlags + 1 : post.NetFlags - 1;
             if (wasVote)
                 post.NetLikes--;
+        }
+
+        public override void Clear(bool isNotify = true)
+        {
+            lock (Items)
+            {
+                CashPresenterManager.RemoveAll(Items);
+            }
+            base.Clear(isNotify);
+        }
+        
+        public virtual void Dispose()
+        {
+            CashPresenterManager.RemoveAll(Items);
         }
     }
 }

@@ -153,5 +153,11 @@ namespace Steepshot.Fragment
 
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
         }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            _adapter.NotifyDataSetChanged();
+        }
     }
 }

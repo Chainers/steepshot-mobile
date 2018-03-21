@@ -43,7 +43,7 @@ namespace Steepshot.Core.Presenters
             Items = new List<T>();
         }
 
-        public void Clear(bool isNotify = true)
+        public virtual void Clear(bool isNotify = true)
         {
             lock (Items)
                 Items.Clear();

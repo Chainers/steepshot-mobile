@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
@@ -7,7 +8,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserProfilePresenter : BasePostPresenter
+    public sealed class UserProfilePresenter : BasePostPresenter, IDisposable
     {
         private const int ItemsLimit = 18;
 
@@ -65,6 +66,7 @@ namespace Steepshot.Core.Presenters
             if (response.IsSuccess)
             {
                 UserProfileResponse = response.Result;
+                CashPresenterManager.Add(UserProfileResponse);
                 NotifySourceChanged(nameof(TryGetUserInfo), true);
             }
             return response.Error;
@@ -81,17 +83,19 @@ namespace Steepshot.Core.Presenters
 
             var error = await TryRunTask(Follow, OnDisposeCts.Token, UserProfileResponse);
             UserProfileResponse.FollowedChanging = false;
+            CashPresenterManager.Update(UserProfileResponse);
             NotifySourceChanged(nameof(TryFollow), true);
             return error;
         }
 
         private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
-            var request = new FollowModel(User.UserInfo, userProfileResponse.HasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var hasFollowed = userProfileResponse.HasFollowed;
+            var request = new FollowModel(User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);
 
             if (response.IsSuccess)
-                userProfileResponse.HasFollowed = !userProfileResponse.HasFollowed;
+                userProfileResponse.HasFollowed = !hasFollowed;
 
             return response.Error;
         }
@@ -122,6 +126,22 @@ namespace Steepshot.Core.Presenters
         {
             var response = await Api.UpdateUserProfile(model, ct);
             return response.Error;
+        }
+
+        public override void Clear(bool isNotify = true)
+        {
+            lock (Items)
+            {
+                CashPresenterManager.Remove(UserProfileResponse);
+            }
+            base.Clear(isNotify);
+        }
+
+
+        public override void Dispose()
+        {
+            CashPresenterManager.Remove(UserProfileResponse);
+            base.Dispose();
         }
     }
 }

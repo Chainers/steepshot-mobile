@@ -153,11 +153,14 @@ namespace Steepshot.Fragment
         public override void OnResume()
         {
             base.OnResume();
+            _adapter.NotifyDataSetChanged();
+
             if (_postPager.Visibility == ViewStates.Visible)
                 if (Activity is RootActivity activity)
                     activity._tabLayout.Visibility = ViewStates.Invisible;
             if (UserVisibleHint)
                 UpdateProfile();
+            
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
