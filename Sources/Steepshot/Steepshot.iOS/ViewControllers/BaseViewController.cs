@@ -49,6 +49,8 @@ namespace Steepshot.iOS.ViewControllers
             (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
+
+            Services.GAService.Instance().TrackAppPage(GetType().Name);
         }
 
         public void WillEnterForeground()
