@@ -9,8 +9,8 @@ namespace Steepshot.Core.Models.Enums
     {
         [EnumMember(Value = "upvote")]
         Upvote,
-        [EnumMember(Value = "comment_upvote")]
-        CommentUpvote,
+        [EnumMember(Value = "upvote_comment")]
+        UpvoteComment,
         [EnumMember(Value = "comment")]
         Comment,
         [EnumMember(Value = "follow")]
