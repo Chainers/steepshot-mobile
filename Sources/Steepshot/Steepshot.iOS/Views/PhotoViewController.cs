@@ -141,7 +141,8 @@ namespace Steepshot.iOS.Views
                 {
                     var PHImageManager = new PHImageManager();
                     PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
-                                            PHImageContentMode.AspectFill, new PHImageRequestOptions(), (img, info) =>
+                                                        PHImageContentMode.AspectFill, new PHImageRequestOptions(){ DeliveryMode = PHImageRequestOptionsDeliveryMode.Opportunistic,
+                        ResizeMode = PHImageRequestOptionsResizeMode.Exact}, (img, info) =>
                                             {
                                                 galleryButton.Image = img;
                                             });
