@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,6 +15,7 @@
                 <outlet property="feedCollection" destination="YmX-Vb-FuF" id="PAN-kB-cZv"/>
                 <outlet property="flowLayout" destination="NA2-gD-SsK" id="7vd-Lf-GwU"/>
                 <outlet property="noFeedLabel" destination="NMt-fB-f6U" id="onh-Cu-uyo"/>
+                <outlet property="sliderCollection" destination="xNw-MW-BTm" id="k0O-Pa-kmV"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
             </connections>
         </placeholder>
@@ -38,6 +39,16 @@
                     <rect key="frame" x="169" y="315" width="37" height="37"/>
                     <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                 </activityIndicatorView>
+                <collectionView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="xNw-MW-BTm">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="NcY-J9-gyA">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
                 <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please follow more people to see posts in your feed" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NMt-fB-f6U">
                     <rect key="frame" x="0.0" y="306" width="375" height="55"/>
                     <constraints>
@@ -53,6 +64,10 @@
                 <constraint firstItem="YmX-Vb-FuF" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="4DX-4d-iNa"/>
                 <constraint firstItem="NMt-fB-f6U" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="9V1-e1-xcs"/>
                 <constraint firstAttribute="trailing" secondItem="YmX-Vb-FuF" secondAttribute="trailing" id="Aoa-d2-Ldi"/>
+                <constraint firstAttribute="trailing" secondItem="xNw-MW-BTm" secondAttribute="trailing" id="H1G-yj-Msx"/>
+                <constraint firstItem="xNw-MW-BTm" firstAttribute="top" secondItem="2" secondAttribute="top" id="J2J-Pv-8o1"/>
+                <constraint firstAttribute="bottom" secondItem="xNw-MW-BTm" secondAttribute="bottom" id="VV4-IO-wMP"/>
+                <constraint firstItem="xNw-MW-BTm" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="hoM-O1-rWx"/>
                 <constraint firstItem="NMt-fB-f6U" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="j1c-Vs-rNm"/>
                 <constraint firstAttribute="bottom" secondItem="YmX-Vb-FuF" secondAttribute="bottom" id="kcB-7w-Hps"/>
                 <constraint firstItem="NMt-fB-f6U" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="la2-Qd-5VD"/>
