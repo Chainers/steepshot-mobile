@@ -160,15 +160,25 @@ namespace Steepshot.iOS.Cells
             _topSeparator.BackgroundColor = Constants.R244G244B246;
             _contentView.AddSubview(_topSeparator);
 
+            var _noLinkAttribute = new UIStringAttributes
+            {
+                Font = Constants.Regular14,
+                ForegroundColor = Constants.R151G155B158,
+            };
+
+            var at = new NSMutableAttributedString();
+            at.Append(new NSAttributedString("...", _noLinkAttribute));
+
             _attributedLabel = new TTTAttributedLabel();
             _attributedLabel.EnabledTextCheckingTypes = NSTextCheckingType.Link;
             var prop = new NSDictionary();
             _attributedLabel.LinkAttributes = prop;
             _attributedLabel.ActiveLinkAttributes = prop;
             _attributedLabel.Font = Constants.Regular14;
-            _attributedLabel.Lines = 0;
+            _attributedLabel.Lines = 3;
             _attributedLabel.UserInteractionEnabled = true;
             _attributedLabel.Enabled = true;
+            _attributedLabel.AttributedTruncationToken = at;
             //_attributedLabel.BackgroundColor = UIColor.Blue;
             _contentView.AddSubview(_attributedLabel);
 
