@@ -26,32 +26,50 @@ namespace Steepshot.Core.Presenters
 
         public static Post Add(Post item)
         {
-            if (PostsCash.ContainsKey(item.Url))
-            {
-                var container = PostsCash[item.Url];
-                container.RefCount++;
-                CopyPost(container.Item, item);
-                return container.Item;
-            }
+            if (item == null)
+                return null;
 
-            PostsCash.Add(item.Url, new Container<Post>(item));
-            return item;
+            lock (PostsCash)
+            {
+                if (PostsCash.ContainsKey(item.Url))
+                {
+                    var container = PostsCash[item.Url];
+                    container.RefCount++;
+                    CopyPost(container.Item, item);
+                    return container.Item;
+                }
+
+                PostsCash.Add(item.Url, new Container<Post>(item));
+                return item;
+            }
         }
 
         public static void RemoveAll(IEnumerable<Post> items)
         {
-            foreach (var item in items)
-                Remove(item);
+            lock (PostsCash)
+            {
+                foreach (var item in items)
+                    Remove(item);
+            }
         }
 
         public static void RemoveRef(Post item)
         {
-            if (PostsCash.ContainsKey(item.Url))
-                PostsCash.Remove(item.Url);
+            if (item == null)
+                return;
+
+            lock (PostsCash)
+            {
+                if (PostsCash.ContainsKey(item.Url))
+                    PostsCash.Remove(item.Url);
+            }
         }
 
         private static void Remove(Post item)
         {
+            if (item == null)
+                return;
+
             if (PostsCash.ContainsKey(item.Url))
             {
                 var container = PostsCash[item.Url];
@@ -104,19 +122,24 @@ namespace Steepshot.Core.Presenters
 
         public static void Add(IFollowable item)
         {
-            if (FollowableCash.ContainsKey(item.Key))
+            if (item == null)
+                return;
+            lock (FollowableCash)
             {
-                var container = FollowableCash[item.Key];
-                if (!container.Contains(item))
+                if (FollowableCash.ContainsKey(item.Key))
                 {
-                    Update(item);
-                    container.Add(item);
+                    var container = FollowableCash[item.Key];
+                    if (!container.Contains(item))
+                    {
+                        Update(item);
+                        container.Add(item);
+                    }
                 }
-            }
-            else
-            {
-                var hs = new HashSet<IFollowable> { item };
-                FollowableCash.Add(item.Key, hs);
+                else
+                {
+                    var hs = new HashSet<IFollowable> { item };
+                    FollowableCash.Add(item.Key, hs);
+                }
             }
         }
 
@@ -128,23 +151,35 @@ namespace Steepshot.Core.Presenters
 
         public static void Update(IFollowable item)
         {
-            if (FollowableCash.ContainsKey(item.Key))
+            if (item == null)
+                return;
+
+            lock (FollowableCash)
             {
-                var container = FollowableCash[item.Key];
-                foreach (var IFollowable in container)
+                if (FollowableCash.ContainsKey(item.Key))
                 {
-                    CopyIFollowable(IFollowable, item);
+                    var container = FollowableCash[item.Key];
+                    foreach (var followable in container)
+                    {
+                        CopyIFollowable(followable, item);
+                    }
                 }
             }
         }
 
         public static void Remove(IFollowable item)
         {
-            if (FollowableCash.ContainsKey(item.Key))
+            if (item == null)
+                return;
+
+            lock (FollowableCash)
             {
-                var container = FollowableCash[item.Key];
-                if (container.Contains(item))
-                    container.Remove(item);
+                if (FollowableCash.ContainsKey(item.Key))
+                {
+                    var container = FollowableCash[item.Key];
+                    if (container.Contains(item))
+                        container.Remove(item);
+                }
             }
         }
 

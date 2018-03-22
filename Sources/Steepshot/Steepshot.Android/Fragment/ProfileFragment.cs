@@ -160,7 +160,6 @@ namespace Steepshot.Fragment
                     activity._tabLayout.Visibility = ViewStates.Invisible;
             if (UserVisibleHint)
                 UpdateProfile();
-            
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

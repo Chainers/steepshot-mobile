@@ -300,12 +300,46 @@ namespace Steepshot.Core.Presenters
             {
                 CashPresenterManager.RemoveAll(Items);
             }
+
             base.Clear(isNotify);
         }
-        
-        public virtual void Dispose()
+
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
+
+        private void Dispose(bool disposing)
         {
-            CashPresenterManager.RemoveAll(Items);
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    lock (Items)
+                    {
+                        CashPresenterManager.RemoveAll(Items);
+                    }
+                }
+
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // set large fields to null.
+
+                _disposedValue = true;
+            }
         }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BasePostPresenter() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

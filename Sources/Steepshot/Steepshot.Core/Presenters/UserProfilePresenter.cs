@@ -130,18 +130,43 @@ namespace Steepshot.Core.Presenters
 
         public override void Clear(bool isNotify = true)
         {
-            lock (Items)
-            {
-                CashPresenterManager.Remove(UserProfileResponse);
-            }
+            CashPresenterManager.Remove(UserProfileResponse);
             base.Clear(isNotify);
         }
 
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
 
-        public override void Dispose()
+        private void Dispose(bool disposing)
         {
-            CashPresenterManager.Remove(UserProfileResponse);
-            base.Dispose();
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    CashPresenterManager.Remove(UserProfileResponse);
+                }
+
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // set large fields to null.
+
+                _disposedValue = true;
+            }
         }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BasePostPresenter() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }
