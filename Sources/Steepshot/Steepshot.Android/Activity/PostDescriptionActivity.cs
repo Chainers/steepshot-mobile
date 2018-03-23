@@ -163,7 +163,8 @@ namespace Steepshot.Activity
 
         private void InitPhoto()
         {
-            _path = PathHelper.GetFilePath(this, Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath)));
+            var uri = Android.Net.Uri.Parse(Intent.GetStringExtra(PhotoExtraPath));
+            _path = PathHelper.GetFilePath(this, uri);
 
             //_shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true);
             //if (_shouldCompress)
@@ -193,7 +194,7 @@ namespace Steepshot.Activity
 
                 path = $"{directory}/{Guid.NewGuid()}.jpeg";
                 stream = new System.IO.FileStream(path, System.IO.FileMode.Create);
-                btmp.Compress(Bitmap.CompressFormat.Png, 100, stream);
+                btmp.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
 
                 return path;
             }
