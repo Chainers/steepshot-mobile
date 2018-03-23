@@ -5,7 +5,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.Services
 {
-    public class GAService : IGAService
+    public class GAService
     {
         public string TrackingId = "UA-116049440-1";
 
@@ -16,11 +16,15 @@ namespace Steepshot.Services
 
         public GAService(){}
 
-        public static GAService Instance()
+        public static GAService Instance
         {
-            if (thisRef == null)
-                thisRef = new GAService();
-            return thisRef;
+            get
+            {
+                if (thisRef == null)
+                    thisRef = new GAService();
+
+                return thisRef;
+            }
         }
 
         public void InitializeGAService(Context appContext = null)
@@ -37,7 +41,8 @@ namespace Steepshot.Services
         public void TrackAppPage(string pageNameToTrack)
         {
             GATracker.SetScreenName(pageNameToTrack);
-            GATracker.Send(new HitBuilders.ScreenViewBuilder().Build());
+            var builder = new HitBuilders.ScreenViewBuilder().Build();
+            GATracker.Send(builder);
         }
     }
 }

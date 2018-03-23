@@ -50,7 +50,7 @@ namespace Steepshot.iOS.ViewControllers
             if (TabBarController != null)
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
 
-            Services.GAService.Instance().TrackAppPage(GetType().Name);
+            Services.GAService.Instance.TrackAppPage(GetType().Name);
         }
 
         public void WillEnterForeground()

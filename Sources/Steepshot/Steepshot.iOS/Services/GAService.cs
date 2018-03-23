@@ -5,7 +5,7 @@ using Steepshot.Core.Services;
 
 namespace Steepshot.iOS.Services
 {
-    public class GAService : IGAService
+    public class GAService
     {
         public string TrackingId = "UA-116049440-1";
         public ITracker Tracker;
@@ -16,11 +16,15 @@ namespace Steepshot.iOS.Services
 
         public GAService(){}
 
-        public static GAService Instance()
+        public static GAService Instance
         {
-            if (thisRef == null)
-                thisRef = new GAService();
-            return thisRef;
+            get
+            {
+                if (thisRef == null)
+                    thisRef = new GAService();
+
+                return thisRef;
+            }
         }
 
         public void InitializeGAService()

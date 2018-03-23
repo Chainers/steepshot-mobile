@@ -31,7 +31,7 @@ namespace Steepshot.Activity
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
-            GAService.Instance().InitializeGAService(this);
+            GAService.Instance.InitializeGAService(this);
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
