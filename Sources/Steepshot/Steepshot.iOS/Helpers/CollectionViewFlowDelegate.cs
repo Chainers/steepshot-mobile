@@ -173,12 +173,17 @@ namespace Steepshot.iOS.Helpers
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, _vs.GetPHAsset((int)indexPath.Item)));
+            var pa = _vs.GetPHAsset((int)indexPath.Item);
 
-            if (_vs.CurrentlySelectedItem != null)
-                ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem))?.ToggleCell(false);
+            CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
+
+            var index = _vs.ImageAssets.FindIndex(a => a.Id == pa.LocalIdentifier);
+
+            if (_vs.CurrentlySelectedItem.Item1 != null)
+                ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);
             ((PhotoCollectionViewCell)collectionView.CellForItem(indexPath))?.ToggleCell(true);
-            _vs.CurrentlySelectedItem = indexPath;
+
+            _vs.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(indexPath, pa);
         }
     }
 }

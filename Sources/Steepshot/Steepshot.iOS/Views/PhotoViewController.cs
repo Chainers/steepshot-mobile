@@ -54,7 +54,7 @@ namespace Steepshot.iOS.Views
         private void GalleryTap()
         {
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized)
-                NavigationController.PresentModalViewController(_imagePicker, true);
+                GoToDescription(null, UIDeviceOrientation.Portrait, null);//NavigationController.PresentModalViewController(_imagePicker, true);
             else
                 UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
         }

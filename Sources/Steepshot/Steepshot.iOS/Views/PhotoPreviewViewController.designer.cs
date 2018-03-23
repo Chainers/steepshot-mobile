@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Views
 	partial class PhotoPreviewViewController
 	{
 		[Outlet]
+		UIKit.UIScrollView cropView { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView multiSelect { get; set; }
 
 		[Outlet]
@@ -26,6 +29,11 @@ namespace Steepshot.iOS.Views
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (multiSelect != null) {
+				multiSelect.Dispose ();
+				multiSelect = null;
+			}
+
 			if (photoCollection != null) {
 				photoCollection.Dispose ();
 				photoCollection = null;
@@ -41,9 +49,9 @@ namespace Steepshot.iOS.Views
 				rotate = null;
 			}
 
-			if (multiSelect != null) {
-				multiSelect.Dispose ();
-				multiSelect = null;
+			if (cropView != null) {
+				cropView.Dispose ();
+				cropView = null;
 			}
 		}
 	}
