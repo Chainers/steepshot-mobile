@@ -25,7 +25,7 @@ namespace Steepshot.Core.Models.Responses
     ///   "website": "http://www.google.com",
     ///   "estimated_balance": "3.92"
     /// }
-    public class UserProfileResponse
+    public class UserProfileResponse : IFollowable
     {
         public int PostingRewards { get; set; }
         public int CurationRewards { get; set; }
@@ -53,5 +53,7 @@ namespace Steepshot.Core.Models.Responses
         //system
         [JsonIgnore]
         public bool FollowedChanging { get; set; }
+
+        public string Key => Username;
     }
 }
