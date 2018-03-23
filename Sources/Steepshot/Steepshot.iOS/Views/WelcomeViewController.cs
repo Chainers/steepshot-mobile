@@ -8,10 +8,11 @@ using UIKit;
 using Xamarin.TTTAttributedLabel;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
+using SafariServices;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class WelcomeViewController : BaseViewController
+    public partial class WelcomeViewController : BaseViewController, ISFSafariViewControllerDelegate
     {
         public override void ViewDidLoad()
         {
@@ -51,7 +52,18 @@ namespace Steepshot.iOS.Views
 
         private void CreateAccount(object sender, EventArgs e)
         {
-            UIApplication.SharedApplication.OpenUrl(new Uri(Core.Constants.SteemitRegUrl));
+            var sv = new SFSafariViewController(new Uri(Core.Constants.SteemitRegUrl));
+            sv.Delegate = this;
+
+            NavigationController.SetNavigationBarHidden(true, false);
+            NavigationController.PushViewController(sv, false);
+        }
+
+        [Export("safariViewControllerDidFinish:")]
+        public void DidFinish(SFSafariViewController controller)
+        {
+            NavigationController.SetNavigationBarHidden(false, false);
+            NavigationController.PopViewController(false);
         }
 
         private void GoToPreLogin(object sender, EventArgs e)
