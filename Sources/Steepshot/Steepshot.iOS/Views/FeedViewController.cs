@@ -204,24 +204,20 @@ namespace Steepshot.iOS.Views
         private void CopyLink(Post post)
         {
             UIPasteboard clipboard = UIPasteboard.General;
-            clipboard.String = GetPostLink(post);
+            clipboard.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
 
             ShowAlert(LocalizationKeys.Copied);
         }
 
         private void SharePhoto(Post post)
         {
-            var item = NSObject.FromObject(GetPostLink(post));
+            var postLink = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+            var item = NSObject.FromObject(postLink);
             var activityItems = new NSObject[] { item };
             UIActivity[] applicationActivities = null;
 
             var activityController = new UIActivityViewController(activityItems, applicationActivities);
             PresentViewController(activityController, true, null);
-        }
-
-        private string GetPostLink(Post post)
-        {
-            return AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
         }
 
         private void SetNavBar()
