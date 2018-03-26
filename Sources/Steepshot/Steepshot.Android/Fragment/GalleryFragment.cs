@@ -14,6 +14,7 @@ using Com.Lilarcor.Cheeseknife;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Environment = Android.OS.Environment;
@@ -23,12 +24,14 @@ namespace Steepshot.Fragment
 {
     public class GalleryFragment : BaseFragment
     {
+        private const byte MaxPhotosAllowed = 7;
 
 #pragma warning disable 0649, 4014
         [InjectView(Resource.Id.folders_spinner)] private Spinner _folders;
         [InjectView(Resource.Id.coordinator)] private CoordinatorLinearLayout _coordinator;
         [InjectView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
         [InjectView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
+        [InjectView(Resource.Id.rotate)] private ImageButton _rotateBtn;
         [InjectView(Resource.Id.multiselect)] private ImageButton _multiselectBtn;
         [InjectView(Resource.Id.arrow_back)] private ImageButton _backBtn;
         [InjectView(Resource.Id.arrow_next)] private ImageButton _nextBtn;
@@ -39,12 +42,11 @@ namespace Steepshot.Fragment
         private bool IsSdCardAvailable =>
             Environment.ExternalStorageState.Equals(Environment.MediaMounted);
         private string _selectedBucket;
-        private string BucketSelection =>
-            MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{_selectedBucket}\"";
+        private string BucketSelection => _selectedBucket.Equals(AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery)) ? null : MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{_selectedBucket}\"";
         private Dictionary<string, string> _media;
         private Dictionary<string, string> _thumbnails;
         private Dictionary<string, List<GalleryMediaModel>> _gallery;
-        private List<GalleryMediaModel> _selectedItems;
+        private List<GalleryMediaModel> _pickedItems;
         private GalleryMediaModel _prevSelected;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _multiSelect;
@@ -58,16 +60,16 @@ namespace Steepshot.Fragment
                 {
                     string[] columns = { "Distinct " + MediaStore.Images.ImageColumns.BucketDisplayName };
 
-                    var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null,
-                        null);
+                    var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
                     int count = cursor.Count;
-                    _buckets = new string[count];
+                    _buckets = new string[count + 1];
+                    _buckets[0] = AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery);
 
                     for (int i = 0; i < count; i++)
                     {
                         cursor.MoveToPosition(i);
                         int dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
-                        _buckets[i] = cursor.GetString(dataColumnIndex);
+                        _buckets[i + 1] = cursor.GetString(dataColumnIndex);
                     }
 
                     cursor.Close();
@@ -115,19 +117,14 @@ namespace Steepshot.Fragment
             _gridView.SetCoordinatorListener(_coordinator);
 
             _ratioBtn.Click += RatioBtnOnClick;
+            _rotateBtn.Click += RotateBtnOnClick;
             _multiselectBtn.Click += MultiselectBtnOnClick;
             _backBtn.Click += BackBtnOnClick;
             _nextBtn.Click += NextBtnOnClick;
 
             _gallery = new Dictionary<string, List<GalleryMediaModel>>();
-            _selectedItems = new List<GalleryMediaModel>();
+            _pickedItems = new List<GalleryMediaModel>();
         }
-
-        private void RatioBtnOnClick(object sender, EventArgs eventArgs)
-        {
-            _preview.SwitchScale();
-        }
-
         public override void OnDetach()
         {
             base.OnDetach();
@@ -137,71 +134,81 @@ namespace Steepshot.Fragment
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
-            if (_selectedItems.Count > 0)
+            if (_pickedItems.Count > 0)
             {
-                ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(_selectedItems));
+                _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();
+                foreach (var galleryMediaModel in _pickedItems)
+                {
+                    var croppedBitmap = _preview.Crop(Uri.Parse(galleryMediaModel.Path), galleryMediaModel.Parameters);
+                    galleryMediaModel.PreparedBitmap = croppedBitmap;
+                }
+                ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(_pickedItems));
             }
             else
             {
-                //allert 
+                Activity.ShowAlert(LocalizationKeys.NoPhotosPicked);
             }
         }
-        private void BackBtnOnClick(object sender, EventArgs eventArgs)
-        {
-            ((BaseActivity)Activity).OnBackPressed();
-        }
+        private void BackBtnOnClick(object sender, EventArgs eventArgs) => ((BaseActivity)Activity).OnBackPressed();
+        private void RatioBtnOnClick(object sender, EventArgs eventArgs) => _preview.SwitchScale();
+        private void RotateBtnOnClick(object sender, EventArgs eventArgs) => _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)
         {
             _multiSelect = !_multiSelect;
+            _ratioBtn.Visibility = _multiSelect ? ViewStates.Gone : ViewStates.Visible;
+            _preview.UseStrictBounds = _multiSelect;
             _gallery[_selectedBucket].ForEach(x => x.SelectionPosition = _multiSelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None);
-            var selected = _selectedItems.Find(x => x.Selected);
-            _selectedItems.Clear();
-            OnItemSelected(selected ?? _gallery[_selectedBucket][0]);
+            GalleryMediaModel selectedItem = null;
+            _pickedItems.ForEach(x =>
+            {
+                if (x.Selected) selectedItem = x;
+                x.Parameters = null;
+            });
+            _pickedItems.Clear();
+            _prevSelected = null;
+            OnItemSelected(selectedItem ?? _gallery[_selectedBucket][0]);
             _multiselectBtn.SetImageResource(_multiSelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
         }
         private void OnItemSelected(GalleryMediaModel model)
         {
-            if (_selectedItems.Count == 7 && model.SelectionPosition == (int)GallerySelectionType.Multi)
+            if (_pickedItems.Count == MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
             {
-                Activity.ShowAlert(LocalizationKeys.AcceptToS);
+                Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit);
                 return;
             }
-            var selected = _selectedItems.Find(x => x.Selected && x != model);
+            var selected = _pickedItems.Find(x => x.Selected && x != model);
             if (selected != null) selected.Selected = false;
             if (_multiSelect)
             {
                 if (_prevSelected != null)
-                    _prevSelected.PreviewScale = _preview.DrawableFocusedScale;
+                    _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
                 _prevSelected = model;
 
-                if (!_selectedItems.Contains(model))
+                if (!_pickedItems.Contains(model))
                 {
-                    _selectedItems.Add(model);
-                    model.SelectionPosition = _selectedItems.Count;
+                    _pickedItems.Add(model);
+                    model.SelectionPosition = _pickedItems.Count;
                 }
                 else if (model.Selected)
                 {
-                    _selectedItems.Remove(model);
-                    _selectedItems.ForEach(x => x.SelectionPosition = _selectedItems.IndexOf(x) + 1);
+                    _pickedItems.Remove(model);
+                    _pickedItems.ForEach(x => x.SelectionPosition = _pickedItems.IndexOf(x) + 1);
                     model.Selected = false;
                     model.SelectionPosition = (int)GallerySelectionType.Multi;
-                    if (_selectedItems.Count > 0)
-                        OnItemSelected(_selectedItems.Last());
+                    if (_pickedItems.Count > 0)
+                        OnItemSelected(_pickedItems.Last());
                     return;
                 }
             }
             else
             {
-                _selectedItems.Clear();
-                _selectedItems.Add(model);
+                _pickedItems.Clear();
+                _pickedItems.Add(model);
             }
 
             model.Selected = true;
-            _preview.SetImageUri(Uri.Parse(model.Path));
-            if (model.PreviewScale != null)
-                _preview.SetScaleKeepingFocus(model.PreviewScale.Scale, model.PreviewScale.FocusedScaleX, model.PreviewScale.FocusedScaleY);
+            _preview.SetImageUri(Uri.Parse(model.Path), model.Parameters);
         }
-
         private void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
         {
             _cancellationTokenSource?.Cancel();
@@ -218,6 +225,7 @@ namespace Steepshot.Fragment
             GridAdapter.SetMedia(_gallery[_selectedBucket]);
             OnItemSelected(_gallery[_selectedBucket][0]);
         }
+
         private List<GalleryMediaModel> GetMediaWithThumbnails()
         {
             var result = new List<GalleryMediaModel>();

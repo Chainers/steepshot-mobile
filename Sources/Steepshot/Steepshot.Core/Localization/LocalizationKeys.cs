@@ -170,5 +170,8 @@
         CheckPermission,
         SetupMail,
         EmptyQuery,
+        Gallery,
+        PickedPhotosLimit,
+        NoPhotosPicked
     }
 }

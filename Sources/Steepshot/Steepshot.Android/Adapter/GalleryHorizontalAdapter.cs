@@ -62,7 +62,7 @@ namespace Steepshot.Adapter
 
         public void Update(GalleryMediaModel model)
         {
-            _image.SetImageURI(Android.Net.Uri.Parse(model.Thumbnail));
+            _image.SetImageBitmap(model.PreparedBitmap);
         }
 
         public void Update(MediaModel model)

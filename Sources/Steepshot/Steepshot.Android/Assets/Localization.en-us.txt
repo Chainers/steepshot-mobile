@@ -171,6 +171,9 @@
 		"Retry":"Retry",
 		"CheckPermission":"Check your app permissions",
         "SetupMail":"Setup your mail please",
+		"Gallery":"Gallery",
+		"PickedPhotosLimit":"Sorry, you can't select more than 7 photos",
+		"NoPhotosPicked":"Please select a photo",
 		
 		"<h1>Server Error (500)</h1>": "(500) Server Error",
         "504 Gateway Time-out": "(504) Gateway Time-out",

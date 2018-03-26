@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.Graphics;
 using Steepshot.CustomViews;
 
 namespace Steepshot.Utils
@@ -29,6 +30,7 @@ namespace Steepshot.Utils
                 ModelChanged?.Invoke();
             }
         }
-        public CropView.FocusedScale PreviewScale { get; set; }
+        public CropView.ImageParameters Parameters { get; set; }
+        public Bitmap PreparedBitmap { get; set; }
     }
 }

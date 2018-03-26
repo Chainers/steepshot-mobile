@@ -562,6 +562,8 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Edit:
                     {
+                        ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
+                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
                         break;
                     }
                 case ActionType.Delete:

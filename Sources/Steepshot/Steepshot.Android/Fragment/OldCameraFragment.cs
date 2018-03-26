@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Content;
 using Android.Graphics;
 using Android.Hardware;
 using Android.Media;
@@ -12,9 +11,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Com.Lilarcor.Cheeseknife;
-using Newtonsoft.Json;
 using Refractored.Controls;
-using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -379,14 +376,14 @@ namespace Steepshot.Fragment
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
-                //var i = new Intent(Context, typeof(PostDescriptionActivity));
-                //i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
-                //i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
+                var model = new GalleryMediaModel
+                {
+                    Path = photoUri
+                };
 
                 Activity.RunOnUiThread(() =>
                 {
-                    //StartActivity(i);
-                    Activity.Finish();
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(model));
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;

@@ -10,27 +10,41 @@
     <RelativeLayout
         android:id="@+id/photo_preview_container"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
+        android:layout_height="0dp">
         <Steepshot.CustomViews.CropView
             android:id="@+id/photo_preview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-      <ImageButton
-        android:id="@+id/ratio_switch"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="15dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_ratio" />
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true" />
+        <ImageButton
+            android:id="@+id/ratio_switch"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_ratio" />
+        <ImageButton
+            android:id="@+id/rotate"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/ratio_switch"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_rotate" />
         <ImageButton
             android:id="@+id/multiselect"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_margin="15dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_multiselect" />
     </RelativeLayout>

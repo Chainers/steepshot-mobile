@@ -24,6 +24,7 @@ using Android.OS;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
+using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
 {
@@ -86,7 +87,9 @@ namespace Steepshot.Adapter
     {
         private readonly Action<ActionType, Post> _postAction;
         private readonly Action<string> _tagAction;
+        private readonly ImageView _gallery;
         private readonly ViewPager _photosViewPager;
+        private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
         private readonly TextView _author;
         private readonly PostCustomTextView _title;
@@ -123,7 +126,10 @@ namespace Steepshot.Adapter
 
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
+            _gallery = itemView.FindViewById<ImageView>(Resource.Id.gallery);
             _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
+            _pagerTabLayout = ItemView.FindViewById<TabLayout>(Resource.Id.dot_selector);
+            _pagerTabLayout.SetupWithViewPager(_photosViewPager, true);
 
             var parameters = _photosViewPager.LayoutParameters;
             parameters.Height = height;
@@ -538,6 +544,9 @@ namespace Steepshot.Adapter
                 }
             }
 
+            _gallery.Visibility = _pagerTabLayout.Visibility =
+                post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
+
             SetNsfwMaskLayout();
 
             if (Post.Flag && !Post.FlagNotificationWasShown)
@@ -599,12 +608,7 @@ namespace Steepshot.Adapter
             {
                 _type = type;
                 _post = post;
-                //_photos = Array.FindAll(_post.Photos, ph => ph.Contains("steepshot")).ToArray();
-                _photo = _post.Media[0];
                 NotifyDataSetChanged();
-                var cardView = _photoHolders[0];
-                if (cardView != null)
-                    LoadPhoto(_post.Media[0], cardView);
             }
 
             private void LoadPhoto(MediaModel mediaModel, CardView photoCard)
@@ -632,7 +636,7 @@ namespace Steepshot.Adapter
                 }
             }
 
-            public override Java.Lang.Object InstantiateItem(ViewGroup container, int position)
+            public override Object InstantiateItem(ViewGroup container, int position)
             {
                 var reusePosition = position % CachedPagesCount;
                 if (_photoHolders[reusePosition] == null)
@@ -646,9 +650,9 @@ namespace Steepshot.Adapter
                     photo.Click += PhotoOnClick;
                     photoCard.AddView(photo);
                     _photoHolders[reusePosition] = photoCard;
-                    container.AddView(photoCard);
-                    LoadPhoto(_photo, photoCard);
                 }
+                container.AddView(_photoHolders[position]);
+                LoadPhoto(_post.Media[position], _photoHolders[position]);
                 return _photoHolders[reusePosition];
             }
 
@@ -657,17 +661,19 @@ namespace Steepshot.Adapter
                 _photoAction?.Invoke(_post);
             }
 
-            public override void DestroyItem(ViewGroup container, int position, Java.Lang.Object obj)
+            public override int GetItemPosition(Object @object) => PositionNone;
+
+            public override void DestroyItem(ViewGroup container, int position, Object obj)
             {
                 container.RemoveView((View)obj);
             }
 
-            public override bool IsViewFromObject(View view, Java.Lang.Object obj)
+            public override bool IsViewFromObject(View view, Object obj)
             {
                 return view == obj;
             }
 
-            public override int Count => _photo == null ? 0 : 1;
+            public override int Count => _post?.Media.Length ?? 0;
         }
     }
 }

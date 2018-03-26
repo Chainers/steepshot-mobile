@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
 using Android.Graphics;
@@ -7,34 +6,80 @@ using Android.Graphics.Drawables;
 using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
+using Java.IO;
+using Square.Picasso;
+using Steepshot.Utils;
 using Math = System.Math;
 using Uri = Android.Net.Uri;
 
 namespace Steepshot.CustomViews
 {
-    public class CropView : View, GestureDetector.IOnGestureListener, ScaleGestureDetector.IOnScaleGestureListener
+    public class CropView : View, GestureDetector.IOnGestureListener, ScaleGestureDetector.IOnScaleGestureListener, ITarget
     {
         private enum ScaleType
         {
-            Custom,
+            Bind,
             Square,
             Ratio,
+            KeepScale,
             Undefined
         }
 
-        public class FocusedScale
+        private const float MinimumRatio = 0.8f;
+        private const float MaximumRatio = 1.92f;
+        private const float DefaultRatio = 1f;
+        private const float MaximumOverscrollMultiplier = 150f;
+        private const float MaximumOverscale = 0.2f;
+        public const int MaxImageSize = 1600;
+
+        public class ImageParameters
         {
+            public ImageParameters()
+            {
+                PreviewBounds = new RectF();
+            }
             public float Scale { get; set; }
-            public float FocusedScaleX { get; set; }
-            public float FocusedScaleY { get; set; }
+            public float Rotation { get; set; }
+            public RectF PreviewBounds { get; private set; }
+            public Rect CropBounds { get; set; }
+            public ImageParameters Copy() => new ImageParameters
+            {
+                Scale = Scale,
+                PreviewBounds = new RectF(PreviewBounds),
+                CropBounds = new Rect(CropBounds)
+            };
         }
         private CropViewGrid _grid;
-        public CropViewGrid Grid
+        private CropViewGrid Grid => _grid ?? (_grid = new CropViewGrid());
+        private ImageParameters _drawableImageParameters;
+        public ImageParameters DrawableImageParameters
         {
-            get => _grid ?? (_grid = new CropViewGrid());
-            set => _grid = value;
+            get
+            {
+                _drawableImageParameters.CropBounds = Grid.Bounds;
+                return _drawableImageParameters;
+            }
+            private set => _drawableImageParameters = value;
         }
-        public FocusedScale DrawableFocusedScale { get; private set; }
+        public float CornerRadius { get; set; }
+        public bool UseStrictBounds
+        {
+            set
+            {
+                _useStrictBounds = value;
+                _reloadImage = false;
+                if (_useStrictBounds)
+                {
+                    _minimumRatio = _maximumRatio = _defaultRatio = Grid.Bounds.Width() / (float)Grid.Bounds.Height();
+                    if (ImageRatio <= 1)
+                        _targetWidth = (int)DrawableImageParameters.PreviewBounds.Width();
+                    else
+                        _targetHeight = (int)DrawableImageParameters.PreviewBounds.Height();
+                }
+                else
+                    _currentScaleType = ScaleType.KeepScale;
+            }
+        }
 
         private float SquareScale
         {
@@ -45,20 +90,6 @@ namespace Steepshot.CustomViews
                 if (widthRatio >= 1 && heightRatio >= 1)
                     return Math.Max(Math.Min(1 / widthRatio, widthRatio), Math.Min(1 / heightRatio, heightRatio));
                 return Math.Max(Math.Max(1 / widthRatio, widthRatio), Math.Max(1 / heightRatio, heightRatio));
-            }
-        }
-        private bool DrawableSuitsView
-        {
-            get
-            {
-                if (_drawable == null)
-                    return false;
-
-                var viewArea = _width * _height;
-                var drawableArea = _drawable.IntrinsicWidth * _drawable.IntrinsicHeight;
-                var areaRatio = viewArea / (float)drawableArea;
-
-                return areaRatio >= 0.5F && areaRatio <= 2F;
             }
         }
         private float FitDrawableScale
@@ -76,76 +107,78 @@ namespace Steepshot.CustomViews
                     else
                         scale = _height / (float)_imageRawHeight;
                 }
-                else if (_imageRawHeight < _width || _imageRawHeight < _height)
+                else if (_imageRawWidth < _width || _imageRawHeight < _height)
                 {
                     if (ImageRatio < _maximumRatio)
                     {
-                        GetBoundsForWidthAndRatio(_imageRawWidth, _minimumRatio, _helperRect);
-                        scale = _helperRect.Height() / _height;
+                        GetBoundsForWidthAndRatio(_imageRawWidth, _minimumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Height() / _height;
                     }
                     else
                     {
-                        GetBoundsForHeightAndRatio(_imageRawHeight, _maximumRatio, _helperRect);
-                        scale = _helperRect.Width() / _width;
+                        GetBoundsForHeightAndRatio(_imageRawHeight, _maximumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Width() / _width;
                     }
                 }
                 else
                 {
                     if (ImageRatio < _minimumRatio)
                     {
-                        GetBoundsForHeightAndRatio(_height, _minimumRatio, _helperRect);
-                        scale = _helperRect.Width() / _imageRawWidth;
+                        GetBoundsForHeightAndRatio(_height, _minimumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Width() / _imageRawWidth;
                     }
                     else
                     {
-                        GetBoundsForWidthAndRatio(_width, _maximumRatio, _helperRect);
-                        scale = _helperRect.Height() / _imageRawHeight;
+                        GetBoundsForWidthAndRatio(_width, _maximumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Height() / _imageRawHeight;
                     }
                 }
 
                 return scale;
             }
         }
-        private bool ImageRatioValid => ImageRatio >= _minimumRatio && ImageRatio <= _maximumRatio;
-        private float ImageRatio => _imageRawWidth / (float)_imageRawHeight;
-        private float ViewRatio => _width / (float)_height;
-        private float DisplayDrawableWidth => DrawableFocusedScale.Scale * _imageRawWidth;
-        private float DisplayDrawableHeight => DrawableFocusedScale.Scale * _imageRawHeight;
-        private float MaximumAllowedScale
+        private float FitRatioScale
         {
             get
             {
-                var widthRatio = _imageRawWidth / (float)_width;
-                var heightRatio = _imageRawHeight / (float)_height;
-                return Math.Max(Math.Max(1 / widthRatio, widthRatio), Math.Max(1 / heightRatio, heightRatio)) * 1.2f;
+                var widthScale = _imageRawWidth / (float)_width;
+                var heightScale = _imageRawHeight / (float)_height;
+                return Math.Max(_imageRawWidth <= _width ? Math.Max(1 / widthScale, widthScale) : Math.Min(1 / widthScale, widthScale), _imageRawHeight <= _height ? Math.Max(1 / heightScale, heightScale) : Math.Min(1 / heightScale, heightScale));
             }
         }
-        private float MinimumAllowedScale => FitDrawableScale;
+        private bool ImageRatioValid => ImageRatio >= _minimumRatio && ImageRatio <= _maximumRatio;
+        private float ImageRatio => _imageRawWidth / (float)_imageRawHeight;
+        private float ViewRatio => _width / (float)_height;
+        private float DisplayDrawableWidth => DrawableImageParameters.Scale * _imageRawWidth;
+        private float DisplayDrawableHeight => DrawableImageParameters.Scale * _imageRawHeight;
+        private float MaximumAllowedScale => FitRatioScale * 2f;
+        private float MinimumAllowedScale => _useStrictBounds ? FitRatioScale : FitDrawableScale;
         private long _backDuration => 400;
 
         private Uri _imageUri;
-        private int _imageRawWidth;
-        private int _imageRawHeight;
+        private Drawable _drawable;
         private int _width;
         private int _height;
-        private Drawable _drawable;
-        private RectF _helperRect;
+        private int _targetWidth;
+        private int _targetHeight;
+        private int _imageRawWidth;
+        private int _imageRawHeight;
         private float _displayDrawableLeft;
         private float _displayDrawableTop;
+        private float _focusedScaleX;
+        private float _focusedScaleY;
         private float _minimumRatio;
         private float _maximumRatio;
         private float _defaultRatio;
         private float _maximumOverScroll;
         private float _maximumOverScale;
-        //private float _drawableScale;
-        //private float _scaleFocusX;
-        //private float _scaleFocusY;
+        private bool _useStrictBounds;
+        private bool _reloadImage;
 
         private ScaleType _currentScaleType;
         private GestureDetector _gestureDetector;
         private ScaleGestureDetector _scaleGestureDetector;
         private ValueAnimator _gesturesAnimator;
-
         #region Init
 
         public CropView(Context context) : base(context)
@@ -168,19 +201,14 @@ namespace Steepshot.CustomViews
             Initialize(context);
         }
         #endregion
-
         private void Initialize(Context context)
         {
             _gestureDetector = new GestureDetector(Context, this);
             _scaleGestureDetector = new ScaleGestureDetector(context, this);
 
-            _minimumRatio = 4f / 5f;
-            _maximumRatio = 2.5f;
-            _defaultRatio = 1f;
-            _maximumOverScroll = Resources.DisplayMetrics.Density * 150f;
-            _maximumOverScale = 0.2f;
-            _helperRect = new RectF();
-            DrawableFocusedScale = new FocusedScale();
+            ResetToDefaults(ScaleType.Square);
+            _maximumOverScroll = Resources.DisplayMetrics.Density * MaximumOverscrollMultiplier;
+            _maximumOverScale = MaximumOverscale;
 
             _gesturesAnimator = new ValueAnimator();
             _gesturesAnimator.SetDuration(_backDuration);
@@ -195,158 +223,101 @@ namespace Steepshot.CustomViews
         {
             Invalidate();
         }
-
-        public void SetRatios(float defaultRatio, float minimumRatio, float maximumRatio)
+        private void ResetToDefaults(ScaleType scaleType)
         {
-            _defaultRatio = defaultRatio;
-            _minimumRatio = minimumRatio;
-            _maximumRatio = maximumRatio;
-
-            if (_gesturesAnimator.IsRunning)
-                _gesturesAnimator.Cancel();
-
-            _drawable = null;
-
-            RequestLayout();
+            _displayDrawableLeft = _displayDrawableTop = 0;
+            _minimumRatio = MinimumRatio;
+            _maximumRatio = MaximumRatio;
+            _defaultRatio = DefaultRatio;
+            DrawableImageParameters = _drawableImageParameters ?? new ImageParameters();
+            _currentScaleType = scaleType;
         }
-
-        public void SetImageUri(Uri uri)
+        public void SetImageUri(Uri uri, ImageParameters parameters)
         {
-            _imageUri = uri;
-            _drawable = null;
+            _reloadImage = !uri.Equals(_imageUri);
+            if (_reloadImage)
+            {
+                _imageUri = uri;
+                _drawable = null;
+            }
+
+            if (parameters != null)
+            {
+                _currentScaleType = ScaleType.Undefined;
+                DrawableImageParameters = parameters.Copy();
+                _displayDrawableLeft = parameters.PreviewBounds.Left;
+                _displayDrawableTop = parameters.PreviewBounds.Top;
+            }
+            else
+            {
+                ResetToDefaults(_useStrictBounds ? ScaleType.Bind : _currentScaleType);
+            }
 
             RequestLayout();
             Invalidate();
         }
-
-        private Task<BitmapDrawable> MakeDrawable(int targetWidth, int targetHeight) => Task.Run(() =>
-         {
-             var options = new BitmapFactory.Options
-             {
-                 InSampleSize = 1,
-                 InJustDecodeBounds = true
-             };
-
-             try
-             {
-                 BitmapFactory.DecodeStream(Context.ContentResolver.OpenInputStream(_imageUri), null, options);
-
-                 _imageRawWidth = options.OutWidth;
-                 _imageRawHeight = options.OutHeight;
-
-                 var resultWidth = _imageRawWidth;
-                 var resultHeight = _imageRawHeight;
-
-                 GC.Collect(0);
-
-                 var totalMemory = Java.Lang.Runtime.GetRuntime().MaxMemory();
-                 var allowedMemoryToUse = totalMemory / 8;
-                 var maximumAreaPossibleAccordingToAvailableMemory = (int)(allowedMemoryToUse / 4);
-
-                 var targetArea = Math.Min(targetWidth * targetHeight * 4, maximumAreaPossibleAccordingToAvailableMemory);
-                 var resultArea = resultWidth * resultHeight;
-
-                 while (resultArea > targetArea)
-                 {
-                     options.InSampleSize *= 2;
-
-                     resultWidth = _imageRawWidth / options.InSampleSize;
-                     resultHeight = _imageRawHeight / options.InSampleSize;
-
-                     resultArea = resultWidth * resultHeight;
-                 }
-
-                 options.InJustDecodeBounds = false;
-
-                 var bitmap = GetBitmap(_imageUri, options);
-
-                 if (bitmap == null)
-                     return null;
-
-                 var beforeRatio = _imageRawWidth / (float)_imageRawHeight;
-                 var afterRatio = bitmap.Width / (float)bitmap.Height;
-
-                 if (beforeRatio < 1 && afterRatio > 1 || beforeRatio > 1 && afterRatio < 1)
-                 {
-                     var rawWidth = _imageRawWidth;
-                     _imageRawWidth = _imageRawHeight;
-                     _imageRawHeight = rawWidth;
-                 }
-
-                 return new BitmapDrawable(Context.Resources, bitmap);
-             }
-             catch
-             {
-                 return null;
-             }
-         });
-
-        private Bitmap GetBitmap(Uri uri, BitmapFactory.Options options)
+        public void Rotate(float angle)
         {
-            Bitmap bitmap = null;
-
-            while (true)
-            {
-                try
-                {
-                    bitmap = BitmapFactory.DecodeStream(Context.ContentResolver.OpenInputStream(uri), null, options);
-                    break;
-                }
-                catch
-                {
-                    options.InSampleSize *= 2;
-
-                    if (options.InSampleSize >= 1024)
-                        break;
-                }
-            }
-
-            return bitmap;
+            DrawableImageParameters.Rotation = angle;
+            _currentScaleType = _useStrictBounds ? ScaleType.Bind : _currentScaleType;
+            _reloadImage = true;
+            RequestLayout();
         }
+        private Task<BitmapDrawable> MakeDrawable(int targetWidth, int targetHeight, float angle = 0) => Task.Run(() =>
+           {
+               try
+               {
+                   using (var inputStream = new FileInputStream(_imageUri.Path))
+                   {
+                       using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(inputStream.FD, targetWidth, targetHeight))
+                       {
+                           var matrix = new Matrix();
+                           matrix.PostRotate(angle);
+                           var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
+                           _imageRawWidth = preparedBitmap.Width;
+                           _imageRawHeight = preparedBitmap.Height;
 
-        protected static Bitmap ResizeBitmap(Bitmap bitmap, int newWidth, int newHeight)
-        {
-            var resizedBitmap = Bitmap.CreateBitmap(newWidth, newHeight, Bitmap.Config.Argb8888);
-
-            var scaleX = newWidth / (float)bitmap.Width;
-            var scaleY = newHeight / (float)bitmap.Height;
-            var pivotX = 0;
-            var pivotY = 0;
-
-            var scaleMatrix = new Matrix();
-            scaleMatrix.SetScale(scaleX, scaleY, pivotX, pivotY);
-
-            var canvas = new Canvas(resizedBitmap) { Matrix = scaleMatrix };
-            canvas.DrawBitmap(bitmap, 0, 0, new Paint(PaintFlags.FilterBitmap));
-
-            return resizedBitmap;
-        }
+                           return new BitmapDrawable(Context.Resources, preparedBitmap);
+                       }
+                   }
+               }
+               catch
+               {
+                   return null;
+               }
+           });
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
         {
+            if (_useStrictBounds)
+            {
+                SetMeasuredDimension(_targetWidth, _targetHeight);
+                return;
+            }
+
             var widthMode = MeasureSpec.GetMode(widthMeasureSpec);
             var widthSize = MeasureSpec.GetSize(widthMeasureSpec);
             var heightMode = MeasureSpec.GetMode(heightMeasureSpec);
             var heightSize = MeasureSpec.GetSize(heightMeasureSpec);
 
-            var targetWidth = 1;
-            var targetHeight = 1;
+            _targetWidth = 1;
+            _targetHeight = 1;
 
             switch (widthMode)
             {
                 case MeasureSpecMode.Exactly:
-                    targetWidth = widthSize;
+                    _targetWidth = widthSize;
 
                     switch (heightMode)
                     {
                         case MeasureSpecMode.Exactly:
-                            targetHeight = heightSize;
+                            _targetHeight = heightSize;
                             break;
                         case MeasureSpecMode.AtMost:
-                            targetHeight = Math.Min(heightSize, (int)(targetWidth / _defaultRatio));
+                            _targetHeight = Math.Min(heightSize, (int)(_targetWidth / _defaultRatio));
                             break;
                         case MeasureSpecMode.Unspecified:
-                            targetHeight = (int)(targetWidth / _defaultRatio);
+                            _targetHeight = (int)(_targetWidth / _defaultRatio);
                             break;
                     }
                     break;
@@ -354,31 +325,31 @@ namespace Steepshot.CustomViews
                     switch (heightMode)
                     {
                         case MeasureSpecMode.Exactly:
-                            targetHeight = heightSize;
-                            targetWidth = Math.Min(widthSize, (int)(targetHeight * _defaultRatio));
+                            _targetHeight = heightSize;
+                            _targetWidth = Math.Min(widthSize, (int)(_targetHeight * _defaultRatio));
                             break;
                         case MeasureSpecMode.AtMost:
                             float specRatio = widthSize / (float)heightSize;
 
                             if (specRatio == _defaultRatio)
                             {
-                                targetWidth = widthSize;
-                                targetHeight = heightSize;
+                                _targetWidth = widthSize;
+                                _targetHeight = heightSize;
                             }
                             else if (specRatio > _defaultRatio)
                             {
-                                targetHeight = heightSize;
-                                targetWidth = (int)(targetHeight * _defaultRatio);
+                                _targetHeight = heightSize;
+                                _targetWidth = (int)(_targetHeight * _defaultRatio);
                             }
                             else
                             {
-                                targetWidth = widthSize;
-                                targetHeight = (int)(targetWidth / _defaultRatio);
+                                _targetWidth = widthSize;
+                                _targetHeight = (int)(_targetWidth / _defaultRatio);
                             }
                             break;
                         case MeasureSpecMode.Unspecified:
-                            targetWidth = widthSize;
-                            targetHeight = (int)(targetWidth / _defaultRatio);
+                            _targetWidth = widthSize;
+                            _targetHeight = (int)(_targetWidth / _defaultRatio);
                             break;
                     }
                     break;
@@ -386,22 +357,22 @@ namespace Steepshot.CustomViews
                     switch (heightMode)
                     {
                         case MeasureSpecMode.Exactly:
-                            targetHeight = heightSize;
-                            targetWidth = (int)(targetHeight * _defaultRatio);
+                            _targetHeight = heightSize;
+                            _targetWidth = (int)(_targetHeight * _defaultRatio);
                             break;
                         case MeasureSpecMode.AtMost:
-                            targetHeight = heightSize;
-                            targetWidth = (int)(targetHeight * _defaultRatio);
+                            _targetHeight = heightSize;
+                            _targetWidth = (int)(_targetHeight * _defaultRatio);
                             break;
                         case MeasureSpecMode.Unspecified:
-                            targetWidth = (int)_maximumOverScroll;
-                            targetHeight = (int)_maximumOverScroll;
+                            _targetWidth = (int)_maximumOverScroll;
+                            _targetHeight = (int)_maximumOverScroll;
                             break;
                     }
                     break;
             }
 
-            SetMeasuredDimension(targetWidth, targetHeight);
+            SetMeasuredDimension(_targetWidth, _targetHeight);
         }
         protected override async void OnLayout(bool changed, int left, int top, int right, int bottom)
         {
@@ -409,16 +380,12 @@ namespace Steepshot.CustomViews
             _width = right - left;
             _height = bottom - top;
 
-            if (_width == 0 || _height == 0 || _imageUri == null)
+            if (_width == 0 || _height == 0)
                 return;
 
-            if (DrawableSuitsView)
-            {
-                return;
-            }
-
-            _drawable = await MakeDrawable(_width, _height);
-            Reset(ScaleType.Square);
+            if (_reloadImage)
+                _drawable = await MakeDrawable(MaxImageSize, MaxImageSize, DrawableImageParameters.Rotation);
+            Reset(_currentScaleType);
         }
         protected override void OnDraw(Canvas canvas)
         {
@@ -427,9 +394,13 @@ namespace Steepshot.CustomViews
             if (_drawable == null)
                 return;
 
-            GetDisplayDrawableBounds(_helperRect);
+            Path path = new Path();
+            path.AddRoundRect(new RectF(0, 0, canvas.Width, canvas.Height), CornerRadius, CornerRadius, Path.Direction.Cw);
+            canvas.ClipPath(path, Region.Op.Replace);
 
-            _drawable.SetBounds((int)_helperRect.Left, (int)_helperRect.Top, (int)_helperRect.Right, (int)_helperRect.Bottom);
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
+
+            _drawable.SetBounds((int)DrawableImageParameters.PreviewBounds.Left, (int)DrawableImageParameters.PreviewBounds.Top, (int)DrawableImageParameters.PreviewBounds.Right, (int)DrawableImageParameters.PreviewBounds.Bottom);
             _drawable.Draw(canvas);
 
             Grid.Draw(canvas);
@@ -451,32 +422,37 @@ namespace Steepshot.CustomViews
                     _currentScaleType = ScaleType.Square;
                     break;
                 case ScaleType.Ratio:
-                case ScaleType.Undefined:
                     SetDrawableScale(FitDrawableScale);
                     _currentScaleType = ScaleType.Ratio;
                     break;
+                case ScaleType.Bind:
+                    SetDrawableScale(FitRatioScale);
+                    _currentScaleType = ScaleType.Undefined;
+                    break;
             }
 
-            if (resetType != ScaleType.Custom)
+            if (resetType != ScaleType.Undefined)
                 PlaceDrawableInTheCenter();
+            else
+                SetScaleKeepingFocus(DrawableImageParameters.Scale, _focusedScaleX, _focusedScaleY);
             UpdateGrid();
 
             Invalidate();
         }
         private void SetDrawableScale(float scale)
         {
-            DrawableFocusedScale.Scale = scale;
+            DrawableImageParameters.Scale = scale;
 
             Invalidate();
         }
         private void GetBoundsForWidthAndRatio(float width, float ratio, RectF rect)
         {
-            var height = width / ratio;
+            float height = width / ratio;
             rect.Set(0, 0, width, height);
         }
         private void GetBoundsForHeightAndRatio(float height, float ratio, RectF rect)
         {
-            var width = height * ratio;
+            float width = height * ratio;
             rect.Set(0, 0, width, height);
         }
         private void PlaceDrawableInTheCenter()
@@ -488,12 +464,12 @@ namespace Steepshot.CustomViews
         }
         private void UpdateGrid()
         {
-            GetDisplayDrawableBounds(_helperRect);
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
-            _helperRect.Intersect(0, 0, _width, _height);
+            DrawableImageParameters.PreviewBounds.Intersect(0, 0, _width, _height);
 
-            _helperRect.Set(_helperRect.Left, _helperRect.Top, _helperRect.Left + _helperRect.Width(), _helperRect.Top + _helperRect.Height());
-            SetGridBounds(_helperRect);
+            DrawableImageParameters.PreviewBounds.Set(DrawableImageParameters.PreviewBounds.Left, DrawableImageParameters.PreviewBounds.Top, DrawableImageParameters.PreviewBounds.Left + DrawableImageParameters.PreviewBounds.Width(), DrawableImageParameters.PreviewBounds.Top + DrawableImageParameters.PreviewBounds.Height());
+            SetGridBounds(DrawableImageParameters.PreviewBounds);
 
             Invalidate();
         }
@@ -511,12 +487,32 @@ namespace Steepshot.CustomViews
             bounds.Bottom = bounds.Top + DisplayDrawableHeight;
         }
 
+        public Bitmap Crop(Uri uri, ImageParameters parameters)
+        {
+            using (var fileInputStream = new FileInputStream(uri.Path))
+            {
+                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, CropView.MaxImageSize, CropView.MaxImageSize))
+                {
+                    parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
+                    var left = (int)Math.Round(parameters.CropBounds.Left / DrawableImageParameters.Scale);
+                    var top = (int)Math.Round(parameters.CropBounds.Top / DrawableImageParameters.Scale);
+                    var width = (int)Math.Round(parameters.CropBounds.Width() / DrawableImageParameters.Scale);
+                    var height = (int)Math.Round(parameters.CropBounds.Height() / DrawableImageParameters.Scale);
+                    var matrix = new Matrix();
+                    matrix.PostScale(DrawableImageParameters.Scale, DrawableImageParameters.Scale);
+                    matrix.PostRotate(parameters.Rotation);
+                    var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
+                    bitmap.Recycle();
+                    return croppedBitmap;
+                }
+            }
+        }
+
         public override bool OnTouchEvent(MotionEvent e)
         {
             if (_drawable == null)
                 return false;
 
-            _currentScaleType = ScaleType.Undefined;
             _gestureDetector.OnTouchEvent(e);
             _scaleGestureDetector.OnTouchEvent(e);
 
@@ -529,20 +525,20 @@ namespace Steepshot.CustomViews
         }
         private void GesturesAnimatorOnUpdate(object sender, ValueAnimator.AnimatorUpdateEventArgs animatorUpdateEventArgs)
         {
-            var value = (float)animatorUpdateEventArgs.Animation.AnimatedValue;
-            GetDisplayDrawableBounds(_helperRect);
+            float value = (float)animatorUpdateEventArgs.Animation.AnimatedValue;
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
-            var overScrollX = MeasureOverScrollX(_helperRect);
-            var overScrollY = MeasureOverScrollY(_helperRect);
-            var overScale = MeasureOverScale();
+            float overScrollX = MeasureOverScrollX(DrawableImageParameters.PreviewBounds);
+            float overScrollY = MeasureOverScrollY(DrawableImageParameters.PreviewBounds);
+            float overScale = MeasureOverScale();
 
             _displayDrawableLeft -= overScrollX * value;
             _displayDrawableTop -= overScrollY * value;
 
-            var targetScale = DrawableFocusedScale.Scale / overScale;
-            var newScale = (1 - value) * DrawableFocusedScale.Scale + value * targetScale;
+            float targetScale = DrawableImageParameters.Scale / overScale;
+            float newScale = (1 - value) * DrawableImageParameters.Scale + value * targetScale;
 
-            SetScaleKeepingFocus(newScale, DrawableFocusedScale.FocusedScaleX, DrawableFocusedScale.FocusedScaleY);
+            SetScaleKeepingFocus(newScale, _focusedScaleX, _focusedScaleY);
 
             UpdateGrid();
             Invalidate();
@@ -555,10 +551,10 @@ namespace Steepshot.CustomViews
             distanceX = -distanceX;
             distanceY = -distanceY;
 
-            GetDisplayDrawableBounds(_helperRect);
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
-            var overScrollX = MeasureOverScrollX(_helperRect);
-            var overScrollY = MeasureOverScrollY(_helperRect);
+            float overScrollX = MeasureOverScrollX(DrawableImageParameters.PreviewBounds);
+            float overScrollY = MeasureOverScrollY(DrawableImageParameters.PreviewBounds);
 
             distanceX = ApplyOverScrollFix(distanceX, overScrollX);
             distanceY = ApplyOverScrollFix(distanceY, overScrollY);
@@ -591,7 +587,7 @@ namespace Steepshot.CustomViews
         }
         private float MeasureOverScrollY(RectF displayDrawableBounds)
         {
-            var drawableIsSmallerThanView = displayDrawableBounds.Height() < _height;
+            bool drawableIsSmallerThanView = displayDrawableBounds.Height() < _height;
 
             if (drawableIsSmallerThanView)
                 return displayDrawableBounds.CenterY() - _height / 2;
@@ -612,7 +608,7 @@ namespace Steepshot.CustomViews
             if (overScroll * distance <= 0)
                 return distance;
 
-            var offRatio = Math.Abs(overScroll) / _maximumOverScroll;
+            float offRatio = Math.Abs(overScroll) / _maximumOverScroll;
 
             distance -= distance * (float)Math.Sqrt(offRatio);
 
@@ -625,25 +621,25 @@ namespace Steepshot.CustomViews
             float overScale = MeasureOverScale();
             float scale = ApplyOverScaleFix(detector.ScaleFactor, overScale);
 
-            DrawableFocusedScale.FocusedScaleX = detector.FocusX;
-            DrawableFocusedScale.FocusedScaleY = detector.FocusY;
+            _focusedScaleX = detector.FocusX;
+            _focusedScaleY = detector.FocusY;
 
-            SetScaleKeepingFocus(DrawableFocusedScale.Scale * scale, DrawableFocusedScale.FocusedScaleX, DrawableFocusedScale.FocusedScaleY);
+            SetScaleKeepingFocus(DrawableImageParameters.Scale * scale, _focusedScaleX, _focusedScaleY);
 
             return true;
         }
         private float MeasureOverScale()
         {
-            var maximumAllowedScale = MaximumAllowedScale;
-            var minimumAllowedScale = MinimumAllowedScale;
+            float maximumAllowedScale = MaximumAllowedScale;
+            float minimumAllowedScale = MinimumAllowedScale;
 
             if (maximumAllowedScale < minimumAllowedScale)
                 maximumAllowedScale = minimumAllowedScale;
 
-            if (DrawableFocusedScale.Scale < minimumAllowedScale)
-                return DrawableFocusedScale.Scale / minimumAllowedScale;
-            if (DrawableFocusedScale.Scale > maximumAllowedScale)
-                return DrawableFocusedScale.Scale / maximumAllowedScale;
+            if (DrawableImageParameters.Scale < minimumAllowedScale)
+                return DrawableImageParameters.Scale / minimumAllowedScale;
+            if (DrawableImageParameters.Scale > maximumAllowedScale)
+                return DrawableImageParameters.Scale / maximumAllowedScale;
             return 1;
         }
         private float ApplyOverScaleFix(float scale, float overScale)
@@ -654,35 +650,28 @@ namespace Steepshot.CustomViews
             if (overScale > 1)
                 overScale = 1F / overScale;
 
-            var wentOverScaleRatio = (overScale - _maximumOverScale) / (1 - _maximumOverScale);
+            float wentOverScaleRatio = (overScale - _maximumOverScale) / (1 - _maximumOverScale);
 
             if (wentOverScaleRatio < 0)
                 wentOverScaleRatio = 0;
-
-            // 1 -> scale , 0 -> 1
-            // scale * f(1) = scale
-            // scale * f(0) = 1
-
-            // f(1) = 1
-            // f(0) = 1/scale
 
             scale *= wentOverScaleRatio + (1 - wentOverScaleRatio) / scale;
 
             return scale;
         }
-        public void SetScaleKeepingFocus(float scale, float focusX, float focusY)
+        private void SetScaleKeepingFocus(float scale, float focusX, float focusY)
         {
-            GetDisplayDrawableBounds(_helperRect);
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
-            var focusRatioX = (focusX - _helperRect.Left) / _helperRect.Width();
-            var focusRatioY = (focusY - _helperRect.Top) / _helperRect.Height();
+            float focusRatioX = (focusX - DrawableImageParameters.PreviewBounds.Left) / DrawableImageParameters.PreviewBounds.Width();
+            float focusRatioY = (focusY - DrawableImageParameters.PreviewBounds.Top) / DrawableImageParameters.PreviewBounds.Height();
 
-            DrawableFocusedScale.Scale = scale;
+            DrawableImageParameters.Scale = scale;
 
-            GetDisplayDrawableBounds(_helperRect);
+            GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
-            var scaledFocusX = _helperRect.Left + focusRatioX * _helperRect.Width();
-            var scaledFocusY = _helperRect.Top + focusRatioY * _helperRect.Height();
+            float scaledFocusX = DrawableImageParameters.PreviewBounds.Left + focusRatioX * DrawableImageParameters.PreviewBounds.Width();
+            float scaledFocusY = DrawableImageParameters.PreviewBounds.Top + focusRatioY * DrawableImageParameters.PreviewBounds.Height();
 
             _displayDrawableLeft += focusX - scaledFocusX;
             _displayDrawableTop += focusY - scaledFocusY;
@@ -692,5 +681,18 @@ namespace Steepshot.CustomViews
         }
         public bool OnScaleBegin(ScaleGestureDetector detector) => true;
         public void OnScaleEnd(ScaleGestureDetector detector) { }
+
+        public void OnBitmapFailed(Drawable p0) { }
+        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
+        {
+            ResetToDefaults(ScaleType.Square);
+            _drawable = new BitmapDrawable(p0);
+            _imageRawWidth = p0.Width;
+            _imageRawHeight = p0.Height;
+            _reloadImage = false;
+            RequestLayout();
+            Invalidate();
+        }
+        public void OnPrepareLoad(Drawable p0) { }
     }
 }

@@ -9,6 +9,7 @@
   <item name="color_primary" type="color">#2196F3</item>
   <item name="color_hint" type="color">#999999</item>
   <item name="white40" type="color">#99FFFFFF</item>
+  <item name="white50" type="color">#80FFFFFF</item>
   <item name="black" type="color">#000000</item>
   <item name="light_gray" type="color">#CCCCCC</item>
   <item name="light_gray_fa" type="color">#fafafa</item>

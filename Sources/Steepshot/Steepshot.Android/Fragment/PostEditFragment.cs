@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
 using Android.Support.Transitions;
 using Android.Support.V7.Widget;
@@ -15,7 +16,7 @@ using Android.Views.InputMethods;
 using Android.Widget;
 using Apmem;
 using Com.Lilarcor.Cheeseknife;
-using Java.IO;
+using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
@@ -26,7 +27,10 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
+using Path = System.IO.Path;
+using Uri = Android.Net.Uri;
 
 namespace Steepshot.Fragment
 {
@@ -51,11 +55,16 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
         [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
         [InjectView(Resource.Id.photos)] private RecyclerView _photos;
+        [InjectView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
+        [InjectView(Resource.Id.rotate)] private ImageButton _rotateBtn;
+        [InjectView(Resource.Id.photo_preview)] private CropView _preview;
+        [InjectView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
         [InjectView(Resource.Id.photos_layout)] private RelativeLayout _photosContainer;
         [InjectView(Resource.Id.title)] private EditText _title;
         [InjectView(Resource.Id.title_layout)] private RelativeLayout _titleContainer;
         [InjectView(Resource.Id.description)] private EditText _description;
         [InjectView(Resource.Id.description_layout)] private RelativeLayout _descriptionContainer;
+        [InjectView(Resource.Id.scroll_container)] private ScrollView _descriptionScrollContainer;
         [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
         [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
         [InjectView(Resource.Id.flow_tags)] private FlowLayout _tagsFlow;
@@ -67,6 +76,7 @@ namespace Steepshot.Fragment
         [InjectView(Resource.Id.btn_post_layout)] private RelativeLayout _postBtnContainer;
         [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
         [InjectView(Resource.Id.top_margin_tags_layout)] private RelativeLayout _topMarginTagsLayout;
+        [InjectView(Resource.Id.toolbar)] private LinearLayout _topPanel;
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -99,9 +109,7 @@ namespace Steepshot.Fragment
             _postButton.Click += OnPost;
             _postButton.Enabled = true;
 
-            _photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
-            _photos.SetAdapter(GalleryAdapter);
-            _photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
+            _topPanel.BringToFront();
 
             _localTagsList.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
             LocalTagsAdapter.Click += LocalTagsAdapterClick;
@@ -126,6 +134,40 @@ namespace Steepshot.Fragment
             _model = new PreparePostModel(BasePresenter.User.UserInfo);
             SetPostingTimer();
 
+            if (_editPost != null)
+                SetEditPost();
+
+            if (_media?.Count > 1 || _editPost?.Media.Length > 1)
+            {
+                _photos.Visibility = ViewStates.Visible;
+                _previewContainer.Visibility = ViewStates.Gone;
+                _photos.SetLayoutManager(new LinearLayoutManager(Activity, LinearLayoutManager.Horizontal, false));
+                _photos.SetAdapter(GalleryAdapter);
+                _photos.AddItemDecoration(new ListItemDecoration((int)TypedValue.ApplyDimension(ComplexUnitType.Dip, 10, Resources.DisplayMetrics)));
+            }
+            else
+            {
+                _photos.Visibility = ViewStates.Gone;
+                _previewContainer.Visibility = ViewStates.Visible;
+                var margin = (int)BitmapUtils.DpToPixel(15, Resources);
+                var layoutParams = new RelativeLayout.LayoutParams(Resources.DisplayMetrics.WidthPixels - margin * 2, Resources.DisplayMetrics.WidthPixels - margin * 2);
+                layoutParams.SetMargins(margin, 0, margin, margin);
+                _previewContainer.LayoutParameters = layoutParams;
+                _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
+                if (_media != null)
+                    _preview.SetImageUri(Uri.Parse(_media[0].Path), _media[0].Parameters);
+                else if (_editPost != null)
+                {
+                    _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
+                    Picasso.With(Activity).Load(_editPost.Media[0].Thumbnails[1024])
+                        .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
+                        .Into(_preview);
+                }
+                _preview.Touch += PreviewOnTouch;
+                _ratioBtn.Click += RatioBtnOnClick;
+                _rotateBtn.Click += RotateBtnOnClick;
+            }
+
             SearchTextChanged();
         }
         public override void OnDetach()
@@ -135,11 +177,42 @@ namespace Steepshot.Fragment
             GC.Collect(0);
         }
 
+        private void SetEditPost()
+        {
+            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost.Permlink);
+            _title.Text = _editPost.Title;
+            _title.SetSelection(_editPost.Title.Length);
+            _description.Text = _editPost.Description;
+            _description.SetSelection(_editPost.Description.Length);
+            foreach (var editPostTag in _editPost.Tags)
+            {
+                AddTag(editPostTag);
+            }
+        }
+        private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            if (_editPost != null)
+            {
+                _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
+                return;
+            }
+            _preview.OnTouchEvent(touchEventArgs.Event);
+            if (touchEventArgs.Event.Action == MotionEventActions.Down)
+                _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(true);
+            else if (touchEventArgs.Event.Action == MotionEventActions.Up)
+                _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(false);
+        }
+        private void RatioBtnOnClick(object sender, EventArgs eventArgs) => _preview.SwitchScale();
+        private void RotateBtnOnClick(object sender, EventArgs eventArgs) => _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+
         public PostEditFragment(List<GalleryMediaModel> media)
         {
             _media = media;
         }
-
+        public PostEditFragment(GalleryMediaModel media)
+        {
+            _media = new List<GalleryMediaModel> { media };
+        }
         public PostEditFragment(Post post)
         {
             _editPost = post;
@@ -203,16 +276,21 @@ namespace Steepshot.Fragment
             if (_editPost == null)
             {
                 _model.Media = new MediaModel[_media.Count];
+                if (_media.Count == 1)
+                    _media[0].PreparedBitmap = _preview.Crop(Uri.Parse(_media[0].Path), _preview.DrawableImageParameters);
                 for (int i = 0; i < _media.Count; i++)
                 {
-                    var operationResult = await UploadPhoto(Android.Net.Uri.Parse(_media[i].Path).Path);
+                    var bitmapStream = new MemoryStream();
+                    _media[i].PreparedBitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, bitmapStream);
+
+                    var operationResult = await UploadPhoto(bitmapStream);
                     if (!IsInitialized)
                         return;
 
                     if (!operationResult.IsSuccess)
                     {
                         //((SplashActivity)Activity).Cache.EvictAll();
-                        operationResult = await UploadPhoto(_media[i].Path);
+                        operationResult = await UploadPhoto(bitmapStream);
 
                         if (!IsInitialized)
                             return;
@@ -238,18 +316,12 @@ namespace Steepshot.Fragment
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryCreateOrEditPost();
         }
-        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
+        private async Task<OperationResult<MediaModel>> UploadPhoto(Stream photoStream)
         {
-            Stream stream = null;
-            FileInputStream fileInputStream = null;
-
             try
             {
-                var photo = new Java.IO.File(path);
-                fileInputStream = new FileInputStream(photo);
-                stream = new StreamConverter(fileInputStream, null);
-
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, Path.GetExtension(path));
+                photoStream.Position = 0;
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, photoStream, Path.GetExtension(".jpg"));
                 var serverResult = await Presenter.TryUploadMedia(request);
                 return serverResult;
             }
@@ -260,10 +332,8 @@ namespace Steepshot.Fragment
             }
             finally
             {
-                fileInputStream?.Close(); // ??? change order?
-                stream?.Flush();
-                fileInputStream?.Dispose();
-                stream?.Dispose();
+                photoStream?.Close();
+                photoStream?.Dispose();
             }
         }
         private async void TryCreateOrEditPost()
@@ -284,7 +354,7 @@ namespace Steepshot.Fragment
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
-                Activity.Finish();
+                ((BaseActivity)Activity).OnBackPressed();
             }
             else
             {
@@ -362,7 +432,7 @@ namespace Steepshot.Fragment
         {
             TransitionManager.BeginDelayedTransition(_rootLayout);
             _localTagsList.Visibility = _tagsListContainer.Visibility = openTags ? ViewStates.Visible : ViewStates.Gone;
-            _photos.Visibility = _titleContainer.Visibility =
+            _photosContainer.Visibility = _titleContainer.Visibility =
                _descriptionContainer.Visibility = _tagsFlow.Visibility = _postBtnContainer.Visibility = openTags ? ViewStates.Gone : ViewStates.Visible;
         }
         private void AddTag(string tag)
@@ -397,7 +467,7 @@ namespace Steepshot.Fragment
         }
         private void OnTimer(object state)
         {
-            Activity.RunOnUiThread(async () =>
+            Activity?.RunOnUiThread(async () =>
             {
                 await SearchTextChanged();
             });
@@ -442,11 +512,8 @@ namespace Steepshot.Fragment
             if (_tag.HasFocus)
                 HideTagsList();
             else
-                Activity.OnBackPressed();
+                ((BaseActivity)Activity).OnBackPressed();
         }
-        private void OnRootLayoutClick(object sender, EventArgs e)
-        {
-            ((BaseActivity)Activity).HideKeyboard();
-        }
+        private void OnRootLayoutClick(object sender, EventArgs e) => ((BaseActivity)Activity).HideKeyboard();
     }
 }
