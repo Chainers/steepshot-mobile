@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_5" orientation="portrait">
+    <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -12,7 +12,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PhotoPreviewViewController">
             <connections>
-                <outlet property="cropView" destination="ob1-yC-azh" id="fan-SB-6bf"/>
+                <outlet property="cropBackgroundView" destination="pIz-TH-bAF" id="N1Z-WW-gtQ"/>
                 <outlet property="multiSelect" destination="ZX2-xv-CS8" id="SlY-gW-4Fb"/>
                 <outlet property="photoCollection" destination="5EM-QE-kdf" id="2Ge-yM-TP0"/>
                 <outlet property="rotate" destination="oXE-wc-bSX" id="APn-eC-CAV"/>
@@ -21,20 +21,21 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="2">
-            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ob1-yC-azh">
-                    <rect key="frame" x="0.0" y="0.0" width="414" height="414"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pIz-TH-bAF">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="375"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="width" secondItem="ob1-yC-azh" secondAttribute="height" multiplier="1:1" id="RMc-GI-ZoX"/>
+                        <constraint firstAttribute="width" secondItem="pIz-TH-bAF" secondAttribute="height" multiplier="1:1" id="4O1-U9-yTe"/>
                     </constraints>
-                </scrollView>
+                </view>
                 <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_rotate.png" translatesAutoresizingMaskIntoConstraints="NO" id="oXE-wc-bSX">
-                    <rect key="frame" x="15" y="359" width="40" height="40"/>
+                    <rect key="frame" x="15" y="320" width="40" height="40"/>
                 </imageView>
                 <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="5EM-QE-kdf">
-                    <rect key="frame" x="0.0" y="414" width="414" height="322"/>
+                    <rect key="frame" x="0.0" y="375" width="375" height="292"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="9Nz-tW-x66">
                         <size key="itemSize" width="50" height="50"/>
@@ -44,7 +45,7 @@
                     </collectionViewFlowLayout>
                 </collectionView>
                 <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_multiselect.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZX2-xv-CS8">
-                    <rect key="frame" x="359" y="359" width="40" height="40"/>
+                    <rect key="frame" x="320" y="320" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="giw-ta-bru"/>
                         <constraint firstAttribute="height" constant="40" id="vDr-sC-REp"/>
@@ -53,17 +54,17 @@
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="ob1-yC-azh" secondAttribute="bottom" id="0MM-Lw-nd8"/>
-                <constraint firstItem="ob1-yC-azh" firstAttribute="top" secondItem="2" secondAttribute="top" id="32d-7g-eeM"/>
-                <constraint firstAttribute="trailing" secondItem="ob1-yC-azh" secondAttribute="trailing" id="79c-Oy-Crl"/>
-                <constraint firstItem="ob1-yC-azh" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="C90-DX-aoz"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="pIz-TH-bAF" secondAttribute="bottom" id="9gW-r6-CXq"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="D6H-wp-Xfb"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="oXE-wc-bSX" secondAttribute="bottom" constant="15" id="Efj-RB-JMg"/>
                 <constraint firstAttribute="trailing" secondItem="5EM-QE-kdf" secondAttribute="trailing" id="PB4-mr-GPs"/>
+                <constraint firstItem="pIz-TH-bAF" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="S2n-DW-yDy"/>
                 <constraint firstAttribute="bottom" secondItem="5EM-QE-kdf" secondAttribute="bottom" id="eZx-CR-Sde"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="ZX2-xv-CS8" secondAttribute="bottom" constant="15" id="ixb-H3-iWx"/>
                 <constraint firstAttribute="trailing" secondItem="ZX2-xv-CS8" secondAttribute="trailing" constant="15" id="q8t-Up-bQh"/>
                 <constraint firstItem="oXE-wc-bSX" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="rsh-Vv-K9s"/>
+                <constraint firstAttribute="trailing" secondItem="pIz-TH-bAF" secondAttribute="trailing" id="sUc-lx-fNK"/>
+                <constraint firstItem="pIz-TH-bAF" firstAttribute="top" secondItem="2" secondAttribute="top" id="xyW-OE-V8c"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
         </view>
