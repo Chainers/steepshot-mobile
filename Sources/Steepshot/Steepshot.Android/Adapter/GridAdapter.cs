@@ -74,6 +74,7 @@ namespace Steepshot.Adapter
     {
         private readonly Action<Post> _click;
         private readonly ImageView _photo;
+        private readonly ImageView _gallery;
         private readonly RelativeLayout _nsfwMask;
         private readonly TextView _nsfwMaskMessage;
         private Post _post;
@@ -85,6 +86,7 @@ namespace Steepshot.Adapter
         {
             _click = click;
             _photo = itemView.FindViewById<ImageView>(Resource.Id.grid_item_photo);
+            _gallery = itemView.FindViewById<ImageView>(Resource.Id.gallery);
             _nsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.grid_item_nsfw);
             _nsfwMaskMessage = itemView.FindViewById<TextView>(Resource.Id.grid_item_nsfw_message);
 
@@ -111,6 +113,8 @@ namespace Steepshot.Adapter
             {
                 Picasso.With(_context).Load(_photoString).Placeholder(Resource.Color.rgb244_244_246).NoFade().Resize(cellSize, cellSize).CenterCrop().Into(_photo, OnSuccess, OnError);
             }
+
+            _gallery.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
             if (_post.ShowMask && (_post.IsNsfw || _post.IsLowRated))
             {

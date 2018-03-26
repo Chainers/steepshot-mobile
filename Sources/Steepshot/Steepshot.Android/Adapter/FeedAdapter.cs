@@ -651,8 +651,8 @@ namespace Steepshot.Adapter
                     photoCard.AddView(photo);
                     _photoHolders[reusePosition] = photoCard;
                 }
-                container.AddView(_photoHolders[position]);
-                LoadPhoto(_post.Media[position], _photoHolders[position]);
+                container.AddView(_photoHolders[reusePosition]);
+                LoadPhoto(_post.Media[position], _photoHolders[reusePosition]);
                 return _photoHolders[reusePosition];
             }
 

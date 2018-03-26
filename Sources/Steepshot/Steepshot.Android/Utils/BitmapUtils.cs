@@ -1,7 +1,10 @@
-﻿using Android.Content.Res;
+﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Media;
+using Android.Net;
+using Android.Provider;
 using Android.Views;
 using Java.IO;
 using Orientation = Android.Media.Orientation;
@@ -112,6 +115,16 @@ namespace Steepshot.Utils
             view.Draw(canvas);
 
             return new BitmapDrawable(view.Context.Resources, bitmap);
+        }
+
+        public static string GetRealPathFromURI(Uri contentUri, Context context)
+        {
+            var proj = new[] { MediaStore.Images.ImageColumns.Data };
+            var cursor = context.ContentResolver.Query(contentUri, proj, null, null, null);
+            int index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
+            cursor.MoveToFirst();
+
+            return cursor.GetString(index);
         }
 
         /*

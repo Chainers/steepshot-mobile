@@ -398,6 +398,8 @@ namespace Steepshot.Fragment
                 Activity.Window.SetSoftInputMode(SoftInput.AdjustResize);
                 AnimateTagsLayout(true);
             }
+            else
+                AnimateTagsLayout(false);
         }
         private void OnTagOnTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -457,6 +459,12 @@ namespace Steepshot.Fragment
             var flowViewTag = flowView.FindViewById<TextView>(Resource.Id.tag);
             flowView.Tag = tag;
             flowViewTag.Text = tag;
+            flowView.Click += (sender, args) =>
+            {
+                _localTagsAdapter.LocalTags.Remove(tag);
+                _localTagsAdapter.NotifyDataSetChanged();
+                RemoveFlowTag(tag);
+            };
             _tagsFlow.AddView(flowView);
         }
         private void RemoveFlowTag(string tag)
@@ -502,9 +510,9 @@ namespace Steepshot.Fragment
             }
 
             Activity.Window.SetSoftInputMode(SoftInput.AdjustPan);
-            AnimateTagsLayout(false);
             ((BaseActivity)Activity).HideKeyboard();
             _tag.ClearFocus();
+            _description.RequestFocus();
         }
 
         private void OnBack(object sender, EventArgs e)

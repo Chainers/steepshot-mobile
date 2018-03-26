@@ -32,23 +32,6 @@ namespace Steepshot.CustomViews
         private const float MaximumOverscale = 0.2f;
         public const int MaxImageSize = 1600;
 
-        public class ImageParameters
-        {
-            public ImageParameters()
-            {
-                PreviewBounds = new RectF();
-            }
-            public float Scale { get; set; }
-            public float Rotation { get; set; }
-            public RectF PreviewBounds { get; private set; }
-            public Rect CropBounds { get; set; }
-            public ImageParameters Copy() => new ImageParameters
-            {
-                Scale = Scale,
-                PreviewBounds = new RectF(PreviewBounds),
-                CropBounds = new Rect(CropBounds)
-            };
-        }
         private CropViewGrid _grid;
         private CropViewGrid Grid => _grid ?? (_grid = new CropViewGrid());
         private ImageParameters _drawableImageParameters;
@@ -151,7 +134,7 @@ namespace Steepshot.CustomViews
         private float ViewRatio => _width / (float)_height;
         private float DisplayDrawableWidth => DrawableImageParameters.Scale * _imageRawWidth;
         private float DisplayDrawableHeight => DrawableImageParameters.Scale * _imageRawHeight;
-        private float MaximumAllowedScale => FitRatioScale * 2f;
+        private float MaximumAllowedScale => FitRatioScale * 3f;
         private float MinimumAllowedScale => _useStrictBounds ? FitRatioScale : FitDrawableScale;
         private long _backDuration => 400;
 
@@ -491,15 +474,15 @@ namespace Steepshot.CustomViews
         {
             using (var fileInputStream = new FileInputStream(uri.Path))
             {
-                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, CropView.MaxImageSize, CropView.MaxImageSize))
+                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, MaxImageSize, MaxImageSize))
                 {
                     parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
-                    var left = (int)Math.Round(parameters.CropBounds.Left / DrawableImageParameters.Scale);
-                    var top = (int)Math.Round(parameters.CropBounds.Top / DrawableImageParameters.Scale);
-                    var width = (int)Math.Round(parameters.CropBounds.Width() / DrawableImageParameters.Scale);
-                    var height = (int)Math.Round(parameters.CropBounds.Height() / DrawableImageParameters.Scale);
+                    var left = (int)Math.Round(parameters.CropBounds.Left / parameters.Scale);
+                    var top = (int)Math.Round(parameters.CropBounds.Top / parameters.Scale);
+                    var width = (int)Math.Round(parameters.CropBounds.Width() / parameters.Scale);
+                    var height = (int)Math.Round(parameters.CropBounds.Height() / parameters.Scale);
                     var matrix = new Matrix();
-                    matrix.PostScale(DrawableImageParameters.Scale, DrawableImageParameters.Scale);
+                    matrix.PostScale(parameters.Scale, parameters.Scale);
                     matrix.PostRotate(parameters.Rotation);
                     var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
                     bitmap.Recycle();
@@ -694,5 +677,23 @@ namespace Steepshot.CustomViews
             Invalidate();
         }
         public void OnPrepareLoad(Drawable p0) { }
+    }
+
+    public class ImageParameters
+    {
+        public ImageParameters()
+        {
+            PreviewBounds = new RectF();
+        }
+        public float Scale { get; set; }
+        public float Rotation { get; set; }
+        public RectF PreviewBounds { get; private set; }
+        public Rect CropBounds { get; set; }
+        public ImageParameters Copy() => new ImageParameters
+        {
+            Scale = Scale,
+            PreviewBounds = new RectF(PreviewBounds),
+            CropBounds = new Rect(CropBounds)
+        };
     }
 }

@@ -30,7 +30,7 @@ namespace Steepshot.Utils
                 ModelChanged?.Invoke();
             }
         }
-        public CropView.ImageParameters Parameters { get; set; }
+        public ImageParameters Parameters { get; set; }
         public Bitmap PreparedBitmap { get; set; }
     }
 }
