@@ -6,6 +6,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
+using System.Net;
 
 namespace Steepshot.Core.Presenters
 {
@@ -85,8 +86,9 @@ namespace Steepshot.Core.Presenters
             {
                 return ex;
             }
-            catch (System.Net.WebException)
+            catch (WebException ex)
             {
+                AppSettings.Reporter.SendCrash(ex);
                 return new RequestError();
             }
             catch (Exception ex)
@@ -144,6 +146,11 @@ namespace Steepshot.Core.Presenters
             catch (ErrorBase ex)
             {
                 return ex;
+            }
+            catch (WebException ex)
+            {
+                AppSettings.Reporter.SendCrash(ex);
+                return new RequestError();
             }
             catch (Exception ex)
             {

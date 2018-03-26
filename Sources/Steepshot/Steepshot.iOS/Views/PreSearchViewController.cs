@@ -359,7 +359,13 @@ namespace Steepshot.iOS.Views
             do
             {
                 if (shouldStartAnimating)
+                {
                     activityIndicator.StartAnimating();
+                    _refreshControl.EndRefreshing();
+                }
+                else
+                    activityIndicator.StopAnimating();
+
                 noFeedLabel.Hidden = true;
 
                 if (clearOld)
