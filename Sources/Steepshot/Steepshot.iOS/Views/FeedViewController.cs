@@ -13,6 +13,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using CoreGraphics;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -191,25 +192,29 @@ namespace Steepshot.iOS.Views
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            if (shouldStartAnimating)
-                activityIndicator.StartAnimating();
-            noFeedLabel.Hidden = true;
-
-            if (clearOld)
+            ErrorBase error;
+            do
             {
-                _presenter.Clear();
-                _gridDelegate.ClearPosition();
-            }
-            var error = await _presenter.TryLoadNextTopPosts();
+                if (shouldStartAnimating)
+                    activityIndicator.StartAnimating();
+                noFeedLabel.Hidden = true;
+
+                if (clearOld)
+                {
+                    _presenter.Clear();
+                    _gridDelegate.ClearPosition();
+                }
+                error = await _presenter.TryLoadNextTopPosts();
+
+                if (_refreshControl.Refreshing)
+                {
+                    _refreshControl.EndRefreshing();
+                    _isFeedRefreshing = false;
+                }
+                else
+                    activityIndicator.StopAnimating();
+            } while (error is RequestError);
             ShowAlert(error);
-
-            if (_refreshControl.Refreshing)
-            {
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
-            }
-            else
-                activityIndicator.StopAnimating();
         }
 
         private async void ScrolledToBottom()
