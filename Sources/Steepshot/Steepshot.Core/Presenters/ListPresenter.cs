@@ -85,6 +85,10 @@ namespace Steepshot.Core.Presenters
             {
                 return ex;
             }
+            catch (System.Net.WebException)
+            {
+                return new RequestError();
+            }
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)

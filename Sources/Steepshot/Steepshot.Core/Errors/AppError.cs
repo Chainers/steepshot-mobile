@@ -6,4 +6,9 @@ namespace Steepshot.Core.Errors
     {
         public AppError(LocalizationKeys key) : base(key) { }
     }
+
+    public sealed class RequestError : ErrorBase
+    {
+        public RequestError() {}
+    }
 }
