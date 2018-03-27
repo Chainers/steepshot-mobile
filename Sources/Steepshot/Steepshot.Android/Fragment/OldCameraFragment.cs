@@ -258,7 +258,14 @@ namespace Steepshot.Fragment
             {
                 var i = new Intent(Context, typeof(PostDescriptionActivity));
                 i.PutExtra(PostDescriptionActivity.MediaPathExtra, data.Data.ToString());
-                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, Activity.ContentResolver.GetType(data.Data));
+
+                string typ;
+                string ext = Android.Webkit.MimeTypeMap.GetFileExtensionFromUrl(data.Data.ToString());
+                if (ext != null)
+                    typ = Android.Webkit.MimeTypeMap.Singleton.GetMimeTypeFromExtension(ext);
+
+                var mediaType = Java.Net.URLConnection.GuessContentTypeFromName(data.Data.ToString());
+                i.PutExtra(PostDescriptionActivity.MediaTypeExtra, mediaType);
                 StartActivity(i);
                 Activity.Finish();
             }

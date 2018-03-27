@@ -172,10 +172,15 @@ namespace Steepshot.Activity
 
             if (_mediaType.StartsWith("video"))
             {
-                var thumbnail = ThumbnailUtils.CreateVideoThumbnail(_path, ThumbnailKind.MiniKind);
-                _photoFrame.SetImageBitmap(thumbnail);
-                _rotate.Visibility = ViewStates.Gone;
-                return;
+                try
+                {
+                    Java.IO.File file = new Java.IO.File(_path);
+                    var thumbnail = ThumbnailUtils.CreateVideoThumbnail(_path, ThumbnailKind.MiniKind);
+                    _photoFrame.SetImageBitmap(thumbnail);
+                    _rotate.Visibility = ViewStates.Gone;
+                    return;
+                }
+                catch (Exception ex) { }
             }
 
             _shouldCompress = Intent.GetBooleanExtra(IsNeedCompressExtraPath, true) && !_mediaType.EndsWith("gif");
