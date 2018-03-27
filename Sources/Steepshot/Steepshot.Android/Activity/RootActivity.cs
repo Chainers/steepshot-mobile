@@ -1,13 +1,9 @@
-using System;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Android.Graphics;
-using Android.Graphics.Drawables;
 using Android.OS;
 using Android.Support.Design.Widget;
-using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
@@ -28,9 +24,8 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
-    public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable, ITarget
+    public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
-        private Action<Bitmap> _pushNotification;
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
         private int _tabHeight;
@@ -64,29 +59,14 @@ namespace Steepshot.Activity
                                                      {
                                                          OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
                                                          .InFocusDisplaying(OSInFocusDisplayOption.None)
-                                                         .HandleNotificationReceived(OneSignalNotificationRecieved)
+                                                         .HandleNotificationOpened(OneSignalNotificationOpened)
                                                          .EndInit();
                                                          OneSignal.Current.IdsAvailable(OneSignalCallback);
                                                      });
 
-        private void OneSignalNotificationRecieved(OSNotification notification)
+        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
         {
-            _pushNotification = bitmap =>
-            {
-                var builder =
-                    new NotificationCompat.Builder(this)
-                        .SetSmallIcon(Resource.Drawable.ic_holder)
-                        .SetLargeIcon(bitmap)
-                        .SetContentTitle(notification.payload.title)
-                        .SetContentText(notification.payload.body)
-                        .SetShowWhen(true);
 
-                var push = builder.Build();
-                var notificationManager = (NotificationManager)GetSystemService(NotificationService);
-                notificationManager.Notify(notification.androidNotificationId, push);
-            };
-            RunOnUiThread(() =>
-                Picasso.With(this).Load(notification.payload.largeIcon).Into(this));
         }
 
         private void OneSignalCallback(string playerId, string pushToken)
@@ -263,19 +243,6 @@ namespace Steepshot.Activity
                         () => { profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame)); }, null);
             else
                 profileTab.SetIcon(BitmapUtils.GetViewDrawable(votingPowerFrame));
-        }
-
-        public void OnBitmapFailed(Drawable p0)
-        {
-        }
-
-        public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
-        {
-            RunOnUiThread(() => { _pushNotification.Invoke(p0); });
-        }
-
-        public void OnPrepareLoad(Drawable p0)
-        {
         }
     }
 }
