@@ -55,9 +55,9 @@ namespace Steepshot.CustomViews
                 {
                     _minimumRatio = _maximumRatio = _defaultRatio = Grid.Bounds.Width() / (float)Grid.Bounds.Height();
                     if (ImageRatio <= 1)
-                        _targetWidth = (int)DrawableImageParameters.PreviewBounds.Width();
+                        _targetWidth = Grid.Bounds.Width();
                     else
-                        _targetHeight = (int)DrawableImageParameters.PreviewBounds.Height();
+                        _targetHeight = Grid.Bounds.Height();
                 }
                 else
                     _currentScaleType = ScaleType.KeepScale;

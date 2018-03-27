@@ -459,13 +459,18 @@ namespace Steepshot.Fragment
             var flowViewTag = flowView.FindViewById<TextView>(Resource.Id.tag);
             flowView.Tag = tag;
             flowViewTag.Text = tag;
+            flowViewTag.Typeface = Style.Light;
             flowView.Click += (sender, args) =>
             {
                 _localTagsAdapter.LocalTags.Remove(tag);
                 _localTagsAdapter.NotifyDataSetChanged();
                 RemoveFlowTag(tag);
             };
-            _tagsFlow.AddView(flowView);
+            var margin = (int)BitmapUtils.DpToPixel(5, Resources);
+            var layoutParams = new FlowLayout.LayoutParams(ViewGroup.LayoutParams.WrapContent, ViewGroup.LayoutParams.WrapContent);
+            layoutParams.SetMargins(0, margin, margin, margin);
+            flowView.LayoutParameters = layoutParams;
+            _tagsFlow.AddView(flowView, layoutParams);
         }
         private void RemoveFlowTag(string tag)
         {
