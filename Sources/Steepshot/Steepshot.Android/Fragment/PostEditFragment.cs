@@ -15,7 +15,7 @@ using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
 using Apmem;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Square.Picasso;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -52,38 +52,38 @@ namespace Steepshot.Fragment
         private string _previousQuery;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
-        [InjectView(Resource.Id.photos)] private RecyclerView _photos;
-        [InjectView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
-        [InjectView(Resource.Id.rotate)] private ImageButton _rotateBtn;
-        [InjectView(Resource.Id.photo_preview)] private CropView _preview;
-        [InjectView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
-        [InjectView(Resource.Id.photos_layout)] private RelativeLayout _photosContainer;
-        [InjectView(Resource.Id.title)] private EditText _title;
-        [InjectView(Resource.Id.title_layout)] private RelativeLayout _titleContainer;
-        [InjectView(Resource.Id.description)] private EditText _description;
-        [InjectView(Resource.Id.description_layout)] private RelativeLayout _descriptionContainer;
-        [InjectView(Resource.Id.scroll_container)] private ScrollView _descriptionScrollContainer;
-        [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
-        [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
-        [InjectView(Resource.Id.flow_tags)] private FlowLayout _tagsFlow;
-        [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsContainer;
-        [InjectView(Resource.Id.tags_list)] private RecyclerView _tagsList;
-        [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListContainer;
-        [InjectView(Resource.Id.btn_post)] private Button _postButton;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
-        [InjectView(Resource.Id.btn_post_layout)] private RelativeLayout _postBtnContainer;
-        [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
-        [InjectView(Resource.Id.top_margin_tags_layout)] private RelativeLayout _topMarginTagsLayout;
-        [InjectView(Resource.Id.toolbar)] private LinearLayout _topPanel;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [BindView(Resource.Id.photos)] private RecyclerView _photos;
+        [BindView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
+        [BindView(Resource.Id.rotate)] private ImageButton _rotateBtn;
+        [BindView(Resource.Id.photo_preview)] private CropView _preview;
+        [BindView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
+        [BindView(Resource.Id.photos_layout)] private RelativeLayout _photosContainer;
+        [BindView(Resource.Id.title)] private EditText _title;
+        [BindView(Resource.Id.title_layout)] private RelativeLayout _titleContainer;
+        [BindView(Resource.Id.description)] private EditText _description;
+        [BindView(Resource.Id.description_layout)] private RelativeLayout _descriptionContainer;
+        [BindView(Resource.Id.scroll_container)] private ScrollView _descriptionScrollContainer;
+        [BindView(Resource.Id.tag)] private NewTextEdit _tag;
+        [BindView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
+        [BindView(Resource.Id.flow_tags)] private FlowLayout _tagsFlow;
+        [BindView(Resource.Id.tags_layout)] private LinearLayout _tagsContainer;
+        [BindView(Resource.Id.tags_list)] private RecyclerView _tagsList;
+        [BindView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListContainer;
+        [BindView(Resource.Id.btn_post)] private Button _postButton;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [BindView(Resource.Id.btn_post_layout)] private RelativeLayout _postBtnContainer;
+        [BindView(Resource.Id.page_title)] private TextView _pageTitle;
+        [BindView(Resource.Id.top_margin_tags_layout)] private RelativeLayout _topMarginTagsLayout;
+        [BindView(Resource.Id.toolbar)] private LinearLayout _topPanel;
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_post_description, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
 
             return InflatedView;

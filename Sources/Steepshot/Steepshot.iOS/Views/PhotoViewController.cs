@@ -154,15 +154,24 @@ namespace Steepshot.iOS.Views
         private void FinishedPickingMedia(object sender, UIImagePickerMediaPickedEventArgs e)
         {
             var originalImage = e.Info[UIImagePickerController.OriginalImage] as UIImage;
-            var imageManager = new PHImageManager();
-            imageManager.RequestImageData(e.PHAsset, null, (data, dataUti, orientation, info) =>
-            {
-                var source = CGImageSource.FromData(data);
-                var metadata = source.GetProperties(0).Dictionary;
 
-                GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata);
+            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            {
+                var imageManager = new PHImageManager();
+                imageManager.RequestImageData(e.PHAsset, null, (data, dataUti, orientation, info) =>
+                {
+                    var source = CGImageSource.FromData(data);
+                    var metadata = source.GetProperties(0).Dictionary;
+
+                    GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata);
+                    _imagePicker.DismissViewControllerAsync(false);
+                });
+            }
+            else
+            {
+                GoToDescription(originalImage, UIDeviceOrientation.Portrait);
                 _imagePicker.DismissViewControllerAsync(false);
-            });
+            }
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -188,7 +197,8 @@ namespace Steepshot.iOS.Views
             var settingsDictionary = NSDictionary<NSString, NSObject>.FromObjectsAndKeys(settingObjects, settingKeys);
 
             var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
-            if (_captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
+
+            if (_capturePhotoOutput.SupportedFlashModes.Length > 0 && _captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
                 settings.FlashMode = AVCaptureFlashMode.Auto;
 
             orientationOnPhoto = currentOrientation;

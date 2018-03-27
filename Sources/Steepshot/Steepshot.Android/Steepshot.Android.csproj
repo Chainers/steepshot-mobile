@@ -221,6 +221,7 @@
     <AndroidResource Include="Resources\layout\lyt_gallery_top.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_alert.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -459,18 +460,8 @@
       <HintPath>..\packages\ZXing.Net.Mobile.2.3.2\lib\MonoAndroid403\ZXingNetMobile.dll</HintPath>
     </Reference>
     <Reference Include="Cheeseknife">
-      <HintPath>..\Components\cheeseknife-1.0\lib\android\Cheeseknife.dll</HintPath>
+      <HintPath>..\packages\MisterJimson.Cheeseknife.1.1.0\lib\MonoAndroid10\Cheeseknife.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <XamarinComponentReference Include="cheeseknife">
-      <Visible>False</Visible>
-      <Version>1.0</Version>
-    </XamarinComponentReference>
-    <XamarinComponentReference Include="zxing.net.mobile">
-      <Version>2.1.12</Version>
-      <Visible>False</Visible>
-    </XamarinComponentReference>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-v21\styles.xml" />

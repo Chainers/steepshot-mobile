@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models;
@@ -13,6 +14,7 @@ namespace Steepshot.iOS.Helpers
     public static class CellHeightCalculator
     {
         private static readonly UIStringAttributes _noLinkAttribute;
+        private static readonly Regex _tagRegex = new Regex(@"^[a-zA-Z0-9_#]+$");
 
         static CellHeightCalculator()
         {
@@ -25,10 +27,11 @@ namespace Steepshot.iOS.Helpers
 
         public static CellSizeHelper Calculate(Post post)
         {
-            var attributedLabel = new TTTAttributedLabel();
-            var at = new NSMutableAttributedString();
             var photoHeight = (int)(OptimalPhotoSize.Get(new Size() { Height = post.Media[0].Size.Height, Width = post.Media[0].Size.Width },
                                                          (float)UIScreen.MainScreen.Bounds.Width, 180, (float)UIScreen.MainScreen.Bounds.Width + 50));
+
+            var attributedLabel = new TTTAttributedLabel();
+            var at = new NSMutableAttributedString();
 
             at.Append(new NSAttributedString(post.Title, _noLinkAttribute));
             if (!string.IsNullOrEmpty(post.Description))
@@ -43,14 +46,9 @@ namespace Steepshot.iOS.Helpers
                 if (tag == "steepshot")
                     continue;
                 NSUrl tagUrlWithoutWhitespaces = null;
-                try
-                {
-                    tagUrlWithoutWhitespaces = new NSUrl(tag.Replace(' ', '#'));
-                }
-                catch(Exception ex)
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                }
+                var tagText = tag.Replace(' ', '#');
+                if (_tagRegex.IsMatch(tagText))
+                    tagUrlWithoutWhitespaces = new NSUrl(tagText);
                 var linkAttribute = new UIStringAttributes
                 {
                     Link = tagUrlWithoutWhitespaces,
@@ -60,7 +58,7 @@ namespace Steepshot.iOS.Helpers
                 at.Append(new NSAttributedString($" #{tag}", linkAttribute));
             }
 
-            attributedLabel.Lines = 0;
+            attributedLabel.Lines = 3;
             attributedLabel.SetText(at);
 
             var textHeight = attributedLabel.SizeThatFits(new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, 0)).Height;

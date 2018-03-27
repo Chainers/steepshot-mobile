@@ -23,6 +23,9 @@ namespace Steepshot.iOS.Views
 
 		[Outlet]
 		UIKit.UILabel noFeedLabel { get; set; }
+
+		[Outlet]
+		UIKit.UICollectionView sliderCollection { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -44,6 +47,11 @@ namespace Steepshot.iOS.Views
 			if (noFeedLabel != null) {
 				noFeedLabel.Dispose ();
 				noFeedLabel = null;
+			}
+
+			if (sliderCollection != null) {
+				sliderCollection.Dispose ();
+				sliderCollection = null;
 			}
 		}
 	}

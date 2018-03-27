@@ -3,7 +3,6 @@
     public enum LocalizationKeys
     {
         WrongPrivatePostingKey,
-        WrongPrivatePostingKey2,
         WrongPrivateActimeKey,
         EmptyResponseContent,
         ResponseContentContainsHtml,

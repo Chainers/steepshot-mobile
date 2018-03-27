@@ -64,4 +64,52 @@ namespace Steepshot.iOS.ViewSources
             }
         }
     }
+
+    public class SliderCollectionViewSource : UICollectionViewSource
+    {
+        public event Action<ActionType, Post> CellAction;
+        public event Action<string> TagAction;
+        private readonly BasePostPresenter _presenter;
+        private SliderCollectionViewFlowDelegate _flowDelegate;
+
+        public SliderCollectionViewSource(BasePostPresenter presenter, SliderCollectionViewFlowDelegate flowDelegate)
+        {
+            _presenter = presenter;
+            _flowDelegate = flowDelegate;
+        }
+
+        public override nint GetItemsCount(UICollectionView collectionView, nint section)
+        {
+            var count = _presenter.Count;
+            return count == 0 || _presenter.IsLastReaded ? count : count + 1;
+        }
+
+        public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
+        {
+            if (_presenter.Count == indexPath.Row && !_presenter.IsLastReaded)
+            {
+                var loader = (LoaderCollectionCell)collectionView.DequeueReusableCell(nameof(LoaderCollectionCell), indexPath);
+                loader.SetLoader();
+                return loader;
+            }
+            else
+            {
+                var post = _presenter[(int)indexPath.Item];
+
+                var cell = (SliderFeedCollectionViewCell)collectionView.DequeueReusableCell(nameof(SliderFeedCollectionViewCell), indexPath);
+
+                var offset = collectionView.GetLayoutAttributesForItem(indexPath).Frame.X - 15 - collectionView.ContentOffset.X;
+
+                if (post != null)
+                    cell.UpdateCell(post, _flowDelegate.Variables[(int)indexPath.Item], offset);
+
+                if (!cell.IsCellActionSet)
+                {
+                    cell.CellAction += CellAction;
+                    cell.TagAction += TagAction;
+                }
+                return cell;
+            }
+        }
+    }
 }

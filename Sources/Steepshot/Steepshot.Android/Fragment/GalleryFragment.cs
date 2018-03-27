@@ -10,7 +10,7 @@ using Android.Provider;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -27,16 +27,16 @@ namespace Steepshot.Fragment
         private const byte MaxPhotosAllowed = 7;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.folders_spinner)] private Spinner _folders;
-        [InjectView(Resource.Id.coordinator)] private CoordinatorLinearLayout _coordinator;
-        [InjectView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
-        [InjectView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
-        [InjectView(Resource.Id.rotate)] private ImageButton _rotateBtn;
-        [InjectView(Resource.Id.multiselect)] private ImageButton _multiselectBtn;
-        [InjectView(Resource.Id.arrow_back)] private ImageButton _backBtn;
-        [InjectView(Resource.Id.arrow_next)] private ImageButton _nextBtn;
-        [InjectView(Resource.Id.photo_preview)] private CropView _preview;
-        [InjectView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
+        [BindView(Resource.Id.folders_spinner)] private Spinner _folders;
+        [BindView(Resource.Id.coordinator)] private CoordinatorLinearLayout _coordinator;
+        [BindView(Resource.Id.photo_preview_container)] private RelativeLayout _previewContainer;
+        [BindView(Resource.Id.ratio_switch)] private ImageButton _ratioBtn;
+        [BindView(Resource.Id.rotate)] private ImageButton _rotateBtn;
+        [BindView(Resource.Id.multiselect)] private ImageButton _multiselectBtn;
+        [BindView(Resource.Id.arrow_back)] private ImageButton _backBtn;
+        [BindView(Resource.Id.arrow_next)] private ImageButton _nextBtn;
+        [BindView(Resource.Id.photo_preview)] private CropView _preview;
+        [BindView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
 #pragma warning restore 0649
 
         private bool IsSdCardAvailable =>
@@ -87,7 +87,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_gallery, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
 
             return InflatedView;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +7,7 @@ using Android.Support.V7.Widget;
 using Android.Text;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
@@ -38,17 +38,17 @@ namespace Steepshot.Fragment
         private FollowersAdapter _usersSearchAdapter;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.categories)] private RecyclerView _categories;
-        [InjectView(Resource.Id.users)] private RecyclerView _users;
-        [InjectView(Resource.Id.search_view)] private EditText _searchView;
-        [InjectView(Resource.Id.people_loading_spinner)] private ProgressBar _peopleSpinner;
-        [InjectView(Resource.Id.tag_loading_spinner)] private ProgressBar _tagSpinner;
-        [InjectView(Resource.Id.tags_button)] private Button _tagsButton;
-        [InjectView(Resource.Id.people_button)] private Button _peopleButton;
-        [InjectView(Resource.Id.clear_button)] private Button _clearButton;
-        [InjectView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
-        [InjectView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
-        [InjectView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [CheeseBind.BindView(Resource.Id.categories)] private RecyclerView _categories;
+        [CheeseBind.BindView(Resource.Id.users)] private RecyclerView _users;
+        [CheeseBind.BindView(Resource.Id.search_view)] private EditText _searchView;
+        [CheeseBind.BindView(Resource.Id.people_loading_spinner)] private ProgressBar _peopleSpinner;
+        [CheeseBind.BindView(Resource.Id.tag_loading_spinner)] private ProgressBar _tagSpinner;
+        [CheeseBind.BindView(Resource.Id.tags_button)] private Button _tagsButton;
+        [CheeseBind.BindView(Resource.Id.people_button)] private Button _peopleButton;
+        [CheeseBind.BindView(Resource.Id.clear_button)] private Button _clearButton;
+        [CheeseBind.BindView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
+        [CheeseBind.BindView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
+        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -56,7 +56,7 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 InflatedView = inflater.Inflate(Resource.Layout.lyt_search, null);
-                Cheeseknife.Inject(this, InflatedView);
+                Cheeseknife.Bind(this, InflatedView);
             }
             ToggleTabBar();
             return InflatedView;
