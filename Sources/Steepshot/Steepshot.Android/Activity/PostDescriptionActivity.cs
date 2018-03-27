@@ -14,7 +14,7 @@ using Android.Util;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Java.IO;
 using Newtonsoft.Json;
 using Square.Picasso;
@@ -51,28 +51,28 @@ namespace Steepshot.Activity
         private string _previousQuery;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.title)] private EditText _title;
-        [InjectView(Resource.Id.description)] private EditText _description;
-        [InjectView(Resource.Id.btn_post)] private Button _postButton;
-        [InjectView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
-        [InjectView(Resource.Id.tags_list)] private RecyclerView _tagsList;
-        [InjectView(Resource.Id.page_title)] private TextView _pageTitle;
-        [InjectView(Resource.Id.photo)] private ImageView _photoFrame;
-        [InjectView(Resource.Id.tag)] private NewTextEdit _tag;
-        [InjectView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
-        [InjectView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
-        [InjectView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
-        [InjectView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
-        [InjectView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [InjectView(Resource.Id.rotate)] private ImageView _rotate;
+        [CheeseBind.BindView(Resource.Id.title)] private EditText _title;
+        [CheeseBind.BindView(Resource.Id.description)] private EditText _description;
+        [CheeseBind.BindView(Resource.Id.btn_post)] private Button _postButton;
+        [CheeseBind.BindView(Resource.Id.local_tags_list)] private RecyclerView _localTagsList;
+        [CheeseBind.BindView(Resource.Id.tags_list)] private RecyclerView _tagsList;
+        [CheeseBind.BindView(Resource.Id.page_title)] private TextView _pageTitle;
+        [CheeseBind.BindView(Resource.Id.photo)] private ImageView _photoFrame;
+        [CheeseBind.BindView(Resource.Id.tag)] private NewTextEdit _tag;
+        [CheeseBind.BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [CheeseBind.BindView(Resource.Id.tags_layout)] private LinearLayout _tagsLayout;
+        [CheeseBind.BindView(Resource.Id.tags_list_layout)] private LinearLayout _tagsListLayout;
+        [CheeseBind.BindView(Resource.Id.top_margin_tags_layout)] private LinearLayout _topMarginTagsLayout;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [CheeseBind.BindView(Resource.Id.rotate)] private ImageView _rotate;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_post_description);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
 
             _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddHashtag);
             _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.iOS.Cells;
 using Steepshot.iOS.Models;
 using UIKit;
 
@@ -16,8 +18,8 @@ namespace Steepshot.iOS.Helpers
         public Action ScrolledToBottom;
         public Action<ActionType, Post> CellClicked;
         public bool IsGrid = true;
-        private BasePostPresenter _presenter;
-        private UICollectionView _collection;
+        protected BasePostPresenter _presenter;
+        protected UICollectionView _collection;
         private int _prevPos;
         public List<CellSizeHelper> Variables = new List<CellSizeHelper>();
 
@@ -82,6 +84,78 @@ namespace Steepshot.iOS.Helpers
             }
             //loader height
             return new CGSize(UIScreen.MainScreen.Bounds.Width, 80);
-        } 
+        }
+    }
+
+    public class SliderCollectionViewFlowDelegate : CollectionViewFlowDelegate
+    {
+        private nfloat prevOffset = 0;
+
+        public SliderCollectionViewFlowDelegate(UICollectionView collection, BasePostPresenter presenter = null) : base(collection, presenter)
+        {
+        }
+
+        public override void Scrolled(UIScrollView scrollView)
+        {
+            foreach (var cell in _collection.IndexPathsForVisibleItems)
+            {
+                var sliderCell = _collection.CellForItem(cell) as SliderFeedCollectionViewCell;
+                sliderCell?.MoveData(prevOffset - scrollView.ContentOffset.X);
+            }
+            prevOffset = scrollView.ContentOffset.X;
+
+            base.Scrolled(scrollView);
+        }
+
+        public override CGSize GetSizeForItem(UICollectionView collectionView, UICollectionViewLayout layout, NSIndexPath indexPath)
+        {
+            return new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, collectionView.Frame.Height);
+        }
+    }
+
+    public class SliderFlowLayout : UICollectionViewFlowLayout
+    {
+        private CGPoint mostRecentOffset = new CGPoint();
+
+        public override CGPoint TargetContentOffset(CGPoint proposedContentOffset, CGPoint scrollingVelocity)
+        {
+            if (scrollingVelocity.X == 0)
+                return mostRecentOffset;
+
+            if (CollectionView != null)
+            {
+                var cv = CollectionView;
+                var cvBounds = cv.Bounds;
+                var halfWidth = cvBounds.Size.Width * 0.5;
+
+                var attributesForVisibleCells = LayoutAttributesForElementsInRect(cvBounds);
+
+                UICollectionViewLayoutAttributes candidateAttributes = null;
+
+                foreach (var attributes in attributesForVisibleCells)
+                {
+                    // == Skip comparison with non-cell items (headers and footers) == //
+                    if (attributes.RepresentedElementCategory != UICollectionElementCategory.Cell)
+                        continue;
+
+                    if ((attributes.Center.X == 0) || (attributes.Center.X > (cv.ContentOffset.X + halfWidth) && scrollingVelocity.X < 0))
+                        continue;
+
+                    candidateAttributes = attributes;
+                }
+
+                // Beautification step , I don't know why it works!
+                if (proposedContentOffset.X == -(cv.ContentInset.Left))
+                    return proposedContentOffset;
+
+                if (candidateAttributes == null)
+                    return mostRecentOffset;
+
+                mostRecentOffset = new CGPoint(Math.Floor(candidateAttributes.Center.X - halfWidth), proposedContentOffset.Y);
+                return mostRecentOffset;
+            }
+
+            return base.TargetContentOffset(proposedContentOffset, scrollingVelocity);
+        }
     }
 }

@@ -11,9 +11,9 @@ using Android.Support.V4.App;
 using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
 using Com.OneSignal;
 using Com.OneSignal.Abstractions;
+using CheeseBind;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
@@ -36,8 +36,8 @@ namespace Steepshot.Activity
         private int _tabHeight;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
-        [InjectView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
+        [CheeseBind.BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
+        [CheeseBind.BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
 #pragma warning restore 0649
 
 
@@ -49,7 +49,7 @@ namespace Steepshot.Activity
                 InitPushes();
 
             SetContentView(Resource.Layout.lyt_tab_host);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
 
             _tabHeight = (int)BitmapUtils.DpToPixel(30, Resources);
             _adapter = new Adapter.PagerAdapter(SupportFragmentManager);

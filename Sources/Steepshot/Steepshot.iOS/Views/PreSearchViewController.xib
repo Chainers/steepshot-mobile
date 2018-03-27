@@ -23,6 +23,8 @@
                 <outlet property="searchButton" destination="iYy-X8-jGG" id="WMm-kN-X3c"/>
                 <outlet property="searchHeight" destination="aaP-V5-Z6d" id="G7S-z9-edp"/>
                 <outlet property="searchTopMargin" destination="GFV-RE-HMj" id="xCB-5S-Kit"/>
+                <outlet property="sliderCollection" destination="cVd-qK-OJW" id="SiY-2w-M91"/>
+                <outlet property="sliderCollectionOffset" destination="LsF-BV-SQX" id="ZKE-SC-T1F"/>
                 <outlet property="switcher" destination="DgU-q8-f8k" id="efp-XC-rEg"/>
                 <outlet property="topButton" destination="RiB-Oh-gJP" id="ghM-an-aac"/>
                 <outlet property="topConstraint" destination="aGz-1B-4pe" id="kjJ-8L-6Mb"/>
@@ -147,10 +149,20 @@
                         </mask>
                     </variation>
                 </view>
-                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-E1-39z">
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Sju-E1-39z">
                     <rect key="frame" x="0.0" y="145" width="375" height="522"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="zqN-ol-d9X">
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="5" minimumInteritemSpacing="0.0" id="zqN-ol-d9X">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
+                <collectionView hidden="YES" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="cVd-qK-OJW">
+                    <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="WON-w8-SE3">
                         <size key="itemSize" width="50" height="50"/>
                         <size key="headerReferenceSize" width="0.0" height="0.0"/>
                         <size key="footerReferenceSize" width="0.0" height="0.0"/>
@@ -168,10 +180,10 @@
                     <color key="color" red="0.058823529409999999" green="0.094117647060000004" blue="0.1176470588" alpha="1" colorSpace="calibratedRGB"/>
                 </activityIndicatorView>
                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FA9-GS-ZPk">
-                    <rect key="frame" x="146" y="610" width="84" height="40"/>
+                    <rect key="frame" x="30" y="600" width="315" height="50"/>
                     <color key="backgroundColor" red="0.070588235294117646" green="0.58039215686274503" blue="0.96470588235294119" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="gfX-1C-pOI"/>
+                        <constraint firstAttribute="height" constant="50" id="gfX-1C-pOI"/>
                     </constraints>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <inset key="contentEdgeInsets" minX="20" minY="0.0" maxX="20" maxY="0.0"/>
@@ -183,6 +195,7 @@
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="Sju-E1-39z" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="3So-gj-7jk"/>
+                <constraint firstAttribute="bottom" secondItem="cVd-qK-OJW" secondAttribute="bottom" id="5jW-4q-vbo"/>
                 <constraint firstAttribute="trailing" secondItem="hnw-jm-3iE" secondAttribute="trailing" id="7mc-VR-9Qh"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="25" id="Ak3-4K-1U5"/>
                 <constraint firstItem="hnw-jm-3iE" firstAttribute="top" secondItem="iYy-X8-jGG" secondAttribute="bottom" id="AvC-4r-Kp5"/>
@@ -192,12 +205,17 @@
                 <constraint firstAttribute="trailing" secondItem="lNO-d0-qmR" secondAttribute="trailing" constant="25" id="GlG-P7-pPA"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="HDl-b4-6mV"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="centerY" secondItem="2" secondAttribute="centerY" id="LXh-B7-Vqp"/>
+                <constraint firstItem="cVd-qK-OJW" firstAttribute="top" secondItem="2" secondAttribute="top" constant="20" id="LsF-BV-SQX"/>
+                <constraint firstItem="FA9-GS-ZPk" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="30" id="MXt-Ga-64n"/>
+                <constraint firstAttribute="trailing" secondItem="FA9-GS-ZPk" secondAttribute="trailing" constant="30" id="PjJ-gU-Aus"/>
                 <constraint firstItem="vXC-ns-gD7" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="UFa-mb-S2K"/>
                 <constraint firstAttribute="trailing" secondItem="Sju-E1-39z" secondAttribute="trailing" id="Uli-H0-fiN"/>
                 <constraint firstItem="Sju-E1-39z" firstAttribute="top" secondItem="hnw-jm-3iE" secondAttribute="bottom" id="bNb-fP-BBb"/>
                 <constraint firstItem="hnw-jm-3iE" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="hKU-RH-0T6"/>
                 <constraint firstAttribute="trailing" secondItem="iYy-X8-jGG" secondAttribute="trailing" id="luZ-40-2IR"/>
                 <constraint firstAttribute="bottom" secondItem="Sju-E1-39z" secondAttribute="bottom" id="lwf-lw-sMv"/>
+                <constraint firstItem="cVd-qK-OJW" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="mUE-Za-5Ro"/>
+                <constraint firstAttribute="trailing" secondItem="cVd-qK-OJW" secondAttribute="trailing" id="nIM-bP-6Oo"/>
                 <constraint firstAttribute="bottom" secondItem="FA9-GS-ZPk" secondAttribute="bottom" constant="17" id="oof-QW-C4W"/>
                 <constraint firstItem="lNO-d0-qmR" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="q5z-0V-4rT"/>
             </constraints>
@@ -205,8 +223,8 @@
         </view>
     </objects>
     <resources>
-        <image name="ic_grid_active.png" width="22" height="22"/>
-        <image name="ic_grid_nonactive.png" width="22" height="22"/>
+        <image name="ic_grid_active.png" width="20" height="20"/>
+        <image name="ic_grid_nonactive.png" width="20" height="20"/>
         <image name="ic_search_small.png" width="12" height="12"/>
     </resources>
 </document>

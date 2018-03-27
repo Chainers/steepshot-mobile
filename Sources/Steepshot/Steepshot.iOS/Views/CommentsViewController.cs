@@ -233,8 +233,8 @@ namespace Steepshot.iOS.Views
                 var error = await _presenter.TryLoadNextComments(Post);
 
                 ShowAlert(error);
-
-                commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
+                if (_presenter.Count > 0)
+                    commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
                 Post.Children++;
             }
             else

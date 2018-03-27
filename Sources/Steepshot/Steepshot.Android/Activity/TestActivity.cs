@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using Android.App;
 using Android.OS;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Steepshot.Base;
 using Steepshot.Core;
 using Steepshot.Core.Presenters;
@@ -16,14 +16,14 @@ namespace Steepshot.Activity
         private MobileAutoTests _testContainer;
 
 #pragma warning disable 0649, 4014
-        [InjectView(Resource.Id.test_results)] private TextView _testResults;
+        [CheeseBind.BindView(Resource.Id.test_results)] private TextView _testResults;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_auto_test);
-            Cheeseknife.Inject(this);
+            Cheeseknife.Bind(this);
             _testContainer = new MobileAutoTests(Presenter.OpenApi, BasePresenter.User.UserInfo, AppSettings.AppInfo);
             _testContainer.StepFinished += UpdateResult;
         }
@@ -34,7 +34,7 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [InjectOnClick(Resource.Id.run_api_tests)]
+        [CheeseBind.OnClick(Resource.Id.run_api_tests)]
         private async void RunApiTest(object sender, EventArgs e)
         {
             //TODO: add cancel support
@@ -42,7 +42,7 @@ namespace Steepshot.Activity
             await _testContainer.RunDitchApiTests();
         }
 
-        [InjectOnClick(Resource.Id.btn_back)]
+        [CheeseBind.OnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
         {
             OnBackPressed();

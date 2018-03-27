@@ -13,6 +13,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using CoreGraphics;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -23,6 +24,7 @@ namespace Steepshot.iOS.Views
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
         private bool _isFeedRefreshing;
+        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
 
         protected override void CreatePresenter()
         {
@@ -32,8 +34,16 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            _gridDelegate.GenerateVariables();
-            feedCollection.ReloadData();
+            if (!feedCollection.Hidden)
+            {
+                _gridDelegate.GenerateVariables();
+                feedCollection.ReloadData();
+            }
+            else
+            {
+                _sliderGridDelegate.GenerateVariables();
+                sliderCollection.ReloadData();
+            }
         }
 
         public override void ViewWillAppear(bool animated)
@@ -67,6 +77,30 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
+
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+
+            sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
+            sliderCollection.ShowsHorizontalScrollIndicator = false;
+
+            sliderCollection.SetCollectionViewLayout(new SliderFlowLayout()
+            {
+                MinimumLineSpacing = 10,
+                MinimumInteritemSpacing = 0,
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                SectionInset = new UIEdgeInsets(0, 15, 0, 15),
+            }, false);
+
+            sliderCollection.Source = _sliderCollectionViewSource;
+            sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
+
+            _sliderCollectionViewSource.CellAction += CellAction;
+            _sliderCollectionViewSource.TagAction += TagAction;
+            sliderCollection.Delegate = _sliderGridDelegate;
 
             if (TabBarController != null)
             {
@@ -107,7 +141,17 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                    if (feedCollection.Hidden)
+                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
+                        NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                    else
+                    {
+                        feedCollection.Hidden = true;
+                        sliderCollection.Hidden = false;
+                        _sliderGridDelegate.GenerateVariables();
+                        sliderCollection.ReloadData();
+                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+                    }
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -127,6 +171,13 @@ namespace Steepshot.iOS.Views
                 case ActionType.More:
                     Flag(post);
                     break;
+                case ActionType.Close:
+                    feedCollection.Hidden = false;
+                    sliderCollection.Hidden = true;
+                    _gridDelegate.GenerateVariables();
+                    feedCollection.ReloadData();
+                    feedCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
+                    break;
                 default:
                     break;
             }
@@ -141,25 +192,29 @@ namespace Steepshot.iOS.Views
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            if (shouldStartAnimating)
-                activityIndicator.StartAnimating();
-            noFeedLabel.Hidden = true;
-
-            if (clearOld)
+            ErrorBase error;
+            do
             {
-                _presenter.Clear();
-                _gridDelegate.ClearPosition();
-            }
-            var error = await _presenter.TryLoadNextTopPosts();
+                if (shouldStartAnimating)
+                    activityIndicator.StartAnimating();
+                noFeedLabel.Hidden = true;
+
+                if (clearOld)
+                {
+                    _presenter.Clear();
+                    _gridDelegate.ClearPosition();
+                }
+                error = await _presenter.TryLoadNextTopPosts();
+
+                if (_refreshControl.Refreshing)
+                {
+                    _refreshControl.EndRefreshing();
+                    _isFeedRefreshing = false;
+                }
+                else
+                    activityIndicator.StopAnimating();
+            } while (error is RequestError);
             ShowAlert(error);
-
-            if (_refreshControl.Refreshing)
-            {
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
-            }
-            else
-                activityIndicator.StopAnimating();
         }
 
         private async void ScrolledToBottom()

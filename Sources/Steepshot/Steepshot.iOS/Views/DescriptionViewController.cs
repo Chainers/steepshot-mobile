@@ -34,14 +34,12 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
-        private string _identifier;
         private NSDictionary _metadata;
 
-        public DescriptionViewController(UIImage imageAsset, string extension, string typeIdentifier, NSDictionary metadata)
+        public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
             ImageAsset = imageAsset;
             ImageExtension = extension;
-            _identifier = typeIdentifier;
             _metadata = metadata;
         }
 
@@ -118,7 +116,7 @@ namespace Steepshot.iOS.Views
             titleTextField.AddSubview(titlePlaceholderLabel);
             _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
 
-            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate();
+            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate(2048);
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
 
             var descriptionPlaceholderLabel = new UILabel();
@@ -326,7 +324,7 @@ namespace Steepshot.iOS.Views
                     //exif setup
                     var editedExifData = RemakeMetadata(_metadata);
                     var newImageDataWithExif = new NSMutableData();
-                    var imageDestination = CGImageDestination.Create(newImageDataWithExif, _identifier, 0);
+                    var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
                     imageDestination.Close();
                     stream = newImageDataWithExif.AsStream();

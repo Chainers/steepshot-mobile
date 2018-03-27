@@ -26,6 +26,13 @@ namespace Steepshot.iOS.Helpers
 
     public class PostTitleTextViewDelegate : BaseTextViewDelegate
     {
+        private readonly int _textLimit;
+
+        public PostTitleTextViewDelegate(int textLimit = 255)
+        {
+            _textLimit = textLimit;
+        }
+
         public override bool ShouldChangeText(UITextView textView, NSRange range, string text)
         {
             /*
@@ -34,7 +41,7 @@ namespace Steepshot.iOS.Helpers
                 textView.ResignFirstResponder();
                 return false;
             }*/
-            if ((textView.Text + text).Length > 255)
+            if ((textView.Text + text).Length > _textLimit)
                 return false;
             return true;
         }

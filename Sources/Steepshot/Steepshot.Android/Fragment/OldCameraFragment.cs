@@ -11,7 +11,7 @@ using Android.Provider;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using Com.Lilarcor.Cheeseknife;
+using CheeseBind;
 using Refractored.Controls;
 using Steepshot.Activity;
 using Steepshot.Base;
@@ -36,21 +36,21 @@ namespace Steepshot.Fragment
         private float _dist;
         private CameraOrientationEventListener _orientationListner;
 
-        [InjectView(Resource.Id.surfaceView)] private SurfaceView _sv;
-        [InjectView(Resource.Id.flash_button)] private ImageButton _flashButton;
-        [InjectView(Resource.Id.shot_button)] private ImageButton _shotButton;
-        [InjectView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
-        [InjectView(Resource.Id.revert_button)] private ImageButton _revertButton;
-        [InjectView(Resource.Id.close_button)] private ImageButton _closeButton;
-        [InjectView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
-        [InjectView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
+        [CheeseBind.BindView(Resource.Id.surfaceView)] private SurfaceView _sv;
+        [CheeseBind.BindView(Resource.Id.flash_button)] private ImageButton _flashButton;
+        [CheeseBind.BindView(Resource.Id.shot_button)] private ImageButton _shotButton;
+        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
+        [CheeseBind.BindView(Resource.Id.revert_button)] private ImageButton _revertButton;
+        [CheeseBind.BindView(Resource.Id.close_button)] private ImageButton _closeButton;
+        [CheeseBind.BindView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
+        [CheeseBind.BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
 
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             var v = inflater.Inflate(Resource.Layout.lyt_old_camera, null);
-            Cheeseknife.Inject(this, v);
+            Cheeseknife.Bind(this, v);
             return v;
         }
 

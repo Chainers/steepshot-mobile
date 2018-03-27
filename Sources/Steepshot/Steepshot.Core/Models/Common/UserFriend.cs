@@ -1,6 +1,8 @@
+using Steepshot.Core.Models.Responses;
+
 namespace Steepshot.Core.Models.Common
 {
-    public class UserFriend : SearchResult
+    public class UserFriend : SearchResult, IFollowable
     {
         public bool HasFollowed { get; set; }
         public int Reputation { get; set; }
@@ -11,5 +13,7 @@ namespace Steepshot.Core.Models.Common
 
         //system
         public bool FollowedChanging { get; set; }
+
+        public string Key => Author;
     }
 }

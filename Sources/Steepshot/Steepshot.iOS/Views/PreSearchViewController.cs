@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using iOS.Hardware;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -22,6 +23,7 @@ namespace Steepshot.iOS.Views
 
         private ProfileCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
+        private SliderCollectionViewFlowDelegate _sliderGridDelegate;
 
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
@@ -44,8 +46,27 @@ namespace Steepshot.iOS.Views
             collectionView.Source = _collectionViewSource;
             collectionView.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             collectionView.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
-            collectionView.RegisterNibForCell(UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle), nameof(PhotoCollectionViewCell));
             collectionView.RegisterClassForCell(typeof(NewFeedCollectionViewCell), nameof(NewFeedCollectionViewCell));
+
+            _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
+            _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
+
+            var _sliderCollectionViewSource = new SliderCollectionViewSource(_presenter, _sliderGridDelegate);
+
+            sliderCollection.DecelerationRate = UIScrollView.DecelerationRateFast;
+            sliderCollection.ShowsHorizontalScrollIndicator = false;
+
+            sliderCollection.SetCollectionViewLayout(new SliderFlowLayout()
+            {
+                MinimumLineSpacing = 10,
+                MinimumInteritemSpacing = 0,
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                SectionInset = new UIEdgeInsets(0, 15, 0, 15),
+            }, false);
+
+            sliderCollection.Source = _sliderCollectionViewSource;
+            sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
+            sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
 
             _refreshControl = new UIRefreshControl();
             _refreshControl.ValueChanged += async (sender, e) =>
@@ -57,18 +78,22 @@ namespace Steepshot.iOS.Views
             _collectionViewSource.CellAction += CellAction;
             _collectionViewSource.TagAction += TagAction;
 
+            _sliderCollectionViewSource.CellAction += CellAction;
+            _sliderCollectionViewSource.TagAction += TagAction;
+
             collectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
             {
-                MinimumLineSpacing = 0,
-                MinimumInteritemSpacing = 0,
+                MinimumLineSpacing = 1,
+                MinimumInteritemSpacing = 1,
             }, false);
 
             collectionView.Delegate = _gridDelegate;
+            sliderCollection.Delegate = _sliderGridDelegate;
 
             if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
-                loginButton.Layer.CornerRadius = 20;
+                loginButton.Layer.CornerRadius = 25;
                 loginButton.Layer.BorderWidth = 0;
             }
 
@@ -119,9 +144,14 @@ namespace Steepshot.iOS.Views
 
                 searchHeight.Constant = 0;
                 searchTopMargin.Constant = 0;
+                sliderCollectionOffset.Constant = 0;
             }
             else
+            {
+                if(DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                    sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
+            }
 
             base.ViewWillAppear(animated);
         }
@@ -188,10 +218,17 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    if(_collectionViewSource.IsGrid)
-                        NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
-                    else
+                    if(collectionView.Hidden)
+                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
+                    else
+                    {
+                        collectionView.Hidden = true;
+                        sliderCollection.Hidden = false;
+                        _sliderGridDelegate.GenerateVariables();
+                        sliderCollection.ReloadData();
+                        sliderCollection.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.CenteredHorizontally, false);
+                    }
                     break;
                 case ActionType.Voters:
                     NavigationController.PushViewController(new VotersViewController(post, VotersType.Likes), true);
@@ -210,6 +247,13 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.More:
                     Flagged(post);
+                    break;
+                case ActionType.Close:
+                    collectionView.Hidden = false;
+                    sliderCollection.Hidden = true;
+                    _gridDelegate.GenerateVariables();
+                    collectionView.ReloadData();
+                    collectionView.ScrollToItem(NSIndexPath.FromRowSection(_presenter.IndexOf(post), 0), UICollectionViewScrollPosition.Top, false);
                     break;
                 default:
                     break;
@@ -311,36 +355,45 @@ namespace Steepshot.iOS.Views
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            if (shouldStartAnimating)
-                activityIndicator.StartAnimating();
-            noFeedLabel.Hidden = true;
-
-            if (clearOld)
-            {
-                _gridDelegate.ClearPosition();
-                _presenter.Clear();
-            }
-
             ErrorBase error;
-            if (CurrentPostCategory == null)
-                error = await _presenter.TryLoadNextTopPosts();
-            else
+            do
             {
-                _presenter.Tag = CurrentPostCategory;
-                error = await _presenter.TryGetSearchedPosts();
-            }
+                if (shouldStartAnimating)
+                {
+                    activityIndicator.StartAnimating();
+                    _refreshControl.EndRefreshing();
+                }
+                else
+                    activityIndicator.StopAnimating();
 
-            if (error is CanceledError)
-                return;
+                noFeedLabel.Hidden = true;
 
-            if (_refreshControl.Refreshing)
-            {
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
-            }
-            else
-                activityIndicator.StopAnimating();
+                if (clearOld)
+                {
+                    _sliderGridDelegate.ClearPosition();
+                    _gridDelegate.ClearPosition();
+                    _presenter.Clear();
+                }
 
+                if (CurrentPostCategory == null)
+                    error = await _presenter.TryLoadNextTopPosts();
+                else
+                {
+                    _presenter.Tag = CurrentPostCategory;
+                    error = await _presenter.TryGetSearchedPosts();
+                }
+
+                if (error is CanceledError)
+                    return;
+
+                if (_refreshControl.Refreshing)
+                {
+                    _refreshControl.EndRefreshing();
+                    _isFeedRefreshing = false;
+                }
+                else
+                    activityIndicator.StopAnimating();
+            } while (error is RequestError);
             ShowAlert(error);
         }
 
@@ -362,8 +415,16 @@ namespace Steepshot.iOS.Views
 
         private void SourceChanged(Status status)
         {
-            _gridDelegate.GenerateVariables();
-            collectionView.ReloadData();
+            if (!collectionView.Hidden)
+            {
+                _gridDelegate.GenerateVariables();
+                collectionView.ReloadData();
+            }
+            else
+            {
+                _sliderGridDelegate.GenerateVariables();
+                sliderCollection.ReloadData();
+            }
         }
     }
 }

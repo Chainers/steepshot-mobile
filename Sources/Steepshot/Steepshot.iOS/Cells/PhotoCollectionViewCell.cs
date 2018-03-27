@@ -1,63 +1,57 @@
 ﻿using System;
-using System.Diagnostics;
+using CoreGraphics;
 using FFImageLoading;
 using FFImageLoading.Work;
-using Foundation;
-using Photos;
 using Steepshot.Core.Models.Common;
 using Steepshot.iOS.Helpers;
 using UIKit;
 
 namespace Steepshot.iOS.Cells
 {
-    public partial class PhotoCollectionViewCell : BaseProfileCell
+    public partial class PhotoCollectionViewCell : UICollectionViewCell
     {
-        protected PhotoCollectionViewCell(IntPtr handle) : base(handle) { }
-        public static readonly NSString Key = new NSString(nameof(PhotoCollectionViewCell));
-        public static readonly UINib Nib;
-        public PHAsset Asset;
-        public UIImage Image => photoImg.Image;
-        public string ImageUrl;
+        private string ImageUrl;
         private IScheduledWork _scheduledWork;
-        private readonly int _downSampleWidth = (int)Constants.CellSize.Width;
+        private Post _currentPost;
+        private UIImageView _bodyImage;
 
-        bool isInitialized;
+        protected PhotoCollectionViewCell(IntPtr handle) : base(handle) { }
 
-        static PhotoCollectionViewCell()
-        {
-            Nib = UINib.FromName(nameof(PhotoCollectionViewCell), NSBundle.MainBundle);
-        }
-
-        public void UpdateImage(UIImage photo, PHAsset asset)
+        /*
+        public void UpdateImage(UIImage photo)
         {
             photoImg.Image = photo;
-            Asset = asset;
-        }
+            //Asset = asset;
+        }*/
 
-        public override void UpdateCell(Post post)
+        public void UpdateCell(Post post)
         {
-            if (!isInitialized)
-            {
-                widthConstraint.Constant = heightConstraint.Constant = Constants.CellSideSize;
-                isInitialized = true;
-            }
+            _currentPost = post;
 
             var thumbnail = post.Media[0].Thumbnails?[256];
             ImageUrl = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
 
-            photoImg.Image = null;
+            _bodyImage?.RemoveFromSuperview();
+            _bodyImage = new UIImageView();
+            _bodyImage.ClipsToBounds = true;
+            _bodyImage.UserInteractionEnabled = true;
+            _bodyImage.ContentMode = UIViewContentMode.ScaleAspectFill;
+            _bodyImage.Frame = new CGRect(new CGPoint(0, 0), Constants.CellSize);
+            _bodyImage.BackgroundColor = UIColor.FromRGB(244, 244, 246);
+
+            ContentView.AddSubview(_bodyImage);
+
             _scheduledWork?.Cancel();
-            if (ImageUrl != null)
-                _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl, Constants.ImageCacheDuration)
-                                             .Retry(5)
-                                             .WithPriority(LoadingPriority.High)
-                                            /* .DownloadProgress((DownloadProgress obj) =>
-                                                {
-                                                    Debug.WriteLine(obj.Current + " of " + obj.Total);
-                                                })*/
-                                             .FadeAnimation(false)
-                                             .DownSample(width: _downSampleWidth)
-                                             .Into(photoImg);
+            _scheduledWork = ImageService.Instance.LoadUrl(ImageUrl)
+                                         .Retry(2)
+                                         .FadeAnimation(false)
+                                         .WithCache(FFImageLoading.Cache.CacheType.All)
+                                         .WithPriority(LoadingPriority.Highest)
+                                         .DownSample(300)
+                                          /* .DownloadProgress((f)=>
+                                         {
+                                         })*/
+                                          .Into(_bodyImage);
         }
     }
 }

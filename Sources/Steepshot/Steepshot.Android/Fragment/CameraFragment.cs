@@ -1,11 +1,11 @@
-//using System;
+﻿//using System;
 //using Android.Content;
 //using Android.Content.PM;
 //using Android.OS;
 //using Android.Support.V4.Content;
 //using Android.Views;
 //using Android.Widget;
-//using Com.Lilarcor.Cheeseknife;
+//using CheeseBind;
 //using Steepshot.Activity;
 //using Steepshot.Base;
 //using Steepshot.Utils;
@@ -23,7 +23,7 @@
 //        public const string CameraPermission = Android.Manifest.Permission.Camera;
 //        public const string WritePermission = Android.Manifest.Permission.WriteExternalStorage;
 
-//        [InjectView(Resource.Id.camera_frame)]
+//        [CheeseBind.BindView(Resource.Id.camera_frame)]
 //        FrameLayout _cameraContainer;
 
 //        [InjectOnClick(Resource.Id.take_photo)]

@@ -44,7 +44,7 @@ namespace Steepshot.Core.HttpClient
                 Monitor.Enter(SyncConnection, ref lockWasTaken);
                 if (!EnableWrite)
                 {
-                    var cUrls = new List<string> { "https://api.steemit.com", "https://steemd2.steepshot.org" };
+                    var cUrls = new List<string> { "https://api.steemit.com", "https://steemd.steepshot.org" };
                     var conectedTo = _operationManager.TryConnectTo(cUrls, token);
                     if (!string.IsNullOrEmpty(conectedTo))
                         EnableWrite = true;

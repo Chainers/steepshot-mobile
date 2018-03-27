@@ -12,7 +12,6 @@ using Steepshot.iOS.Helpers;
 using UIKit;
 using Xamarin.TTTAttributedLabel;
 using PureLayout.Net;
-using System.Diagnostics;
 using CoreGraphics;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;

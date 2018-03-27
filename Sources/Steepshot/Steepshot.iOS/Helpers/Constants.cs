@@ -11,6 +11,7 @@ namespace Steepshot.iOS.Helpers
         public const string UserContextKey = "UserContext";
 
         public static readonly UIFont Semibold14 = UIFont.FromName("OpenSans-Semibold", 14f);
+        public static readonly UIFont Semibold16 = UIFont.FromName("OpenSans-Semibold", 16f);
         public static readonly UIFont Semibold20 = UIFont.FromName("OpenSans-Semibold", 20f);
         public static readonly UIFont Regular12 = UIFont.FromName("OpenSans", 12f);
         public static readonly UIFont Regular14 = UIFont.FromName("OpenSans", 14f);
