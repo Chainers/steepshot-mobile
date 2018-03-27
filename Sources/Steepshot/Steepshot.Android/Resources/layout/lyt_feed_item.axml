@@ -75,15 +75,16 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_margin="15dp"
-            android:src="@drawable/ic_gallery" />
+            android:src="@drawable/ic_gallery"
+            android:visibility="gone" />
         <android.support.design.widget.TabLayout
             android:id="@+id/dot_selector"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content"            
             android:layout_alignParentBottom="true"
             app:tabBackground="@drawable/postpager_dot_selector"
             app:tabMaxWidth="10dp"
-            app:tabGravity="center"
+            app:tabGravity="center"            
             app:tabIndicatorHeight="0dp" />
     </RelativeLayout>
     <include

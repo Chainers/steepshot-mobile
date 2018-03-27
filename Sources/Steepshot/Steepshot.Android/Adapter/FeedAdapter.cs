@@ -544,8 +544,8 @@ namespace Steepshot.Adapter
                 }
             }
 
-            _gallery.Visibility = _pagerTabLayout.Visibility =
-                post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
+            //_gallery.Visibility = _pagerTabLayout.Visibility =
+            //    post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
             SetNsfwMaskLayout();
 
@@ -616,11 +616,12 @@ namespace Steepshot.Adapter
                 if (mediaModel != null)
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
-                    Picasso.With(_context).Load(mediaModel.Url).NoFade()
+                    var url = string.IsNullOrEmpty(mediaModel.Thumbnails[1024]) ? mediaModel.Url : mediaModel.Thumbnails[1024];
+                    Picasso.With(_context).Load(url).NoFade()
                         .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
-                            Picasso.With(_context).Load(mediaModel.Url).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                            Picasso.With(_context).Load(url).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
 
                     if (_type == PostPagerType.PostScreen)
