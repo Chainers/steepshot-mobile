@@ -92,7 +92,7 @@ namespace Steepshot.iOS.Views
         {
             if (textField.Text.Length + replacementString.Length > 51 || replacementString == " ")
             {
-                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey2, textField);
+                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, textField);
                 return false;
             }
             return true;
@@ -103,8 +103,10 @@ namespace Steepshot.iOS.Views
             var scanner = new ZXing.Mobile.MobileBarcodeScanner();
             var result = await scanner.Scan();
 
-            if (result != null)
+            if (result != null && result.Text.Length == 51)
                 password.Text = result.Text;
+            else
+                ShowCustomAlert(LocalizationKeys.WrongPrivatePostingKey, password);
         }
 
         private bool PasswordShouldReturn(UITextField textField)

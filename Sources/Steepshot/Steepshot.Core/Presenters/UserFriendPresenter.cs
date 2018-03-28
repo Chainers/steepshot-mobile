@@ -10,7 +10,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserFriendPresenter : ListPresenter<UserFriend>
+    public sealed class UserFriendPresenter : ListPresenter<UserFriend>, IDisposable
     {
         private const int ItemsLimit = 40;
         public FriendsType? FollowType { get; set; }
@@ -55,7 +55,10 @@ namespace Steepshot.Core.Presenters
                 if (voters.Count > 0)
                 {
                     lock (Items)
+                    {
                         Items.AddRange(Items.Count == 0 ? voters : voters.Skip(1));
+                        CashPresenterManager.Add(Items.Count == 0 ? voters : voters.Skip(1));
+                    }
 
                     OffsetUrl = voters.Last().Author;
                 }
@@ -95,7 +98,10 @@ namespace Steepshot.Core.Presenters
                 if (result.Count > 0)
                 {
                     lock (Items)
+                    {
                         Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
+                        CashPresenterManager.Add(Items.Count == 0 ? result : result.Skip(1));
+                    }
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -131,7 +137,10 @@ namespace Steepshot.Core.Presenters
                 if (result.Count > 0)
                 {
                     lock (Items)
+                    {
                         Items.AddRange(Items.Count == 0 ? result : result.Skip(1));
+                        CashPresenterManager.Add(Items.Count == 0 ? result : result.Skip(1));
+                    }
 
                     OffsetUrl = result.Last().Author;
                 }
@@ -155,13 +164,63 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> Follow(UserFriend item, CancellationToken ct)
         {
+            var hasFollowed = item.HasFollowed;
             var request = new FollowModel(User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
 
             if (response.IsSuccess)
-                item.HasFollowed = !item.HasFollowed;
+                item.HasFollowed = !hasFollowed;
+
+            CashPresenterManager.Update(item);
 
             return response.Error;
         }
+
+        public override void Clear(bool isNotify = true)
+        {
+            lock (Items)
+            {
+                CashPresenterManager.RemoveAll(Items);
+            }
+            base.Clear(isNotify);
+        }
+        
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    lock (Items)
+                    {
+                        CashPresenterManager.RemoveAll(Items);
+                    }
+                }
+
+                // free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // set large fields to null.
+
+                _disposedValue = true;
+            }
+        }
+
+        // override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BasePostPresenter() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

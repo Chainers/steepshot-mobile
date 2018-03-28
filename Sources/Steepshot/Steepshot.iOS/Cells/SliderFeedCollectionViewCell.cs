@@ -14,6 +14,7 @@ using System.Linq;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
+using System.Text.RegularExpressions;
 
 namespace Steepshot.iOS.Cells
 {
@@ -87,6 +88,8 @@ namespace Steepshot.iOS.Cells
             }
         }
 
+        //need to rebuild label
+        private readonly Regex _tagRegex = new Regex(@"^[a-zA-Z0-9_#]+$");
 
         public void MoveData(nfloat step)
         {
@@ -482,14 +485,12 @@ namespace Steepshot.iOS.Cells
                 if (tag == "steepshot")
                     continue;
                 NSUrl tagUrlWithoutWhitespaces = null;
-                try
-                {
-                    tagUrlWithoutWhitespaces = new NSUrl(tag.Replace(' ', '#'));
-                }
-                catch (Exception ex)
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                }
+
+                var tagText = tag.Replace(' ', '#');
+
+                if(_tagRegex.IsMatch(tagText))
+                    tagUrlWithoutWhitespaces = new NSUrl(tagText);
+
                 var linkAttribute = new UIStringAttributes
                 {
                     Link = tagUrlWithoutWhitespaces,

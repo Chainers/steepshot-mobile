@@ -208,6 +208,7 @@
     <AndroidResource Include="Resources\layout\lyt_empty_feed.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_alert.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />

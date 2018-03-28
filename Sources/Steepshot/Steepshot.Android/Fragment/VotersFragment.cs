@@ -156,5 +156,11 @@ namespace Steepshot.Fragment
                 StartActivity(intent);
             }
         }
+
+        public override void OnResume()
+        {
+            base.OnResume();
+            _adapter.NotifyDataSetChanged();
+        }
     }
 }

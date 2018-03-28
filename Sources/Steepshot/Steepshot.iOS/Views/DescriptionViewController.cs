@@ -116,7 +116,7 @@ namespace Steepshot.iOS.Views
             titleTextField.AddSubview(titlePlaceholderLabel);
             _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
 
-            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate();
+            var _descriptionTextViewDelegate = new PostTitleTextViewDelegate(2048);
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
 
             var descriptionPlaceholderLabel = new UILabel();
