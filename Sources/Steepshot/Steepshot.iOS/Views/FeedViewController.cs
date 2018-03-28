@@ -203,9 +203,7 @@ namespace Steepshot.iOS.Views
 
         private void CopyLink(Post post)
         {
-            UIPasteboard clipboard = UIPasteboard.General;
-            clipboard.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
-
+            UIPasteboard.General.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
             ShowAlert(LocalizationKeys.Copied);
         }
 
@@ -214,9 +212,8 @@ namespace Steepshot.iOS.Views
             var postLink = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
             var item = NSObject.FromObject(postLink);
             var activityItems = new NSObject[] { item };
-            UIActivity[] applicationActivities = null;
 
-            var activityController = new UIActivityViewController(activityItems, applicationActivities);
+            var activityController = new UIActivityViewController(activityItems, null);
             PresentViewController(activityController, true, null);
         }
 
