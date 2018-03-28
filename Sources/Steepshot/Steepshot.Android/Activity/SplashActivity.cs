@@ -11,6 +11,7 @@ using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
 using Steepshot.Core.Localization;
+using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
@@ -29,6 +30,8 @@ namespace Steepshot.Activity
             AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainOnUnhandledException;
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
+
+            GAService.Instance.InitializeGAService(this);
 
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
