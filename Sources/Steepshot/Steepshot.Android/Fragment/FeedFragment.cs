@@ -39,6 +39,10 @@ namespace Steepshot.Fragment
         [CheeseBind.BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
         [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
         [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [CheeseBind.BindView(Resource.Id.feed_container)] private RelativeLayout _feedContainer;
+        [CheeseBind.BindView(Resource.Id.browse_button)] private Button _browseButton;
+        [CheeseBind.BindView(Resource.Id.main_message)] private TextView _mainMessage;
+        [CheeseBind.BindView(Resource.Id.hint_message)] private TextView _hintMessage;
 #pragma warning restore 0649
 
 
@@ -58,18 +62,19 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 base.OnViewCreated(view, savedInstanceState);
-
+                
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
-
+                
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
                 _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
-
+                
                 _logo.Click += OnLogoClick;
+                _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
 
                 _scrollListner = new ScrollListener();
@@ -92,6 +97,10 @@ namespace Steepshot.Fragment
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
+
+                _mainMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Greeting);
+                _hintMessage.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyFeedHint);
+                _browseButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.GoToBrowse);
 
                 LoadPosts();
             }
@@ -189,8 +198,18 @@ namespace Steepshot.Fragment
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
+            
+            _feedContainer.Visibility = ViewStates.Invisible;
 
-            _emptyQueryLabel.Visibility = Presenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+            if (Presenter.Count == 0)
+            {
+                _feedContainer.Visibility = ViewStates.Visible;
+            }
+        }
+
+        private void GoToBrowseButtonClick(object sender, EventArgs e)
+        {
+            ((RootActivity)Activity).SelectTab(1);
         }
 
         private void PhotoClick(Post post)
