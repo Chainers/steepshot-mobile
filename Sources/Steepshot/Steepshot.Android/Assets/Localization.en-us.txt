@@ -177,6 +177,15 @@
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",
         "504 Gateway Time-out": "(504) Gateway Time-out",        
+		"Greeting":"Hello! It's time to find the coolest content for you!",
+		"EmptyFeedHint":"Click the button below to go to the Search for interesting people and publications",
+		"GoToBrowse":"Go to Browse",
+	
+        "<h1>Server Error (500)</h1>": "(500) Server Error",
+        "<h1>Not Found</h1>":"Not Found",
+        
+        "504 Gateway Time-out": "(504) Gateway Time-out",
+        
         "<html> <head><title>504 Gateway Time-out": "(504) Gateway Time-out",
         "<html> <head><title>502 Bad Gateway": "(502) Bad Gateway",
         "<html> <head><title>400 Bad Request": "(400) Bad Request",

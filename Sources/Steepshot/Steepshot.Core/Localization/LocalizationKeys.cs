@@ -171,6 +171,9 @@
         EmptyQuery,
         Gallery,
         PickedPhotosLimit,
-        NoPhotosPicked
+        NoPhotosPicked,
+        Greeting,
+        EmptyFeedHint,
+        GoToBrowse,
     }
 }
