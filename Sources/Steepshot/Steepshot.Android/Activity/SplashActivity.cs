@@ -37,7 +37,11 @@ namespace Steepshot.Activity
                 {
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
                     var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-                    CurrentHostFragment = HostFragment.NewInstance(new PostEditFragment(new GalleryMediaModel { Path = BitmapUtils.GetRealPathFromURI(uri, this) }));
+                    var galleryModel = new GalleryMediaModel
+                    {
+                        Path = BitmapUtils.GetRealPathFromURI(uri, this)
+                    };
+                    CurrentHostFragment = HostFragment.NewInstance(new PostEditFragment(galleryModel));
                     fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
                     fragmentTransaction.Commit();
                 }

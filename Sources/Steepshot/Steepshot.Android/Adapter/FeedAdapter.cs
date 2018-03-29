@@ -544,7 +544,6 @@ namespace Steepshot.Adapter
                 }
             }
 
-            //_gallery.Visibility = 
             _pagerTabLayout.Visibility = post.Media.Length > 1 ? ViewStates.Visible : ViewStates.Gone;
 
             SetNsfwMaskLayout();

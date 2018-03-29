@@ -25,7 +25,7 @@ namespace Steepshot.Adapter
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            var galleryHolder = holder as GalleryViewHolder;
+            var galleryHolder = (GalleryViewHolder)holder;
             if (_gallery != null)
                 galleryHolder?.Update(_gallery[position]);
             else

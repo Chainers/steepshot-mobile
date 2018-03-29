@@ -52,7 +52,7 @@ namespace Steepshot.Adapter
 
         public GalleryGridViewHolder(View itemView, Action<GalleryMediaModel> onItemSelected) : base(itemView)
         {
-            _image = itemView as SelectableImageView;
+            _image = (SelectableImageView)itemView;
             _onItemSelected = onItemSelected;
             itemView.Click += ItemViewOnClick;
         }
@@ -65,7 +65,7 @@ namespace Steepshot.Adapter
         public void Update(GalleryMediaModel media)
         {
             _media = media;
-            _image.Bind(media);
+            _image?.Bind(media);
         }
     }
 }

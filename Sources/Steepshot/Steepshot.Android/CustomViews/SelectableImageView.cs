@@ -1,4 +1,5 @@
 ﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.Net;
 using Android.Widget;
@@ -34,7 +35,7 @@ namespace Steepshot.CustomViews
         }
 
         private Paint _selectionPaint;
-        private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Color.Rgb(255, 81, 4), StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
+        private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Resources.GetColor(Resource.Color.rgb255_81_4), StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
 
         private Paint _whitePaint;
         private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources), TextSize = BitmapUtils.DpToPixel(16, Context.Resources), TextAlign = Paint.Align.Center });

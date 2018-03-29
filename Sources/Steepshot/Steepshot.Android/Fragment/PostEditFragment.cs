@@ -355,7 +355,7 @@ namespace Steepshot.Fragment
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
-                ((BaseActivity)Activity).OnBackPressed();
+                Activity.Finish();
             }
             else
             {
