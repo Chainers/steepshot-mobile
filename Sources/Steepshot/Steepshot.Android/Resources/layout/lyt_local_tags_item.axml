@@ -3,7 +3,7 @@
     android:id="@+id/tag_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/white_rounded_border"
+    android:background="@drawable/tags_rounded_border"
     android:clickable="true">
     <LinearLayout
         android:orientation="horizontal"
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:text="#"
             android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30"
+            android:textColor="@color/rgb209_213_216"
             android:layout_marginEnd="3dp" />
         <TextView
             android:id="@+id/tag"
@@ -27,13 +27,13 @@
             android:text="cryptocurrency"
             android:gravity="center"
             android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30" />
+            android:textColor="@color/rgb151_155_158" />
         <ImageView
-            android:layout_width="11dp"
-            android:layout_height="11dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:layout_marginLeft="7dp"
             android:layout_marginTop="1dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_close_black" />
+            android:src="@drawable/ic_close_tag" />
     </LinearLayout>
 </LinearLayout>

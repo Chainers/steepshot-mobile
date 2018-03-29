@@ -9,6 +9,7 @@
   <item name="color_primary" type="color">#2196F3</item>
   <item name="color_hint" type="color">#999999</item>
   <item name="white40" type="color">#99FFFFFF</item>
+  <item name="white50" type="color">#80FFFFFF</item>
   <item name="black" type="color">#000000</item>
   <item name="light_gray" type="color">#CCCCCC</item>
   <item name="light_gray_fa" type="color">#fafafa</item>
@@ -25,5 +26,6 @@
   <item name="rgb231_72_0" type="color">#E74800</item>
   <item name="rgb18_148_246" type="color">#1294f6</item>
   <item name="rgb255_121_4" type="color">#FF7904</item>
+  <item name="rgb255_81_4" type="color">#ff5104</item>
   <item name="rgb255_22_5" type="color">#FF1605</item>
 </resources>

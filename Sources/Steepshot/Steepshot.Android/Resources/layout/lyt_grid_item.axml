@@ -7,6 +7,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
+    <ImageView
+        android:id="@+id/gallery"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
+        android:src="@drawable/ic_gallery"
+        android:scaleType="fitXY" />
     <RelativeLayout
         android:id="@+id/grid_item_nsfw"
         android:layout_width="match_parent"

@@ -14,7 +14,7 @@ using Math = System.Math;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Errors;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
     public sealed class ScaleImageView : ImageView
     {

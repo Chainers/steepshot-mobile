@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"    
+    android:layout_height="wrap_content"
     android:padding="13dp"
     android:background="@color/white">
     <refractored.controls.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -36,7 +36,7 @@
         android:layout_alignStart="@id/avatar"
         android:layout_below="@id/sender_name"
         android:layout_marginTop="10dp">
-        <Steepshot.Utils.PostCustomTextView
+        <Steepshot.CustomViews.PostCustomTextView
             android:id="@+id/first_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

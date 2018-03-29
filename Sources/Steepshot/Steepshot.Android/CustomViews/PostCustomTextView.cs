@@ -12,8 +12,9 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Utils;
+using Steepshot.Utils;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
     public sealed class PostCustomTextView : TextView
     {
