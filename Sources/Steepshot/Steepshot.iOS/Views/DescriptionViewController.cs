@@ -407,7 +407,6 @@ namespace Steepshot.iOS.Views
                         // more than 15 posts
                         InvokeOnMainThread(() =>
                         {
-                            
                         });
                     }
                 }
