@@ -26,15 +26,18 @@ namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
+		private const int _photoSize = 900; //kb
+
+        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+
         private UIImage ImageAsset;
-        private string ImageExtension;
         private TagsTableViewSource _tableSource;
         private LocalTagsCollectionViewSource _collectionviewSource;
         private Timer _timer;
-        private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
-        private const int _photoSize = 900; //kb
         private NSDictionary _metadata;
+		private string ImageExtension;
+		private string _previousQuery;
 
         public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
@@ -92,6 +95,7 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SearchTextChanged();
             SetPlaceholder();
+            CheckOnSpam();
         }
 
         private void SetPlaceholder()
@@ -140,7 +144,7 @@ namespace Steepshot.iOS.Views
             _titleTextViewDelegate.EditingStartedAction += EditingStartedAction;
         }
 
-        private void EditingStartedAction()
+		private void EditingStartedAction()
         {
             AddOkButton();
         }
@@ -377,6 +381,67 @@ namespace Steepshot.iOS.Views
             return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
         }
 
+        private async void CheckOnSpam()
+        {
+            ToggleAvailability(false);
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    var spamModel = new SpamInfoModel("likesmylove");
+                    var spamCheck = _presenter.TryCheckForSpam(spamModel).Result;
+
+                    if (!spamCheck.Result.IsSpam)
+                    {
+                        if (spamCheck.Result.WaitingTime > 0)
+                        {
+                            InvokeOnMainThread(() =>
+                            {
+                                StartPostTimer((int)spamCheck.Result.WaitingTime);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // more than 15 posts
+                        InvokeOnMainThread(() =>
+                        {
+                            
+                        });
+                    }
+                }
+                finally
+                {
+                    InvokeOnMainThread(() =>
+                    {
+                        ToggleAvailability(true);
+                    });
+                }
+            });
+        }
+
+        private async void StartPostTimer(int startSeconds)
+        {
+            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            postPhotoButton.UserInteractionEnabled = false;
+
+            while (timepassed < PostingLimit)
+            {
+                UIView.PerformWithoutAnimation(() =>
+                {
+                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString("mm\\:ss"), UIControlState.Normal);
+                    postPhotoButton.LayoutIfNeeded();
+                });
+                await Task.Delay(1000);
+
+                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
+            }
+
+            postPhotoButton.UserInteractionEnabled = true;
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+        }
+
         private async void PostPhoto(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(titleTextField.Text))
@@ -453,13 +518,13 @@ namespace Steepshot.iOS.Views
                             InvokeOnMainThread(() =>
                             {
                                 ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
-                                 {
-                                     mre.Set();
-                                 }, (arg) =>
-                                 {
-                                     pushToBlockchainRetry = true;
-                                     mre.Set();
-                                 });
+                                {
+                                    mre.Set();
+                                }, (arg) =>
+                                {
+                                    pushToBlockchainRetry = true;
+                                    mre.Set();
+                                });
                             });
 
                             mre.Reset();

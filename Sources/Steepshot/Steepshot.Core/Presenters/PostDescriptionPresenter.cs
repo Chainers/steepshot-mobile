@@ -38,5 +38,15 @@ namespace Steepshot.Core.Presenters
         {
             return await Api.NsfwCheck(stream, token);
         }
+
+        public async Task<OperationResult<SpamResponse>> TryCheckForSpam(SpamInfoModel model)
+        {
+            return await TryRunTask<SpamInfoModel, SpamResponse>(CheckForSpam, OnDisposeCts.Token, model);
+        }
+
+        private async Task<OperationResult<SpamResponse>> CheckForSpam(SpamInfoModel model, CancellationToken token)
+        {
+            return await Api.CheckForSpam(model, token);
+        }
     }
 }
