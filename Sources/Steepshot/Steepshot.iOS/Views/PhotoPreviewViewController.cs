@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Foundation;
+using ImageIO;
 using Photos;
 using Steepshot.Core.Models.Enums;
 using Steepshot.iOS.Cells;
@@ -90,6 +91,13 @@ namespace Steepshot.iOS.Views
 
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
         {
+            if (type == ActionType.Close)
+            {
+                //change text after merge
+                ShowAlert(Core.Localization.LocalizationKeys.Error);
+                return;
+            }
+
             previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
 
             _m.RequestImageForAsset(photo.Item2, CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), 1200, 1200),
@@ -122,10 +130,10 @@ namespace Steepshot.iOS.Views
 
                                                      if (source.MultiPickMode)
                                                      {
-                                                         var currentPhoto = source.ImageAssets.FirstOrDefault(a => a.Id == photo.Item2.LocalIdentifier);
+                                                         var currentPhoto = source.ImageAssets.FirstOrDefault(a => a.Asset.LocalIdentifier == photo.Item2.LocalIdentifier);
                                                          if (previousPhotoLocalIdentifier != photo.Item2.LocalIdentifier || currentPhoto == null)
                                                          {
-                                                             var lastPhoto = source.ImageAssets.FirstOrDefault(a => a.Id == previousPhotoLocalIdentifier);
+                                                             var lastPhoto = source.ImageAssets.FirstOrDefault(a => a.Asset.LocalIdentifier == previousPhotoLocalIdentifier);
                                                              if (lastPhoto != null)
                                                              {
                                                                  lastPhoto.Offset = previousOffset;
@@ -137,7 +145,7 @@ namespace Steepshot.iOS.Views
                                                              {
                                                                  ApplyRightScale();
                                                                  SetScrollViewInsets();
-                                                                 source.ImageAssets.Add(new SavedPhoto(photo.Item2.LocalIdentifier, img, _cropView.ContentOffset));
+                                                                 source.ImageAssets.Add(new SavedPhoto(photo.Item2, img, _cropView.ContentOffset));
                                                              }
                                                              else
                                                              {
@@ -149,7 +157,7 @@ namespace Steepshot.iOS.Views
                                                          else
                                                          {
                                                              //source.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);
-                                                             source.ImageAssets.RemoveAll(a => a.Id == photo.Item2.LocalIdentifier);
+                                                             source.ImageAssets.RemoveAll(a => a.Asset.LocalIdentifier == photo.Item2.LocalIdentifier);
                                                              ApplyRightScale();
                                                              SetScrollViewInsets();
                                                          }
@@ -161,22 +169,12 @@ namespace Steepshot.iOS.Views
                                                          ApplyCriticalScale();
                                                          SetScrollViewInsets();
                                                          if (source.ImageAssets.Count == 0)
-                                                             source.ImageAssets.Add(new SavedPhoto(photo.Item2.LocalIdentifier, img, _cropView.ContentOffset));
+                                                             source.ImageAssets.Add(new SavedPhoto(photo.Item2, img, _cropView.ContentOffset));
                                                          else
-                                                             source.ImageAssets[0] = new SavedPhoto(photo.Item2.LocalIdentifier, img, _cropView.ContentOffset);
+                                                             source.ImageAssets[0] = new SavedPhoto(photo.Item2, img, _cropView.ContentOffset);
                                                          SetScrollViewInsets();
                                                      }
                                                  });
-        }
-
-        private void CropPhoto()
-        {
-            //RotateImage(source.ImageAssets[0].Image);
-            /*
-            foreach (var item in collection)
-            {
-
-            }*/
         }
 
         private void ApplyCriticalScale()
@@ -313,8 +311,22 @@ namespace Steepshot.iOS.Views
 
         private void GoForward(object sender, EventArgs e)
         {
-            var image = CropImage(source.ImageAssets[0]);
-            var descriptionViewController = new DescriptionViewController(image, "jpg", _metadata);
+            var croppedPhotos = new List<Tuple<NSDictionary, UIImage>>();
+
+            foreach (var item in source.ImageAssets)
+            {
+                NSDictionary metadata = null;
+                var croppedPhoto = CropImage(item);
+                _m.RequestImageData(item.Asset, new PHImageRequestOptions() { Synchronous = true }, (data, dataUti, orientation, info) =>
+                {
+                    var dataSource = CGImageSource.FromData(data);
+                    metadata = dataSource.GetProperties(0).Dictionary;
+                });
+
+                croppedPhotos.Add(new Tuple<NSDictionary, UIImage>(metadata, croppedPhoto));
+            }
+
+            var descriptionViewController = new DescriptionViewController(croppedPhotos, "jpg");
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
@@ -348,10 +360,9 @@ namespace Steepshot.iOS.Views
 
         private void RotateTap()
         {
-            /*
             UIImageOrientation orientation;
 
-            switch (photoView.Image.Orientation)
+            switch (imageView.Image.Orientation)
             {
                 case UIImageOrientation.Up:
                     orientation = UIImageOrientation.Right;
@@ -369,7 +380,7 @@ namespace Steepshot.iOS.Views
                     orientation = UIImageOrientation.Up;
                     break;
             }
-            RotateImage(orientation);*/
+            RotateImage(orientation);
         }
 
         private CGSize CalculateInSampleSize(CGSize imageSize, float reqWidth, float reqHeight, bool increase = false)
@@ -453,18 +464,18 @@ namespace Steepshot.iOS.Views
             nfloat cropX;
             nfloat cropY;
 
-            if(scaledImageSize.Width > UIScreen.MainScreen.Bounds.Width)
+            if(scaledImageSize.Width > _cropView.Frame.Width)
             {
-                cropWidth = UIScreen.MainScreen.Bounds.Width * ratio2;
+                cropWidth = _cropView.Frame.Width * ratio2;
             }
             else
             {
                 cropWidth = imageView.Frame.Width * ratio2;
             }
 
-            if (scaledImageSize.Height > UIScreen.MainScreen.Bounds.Width)
+            if (scaledImageSize.Height > _cropView.Frame.Height)
             {
-                cropHeight = UIScreen.MainScreen.Bounds.Width * ratio2;
+                cropHeight = _cropView.Frame.Height * ratio2;
             }
             else
             {

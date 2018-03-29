@@ -165,7 +165,8 @@ namespace Steepshot.iOS.Helpers
     {
         public Action<ActionType, Tuple<NSIndexPath, PHAsset>> CellClicked;
         private readonly PhotoCollectionViewSource _vs;
-
+        private const byte postLimit = 7;
+            
         public PhotoCollectionViewFlowDelegate(PhotoCollectionViewSource viewSource)
         {
             _vs = viewSource;
@@ -175,9 +176,15 @@ namespace Steepshot.iOS.Helpers
         {
             var pa = _vs.GetPHAsset((int)indexPath.Item);
 
+            if (_vs.ImageAssets.Count >= postLimit && !_vs.ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier))
+            {
+                CellClicked?.Invoke(ActionType.Close, new Tuple<NSIndexPath, PHAsset>(indexPath, null));
+                return;
+            }
+
             CellClicked?.Invoke(ActionType.Preview, new Tuple<NSIndexPath, PHAsset>(indexPath, pa));
 
-            var index = _vs.ImageAssets.FindIndex(a => a.Id == pa.LocalIdentifier);
+            var index = _vs.ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier);
 
             if (_vs.CurrentlySelectedItem.Item1 != null)
                 ((PhotoCollectionViewCell)collectionView.CellForItem(_vs.CurrentlySelectedItem.Item1))?.ToggleCell(false);

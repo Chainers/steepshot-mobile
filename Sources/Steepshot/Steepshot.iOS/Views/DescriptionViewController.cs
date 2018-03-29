@@ -26,7 +26,7 @@ namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        private UIImage ImageAsset;
+        private List<Tuple<NSDictionary, UIImage>> ImageAssets;
         private string ImageExtension;
         private TagsTableViewSource _tableSource;
         private LocalTagsCollectionViewSource _collectionviewSource;
@@ -34,13 +34,11 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
-        private NSDictionary _metadata;
 
-        public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
+        public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension)
         {
-            ImageAsset = imageAsset;
+            ImageAssets = imageAssets;
             ImageExtension = extension;
-            _metadata = metadata;
         }
 
         public override void ViewDidLoad()
@@ -83,7 +81,7 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            photoView.Image = ImageAsset;
+            photoView.Image = ImageAssets[0].Item2;
             postPhotoButton.TouchDown += PostPhoto;
 
             _presenter.SourceChanged += SourceChanged;
@@ -303,7 +301,7 @@ namespace Steepshot.iOS.Views
             _presenter = new PostDescriptionPresenter();
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto()
+        private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
         {
             Stream stream = null;
             try
@@ -312,17 +310,18 @@ namespace Steepshot.iOS.Views
                 var maxCompression = 0.1f;
                 int maxFileSize = _photoSize * 1024;
 
-                var byteArray = ImageAsset.AsJPEG(compression);
+                var byteArray = photo.AsJPEG(compression);
 
                 while (byteArray.Count() > maxFileSize && compression > maxCompression)
                 {
                     compression -= 0.1f;
-                    byteArray = ImageAsset.AsJPEG(compression);
+                    byteArray = photo.AsJPEG(compression);
                 }
-                if (_metadata != null)
+
+                if (metadata != null)
                 {
                     //exif setup
-                    var editedExifData = RemakeMetadata(_metadata);
+                    var editedExifData = RemakeMetadata(metadata, photo);
                     var newImageDataWithExif = new NSMutableData();
                     var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
@@ -347,7 +346,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private NSDictionary RemakeMetadata(NSDictionary metadata)
+        private NSDictionary RemakeMetadata(NSDictionary metadata, UIImage photo)
         {
             var keys = new List<object>();
             var values = new List<object>();
@@ -361,13 +360,13 @@ namespace Steepshot.iOS.Views
                         values.Add(new NSNumber(1));
                         break;
                     case "PixelHeight":
-                        values.Add(ImageAsset.Size.Height);
+                        values.Add(photo.Size.Height);
                         break;
                     case "PixelWidth":
-                        values.Add(ImageAsset.Size.Width);
+                        values.Add(photo.Size.Width);
                         break;
                     case "{TIFF}":
-                        values.Add(RemakeMetadata((NSDictionary)item.Value));
+                        values.Add(RemakeMetadata((NSDictionary)item.Value, photo));
                         break;
                     default:
                         values.Add(item.Value);
@@ -406,17 +405,21 @@ namespace Steepshot.iOS.Views
 
                     var shouldReturn = false;
                     var photoUploadRetry = false;
-                    OperationResult<MediaModel> photoUploadResponse;
+                    OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count]; 
                     do
                     {
                         photoUploadRetry = false;
-                        photoUploadResponse = UploadPhoto().Result;
+                        for (int i = 0; i < ImageAssets.Count; i++)
+                        {
+                            photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                        }
 
-                        if (!photoUploadResponse.IsSuccess)
+                        if (photoUploadResponse.Any(r => r.IsSuccess == false))
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(photoUploadResponse.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                //Remake this
+                                ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                                 {
                                     shouldReturn = true;
                                     mre.Set();
@@ -440,7 +443,7 @@ namespace Steepshot.iOS.Views
                         Title = title,
                         Description = description,
                         Tags = tags.ToArray(),
-                        Media = new[] { photoUploadResponse.Result }
+                        Media = photoUploadResponse.Select(r => r.Result).ToArray(),
                     };
 
                     var pushToBlockchainRetry = false;

@@ -11,15 +11,16 @@ namespace Steepshot.iOS.ViewSources
 {
     public class SavedPhoto
     {
-        public string Id { get; set; }
+        public PHAsset Asset { get; set; }
         public UIImage Image { get; set; }
         public CGPoint Offset { get; set; }
         public nfloat Scale { get; set; }
         public CGSize OriginalImageSize { get; set; }
+        public NSDictionary Metadata { get; set; }
 
-        public SavedPhoto(string id, UIImage image, CGPoint offset)
+        public SavedPhoto(PHAsset asset, UIImage image, CGPoint offset)
         {
-            Id = id;
+            Asset = asset;
             Image = image;
             Offset = offset;
         }
@@ -55,8 +56,8 @@ namespace Steepshot.iOS.ViewSources
             var pa = (PHAsset)_fetchResults[indexPath.Item];
             if (MultiPickMode)
                 imageCell.UpdateImage(_m, pa, CurrentlySelectedItem.Item2?.LocalIdentifier == pa.LocalIdentifier,
-                                      ImageAssets.FindIndex(a => a.Id == pa.LocalIdentifier),
-                                      ImageAssets.Any(a => a.Id == pa.LocalIdentifier));
+                                      ImageAssets.FindIndex(a => a.Asset.LocalIdentifier == pa.LocalIdentifier),
+                                      ImageAssets.Any(a => a.Asset.LocalIdentifier == pa.LocalIdentifier));
             else
                 imageCell.UpdateImage(_m, pa, CurrentlySelectedItem.Item2?.LocalIdentifier == pa.LocalIdentifier);
             return imageCell;
