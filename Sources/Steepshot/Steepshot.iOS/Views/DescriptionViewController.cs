@@ -34,11 +34,13 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private const int _photoSize = 900; //kb
+        private UIDeviceOrientation _rotation;
 
-        public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension)
+        public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
             ImageAssets = imageAssets;
             ImageExtension = extension;
+            _rotation = rotation;
         }
 
         public override void ViewDidLoad()
@@ -81,7 +83,7 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            photoView.Image = ImageAssets[0].Item2;
+            //photoView.Image = ImageAssets[0].Item2;
             postPhotoButton.TouchDown += PostPhoto;
 
             _presenter.SourceChanged += SourceChanged;
@@ -90,6 +92,16 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SearchTextChanged();
             SetPlaceholder();
+        }
+
+        public override async void ViewDidAppear(bool animated)
+        {
+            //condition for photos from camera
+            if (ImageAssets.Count == 1 && ImageAssets[0].Item1 == null)
+            {
+                photoView.Image = await NormalizeImage(ImageAssets[0].Item2);
+                RotatePhotoIfNeeded();
+            }
         }
 
         private void SetPlaceholder()
@@ -487,6 +499,51 @@ namespace Steepshot.iOS.Views
                     });
                 }
             });
+        }
+
+        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
+        {
+            return await Task.Run(() =>
+            {
+                var imgSize = sourceImage.Size;
+                var inSampleSize = ImageHelper.CalculateInSampleSize(sourceImage.Size, 1200, 1200);
+                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
+
+                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
+                sourceImage.Draw(drawRect);
+                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+                UIGraphics.EndImageContext();
+
+                return modifiedImage;
+            });
+        }
+
+        private void RotatePhotoIfNeeded()
+        {
+            if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
+                return;
+
+            UIImageOrientation orientation;
+
+            switch (_rotation)
+            {
+                case UIDeviceOrientation.Portrait:
+                    orientation = UIImageOrientation.Up;
+                    break;
+                case UIDeviceOrientation.PortraitUpsideDown:
+                    orientation = UIImageOrientation.Down;
+                    break;
+                case UIDeviceOrientation.LandscapeLeft:
+                    orientation = UIImageOrientation.Left;
+                    break;
+                case UIDeviceOrientation.LandscapeRight:
+                    orientation = UIImageOrientation.Right;
+                    break;
+                default:
+                    orientation = UIImageOrientation.Up;
+                    break;
+            }
+            photoView.Image = ImageHelper.RotateImage(photoView.Image, orientation);
         }
 
         private void ToggleAvailability(bool enabled)

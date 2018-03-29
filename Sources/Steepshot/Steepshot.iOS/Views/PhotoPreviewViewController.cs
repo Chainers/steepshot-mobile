@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using CoreGraphics;
@@ -18,28 +17,28 @@ namespace Steepshot.iOS.Views
 {
     public partial class PhotoPreviewViewController : BaseViewController
     {
-        private UIDeviceOrientation _rotation;
-        private NSDictionary _metadata;
         private readonly PHImageManager _m;
         private UIScrollView _cropView;
+        private PhotoCollectionViewSource source;
+        private PhotoCollectionViewFlowDelegate delegateP;
+        private UIImageView imageView;
+        private CGSize originalImageSize;
+        private string previousPhotoLocalIdentifier;
 
-        public PhotoPreviewViewController(UIImage imageAsset, UIDeviceOrientation rotation, NSDictionary metadata)
+        public PhotoPreviewViewController()
         {
-            //ImageAssets = imageAsset;
-            _rotation = rotation;
-            _metadata = metadata;
             _m = new PHImageManager();
         }
-
-        PhotoCollectionViewSource source;
-        PhotoCollectionViewFlowDelegate delegateP;
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            var rotateTap = new UITapGestureRecognizer(ZoomTap);
+            var rotateTap = new UITapGestureRecognizer(RotateTap);
             rotate.AddGestureRecognizer(rotateTap);
+
+            var zoomTap = new UITapGestureRecognizer(ZoomTap);
+            //zoom.AddGestureRecognizer(zoomTap);
 
             var multiselectTap = new UITapGestureRecognizer(MultiSelectTap);
             multiSelect.AddGestureRecognizer(multiselectTap);
@@ -68,7 +67,6 @@ namespace Steepshot.iOS.Views
             _cropView.MinimumZoomScale = 1f;
             _cropView.MaximumZoomScale = 4f;
             _cropView.ViewForZoomingInScrollView += (UIScrollView sv) => { return imageView; };
-            //cropView.ContentSize = imageView.Image.Size;
             _cropView.AddSubview(imageView);
             _cropView.ContentSize = new CGSize(375, 375);
             _cropView.DidZoom += (t, u) =>
@@ -83,12 +81,6 @@ namespace Steepshot.iOS.Views
             SetBackButton();
         }
 
-        private UIImageView imageView;
-
-        private CGSize originalImageSize;
-
-        string previousPhotoLocalIdentifier;
-
         private void CellAction(ActionType type, Tuple<NSIndexPath, PHAsset> photo)
         {
             if (type == ActionType.Close)
@@ -100,7 +92,7 @@ namespace Steepshot.iOS.Views
 
             previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
 
-            _m.RequestImageForAsset(photo.Item2, CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), 1200, 1200),
+            _m.RequestImageForAsset(photo.Item2, ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), 1200, 1200),
                                     PHImageContentMode.Default, new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat }, (img, info) =>
                                                  {
                                                      var w = img.Size.Width / 1200f * UIScreen.MainScreen.Bounds.Width;
@@ -114,7 +106,7 @@ namespace Steepshot.iOS.Views
 
                                                      if (originalImageSize.Width < UIScreen.MainScreen.Bounds.Width && originalImageSize.Height < UIScreen.MainScreen.Bounds.Width)
                                                      {
-                                                         originalImageSize = CalculateInSampleSize(originalImageSize,
+                                                         originalImageSize = ImageHelper.CalculateInSampleSize(originalImageSize,
                                                                                                    (float)UIScreen.MainScreen.Bounds.Width,
                                                                                                    (float)UIScreen.MainScreen.Bounds.Width, true);
                                                      }
@@ -156,7 +148,6 @@ namespace Steepshot.iOS.Views
                                                          }
                                                          else
                                                          {
-                                                             //source.CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);
                                                              source.ImageAssets.RemoveAll(a => a.Asset.LocalIdentifier == photo.Item2.LocalIdentifier);
                                                              ApplyRightScale();
                                                              SetScrollViewInsets();
@@ -284,13 +275,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidAppear(bool animated)
         {
             if (IsMovingToParentViewController)
-            {
                 delegateP.ItemSelected(photoCollection, NSIndexPath.FromItemSection(0, 0));
-                //photoCollection.SelectItem(NSIndexPath.FromIndex(0), false, UICollectionViewScrollPosition.Top);
-                //CellAction(ActionType.Preview, source.GetPHAsset(0));
-                //ImageAsset = photoView.Image = await NormalizeImage(ImageAsset);
-                RotatePhotoIfNeeded();
-            }
         }
 
         private void SetBackButton()
@@ -330,34 +315,6 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(descriptionViewController, true);
         }
 
-        private void RotatePhotoIfNeeded()
-        {
-            if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
-                return;
-
-            UIImageOrientation orientation;
-
-            switch (_rotation)
-            {
-                case UIDeviceOrientation.Portrait:
-                    orientation = UIImageOrientation.Up;
-                    break;
-                case UIDeviceOrientation.PortraitUpsideDown:
-                    orientation = UIImageOrientation.Down;
-                    break;
-                case UIDeviceOrientation.LandscapeLeft:
-                    orientation = UIImageOrientation.Left;
-                    break;
-                case UIDeviceOrientation.LandscapeRight:
-                    orientation = UIImageOrientation.Right;
-                    break;
-                default:
-                    orientation = UIImageOrientation.Up;
-                    break;
-            }
-            RotateImage(orientation);
-        }
-
         private void RotateTap()
         {
             UIImageOrientation orientation;
@@ -380,9 +337,9 @@ namespace Steepshot.iOS.Views
                     orientation = UIImageOrientation.Up;
                     break;
             }
-            RotateImage(orientation);
+            imageView.Image = ImageHelper.RotateImage(imageView.Image, orientation);
         }
-
+        /*
         private CGSize CalculateInSampleSize(CGSize imageSize, float reqWidth, float reqHeight, bool increase = false)
         {
             var height = (float)imageSize.Height;
@@ -412,25 +369,9 @@ namespace Steepshot.iOS.Views
             }
 
             return new CGSize(width * inSampleSize, height * inSampleSize);
-        }
+        }*/
 
-        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
-        {
-            return await Task.Run(() =>
-            {
-                var imgSize = sourceImage.Size;
-                var inSampleSize = CalculateInSampleSize(sourceImage.Size, 1200, 1200);
-                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
-
-                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
-                sourceImage.Draw(drawRect);
-                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-                UIGraphics.EndImageContext();
-
-                return modifiedImage;
-            });
-        }
-
+        /*
         private void RotateImage(UIImageOrientation orientation)
         {
             var rotated = new UIImage();// new UIImage(photoView.Image.CGImage, photoView.Image.CurrentScale, orientation);
@@ -439,7 +380,7 @@ namespace Steepshot.iOS.Views
             rotated.Draw(drawRect);
             //ImageAsset = photoView.Image = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
-        }
+        }*/
 
         private UIImage CropImage(SavedPhoto photo)
         {
@@ -513,7 +454,7 @@ namespace Steepshot.iOS.Views
             //var verticalRatio = 1200 / cropped.Size.Height;
 
             //var ratio = Math.Min(horizontalRatio, verticalRatio);
-            var newSize = CalculateInSampleSize(cropped.Size, 1200, 1200, true); //new CGSize(cropped.Size.Width * ratio, cropped.Size.Height * ratio);
+            var newSize = ImageHelper.CalculateInSampleSize(cropped.Size, 1200, 1200, true); //new CGSize(cropped.Size.Width * ratio, cropped.Size.Height * ratio);
 
             UIGraphics.BeginImageContextWithOptions(newSize, false, 1);
             cropped.Draw(new CGRect(new CGPoint(0,0), newSize));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using AVFoundation;
@@ -17,7 +18,6 @@ namespace Steepshot.iOS.Views
     {
         private AVCaptureSession _captureSession;
         private AVCaptureDeviceInput _captureDeviceInput;
-        private UIImagePickerController _imagePicker;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
         private UIDeviceOrientation currentOrientation;
@@ -37,13 +37,6 @@ namespace Steepshot.iOS.Views
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
-
-            _imagePicker = new UIImagePickerController();
-            _imagePicker.SourceType = UIImagePickerControllerSourceType.PhotoLibrary;
-            //_imagePicker.MediaTypes = UIImagePickerController.AvailableMediaTypes(UIImagePickerControllerSourceType.PhotoLibrary);
-
-            _imagePicker.FinishedPickingMedia += FinishedPickingMedia;
-            _imagePicker.Canceled += Handle_Canceled;
         }
 
         private void EnableCameraAccess(object sender, EventArgs e)
@@ -54,14 +47,12 @@ namespace Steepshot.iOS.Views
         private void GalleryTap()
         {
             if (PHPhotoLibrary.AuthorizationStatus == PHAuthorizationStatus.Authorized)
-                GoToDescription(null, UIDeviceOrientation.Portrait, null);//NavigationController.PresentModalViewController(_imagePicker, true);
+            {
+                var descriptionViewController = new PhotoPreviewViewController();
+                NavigationController.PushViewController(descriptionViewController, true);
+            }
             else
                 UIApplication.SharedApplication.OpenUrl(new NSUrl(UIApplication.OpenSettingsUrlString), new NSDictionary(), null);
-        }
-
-        private void Handle_Canceled(object sender, EventArgs e)
-        {
-            _imagePicker.DismissViewControllerAsync(false);
         }
 
         public override bool PrefersStatusBarHidden()
@@ -141,37 +132,17 @@ namespace Steepshot.iOS.Views
                 {
                     var PHImageManager = new PHImageManager();
                     PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
-                                                        PHImageContentMode.AspectFill, new PHImageRequestOptions(){ DeliveryMode = PHImageRequestOptionsDeliveryMode.Opportunistic,
-                        ResizeMode = PHImageRequestOptionsResizeMode.Exact}, (img, info) =>
-                                            {
-                                                galleryButton.Image = img;
-                                            });
+                                                        PHImageContentMode.AspectFill, new PHImageRequestOptions()
+                                                        {
+                                                            DeliveryMode = PHImageRequestOptionsDeliveryMode.Opportunistic,
+                                                            ResizeMode = PHImageRequestOptionsResizeMode.Exact
+                                                        }, (img, info) =>
+                          {
+                              galleryButton.Image = img;
+                          });
                 }
                 else
                     galleryButton.Image = UIImage.FromBundle("ic_noavatar");
-            }
-        }
-
-        private void FinishedPickingMedia(object sender, UIImagePickerMediaPickedEventArgs e)
-        {
-            var originalImage = e.Info[UIImagePickerController.OriginalImage] as UIImage;
-
-            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
-            {
-                var imageManager = new PHImageManager();
-                imageManager.RequestImageData(e.PHAsset, null, (data, dataUti, orientation, info) =>
-                {
-                    var source = CGImageSource.FromData(data);
-                    var metadata = source.GetProperties(0).Dictionary;
-
-                    GoToDescription(originalImage, UIDeviceOrientation.Portrait, metadata);
-                    _imagePicker.DismissViewControllerAsync(false);
-                });
-            }
-            else
-            {
-                GoToDescription(originalImage, UIDeviceOrientation.Portrait);
-                _imagePicker.DismissViewControllerAsync(false);
             }
         }
 
@@ -215,7 +186,7 @@ namespace Steepshot.iOS.Views
                 var photo = UIImage.LoadFromData(jpegData);
                 GoToDescription(photo, orientationOnPhoto);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AppSettings.Reporter.SendCrash(ex);
                 ShowAlert(Core.Localization.LocalizationKeys.PhotoProcessingError);
@@ -330,33 +301,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        /*
-        private void PhotoPicked(NSIndexPath indexPath)
-        {
-            var collectionCell = (PhotoCollectionViewCell)photoCollection.CellForItem(indexPath);
-
-            if (collectionCell.Asset != null)
-            {
-                using (var m = new PHImageManager())
-                {
-                    var options = new PHImageRequestOptions();
-
-                    options.DeliveryMode = PHImageRequestOptionsDeliveryMode.FastFormat;
-                    options.Synchronous = false;
-                    options.NetworkAccessAllowed = true;
-
-                    m.RequestImageData(collectionCell.Asset, options, (data, dataUti, orientation, info) =>
-                       {
-                           if (data != null)
-                           {
-                               var photo = UIImage.LoadFromData(data);
-                               GoToDescription(photo);
-                           }
-                       });
-                }
-            }
-        }*/
-
         private void SwitchCameraButtonTapped(object sender, EventArgs e)
         {
             var devicePosition = _captureDeviceInput.Device.Position;
@@ -387,9 +331,9 @@ namespace Steepshot.iOS.Views
             return null;
         }
 
-        private void GoToDescription(UIImage image, UIDeviceOrientation orientation, NSDictionary metadata = null)
+        private void GoToDescription(UIImage image, UIDeviceOrientation orientation)
         {
-            var descriptionViewController = new PhotoPreviewViewController(image, orientation, metadata);
+            var descriptionViewController = new DescriptionViewController(new List<Tuple<NSDictionary, UIImage>>() { new Tuple<NSDictionary, UIImage>(null, image) }, "jpg", orientation);
             NavigationController.PushViewController(descriptionViewController, true);
         }
     }
