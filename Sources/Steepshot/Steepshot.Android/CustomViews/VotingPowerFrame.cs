@@ -5,7 +5,7 @@ using Android.Support.V4.Content;
 using Android.Util;
 using Android.Widget;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
     public sealed class VotingPowerFrame : FrameLayout
     {

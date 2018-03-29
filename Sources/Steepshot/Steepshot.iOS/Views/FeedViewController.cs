@@ -13,6 +13,7 @@ using UIKit;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using CoreGraphics;
+using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
@@ -191,25 +192,29 @@ namespace Steepshot.iOS.Views
 
         private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
-            if (shouldStartAnimating)
-                activityIndicator.StartAnimating();
-            noFeedLabel.Hidden = true;
-
-            if (clearOld)
+            ErrorBase error;
+            do
             {
-                _presenter.Clear();
-                _gridDelegate.ClearPosition();
-            }
-            var error = await _presenter.TryLoadNextTopPosts();
+                if (shouldStartAnimating)
+                    activityIndicator.StartAnimating();
+                noFeedLabel.Hidden = true;
+
+                if (clearOld)
+                {
+                    _presenter.Clear();
+                    _gridDelegate.ClearPosition();
+                }
+                error = await _presenter.TryLoadNextTopPosts();
+
+                if (_refreshControl.Refreshing)
+                {
+                    _refreshControl.EndRefreshing();
+                    _isFeedRefreshing = false;
+                }
+                else
+                    activityIndicator.StopAnimating();
+            } while (error is RequestError);
             ShowAlert(error);
-
-            if (_refreshControl.Refreshing)
-            {
-                _refreshControl.EndRefreshing();
-                _isFeedRefreshing = false;
-            }
-            else
-                activityIndicator.StopAnimating();
         }
 
         private async void ScrolledToBottom()
@@ -228,6 +233,8 @@ namespace Steepshot.iOS.Views
             UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
+            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.CopyLink), UIAlertActionStyle.Default, obj => CopyLink(post)));
             actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
             PresentViewController(actionSheetAlert, true, null);
         }
@@ -247,6 +254,22 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
+        }
+
+        private void CopyLink(Post post)
+        {
+            UIPasteboard.General.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+            ShowAlert(LocalizationKeys.Copied);
+        }
+
+        private void SharePhoto(Post post)
+        {
+            var postLink = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
+            var item = NSObject.FromObject(postLink);
+            var activityItems = new NSObject[] { item };
+
+            var activityController = new UIActivityViewController(activityItems, null);
+            PresentViewController(activityController, true, null);
         }
 
         private void SetNavBar()

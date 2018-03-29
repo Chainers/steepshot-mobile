@@ -5,36 +5,40 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:background="@android:color/white">
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/toolbar"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
         android:clickable="true">
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_back_arrow"
             android:scaleType="center"
             android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
             android:background="@android:color/transparent"
             android:layout_centerVertical="true" />
         <TextView
             android:id="@+id/page_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/rgb15_24_30"
-            android:layout_centerInParent="true" />
-    </RelativeLayout>
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/rgb15_24_30" />
+    </LinearLayout>
     <RelativeLayout
         android:id="@+id/btn_post_layout"
-        android:layout_width="match_parent"
+        android:layout_width="315dp"
         android:layout_height="50dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
         android:layout_marginBottom="17dp"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
         <ProgressBar
             android:id="@+id/loading_spinner"
             android:layout_width="50dp"
@@ -54,160 +58,206 @@
             android:layout_centerInParent="true"
             android:textSize="14sp" />
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/photo_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+    <View
+        android:id="@+id/separator"
         android:layout_below="@id/toolbar"
-        android:layout_marginLeft="15dp">
-        <ImageView
-            android:id="@+id/photo"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop" />
-        <ImageView
-            android:id="@+id/rotate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_rotate" />
-    </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/title_layout"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_toRightOf="@id/photo_layout"
-        android:layout_below="@id/toolbar"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="20dp">
-        <ImageView
-            android:id="@+id/title_image"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/ic_edit"
-            android:layout_below="@id/toolbar"
-            android:layout_centerVertical="true" />
-        <EditText
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textSize="14sp"
-            android:maxLength="255"
-            android:background="@android:color/transparent"
-            android:textCursorDrawable="@drawable/ic_input"
-            android:layout_toRightOf="@id/title_image"
-            android:layout_marginLeft="10dp"
-            android:textColorHint="@color/rgb151_155_158" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/rgb244_244_246"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/description_layout"
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:layout_below="@id/title_layout"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
-        <ImageView
-            android:id="@+id/description_image"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:src="@drawable/ic_edit"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="14dp" />
-        <EditText
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textSize="14sp"
-            android:maxLength="2048"
-            android:gravity="bottom"
-            android:background="@android:color/transparent"
-            android:textCursorDrawable="@drawable/ic_input"
-            android:layout_toRightOf="@id/description_image"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentBottom="true"
-            android:textColorHint="@color/rgb151_155_158" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/rgb244_244_246"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-    <LinearLayout
-        android:id="@+id/tags_layout"
-        android:orientation="vertical"
+        android:layout_height="1dp"
+        android:background="@color/rgb244_244_246" />
+    <ScrollView
+        android:id="@+id/scroll_container"
+        android:scrollbars="none"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/description_layout"
-        android:paddingTop="5dp"
-        android:clickable="true"
-        android:background="@color/white">
-        <LinearLayout
-            android:id="@+id/top_margin_tags_layout"
-            android:orientation="vertical"
+        android:layout_below="@id/separator"
+        android:layout_above="@id/btn_post_layout"
+        android:layout_marginTop="10dp">
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:paddingTop="45dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp">
-            <LinearLayout
-                android:orientation="horizontal"
+            android:layout_height="match_parent">
+            <RelativeLayout
+                android:id="@+id/photos_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/hash_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="#"
-                    android:gravity="bottom"
-                    android:textColor="@color/rgb151_155_158"
-                    android:layout_marginBottom="10dp" />
-                <Steepshot.Utils.NewTextEdit
-                    android:id="@+id/tag"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/photos"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="30dp" />
+                <RelativeLayout
+                    android:id="@+id/photo_preview_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp">
+                    <Steepshot.CustomViews.CropView
+                        android:id="@+id/photo_preview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true" />
+                    <ImageButton
+                        android:id="@+id/ratio_switch"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_ratio" />
+                    <ImageButton
+                        android:id="@+id/rotate"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_toRightOf="@id/ratio_switch"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/ic_rotate" />
+                </RelativeLayout>
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_below="@id/photos_layout"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:layout_marginLeft="30dp">
+                <RelativeLayout
+                    android:id="@+id/title_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/title_image"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@drawable/ic_edit"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true" />
+                    <EditText
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toLeftOf="@id/title_image"
+                        android:layout_centerVertical="true"
+                        android:paddingTop="25dp"
+                        android:paddingBottom="25dp"
+                        android:textSize="14sp"
+                        android:maxLength="255"
+                        android:background="@android:color/transparent"
+                        android:textCursorDrawable="@drawable/ic_input"
+                        android:textColorHint="@color/rgb151_155_158" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/rgb244_244_246"
+                        android:layout_alignParentTop="true" />
+                </RelativeLayout>
+                <RelativeLayout
+                    android:id="@+id/description_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/description_image"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@drawable/ic_edit"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true" />
+                    <EditText
+                        android:id="@+id/description"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toLeftOf="@id/description_image"
+                        android:layout_centerVertical="true"
+                        android:paddingTop="25dp"
+                        android:paddingBottom="25dp"
+                        android:textSize="14sp"
+                        android:maxLength="255"
+                        android:background="@android:color/transparent"
+                        android:textCursorDrawable="@drawable/ic_input"
+                        android:textColorHint="@color/rgb151_155_158" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/rgb244_244_246"
+                        android:layout_alignParentTop="true" />
+                </RelativeLayout>
+                <LinearLayout
+                    android:id="@+id/tags_layout"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:maxLength="32"
-                    android:gravity="bottom"
-                    android:singleLine="true"
-                    android:imeOptions="actionDone"
-                    android:background="@android:color/transparent"
-                    android:textCursorDrawable="@drawable/ic_input"
-                    android:layout_toRightOf="@id/hash_tag"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:inputType="textNoSuggestions"
-                    android:textColorHint="@color/rgb151_155_158" />
+                    android:clickable="true"
+                    android:background="@color/white">
+                    <RelativeLayout
+                        android:id="@+id/top_margin_tags_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true">
+                        <ImageView
+                            android:id="@+id/hash_tag"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:src="@drawable/ic_tag"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentRight="true" />
+                        <Steepshot.Utils.NewTextEdit
+                            android:id="@+id/tag"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@id/hash_tag"
+                            android:layout_centerVertical="true"
+                            android:paddingTop="25dp"
+                            android:paddingBottom="25dp"
+                            android:textSize="14sp"
+                            android:maxLength="32"
+                            android:gravity="bottom"
+                            android:singleLine="true"
+                            android:imeOptions="actionDone"
+                            android:background="@android:color/transparent"
+                            android:textCursorDrawable="@drawable/ic_input"
+                            android:inputType="textNoSuggestions"
+                            android:textColorHint="@color/rgb151_155_158" />
+                        <View
+                            android:id="@+id/tag_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/rgb244_244_246"
+                            android:layout_alignParentTop="true" />
+                    </RelativeLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/rgb244_244_246"
+                        android:layout_alignParentTop="true" />
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/local_tags_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:visibility="gone" />
+                    <org.apmem.tools.layouts.FlowLayout
+                        android:id="@+id/flow_tags"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
-            <View
-                android:id="@+id/tag_view"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/rgb244_244_246" />
-        </LinearLayout>
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/local_tags_list"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:visibility="gone"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp" />
-    </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
     <LinearLayout
         android:id="@+id/tags_list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        android:layout_below="@id/tags_layout"
+        android:layout_above="@id/btn_post_layout"
+        android:layout_below="@id/scroll_container"
         android:background="@color/white">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/tags_list"

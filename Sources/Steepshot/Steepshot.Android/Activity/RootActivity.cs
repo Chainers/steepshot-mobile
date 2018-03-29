@@ -15,6 +15,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.CustomViews;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:background="@android:color/white"
     android:layout_height="wrap_content">
@@ -69,18 +70,42 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <android.support.v4.view.ViewPager
-                android:id="@+id/post_photos_pager"
-                android:background="@android:color/white"
+            <RelativeLayout
+                android:id="@+id/photos_container"
+                android:layout_below="@id/title"
                 android:layout_width="match_parent"
-                android:layout_height="250dp" />
+                android:layout_height="wrap_content">
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/post_photos_pager"
+                    android:background="@android:color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp" />
+                <ImageView
+                    android:id="@+id/gallery"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="15dp"
+                    android:src="@drawable/ic_gallery"
+                    android:visibility="gone" />
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/dot_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    app:tabBackground="@drawable/postpager_dot_selector"
+                    app:tabMaxWidth="10dp"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp" />
+            </RelativeLayout>
             <include
                 layout="@layout/lyt_nsfw_mask"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
             <RelativeLayout
                 android:id="@+id/subtitle"
-                android:layout_below="@id/post_photos_pager"
+                android:layout_below="@id/photos_container"
                 android:layout_width="match_parent"
                 android:layout_height="59dp">
                 <LinearLayout
@@ -163,7 +188,7 @@
                 android:orientation="vertical"
                 android:paddingRight="15dp"
                 android:minHeight="70dp">
-                <Steepshot.Utils.PostCustomTextView
+                <Steepshot.CustomViews.PostCustomTextView
                     android:id="@+id/first_comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -12,6 +12,7 @@ using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Adapter
 {

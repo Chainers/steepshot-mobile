@@ -3,7 +3,7 @@ using Android.Content;
 using Android.Util;
 using Android.Widget;
 
-namespace Steepshot.Utils
+namespace Steepshot.CustomViews
 {
 	public sealed class TopCropScaleImageView : ImageView
 	{

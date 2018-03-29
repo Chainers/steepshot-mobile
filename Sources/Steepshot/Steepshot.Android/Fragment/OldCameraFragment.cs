@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Android.Content;
 using Android.Graphics;
 using Android.Hardware;
 using Android.Media;
@@ -13,7 +12,6 @@ using Android.Views;
 using Android.Widget;
 using CheeseBind;
 using Refractored.Controls;
-using Steepshot.Activity;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
@@ -150,18 +148,6 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
         }
 
-        public override void OnActivityResult(int requestCode, int resultCode, Intent data)
-        {
-            if (resultCode == -1 && requestCode == GalleryRequestCode)
-            {
-                var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, data.Data.ToString());
-                StartActivity(i);
-                Activity.Finish();
-            }
-        }
-
-
         private void FlashClick(object sender, EventArgs e)
         {
             var parameters = _camera.GetParameters();
@@ -188,10 +174,7 @@ namespace Steepshot.Fragment
 
         private void OpenGallery(object sender, EventArgs e)
         {
-            var intent = new Intent();
-            intent.SetAction(Intent.ActionGetContent);
-            intent.SetType("image/*");
-            StartActivityForResult(intent, GalleryRequestCode);
+            ((BaseActivity)Activity).OpenNewContentFragment(new GalleryFragment());
         }
 
         private void OnOrientationChanged(int orientation)
@@ -393,14 +376,14 @@ namespace Steepshot.Fragment
                     bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, rotationStream);
                 }
 
-                var i = new Intent(Context, typeof(PostDescriptionActivity));
-                i.PutExtra(PostDescriptionActivity.PhotoExtraPath, photoUri);
-                i.PutExtra(PostDescriptionActivity.IsNeedCompressExtraPath, false);
+                var model = new GalleryMediaModel
+                {
+                    Path = photoUri
+                };
 
                 Activity.RunOnUiThread(() =>
                 {
-                    StartActivity(i);
-                    Activity.Finish();
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(model));
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;

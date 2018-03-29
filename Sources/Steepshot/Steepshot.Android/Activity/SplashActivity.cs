@@ -11,6 +11,8 @@ using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
 using Steepshot.Core.Localization;
+using Steepshot.Fragment;
+using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
@@ -30,20 +32,27 @@ namespace Steepshot.Activity
             TaskScheduler.UnobservedTaskException += OnTaskSchedulerOnUnobservedTaskException;
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
+            GAService.Instance.InitializeGAService(this);
+
             if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
             {
-                Intent intent;
                 if (BasePresenter.User.IsAuthenticated)
                 {
-                    intent = new Intent(Application.Context, typeof(PostDescriptionActivity));
                     var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                    intent.PutExtra(PostDescriptionActivity.PhotoExtraPath, uri.ToString());
+                    var fragmentTransaction = SupportFragmentManager.BeginTransaction();
+                    var galleryModel = new GalleryMediaModel
+                    {
+                        Path = BitmapUtils.GetRealPathFromURI(uri, this)
+                    };
+                    CurrentHostFragment = HostFragment.NewInstance(new PostEditFragment(galleryModel));
+                    fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
+                    fragmentTransaction.Commit();
                 }
                 else
                 {
-                    intent = new Intent(this, typeof(PreSignInActivity));
+                    var intent = new Intent(this, typeof(PreSignInActivity));
+                    StartActivity(intent);
                 }
-                StartActivity(intent);
             }
             else
             {

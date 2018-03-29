@@ -169,5 +169,11 @@
         CheckPermission,
         SetupMail,
         EmptyQuery,
+        Gallery,
+        PickedPhotosLimit,
+        NoPhotosPicked,
+        Greeting,
+        EmptyFeedHint,
+        GoToBrowse,
     }
 }
