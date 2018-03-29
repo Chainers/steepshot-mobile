@@ -36,6 +36,9 @@ namespace Steepshot.iOS.Views
         private const int _photoSize = 900; //kb
         private UIDeviceOrientation _rotation;
 
+        public bool _isFromCamera => ImageAssets.Count == 1 && ImageAssets[0].Item1 == null;
+       
+
         public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
             ImageAssets = imageAssets;
@@ -83,7 +86,8 @@ namespace Steepshot.iOS.Views
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            //photoView.Image = ImageAssets[0].Item2;
+            if (!_isFromCamera)
+                photoView.Image = ImageAssets[0].Item2;
             postPhotoButton.TouchDown += PostPhoto;
 
             _presenter.SourceChanged += SourceChanged;
@@ -96,8 +100,7 @@ namespace Steepshot.iOS.Views
 
         public override async void ViewDidAppear(bool animated)
         {
-            //condition for photos from camera
-            if (ImageAssets.Count == 1 && ImageAssets[0].Item1 == null)
+            if (_isFromCamera)
             {
                 photoView.Image = await NormalizeImage(ImageAssets[0].Item2);
                 RotatePhotoIfNeeded();

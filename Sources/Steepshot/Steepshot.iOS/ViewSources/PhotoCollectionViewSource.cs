@@ -17,6 +17,7 @@ namespace Steepshot.iOS.ViewSources
         public nfloat Scale { get; set; }
         public CGSize OriginalImageSize { get; set; }
         public NSDictionary Metadata { get; set; }
+        public UIImageOrientation Orientation { get; set; }
 
         public SavedPhoto(PHAsset asset, UIImage image, CGPoint offset)
         {
