@@ -30,14 +30,16 @@ namespace Steepshot.iOS.Views
 
         private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
 
-        private UIImage ImageAsset;
-        private TagsTableViewSource _tableSource;
-        private LocalTagsCollectionViewSource _collectionviewSource;
-        private Timer _timer;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
+        private LocalTagsCollectionViewSource _collectionviewSource;
+		private TagsTableViewSource _tableSource;
+        private PreparePostModel preparePostModel;
         private NSDictionary _metadata;
+		private UIImage ImageAsset;
+		private Timer _timer;
 		private string ImageExtension;
 		private string _previousQuery;
+        private bool isSpammer;
 
         public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
@@ -91,6 +93,8 @@ namespace Steepshot.iOS.Views
 
             _presenter.SourceChanged += SourceChanged;
             _timer = new Timer(OnTimer);
+
+            preparePostModel = new PreparePostModel(BasePresenter.User.UserInfo);
 
             SetBackButton();
             SearchTextChanged();
@@ -381,21 +385,27 @@ namespace Steepshot.iOS.Views
             return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
         }
 
-        private async void CheckOnSpam()
+        private async Task CheckOnSpam()
         {
+            isSpammer = false;
             ToggleAvailability(false);
 
             await Task.Run(() =>
             {
                 try
                 {
-                    var spamModel = new SpamInfoModel("likesmylove");
+                    var spamModel = new SpamInfoModel(preparePostModel.Author);
                     var spamCheck = _presenter.TryCheckForSpam(spamModel).Result;
+
+                    if (!spamCheck.IsSuccess)
+                        return;
 
                     if (!spamCheck.Result.IsSpam)
                     {
                         if (spamCheck.Result.WaitingTime > 0)
                         {
+                            isSpammer = true;
+
                             InvokeOnMainThread(() =>
                             {
                                 StartPostTimer((int)spamCheck.Result.WaitingTime);
@@ -407,6 +417,7 @@ namespace Steepshot.iOS.Views
                         // more than 15 posts
                         InvokeOnMainThread(() =>
                         {
+                            isSpammer = true;
                         });
                     }
                 }
@@ -437,6 +448,7 @@ namespace Steepshot.iOS.Views
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
+            isSpammer = false;
             postPhotoButton.UserInteractionEnabled = true;
             postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
         }
@@ -448,6 +460,11 @@ namespace Steepshot.iOS.Views
                 ShowAlert(LocalizationKeys.EmptyTitleField);
                 return;
             }
+
+            await CheckOnSpam();
+
+            if (isSpammer)
+                return;
 
             ToggleAvailability(false);
 
@@ -498,20 +515,17 @@ namespace Steepshot.iOS.Views
 
                     if (shouldReturn)
                         return;
-
-                    var model = new PreparePostModel(BasePresenter.User.UserInfo)
-                    {
-                        Title = title,
-                        Description = description,
-                        Tags = tags.ToArray(),
-                        Media = new[] { photoUploadResponse.Result }
-                    };
+                    
+                    preparePostModel.Title = title;
+                    preparePostModel.Description = description;
+                    preparePostModel.Tags = tags.ToArray();
+                    preparePostModel.Media = new[] { photoUploadResponse.Result };
 
                     var pushToBlockchainRetry = false;
                     do
                     {
                         pushToBlockchainRetry = false;
-                        var response = _presenter.TryCreateOrEditPost(model).Result;
+                        var response = _presenter.TryCreateOrEditPost(preparePostModel).Result;
                         if (!(response != null && response.IsSuccess))
                         {
                             InvokeOnMainThread(() =>
