@@ -26,15 +26,19 @@ namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-        private UIImage ImageAsset;
-        private string ImageExtension;
-        private TagsTableViewSource _tableSource;
-        private LocalTagsCollectionViewSource _collectionviewSource;
-        private Timer _timer;
-        private string _previousQuery;
+		private const int _photoSize = 900; //kb
+
+        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
-        private const int _photoSize = 900; //kb
+        private LocalTagsCollectionViewSource _collectionviewSource;
+		private TagsTableViewSource _tableSource;
         private NSDictionary _metadata;
+		private UIImage ImageAsset;
+		private Timer _timer;
+		private string ImageExtension;
+		private string _previousQuery;
+        private bool _isSpammer;
 
         public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
@@ -92,6 +96,7 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SearchTextChanged();
             SetPlaceholder();
+            CheckOnSpam();
         }
 
         private void SetPlaceholder()
@@ -377,6 +382,62 @@ namespace Steepshot.iOS.Views
             return NSDictionary.FromObjectsAndKeys(values.ToArray(), keys.ToArray());
         }
 
+        private async Task CheckOnSpam()
+        {
+            _isSpammer = false;
+            ToggleAvailability(false);
+
+            try
+            {
+                var username = BasePresenter.User.Login;
+                var spamCheck = await _presenter.TryCheckForSpam(username);
+
+                if (!spamCheck.IsSuccess)
+                    return;
+
+                if (!spamCheck.Result.IsSpam)
+                {
+                    if (spamCheck.Result.WaitingTime > 0)
+                    {
+                        _isSpammer = true;
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    }
+                }
+                else
+                {
+                    // more than 15 posts
+                    // TODO: need to show alert
+                    _isSpammer = true;
+                }
+            }
+            finally
+            {
+                ToggleAvailability(true);
+            }
+        }
+
+        private async void StartPostTimer(int startSeconds)
+        {
+            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
+            postPhotoButton.UserInteractionEnabled = false;
+
+            while (timepassed < PostingLimit)
+            {
+                UIView.PerformWithoutAnimation(() =>
+                {
+                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString("mm\\:ss"), UIControlState.Normal);
+                    postPhotoButton.LayoutIfNeeded();
+                });
+                await Task.Delay(1000);
+
+                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
+            }
+
+            _isSpammer = false;
+            postPhotoButton.UserInteractionEnabled = true;
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+        }
+
         private async void PostPhoto(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(titleTextField.Text))
@@ -384,6 +445,11 @@ namespace Steepshot.iOS.Views
                 ShowAlert(LocalizationKeys.EmptyTitleField);
                 return;
             }
+
+            await CheckOnSpam();
+
+            if (_isSpammer)
+                return;
 
             ToggleAvailability(false);
 
@@ -439,6 +505,7 @@ namespace Steepshot.iOS.Views
                     {
                         Title = title,
                         Description = description,
+
                         Tags = tags.ToArray(),
                         Media = new[] { photoUploadResponse.Result }
                     };
