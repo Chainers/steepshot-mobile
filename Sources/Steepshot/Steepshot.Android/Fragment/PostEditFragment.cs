@@ -159,7 +159,7 @@ namespace Steepshot.Fragment
                 else if (_editPost != null)
                 {
                     _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
-                    var url = string.IsNullOrEmpty(_editPost.Media[0].Thumbnails[1024]) ? _editPost.Media[0].Url : _editPost.Media[0].Thumbnails[1024];
+                    var url = _editPost.Media[0].Thumbnails.Mini;
                     Picasso.With(Activity).Load(url)
                         .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
                         .Into(_preview);

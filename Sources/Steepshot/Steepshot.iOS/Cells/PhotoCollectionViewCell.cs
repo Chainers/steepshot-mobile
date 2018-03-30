@@ -110,8 +110,7 @@ namespace Steepshot.iOS.Cells
         {
             _currentPost = post;
 
-            var thumbnail = post.Media[0].Thumbnails?[256];
-            ImageUrl = string.IsNullOrEmpty(thumbnail) ? post.Media[0].Url : thumbnail;
+            ImageUrl = post.Media[0].Thumbnails.Micro;
 
             _bodyImage?.RemoveFromSuperview();
             CreateImageView();
