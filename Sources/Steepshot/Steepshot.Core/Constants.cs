@@ -1,9 +1,10 @@
-﻿namespace Steepshot.Core
+﻿
+namespace Steepshot.Core
 {
-    public enum GatewayVersion
+    public class GatewayVersion
     {
-        V1,
-        V1P1
+        public const string V1 = "v1";
+        public const string V1P1 = "v1_1";
     }
 
     public static class Constants
