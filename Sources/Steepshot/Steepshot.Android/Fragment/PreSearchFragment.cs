@@ -563,9 +563,8 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Edit:
                     {
-                        var intent = new Intent(Activity, typeof(PostDescriptionActivity));
-                        intent.PutExtra(PostDescriptionActivity.EditPost, JsonConvert.SerializeObject(post));
-                        Activity.StartActivity(intent);
+                        ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(post));
+                        ((RootActivity)Activity)._tabLayout.Visibility = ViewStates.Gone;
                         break;
                     }
                 case ActionType.Delete:

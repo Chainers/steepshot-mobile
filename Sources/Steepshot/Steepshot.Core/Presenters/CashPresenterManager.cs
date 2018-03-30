@@ -38,7 +38,6 @@ namespace Steepshot.Core.Presenters
                     CopyPost(container.Item, item);
                     return container.Item;
                 }
-
                 PostsCash.Add(item.Url, new Container<Post>(item));
                 return item;
             }

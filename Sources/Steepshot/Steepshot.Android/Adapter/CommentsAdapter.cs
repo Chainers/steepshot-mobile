@@ -18,6 +18,7 @@ using Android.App;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Utils;
+using Steepshot.CustomViews;
 
 namespace Steepshot.Adapter
 {
@@ -63,7 +64,7 @@ namespace Steepshot.Adapter
                     {
                         var itemView = LayoutInflater.From(parent.Context)
                             .Inflate(Resource.Layout.lyt_description_item, parent, false);
-                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), TagAction);
+                        var vh = new PostDescriptionViewHolder(itemView, (post) => CommentAction?.Invoke(ActionType.Profile, post), TagAction, RootClickAction);
                         return vh;
                     }
                 default:
@@ -81,23 +82,26 @@ namespace Steepshot.Adapter
     {
         private readonly Action<string> _tagAction;
         private readonly Action<Post> _userAction;
+        private readonly Action _rootAction;
         private readonly PostCustomTextView _title;
         private readonly ImageView _avatar;
         private readonly TextView _time;
         private readonly TextView _author;
+        private readonly RelativeLayout _rootView;
 
         private Post _post;
         private Context _context;
         private const string _tagFormat = " #{0}";
         private const string tagToExclude = "steepshot";
         private const int _maxLines = 7;
-        public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<string> tagAction) : base(itemView)
+        public PostDescriptionViewHolder(View itemView, Action<Post> userAction, Action<string> tagAction, Action rootClickAction) : base(itemView)
         {
             _context = itemView.Context;
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.avatar);
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _time = itemView.FindViewById<TextView>(Resource.Id.time);
             _author = itemView.FindViewById<TextView>(Resource.Id.sender_name);
+            _rootView = itemView.FindViewById<RelativeLayout>(Resource.Id.root_view);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
@@ -105,21 +109,31 @@ namespace Steepshot.Adapter
 
             _userAction = userAction;
             _tagAction = tagAction;
+            _rootAction = rootClickAction;
 
-            _avatar.Click += AvatarOnClick;
+            _avatar.Click += UserAction;
+            _author.Click += UserAction;
+            _rootView.Click += Root_Click;
             _title.MovementMethod = new LinkMovementMethod();
             _title.SetHighlightColor(Color.Transparent);
             _title.Click += TitleOnClick;
             _title.TagAction = tagAction;
+
             if (_title.OnMeasureInvoked == null)
             {
                 _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
         }
 
-        private void AvatarOnClick(object sender, EventArgs eventArgs)
+        private void UserAction(object sender, EventArgs eventArgs)
         {
             _userAction?.Invoke(_post);
+            _rootAction?.Invoke();
+        }
+
+        private void Root_Click(object sender, EventArgs e)
+        {
+            _rootAction?.Invoke();
         }
 
         private void TitleOnClick(object sender, EventArgs eventArgs)
@@ -376,6 +390,7 @@ namespace Steepshot.Adapter
         private void UserAction(object sender, EventArgs e)
         {
             _commentAction?.Invoke(ActionType.Profile, _post);
+            _rootAction?.Invoke();
         }
 
         private void ReplyAction(object sender, EventArgs e)

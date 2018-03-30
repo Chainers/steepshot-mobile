@@ -170,7 +170,7 @@ namespace Steepshot.Core.Presenters
         private bool IsValidMedia(Post item)
         {
             //This part of the server logic, but... let`s check that everything is okay
-            if (item.Media.Length == 0)
+            if (item.Media == null || item.Media.Length == 0)
                 return false;
 
             item.Media = item.Media.Where(i => !string.IsNullOrEmpty(i.Url)).ToArray();
@@ -184,10 +184,14 @@ namespace Steepshot.Core.Presenters
                 {
                     itm.Size = new FrameSize(1024, 1024);
                 }
+
+                if (itm.Thumbnails == null)
+                    itm.Thumbnails = new Thumbnails();
+
+                itm.Thumbnails.DefaultUrl = itm.Url;
             }
             return true;
         }
-
 
         public async Task<ErrorBase> TryVote(Post post)
         {
