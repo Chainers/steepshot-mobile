@@ -148,7 +148,7 @@ namespace Steepshot.iOS.Views
             _titleTextViewDelegate.EditingStartedAction += EditingStartedAction;
         }
 
-		private void EditingStartedAction()
+        private void EditingStartedAction()
         {
             AddOkButton();
         }
@@ -390,45 +390,32 @@ namespace Steepshot.iOS.Views
             isSpammer = false;
             ToggleAvailability(false);
 
-            await Task.Run(() =>
+            try
             {
-                try
+                var spamModel = new SpamInfoModel(preparePostModel.Author);
+                var spamCheck = await _presenter.TryCheckForSpam(spamModel);
+
+                if (!spamCheck.IsSuccess)
+                    return;
+
+                if (!spamCheck.Result.IsSpam)
                 {
-                    var spamModel = new SpamInfoModel(preparePostModel.Author);
-                    var spamCheck = _presenter.TryCheckForSpam(spamModel).Result;
-
-                    if (!spamCheck.IsSuccess)
-                        return;
-
-                    if (!spamCheck.Result.IsSpam)
+                    if (spamCheck.Result.WaitingTime > 0)
                     {
-                        if (spamCheck.Result.WaitingTime > 0)
-                        {
-                            isSpammer = true;
-
-                            InvokeOnMainThread(() =>
-                            {
-                                StartPostTimer((int)spamCheck.Result.WaitingTime);
-                            });
-                        }
-                    }
-                    else
-                    {
-                        // more than 15 posts
-                        InvokeOnMainThread(() =>
-                        {
-                            isSpammer = true;
-                        });
+                        isSpammer = true;
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
                     }
                 }
-                finally
+                else
                 {
-                    InvokeOnMainThread(() =>
-                    {
-                        ToggleAvailability(true);
-                    });
+                    // more than 15 posts
+                    isSpammer = true;
                 }
-            });
+            }
+            finally
+            {
+                ToggleAvailability(true);
+            }
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -530,14 +517,14 @@ namespace Steepshot.iOS.Views
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
-                                {
-                                    mre.Set();
-                                }, (arg) =>
-                                {
-                                    pushToBlockchainRetry = true;
-                                    mre.Set();
-                                });
+                                 ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                 {
+                                     mre.Set();
+                                 }, (arg) =>
+                                 {
+                                     pushToBlockchainRetry = true;
+                                     mre.Set();
+                                 });
                             });
 
                             mre.Reset();
