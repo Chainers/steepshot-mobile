@@ -33,13 +33,12 @@ namespace Steepshot.iOS.Views
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private LocalTagsCollectionViewSource _collectionviewSource;
 		private TagsTableViewSource _tableSource;
-        private PreparePostModel preparePostModel;
         private NSDictionary _metadata;
 		private UIImage ImageAsset;
 		private Timer _timer;
 		private string ImageExtension;
 		private string _previousQuery;
-        private bool isSpammer;
+        private bool _isSpammer;
 
         public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
         {
@@ -93,8 +92,6 @@ namespace Steepshot.iOS.Views
 
             _presenter.SourceChanged += SourceChanged;
             _timer = new Timer(OnTimer);
-
-            preparePostModel = new PreparePostModel(BasePresenter.User.UserInfo);
 
             SetBackButton();
             SearchTextChanged();
@@ -387,13 +384,13 @@ namespace Steepshot.iOS.Views
 
         private async Task CheckOnSpam()
         {
-            isSpammer = false;
+            _isSpammer = false;
             ToggleAvailability(false);
 
             try
             {
-                var spamModel = new SpamInfoModel(preparePostModel.Author);
-                var spamCheck = await _presenter.TryCheckForSpam(spamModel);
+                var username = BasePresenter.User.Login;
+                var spamCheck = await _presenter.TryCheckForSpam(username);
 
                 if (!spamCheck.IsSuccess)
                     return;
@@ -402,14 +399,15 @@ namespace Steepshot.iOS.Views
                 {
                     if (spamCheck.Result.WaitingTime > 0)
                     {
-                        isSpammer = true;
+                        _isSpammer = true;
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
                     }
                 }
                 else
                 {
                     // more than 15 posts
-                    isSpammer = true;
+                    // TODO: need to show alert
+                    _isSpammer = true;
                 }
             }
             finally
@@ -435,7 +433,7 @@ namespace Steepshot.iOS.Views
                 timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
 
-            isSpammer = false;
+            _isSpammer = false;
             postPhotoButton.UserInteractionEnabled = true;
             postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
         }
@@ -450,7 +448,7 @@ namespace Steepshot.iOS.Views
 
             await CheckOnSpam();
 
-            if (isSpammer)
+            if (_isSpammer)
                 return;
 
             ToggleAvailability(false);
@@ -502,22 +500,26 @@ namespace Steepshot.iOS.Views
 
                     if (shouldReturn)
                         return;
-                    
-                    preparePostModel.Title = title;
-                    preparePostModel.Description = description;
-                    preparePostModel.Tags = tags.ToArray();
-                    preparePostModel.Media = new[] { photoUploadResponse.Result };
+
+                    var model = new PreparePostModel(BasePresenter.User.UserInfo)
+                    {
+                        Title = title,
+                        Description = description,
+
+                        Tags = tags.ToArray(),
+                        Media = new[] { photoUploadResponse.Result }
+                    };
 
                     var pushToBlockchainRetry = false;
                     do
                     {
                         pushToBlockchainRetry = false;
-                        var response = _presenter.TryCreateOrEditPost(preparePostModel).Result;
+                        var response = _presenter.TryCreateOrEditPost(model).Result;
                         if (!(response != null && response.IsSuccess))
                         {
                             InvokeOnMainThread(() =>
                             {
-                                 ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                                  {
                                      mre.Set();
                                  }, (arg) =>

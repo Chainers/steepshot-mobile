@@ -307,16 +307,12 @@ namespace Steepshot.Core.HttpClient
             return await Gateway.Get<BeneficiariesResponse>(GatewayVersion.V1, endpoint, parameters, token);
         }
 
-        public async Task<OperationResult<SpamResponse>> CheckForSpam(SpamInfoModel model, CancellationToken token)
+        public async Task<OperationResult<SpamResponse>> CheckForSpam(string username, CancellationToken token)
         {
             if (!EnableRead)
                 return null;
 
-            var results = Validate(model);
-            if (results.Any())
-                return new OperationResult<SpamResponse>(new ValidationError(results));
-
-            var endpoint = $"user/{model.Username}/spam";
+            var endpoint = $"user/{username}/spam";
             var parameters = new Dictionary<string, object>();
 
             var result = await Gateway.Get<SpamResponse>(GatewayVersion.V1P1, endpoint, parameters, token);
