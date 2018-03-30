@@ -307,6 +307,18 @@ namespace Steepshot.Core.HttpClient
             return await Gateway.Get<BeneficiariesResponse>(GatewayVersion.V1, endpoint, parameters, token);
         }
 
+        public async Task<OperationResult<SpamResponse>> CheckForSpam(string username, CancellationToken token)
+        {
+            if (!EnableRead)
+                return null;
+
+            var endpoint = $"user/{username}/spam";
+            var parameters = new Dictionary<string, object>();
+
+            var result = await Gateway.Get<SpamResponse>(GatewayVersion.V1P1, endpoint, parameters, token);
+            return result;
+        }
+
         #endregion Get requests
 
         public async Task<OperationResult<PreparePostResponse>> PreparePost(PreparePostModel model, CancellationToken ct)
@@ -317,7 +329,6 @@ namespace Steepshot.Core.HttpClient
 
             return await Gateway.Post<PreparePostResponse, PreparePostModel>(GatewayVersion.V1P1, "post/prepare", model, ct);
         }
-
 
         public async Task<OperationResult<NsfwRate>> NsfwCheck(Stream stream, CancellationToken token)
         {
