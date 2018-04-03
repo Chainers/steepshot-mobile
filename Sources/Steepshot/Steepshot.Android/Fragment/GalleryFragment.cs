@@ -171,7 +171,7 @@ namespace Steepshot.Fragment
         }
         private void OnItemSelected(GalleryMediaModel model)
         {
-            if (_pickedItems.Count <= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
+            if (_pickedItems.Count >= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit);
                 return;

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.OS;
+using Android.Support.Design.Widget;
 using Android.Support.V4.View;
 using Android.Support.V4.Widget;
 using Android.Support.V7.Widget;
@@ -19,7 +22,6 @@ using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
-using Newtonsoft.Json;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Utils;
 
@@ -37,19 +39,22 @@ namespace Steepshot.Fragment
         private GridItemDecoration _gridItemDecoration;
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
         private RecyclerView.Adapter _adapter;
+        private Dialog _moreActionsDialog;
+        private bool _userIsWatched;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.posts_list)] private RecyclerView _postsList;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
-        [CheeseBind.BindView(Resource.Id.list_spinner)] private ProgressBar _listSpinner;
-        [CheeseBind.BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _login;
-        [CheeseBind.BindView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
-        [CheeseBind.BindView(Resource.Id.first_post)] private Button _firstPostButton;
-        [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.more)] private ImageButton _more;
+        [BindView(Resource.Id.posts_list)] private RecyclerView _postsList;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingSpinner;
+        [BindView(Resource.Id.list_spinner)] private ProgressBar _listSpinner;
+        [BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.profile_login)] private TextView _login;
+        [BindView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
+        [BindView(Resource.Id.first_post)] private Button _firstPostButton;
+        [BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
         private PostPagerAdapter<UserProfilePresenter> _profilePagerAdapter;
@@ -218,6 +223,10 @@ namespace Steepshot.Fragment
                 _backButton.Click += GoBackClick;
                 _switcher.Click += OnSwitcherClick;
                 _firstPostButton.Click += OnFirstPostButtonClick;
+                _more.Click += MoreOnClick;
+
+                _moreActionsDialog = new BottomSheetDialog(Context);
+                _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
                 _firstPostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateFirstPostText);
 
@@ -225,15 +234,19 @@ namespace Steepshot.Fragment
                 {
                     _settings.Visibility = ViewStates.Gone;
                     _backButton.Visibility = ViewStates.Visible;
+                    _more.Visibility = ViewStates.Visible;
                     _login.Text = _profileId;
                     LoadProfile();
                     GetUserPosts();
                 }
                 else
                 {
+                    _more.Visibility = ViewStates.Gone;
                     _login.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.MyProfile);
                 }
             }
+
+            _userIsWatched = BasePresenter.User.WatchedUsers.Contains(_profileId);
 
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
             if (!string.IsNullOrWhiteSpace(postUrl))
@@ -380,6 +393,64 @@ namespace Steepshot.Fragment
         {
             var intent = new Intent(Context, typeof(SettingsActivity));
             StartActivity(intent);
+        }
+
+        private void MoreOnClick(object sender, EventArgs eventArgs)
+        {
+            var inflater = (LayoutInflater)Context.GetSystemService(Context.LayoutInflaterService);
+            using (var dialogView = inflater.Inflate(Resource.Layout.lyt_profile_popup, null))
+            {
+                dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
+                var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
+                if (_userIsWatched)
+                {
+                    pushes.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
+                }
+                else
+                {
+                    pushes.SetTextColor(Color.Black);
+                    pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser);
+                }
+                pushes.Typeface = Style.Semibold;
+
+                var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
+                cancel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+                cancel.Typeface = Style.Semibold;
+
+                pushes.Click -= PushesOnClick;
+                pushes.Click += PushesOnClick;
+
+                cancel.Click -= CancelDialog;
+                cancel.Click += CancelDialog;
+
+                _moreActionsDialog.SetContentView(dialogView);
+                dialogView.SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Window.FindViewById(Resource.Id.design_bottom_sheet).SetBackgroundColor(Color.Transparent);
+                _moreActionsDialog.Show();
+            }
+        }
+
+        private async void PushesOnClick(object sender, EventArgs eventArgs)
+        {
+            if (BasePresenter.User.WatchedUsers.Contains(_profileId))
+            {
+                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Unsubscribe, BasePresenter.User.PushesPlayerId, _profileId);
+                if (error == null)
+                    BasePresenter.User.WatchedUsers.Remove(_profileId);
+            }
+            else
+            {
+                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _profileId);
+                if (error == null)
+                    BasePresenter.User.WatchedUsers.Add(_profileId);
+            }
+            _moreActionsDialog.Dismiss();
+        }
+
+        private void CancelDialog(object sender, EventArgs e)
+        {
+            _moreActionsDialog.Dismiss();
         }
 
         private void OnLoginClick(object sender, EventArgs e)

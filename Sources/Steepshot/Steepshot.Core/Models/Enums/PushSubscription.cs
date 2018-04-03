@@ -14,7 +14,8 @@ namespace Steepshot.Core.Models.Enums
         [EnumMember(Value = "comment")]
         Comment,
         [EnumMember(Value = "follow")]
-        Follow
+        Follow,
+        User
     }
 
     public enum PushSubscriptionAction

@@ -175,6 +175,14 @@
         Greeting,
         EmptyFeedHint,
         GoToBrowse,
-        SinglePost
+        SinglePost,
+        NotificationSettings,
+        NotificationPostUpvotes,
+        NotificationCommentsUpvotes,
+        NotificationFollow,
+        NotificationComment,
+        NotificationPosting,
+        WatchUser,
+        UnwatchUser
     }
 }

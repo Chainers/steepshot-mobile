@@ -32,8 +32,8 @@ namespace Steepshot.Activity
         private int _tabHeight;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
-        [CheeseBind.BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
+        [BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
+        [BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
 #pragma warning restore 0649
 
 
@@ -56,14 +56,14 @@ namespace Steepshot.Activity
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
         }
 
-        private async Task InitPushes() => await Task.Run(() =>
-                                                     {
-                                                         OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                                                         .InFocusDisplaying(OSInFocusDisplayOption.None)
-                                                         .HandleNotificationOpened(OneSignalNotificationOpened)
-                                                         .EndInit();
-                                                         OneSignal.Current.IdsAvailable(OneSignalCallback);
-                                                     });
+        private void InitPushes() => Task.Run(() =>
+                                                    {
+                                                        OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                                                        .InFocusDisplaying(OSInFocusDisplayOption.None)
+                                                        .HandleNotificationOpened(OneSignalNotificationOpened)
+                                                        .EndInit();
+                                                        OneSignal.Current.IdsAvailable(OneSignalCallback);
+                                                    });
 
         private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
         {
@@ -74,8 +74,9 @@ namespace Steepshot.Activity
         {
             OneSignal.Current.SendTag("username", BasePresenter.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
-            Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
-            //Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, "joseph.kalu");
+            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+                Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
+            BasePresenter.User.PushesPlayerId = playerId;
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
