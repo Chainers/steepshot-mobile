@@ -10,6 +10,7 @@ using Steepshot.Core.Models.Common;
 using System.Net;
 using Steepshot.Core.Models.Responses;
 using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
@@ -24,7 +25,7 @@ namespace Steepshot.Core.HttpClient
 
 
         private readonly System.Net.Http.HttpClient _client;
-        public string Url { get; set; }
+        public string BaseUrl { get; set; }
 
         public ApiGateway()
         {
@@ -35,16 +36,26 @@ namespace Steepshot.Core.HttpClient
             };
         }
 
-        public async Task<OperationResult<T>> Get<T>(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
         {
-            var url = GetUrl(version, endpoint, parameters);
+            var param = string.Empty;
+            if (parameters != null && parameters.Count > 0)
+                param = "?" + string.Join("&", parameters.Select(i => $"{i.Key}={i.Value}"));
+
+            var url = $"{BaseUrl}/{endpoint}{param}";
             var response = await _client.GetAsync(url, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T>(GatewayVersion version, string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        public async Task<OperationResult<T>> Get<T>(string endpoint, CancellationToken token)
         {
-            var url = GetUrl(version, endpoint);
+            var url = $"{BaseUrl}/{endpoint}";
+            var response = await _client.GetAsync(url, token);
+            return await CreateResult<T>(response, token);
+        }
+
+        public async Task<OperationResult<T>> Post<T>(string endpoint, Dictionary<string, object> parameters, CancellationToken token)
+        {
             HttpContent content = null;
             if (parameters != null && parameters.Count > 0)
             {
@@ -52,13 +63,13 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
+            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<T>> Post<T, TData>(GatewayVersion version, string endpoint, TData data, CancellationToken token)
+        public async Task<OperationResult<T>> Post<T, TData>(string endpoint, TData data, CancellationToken token)
         {
-            var url = GetUrl(version, endpoint);
             HttpContent content = null;
             if (data != null)
             {
@@ -66,13 +77,13 @@ namespace Steepshot.Core.HttpClient
                 content = new StringContent(param, Encoding.UTF8, "application/json");
             }
 
+            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, content, token);
             return await CreateResult<T>(response, token);
         }
 
-        public async Task<OperationResult<MediaModel>> UploadMedia(GatewayVersion version, string endpoint, UploadMediaModel model, CancellationToken token)
+        public async Task<OperationResult<MediaModel>> UploadMedia(string endpoint, UploadMediaModel model, CancellationToken token)
         {
-            var url = GetUrl(version, endpoint);
             var fTitle = Guid.NewGuid().ToString();
 
             var file = new StreamContent(model.File);
@@ -84,6 +95,7 @@ namespace Steepshot.Core.HttpClient
                 {new StringContent(model.GenerateThumbnail.ToString()), "generate_thumbnail"}
             };
 
+            var url = $"{BaseUrl}/{endpoint}";
             var response = await _client.PostAsync(url, multiContent, token);
             var result = await CreateResult<MediaModel>(response, token);
 
@@ -105,45 +117,6 @@ namespace Steepshot.Core.HttpClient
             var multiContent = new MultipartFormDataContent { { new StringContent(url), "url" } };
             var response = await _client.PostAsync(NsfwUrlCheckerUrl, multiContent, token);
             return await CreateResult<NsfwRate>(response, token);
-        }
-
-        private string GetUrl(GatewayVersion version, string endpoint, Dictionary<string, object> parameters = null)
-        {
-            var sb = new StringBuilder(Url);
-
-            switch (version)
-            {
-                case GatewayVersion.V1:
-                    sb.Append("/v1/");
-                    break;
-                case GatewayVersion.V1P1:
-                    sb.Append("/v1_1/");
-                    break;
-            }
-
-            sb.Append(endpoint);
-            if (parameters != null && parameters.Count > 0)
-            {
-
-                var isFirst = true;
-                foreach (var parameter in parameters)
-                {
-                    if (isFirst)
-                    {
-                        sb.Append("?");
-                        isFirst = false;
-                    }
-                    else
-                    {
-                        sb.Append("&");
-                    }
-                    sb.Append(parameter.Key);
-                    sb.Append("=");
-                    sb.Append(parameter.Value);
-                }
-            }
-
-            return sb.ToString();
         }
 
         protected virtual async Task<OperationResult<T>> CreateResult<T>(HttpResponseMessage response, CancellationToken ct)

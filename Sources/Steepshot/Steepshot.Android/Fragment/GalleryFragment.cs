@@ -134,6 +134,7 @@ namespace Steepshot.Fragment
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady) return;
             if (_pickedItems.Count > 0)
             {
                 _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();
@@ -171,7 +172,7 @@ namespace Steepshot.Fragment
         }
         private void OnItemSelected(GalleryMediaModel model)
         {
-            if (_pickedItems.Count <= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
+            if (_pickedItems.Count >= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit);
                 return;
