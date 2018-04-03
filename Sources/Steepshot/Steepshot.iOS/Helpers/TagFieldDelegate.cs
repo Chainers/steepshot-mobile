@@ -20,6 +20,8 @@ namespace Steepshot.iOS.Helpers
 
         public override bool ShouldChangeCharacters(UITextField textField, Foundation.NSRange range, string replacementString)
         {
+            if (replacementString == "-" && textField.Text.Length > 0)
+                return true;
             if (replacementString == " "  && textField.Text.Length == 0)
                 return false;
             if (!string.IsNullOrEmpty(replacementString) && Char.IsDigit(Char.Parse(replacementString)) && textField.Text.Length == 0)
