@@ -63,6 +63,9 @@ namespace Steepshot.Core.Models.Requests
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyTitleField))]
         public string Title { get; set; }
 
+        [JsonProperty]
+        public string Device { get; set; }
+
         public bool IsEditMode { get; }
 
         public PreparePostModel(UserInfo user) : base(user)
