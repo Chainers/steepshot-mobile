@@ -173,7 +173,7 @@ namespace Steepshot.Core.HttpClient
 
             model.VerifyTransaction = trxResp.Result;
 
-            var endpoint = $"/{GatewayVersion.V1P1}/media/upload";
+            var endpoint = $"{GatewayVersion.V1P1}/media/upload";
             return await Gateway.UploadMedia(endpoint, model, ct);
         }
 
