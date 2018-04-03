@@ -22,6 +22,8 @@ namespace Steepshot.iOS.Helpers
         {
             if (replacementString == " "  && textField.Text.Length == 0)
                 return false;
+            if (replacementString.Length > 1)
+                return false;
             if (!string.IsNullOrEmpty(replacementString) && Char.IsDigit(Char.Parse(replacementString)) && textField.Text.Length == 0)
                 return false;
             if (!string.IsNullOrEmpty(replacementString) && !(replacementString == " " || Char.IsLetterOrDigit(Char.Parse(replacementString))))
