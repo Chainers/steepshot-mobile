@@ -128,6 +128,14 @@ namespace Steepshot.iOS.Cells
                                           .Into(_bodyImage);
         }
 
+        public void UpdateCell(UIImage image)
+        {
+            _bodyImage?.RemoveFromSuperview();
+            CreateImageView();
+
+            _bodyImage.Image = image;
+        }
+
         private void CreateImageView()
         {
             _bodyImage = new UIImageView();

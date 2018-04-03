@@ -383,6 +383,8 @@
     <Compile Include="Views\TagsPickerViewController.designer.cs">
       <DependentUpon>TagsPickerViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="ViewSources\PhotoGalleryViewSource.cs" />
+    <Compile Include="Cells\PhotoGalleryCell.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -461,6 +463,10 @@
     <BundleResource Include="Resources\ic_multiselect_active%402x.png" />
     <BundleResource Include="Resources\ic_hash%403x.png" />
     <BundleResource Include="Resources\ic_hash%402x.png" />
+    <BundleResource Include="Resources\ic_close_tag%402x.png" />
+    <BundleResource Include="Resources\ic_close_tag%403x.png" />
+    <BundleResource Include="Resources\ic_hash_micro%403x.png" />
+    <BundleResource Include="Resources\ic_hash_micro%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
