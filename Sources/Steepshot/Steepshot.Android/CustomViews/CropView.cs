@@ -63,6 +63,7 @@ namespace Steepshot.CustomViews
                     _currentScaleType = ScaleType.KeepScale;
             }
         }
+        public bool IsBitmapReady { get; private set; }
 
         private float SquareScale
         {
@@ -367,7 +368,11 @@ namespace Steepshot.CustomViews
                 return;
 
             if (_reloadImage)
+            {
+                IsBitmapReady = false;
                 _drawable = await MakeDrawable(MaxImageSize, MaxImageSize, DrawableImageParameters.Rotation);
+            }
+
             Reset(_currentScaleType);
         }
         protected override void OnDraw(Canvas canvas)
@@ -421,6 +426,7 @@ namespace Steepshot.CustomViews
             UpdateGrid();
 
             Invalidate();
+            IsBitmapReady = true;
         }
         private void SetDrawableScale(float scale)
         {
