@@ -505,6 +505,7 @@ namespace Steepshot.iOS.Views
                     {
                         Title = title,
                         Description = description,
+                        Device = "iOS",
 
                         Tags = tags.ToArray(),
                         Media = new[] { photoUploadResponse.Result }
