@@ -3,6 +3,7 @@ using Android.Animation;
 using Android.Content;
 using Android.Graphics;
 using Android.Graphics.Drawables;
+using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
@@ -210,10 +211,13 @@ namespace Steepshot.CustomViews
         private void ResetToDefaults(ScaleType scaleType)
         {
             _displayDrawableLeft = _displayDrawableTop = 0;
-            _minimumRatio = MinimumRatio;
-            _maximumRatio = MaximumRatio;
-            _defaultRatio = DefaultRatio;
-            DrawableImageParameters = _drawableImageParameters ?? new ImageParameters();
+            if (!_useStrictBounds)
+            {
+                _minimumRatio = MinimumRatio;
+                _maximumRatio = MaximumRatio;
+                _defaultRatio = DefaultRatio;
+            }
+            DrawableImageParameters = _reloadImage ? new ImageParameters() : _drawableImageParameters ?? new ImageParameters();
             _currentScaleType = scaleType;
         }
         public void SetImageUri(Uri uri, ImageParameters parameters)
@@ -251,6 +255,7 @@ namespace Steepshot.CustomViews
            {
                try
                {
+                   if (Looper.MyLooper() == null) Looper.Prepare();
                    using (var inputStream = new FileInputStream(_imageUri.Path))
                    {
                        using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(inputStream.FD, targetWidth, targetHeight))
@@ -483,13 +488,14 @@ namespace Steepshot.CustomViews
                 using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, MaxImageSize, MaxImageSize))
                 {
                     parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
-                    var left = (int)Math.Round(parameters.CropBounds.Left / parameters.Scale);
-                    var top = (int)Math.Round(parameters.CropBounds.Top / parameters.Scale);
-                    var width = (int)Math.Round(parameters.CropBounds.Width() / parameters.Scale);
-                    var height = (int)Math.Round(parameters.CropBounds.Height() / parameters.Scale);
+                    var scaleMultiplier = Math.Max(parameters.Scale, 1 / parameters.Scale);
+                    var left = (int)Math.Round(parameters.CropBounds.Left / scaleMultiplier);
+                    var top = (int)Math.Round(parameters.CropBounds.Top / scaleMultiplier);
+                    var width = (int)Math.Round(parameters.CropBounds.Width() / scaleMultiplier);
+                    var height = (int)Math.Round(parameters.CropBounds.Height() / scaleMultiplier);
                     var matrix = new Matrix();
-                    matrix.PostScale(parameters.Scale, parameters.Scale);
                     matrix.PostRotate(parameters.Rotation);
+                    matrix.PostScale(parameters.Scale, parameters.Scale);
                     var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
                     bitmap.Recycle();
                     return croppedBitmap;
@@ -698,6 +704,7 @@ namespace Steepshot.CustomViews
         public ImageParameters Copy() => new ImageParameters
         {
             Scale = Scale,
+            Rotation = Rotation,
             PreviewBounds = new RectF(PreviewBounds),
             CropBounds = new Rect(CropBounds)
         };
