@@ -32,12 +32,11 @@ namespace Steepshot.iOS.Views
         private UIDeviceOrientation _rotation;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private LocalTagsCollectionViewSource _collectionviewSource;
-        private TagsTableViewSource _tableSource;
-        private NSDictionary _metadata;
+        //private TagsTableViewSource _tableSource;
+        //private NSDictionary _metadata;
         private List<Tuple<NSDictionary, UIImage>> ImageAssets;
-        private Timer _timer;
+
         private string ImageExtension;
-        private string _previousQuery;
         private bool _isSpammer;
         public bool _isFromCamera => ImageAssets.Count == 1 && ImageAssets[0].Item1 == null;
 
@@ -47,7 +46,8 @@ namespace Steepshot.iOS.Views
         private UIImageView titleEditImage;
         private UITextView descriptionTextField;
         private UIImageView descriptionEditImage;
-        private UITextField tagField;
+        //private UITextField tagField;
+        private UILabel tagField;
         private UIImageView hashtagImage;
         private UICollectionView tagsCollectionView;
         private UIButton postPhotoButton;
@@ -73,8 +73,6 @@ namespace Steepshot.iOS.Views
 
             CreateView();
 
-
-
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
             _collectionviewSource = new LocalTagsCollectionViewSource();
@@ -83,15 +81,9 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Source = _collectionviewSource;
             tagsCollectionView.Delegate = _collectionViewDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
-            Activeview = mainScroll;
+            //Activeview = mainScroll;
             /*
-            _tableSource = new TagsTableViewSource(_presenter);
-            _tableSource.CellAction += TableCellAction;
-            tagsTableView.Source = _tableSource;
-            tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
-            tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
-            tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
-            tagsTableView.RowHeight = 65f;
+
 */
             //mainScrollBottom.Active = false;
             //mainScrollHeight.Constant = 100;
@@ -99,23 +91,21 @@ namespace Steepshot.iOS.Views
 
 
 
-            tagField.Delegate = new TagFieldDelegate(DoneTapped);
-            tagField.EditingChanged += EditingDidChange;
-            tagField.EditingDidBegin += EditingDidBegin;
-            tagField.EditingDidEnd += EditingDidEnd;
+
 
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
             
 
             _presenter.SourceChanged += SourceChanged;
-            _timer = new Timer(OnTimer);
+           
 
             SetBackButton();
-            //SearchTextChanged();
             SetPlaceholder();
             //CheckOnSpam();
         }
+
+
 
         protected override void KeyBoardUpNotification(NSNotification notification)
         {
@@ -145,8 +135,8 @@ namespace Steepshot.iOS.Views
             mainScroll.ScrollIndicatorInsets = contentInsets;
         }
 
-        NSLayoutConstraint toTop;
-        NSLayoutConstraint norm;
+        //NSLayoutConstraint toTop;
+        //NSLayoutConstraint norm;
 
         private nfloat _separatorMargin = 30;
 
@@ -218,11 +208,17 @@ namespace Steepshot.iOS.Views
             var descriptionHashtagSeparator = new UIView();
             descriptionHashtagSeparator.BackgroundColor = Constants.R245G245B245;
 
-            tagField = new UITextField();
+            tagField = new UILabel();
+            tagField.Text = "Hashtag";
+            //tagField = new UITextField();
             tagField.Font = Constants.Regular14;
-            tagField.Placeholder = "Hashtag";
-            tagField.AutocorrectionType = UITextAutocorrectionType.No;
-            tagField.AutocapitalizationType = UITextAutocapitalizationType.None;
+            tagField.TextColor = Constants.R151G155B158;
+            tagField.UserInteractionEnabled = true;
+            //tagField.Placeholder = "Hashtag";
+            //tagField.AutocorrectionType = UITextAutocorrectionType.No;
+            //tagField.AutocapitalizationType = UITextAutocapitalizationType.None;
+            var tap = new UITapGestureRecognizer(OpenTagPicker);
+            tagField.AddGestureRecognizer(tap);
 
             hashtagImage = new UIImageView();
             hashtagImage.Image = UIImage.FromBundle("ic_hash");
@@ -230,7 +226,7 @@ namespace Steepshot.iOS.Views
             var hashtagCollectionSeparator = new UIView();
             hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
 
-            postPhotoButton = new UIButton(); 
+            postPhotoButton = new UIButton();
             postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
             postPhotoButton.SetTitle("", UIControlState.Disabled);
             postPhotoButton.Layer.CornerRadius = 25;
@@ -267,29 +263,29 @@ namespace Steepshot.iOS.Views
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
 
-            titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 25f);
+            titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 17f);
             titleTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
 
-            titleEditImage.AutoSetDimensionsToSize(new CGSize(16, 16));
+            titleEditImage.AutoSetDimensionsToSize(new CGSize(18, 18));
             titleEditImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             titleEditImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, titleTextField, 5f);
             titleEditImage.AutoAlignAxis(ALAxis.Horizontal, titleTextField);
 
-            titleDescriptionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleTextField, 25f);
+            titleDescriptionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleTextField, 17f);
             titleDescriptionSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
             titleDescriptionSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             titleDescriptionSeparator.AutoSetDimension(ALDimension.Height, 1f);
 
-            descriptionTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleDescriptionSeparator, 25f);
+            descriptionTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleDescriptionSeparator, 17f);
             descriptionTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
-            descriptionTextField.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator, 5f);
+            //descriptionTextField.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator, 5f);
 
-            descriptionEditImage.AutoSetDimensionsToSize(new CGSize(16, 16));
+            descriptionEditImage.AutoSetDimensionsToSize(new CGSize(18, 18));
             descriptionEditImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             descriptionEditImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, descriptionTextField, 5f);
             descriptionEditImage.AutoAlignAxis(ALAxis.Horizontal, descriptionTextField);
 
-            descriptionHashtagSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionTextField, 25f);
+            descriptionHashtagSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionTextField, 17f);
             descriptionHashtagSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
             descriptionHashtagSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             descriptionHashtagSeparator.AutoSetDimension(ALDimension.Height, 1f);
@@ -297,15 +293,16 @@ namespace Steepshot.iOS.Views
             //toTop = tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
             //toTop.Active = false;
 
-            norm = tagField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionHashtagSeparator, 25f);
+            tagField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionHashtagSeparator);
             tagField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            tagField.AutoSetDimension(ALDimension.Height, 70f);
 
-            hashtagImage.AutoSetDimensionsToSize(new CGSize(14, 16));
+            hashtagImage.AutoSetDimensionsToSize(new CGSize(15, 17));
             hashtagImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             hashtagImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, tagField, 5f);
             hashtagImage.AutoAlignAxis(ALAxis.Horizontal, tagField);
 
-            hashtagCollectionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagField, 25f);
+            hashtagCollectionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagField);
             hashtagCollectionSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
             hashtagCollectionSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
             hashtagCollectionSeparator.AutoSetDimension(ALDimension.Height, 1f);
@@ -334,8 +331,23 @@ namespace Steepshot.iOS.Views
             //tagsTableView.BackgroundColor = UIColor.Black;
         }
 
-        private NSLayoutConstraint tableHeight;
+        private void OpenTagPicker()
+        {
+            NavigationController.PushViewController(new TagsPickerViewController(_collectionviewSource, _collectionViewDelegate), true);
+        }
+
+        //private NSLayoutConstraint tableHeight;
         private NSLayoutConstraint t;
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+            if (!IsMovingToParentViewController)
+            {
+                tagsCollectionView.ReloadData();
+                ResizeView();
+            }
+        }
 
         public override async void ViewDidAppear(bool animated)
         {
@@ -393,35 +405,7 @@ namespace Steepshot.iOS.Views
             _titleTextViewDelegate.EditingStartedAction += EditingStartedAction;
         }
 
-        private void EditingStartedAction()
-        {
-            AddOkButton();
-        }
 
-        private void EditingDidBegin(object sender, EventArgs e)
-        {
-            AddOkButton();
-            AnimateView(true);
-        }
-
-        private void EditingDidChange(object sender, EventArgs e)
-        {
-            var txt = ((UITextField)sender).Text;
-            if (!string.IsNullOrWhiteSpace(txt))
-            {
-                if (txt.EndsWith(" "))
-                {
-                    ((UITextField)sender).Text = string.Empty;
-                    AddTag(txt);
-                }
-            }
-            //_timer.Change(500, Timeout.Infinite);
-        }
-
-        private void EditingDidEnd(object sender, EventArgs e)
-        {
-            AnimateView(false);
-        }
         /*
         protected override void KeyBoardUpNotification(NSNotification notification)
         {
@@ -429,12 +413,10 @@ namespace Steepshot.iOS.Views
             base.KeyBoardUpNotification(notification);
         }*/
 
-        private void OnTimer(object state)
+
+        private void EditingStartedAction()
         {
-            InvokeOnMainThread(() =>
-            {
-                SearchTextChanged();
-            });
+            AddOkButton();
         }
 
         private void CollectionCellAction(ActionType type, string tag)
@@ -447,22 +429,7 @@ namespace Steepshot.iOS.Views
             AddTag(tag);
         }
 
-        private async void SearchTextChanged()
-        {
-            if (_previousQuery == tagField.Text || tagField.Text.Length == 1)
-                return;
 
-            _previousQuery = tagField.Text;
-            _presenter.Clear();
-
-            ErrorBase error = null;
-            if (tagField.Text.Length == 0)
-                error = await _presenter.TryGetTopTags();
-            else if (tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(tagField.Text);
-
-            ShowAlert(error);
-        }
 
         private void SourceChanged(Status obj)
         {
@@ -525,13 +492,10 @@ namespace Steepshot.iOS.Views
                 Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
                 _isinitialized = true;
             }
-
         }
 
         private void ResizeView()
         {
-            //mainScroll.SetNeedsLayout();
-            //mainScroll.LayoutIfNeeded();
             tagsCollectionView.LayoutIfNeeded();
             var collectionContentSize = tagsCollectionView.ContentSize;
             t.Constant = collectionContentSize.Height;

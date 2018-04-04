@@ -1,21 +1,50 @@
-﻿// WARNING
+// WARNING
 //
-// This file has been generated automatically by Xamarin Studio from the outlets and
-// actions declared in your storyboard file.
-// Manual changes to this file will not be maintained.
+// This file has been generated automatically by Visual Studio to store outlets and
+// actions made in the UI designer. If it is removed, they will be lost.
+// Manual changes to this file may not be handled correctly.
 //
 using Foundation;
-using System;
 using System.CodeDom.Compiler;
-using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    [Register("TagsPickerViewController")]
-    partial class TagsPickerViewController
-    {
-        void ReleaseDesignerOutlets()
-        {
-        }
-    }
+	[Register ("TagsPickerViewController")]
+	partial class TagsPickerViewController
+	{
+		[Outlet]
+		UIKit.NSLayoutConstraint collectionViewHeight { get; set; }
+
+		[Outlet]
+		UIKit.UITextField tagField { get; set; }
+
+		[Outlet]
+		UIKit.UICollectionView tagsCollectionView { get; set; }
+
+		[Outlet]
+		UIKit.UITableView tagsTableView { get; set; }
+		
+		void ReleaseDesignerOutlets ()
+		{
+			if (tagField != null) {
+				tagField.Dispose ();
+				tagField = null;
+			}
+
+			if (tagsTableView != null) {
+				tagsTableView.Dispose ();
+				tagsTableView = null;
+			}
+
+			if (tagsCollectionView != null) {
+				tagsCollectionView.Dispose ();
+				tagsCollectionView = null;
+			}
+
+			if (collectionViewHeight != null) {
+				collectionViewHeight.Dispose ();
+				collectionViewHeight = null;
+			}
+		}
+	}
 }
