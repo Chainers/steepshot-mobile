@@ -175,5 +175,6 @@
         Greeting,
         EmptyFeedHint,
         GoToBrowse,
+        SinglePost
     }
 }

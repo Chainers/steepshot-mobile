@@ -75,6 +75,7 @@
     <Compile Include="CustomViews\ICoordinatorListener.cs" />
     <Compile Include="Fragment\GalleryFragment.cs" />
     <Compile Include="Fragment\PostEditFragment.cs" />
+    <Compile Include="Fragment\SinglePostFragment.cs" />
     <Compile Include="Utils\GalleryMediaModel.cs" />
     <Compile Include="CustomViews\SelectableImageView.cs" />
     <Compile Include="CustomViews\VotingPowerFrame.cs" />
@@ -218,6 +219,9 @@
     <AndroidResource Include="Resources\layout\lyt_gallery_top.axml" />
     <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_alert.axml" />
+    <AndroidResource Include="Resources\layout\lyt_single_post.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -319,7 +323,9 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_back_arrow.png" />
-    <AndroidResource Include="Resources\layout\top_panel.axml" />
+    <AndroidResource Include="Resources\layout\top_panel.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\loading_item.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_search_small.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_search_small.png" />

@@ -17,6 +17,7 @@ using Android.Widget;
 using Apmem;
 using CheeseBind;
 using Square.Picasso;
+using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
@@ -355,7 +356,10 @@ namespace Steepshot.Fragment
                 OnUploadEnded();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
-                Activity.Finish();
+                if (Activity is SplashActivity || Activity is CameraActivity)
+                    Activity.Finish();
+                else
+                    ((BaseActivity)Activity).OnBackPressed();
             }
             else
             {

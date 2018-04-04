@@ -42,24 +42,28 @@
                 android:maxLines="1"
                 android:text="34 min ago" />
         </LinearLayout>
-        <ImageButton
-            android:id="@+id/close"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
+        <LinearLayout
+            android:id="@+id/header_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_close_black"
+            android:layout_centerVertical="true"
             android:layout_marginRight="-5dp"
-            android:layout_centerHorizontal="true" />
-        <ImageButton
-            android:id="@+id/more"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_more_black"
-            android:layout_marginRight="10dp"
-            android:layout_centerHorizontal="true"
-            android:layout_toLeftOf="@id/close" />
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/more"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_more_black" />
+            <ImageButton
+                android:id="@+id/close"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_close_black"
+                android:layout_marginRight="10dp" />
+        </LinearLayout>
     </RelativeLayout>
     <ScrollView
         android:scrollbars="none"

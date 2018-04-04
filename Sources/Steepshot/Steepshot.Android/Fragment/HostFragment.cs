@@ -1,4 +1,6 @@
 ﻿using Android.App;
+using Android.Net;
+using Android.OS;
 using Steepshot.Base;
 
 namespace Steepshot.Fragment
@@ -25,7 +27,7 @@ namespace Steepshot.Fragment
             }
         }
 
-        public override Android.Views.View OnCreateView(Android.Views.LayoutInflater inflater, Android.Views.ViewGroup container, Android.OS.Bundle savedInstanceState)
+        public override Android.Views.View OnCreateView(Android.Views.LayoutInflater inflater, Android.Views.ViewGroup container, Bundle savedInstanceState)
         {
             base.OnCreateView(inflater, container, savedInstanceState);
             var view = inflater.Inflate(Resource.Layout.HostLayout, container, false);
@@ -37,6 +39,18 @@ namespace Steepshot.Fragment
             ChildFragmentManager.BackStackChanged += BackStackChange;
 
             return view;
+        }
+
+        public override void OnActivityCreated(Bundle savedInstanceState)
+        {
+            base.OnActivityCreated(savedInstanceState);
+            if (Activity is BaseActivity activity)
+            {
+                var appLink = activity.Intent.GetStringExtra(BaseActivity.AppLinkingExtra);
+                if (!string.IsNullOrEmpty(appLink))
+                    activity.OpenUri(Uri.Parse(appLink));
+                activity.Intent.RemoveExtra(BaseActivity.AppLinkingExtra);
+            }
         }
 
         private void BackStackChange(object sender, System.EventArgs e)
@@ -68,6 +82,6 @@ namespace Steepshot.Fragment
         {
             IsPopped = true;
             ChildFragmentManager.PopBackStackImmediate(_firstFragmentId, (int)PopBackStackFlags.Inclusive);
-        } 
+        }
     }
 }
