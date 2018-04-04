@@ -173,6 +173,7 @@
 		"Gallery":"Gallery",
 		"PickedPhotosLimit":"Sorry, you can't select more than 7 photos",
 		"NoPhotosPicked":"Please select a photo",
+		"SinglePost":"Post",
 
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",

@@ -17,11 +17,13 @@ using Steepshot.Services;
 using Steepshot.Utils;
 using LruCache = Square.Picasso.LruCache;
 using Steepshot.Core.Localization;
+using Uri = Android.Net.Uri;
 
 namespace Steepshot.Base
 {
     public abstract class BaseActivity : AppCompatActivity
     {
+        public const string AppLinkingExtra = "appLinkingExtra";
         protected HostFragment CurrentHostFragment;
         protected static LruCache Cache;
 
@@ -130,6 +132,24 @@ namespace Steepshot.Base
             intent.SetFlags(ActivityFlags.NewTask);
             StartActivity(intent);
             Finish();
+        }
+
+        public void OpenUri(Uri uri)
+        {
+            if (string.IsNullOrEmpty(uri?.Path))
+                return;
+
+            int index = uri.Path.IndexOf("@", StringComparison.Ordinal) + 1;
+
+            if (index < uri.Path.Length)
+            {
+                var appLink = uri.Path.Substring(index, uri.Path.Length - index);
+
+                if (uri.Path.StartsWith("/post"))
+                    OpenNewContentFragment(new SinglePostFragment(appLink));
+                else if (uri.Path.StartsWith("/@"))
+                    OpenNewContentFragment(new ProfileFragment(appLink));
+            }
         }
     }
 }
