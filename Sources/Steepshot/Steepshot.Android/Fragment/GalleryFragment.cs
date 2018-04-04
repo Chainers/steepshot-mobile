@@ -134,6 +134,7 @@ namespace Steepshot.Fragment
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady) return;
             if (_pickedItems.Count > 0)
             {
                 _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();

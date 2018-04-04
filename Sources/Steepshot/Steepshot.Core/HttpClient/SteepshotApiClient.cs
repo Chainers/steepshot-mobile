@@ -48,7 +48,7 @@ namespace Steepshot.Core.HttpClient
 
             lock (_synk)
             {
-                if (!string.IsNullOrEmpty(Gateway.Url))
+                if (!string.IsNullOrEmpty(Gateway.BaseUrl))
                 {
                     _ditchClient.EnableWrite = false;
                     _ctsMain.Cancel();
@@ -60,7 +60,7 @@ namespace Steepshot.Core.HttpClient
                     ? (BaseDitchClient)new SteemClient(JsonConverter)
                     : new GolosClient(JsonConverter);
 
-                Gateway.Url = sUrl;
+                Gateway.BaseUrl = sUrl;
                 EnableRead = true;
             }
         }
@@ -173,7 +173,8 @@ namespace Steepshot.Core.HttpClient
 
             model.VerifyTransaction = JsonConverter.Serialize(trxResp.Result);
 
-            return await Gateway.UploadMedia(GatewayVersion.V1P1, "media/upload", model, ct);
+            var endpoint = $"{GatewayVersion.V1P1}/media/upload";
+            return await Gateway.UploadMedia(endpoint, model, ct);
         }
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
