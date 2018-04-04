@@ -18,7 +18,6 @@ namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
-        private static readonly Dictionary<string, double> CurencyConvertationDic;
         private static readonly CultureInfo CultureInfo;
         protected static readonly SteepshotApiClient Api;
         private static readonly Timer LazyLoadTimer;
@@ -54,8 +53,6 @@ namespace Steepshot.Core.Presenters
             User = new User();
             User.Load();
             Chain = User.Chain;
-            //TODO:KOA: endpoint for CurencyConvertation needed
-            CurencyConvertationDic = new Dictionary<string, double> { { "GBG", 2.4645 }, { "SBD", 1 } };
 
             Api = new SteepshotApiClient();
 
@@ -148,14 +145,10 @@ namespace Steepshot.Core.Presenters
             await TryRunTask(TryСonect, ts);
         }
 
-        public static string ToFormatedCurrencyString(Asset value, string postfix = null)
+        public static string ToFormatedCurrencyString(double value)
         {
-            var dVal = value.ToDouble();
-            if (!string.IsNullOrEmpty(value.Currency) && CurencyConvertationDic.ContainsKey(value.Currency))
-                dVal *= CurencyConvertationDic[value.Currency];
-            return $"{Currency} {dVal.ToString("F", CultureInfo)}{(string.IsNullOrEmpty(postfix) ? string.Empty : " ")}{postfix}";
+            return $"{Currency} {value.ToString("F", CultureInfo)}";
         }
-
 
         private static CancellationToken GetReconectToken()
         {
