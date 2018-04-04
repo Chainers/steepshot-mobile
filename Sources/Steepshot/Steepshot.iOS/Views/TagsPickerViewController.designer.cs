@@ -16,9 +16,6 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint collectionViewHeight { get; set; }
 
 		[Outlet]
-		UIKit.UITextField tagField { get; set; }
-
-		[Outlet]
 		UIKit.UICollectionView tagsCollectionView { get; set; }
 
 		[Outlet]
@@ -26,14 +23,9 @@ namespace Steepshot.iOS.Views
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (tagField != null) {
-				tagField.Dispose ();
-				tagField = null;
-			}
-
-			if (tagsTableView != null) {
-				tagsTableView.Dispose ();
-				tagsTableView = null;
+			if (collectionViewHeight != null) {
+				collectionViewHeight.Dispose ();
+				collectionViewHeight = null;
 			}
 
 			if (tagsCollectionView != null) {
@@ -41,9 +33,9 @@ namespace Steepshot.iOS.Views
 				tagsCollectionView = null;
 			}
 
-			if (collectionViewHeight != null) {
-				collectionViewHeight.Dispose ();
-				collectionViewHeight = null;
+			if (tagsTableView != null) {
+				tagsTableView.Dispose ();
+				tagsTableView = null;
 			}
 		}
 	}

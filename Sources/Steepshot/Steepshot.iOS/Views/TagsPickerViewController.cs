@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading;
-using CoreAnimation;
 using CoreGraphics;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
@@ -23,6 +21,7 @@ namespace Steepshot.iOS.Views
         private LocalTagsCollectionViewFlowDelegate _flowDelegate;
         private Timer _timer;
         private string _previousQuery;
+        private TextFieldWithInsets tagField;
 
         public TagsPickerViewController(LocalTagsCollectionViewSource viewSource, LocalTagsCollectionViewFlowDelegate flowDelegate)
         {
@@ -51,17 +50,40 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
+            tagField = new TextFieldWithInsets();
+            View.AddSubview(tagField);
             tagField.Font = Constants.Regular14;
-            //tagField.TextColor = Constants.R151G155B158;
             tagField.Placeholder = "Hashtag";
+            tagField.AutocorrectionType = UITextAutocorrectionType.No;
+            tagField.AutocapitalizationType = UITextAutocapitalizationType.None;
+
+            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
+            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
+
+            tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagField, 20f);
+            tagField.AutoSetDimension(ALDimension.Height, 40f);
 
             tagField.Layer.CornerRadius = 20;
             tagField.Layer.BorderWidth = 1;
             tagField.Layer.BorderColor = Constants.R255G71B5.CGColor;
             tagField.BecomeFirstResponder();
-            //tagField.TextRect(new CGRect(0, 0, 0, 0));
-            //tagField.EditingRect =   .TextRect
 
+            var clearButton = new UIButton();
+            clearButton.SetImage(UIImage.FromBundle("ic_delete_tag"), UIControlState.Normal);
+            clearButton.Frame = new CGRect(0, 0, 16, 16);
+            clearButton.TouchDown += (sender, e) =>
+            {
+                tagField.Text = string.Empty;
+            };
+            tagField.RightView = clearButton;
+            tagField.RightViewMode = UITextFieldViewMode.WhileEditing;
+
+            var tap = new UITapGestureRecognizer(() =>
+            {
+                tagField.ResignFirstResponder();
+            });
+            View.AddGestureRecognizer(tap);
 
             var _tableSource = new TagsTableViewSource(_presenter);
             _tableSource.CellAction += TableCellAction;
@@ -69,15 +91,29 @@ namespace Steepshot.iOS.Views
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
             tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
-            tagsTableView.RowHeight = 65f;
+            tagsTableView.RowHeight = 70f;
 
-            //tagField.Delegate = new TagFieldDelegate(DoneTapped);
             tagField.EditingChanged += EditingDidChange;
-            //tagField.EditingDidBegin += EditingDidBegin;
-            //tagField.EditingDidEnd += EditingDidEnd;
             SetBackButton();
             SetCollectionHeight();
             SearchTextChanged();
+        }
+
+        protected override void KeyBoardUpNotification(NSNotification notification)
+        {
+            var kbSize = UIKeyboard.FrameEndFromNotification(notification);
+            var contentInsets = new UIEdgeInsets(0, 0, kbSize.Height, 0);
+            tagsTableView.ContentInset = contentInsets;
+            tagsTableView.ScrollIndicatorInsets = contentInsets;
+            //TODO:scroll view to the current position when keyboard is open
+            //tagsTableView.ScrollRectToVisible(new CGRect(tagsTableView.ContentOffset, new CGSize(tagsTableView.Frame.Width, tagsTableView.Frame.Height - kbSize.Height)), true);
+        }
+
+        protected override void KeyBoardDownNotification(NSNotification notification)
+        {
+            var contentInsets = new UIEdgeInsets(0, 0, 0, 0);
+            tagsTableView.ContentInset = contentInsets;
+            tagsTableView.ScrollIndicatorInsets = contentInsets;
         }
 
         private void SetCollectionHeight()
@@ -183,5 +219,22 @@ namespace Steepshot.iOS.Views
             SetCollectionHeight();
         }
     }
-}
 
+    public class TextFieldWithInsets : UITextField
+    {
+        public override CGRect TextRect(CGRect forBounds)
+        {
+            return base.TextRect(forBounds.Inset(20, 0));
+        }
+
+        public override CGRect EditingRect(CGRect forBounds)
+        {
+            return base.EditingRect(forBounds.Inset(20, 0));
+        }
+
+        public override CGRect RightViewRect(CGRect forBounds)
+        {
+            return base.RightViewRect(forBounds.Inset(20, 0));
+        }
+    }
+}

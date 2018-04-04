@@ -12,7 +12,6 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="TagsPickerViewController">
             <connections>
                 <outlet property="collectionViewHeight" destination="q1g-xU-F0Q" id="sgQ-yJ-Fwa"/>
-                <outlet property="tagField" destination="Apb-9J-Llm" id="UgW-V6-b28"/>
                 <outlet property="tagsCollectionView" destination="Vv4-Nu-SoV" id="csq-sQ-lha"/>
                 <outlet property="tagsTableView" destination="sbh-XY-BrI" id="yKc-xG-UUo"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
@@ -23,16 +22,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Apb-9J-Llm">
-                    <rect key="frame" x="15" y="10" width="345" height="40"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="40" id="XQo-og-Nzu"/>
-                    </constraints>
-                    <nil key="textColor"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                    <textInputTraits key="textInputTraits"/>
-                </textField>
-                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Vv4-Nu-SoV">
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" bounces="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="Vv4-Nu-SoV">
                     <rect key="frame" x="0.0" y="70" width="375" height="0.0"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
@@ -45,7 +35,7 @@
                         <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                     </collectionViewFlowLayout>
                 </collectionView>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="sbh-XY-BrI">
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="sbh-XY-BrI">
                     <rect key="frame" x="30" y="90" width="315" height="577"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </tableView>
@@ -54,13 +44,9 @@
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="Vv4-Nu-SoV" secondAttribute="trailing" id="5lX-6Y-zyR"/>
                 <constraint firstAttribute="bottom" secondItem="sbh-XY-BrI" secondAttribute="bottom" id="DKm-Ws-Goc"/>
-                <constraint firstItem="Apb-9J-Llm" firstAttribute="top" secondItem="2" secondAttribute="top" constant="10" id="GZh-Sl-bMj"/>
                 <constraint firstItem="sbh-XY-BrI" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="30" id="JXk-Le-wGn"/>
-                <constraint firstAttribute="trailing" secondItem="Apb-9J-Llm" secondAttribute="trailing" constant="15" id="LrV-oO-5df"/>
-                <constraint firstItem="Apb-9J-Llm" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="Tnk-gs-H8A"/>
                 <constraint firstAttribute="trailing" secondItem="sbh-XY-BrI" secondAttribute="trailing" constant="30" id="drT-gw-YVR"/>
                 <constraint firstItem="Vv4-Nu-SoV" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="k0a-UX-L8V"/>
-                <constraint firstItem="Vv4-Nu-SoV" firstAttribute="top" secondItem="Apb-9J-Llm" secondAttribute="bottom" constant="20" id="kGt-Xx-IRb"/>
                 <constraint firstItem="sbh-XY-BrI" firstAttribute="top" secondItem="Vv4-Nu-SoV" secondAttribute="bottom" constant="20" id="mBZ-dg-dZn"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
