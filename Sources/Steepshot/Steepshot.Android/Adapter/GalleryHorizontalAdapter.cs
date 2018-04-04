@@ -67,7 +67,7 @@ namespace Steepshot.Adapter
 
         public void Update(MediaModel model)
         {
-            var url = model.Thumbnails.Micro;
+            var url = string.IsNullOrEmpty(model.Thumbnails?.Micro) ? model.Url : model.Thumbnails.Micro;
             Picasso.With(ItemView.Context).Load(url).Into(_image);
         }
     }

@@ -2,7 +2,8 @@
 using Android.Content;
 using Android.Support.V4.App;
 using Com.OneSignal.Android;
-using Java.Lang;
+using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.Utils
 {
@@ -19,22 +20,17 @@ namespace Steepshot.Utils
         {
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
-            DisplayNotification(overrideSettings);
-            return true;
+            var type = p0.Payload.AdditionalData.GetString("type");
+            if (!type.Equals(PushSubscription.User.GetEnumDescription()) || BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User))
+                DisplayNotification(overrideSettings);
+            return false;
         }
 
         public NotificationCompat.Builder Extend(NotificationCompat.Builder builder)
         {
             builder.SetSmallIcon(Resource.Drawable.ic_notification)
                 .SetContentTitle(_result.Payload.Title)
-                .SetContentText(_result.Payload.Body)
-                .SetStyle(new NotificationCompat.InboxStyle()
-                .AddLine("")
-                .AddLine("")
-                .SetBigContentTitle("big titel")
-                .SetSummaryText("sum text"))
-                .SetGroup(_result.Payload.GroupKey)
-                .SetGroupSummary(true);
+                .SetContentText(_result.Payload.Body);
             return builder;
         }
     }

@@ -24,7 +24,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         private Adapter.PagerAdapter _adapter;
@@ -41,9 +41,6 @@ namespace Steepshot.Activity
         {
             base.OnCreate(savedInstanceState);
 
-            if (BasePresenter.User.IsAuthenticated)
-                InitPushes();
-
             SetContentView(Resource.Layout.lyt_tab_host);
             Cheeseknife.Bind(this);
 
@@ -54,6 +51,9 @@ namespace Steepshot.Activity
 
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
+
+            if (BasePresenter.User.IsAuthenticated)
+                InitPushes();
         }
 
         private void InitPushes() => Task.Run(() =>
@@ -67,7 +67,20 @@ namespace Steepshot.Activity
 
         private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
         {
-
+            var type = result.notification.payload.additionalData["type"].ToString();
+            var data = result.notification.payload.additionalData["data"].ToString();
+            switch (type)
+            {
+                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
+                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
+                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
+                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                    OpenNewContentFragment(new SinglePostFragment(data));
+                    break;
+                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                    OpenNewContentFragment(new ProfileFragment(data));
+                    break;
+            }
         }
 
         private void OneSignalCallback(string playerId, string pushToken)

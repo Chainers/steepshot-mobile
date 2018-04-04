@@ -40,7 +40,7 @@ namespace Steepshot.Fragment
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
         private RecyclerView.Adapter _adapter;
         private Dialog _moreActionsDialog;
-        private bool _userIsWatched;
+        private bool UserIsWatched => BasePresenter.User.WatchedUsers.Contains(_profileId);
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -246,8 +246,6 @@ namespace Steepshot.Fragment
                 }
             }
 
-            _userIsWatched = BasePresenter.User.WatchedUsers.Contains(_profileId);
-
             var postUrl = Activity?.Intent?.GetStringExtra(CommentsFragment.ResultString);
             if (!string.IsNullOrWhiteSpace(postUrl))
             {
@@ -402,7 +400,7 @@ namespace Steepshot.Fragment
             {
                 dialogView.SetMinimumWidth((int)(Resources.DisplayMetrics.WidthPixels * 0.8));
                 var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
-                if (_userIsWatched)
+                if (UserIsWatched)
                 {
                     pushes.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
                     pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
@@ -433,7 +431,8 @@ namespace Steepshot.Fragment
 
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
-            if (BasePresenter.User.WatchedUsers.Contains(_profileId))
+            _moreActionsDialog.Dismiss();
+            if (UserIsWatched)
             {
                 var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Unsubscribe, BasePresenter.User.PushesPlayerId, _profileId);
                 if (error == null)
@@ -444,8 +443,7 @@ namespace Steepshot.Fragment
                 var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _profileId);
                 if (error == null)
                     BasePresenter.User.WatchedUsers.Add(_profileId);
-            }
-            _moreActionsDialog.Dismiss();
+            }            
         }
 
         private void CancelDialog(object sender, EventArgs e)

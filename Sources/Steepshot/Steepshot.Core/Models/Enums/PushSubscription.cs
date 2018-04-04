@@ -15,6 +15,7 @@ namespace Steepshot.Core.Models.Enums
         Comment,
         [EnumMember(Value = "follow")]
         Follow,
+        [EnumMember(Value = "post")]
         User
     }
 

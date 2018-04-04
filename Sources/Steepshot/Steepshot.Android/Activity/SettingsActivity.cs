@@ -154,14 +154,13 @@ namespace Steepshot.Activity
         {
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
+            base.OnBackPressed();
             if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
             {
-                _pushSubscriptions.Remove(PushSubscription.User);
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _pushSubscriptions.ToArray());
+                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToArray());
                 if (error == null)
                     BasePresenter.User.UserInfo.PushSubscriptions = _pushSubscriptions;
             }
-            base.OnBackPressed();
         }
 
         protected override void OnDestroy()
