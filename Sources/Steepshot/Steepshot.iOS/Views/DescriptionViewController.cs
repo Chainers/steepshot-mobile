@@ -100,6 +100,7 @@ namespace Steepshot.iOS.Views
             var contentInsets = new UIEdgeInsets(0, 0, 0, 0);
             mainScroll.ContentInset = contentInsets;
             mainScroll.ScrollIndicatorInsets = contentInsets;
+            View.LayoutSubviews();
         }
 
         private void CreateView()
@@ -272,6 +273,8 @@ namespace Steepshot.iOS.Views
 
         private void OpenTagPicker()
         {
+            NavigationItem.RightBarButtonItem = null;
+            KeyBoardDownNotification(null);
             NavigationController.PushViewController(new TagsPickerViewController(_collectionviewSource, _collectionViewDelegate), true);
         }
 
@@ -566,6 +569,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             ToggleAvailability(false);
+            RemoveFocusFromTextFields();
 
             await Task.Run(() =>
             {

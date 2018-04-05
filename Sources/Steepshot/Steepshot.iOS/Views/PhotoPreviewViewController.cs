@@ -142,7 +142,8 @@ namespace Steepshot.iOS.Views
                 }
                 else
                 {
-                    source.ImageAssets.RemoveAll(a => a.Asset.LocalIdentifier == pickedPhoto.Item2.LocalIdentifier);
+                    if (source.ImageAssets.Count != 1)
+                        source.ImageAssets.RemoveAll(a => a.Asset.LocalIdentifier == pickedPhoto.Item2.LocalIdentifier);
                     ApplyRightScale();
                     SetScrollViewInsets();
                 }
