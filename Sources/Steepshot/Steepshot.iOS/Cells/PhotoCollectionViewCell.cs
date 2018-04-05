@@ -14,15 +14,14 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWork;
         private Post _currentPost;
         private UIImageView _bodyImage;
+        private UIImageView _galleryImage;
 
-        protected PhotoCollectionViewCell(IntPtr handle) : base(handle) { }
-
-        /*
-        public void UpdateImage(UIImage photo)
+        protected PhotoCollectionViewCell(IntPtr handle) : base(handle)
         {
-            photoImg.Image = photo;
-            //Asset = asset;
-        }*/
+            _galleryImage = new UIImageView(new CGRect(Constants.CellSideSize - 15, 5, 10, 10));
+            _galleryImage.Image = UIImage.FromBundle("ic_is_gallery");
+            ContentView.AddSubview(_galleryImage);
+        }
 
         public void UpdateCell(Post post)
         {
@@ -51,6 +50,8 @@ namespace Steepshot.iOS.Cells
                                          {
                                          })*/
                                           .Into(_bodyImage);
+            if (post.Media.Length > 1)
+                ContentView.BringSubviewToFront(_galleryImage);
         }
     }
 }
