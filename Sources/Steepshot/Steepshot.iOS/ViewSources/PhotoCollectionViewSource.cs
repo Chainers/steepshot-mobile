@@ -31,7 +31,6 @@ namespace Steepshot.iOS.ViewSources
     {
         private readonly PHFetchResult _fetchResults;
         private readonly PHImageManager _m;
-        //public Dictionary<string, UIImage> ImageAssets = new Dictionary<string, UIImage>();
         public List<SavedPhoto> ImageAssets = new List<SavedPhoto>();
         public bool MultiPickMode { get; set; }
         public Tuple<NSIndexPath, PHAsset> CurrentlySelectedItem = new Tuple<NSIndexPath, PHAsset>(null, null);

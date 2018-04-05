@@ -473,6 +473,8 @@
     <BundleResource Include="Resources\ic_add_tag%402x.png" />
     <BundleResource Include="Resources\ic_delete_tag%402x.png" />
     <BundleResource Include="Resources\ic_delete_tag%403x.png" />
+    <BundleResource Include="Resources\ic_resize%402x.png" />
+    <BundleResource Include="Resources\ic_resize%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">

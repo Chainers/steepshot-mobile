@@ -56,6 +56,7 @@ namespace Steepshot.iOS.Views
             tagField.Placeholder = "Hashtag";
             tagField.AutocorrectionType = UITextAutocorrectionType.No;
             tagField.AutocapitalizationType = UITextAutocapitalizationType.None;
+            tagField.TintColor = Constants.R255G71B5;
 
             tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
             tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);

@@ -6,7 +6,6 @@ using AVFoundation;
 using CoreGraphics;
 using CoreMedia;
 using Foundation;
-using ImageIO;
 using Photos;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.ViewControllers;
@@ -73,7 +72,6 @@ namespace Steepshot.iOS.Views
             photoButton.Enabled = isEnabled;
             closeButton.Enabled = isEnabled;
             swapCameraButton.Enabled = isEnabled;
-            galleryButton.UserInteractionEnabled = isEnabled;
         }
 
         public override void ViewDidAppear(bool animated)
@@ -130,6 +128,7 @@ namespace Steepshot.iOS.Views
                 var lastGalleryPhoto = fetchedAssets.FirstOrDefault() as PHAsset;
                 if (lastGalleryPhoto != null)
                 {
+                    galleryButton.UserInteractionEnabled = true;
                     var PHImageManager = new PHImageManager();
                     PHImageManager.RequestImageForAsset(lastGalleryPhoto, new CGSize(300, 300),
                                                         PHImageContentMode.AspectFill, new PHImageRequestOptions()
@@ -142,8 +141,10 @@ namespace Steepshot.iOS.Views
                           });
                 }
                 else
-                    galleryButton.Image = UIImage.FromBundle("ic_noavatar");
+                    galleryButton.UserInteractionEnabled = false;
             }
+            else
+                galleryButton.UserInteractionEnabled = true;
         }
 
         private void GoBack(object sender, EventArgs e)

@@ -22,10 +22,18 @@ namespace Steepshot.iOS.Views
 		UIKit.UICollectionView photoCollection { get; set; }
 
 		[Outlet]
+		UIKit.UIImageView resize { get; set; }
+
+		[Outlet]
 		UIKit.UIImageView rotate { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
+			if (cropBackgroundView != null) {
+				cropBackgroundView.Dispose ();
+				cropBackgroundView = null;
+			}
+
 			if (multiSelect != null) {
 				multiSelect.Dispose ();
 				multiSelect = null;
@@ -41,9 +49,9 @@ namespace Steepshot.iOS.Views
 				rotate = null;
 			}
 
-			if (cropBackgroundView != null) {
-				cropBackgroundView.Dispose ();
-				cropBackgroundView = null;
+			if (resize != null) {
+				resize.Dispose ();
+				resize = null;
 			}
 		}
 	}
