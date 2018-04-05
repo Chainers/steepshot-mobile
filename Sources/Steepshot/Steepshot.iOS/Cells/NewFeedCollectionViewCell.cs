@@ -319,7 +319,6 @@ namespace Steepshot.iOS.Cells
             {
                 _pageControl.Hidden = false;
                 _pageControl.Pages = _currentPost.Media.Length;
-                _pageControl.CurrentPage = 0;
                 _pageControl.SizeToFit();
                 _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
             }
