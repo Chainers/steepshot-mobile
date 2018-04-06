@@ -2,10 +2,10 @@
 
 namespace Steepshot.Core.Models.Common
 {
+
+    [JsonObject(MemberSerialization.OptIn)]
     public class Thumbnails
     {
-        public string DefaultUrl { get; set; }
-
         private string _micro;
         private string _mini;
 
@@ -28,5 +28,9 @@ namespace Steepshot.Core.Models.Common
             get => _mini ?? DefaultUrl;
             set => _mini = value;
         }
+
+
+        [JsonIgnore]
+        public string DefaultUrl { get; set; }
     }
 }
