@@ -615,7 +615,7 @@ namespace Steepshot.Adapter
                 if (mediaModel != null)
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
-                    var url = mediaModel.Thumbnails.Mini;
+                    var url = string.IsNullOrEmpty(mediaModel.Thumbnails?.Mini) ? mediaModel.Url : mediaModel.Thumbnails.Mini;
                     Picasso.With(_context).Load(url).NoFade()
                         .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>

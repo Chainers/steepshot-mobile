@@ -128,6 +128,30 @@ namespace Steepshot.Core.Presenters
             return response.Error;
         }
 
+        public async Task<ErrorBase> TrySubscribeForPushes(PushSubscriptionAction action, string playerId, PushSubscription[] subscriptions = null)
+        {
+            var model = new PushNotificationsModel(User.UserInfo, playerId, subscriptions, action == PushSubscriptionAction.Subscribe);
+            return await TrySubscribeForPushes(model);
+        }
+
+        public async Task<ErrorBase> TrySubscribeForPushes(PushSubscriptionAction action, string playerId, string watchedUser)
+        {
+            var model = new PushNotificationsModel(User.UserInfo, playerId, watchedUser, action == PushSubscriptionAction.Subscribe);
+            return await TrySubscribeForPushes(model);
+        }
+
+        private async Task<ErrorBase> TrySubscribeForPushes(PushNotificationsModel model)
+        {
+            var error = await TryRunTask(SubscribeForPushes, OnDisposeCts.Token, model);
+            return error;
+        }
+
+        private async Task<ErrorBase> SubscribeForPushes(PushNotificationsModel model, CancellationToken ct)
+        {
+            var response = await Api.SubscribeForPushes(model, OnDisposeCts.Token);
+            return response.Error;
+        }
+
         public override void Clear(bool isNotify = true)
         {
             CashPresenterManager.Remove(UserProfileResponse);

@@ -270,15 +270,14 @@ namespace Steepshot.Core.HttpClient
         #endregion Post requests
 
         #region Get
-
-        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct)
+        public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<string>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<object>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<string>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<object>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
             return await Task.Run(() =>
             {
@@ -290,7 +289,7 @@ namespace Steepshot.Core.HttpClient
                     HeadBlockNumber = 0
                 };
                 var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
-                return new OperationResult<string>() { Result = JsonConverter.Serialize(tr) };
+                return new OperationResult<object>() { Result = tr };
             }, ct);
         }
 
