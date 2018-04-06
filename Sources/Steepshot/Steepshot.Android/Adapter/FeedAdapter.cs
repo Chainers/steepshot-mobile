@@ -100,6 +100,7 @@ namespace Steepshot.Adapter
         private readonly ImageView _flagsIcon;
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
+        private readonly ImageButton _likeScale;
         protected readonly ImageButton More;
         private readonly LinearLayout _topLikers;
         protected readonly RelativeLayout NsfwMask;
@@ -108,6 +109,9 @@ namespace Steepshot.Adapter
         private readonly ImageButton _nsfwMaskCloseButton;
         private readonly Button _nsfwMaskActionButton;
         private readonly BottomSheetDialog _moreActionsDialog;
+        private readonly RelativeLayout _likeScaleContainer;
+        private readonly LikeScaleBar _likeScaleBar;
+        private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private bool _isAnimationRuning;
 
@@ -153,12 +157,17 @@ namespace Steepshot.Adapter
             NsfwMaskSubMessage = NsfwMask.FindViewById<TextView>(Resource.Id.mask_submessage);
             _nsfwMaskCloseButton = NsfwMask.FindViewById<ImageButton>(Resource.Id.mask_close);
             _nsfwMaskActionButton = NsfwMask.FindViewById<Button>(Resource.Id.nsfw_mask_button);
+            _likeScaleContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.like_scale_container);
+            _likeScaleBar = itemView.FindViewById<LikeScaleBar>(Resource.Id.like_scale);
+            _likeScalePower = itemView.FindViewById<TextView>(Resource.Id.like_scale_power);
+            _likeScale = itemView.FindViewById<ImageButton>(Resource.Id.btn_like_scale);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
             _likes.Typeface = Style.Semibold;
             _flags.Typeface = Style.Semibold;
             _cost.Typeface = Style.Semibold;
+            _likeScalePower.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
             _nsfwMaskMessage.Typeface = Style.Light;
@@ -173,6 +182,8 @@ namespace Steepshot.Adapter
             _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
+            _likeOrFlag.LongClick += DoLikeScaleAction;
+            _likeScale.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
@@ -447,7 +458,26 @@ namespace Steepshot.Adapter
             if (Post.Flag)
                 _postAction?.Invoke(ActionType.Flag, Post);
             else
+            {
                 _postAction?.Invoke(ActionType.Like, Post);
+                if (_likeScaleContainer.Visibility == ViewStates.Visible)
+                {
+                    _likeScaleContainer.Visibility = ViewStates.Invisible;
+                }
+            }
+        }
+
+        private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
+        {
+            if (Post.Vote || Post.Flag) return;
+            _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
+            _likeScaleContainer.Visibility = ViewStates.Visible;
+            _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
+        }
+
+        private void LikeScaleBarOnProgressChanged(object sender, SeekBar.ProgressChangedEventArgs progressChangedEventArgs)
+        {
+            _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
         }
 
         public void UpdateData(Post post, Context context)
