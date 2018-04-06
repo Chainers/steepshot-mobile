@@ -48,7 +48,7 @@ namespace Steepshot.Core.Models.Responses
         public string Location { get; set; }
         public string Website { get; set; }
         public double VotingPower { get; set; }
-        public Asset EstimatedBalance { get; set; }
+        public double EstimatedBalance { get; set; }
 
         //system
         [JsonIgnore]

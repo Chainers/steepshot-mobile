@@ -62,15 +62,15 @@ namespace Steepshot.Core.Models.Common
 
         public DateTime Created { get; set; }
 
-        public Asset CuratorPayoutValue { get; set; }
+        public double CuratorPayoutValue { get; set; }
 
-        public Asset TotalPayoutValue { get; set; }
+        public double TotalPayoutValue { get; set; }
 
-        public Asset PendingPayoutValue { get; set; }
+        public double PendingPayoutValue { get; set; }
 
         public double MaxAcceptedPayout { get; set; }
 
-        public Asset TotalPayoutReward { get; set; }
+        public double TotalPayoutReward { get; set; }
 
         public bool Vote { get; set; }
 
