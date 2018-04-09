@@ -450,6 +450,8 @@
     <BundleResource Include="Resources\ic_forward_arrow%403x.png" />
     <BundleResource Include="Resources\ic_gallery%402x.png" />
     <BundleResource Include="Resources\ic_gallery%403x.png" />
+    <BundleResource Include="Resources\ic_is_gallery%403x.png" />
+    <BundleResource Include="Resources\ic_is_gallery%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
