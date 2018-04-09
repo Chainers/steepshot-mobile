@@ -378,6 +378,7 @@
     </Compile>
     <Compile Include="Cells\SliderFeedCollectionViewCell.cs" />
     <Compile Include="Services\GAService.cs" />
+    <Compile Include="Helpers\CircleFrame.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />

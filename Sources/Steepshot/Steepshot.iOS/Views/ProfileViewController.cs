@@ -277,6 +277,11 @@ namespace Steepshot.iOS.Views
                 {
                     _userData = _presenter.UserProfileResponse;
 
+                    if(Username == BasePresenter.User.Login)
+                        _profileHeader.ChangePercents((int)_userData.VotingPower);
+                    else
+                        _profileHeader.ChangePercents(0);
+
                     if (string.IsNullOrEmpty(_userData.Name))
                         _profileHeader.Username.Hidden = true;
                     else
