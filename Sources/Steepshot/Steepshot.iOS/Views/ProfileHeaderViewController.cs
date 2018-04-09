@@ -38,7 +38,6 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
             View.Frame = new CGRect(View.Frame.Location, new CGSize(UIScreen.MainScreen.Bounds.Width, View.Frame.Height));
-            _viewLoaded();
 
             followButton.Layer.CornerRadius = _cornerRadius;
             followButton.TitleLabel.Font = Constants.Semibold14;
@@ -54,6 +53,7 @@ namespace Steepshot.iOS.Views
             Avatar = new UIImageView(new CGRect(5, 5, 80, 80));
             Avatar.Layer.CornerRadius = Avatar.Frame.Width / 2;
             Avatar.ClipsToBounds = true;
+            Avatar.UserInteractionEnabled = true;
 
             PowerFrame = new CircleFrame(Avatar);
             View.Add(PowerFrame);
@@ -66,11 +66,7 @@ namespace Steepshot.iOS.Views
 #if !DEBUG
             accountViewHeight.Constant = 0;
 #endif
-        }
-
-        public void ChangePercents(int percents)
-        {
-            PowerFrame.ChangePercents(percents);
+            _viewLoaded();
         }
 
         public void DecorateFollowButton(bool? hasFollowed, string currentUsername)

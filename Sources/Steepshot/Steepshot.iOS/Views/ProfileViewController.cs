@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -37,6 +39,9 @@ namespace Steepshot.iOS.Views
         private UINavigationController _navController;
         private UIBarButtonItem switchButton;
         private bool _userDataLoaded;
+        private UIView powerPopup;
+        private UILabel powerText;
+        private bool isPowerOpen;
 
         public override void ViewDidLoad()
         {
@@ -98,8 +103,32 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
+            SetVotePowerView();
             GetUserInfo();
             GetUserPosts();
+        }
+
+        private void SetVotePowerView()
+        {
+            powerPopup = new UIView();
+            powerPopup.Frame = new CGRect(0, -NavigationController.NavigationBar.Frame.Bottom, UIScreen.MainScreen.Bounds.Width, NavigationController.NavigationBar.Frame.Bottom);
+
+            var heart = new UIImageView();
+            heart.Image = UIImage.FromBundle("ic_white_heart");
+            powerPopup.AddSubview(heart);
+
+            powerText = new UILabel();
+            powerText.TextColor = UIColor.White;
+            powerText.Font = Constants.Semibold14;
+            powerPopup.AddSubview(powerText);
+
+            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            powerText.AutoAlignAxis(ALAxis.Horizontal, heart);
+            powerText.AutoPinEdge(ALEdge.Left, ALEdge.Right, heart, 10f);
+            Constants.CreateGradient(powerPopup, 0);
+
+            NavigationController.View.AddSubview(powerPopup);
         }
 
         private void SetBackButton()
@@ -177,6 +206,28 @@ namespace Steepshot.iOS.Views
                 var myViewController = new FollowViewController(FriendsType.Followers, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
+
+            var avatarTap = new UITapGestureRecognizer(() =>
+            {
+                if (isPowerOpen || Username != BasePresenter.User.Login)
+                    return;
+
+                UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
+                 {
+                     isPowerOpen = true;
+                     powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, 0), powerPopup.Frame.Size);
+                 }, () =>
+                 {
+                     UIView.Animate(0.2f, 2f, UIViewAnimationOptions.CurveEaseIn, () =>
+                     {
+                         powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, -NavigationController.NavigationBar.Frame.Bottom), powerPopup.Frame.Size);
+                     }, () =>
+                     {
+                         isPowerOpen = false;
+                     });
+                 });
+            });
+            _profileHeader.Avatar.AddGestureRecognizer(avatarTap);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -264,7 +315,7 @@ namespace Steepshot.iOS.Views
             await GetUserPosts(true);
         }
 
-        private async Task GetUserInfo()
+        public async Task GetUserInfo()
         {
             _userDataLoaded = false;
             errorMessage.Hidden = true;
@@ -278,9 +329,11 @@ namespace Steepshot.iOS.Views
                     _userData = _presenter.UserProfileResponse;
 
                     if(Username == BasePresenter.User.Login)
-                        _profileHeader.ChangePercents((int)_userData.VotingPower);
+                        _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
                     else
-                        _profileHeader.ChangePercents(0);
+                        _profileHeader.PowerFrame.ChangePercents(0);
+
+                    powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
                     if (string.IsNullOrEmpty(_userData.Name))
                         _profileHeader.Username.Hidden = true;

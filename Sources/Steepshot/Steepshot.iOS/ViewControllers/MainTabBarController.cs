@@ -50,6 +50,11 @@ namespace Steepshot.iOS.ViewControllers
             TabBar.Subviews[2].AddSubview(createPhotoImage);
         }
 
+        public void UpdateProfile()
+        {
+            ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
+        }
+
         public override void ViewWillAppear(bool animated)
         {
             if (!_isInitialized)
@@ -84,8 +89,11 @@ namespace Steepshot.iOS.ViewControllers
     {
         public bool IsPushingViewController = false;
 
+        public UIViewController RootViewController { get; private set; }
+
         public InteractivePopNavigationController(UIViewController rootViewController) : base(rootViewController)
         {
+            RootViewController = rootViewController;
         }
 
         public override void ViewDidLoad()
