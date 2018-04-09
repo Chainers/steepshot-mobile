@@ -103,7 +103,8 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            SetVotePowerView();
+            if(Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
+                SetVotePowerView();
             GetUserInfo();
             GetUserPosts();
         }
@@ -315,8 +316,10 @@ namespace Steepshot.iOS.Views
             await GetUserPosts(true);
         }
 
-        public async Task GetUserInfo()
+        public async Task<UserProfileResponse> GetUserInfo()
         {
+            if (errorMessage == null)
+                return _userData;
             _userDataLoaded = false;
             errorMessage.Hidden = true;
             try
@@ -423,6 +426,7 @@ namespace Steepshot.iOS.Views
                         collectionView.Hidden = false;
                     }
                 }
+                return _userData;
             }
             catch (Exception ex)
             {
@@ -434,6 +438,7 @@ namespace Steepshot.iOS.Views
                 _userDataLoaded = true;
                 loading.StopAnimating();
             }
+            return _userData;
         }
 
         private void GoToSettings(object sender, EventArgs e)

@@ -12,14 +12,15 @@ namespace Steepshot.iOS.Helpers
         private UIBezierPath _endPath;
         private const float endAngle = 4.712327f;
 
-        public CircleFrame(UIImageView image, int percents = 0)
+        public CircleFrame(UIImageView image,CGRect frameRect, int percents = 0)
         {
-            var rect = new CGRect(0, 0, 90, 90);
+            Frame = frameRect;
+            var rect = frameRect;
             _image = image;
             AddSubview(_image);
 
             _sl = new CAShapeLayer();
-            _sl.Frame = rect;
+            _sl.Frame = new CGRect(new CGPoint(0,0), Frame.Size);
             _sl.LineWidth = 2.0f;
             _sl.StrokeColor = UIColor.FromRGB(255, 17, 0).CGColor;
             _sl.FillColor = UIColor.Clear.CGColor;
@@ -33,7 +34,7 @@ namespace Steepshot.iOS.Helpers
             var startAngle = 3f * (float)Math.PI / 2f;
 
             _endPath = UIBezierPath.Create();
-            _endPath.AddArc(center, 45 - 1, startAngle, endAngle, true);
+            _endPath.AddArc(center, _sl.Frame.Width / 2 - 1, startAngle, endAngle, true);
 
             _sl.Path = _endPath.CGPath;
             ChangePercents(percents);

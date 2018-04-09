@@ -55,7 +55,7 @@ namespace Steepshot.iOS.Views
             Avatar.ClipsToBounds = true;
             Avatar.UserInteractionEnabled = true;
 
-            PowerFrame = new CircleFrame(Avatar);
+            PowerFrame = new CircleFrame(Avatar, new CGRect(0, 0, 90, 90));
             View.Add(PowerFrame);
 
             PowerFrame.AutoSetDimensionsToSize(new CGSize(90, 90));

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CoreGraphics;
+using FFImageLoading;
+using Steepshot.Core.Errors;
+using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -8,9 +12,12 @@ namespace Steepshot.iOS.ViewControllers
 {
     public class MainTabBarController : UITabBarController, IWillEnterForeground
     {
-        private bool _isInitialized;
         public event Action SameTabTapped;
         public event Action WillEnterForegroundAction;
+        private bool _isInitialized;
+        private UserProfilePresenter _presenter;
+        private CircleFrame _powerFrame;
+        private UIImageView _avatar;
 
         public MainTabBarController()
         {
@@ -27,7 +34,7 @@ namespace Steepshot.iOS.ViewControllers
             photoTab.TabBarItem = new UITabBarItem(null, null, 2);
 
             var profileTab = new InteractivePopNavigationController(new ProfileViewController());
-            profileTab.TabBarItem = new UITabBarItem(null, UIImage.FromBundle("ic_profile"), 3);
+            profileTab.TabBarItem = new UITabBarItem(null, null, 3);
 
             ViewControllers = new UIViewController[] {
                 feedTab,
@@ -48,18 +55,53 @@ namespace Steepshot.iOS.ViewControllers
             createPhotoImage.Image = UIImage.FromBundle("ic_create");
             createPhotoImage.ContentMode = UIViewContentMode.Center;
             TabBar.Subviews[2].AddSubview(createPhotoImage);
+
+            _avatar = new UIImageView();
+            _powerFrame = new CircleFrame(_avatar, new CGRect(TabBar.Frame.Width / 4 / 2 - 16, TabBar.Frame.Height / 2 - 17, 28, 28));
+
+            _powerFrame.UserInteractionEnabled = false;
+            _avatar.UserInteractionEnabled = false;
+            _avatar.Frame = new CGRect(3, 3, 22, 22);
+            _avatar.Layer.CornerRadius = _avatar.Frame.Width / 2;
+            _avatar.ClipsToBounds = true;
+            _avatar.Image = UIImage.FromBundle("ic_noavatar");
+
+            _presenter = new UserProfilePresenter() { UserName = BasePresenter.User.Login };
+
+            TabBar.Subviews[3].AddSubview(_powerFrame);
+            InitializePowerFrame();
         }
 
-        public void UpdateProfile()
+        public async void UpdateProfile()
         {
-            ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
+            var userData = await ((ProfileViewController)((InteractivePopNavigationController)ViewControllers[3]).RootViewController).GetUserInfo();
+            if (userData == null)
+                InitializePowerFrame();
+        }
+
+        private async void InitializePowerFrame()
+        {
+            do
+            {
+                var error = await _presenter.TryGetUserInfo(BasePresenter.User.Login);
+                if (error == null || error is CanceledError)
+                {
+                    _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);
+                    ImageService.Instance.LoadUrl(_presenter.UserProfileResponse.ProfileImage, TimeSpan.FromDays(30))
+                                             .FadeAnimation(false, false, 0)
+                                             .DownSample(width: (int)100)
+                                .Into(_avatar);
+                    break;
+                }
+                await Task.Delay(5000);
+            } while (true);
         }
 
         public override void ViewWillAppear(bool animated)
         {
             if (!_isInitialized)
             {
-                var tabBarDelegate  = new TabBarDelegate(NavigationController);
+                var tabBarDelegate = new TabBarDelegate(NavigationController);
                 tabBarDelegate.SameTabTapped += () =>
                 {
                     SameTabTapped.Invoke();
@@ -129,7 +171,7 @@ namespace Steepshot.iOS.ViewControllers
 
         public override bool ShouldBegin(UIGestureRecognizer recognizer)
         {
-            if(recognizer is UIScreenEdgePanGestureRecognizer)
+            if (recognizer is UIScreenEdgePanGestureRecognizer)
                 return _controller.ViewControllers.Length > 1 && !_controller.IsPushingViewController;
             return true;
         }
