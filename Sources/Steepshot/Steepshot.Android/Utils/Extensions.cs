@@ -1,4 +1,5 @@
-﻿using Android.Support.V7.Widget;
+﻿using System.Runtime.Serialization;
+using Android.Support.V7.Widget;
 
 namespace Steepshot.Utils
 {
@@ -22,6 +23,16 @@ namespace Steepshot.Utils
             if (position < 0)
                 position = 0;
             recyclerView.SmoothScrollToPosition(position);
+        }
+
+        public static string GetEnumDescription(this System.Enum value)
+        {
+            var fi = value.GetType().GetField(value.ToString());
+            var attributes =
+                (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            if (attributes != null && attributes.Length > 0)
+                return attributes[0].Value;
+            return value.ToString();
         }
     }
 }
