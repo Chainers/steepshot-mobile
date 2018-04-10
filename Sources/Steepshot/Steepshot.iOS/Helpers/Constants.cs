@@ -22,12 +22,15 @@ namespace Steepshot.iOS.Helpers
         public static readonly UIColor R231G72B0 = UIColor.FromRGB(231, 72, 0);
         public static readonly UIColor R204G204B204 = UIColor.FromRGB(204, 204, 204);
         public static readonly UIColor R244G244B246 = UIColor.FromRGB(244, 244, 246);
+        public static readonly UIColor R245G245B245 = UIColor.FromRGB(245, 245, 245);
+        public static readonly UIColor R255G81B4 = UIColor.FromRGB(255, 81, 4);
+        public static readonly UIColor R255G71B5 = UIColor.FromRGB(255, 71, 5);
 
         public static readonly CGPoint StartGradientPoint = new CGPoint(0, 0.5f);
         public static readonly CGPoint EndGradientPoint = new CGPoint(1, 0.5f);
         public static readonly CGColor[] OrangeGradient = new CGColor[] { UIColor.FromRGB(255, 121, 4).CGColor, UIColor.FromRGB(255, 22, 5).CGColor };
 
-        public static readonly float CellSideSize = (float)UIScreen.MainScreen.Bounds.Width / 3 - 1;
+        public static readonly nfloat CellSideSize = (UIScreen.MainScreen.Bounds.Width - 2) / 3;
         public static readonly CGSize CellSize = new CGSize(CellSideSize, CellSideSize);
 
         public static readonly TimeSpan ImageCacheDuration = TimeSpan.FromDays(2);

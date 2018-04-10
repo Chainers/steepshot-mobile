@@ -37,12 +37,14 @@ namespace Steepshot.iOS.ViewSources
         private List<nfloat> _cellWidths = new List<nfloat>();
         private LocalTagsCollectionViewSource _collectionViewSource;
         private UILabel label;
+        private nfloat _maxCellWidth;
 
-        public LocalTagsCollectionViewFlowDelegate(LocalTagsCollectionViewSource collectionViewSource)
+        public LocalTagsCollectionViewFlowDelegate(LocalTagsCollectionViewSource collectionViewSource, nfloat maxCellWidth)
         {
             _collectionViewSource = collectionViewSource;
             label = new UILabel();
             label.Font = Constants.Semibold14;
+            _maxCellWidth = maxCellWidth;
         }
 
         public void GenerateVariables()
@@ -50,10 +52,10 @@ namespace Steepshot.iOS.ViewSources
             _cellWidths.Clear();
             for (int i = 0; i < _collectionViewSource.LocalTags.Count; i++)
             {
-                //33 + text width + 5 + 20 + 12 = 70
+                //36 + text width + 47 = 83
                 label.Text = _collectionViewSource.LocalTags[i];
-                var width = label.SizeThatFits(new CGSize(0, 40)).Width + 70;
-                _cellWidths.Add(width);
+                var width = label.SizeThatFits(new CGSize(0, 40)).Width + 83;
+                _cellWidths.Add(width > _maxCellWidth ? _maxCellWidth : width);
             }
         }
 
