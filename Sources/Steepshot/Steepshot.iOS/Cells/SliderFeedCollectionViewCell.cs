@@ -486,7 +486,7 @@ namespace Steepshot.iOS.Cells
                     continue;
                 NSUrl tagUrlWithoutWhitespaces = null;
 
-                var tagText = tag.Replace(' ', '#');
+                var tagText = tag.Replace(" ", string.Empty);
 
                 if(_tagRegex.IsMatch(tagText))
                     tagUrlWithoutWhitespaces = new NSUrl(tagText);

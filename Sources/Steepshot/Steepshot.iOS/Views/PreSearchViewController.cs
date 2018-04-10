@@ -275,10 +275,9 @@ namespace Steepshot.iOS.Views
             if (error is CanceledError)
                 return;
 
+            ShowAlert(error);
             if (error == null)
                 ((MainTabBarController)TabBarController)?.UpdateProfile();
-
-            ShowAlert(error);
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -328,6 +327,8 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private void SwitchLayout(object sender, EventArgs e)

@@ -331,12 +331,13 @@ namespace Steepshot.iOS.Views
                 {
                     _userData = _presenter.UserProfileResponse;
 
-                    if(Username == BasePresenter.User.Login)
+                    if (Username == BasePresenter.User.Login)
                         _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
                     else
                         _profileHeader.PowerFrame.ChangePercents(0);
 
-                    powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
+                    if (powerText != null)
+                        powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
                     if (string.IsNullOrEmpty(_userData.Name))
                         _profileHeader.Username.Hidden = true;
@@ -360,6 +361,8 @@ namespace Steepshot.iOS.Views
                     if (!string.IsNullOrEmpty(_userData.ProfileImage))
                         ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
                                              .FadeAnimation(false, false, 0)
+                                             .LoadingPlaceholder("ic_noavatar.png")
+                                             .ErrorPlaceholder("ic_noavatar.png")
                                              .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
                                              .Into(_profileHeader.Avatar);
                     else
@@ -421,7 +424,7 @@ namespace Steepshot.iOS.Views
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
                         collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
-                        if(collectionView.Hidden)
+                        if (collectionView.Hidden)
                             collectionView.ContentOffset = new CGPoint(0, -size.Height);
                         collectionView.Hidden = false;
                     }
@@ -520,6 +523,8 @@ namespace Steepshot.iOS.Views
                 return;
 
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private void Flagged(Post post)
@@ -565,6 +570,8 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private async Task Follow()
