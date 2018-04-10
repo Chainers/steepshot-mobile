@@ -27,9 +27,9 @@
     <IOSDebuggerPort>38792</IOSDebuggerPort>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
-    <DeviceSpecificBuild>false</DeviceSpecificBuild>
+    <DeviceSpecificBuild>true</DeviceSpecificBuild>
     <CodesignProvision>
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
@@ -65,7 +65,7 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <MtouchTlsProvider>Default</MtouchTlsProvider>
     <LangVersion>Default</LangVersion>
   </PropertyGroup>
@@ -378,6 +378,7 @@
     </Compile>
     <Compile Include="Cells\SliderFeedCollectionViewCell.cs" />
     <Compile Include="Services\GAService.cs" />
+    <Compile Include="Helpers\CircleFrame.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Views\TagsPickerViewController.cs" />
     <Compile Include="Views\TagsPickerViewController.designer.cs">
@@ -457,6 +458,8 @@
     <BundleResource Include="Resources\ic_forward_arrow%403x.png" />
     <BundleResource Include="Resources\ic_gallery%402x.png" />
     <BundleResource Include="Resources\ic_gallery%403x.png" />
+    <BundleResource Include="Resources\ic_white_heart%402x.png" />
+    <BundleResource Include="Resources\ic_white_heart%403x.png" />
     <BundleResource Include="Resources\ic_multiselect%402x.png" />
     <BundleResource Include="Resources\ic_multiselect%403x.png" />
     <BundleResource Include="Resources\ic_multiselect_active%403x.png" />

@@ -275,6 +275,9 @@ namespace Steepshot.iOS.Views
             if (error is CanceledError)
                 return;
 
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
+
             ShowAlert(error);
         }
 
