@@ -181,7 +181,7 @@ namespace Steepshot.Fragment
 
         private void SetEditPost()
         {
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost.Permlink);
+            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost);
             _title.Text = _editPost.Title;
             _title.SetSelection(_editPost.Title.Length);
             _description.Text = _editPost.Description;

@@ -56,5 +56,10 @@ namespace Steepshot.Core.Models.Requests
             Body = body;
             JsonMetadata = jsonMetadata;
         }
+
+        public CommentModel(PreparePostModel model, string body, string meta)
+            : this(model.Login, model.PostingKey, string.Empty, model.Category, model.Login, model.Permlink, model.Title, body, meta)
+        {
+        }
     }
 }
