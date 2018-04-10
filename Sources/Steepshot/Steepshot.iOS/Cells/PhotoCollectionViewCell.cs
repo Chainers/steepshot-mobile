@@ -16,6 +16,7 @@ namespace Steepshot.iOS.Cells
         private IScheduledWork _scheduledWork;
         private Post _currentPost;
         private UIImageView _bodyImage;
+        private UIImageView _galleryImage;
         private UIView _selectFrame;
         private UIView _selectView;
         private UILabel _countLabel;
@@ -28,6 +29,9 @@ namespace Steepshot.iOS.Cells
 
         protected PhotoCollectionViewCell(IntPtr handle) : base(handle)
         {
+            _galleryImage = new UIImageView(new CGRect(Constants.CellSideSize - 15, 5, 10, 10));
+            _galleryImage.Image = UIImage.FromBundle("ic_is_gallery");
+            ContentView.AddSubview(_galleryImage);
         }
 
         public void UpdateImage(PHImageManager cm, PHAsset photo, bool isCurrentlySelected, int count = 0, bool? isSelected = null)
@@ -57,7 +61,7 @@ namespace Steepshot.iOS.Cells
 
             }
             _countLabel.Text = (count + 1).ToString();
-            
+
 
             if (_selectFrame == null)
             {
@@ -65,7 +69,7 @@ namespace Steepshot.iOS.Cells
                 _selectFrame.Layer.BorderColor = Constants.R255G81B4.CGColor;
                 _selectFrame.Layer.BorderWidth = 3;
                 _selectFrame.BackgroundColor = UIColor.Clear;
-               
+
                 ContentView.AddSubview(_selectFrame);
             }
             _selectFrame.Hidden = !isCurrentlySelected;
@@ -126,13 +130,14 @@ namespace Steepshot.iOS.Cells
                                          {
                                          })*/
                                           .Into(_bodyImage);
+            if (post.Media.Length > 1)
+                ContentView.BringSubviewToFront(_galleryImage);
         }
 
         public void UpdateCell(UIImage image)
         {
             _bodyImage?.RemoveFromSuperview();
             CreateImageView();
-
             _bodyImage.Image = image;
         }
 

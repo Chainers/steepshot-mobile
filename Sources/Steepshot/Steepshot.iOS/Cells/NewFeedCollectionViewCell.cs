@@ -51,6 +51,7 @@ namespace Steepshot.iOS.Cells
         public UIImage PostImage => _bodyImage[0].Image;
 
         private UIScrollView _photoScroll;
+        private UIPageControl _pageControl;
 
         private UIView _topSeparator;
         private TTTAttributedLabel _attributedLabel;
@@ -123,7 +124,15 @@ namespace Steepshot.iOS.Cells
             _photoScroll.ShowsHorizontalScrollIndicator = false;
             _photoScroll.Bounces = false;
             _photoScroll.PagingEnabled = true;
+            _photoScroll.Scrolled+= (sender, e) => {
+                var pageWidth = _photoScroll.Frame.Size.Width;
+                _pageControl.CurrentPage = (int)Math.Floor((_photoScroll.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
+            };
             contentView.AddSubview(_photoScroll);
+
+            _pageControl = new UIPageControl();
+            _pageControl.Hidden = true;
+            contentView.AddSubview(_pageControl);
 
             _likes = new UILabel();
             _likes.Font = Constants.Semibold14;
@@ -306,6 +315,15 @@ namespace Steepshot.iOS.Cells
                                             })*/
                                               .Into(_bodyImage[i]);
             }
+            if (_currentPost.Media.Length > 1)
+            {
+                _pageControl.Hidden = false;
+                _pageControl.Pages = _currentPost.Media.Length;
+                _pageControl.SizeToFit();
+                _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
+            }
+            else
+                _pageControl.Hidden = true;
 
             if (_currentPost.TopLikersAvatars.Any() && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {
