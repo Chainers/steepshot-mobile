@@ -35,7 +35,6 @@ namespace Steepshot.iOS.Cells
                 });
                 ContentView.AddGestureRecognizer(tap);
                 tagLabel.Font = Helpers.Constants.Semibold14;
-                hashLabel.Font = Helpers.Constants.Semibold14;
 
                 _isInitialized = true;
             }
