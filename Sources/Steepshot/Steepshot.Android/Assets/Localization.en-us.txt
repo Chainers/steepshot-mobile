@@ -1,6 +1,6 @@
 {
     "Lang": "en-us",
-    "Version": 9,
+    "Version": 10,
     "Map": {
 
         "ObsoleteTextStart":"ObsoleteBlock",
@@ -248,5 +248,6 @@
         "10 assert_exception: Assert Exception: !check_max_block_age( _max_block_age )":"Block Exception",
         "10 assert_exception: Assert Exception: abs_rshares > 30000000 || o.weight == 0":"Voting weight is too small, please accumulate more voting power or steem power.",
         "10 assert_exception: Assert Exception: com.parent_author == o.parent_author":"The parent of a comment cannot change.",
+        "10 assert_exception: Assert Exception: _db.calculate_discussion_payout_time(*parent) != fc::time_point_sec::maximum()":"Discussion is frozen.",
     }
 }
