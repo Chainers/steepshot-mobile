@@ -34,14 +34,14 @@ namespace Steepshot.Fragment
         private float _dist;
         private CameraOrientationEventListener _orientationListner;
 
-        [CheeseBind.BindView(Resource.Id.surfaceView)] private SurfaceView _sv;
-        [CheeseBind.BindView(Resource.Id.flash_button)] private ImageButton _flashButton;
-        [CheeseBind.BindView(Resource.Id.shot_button)] private ImageButton _shotButton;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
-        [CheeseBind.BindView(Resource.Id.revert_button)] private ImageButton _revertButton;
-        [CheeseBind.BindView(Resource.Id.close_button)] private ImageButton _closeButton;
-        [CheeseBind.BindView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
-        [CheeseBind.BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
+        [BindView(Resource.Id.surfaceView)] private SurfaceView _sv;
+        [BindView(Resource.Id.flash_button)] private ImageButton _flashButton;
+        [BindView(Resource.Id.shot_button)] private ImageButton _shotButton;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
+        [BindView(Resource.Id.revert_button)] private ImageButton _revertButton;
+        [BindView(Resource.Id.close_button)] private ImageButton _closeButton;
+        [BindView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
+        [BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
 
 #pragma warning restore 0649
 

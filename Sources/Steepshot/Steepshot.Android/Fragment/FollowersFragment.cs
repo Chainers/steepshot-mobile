@@ -30,14 +30,14 @@ namespace Steepshot.Fragment
         private bool _isFollowers;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [CheeseBind.BindView(Resource.Id.followers_list)] private RecyclerView _followersList;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.people_count)] private TextView _peopleCount;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [BindView(Resource.Id.followers_list)] private RecyclerView _followersList;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.people_count)] private TextView _peopleCount;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

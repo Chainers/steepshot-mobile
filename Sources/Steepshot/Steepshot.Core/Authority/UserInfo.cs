@@ -35,7 +35,9 @@ namespace Steepshot.Core.Authority
         public bool ShowFooter { get; set; } = true;
 
         public List<PushSubscription> PushSubscriptions { get; set; } = new List<PushSubscription> { PushSubscription.Upvote, PushSubscription.UpvoteComment, PushSubscription.Comment, PushSubscription.Follow, PushSubscription.User };
+
         public List<string> WatchedUsers { get; set; } = new List<string>();
+
         public string PushesPlayerId { get; set; } = string.Empty;
     }
 

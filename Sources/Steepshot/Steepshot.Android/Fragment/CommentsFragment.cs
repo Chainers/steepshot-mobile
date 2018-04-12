@@ -33,22 +33,22 @@ namespace Steepshot.Fragment
         private int _counter = 0;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.comments_list)] private RecyclerView _comments;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [CheeseBind.BindView(Resource.Id.text_input)] private EditText _textInput;
-        [CheeseBind.BindView(Resource.Id.btn_post)] private RelativeLayout _postBtn;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.send_spinner)] private ProgressBar _sendSpinner;
-        [CheeseBind.BindView(Resource.Id.btn_post_image)] private ImageView _postImage;
-        [CheeseBind.BindView(Resource.Id.message)] private RelativeLayout _messagePanel;
-        [CheeseBind.BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
-        [CheeseBind.BindView(Resource.Id.comment_edit)] private RelativeLayout _commentEditBlock;
-        [CheeseBind.BindView(Resource.Id.comment_cancel_edit)] private ImageButton _commentEditCancelBtn;
-        [CheeseBind.BindView(Resource.Id.comment_edit_message)] private TextView _commentEditMessage;
-        [CheeseBind.BindView(Resource.Id.comment_edit_text)] private TextView _commentEditText;
+        [BindView(Resource.Id.comments_list)] private RecyclerView _comments;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [BindView(Resource.Id.text_input)] private EditText _textInput;
+        [BindView(Resource.Id.btn_post)] private RelativeLayout _postBtn;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.send_spinner)] private ProgressBar _sendSpinner;
+        [BindView(Resource.Id.btn_post_image)] private ImageView _postImage;
+        [BindView(Resource.Id.message)] private RelativeLayout _messagePanel;
+        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [BindView(Resource.Id.comment_edit)] private RelativeLayout _commentEditBlock;
+        [BindView(Resource.Id.comment_cancel_edit)] private ImageButton _commentEditCancelBtn;
+        [BindView(Resource.Id.comment_edit_message)] private TextView _commentEditMessage;
+        [BindView(Resource.Id.comment_edit_text)] private TextView _commentEditText;
 #pragma warning restore 0649
 
         public CommentsFragment()

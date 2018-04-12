@@ -33,16 +33,16 @@ namespace Steepshot.Activity
         private string _profileImageUrl;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.profile_image)] private CircleImageView _profileImage;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [CheeseBind.BindView(Resource.Id.input_password)] private EditText _password;
-        [CheeseBind.BindView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
-        [CheeseBind.BindView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [BindView(Resource.Id.profile_image)] private CircleImageView _profileImage;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [BindView(Resource.Id.input_password)] private EditText _password;
+        [BindView(Resource.Id.qr_button)] private Button _buttonScanDefaultView;
+        [BindView(Resource.Id.sign_in_btn)] private AppCompatButton _signInBtn;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
