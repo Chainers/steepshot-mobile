@@ -21,6 +21,7 @@ using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -444,8 +445,9 @@ namespace Steepshot.Fragment
         }
         private void AddTag(string tag)
         {
+            tag = tag.NormalizeTag();
             tag = tag.Trim();
-            if (_localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
+            if (string.IsNullOrWhiteSpace(tag) || _localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return;
 
             AddFlowTag(tag);
@@ -492,18 +494,21 @@ namespace Steepshot.Fragment
         }
         private async Task SearchTextChanged()
         {
-            if (_previousQuery == _tag.Text || _tag.Text.Length == 1)
+            var text = _tag.Text;
+            text = text.NormalizeTag();
+
+            if (_previousQuery == text || text.Length == 1)
                 return;
 
-            _previousQuery = _tag.Text;
+            _previousQuery = text;
             _tagsList.ScrollToPosition(0);
             Presenter.Clear();
 
             ErrorBase error = null;
-            if (_tag.Text.Length == 0)
+            if (text.Length == 0)
                 error = await Presenter.TryGetTopTags();
-            else if (_tag.Text.Length > 1)
-                error = await Presenter.TryLoadNext(_tag.Text);
+            else if (text.Length > 1)
+                error = await Presenter.TryLoadNext(text);
 
             if (IsInitialized)
                 return;
