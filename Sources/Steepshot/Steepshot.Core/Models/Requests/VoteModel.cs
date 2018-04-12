@@ -13,16 +13,18 @@ namespace Steepshot.Core.Models.Requests
 
         public readonly string Author;
 
+        public readonly short VotePower;
+
         [JsonProperty]
         [Required]
         public VoteType Type { get; }
-
 
         public VoteModel(UserInfo user, Post post, VoteType type) : base(user)
         {
             Type = type;
             Author = post.Author;
             Permlink = post.Permlink;
+            VotePower = post.VotePower;
         }
     }
 }

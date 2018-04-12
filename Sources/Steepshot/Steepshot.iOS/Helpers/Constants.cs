@@ -61,7 +61,7 @@ namespace Steepshot.iOS.Helpers
             }
         }
 
-        public static void CreateShadow(UIButton view, UIColor color, float opacity, nfloat cornerRadius, nfloat shadowHeight, nfloat shadowRadius)
+        public static void CreateShadow(UIView view, UIColor color, float opacity, nfloat cornerRadius, nfloat shadowHeight, nfloat shadowRadius)
         {
             view.Layer.CornerRadius = cornerRadius;
             view.Layer.MasksToBounds = false;

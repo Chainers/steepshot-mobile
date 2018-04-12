@@ -101,7 +101,8 @@ namespace Steepshot.Core.Models.Common
         public bool FlagNotificationWasShown { get; set; } = true;
         [JsonIgnore]
         public bool ShowMask { get; set; } = true;
-
+        [JsonIgnore]
+        public short VotePower { get; set; }
 
         public string Permlink
         {

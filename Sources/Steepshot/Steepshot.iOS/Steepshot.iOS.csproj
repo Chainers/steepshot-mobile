@@ -386,6 +386,7 @@
     </Compile>
     <Compile Include="ViewSources\PhotoGalleryViewSource.cs" />
     <Compile Include="Cells\PhotoGalleryCell.cs" />
+    <Compile Include="CustomViews\SliderView.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
@@ -506,6 +507,9 @@
     <BundleResource Include="..\Steepshot.Android\Assets\DebugWif.txt">
       <Link>DebugWif.txt</Link>
     </BundleResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CustomViews\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets" Condition="Exists('..\packages\Xamarin.Insights.1.12.3\build\Xamarin.iOS10\Xamarin.Insights.targets')" />

@@ -78,7 +78,7 @@ namespace Steepshot.Core.HttpClient
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
-                    weigth = 10000;
+                    weigth = (short)(model.VotePower * 100);
                 if (model.Type == VoteType.Flag)
                     weigth = -10000;
 

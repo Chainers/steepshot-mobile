@@ -14,6 +14,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.CustomViews;
 
 namespace Steepshot.iOS.Cells
 {
@@ -47,6 +48,7 @@ namespace Steepshot.iOS.Cells
         private UILabel _rewards;
         private UIView _verticalSeparator;
         private UIImageView _like;
+        private SliderView _sliderView;
 
         public UIImage PostImage => _bodyImage[0].Image;
 
@@ -124,7 +126,8 @@ namespace Steepshot.iOS.Cells
             _photoScroll.ShowsHorizontalScrollIndicator = false;
             _photoScroll.Bounces = false;
             _photoScroll.PagingEnabled = true;
-            _photoScroll.Scrolled+= (sender, e) => {
+            _photoScroll.Scrolled += (sender, e) =>
+            {
                 var pageWidth = _photoScroll.Frame.Size.Width;
                 _pageControl.CurrentPage = (int)Math.Floor((_photoScroll.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
             };
@@ -217,6 +220,22 @@ namespace Steepshot.iOS.Cells
 
             var liketap = new UITapGestureRecognizer(LikeTap);
             _like.AddGestureRecognizer(liketap);
+
+            _sliderView = new SliderView();
+            _sliderView.LikeTap += () => 
+            {
+                LikeTap();
+            };
+
+            var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
+            {
+                if (BasePresenter.User.IsAuthenticated && !_currentPost.Vote)
+                {
+                    if (obj.State == UIGestureRecognizerState.Began)
+                        _sliderView.Show(_contentView);
+                }
+            });
+            _like.AddGestureRecognizer(likelongtap);
 
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
             {
@@ -422,6 +441,8 @@ namespace Steepshot.iOS.Cells
 
             _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _photoScroll.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
 
+            _sliderView.Frame = new CGRect(2, _photoScroll.Frame.Bottom - 5, UIScreen.MainScreen.Bounds.Width - 4, 70);
+           
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
             if (_currentPost.VoteChanging)
                 Animate();
@@ -464,6 +485,8 @@ namespace Steepshot.iOS.Cells
         {
             if (!BasePostPresenter.IsEnableVote)
                 return;
+            
+            _currentPost.VotePower = (short)_sliderView.Slider.Value;
             CellAction?.Invoke(ActionType.Like, _currentPost);
         }
 

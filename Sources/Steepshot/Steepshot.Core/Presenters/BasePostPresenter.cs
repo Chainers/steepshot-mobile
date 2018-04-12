@@ -214,6 +214,10 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
+            if (post.VotePower == 0)
+                post.VotePower = BasePresenter.User.VotePower;
+            else
+                BasePresenter.User.VotePower = post.VotePower;
             var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
             var response = await Api.Vote(request, ct);
 
