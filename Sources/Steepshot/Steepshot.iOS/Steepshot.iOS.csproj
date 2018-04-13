@@ -387,6 +387,7 @@
     <Compile Include="Cells\PhotoGalleryCell.cs" />
     <Compile Include="CustomViews\SliderView.cs" />
     <Compile Include="Helpers\CustomWindow.cs" />
+    <Compile Include="CustomViews\SearchTextField.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
