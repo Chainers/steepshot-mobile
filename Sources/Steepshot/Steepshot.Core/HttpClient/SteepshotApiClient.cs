@@ -138,10 +138,8 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(operationResult.Error);
 
             var preparedData = operationResult.Result;
-
-            var category = model.Tags.Length > 0 ? model.Tags[0] : "steepshot";
             var meta = JsonConverter.Serialize(preparedData.JsonMetadata);
-            var commentModel = new CommentModel(model.Login, model.PostingKey, string.Empty, category, model.Login, model.Permlink, model.Title, preparedData.Body, meta);
+            var commentModel = new CommentModel(model, preparedData.Body, meta);
             if (!model.IsEditMode)
                 commentModel.Beneficiaries = preparedData.Beneficiaries;
 

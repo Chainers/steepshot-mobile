@@ -39,8 +39,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
 #pragma warning restore 0649
 
-        private bool IsSdCardAvailable =>
-            Environment.ExternalStorageState.Equals(Environment.MediaMounted);
+        private bool IsSdCardAvailable => Environment.ExternalStorageState.Equals(Environment.MediaMounted);
         private string _selectedBucket;
         private string BucketSelection => _selectedBucket.Equals(AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery)) ? null : MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{_selectedBucket}\"";
         private Dictionary<string, string> _media;
@@ -143,7 +142,7 @@ namespace Steepshot.Fragment
                     var croppedBitmap = _preview.Crop(Uri.Parse(galleryMediaModel.Path), galleryMediaModel.Parameters);
                     galleryMediaModel.PreparedBitmap = croppedBitmap;
                 }
-                ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(_pickedItems));
+                ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else
             {

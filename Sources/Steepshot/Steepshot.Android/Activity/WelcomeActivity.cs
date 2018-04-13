@@ -24,14 +24,14 @@ namespace Steepshot.Activity
         private int _clickCount;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.steem_login)] private Button _steemLogin;
-        [CheeseBind.BindView(Resource.Id.golos_login)] private Button _golosLogin;
-        [CheeseBind.BindView(Resource.Id.reg_button)] private Button _regButton;
-        [CheeseBind.BindView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
-        [CheeseBind.BindView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
-        [CheeseBind.BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
-        [CheeseBind.BindView(Resource.Id.terms)] private TextView _termsTextView;
-        [CheeseBind.BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
+        [BindView(Resource.Id.steem_login)] private Button _steemLogin;
+        [BindView(Resource.Id.golos_login)] private Button _golosLogin;
+        [BindView(Resource.Id.reg_button)] private Button _regButton;
+        [BindView(Resource.Id.dev_switch)] private SwitchCompat _devSwitcher;
+        [BindView(Resource.Id.steem_loading_spinner)] private ProgressBar _steemLoader;
+        [BindView(Resource.Id.golos_loading_spinner)] private ProgressBar _golosLoder;
+        [BindView(Resource.Id.terms)] private TextView _termsTextView;
+        [BindView(Resource.Id.steepshot_logo)] private ImageView _steepshotLogo;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
