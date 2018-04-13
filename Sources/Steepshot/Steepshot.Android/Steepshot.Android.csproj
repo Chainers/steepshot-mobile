@@ -66,6 +66,8 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Fragment\PostCreateFragment.cs" />
+    <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
     <Compile Include="Adapter\GalleryHorizontalAdapter.cs" />
