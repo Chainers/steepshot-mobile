@@ -16,12 +16,13 @@ namespace Steepshot.iOS.CustomViews
         private const float sliderImageRightPadding = 8f;
         private const float sliderLeftPadding = 10f;
         private const float sliderRightPadding = 10f;
+        private const float animationLength = 10f;
 
         public PowerSlider Slider;
         public Action LikeTap;
         private readonly UILabel sliderPercents;
 
-        public SliderView()
+        public SliderView(nfloat contentWidth)
         {
             BackgroundColor = UIColor.White;
             Layer.CornerRadius = 10f;
@@ -34,7 +35,7 @@ namespace Steepshot.iOS.CustomViews
             sliderPercents.Frame = new CGRect(new CGPoint(20, sliderViewHeight / 2f - sliderPercents.Frame.Size.Height / 2f), sliderPercents.Frame.Size);
             AddSubview(sliderPercents);
 
-            var sliderImage = new UIImageView(new CGRect(UIScreen.MainScreen.Bounds.Width - sliderImageRightPadding - sliderImageWidth, sliderViewHeight / 2f - sliderImageHeight / 2f - 1, sliderImageWidth, sliderImageHeight));
+            var sliderImage = new UIImageView(new CGRect(contentWidth - sliderImageRightPadding - sliderImageWidth, sliderViewHeight / 2f - sliderImageHeight / 2f - 1, sliderImageWidth, sliderImageHeight));
             sliderImage.Image = UIImage.FromBundle("ic_like");
             sliderImage.UserInteractionEnabled = true;
             sliderImage.ContentMode = UIViewContentMode.Center;
@@ -68,32 +69,30 @@ namespace Steepshot.iOS.CustomViews
             Slider.Value = BasePresenter.User.VotePower;
             sliderPercents.Text = $"{(int)(Slider.Value)}%";
             sliderPercents.SizeToFit();
-            Frame = new CGRect(Frame.X, Frame.Y + 30, Frame.Width, Frame.Height);
+            Frame = new CGRect(Frame.X, Frame.Y + animationLength, Frame.Width, Frame.Height);
             Alpha = 0;
             parentView.AddSubview(this);
-            Animate(0.3, () =>
+            Animate(0.15, () =>
             {
-                Frame = new CGRect(Frame.X, Frame.Y - 30, Frame.Width, Frame.Height);
+                Frame = new CGRect(Frame.X, Frame.Y - animationLength, Frame.Width, Frame.Height);
                 Alpha = 1;
-            }
-            );
+            });
             Slider.BecomeFirstResponder();
         }
 
         public void Close()
         {
             BaseViewController.IsSliderOpen = false;
-            Animate(0.3, () =>
+            Animate(0.15, () =>
             {
-                Frame = new CGRect(Frame.X, Frame.Y - 30, Frame.Width, Frame.Height);
+                Frame = new CGRect(Frame.X, Frame.Y - animationLength, Frame.Width, Frame.Height);
                 Alpha = 0;
             }, () =>
             {
                 RemoveFromSuperview();
                 Slider.Value = 0;
-                Frame = new CGRect(Frame.X, Frame.Y + 30, Frame.Width, Frame.Height);
-            }
-            );
+                Frame = new CGRect(Frame.X, Frame.Y + animationLength, Frame.Width, Frame.Height);
+            });
         }
     }
 

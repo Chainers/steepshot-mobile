@@ -222,7 +222,7 @@ namespace Steepshot.iOS.Cells
             var liketap = new UITapGestureRecognizer(LikeTap);
             _like.AddGestureRecognizer(liketap);
 
-            _sliderView = new SliderView();
+            _sliderView = new SliderView(UIScreen.MainScreen.Bounds.Width);
             _sliderView.LikeTap += () => 
             {
                 LikeTap();
@@ -239,6 +239,8 @@ namespace Steepshot.iOS.Cells
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
+                        if (!BasePostPresenter.IsEnableVote)
+                            return;
                         BaseViewController.IsSliderOpen = true;
                         _sliderView.Show(_contentView);
                     }

@@ -54,6 +54,7 @@ namespace Steepshot.iOS.Views
             Avatar.Layer.CornerRadius = Avatar.Frame.Width / 2;
             Avatar.ClipsToBounds = true;
             Avatar.UserInteractionEnabled = true;
+            Avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
             PowerFrame = new CircleFrame(Avatar, new CGRect(0, 0, 90, 90));
             View.Add(PowerFrame);
