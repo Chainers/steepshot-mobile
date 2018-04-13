@@ -15,6 +15,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.ViewControllers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -226,13 +227,21 @@ namespace Steepshot.iOS.Cells
             {
                 LikeTap();
             };
+            BaseViewController.CloseSliderAction += () =>
+            {
+                if(_sliderView.Superview != null)
+                    _sliderView.Close();
+            };
 
             var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
             {
                 if (BasePresenter.User.IsAuthenticated && !_currentPost.Vote)
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
+                    {
+                        BaseViewController.IsSliderOpen = true;
                         _sliderView.Show(_contentView);
+                    }
                 }
             });
             _like.AddGestureRecognizer(likelongtap);

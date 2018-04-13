@@ -59,7 +59,7 @@ namespace Steepshot.iOS
                 AppSettings.Reporter.SendCrash(e.Exception);
             };
 
-            Window = new UIWindow(UIScreen.MainScreen.Bounds);
+            Window = new CustomWindow();
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
             else
