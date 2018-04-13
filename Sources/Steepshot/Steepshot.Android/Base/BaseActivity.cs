@@ -17,6 +17,7 @@ using Steepshot.Services;
 using Steepshot.Utils;
 using LruCache = Square.Picasso.LruCache;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Sentry;
 using Uri = Android.Net.Uri;
 
 namespace Steepshot.Base
