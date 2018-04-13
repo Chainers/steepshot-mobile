@@ -8,6 +8,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -95,6 +96,10 @@ namespace Steepshot.iOS.Views
             tagsTableView.RowHeight = 70f;
 
             tagField.EditingChanged += EditingDidChange;
+            tagField.Delegate = new TagFieldDelegate(() => 
+            {
+                AddTag(tagField.Text);
+            });
             SetBackButton();
             SetCollectionHeight();
             SearchTextChanged();
@@ -193,7 +198,6 @@ namespace Steepshot.iOS.Views
             {
                 if (txt.EndsWith(" "))
                 {
-                    ((UITextField)sender).Text = string.Empty;
                     AddTag(txt);
                 }
             }
@@ -204,6 +208,7 @@ namespace Steepshot.iOS.Views
         {
             if (!_viewSource.LocalTags.Contains(txt))
             {
+                tagField.Text = string.Empty;
                 _viewSource.LocalTags.Add(txt);
                 SetCollectionHeight();
                 _flowDelegate.GenerateVariables();
