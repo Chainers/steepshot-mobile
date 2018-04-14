@@ -7,6 +7,8 @@ using Android.Support.Design.Widget;
 using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
+using Com.OneSignal;
+using Com.OneSignal.Abstractions;
 using CheeseBind;
 using Refractored.Controls;
 using Square.Picasso;
@@ -22,7 +24,7 @@ using Steepshot.Utils;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
         private Adapter.PagerAdapter _adapter;
@@ -30,8 +32,8 @@ namespace Steepshot.Activity
         private int _tabHeight;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
-        [CheeseBind.BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
+        [BindView(Resource.Id.view_pager)] private CustomViewPager _viewPager;
+        [BindView(Resource.Id.tab_layout)] public TabLayout _tabLayout;
 #pragma warning restore 0649
 
 
@@ -49,6 +51,45 @@ namespace Steepshot.Activity
 
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
+
+            if (BasePresenter.User.IsAuthenticated)
+                InitPushes();
+        }
+
+        private void InitPushes() => Task.Run(() =>
+                                                    {
+                                                        OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                                                        .InFocusDisplaying(OSInFocusDisplayOption.None)
+                                                        .HandleNotificationOpened(OneSignalNotificationOpened)
+                                                        .EndInit();
+                                                        OneSignal.Current.IdsAvailable(OneSignalCallback);
+                                                    });
+
+        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
+        {
+            var type = result.notification.payload.additionalData["type"].ToString();
+            var data = result.notification.payload.additionalData["data"].ToString();
+            switch (type)
+            {
+                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
+                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
+                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
+                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                    OpenNewContentFragment(new SinglePostFragment(data));
+                    break;
+                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                    OpenNewContentFragment(new ProfileFragment(data));
+                    break;
+            }
+        }
+
+        private void OneSignalCallback(string playerId, string pushToken)
+        {
+            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+                Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
+            BasePresenter.User.PushesPlayerId = playerId;
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
@@ -119,8 +160,8 @@ namespace Steepshot.Activity
             {
                 var hostFragment = _adapter.GetItem(_tabLayout.SelectedTabPosition) as HostFragment;
                 hostFragment?.Clear();
-                var fragments = hostFragment.ChildFragmentManager.Fragments;
-                if (fragments[fragments.Count - 1] is ICanOpenPost fragment)
+                var fragments = hostFragment?.ChildFragmentManager.Fragments;
+                if (fragments != null && fragments[fragments.Count - 1] is ICanOpenPost fragment)
                     fragment.ClosePost();
             }
         }

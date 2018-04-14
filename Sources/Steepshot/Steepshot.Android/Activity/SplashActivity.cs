@@ -16,8 +16,9 @@ using Steepshot.Services;
 
 namespace Steepshot.Activity
 {
-    [Activity(Label = Constants.Steepshot, MainLauncher = true, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true, Theme = "@style/SplashTheme")]
+    [Activity(Label = Constants.Steepshot, MainLauncher = true, LaunchMode = LaunchMode.SingleTask, ScreenOrientation = ScreenOrientation.Portrait, NoHistory = true, Theme = "@style/SplashTheme")]
     [IntentFilter(new[] { Intent.ActionSend }, Categories = new[] { Intent.CategoryDefault }, Icon = "@mipmap/ic_launch_icon", DataMimeType = "image/*")]
+    [IntentFilter(new[] { Intent.ActionView }, Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable }, DataSchemes = new[] { "https", "http" }, DataHosts = new[] { "alpha.steepshot.io", "qa.alpha.steepshot.io" }, DataPathPrefixes = new[] { "/post", "/@" })]
     public sealed class SplashActivity : BaseActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -34,30 +35,37 @@ namespace Steepshot.Activity
 
             GAService.Instance.InitializeGAService(this);
 
-            if (Intent.ActionSend.Equals(Intent.Action) && Intent.Type != null)
+            switch (Intent.Action)
             {
-                if (BasePresenter.User.IsAuthenticated)
-                {
-                    var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
-                    var fragmentTransaction = SupportFragmentManager.BeginTransaction();
-                    var galleryModel = new GalleryMediaModel
+                case Intent.ActionSend:
                     {
-                        Path = BitmapUtils.GetRealPathFromURI(uri, this)
-                    };
-                    CurrentHostFragment = HostFragment.NewInstance(new PostEditFragment(galleryModel));
-                    fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
-                    fragmentTransaction.Commit();
-                }
-                else
-                {
-                    var intent = new Intent(this, typeof(PreSignInActivity));
-                    StartActivity(intent);
-                }
+                        if (BasePresenter.User.IsAuthenticated)
+                        {
+                            var uri = (Android.Net.Uri)Intent.GetParcelableExtra(Intent.ExtraStream);
+                            var fragmentTransaction = SupportFragmentManager.BeginTransaction();
+                            var galleryModel = new GalleryMediaModel
+                            {
+                                Path = BitmapUtils.GetRealPathFromURI(uri, this)
+                            };
+                            CurrentHostFragment = HostFragment.NewInstance(new PostCreateFragment(galleryModel));
+                            fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
+                            fragmentTransaction.Commit();
+                        }
+                        else
+                        {
+                            StartActivity(typeof(PreSignInActivity));
+                        }
+                        return;
+                    }
+                case Intent.ActionView:
+                    {
+                        var intent = new Intent(this, BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
+                        intent.PutExtra(AppLinkingExtra, Intent?.Data?.ToString());
+                        StartActivity(intent);
+                        return;
+                    }
             }
-            else
-            {
-                StartActivity(BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
-            }
+            StartActivity(BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
         }
 
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)

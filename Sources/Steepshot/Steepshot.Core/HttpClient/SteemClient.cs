@@ -5,15 +5,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Helpers;
 using Ditch.Steem;
-using Ditch.Steem.Operations;
+using Ditch.Steem.Models.Operations;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
-using DitchFollowType = Ditch.Steem.Enums.FollowType;
-using DitchBeneficiary = Ditch.Steem.Operations.Beneficiary;
+using DitchFollowType = Ditch.Steem.Models.Enums.FollowType;
+using DitchBeneficiary = Ditch.Steem.Models.Operations.Beneficiary;
 using Ditch.Core;
-using Ditch.Steem.Objects;
+using Ditch.Steem.Models.ApiObj;
+using Ditch.Steem.Models.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
@@ -94,7 +95,7 @@ namespace Steepshot.Core.HttpClient
                         //Convert Asset type to double
                         result.Result = new VoteResponse(true)
                         {
-                            NewTotalPayoutReward = content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue,
+                            NewTotalPayoutReward = (content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue).ToDouble(),
                             NetVotes = content.Result.NetVotes,
                             VoteTime = dt
                         };
@@ -159,7 +160,7 @@ namespace Steepshot.Core.HttpClient
                 return result;
             }, ct);
         }
-        
+
         public override async Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct)
         {
             return await Task.Run(() =>
@@ -182,7 +183,7 @@ namespace Steepshot.Core.HttpClient
                     ops = new BaseOperation[]
                     {
                         op,
-                        new BeneficiariesOperation(model.Login, model.Permlink, _operationManager.SbdSymbol, beneficiaries)
+                        new BeneficiariesOperation(model.Login, model.Permlink, "SBD", beneficiaries)
                     };
                 }
                 else
@@ -269,15 +270,14 @@ namespace Steepshot.Core.HttpClient
         #endregion Post requests
 
         #region Get
-
-        public override async Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct)
+        public override async Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct)
         {
             if (!TryReconnectChain(ct))
-                return new OperationResult<string>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
+                return new OperationResult<object>(new AppError(LocalizationKeys.EnableConnectToBlockchain));
 
             var keys = ToKeyArr(model.PostingKey);
             if (keys == null)
-                return new OperationResult<string>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
+                return new OperationResult<object>(new AppError(LocalizationKeys.WrongPrivatePostingKey));
 
             return await Task.Run(() =>
             {
@@ -289,7 +289,7 @@ namespace Steepshot.Core.HttpClient
                     HeadBlockNumber = 0
                 };
                 var tr = _operationManager.CreateTransaction(properties, keys, ct, op);
-                return new OperationResult<string>() { Result = JsonConverter.Serialize(tr) };
+                return new OperationResult<object>() { Result = tr };
             }, ct);
         }
 

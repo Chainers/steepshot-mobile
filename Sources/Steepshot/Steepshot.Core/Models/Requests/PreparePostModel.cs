@@ -14,6 +14,7 @@ namespace Steepshot.Core.Models.Requests
     {
         private string[] _tags;
         private string _permlink;
+        private string _category;
         public const int TagLimit = 20;
 
         [JsonProperty]
@@ -68,6 +69,18 @@ namespace Steepshot.Core.Models.Requests
 
         public bool IsEditMode { get; }
 
+        public string Category
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_category))
+                    _category = Tags.Length > 0 ? Tags[0] : "steepshot";
+
+                return _category;
+            }
+        }
+
+
         public PreparePostModel(UserInfo user) : base(user)
         {
             ShowFooter = user.ShowFooter;
@@ -79,7 +92,8 @@ namespace Steepshot.Core.Models.Requests
         {
             ShowFooter = user.ShowFooter;
             Author = user.Login;
-            _permlink = permlink;
+            _permlink = post.Permlink;
+            _category = post.Category;
             IsEditMode = true;
         }
     }
