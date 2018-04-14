@@ -104,18 +104,6 @@ namespace Steepshot.Core.Presenters
             NotifySourceChanged(nameof(HidePost), true);
         }
 
-        public Post FirstOrDefault(Func<Post, bool> func)
-        {
-            lock (Items)
-                return Items.FirstOrDefault(func);
-        }
-
-        public int IndexOf(Post post)
-        {
-            lock (Items)
-                return Items.IndexOf(post);
-        }
-
         protected bool ResponseProcessing(OperationResult<ListResponse<Post>> response, int itemsLimit, out ErrorBase error, string sender, bool isNeedClearItems = false, bool enableEmptyMedia = false)
         {
             error = null;

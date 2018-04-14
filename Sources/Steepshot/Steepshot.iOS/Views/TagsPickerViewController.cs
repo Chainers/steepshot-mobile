@@ -51,7 +51,7 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            tagField = new SearchTextField(() => { AddTag(tagField.Text); });
+            tagField = new SearchTextField(() => { AddLocalTag(tagField.Text); });
             View.AddSubview(tagField);
 
             tagField.ClearButtonTapped += () => { OnTimer(null); };
@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
 
-            var _tableSource = new TagsTableViewSource(_presenter);
+            _tableSource = new TagsTableViewSource(_presenter, _viewSource.LocalTags);
             _tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
@@ -81,6 +81,8 @@ namespace Steepshot.iOS.Views
             SetCollectionHeight();
             SearchTextChanged();
         }
+
+        TagsTableViewSource _tableSource;
 
         protected override void KeyBoardUpNotification(NSNotification notification)
         {
@@ -130,16 +132,20 @@ namespace Steepshot.iOS.Views
 
         private void CollectionCellAction(ActionType type, string tag)
         {
-            RemoveTag(tag);
+            RemoveLocalTag(tag);
         }
 
         private void TableCellAction(ActionType type, string tag)
         {
-            AddTag(tag);
+            AddLocalTag(tag);
+            var index = _tableSource.IndexOfTag(tag);
+            _tableSource.UpdateFilteredTags();
+            tagsTableView.DeleteRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
         }
 
         private void SourceChanged(Status obj)
         {
+            _tableSource.UpdateFilteredTags();
             tagsTableView.ReloadData();
         }
 
@@ -173,12 +179,12 @@ namespace Steepshot.iOS.Views
             var txt = ((UITextField)sender).Text;
 
             if (txt.EndsWith(" "))
-                AddTag(txt);
+                AddLocalTag(txt);
             tagField.ClearButton.Hidden = tagField.Text.Length == 0;
             _timer.Change(500, Timeout.Infinite);
         }
 
-        private void AddTag(string txt)
+        private void AddLocalTag(string txt)
         {
             if (!_viewSource.LocalTags.Contains(txt) && !string.IsNullOrWhiteSpace(txt))
             {
@@ -192,11 +198,14 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void RemoveTag(string tag)
+        private void RemoveLocalTag(string tag)
         {
             _viewSource.LocalTags.Remove(tag);
             _flowDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
+            _tableSource.UpdateFilteredTags();
+            var index = _tableSource.IndexOfTag(tag, true);
+            tagsTableView.InsertRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
             SetCollectionHeight();
         }
     }

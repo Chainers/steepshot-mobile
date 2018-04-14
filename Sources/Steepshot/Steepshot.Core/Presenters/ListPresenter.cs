@@ -7,6 +7,8 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Net;
+using Steepshot.Core.Models.Common;
+using System.Linq;
 
 namespace Steepshot.Core.Presenters
 {
@@ -184,6 +186,30 @@ namespace Steepshot.Core.Presenters
                 _singleTaskCancellationTokenSource?.Cancel();
                 _singleTaskCancellationTokenSource = null;
             }
+        }
+
+        public int IndexOf(T item)
+        {
+            lock (Items)
+                return Items.IndexOf(item);
+        }
+
+        public int FindIndex(Predicate<T> match)
+        {
+            lock (Items)
+                return Items.FindIndex(match);
+        }
+
+        public T FirstOrDefault(Func<T, bool> match)
+        {
+            lock (Items)
+                return Items.FirstOrDefault(match);
+        }
+
+        public IEnumerable<T> Where(Func<T, bool> predicate)
+        {
+            lock (Items)
+                return Items.Where(predicate);
         }
 
         internal void NotifySourceChanged(string sender, bool isChanged)

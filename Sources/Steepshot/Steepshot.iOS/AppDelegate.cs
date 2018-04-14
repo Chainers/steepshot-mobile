@@ -36,7 +36,7 @@ namespace Steepshot.iOS
             var localizationManager = new LocalizationManager(localization);
 
             var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
-            var reporterService = new ReporterService(appInfo, ravenClientDSN);
+            var reporterService = new Core.Sentry.ReporterService(appInfo, ravenClientDSN);
 
             builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
             builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
