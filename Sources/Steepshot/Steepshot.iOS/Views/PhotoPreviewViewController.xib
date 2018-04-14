@@ -12,11 +12,13 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PhotoPreviewViewController">
             <connections>
+                <outlet property="bottomArrow" destination="dO4-id-Snb" id="Elf-SX-Fnc"/>
                 <outlet property="cropBackgroundView" destination="pIz-TH-bAF" id="N1Z-WW-gtQ"/>
                 <outlet property="multiSelect" destination="ZX2-xv-CS8" id="SlY-gW-4Fb"/>
                 <outlet property="photoCollection" destination="5EM-QE-kdf" id="2Ge-yM-TP0"/>
                 <outlet property="resize" destination="LWN-wr-Pj7" id="zVx-Ah-tf4"/>
                 <outlet property="rotate" destination="oXE-wc-bSX" id="APn-eC-CAV"/>
+                <outlet property="topArrow" destination="CUu-jh-LaB" id="RzW-g2-aTu"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
             </connections>
         </placeholder>
@@ -49,12 +51,18 @@
                         <constraint firstAttribute="height" constant="40" id="duQ-8U-9lB"/>
                     </constraints>
                 </imageView>
-                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_resize.png" translatesAutoresizingMaskIntoConstraints="NO" id="LWN-wr-Pj7">
+                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_rotate_background.png" translatesAutoresizingMaskIntoConstraints="NO" id="LWN-wr-Pj7">
                     <rect key="frame" x="15" y="320" width="40" height="40"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="40" id="0Z4-KX-a5Y"/>
                         <constraint firstAttribute="height" constant="40" id="7ly-8R-faR"/>
                     </constraints>
+                </imageView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_arrow.png" translatesAutoresizingMaskIntoConstraints="NO" id="dO4-id-Snb">
+                    <rect key="frame" x="27" y="341" width="7" height="7"/>
+                </imageView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_arrow.png" translatesAutoresizingMaskIntoConstraints="NO" id="CUu-jh-LaB">
+                    <rect key="frame" x="36" y="332" width="7" height="7"/>
                 </imageView>
                 <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_multiselect.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZX2-xv-CS8">
                     <rect key="frame" x="320" y="320" width="40" height="40"/>
@@ -67,25 +75,30 @@
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="LWN-wr-Pj7" secondAttribute="bottom" constant="15" id="0ks-qP-zJM"/>
+                <constraint firstItem="LWN-wr-Pj7" firstAttribute="top" secondItem="CUu-jh-LaB" secondAttribute="bottom" constant="-19" id="12D-fr-FRp"/>
                 <constraint firstItem="oXE-wc-bSX" firstAttribute="leading" secondItem="LWN-wr-Pj7" secondAttribute="trailing" constant="15" id="7vN-KZ-uP1"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="pIz-TH-bAF" secondAttribute="bottom" id="9gW-r6-CXq"/>
+                <constraint firstItem="CUu-jh-LaB" firstAttribute="leading" secondItem="LWN-wr-Pj7" secondAttribute="trailing" constant="-19" id="ChI-yI-JmK"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="D6H-wp-Xfb"/>
                 <constraint firstAttribute="trailing" secondItem="5EM-QE-kdf" secondAttribute="trailing" id="PB4-mr-GPs"/>
                 <constraint firstItem="pIz-TH-bAF" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="S2n-DW-yDy"/>
                 <constraint firstAttribute="bottom" secondItem="5EM-QE-kdf" secondAttribute="bottom" id="eZx-CR-Sde"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="ZX2-xv-CS8" secondAttribute="bottom" constant="15" id="ixb-H3-iWx"/>
+                <constraint firstItem="dO4-id-Snb" firstAttribute="top" secondItem="LWN-wr-Pj7" secondAttribute="bottom" constant="-19" id="oYs-i7-atw"/>
                 <constraint firstAttribute="trailing" secondItem="ZX2-xv-CS8" secondAttribute="trailing" constant="15" id="q8t-Up-bQh"/>
                 <constraint firstItem="LWN-wr-Pj7" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="r2T-xD-tVE"/>
                 <constraint firstAttribute="trailing" secondItem="pIz-TH-bAF" secondAttribute="trailing" id="sUc-lx-fNK"/>
                 <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="oXE-wc-bSX" secondAttribute="bottom" constant="15" id="vgc-du-1Lw"/>
+                <constraint firstItem="LWN-wr-Pj7" firstAttribute="leading" secondItem="dO4-id-Snb" secondAttribute="trailing" constant="-19" id="wo1-vl-wNZ"/>
                 <constraint firstItem="pIz-TH-bAF" firstAttribute="top" secondItem="2" secondAttribute="top" id="xyW-OE-V8c"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
         </view>
     </objects>
     <resources>
+        <image name="ic_arrow.png" width="7" height="7"/>
         <image name="ic_multiselect.png" width="40" height="40"/>
-        <image name="ic_resize.png" width="40" height="40"/>
         <image name="ic_rotate.png" width="40" height="40"/>
+        <image name="ic_rotate_background.png" width="40" height="40"/>
     </resources>
 </document>
