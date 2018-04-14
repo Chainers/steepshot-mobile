@@ -7,10 +7,15 @@ namespace Steepshot.Utils
     public class GalleryMediaModel
     {
         public Action ModelChanged;
+
         public string Id { get; set; }
+
         public string Path { get; set; }
+
         public string Thumbnail { get; set; }
+
         private bool _selected;
+
         public bool Selected
         {
             get => _selected;
@@ -20,7 +25,9 @@ namespace Steepshot.Utils
                 ModelChanged?.Invoke();
             }
         }
+
         private int _selectionPosition = (int)GallerySelectionType.None;
+
         public int SelectionPosition
         {
             get => _selectionPosition;
@@ -30,7 +37,9 @@ namespace Steepshot.Utils
                 ModelChanged?.Invoke();
             }
         }
+
         public ImageParameters Parameters { get; set; }
+
         public Bitmap PreparedBitmap { get; set; }
     }
 }

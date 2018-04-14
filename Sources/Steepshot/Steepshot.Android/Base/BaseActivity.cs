@@ -18,7 +18,6 @@ using Steepshot.Utils;
 using LruCache = Square.Picasso.LruCache;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Sentry;
-using Uri = Android.Net.Uri;
 
 namespace Steepshot.Base
 {
@@ -135,20 +134,28 @@ namespace Steepshot.Base
             Finish();
         }
 
-        public void OpenUri(Uri uri)
+        public void OpenUri(Android.Net.Uri uri)
         {
             if (string.IsNullOrEmpty(uri?.Path))
                 return;
 
-            int index = uri.Path.IndexOf("@", StringComparison.Ordinal) + 1;
+            OpenUri(uri.Path);
+        }
 
-            if (index < uri.Path.Length)
+        public void OpenUri(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            int index = path.IndexOf("@", StringComparison.Ordinal) + 1;
+
+            if (index < path.Length)
             {
-                var appLink = uri.Path.Substring(index, uri.Path.Length - index);
+                var appLink = path.Substring(index, path.Length - index);
 
-                if (uri.Path.StartsWith("/post"))
+                if (path.StartsWith("/post"))
                     OpenNewContentFragment(new SinglePostFragment(appLink));
-                else if (uri.Path.StartsWith("/@"))
+                else if (path.StartsWith("/@"))
                     OpenNewContentFragment(new ProfileFragment(appLink));
             }
         }

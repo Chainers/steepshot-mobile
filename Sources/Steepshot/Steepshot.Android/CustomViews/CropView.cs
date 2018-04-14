@@ -7,11 +7,9 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Views.Animations;
-using Java.IO;
 using Square.Picasso;
 using Steepshot.Utils;
 using Math = System.Math;
-using Uri = Android.Net.Uri;
 
 namespace Steepshot.CustomViews
 {
@@ -140,7 +138,7 @@ namespace Steepshot.CustomViews
         private float MinimumAllowedScale => _useStrictBounds ? FitRatioScale : FitDrawableScale;
         private long _backDuration => 400;
 
-        private Uri _imageUri;
+        private string _imageUri;
         private Drawable _drawable;
         private int _width;
         private int _height;
@@ -220,12 +218,12 @@ namespace Steepshot.CustomViews
             DrawableImageParameters = _reloadImage ? new ImageParameters() : _drawableImageParameters ?? new ImageParameters();
             _currentScaleType = scaleType;
         }
-        public void SetImageUri(Uri uri, ImageParameters parameters)
+        public void SetImagePath(string path, ImageParameters parameters)
         {
-            _reloadImage = !uri.Equals(_imageUri);
+            _reloadImage = !path.Equals(_imageUri);
             if (_reloadImage)
             {
-                _imageUri = uri;
+                _imageUri = path;
                 _drawable = null;
             }
 
@@ -255,19 +253,18 @@ namespace Steepshot.CustomViews
            {
                try
                {
-                   if (Looper.MyLooper() == null) Looper.Prepare();
-                   using (var inputStream = new FileInputStream(_imageUri.Path))
-                   {
-                       using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(inputStream.FD, targetWidth, targetHeight))
-                       {
-                           var matrix = new Matrix();
-                           matrix.PostRotate(angle);
-                           var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
-                           _imageRawWidth = preparedBitmap.Width;
-                           _imageRawHeight = preparedBitmap.Height;
+                   if (Looper.MyLooper() == null)
+                       Looper.Prepare();
 
-                           return new BitmapDrawable(Context.Resources, preparedBitmap);
-                       }
+                   using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(_imageUri, targetWidth, targetHeight))
+                   {
+                       var matrix = new Matrix();
+                       matrix.PostRotate(angle);
+                       var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
+                       _imageRawWidth = preparedBitmap.Width;
+                       _imageRawHeight = preparedBitmap.Height;
+
+                       return new BitmapDrawable(Context.Resources, preparedBitmap);
                    }
                }
                catch
@@ -481,25 +478,23 @@ namespace Steepshot.CustomViews
             bounds.Bottom = bounds.Top + DisplayDrawableHeight;
         }
 
-        public Bitmap Crop(Uri uri, ImageParameters parameters)
+        public Bitmap Crop(string path, ImageParameters parameters)
         {
-            using (var fileInputStream = new FileInputStream(uri.Path))
+            parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
+            var scaleMultiplier = Math.Max(parameters.Scale, 1 / parameters.Scale);
+            var left = (int)Math.Round(parameters.CropBounds.Left / scaleMultiplier);
+            var top = (int)Math.Round(parameters.CropBounds.Top / scaleMultiplier);
+            var width = (int)Math.Round(parameters.CropBounds.Width() / scaleMultiplier);
+            var height = (int)Math.Round(parameters.CropBounds.Height() / scaleMultiplier);
+            var matrix = new Matrix();
+            matrix.PostRotate(parameters.Rotation);
+            matrix.PostScale(parameters.Scale, parameters.Scale);
+
+            using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(path, MaxImageSize, MaxImageSize))
             {
-                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, MaxImageSize, MaxImageSize))
-                {
-                    parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
-                    var scaleMultiplier = Math.Max(parameters.Scale, 1 / parameters.Scale);
-                    var left = (int)Math.Round(parameters.CropBounds.Left / scaleMultiplier);
-                    var top = (int)Math.Round(parameters.CropBounds.Top / scaleMultiplier);
-                    var width = (int)Math.Round(parameters.CropBounds.Width() / scaleMultiplier);
-                    var height = (int)Math.Round(parameters.CropBounds.Height() / scaleMultiplier);
-                    var matrix = new Matrix();
-                    matrix.PostRotate(parameters.Rotation);
-                    matrix.PostScale(parameters.Scale, parameters.Scale);
-                    var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
-                    bitmap.Recycle();
-                    return croppedBitmap;
-                }
+                var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
+                bitmap.Recycle();
+                return croppedBitmap;
             }
         }
 

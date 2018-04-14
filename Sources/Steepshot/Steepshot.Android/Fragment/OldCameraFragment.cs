@@ -462,12 +462,9 @@ namespace Steepshot.Fragment
                 var imageFile = new Java.IO.File(imageLocation);
                 if (imageFile.Exists())
                 {
-                    using (var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor)
-                    {
-                        var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
-                        bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
-                        _galleryIcon.SetImageBitmap(bitmap);
-                    }
+                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(imageFile.Path, 300, 300);
+                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageFile.Path);
+                    _galleryIcon.SetImageBitmap(bitmap);
                 }
             }
         }
