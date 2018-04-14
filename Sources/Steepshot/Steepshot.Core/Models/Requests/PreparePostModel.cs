@@ -80,7 +80,6 @@ namespace Steepshot.Core.Models.Requests
             }
         }
 
-
         public PreparePostModel(UserInfo user) : base(user)
         {
             ShowFooter = user.ShowFooter;
@@ -88,7 +87,7 @@ namespace Steepshot.Core.Models.Requests
             IsEditMode = false;
         }
 
-        public PreparePostModel(UserInfo user, string permlink) : base(user)
+        public PreparePostModel(UserInfo user, Post post) : base(user)
         {
             ShowFooter = user.ShowFooter;
             Author = user.Login;
