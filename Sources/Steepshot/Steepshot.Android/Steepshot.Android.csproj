@@ -577,7 +577,26 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
-    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps_n.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
@@ -587,73 +606,14 @@
     <AndroidAsset Include="Assets\DebugWif.txt" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
     <AndroidResource Include="Resources\drawable\first_post_button.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\steem_login_border.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_background.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\Config.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\transparent_rounded_border.xml" />
