@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Content;
 using Android.Graphics;
 using Android.Hardware;
+using Android.Locations;
 using Android.Media;
 using Android.OS;
 using Android.Provider;
@@ -17,12 +19,15 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
+using Format = Android.Graphics.Format;
 
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
     public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
     {
+        LocationManager _locationManager;
+
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
 
@@ -56,6 +61,8 @@ namespace Steepshot.Fragment
         {
             base.OnViewCreated(view, savedInstanceState);
 
+            _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
+
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
 
@@ -73,7 +80,7 @@ namespace Steepshot.Fragment
 
         private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            Camera.Parameters cameraParams = _camera.GetParameters();
+            var cameraParams = _camera.GetParameters();
             var action = touchEventArgs.Event.Action;
 
             if (touchEventArgs.Event.PointerCount > 1)
@@ -93,9 +100,9 @@ namespace Steepshot.Fragment
 
         private void HandleZoom(MotionEvent e, Camera.Parameters p)
         {
-            int maxZoom = p.MaxZoom;
-            int zoom = p.Zoom;
-            float newDist = GetFingerSpacing(e);
+            var maxZoom = p.MaxZoom;
+            var zoom = p.Zoom;
+            var newDist = GetFingerSpacing(e);
             if (newDist > _dist)
             {
                 if (zoom < maxZoom)
@@ -113,8 +120,8 @@ namespace Steepshot.Fragment
 
         private float GetFingerSpacing(MotionEvent e)
         {
-            float x = e.GetX(0) - e.GetX(1);
-            float y = e.GetY(0) - e.GetY(1);
+            var x = e.GetX(0) - e.GetX(1);
+            var y = e.GetY(0) - e.GetY(1);
             return (float)Math.Sqrt(x * x + y * y);
         }
 
@@ -164,7 +171,35 @@ namespace Steepshot.Fragment
 
         private void TakePhotoClick(object sender, EventArgs e)
         {
+            var parameters = _camera.GetParameters();
+            AddGps(parameters);
+            parameters.SetRotation(_currentRotation);
+            _camera.SetParameters(parameters);
             _camera?.TakePicture(this, null, this);
+        }
+
+        private void AddGps(Camera.Parameters parameters)
+        {
+            var criteriaForLocationService = new Criteria
+            {
+                Accuracy = Accuracy.NoRequirement
+            };
+            var acceptableLocationProviders = _locationManager.GetProviders(criteriaForLocationService, true);
+
+            if (acceptableLocationProviders.Any())
+            {
+                var locationProvider = acceptableLocationProviders.First();
+                var t = _locationManager.GetLastKnownLocation(locationProvider);
+                if (t == null)
+                    return;
+
+                parameters.RemoveGpsData();
+                parameters.SetGpsLatitude(t.Latitude);
+                parameters.SetGpsLongitude(t.Longitude);
+                parameters.SetGpsAltitude(t.Altitude);
+                parameters.SetGpsTimestamp(t.Time);
+                parameters.SetGpsProcessingMethod(locationProvider);
+            }
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -182,7 +217,6 @@ namespace Steepshot.Fragment
             if (_camera == null)
                 return;
 
-            var parameters = _camera.GetParameters();
             var info = new Camera.CameraInfo();
             Camera.GetCameraInfo(_cameraId, info);
 
@@ -192,8 +226,6 @@ namespace Steepshot.Fragment
                 : (info.Orientation + orientation) % 360;
 
             _currentRotation = rotation;
-            parameters.SetRotation(rotation);
-            _camera.SetParameters(parameters);
         }
 
 
