@@ -246,6 +246,17 @@ namespace Steepshot.CustomViews
             RequestLayout();
             Invalidate();
         }
+        public void SetImageBitmap(Bitmap bitmap)
+        {
+            _reloadImage = false;
+            _drawable = new BitmapDrawable(bitmap);
+
+            _imageRawWidth = bitmap.Width;
+            _imageRawHeight = bitmap.Height;
+
+            RequestLayout();
+            Invalidate();
+        }
         public void Rotate(float angle)
         {
             DrawableImageParameters.Rotation = angle;

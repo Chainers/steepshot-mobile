@@ -155,15 +155,24 @@ namespace Steepshot.Fragment
                 layoutParams.SetMargins(margin, 0, margin, margin);
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
-                if (_media != null)
-                    _preview.SetImageUri(Uri.Parse(_media[0].Path), _media[0].Parameters);
-                else if (_editPost != null)
+                if (_media?[0].PreparedBitmap == null)
+                {
+                    _preview.SetImageUri(Uri.Parse(_media?[0].Path), _media?[0].Parameters);
+                }
+                else
                 {
                     _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
-                    var url = _editPost.Media[0].Thumbnails.Mini;
-                    Picasso.With(Activity).Load(url)
-                        .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
-                        .Into(_preview);
+                    if (_editPost != null)
+                    {
+                        var url = _editPost.Media[0].Thumbnails.Mini;
+                        Picasso.With(Activity).Load(url)
+                            .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
+                            .Into(_preview);
+                    }
+                    else if (_media?[0].PreparedBitmap != null)
+                    {
+                        _preview.SetImageBitmap(_media[0].PreparedBitmap);
+                    }
                 }
                 _preview.Touch += PreviewOnTouch;
                 _ratioBtn.Click += RatioBtnOnClick;
@@ -193,7 +202,7 @@ namespace Steepshot.Fragment
         }
         private void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            if (_editPost != null)
+            if (_editPost != null || _media?[0].PreparedBitmap != null)
             {
                 _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
                 return;
@@ -278,7 +287,7 @@ namespace Steepshot.Fragment
             if (_editPost == null)
             {
                 _model.Media = new MediaModel[_media.Count];
-                if (_media.Count == 1)
+                if (_media.Count == 1 && _media[0].PreparedBitmap == null)
                     _media[0].PreparedBitmap = _preview.Crop(Uri.Parse(_media[0].Path), _preview.DrawableImageParameters);
                 for (int i = 0; i < _media.Count; i++)
                 {
