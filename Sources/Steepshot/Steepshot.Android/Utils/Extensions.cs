@@ -12,12 +12,6 @@ namespace Steepshot.Utils
             return val;
         }
 
-        public static Android.Net.Uri ToUri(this string val)
-        {
-            var fPath = ToFilePath(val);
-            return Android.Net.Uri.Parse(fPath);
-        }
-
         public static void MoveToPosition(this RecyclerView recyclerView, int position)
         {
             if (position < 0)
@@ -28,10 +22,9 @@ namespace Steepshot.Utils
         public static string GetEnumDescription(this System.Enum value)
         {
             var fi = value.GetType().GetField(value.ToString());
-            var attributes =
-                (EnumMemberAttribute[])fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-            if (attributes != null && attributes.Length > 0)
-                return attributes[0].Value;
+            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            if (attributes.Length > 0)
+                return ((EnumMemberAttribute)attributes[0]).Value;
             return value.ToString();
         }
     }

@@ -23,6 +23,16 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:background="@android:color/transparent" />
+  <ImageButton
+        android:id="@+id/gps_button"
+        android:src="@drawable/ic_gps_n"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:visibility="gone"
+        android:layout_marginTop="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent" />
     <ImageButton
         android:id="@+id/shot_button"
         android:src="@drawable/ic_shot"
