@@ -195,7 +195,9 @@
 		"Greeting":"Hello! It's time to find the coolest content for you!",
 		"EmptyFeedHint":"Click the button below to find interesting people and publications",
 		"GoToBrowse":"Let's go",
-	
+        "Posts5minLimit":"You can publish no more than one post in 5 minutes",
+        "PostsDayLimit":"You have reached per-day limit for 15 posts",
+
         "<h1>Server Error (500)</h1>": "(500) Server Error",
         "<h1>Not Found</h1>":"Not Found",
         

@@ -28,7 +28,7 @@ namespace Steepshot.iOS.Views
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
         private const int _photoSize = 900; //kb
-        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+        private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private LocalTagsCollectionViewSource _collectionviewSource;
@@ -517,14 +517,18 @@ namespace Steepshot.iOS.Views
                     if (spamCheck.Result.WaitingTime > 0)
                     {
                         _isSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        ShowAlert(LocalizationKeys.Posts5minLimit);
                     }
                 }
                 else
                 {
                     // more than 15 posts
-                    // TODO: need to show alert
                     _isSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
             }
             finally
@@ -535,6 +539,7 @@ namespace Steepshot.iOS.Views
 
         private async void StartPostTimer(int startSeconds)
         {
+            string timeFormat;
             var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
             postPhotoButton.UserInteractionEnabled = false;
 
@@ -542,7 +547,8 @@ namespace Steepshot.iOS.Views
             {
                 UIView.PerformWithoutAnimation(() =>
                 {
-                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString("mm\\:ss"), UIControlState.Normal);
+                    timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString(timeFormat), UIControlState.Normal); 
                     postPhotoButton.LayoutIfNeeded();
                 });
                 await Task.Delay(1000);
