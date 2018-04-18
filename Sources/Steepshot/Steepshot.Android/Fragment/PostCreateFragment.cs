@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Android.Graphics;
+using Android.Media;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using Java.IO;
 using Steepshot.Adapter;
+using Steepshot.Core;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
@@ -16,8 +19,6 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
-using Path = System.IO.Path;
-using Uri = Android.Net.Uri;
 
 namespace Steepshot.Fragment
 {
@@ -63,7 +64,7 @@ namespace Steepshot.Fragment
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
 
-                _preview.SetImageUri(Uri.Parse(_media[0].Path), _media[0].Parameters);
+                _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
 
                 _preview.Touch += PreviewOnTouch;
                 _ratioBtn.Click += RatioBtnOnClick;
@@ -100,23 +101,21 @@ namespace Steepshot.Fragment
                 return;
             }
 
-
             _model.Media = new MediaModel[_media.Count];
             if (_media.Count == 1)
-                _media[0].PreparedBitmap = _preview.Crop(Uri.Parse(_media[0].Path), _preview.DrawableImageParameters);
-            for (int i = 0; i < _media.Count; i++)
-            {
-                var bitmapStream = new MemoryStream();
-                _media[i].PreparedBitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, bitmapStream);
+                _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
-                var operationResult = await UploadPhoto(bitmapStream);
+            for (var i = 0; i < _media.Count; i++)
+            {
+                var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
+                var operationResult = await UploadPhoto(temp);
                 if (!IsInitialized)
                     return;
 
                 if (!operationResult.IsSuccess)
                 {
                     //((SplashActivity)Activity).Cache.EvictAll();
-                    operationResult = await UploadPhoto(bitmapStream);
+                    operationResult = await UploadPhoto(temp);
 
                     if (!IsInitialized)
                         return;
@@ -132,19 +131,63 @@ namespace Steepshot.Fragment
                 _model.Media[i] = operationResult.Result;
             }
 
-
             _model.Title = _title.Text;
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryCreateOrEditPost();
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto(Stream photoStream)
+        private string SaveFileTemp(Bitmap btmp, string pathToExif)
         {
+            FileStream stream = null;
             try
             {
-                photoStream.Position = 0;
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, photoStream, MimeTypeHelper.Jpeg);
+                var directory = new Java.IO.File(Context.CacheDir, Constants.Steepshot);
+                if (!directory.Exists())
+                    directory.Mkdirs();
+
+                var path = $"{directory}/{Guid.NewGuid()}.jpeg";
+                stream = new System.IO.FileStream(path, System.IO.FileMode.Create);
+                btmp.Compress(Bitmap.CompressFormat.Jpeg, 99, stream);
+
+                var options = new Dictionary<string, string>
+                {
+                    {ExifInterface.TagImageLength, btmp.Height.ToString()},
+                    {ExifInterface.TagImageWidth, btmp.Width.ToString()},
+                    {ExifInterface.TagOrientation, "1"},
+                };
+
+                BitmapUtils.CopyExif(pathToExif, path, options);
+
+                return path;
+            }
+            catch (Exception ex)
+            {
+                _postButton.Enabled = false;
+                Context.ShowAlert(LocalizationKeys.UnexpectedError);
+                AppSettings.Reporter.SendCrash(ex);
+            }
+            finally
+            {
+                btmp?.Recycle();
+                btmp?.Dispose();
+                stream?.Dispose();
+            }
+            return string.Empty;
+        }
+
+        private async Task<OperationResult<MediaModel>> UploadPhoto(string path)
+        {
+            System.IO.Stream stream = null;
+            FileInputStream fileInputStream = null;
+
+            try
+            {
+                var photo = new Java.IO.File(path);
+                fileInputStream = new FileInputStream(photo);
+                stream = new StreamConverter(fileInputStream, null);
+
+                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
                 var serverResult = await Presenter.TryUploadMedia(request);
                 return serverResult;
             }
@@ -155,9 +198,25 @@ namespace Steepshot.Fragment
             }
             finally
             {
-                photoStream?.Close();
-                photoStream?.Dispose();
+                fileInputStream?.Close(); // ??? change order?
+                stream?.Flush();
+                fileInputStream?.Dispose();
+                stream?.Dispose();
             }
+        }
+
+        public override void OnDetach()
+        {
+            CleanCash();
+            base.OnDetach();
+        }
+
+        private void CleanCash()
+        {
+            var files = Context.CacheDir.ListFiles();
+            foreach (var file in files)
+                if (file.Path.EndsWith(Constants.Steepshot))
+                    file.Delete();
         }
     }
 }
