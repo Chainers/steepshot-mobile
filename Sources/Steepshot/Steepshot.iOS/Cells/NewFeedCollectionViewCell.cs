@@ -239,7 +239,7 @@ namespace Steepshot.iOS.Cells
                 {
                     if (obj.State == UIGestureRecognizerState.Began)
                     {
-                        if (!BasePostPresenter.IsEnableVote)
+                        if (!BasePostPresenter.IsEnableVote || BaseViewController.IsSliderOpen)
                             return;
                         BaseViewController.IsSliderOpen = true;
                         _sliderView.Show(_contentView);
