@@ -109,8 +109,6 @@ namespace Steepshot.Fragment
         {
             if (!IsInitialized)
                 return;
-            if (!_isFollowers && _username == BasePresenter.User.Login)
-                _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, Presenter.FindAll(u => u.HasFollowed).Count);
             Activity.RunOnUiThread(() => { _adapter.NotifyDataSetChanged(); });
             BasePresenter.ProfileUpdateType = ProfileUpdateType.OnlyInfo;
         }
