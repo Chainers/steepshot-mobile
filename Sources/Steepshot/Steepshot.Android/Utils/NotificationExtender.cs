@@ -20,7 +20,7 @@ namespace Steepshot.Utils
         {
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
-            var type = p0.Payload.AdditionalData.GetString("type");
+            var type = p0.Payload.AdditionalData?.GetString("type");
             if (!type.Equals(PushSubscription.User.GetEnumDescription()) || BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User))
                 DisplayNotification(overrideSettings);
             return false;

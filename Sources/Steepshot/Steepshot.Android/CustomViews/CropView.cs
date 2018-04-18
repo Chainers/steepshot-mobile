@@ -40,7 +40,7 @@ namespace Steepshot.CustomViews
         {
             get
             {
-                _drawableImageParameters.CropBounds = Grid.Bounds;
+                _drawableImageParameters.CropBounds = new Rect(Grid.Bounds);
                 return _drawableImageParameters;
             }
             private set => _drawableImageParameters = value;
@@ -61,7 +61,9 @@ namespace Steepshot.CustomViews
                         _targetHeight = Grid.Bounds.Height();
                 }
                 else
-                    _currentScaleType = ScaleType.KeepScale;
+                {
+                    _currentScaleType = ScaleType.Ratio;
+                }
             }
         }
         public bool IsBitmapReady { get; private set; }
@@ -217,7 +219,7 @@ namespace Steepshot.CustomViews
                 _maximumRatio = MaximumRatio;
                 _defaultRatio = DefaultRatio;
             }
-            DrawableImageParameters = _reloadImage ? new ImageParameters() : _drawableImageParameters ?? new ImageParameters();
+            DrawableImageParameters = new ImageParameters();
             _currentScaleType = scaleType;
         }
         public void SetImageUri(Uri uri, ImageParameters parameters)
@@ -487,18 +489,22 @@ namespace Steepshot.CustomViews
             {
                 using (var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileInputStream.FD, MaxImageSize, MaxImageSize))
                 {
-                    parameters.CropBounds.Offset(-(int)parameters.PreviewBounds.Left, -(int)parameters.PreviewBounds.Top);
-                    var scaleMultiplier = Math.Max(parameters.Scale, 1 / parameters.Scale);
-                    var left = (int)Math.Round(parameters.CropBounds.Left / scaleMultiplier);
-                    var top = (int)Math.Round(parameters.CropBounds.Top / scaleMultiplier);
-                    var width = (int)Math.Round(parameters.CropBounds.Width() / scaleMultiplier);
-                    var height = (int)Math.Round(parameters.CropBounds.Height() / scaleMultiplier);
                     var matrix = new Matrix();
                     matrix.PostRotate(parameters.Rotation);
                     matrix.PostScale(parameters.Scale, parameters.Scale);
-                    var croppedBitmap = Bitmap.CreateBitmap(bitmap, left, top, width, height, matrix, false);
-                    bitmap.Recycle();
-                    return croppedBitmap;
+                    using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false))
+                    {
+                        var cropParameters = new Rect(parameters.CropBounds);
+                        cropParameters.Offset(-(int)Math.Round(parameters.PreviewBounds.Left), -(int)Math.Round(parameters.PreviewBounds.Top));
+                        var left = Math.Max((int)Math.Round((double)cropParameters.Left), 0);
+                        var top = Math.Max((int)Math.Round((double)cropParameters.Top), 0);
+                        var width = Math.Min((int)Math.Round((double)cropParameters.Width()), rotatedBitmap.Width);
+                        var height = Math.Min((int)Math.Round((double)cropParameters.Height()), rotatedBitmap.Height);
+                        var croppedBitmap = Bitmap.CreateBitmap(rotatedBitmap, left, top, width, height);
+                        bitmap.Recycle();
+                        rotatedBitmap.Recycle();
+                        return croppedBitmap;
+                    }
                 }
             }
         }
