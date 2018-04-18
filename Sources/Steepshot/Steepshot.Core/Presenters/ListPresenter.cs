@@ -7,7 +7,6 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Net;
-using Steepshot.Core.Models.Common;
 using System.Linq;
 
 namespace Steepshot.Core.Presenters
@@ -27,7 +26,7 @@ namespace Steepshot.Core.Presenters
         public virtual int Count => Items.Count;
 
 
-        public T this[int position]
+        public virtual T this[int position]
         {
             get
             {
@@ -194,7 +193,7 @@ namespace Steepshot.Core.Presenters
                 return Items.IndexOf(item);
         }
 
-        public int FindIndex(Predicate<T> match)
+        public virtual int FindIndex(Predicate<T> match)
         {
             lock (Items)
                 return Items.FindIndex(match);
@@ -206,13 +205,7 @@ namespace Steepshot.Core.Presenters
                 return Items.FirstOrDefault(match);
         }
 
-        public IEnumerable<T> Where(Func<T, bool> predicate)
-        {
-            lock (Items)
-                return Items.Where(predicate);
-        }
-
-        internal void NotifySourceChanged(string sender, bool isChanged)
+        internal virtual void NotifySourceChanged(string sender, bool isChanged)
         {
             SourceChanged?.Invoke(new Status(sender, isChanged));
         }

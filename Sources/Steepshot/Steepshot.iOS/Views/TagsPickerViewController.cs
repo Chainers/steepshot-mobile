@@ -16,7 +16,7 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsPickerViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
+    public partial class TagsPickerViewController : BaseViewControllerWithPresenter<TagPickerPresenter>
     {
         private LocalTagsCollectionViewSource _viewSource;
         private LocalTagsCollectionViewFlowDelegate _flowDelegate;
@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
 
-            _tableSource = new TagsTableViewSource(_presenter, _viewSource.LocalTags);
+            _tableSource = new TagsTableViewSource(_presenter);//, _viewSource.LocalTags);
             _tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
@@ -111,7 +111,7 @@ namespace Steepshot.iOS.Views
 
         protected override void CreatePresenter()
         {
-            _presenter = new PostDescriptionPresenter();
+            _presenter = new TagPickerPresenter(_viewSource.LocalTags);
             _presenter.SourceChanged += SourceChanged;
         }
 
@@ -137,15 +137,14 @@ namespace Steepshot.iOS.Views
 
         private void TableCellAction(ActionType type, string tag)
         {
-            AddLocalTag(tag);
             var index = _tableSource.IndexOfTag(tag);
-            _tableSource.UpdateFilteredTags();
-            tagsTableView.DeleteRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
+            AddLocalTag(tag, false);
+            if(index != null)
+                tagsTableView.DeleteRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
         }
 
         private void SourceChanged(Status obj)
         {
-            _tableSource.UpdateFilteredTags();
             tagsTableView.ReloadData();
         }
 
@@ -184,12 +183,15 @@ namespace Steepshot.iOS.Views
             _timer.Change(500, Timeout.Infinite);
         }
 
-        private void AddLocalTag(string txt)
+        private void AddLocalTag(string txt, bool shouldClear = true)
         {
             if (!_viewSource.LocalTags.Contains(txt) && !string.IsNullOrWhiteSpace(txt))
             {
-                tagField.Text = string.Empty;
-                tagField.ClearButton.Hidden = true;
+                if (shouldClear)
+                {
+                    tagField.Text = string.Empty;
+                    tagField.ClearButton.Hidden = true;
+                }
                 _viewSource.LocalTags.Add(txt);
                 SetCollectionHeight();
                 _flowDelegate.GenerateVariables();
@@ -203,9 +205,9 @@ namespace Steepshot.iOS.Views
             _viewSource.LocalTags.Remove(tag);
             _flowDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
-            _tableSource.UpdateFilteredTags();
-            var index = _tableSource.IndexOfTag(tag, true);
-            tagsTableView.InsertRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
+            var index = _tableSource.IndexOfTag(tag);
+            if(index != null)
+                tagsTableView.InsertRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
             SetCollectionHeight();
         }
     }
