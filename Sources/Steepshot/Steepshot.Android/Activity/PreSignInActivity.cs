@@ -19,14 +19,14 @@ namespace Steepshot.Activity
     public sealed class PreSignInActivity : BaseActivityWithPresenter<PreSignInPresenter>
     {
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [CheeseBind.BindView(Resource.Id.input_username)] private EditText _username;
-        [CheeseBind.BindView(Resource.Id.pre_sign_in_btn)] private Button _preSignInBtn;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [BindView(Resource.Id.input_username)] private EditText _username;
+        [BindView(Resource.Id.pre_sign_in_btn)] private Button _preSignInBtn;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.root_layout)] private RelativeLayout _rootLayout;
 #pragma warning restore 0649
 
 

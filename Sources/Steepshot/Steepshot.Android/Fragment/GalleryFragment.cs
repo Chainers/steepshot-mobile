@@ -155,10 +155,10 @@ namespace Steepshot.Fragment
                 _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();
                 foreach (var galleryMediaModel in _pickedItems)
                 {
-                    var croppedBitmap = _preview.Crop(Uri.Parse(galleryMediaModel.Path), galleryMediaModel.Parameters);
+                    var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
                     galleryMediaModel.PreparedBitmap = croppedBitmap;
                 }
-                ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(_pickedItems));
+                ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else
             {
@@ -225,7 +225,7 @@ namespace Steepshot.Fragment
             }
 
             model.Selected = true;
-            _preview.SetImageUri(Uri.Parse(model.Path), model.Parameters);
+            _preview.SetImagePath(model.Path, model.Parameters);
         }
 
         private async void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
@@ -278,7 +278,7 @@ namespace Steepshot.Fragment
                     var galleryModel = new GalleryMediaModel
                     {
                         Id = keyValuePair.Key,
-                        Path = "file://" + keyValuePair.Value,
+                        Path = keyValuePair.Value,
                         Thumbnail = thumbnails.ContainsKey(keyValuePair.Key) ? thumbnails[keyValuePair.Key] : string.Empty,
                         Selected = false
                     };

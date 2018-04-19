@@ -54,27 +54,27 @@ namespace Steepshot.Fragment
         private Button _currentButton;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.search_list)] private RecyclerView _postsList;
-        [CheeseBind.BindView(Resource.Id.search_view)] private TextView _searchView;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
-        [CheeseBind.BindView(Resource.Id.trending_button)] private Button _trendingButton;
-        [CheeseBind.BindView(Resource.Id.hot_button)] private Button _hotButton;
-        [CheeseBind.BindView(Resource.Id.new_button)] private Button _newButton;
-        [CheeseBind.BindView(Resource.Id.clear_button)] private Button _clearButton;
-        [CheeseBind.BindView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
-        [CheeseBind.BindView(Resource.Id.login)] private Button _loginButton;
-        [CheeseBind.BindView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
-        [CheeseBind.BindView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
-        [CheeseBind.BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
-        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _panelSwitcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
-        [CheeseBind.BindView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
-        [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [BindView(Resource.Id.search_list)] private RecyclerView _postsList;
+        [BindView(Resource.Id.search_view)] private TextView _searchView;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _spinner;
+        [BindView(Resource.Id.trending_button)] private Button _trendingButton;
+        [BindView(Resource.Id.hot_button)] private Button _hotButton;
+        [BindView(Resource.Id.new_button)] private Button _newButton;
+        [BindView(Resource.Id.clear_button)] private Button _clearButton;
+        [BindView(Resource.Id.btn_layout_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.refresher)] private SwipeRefreshLayout _refresher;
+        [BindView(Resource.Id.login)] private Button _loginButton;
+        [BindView(Resource.Id.search_type)] private RelativeLayout _searchTypeLayout;
+        [BindView(Resource.Id.toolbar)] private RelativeLayout _toolbarLayout;
+        [BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _panelSwitcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.search_toolbar)] private RelativeLayout _searchToolbarLayout;
+        [BindView(Resource.Id.tag_toolbar)] private RelativeLayout _tagToolbarLayout;
+        [BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
 #pragma warning restore 0649
 
         private string CustomTag

@@ -13,9 +13,6 @@ namespace Steepshot.iOS.Cells
 	partial class LocalTagCollectionViewCell
 	{
 		[Outlet]
-		UIKit.UILabel hashTag { get; set; }
-
-		[Outlet]
 		UIKit.UIView rootView { get; set; }
 
 		[Outlet]
@@ -31,11 +28,6 @@ namespace Steepshot.iOS.Cells
 			if (tagText != null) {
 				tagText.Dispose ();
 				tagText = null;
-			}
-
-			if (hashTag != null) {
-				hashTag.Dispose ();
-				hashTag = null;
 			}
 		}
 	}

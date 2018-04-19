@@ -38,17 +38,17 @@ namespace Steepshot.Fragment
         private FollowersAdapter _usersSearchAdapter;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.categories)] private RecyclerView _categories;
-        [CheeseBind.BindView(Resource.Id.users)] private RecyclerView _users;
-        [CheeseBind.BindView(Resource.Id.search_view)] private EditText _searchView;
-        [CheeseBind.BindView(Resource.Id.people_loading_spinner)] private ProgressBar _peopleSpinner;
-        [CheeseBind.BindView(Resource.Id.tag_loading_spinner)] private ProgressBar _tagSpinner;
-        [CheeseBind.BindView(Resource.Id.tags_button)] private Button _tagsButton;
-        [CheeseBind.BindView(Resource.Id.people_button)] private Button _peopleButton;
-        [CheeseBind.BindView(Resource.Id.clear_button)] private Button _clearButton;
-        [CheeseBind.BindView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
-        [CheeseBind.BindView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
-        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [BindView(Resource.Id.categories)] private RecyclerView _categories;
+        [BindView(Resource.Id.users)] private RecyclerView _users;
+        [BindView(Resource.Id.search_view)] private EditText _searchView;
+        [BindView(Resource.Id.people_loading_spinner)] private ProgressBar _peopleSpinner;
+        [BindView(Resource.Id.tag_loading_spinner)] private ProgressBar _tagSpinner;
+        [BindView(Resource.Id.tags_button)] private Button _tagsButton;
+        [BindView(Resource.Id.people_button)] private Button _peopleButton;
+        [BindView(Resource.Id.clear_button)] private Button _clearButton;
+        [BindView(Resource.Id.tags_layout)] private RelativeLayout _tagsLayout;
+        [BindView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
+        [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

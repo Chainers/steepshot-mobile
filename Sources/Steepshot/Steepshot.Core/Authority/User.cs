@@ -68,12 +68,12 @@ namespace Steepshot.Core.Authority
         }
 
         public HashSet<string> PostBlackList => UserInfo.PostBlackList;
-
         public List<PushSubscription> PushSubscriptions
         {
             get => UserInfo.PushSubscriptions;
             set => UserInfo.PushSubscriptions = value;
         }
+
         public List<string> WatchedUsers => UserInfo.WatchedUsers;
         public string PushesPlayerId
         {

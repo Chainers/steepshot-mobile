@@ -47,7 +47,7 @@ namespace Steepshot.Activity
                             {
                                 Path = BitmapUtils.GetRealPathFromURI(uri, this)
                             };
-                            CurrentHostFragment = HostFragment.NewInstance(new PostEditFragment(galleryModel));
+                            CurrentHostFragment = HostFragment.NewInstance(new PostCreateFragment(galleryModel));
                             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
                             fragmentTransaction.Commit();
                         }

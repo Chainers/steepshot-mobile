@@ -32,17 +32,17 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.feed_list)] private RecyclerView _feedList;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
-        [CheeseBind.BindView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
-        [CheeseBind.BindView(Resource.Id.logo)] private ImageView _logo;
-        [CheeseBind.BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
-        [CheeseBind.BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
-        [CheeseBind.BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
-        [CheeseBind.BindView(Resource.Id.feed_container)] private RelativeLayout _feedContainer;
-        [CheeseBind.BindView(Resource.Id.browse_button)] private Button _browseButton;
-        [CheeseBind.BindView(Resource.Id.main_message)] private TextView _mainMessage;
-        [CheeseBind.BindView(Resource.Id.hint_message)] private TextView _hintMessage;
+        [BindView(Resource.Id.feed_list)] private RecyclerView _feedList;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _bar;
+        [BindView(Resource.Id.feed_refresher)] private SwipeRefreshLayout _refresher;
+        [BindView(Resource.Id.logo)] private ImageView _logo;
+        [BindView(Resource.Id.app_bar)] private AppBarLayout _toolbar;
+        [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
+        [BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [BindView(Resource.Id.feed_container)] private RelativeLayout _feedContainer;
+        [BindView(Resource.Id.browse_button)] private Button _browseButton;
+        [BindView(Resource.Id.main_message)] private TextView _mainMessage;
+        [BindView(Resource.Id.hint_message)] private TextView _hintMessage;
 #pragma warning restore 0649
 
 

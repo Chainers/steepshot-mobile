@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PhotoPreviewViewController">
             <connections>
-                <outlet property="photoView" destination="aw2-Ox-UaG" id="ZwO-cC-6WE"/>
+                <outlet property="cropBackgroundView" destination="pIz-TH-bAF" id="N1Z-WW-gtQ"/>
+                <outlet property="multiSelect" destination="ZX2-xv-CS8" id="SlY-gW-4Fb"/>
+                <outlet property="photoCollection" destination="5EM-QE-kdf" id="2Ge-yM-TP0"/>
+                <outlet property="resize" destination="LWN-wr-Pj7" id="zVx-Ah-tf4"/>
                 <outlet property="rotate" destination="oXE-wc-bSX" id="APn-eC-CAV"/>
                 <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
             </connections>
@@ -21,26 +25,67 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aw2-Ox-UaG">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pIz-TH-bAF">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="375"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="pIz-TH-bAF" secondAttribute="height" multiplier="1:1" id="4O1-U9-yTe"/>
+                    </constraints>
+                </view>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="5EM-QE-kdf">
+                    <rect key="frame" x="0.0" y="375" width="375" height="292"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="9Nz-tW-x66">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                </collectionView>
                 <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_rotate.png" translatesAutoresizingMaskIntoConstraints="NO" id="oXE-wc-bSX">
-                    <rect key="frame" x="167.5" y="313" width="40" height="40"/>
+                    <rect key="frame" x="70" y="320" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="Eah-qB-Ach"/>
+                        <constraint firstAttribute="height" constant="40" id="duQ-8U-9lB"/>
+                    </constraints>
+                </imageView>
+                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_resize.png" translatesAutoresizingMaskIntoConstraints="NO" id="LWN-wr-Pj7">
+                    <rect key="frame" x="15" y="320" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="0Z4-KX-a5Y"/>
+                        <constraint firstAttribute="height" constant="40" id="7ly-8R-faR"/>
+                    </constraints>
+                </imageView>
+                <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_multiselect.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZX2-xv-CS8">
+                    <rect key="frame" x="320" y="320" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="giw-ta-bru"/>
+                        <constraint firstAttribute="height" constant="40" id="vDr-sC-REp"/>
+                    </constraints>
                 </imageView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="aw2-Ox-UaG" secondAttribute="bottom" id="5BT-Zc-sCb"/>
-                <constraint firstItem="oXE-wc-bSX" firstAttribute="centerX" secondItem="aw2-Ox-UaG" secondAttribute="centerX" id="be9-oY-DLn"/>
-                <constraint firstItem="aw2-Ox-UaG" firstAttribute="top" secondItem="2" secondAttribute="top" id="dbV-M6-yh1"/>
-                <constraint firstItem="aw2-Ox-UaG" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="hAN-D2-XKd"/>
-                <constraint firstItem="oXE-wc-bSX" firstAttribute="centerY" secondItem="aw2-Ox-UaG" secondAttribute="centerY" id="qtM-xb-kab"/>
-                <constraint firstAttribute="trailing" secondItem="aw2-Ox-UaG" secondAttribute="trailing" id="wBl-wV-YrO"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="LWN-wr-Pj7" secondAttribute="bottom" constant="15" id="0ks-qP-zJM"/>
+                <constraint firstItem="oXE-wc-bSX" firstAttribute="leading" secondItem="LWN-wr-Pj7" secondAttribute="trailing" constant="15" id="7vN-KZ-uP1"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="pIz-TH-bAF" secondAttribute="bottom" id="9gW-r6-CXq"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="D6H-wp-Xfb"/>
+                <constraint firstAttribute="trailing" secondItem="5EM-QE-kdf" secondAttribute="trailing" id="PB4-mr-GPs"/>
+                <constraint firstItem="pIz-TH-bAF" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="S2n-DW-yDy"/>
+                <constraint firstAttribute="bottom" secondItem="5EM-QE-kdf" secondAttribute="bottom" id="eZx-CR-Sde"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="ZX2-xv-CS8" secondAttribute="bottom" constant="15" id="ixb-H3-iWx"/>
+                <constraint firstAttribute="trailing" secondItem="ZX2-xv-CS8" secondAttribute="trailing" constant="15" id="q8t-Up-bQh"/>
+                <constraint firstItem="LWN-wr-Pj7" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="15" id="r2T-xD-tVE"/>
+                <constraint firstAttribute="trailing" secondItem="pIz-TH-bAF" secondAttribute="trailing" id="sUc-lx-fNK"/>
+                <constraint firstItem="5EM-QE-kdf" firstAttribute="top" secondItem="oXE-wc-bSX" secondAttribute="bottom" constant="15" id="vgc-du-1Lw"/>
+                <constraint firstItem="pIz-TH-bAF" firstAttribute="top" secondItem="2" secondAttribute="top" id="xyW-OE-V8c"/>
             </constraints>
             <point key="canvasLocation" x="24.5" y="51.5"/>
         </view>
     </objects>
     <resources>
+        <image name="ic_multiselect.png" width="40" height="40"/>
+        <image name="ic_resize.png" width="40" height="40"/>
         <image name="ic_rotate.png" width="40" height="40"/>
     </resources>
 </document>

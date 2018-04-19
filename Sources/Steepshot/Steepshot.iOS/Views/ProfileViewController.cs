@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using CoreGraphics;
 using FFImageLoading;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -37,6 +39,9 @@ namespace Steepshot.iOS.Views
         private UINavigationController _navController;
         private UIBarButtonItem switchButton;
         private bool _userDataLoaded;
+        private UIView powerPopup;
+        private UILabel powerText;
+        private bool isPowerOpen;
 
         public override void ViewDidLoad()
         {
@@ -98,8 +103,33 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
+            if(Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
+                SetVotePowerView();
             GetUserInfo();
             GetUserPosts();
+        }
+
+        private void SetVotePowerView()
+        {
+            powerPopup = new UIView();
+            powerPopup.Frame = new CGRect(0, -NavigationController.NavigationBar.Frame.Bottom, UIScreen.MainScreen.Bounds.Width, NavigationController.NavigationBar.Frame.Bottom);
+
+            var heart = new UIImageView();
+            heart.Image = UIImage.FromBundle("ic_white_heart");
+            powerPopup.AddSubview(heart);
+
+            powerText = new UILabel();
+            powerText.TextColor = UIColor.White;
+            powerText.Font = Constants.Semibold14;
+            powerPopup.AddSubview(powerText);
+
+            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            powerText.AutoAlignAxis(ALAxis.Horizontal, heart);
+            powerText.AutoPinEdge(ALEdge.Left, ALEdge.Right, heart, 10f);
+            Constants.CreateGradient(powerPopup, 0);
+
+            NavigationController.View.AddSubview(powerPopup);
         }
 
         private void SetBackButton()
@@ -177,6 +207,28 @@ namespace Steepshot.iOS.Views
                 var myViewController = new FollowViewController(FriendsType.Followers, _userData);
                 NavigationController.PushViewController(myViewController, true);
             };
+
+            var avatarTap = new UITapGestureRecognizer(() =>
+            {
+                if (isPowerOpen || Username != BasePresenter.User.Login)
+                    return;
+
+                UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
+                 {
+                     isPowerOpen = true;
+                     powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, 0), powerPopup.Frame.Size);
+                 }, () =>
+                 {
+                     UIView.Animate(0.2f, 2f, UIViewAnimationOptions.CurveEaseIn, () =>
+                     {
+                         powerPopup.Frame = new CGRect(new CGPoint(powerPopup.Frame.X, -NavigationController.NavigationBar.Frame.Bottom), powerPopup.Frame.Size);
+                     }, () =>
+                     {
+                         isPowerOpen = false;
+                     });
+                 });
+            });
+            _profileHeader.Avatar.AddGestureRecognizer(avatarTap);
         }
 
         public override void ViewWillAppear(bool animated)
@@ -264,8 +316,10 @@ namespace Steepshot.iOS.Views
             await GetUserPosts(true);
         }
 
-        private async Task GetUserInfo()
+        public async Task<UserProfileResponse> GetUserInfo()
         {
+            if (errorMessage == null)
+                return _userData;
             _userDataLoaded = false;
             errorMessage.Hidden = true;
             try
@@ -276,6 +330,14 @@ namespace Steepshot.iOS.Views
                 if (error == null)
                 {
                     _userData = _presenter.UserProfileResponse;
+
+                    if (Username == BasePresenter.User.Login)
+                        _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
+                    else
+                        _profileHeader.PowerFrame.ChangePercents(0);
+
+                    if (powerText != null)
+                        powerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _userData.VotingPower);
 
                     if (string.IsNullOrEmpty(_userData.Name))
                         _profileHeader.Username.Hidden = true;
@@ -299,6 +361,8 @@ namespace Steepshot.iOS.Views
                     if (!string.IsNullOrEmpty(_userData.ProfileImage))
                         ImageService.Instance.LoadUrl(_userData.ProfileImage, TimeSpan.FromDays(30))
                                              .FadeAnimation(false, false, 0)
+                                             .LoadingPlaceholder("ic_noavatar.png")
+                                             .ErrorPlaceholder("ic_noavatar.png")
                                              .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
                                              .Into(_profileHeader.Avatar);
                     else
@@ -360,11 +424,12 @@ namespace Steepshot.iOS.Views
 
                         _profileHeader.View.Frame = new CGRect(0, -size.Height, UIScreen.MainScreen.Bounds.Width, size.Height);
                         collectionView.ContentInset = new UIEdgeInsets(size.Height, 0, 0, 0);
-                        if(collectionView.Hidden)
+                        if (collectionView.Hidden)
                             collectionView.ContentOffset = new CGPoint(0, -size.Height);
                         collectionView.Hidden = false;
                     }
                 }
+                return _userData;
             }
             catch (Exception ex)
             {
@@ -376,6 +441,7 @@ namespace Steepshot.iOS.Views
                 _userDataLoaded = true;
                 loading.StopAnimating();
             }
+            return _userData;
         }
 
         private void GoToSettings(object sender, EventArgs e)
@@ -457,6 +523,8 @@ namespace Steepshot.iOS.Views
                 return;
 
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private void Flagged(Post post)
@@ -502,6 +570,8 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private async Task Follow()

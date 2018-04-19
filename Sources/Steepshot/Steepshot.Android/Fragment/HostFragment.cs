@@ -48,7 +48,7 @@ namespace Steepshot.Fragment
             {
                 var appLink = activity.Intent.GetStringExtra(BaseActivity.AppLinkingExtra);
                 if (!string.IsNullOrEmpty(appLink))
-                    activity.OpenUri(Uri.Parse(appLink));
+                    activity.OpenUri(appLink);
                 activity.Intent.RemoveExtra(BaseActivity.AppLinkingExtra);
             }
         }

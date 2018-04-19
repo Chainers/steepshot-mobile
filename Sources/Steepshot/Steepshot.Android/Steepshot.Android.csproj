@@ -66,6 +66,8 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Fragment\PostCreateFragment.cs" />
+    <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Utils\NotificationExtender.cs" />
     <Compile Include="Adapter\GalleryGridAdapter.cs" />
     <Compile Include="Adapter\GalleryHorizontalAdapter.cs" />
@@ -152,9 +154,7 @@
     <AndroidAsset Include="Assets\Config.txt.template" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
-    <None Include="Properties\AndroidManifest.xml">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
     <AndroidResource Include="Resources\layout\lyt_auto_test.axml" />
     <AndroidResource Include="Resources\layout\lyt_old_camera.axml" />
@@ -222,15 +222,9 @@
     <AndroidResource Include="Resources\layout\lyt_gallery_top.axml" />
     <AndroidResource Include="Resources\layout\lyt_empty_feed.axml" />
     <AndroidResource Include="Resources\layout\lyt_alert.axml" />
-    <AndroidResource Include="Resources\layout\lyt_single_post.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_notifications_settings.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
-    <AndroidResource Include="Resources\layout\lyt_profile_popup.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_single_post.axml" />
+    <AndroidResource Include="Resources\layout\lyt_notifications_settings.axml" />
+    <AndroidResource Include="Resources\layout\lyt_profile_popup.axml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splash.xml" />
@@ -269,14 +263,10 @@
     <AndroidResource Include="Resources\layout\lyt_followers.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_profile.axml" />
     <AndroidResource Include="Resources\layout\lyt_fragment_take_photo.axml" />
-    <AndroidResource Include="Resources\layout\lyt_post_description.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_post_description.axml" />
     <AndroidResource Include="Resources\layout\lyt_profile_header.axml" />
     <AndroidResource Include="Resources\layout\lyt_search.axml" />
-    <AndroidResource Include="Resources\layout\lyt_settings.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\lyt_settings.axml" />
     <AndroidResource Include="Resources\layout\lyt_sign_in.axml" />
     <AndroidResource Include="Resources\layout\lyt_tab_host.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_new_like_selected.png" />
@@ -332,9 +322,7 @@
     <AndroidResource Include="Resources\drawable-mdpi\ic_back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_back_arrow.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_back_arrow.png" />
-    <AndroidResource Include="Resources\layout\top_panel.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
+    <AndroidResource Include="Resources\layout\top_panel.axml" />
     <AndroidResource Include="Resources\layout\loading_item.axml" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_search_small.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_search_small.png" />
@@ -349,17 +337,17 @@
     <Reference Include="AndroidFlowLayout, Version=1.9.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\AndroidFlowLayout.1.9.0.1\lib\monoandroid403\AndroidFlowLayout.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac, Version=4.6.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.6.2\lib\netstandard1.1\Autofac.dll</HintPath>
+    <Reference Include="Autofac, Version=4.7.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.7.0\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Cheeseknife, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MisterJimson.Cheeseknife.1.1.0\lib\MonoAndroid10\Cheeseknife.dll</HintPath>
     </Reference>
     <Reference Include="Com.OneSignal, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.1.0-beta\lib\MonoAndroid10\Com.OneSignal.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.1.1\lib\MonoAndroid10\Com.OneSignal.dll</HintPath>
     </Reference>
     <Reference Include="Com.OneSignal.Abstractions, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.1.0-beta\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.1.1\lib\MonoAndroid10\Com.OneSignal.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
@@ -382,7 +370,7 @@
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\netstandard2.0\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OneSignal.Android.Binding, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Com.OneSignal.3.1.0-beta\lib\MonoAndroid10\OneSignal.Android.Binding.dll</HintPath>
+      <HintPath>..\packages\Com.OneSignal.3.1.1\lib\MonoAndroid10\OneSignal.Android.Binding.dll</HintPath>
     </Reference>
     <Reference Include="Refractored.Controls.CircleImageView, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Refractored.Controls.CircleImageView.1.0.1\lib\MonoAndroid10\Refractored.Controls.CircleImageView.dll</HintPath>
@@ -514,14 +502,14 @@
     <Reference Include="Xamarin.GooglePlayServices.Tasks, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Xamarin.GooglePlayServices.Tasks.60.1142.1\lib\MonoAndroid80\Xamarin.GooglePlayServices.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="ZXing.Net.Mobile.Core, Version=2.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZXing.Net.Mobile.2.3.2\lib\MonoAndroid403\ZXing.Net.Mobile.Core.dll</HintPath>
+    <Reference Include="ZXing.Net.Mobile.Core, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\MonoAndroid71\ZXing.Net.Mobile.Core.dll</HintPath>
     </Reference>
-    <Reference Include="zxing.portable, Version=2.3.2.0, Culture=neutral, PublicKeyToken=830ae994e36ac27d, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZXing.Net.Mobile.2.3.2\lib\MonoAndroid403\zxing.portable.dll</HintPath>
+    <Reference Include="zxing.portable, Version=0.16.2.0, Culture=neutral, PublicKeyToken=830ae994e36ac27d, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\MonoAndroid71\zxing.portable.dll</HintPath>
     </Reference>
-    <Reference Include="ZXingNetMobile, Version=2.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ZXing.Net.Mobile.2.3.2\lib\MonoAndroid403\ZXingNetMobile.dll</HintPath>
+    <Reference Include="ZXingNetMobile, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZXing.Net.Mobile.2.4.1\lib\MonoAndroid71\ZXingNetMobile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -560,6 +548,55 @@
     <AndroidResource Include="Resources\mipmap-xhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launch_icon.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launch_icon.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_notification.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_notification.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_notification.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
+    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
+    <AndroidResource Include="Resources\drawable\postpager_dot_selector.xml" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gallery.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
+    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps.png" />
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gps_n.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\OpenSans-Regular.ttf" />
@@ -569,73 +606,14 @@
     <AndroidAsset Include="Assets\DebugWif.txt" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
     <AndroidResource Include="Resources\drawable\first_post_button.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\steem_login_border.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_logo_main.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\welcome_screen_background.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_welcome_background.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_flag.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_background.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\Config.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_more_black.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_nsfw_mask.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_nsfw_mask.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_nsfw_mask.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\transparent_rounded_border.xml" />
@@ -651,96 +629,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\popup_separator.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_notification.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_notification.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_notification.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_multiselect_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_next_arrow.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\tags_rounded_border.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ratio.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\postpager_dot_selector.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_gallery.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_close_tag.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-mdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_ilustration.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\settings_separator.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.2\build\Xamarin.Build.Download.targets')" />
