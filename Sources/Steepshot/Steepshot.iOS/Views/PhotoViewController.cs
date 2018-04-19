@@ -19,6 +19,7 @@ namespace Steepshot.iOS.Views
         private AVCaptureDeviceInput _captureDeviceInput;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
+        private AVCaptureFlashMode _flashMode;
         private UIDeviceOrientation currentOrientation;
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
@@ -31,8 +32,11 @@ namespace Steepshot.iOS.Views
 
             photoButton.TouchDown += CapturePhoto;
             closeButton.TouchDown += GoBack;
+            flashButton.TouchDown += OnFlashTouch;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             enableCameraAccess.TouchDown += EnableCameraAccess;
+
+            _flashMode = AVCaptureFlashMode.Auto;
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
@@ -152,6 +156,25 @@ namespace Steepshot.iOS.Views
             NavigationController.PopViewController(true);
         }
 
+        private void OnFlashTouch(object sender, EventArgs e)
+        {
+            switch (_flashMode)
+            {
+                case AVCaptureFlashMode.Auto:
+                    _flashMode = AVCaptureFlashMode.On;
+                    flashButton.SetImage(UIImage.FromBundle("ic_flashOn"), UIControlState.Normal);
+                    break;
+                case AVCaptureFlashMode.On:
+                    _flashMode = AVCaptureFlashMode.Off;
+                    flashButton.SetImage(UIImage.FromBundle("ic_flashOff"), UIControlState.Normal);
+                    break;
+                default:
+                    _flashMode = AVCaptureFlashMode.Auto;
+                    flashButton.SetImage(UIImage.FromBundle("ic_flash"), UIControlState.Normal);
+                    break;
+            }
+        }
+
         private void CapturePhoto(object sender, EventArgs e)
         {
             ToogleButtons(false);
@@ -172,7 +195,7 @@ namespace Steepshot.iOS.Views
             var settings = AVCapturePhotoSettings.FromFormat(settingsDictionary);
 
             if (_capturePhotoOutput.SupportedFlashModes.Length > 0 && _captureDeviceInput.Device.Position == AVCaptureDevicePosition.Back)
-                settings.FlashMode = AVCaptureFlashMode.Auto;
+                settings.FlashMode = _flashMode;
 
             orientationOnPhoto = currentOrientation;
             _capturePhotoOutput.CapturePhoto(settings, this);
