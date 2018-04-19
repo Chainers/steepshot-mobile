@@ -246,12 +246,14 @@ namespace Steepshot.Core.Presenters
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            lock (Items)
+                return Items.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            lock (Items)
+                Items.CopyTo(array, arrayIndex);
         }
 
         public bool Remove(T item)
@@ -261,7 +263,8 @@ namespace Steepshot.Core.Presenters
 
         public int IndexOf(T item)
         {
-            throw new NotImplementedException();
+            lock (Items)
+                return Items.IndexOf(item);
         }
 
         public void Insert(int index, T item)
