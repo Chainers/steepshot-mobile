@@ -224,9 +224,7 @@ namespace Steepshot.Core.Presenters
         public IEnumerator<T> GetEnumerator()
         {
             lock (Items)
-            {
                 return Items.GetEnumerator();
-            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -258,7 +256,7 @@ namespace Steepshot.Core.Presenters
 
         public bool Remove(T item)
         {
-            throw new ReadOnlyException();
+            throw new ReadOnlyException("Collection is closed for outside changes.");
         }
 
         public int IndexOf(T item)
@@ -269,12 +267,12 @@ namespace Steepshot.Core.Presenters
 
         public void Insert(int index, T item)
         {
-            throw new ReadOnlyException();
+            throw new ReadOnlyException("Collection is closed for outside changes.");
         }
 
         public void RemoveAt(int index)
         {
-            throw new ReadOnlyException();
+            throw new ReadOnlyException("Collection is closed for outside changes.");
         }
 
         #endregion
