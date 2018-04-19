@@ -258,7 +258,7 @@ namespace Steepshot.Core.HttpClient
             var parameters = new Dictionary<string, object>();
             AddOffsetLimitParameters(parameters, model.Offset, model.Limit);
             parameters.Add("query", model.Query);
-            var endpoint = $"{GatewayVersion.V1}/categories/search";
+            var endpoint = $"{GatewayVersion.V1P1}/categories/search";
             var result = await Gateway.Get<ListResponse<SearchResult>>(endpoint, parameters, token);
 
             if (result.IsSuccess)
