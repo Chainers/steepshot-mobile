@@ -57,6 +57,7 @@ namespace Steepshot.iOS.CustomViews
 
             UITapGestureRecognizer likeslidertap = new UITapGestureRecognizer(() =>
             {
+                BasePresenter.User.VotePower = (short)Slider.Value;
                 LikeTap?.Invoke();
                 Close();
             });

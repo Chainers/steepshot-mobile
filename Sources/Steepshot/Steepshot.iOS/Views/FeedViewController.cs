@@ -99,6 +99,8 @@ namespace Steepshot.iOS.Views
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
 
+            sliderCollection.DelaysContentTouches = false;
+
             _sliderCollectionViewSource.CellAction += CellAction;
             _sliderCollectionViewSource.TagAction += TagAction;
             sliderCollection.Delegate = _sliderGridDelegate;

@@ -500,7 +500,6 @@ namespace Steepshot.iOS.Cells
             if (!BasePostPresenter.IsEnableVote)
                 return;
             
-            _currentPost.VotePower = (short)_sliderView.Slider.Value;
             CellAction?.Invoke(ActionType.Like, _currentPost);
         }
 
