@@ -54,6 +54,10 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(Clear), true);
         }
 
+        public void Reverse()
+        {
+            Items.Reverse();
+        }
 
         protected async Task<ErrorBase> RunAsSingleTask(Func<CancellationToken, Task<ErrorBase>> func, bool cancelPrevTask = true)
         {

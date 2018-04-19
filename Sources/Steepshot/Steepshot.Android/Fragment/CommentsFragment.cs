@@ -199,7 +199,8 @@ namespace Steepshot.Fragment
                         return;
 
                     Context.ShowAlert(error, ToastLength.Short);
-                    _comments.MoveToPosition(Presenter.Count);
+                    Presenter.Reverse();
+                    _comments.MoveToPosition(0);
 
                     _counter++;
 
@@ -227,7 +228,7 @@ namespace Steepshot.Fragment
                 return;
 
             Context.ShowAlert(error, ToastLength.Short);
-
+            Presenter.Reverse();
             _spinner.Visibility = ViewStates.Gone;
         }
 

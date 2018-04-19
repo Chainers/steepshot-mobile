@@ -180,6 +180,7 @@ namespace Steepshot.iOS.Views
             if (error is CanceledError)
                 return;
             ShowAlert(error);
+            _presenter.Reverse();
             progressBar.StopAnimating();
         }
 
@@ -237,8 +238,11 @@ namespace Steepshot.iOS.Views
                 var error = await _presenter.TryLoadNextComments(Post);
 
                 ShowAlert(error);
+
+                _presenter.Reverse();
+
                 if (_presenter.Count > 0)
-                    commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
+                    commentsTable.ScrollToRow(NSIndexPath.FromRowSection(0, 0), UITableViewScrollPosition.Bottom, true);
                 Post.Children++;
             }
             else
