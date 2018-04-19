@@ -68,7 +68,7 @@ namespace Steepshot.iOS.Views
             });
             View.AddGestureRecognizer(tap);
 
-            _tableSource = new TagsTableViewSource(_presenter);//, _viewSource.LocalTags);
+            _tableSource = new TagsTableViewSource(_presenter);
             _tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;

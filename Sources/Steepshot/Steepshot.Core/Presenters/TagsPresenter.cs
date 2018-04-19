@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Steepshot.Core.Presenters
 
             if (response.IsSuccess)
             {
-                var tags = response.Result.Results;
+                var tags = response.Result.Results.Distinct(new SearchResultComparer()).ToList();
                 if (tags.Count > 0)
                 {
                     lock (Items)
@@ -77,6 +78,19 @@ namespace Steepshot.Core.Presenters
                 NotifySourceChanged(nameof(TryGetTopTags), true);
             }
             return response.Error;
+        }
+    }
+
+    public class SearchResultComparer : IEqualityComparer<SearchResult>
+    {
+        public bool Equals(SearchResult x, SearchResult y)
+        {
+            return x.Name == y.Name;
+        }
+
+        public int GetHashCode(SearchResult obj)
+        {
+            return 0;
         }
     }
 }
