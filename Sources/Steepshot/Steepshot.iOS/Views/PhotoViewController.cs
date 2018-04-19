@@ -19,7 +19,7 @@ namespace Steepshot.iOS.Views
         private AVCaptureDeviceInput _captureDeviceInput;
         private AVCapturePhotoOutput _capturePhotoOutput;
         private AVCaptureVideoPreviewLayer _videoPreviewLayer;
-        private AVCaptureFlashMode _flashMode;
+        private AVCaptureFlashMode _flashMode = AVCaptureFlashMode.Auto;
         private UIDeviceOrientation currentOrientation;
         private UIDeviceOrientation orientationOnPhoto;
         private NSObject _orientationChangeEventToken;
@@ -35,8 +35,6 @@ namespace Steepshot.iOS.Views
             flashButton.TouchDown += OnFlashTouch;
             swapCameraButton.TouchDown += SwitchCameraButtonTapped;
             enableCameraAccess.TouchDown += EnableCameraAccess;
-
-            _flashMode = AVCaptureFlashMode.Auto;
 
             var galleryTap = new UITapGestureRecognizer(GalleryTap);
             galleryButton.AddGestureRecognizer(galleryTap);
