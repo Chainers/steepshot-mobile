@@ -3,12 +3,11 @@ using System.Threading;
 using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
-using Steepshot.Core.Presenters;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.CustomViews;
-using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
@@ -16,13 +15,15 @@ using Constants = Steepshot.iOS.Helpers.Constants;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsPickerViewController : BaseViewControllerWithPresenter<TagPickerPresenter>
+    public partial class TagsPickerViewController : BaseViewController
     {
-        private LocalTagsCollectionViewSource _viewSource;
-        private LocalTagsCollectionViewFlowDelegate _flowDelegate;
-        private Timer _timer;
+        private readonly LocalTagsCollectionViewSource _viewSource;
+        private readonly LocalTagsCollectionViewFlowDelegate _flowDelegate;
+        private readonly Timer _timer;
         private string _previousQuery;
-        private SearchTextField tagField;
+        private SearchTextField _tagField;
+        private TagPickerFacade _tagPickerFacade;
+
 
         public TagsPickerViewController(LocalTagsCollectionViewSource viewSource, LocalTagsCollectionViewFlowDelegate flowDelegate)
         {
@@ -34,6 +35,9 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
+
+            _tagPickerFacade = new TagPickerFacade(_viewSource.LocalTags);
+            _tagPickerFacade.SourceChanged += SourceChanged;
 
             NavigationController.NavigationBar.SetBackgroundImage(new UIImage(), UIBarMetrics.Default);
             NavigationController.NavigationBar.ShadowImage = new UIImage();
@@ -51,31 +55,31 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            tagField = new SearchTextField(() => { AddLocalTag(tagField.Text); });
-            View.AddSubview(tagField);
+            _tagField = new SearchTextField(() => { AddLocalTag(_tagField.Text); });
+            View.AddSubview(_tagField);
 
-            tagField.ClearButtonTapped += () => { OnTimer(null); };
-            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
-            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
-            tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
-            tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagField, 20f);
-            tagField.AutoSetDimension(ALDimension.Height, 40f);
-            tagField.BecomeFirstResponder();
+            _tagField.ClearButtonTapped += () => { OnTimer(null); };
+            _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 10f);
+            _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+            _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
+            tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _tagField, 20f);
+            _tagField.AutoSetDimension(ALDimension.Height, 40f);
+            _tagField.BecomeFirstResponder();
 
             var tap = new UITapGestureRecognizer(() =>
             {
-                tagField.ResignFirstResponder();
+                _tagField.ResignFirstResponder();
             });
             View.AddGestureRecognizer(tap);
 
-            _tableSource = new TagsTableViewSource(_presenter);
+            _tableSource = new TagsTableViewSource(_tagPickerFacade);
             _tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
             tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
             tagsTableView.RowHeight = 70f;
-            tagField.EditingChanged += EditingDidChange;
+            _tagField.EditingChanged += EditingDidChange;
 
             SetBackButton();
             SetCollectionHeight();
@@ -109,12 +113,6 @@ namespace Steepshot.iOS.Views
                 collectionViewHeight.Constant = 0;
         }
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new TagPickerPresenter(_viewSource.LocalTags);
-            _presenter.SourceChanged += SourceChanged;
-        }
-
         private void SetBackButton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
@@ -139,7 +137,7 @@ namespace Steepshot.iOS.Views
         {
             var index = _tableSource.IndexOfTag(tag);
             AddLocalTag(tag, false);
-            if(index != null)
+            if (index != null)
                 tagsTableView.DeleteRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
         }
 
@@ -158,17 +156,17 @@ namespace Steepshot.iOS.Views
 
         private async void SearchTextChanged()
         {
-            if (_previousQuery == tagField.Text || tagField.Text.Length == 1)
+            if (_previousQuery == _tagField.Text || _tagField.Text.Length == 1)
                 return;
 
-            _previousQuery = tagField.Text;
-            _presenter.Clear();
+            _previousQuery = _tagField.Text;
+            _tagPickerFacade.Clear();
 
             ErrorBase error = null;
-            if (tagField.Text.Length == 0)
-                error = await _presenter.TryGetTopTags();
-            else if (tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(tagField.Text);
+            if (_tagField.Text.Length == 0)
+                error = await _tagPickerFacade.TryGetTopTags();
+            else if (_tagField.Text.Length > 1)
+                error = await _tagPickerFacade.TryLoadNext(_tagField.Text);
 
             ShowAlert(error);
         }
@@ -179,7 +177,7 @@ namespace Steepshot.iOS.Views
 
             if (txt.EndsWith(" "))
                 AddLocalTag(txt);
-            tagField.ClearButton.Hidden = tagField.Text.Length == 0;
+            _tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
             _timer.Change(500, Timeout.Infinite);
         }
 
@@ -189,8 +187,8 @@ namespace Steepshot.iOS.Views
             {
                 if (shouldClear)
                 {
-                    tagField.Text = string.Empty;
-                    tagField.ClearButton.Hidden = true;
+                    _tagField.Text = string.Empty;
+                    _tagField.ClearButton.Hidden = true;
                 }
                 _viewSource.LocalTags.Add(txt);
                 SetCollectionHeight();
@@ -206,7 +204,7 @@ namespace Steepshot.iOS.Views
             _flowDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
             var index = _tableSource.IndexOfTag(tag);
-            if(index != null)
+            if (index != null)
                 tagsTableView.InsertRows(new NSIndexPath[] { index }, UITableViewRowAnimation.Right);
             SetCollectionHeight();
         }

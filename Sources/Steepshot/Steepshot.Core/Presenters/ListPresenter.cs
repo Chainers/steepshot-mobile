@@ -7,11 +7,12 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using System.Net;
-using System.Linq;
+using System.Collections;
+using System.Data;
 
 namespace Steepshot.Core.Presenters
 {
-    public abstract class ListPresenter<T> : BasePresenter
+    public abstract class ListPresenter<T> : BasePresenter, IList<T>
     {
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
@@ -23,36 +24,34 @@ namespace Steepshot.Core.Presenters
         public bool IsLastReaded { get; protected set; }
         public event Action<Status> SourceChanged;
 
-        public virtual int Count => Items.Count;
-
-
-        public virtual T this[int position]
-        {
-            get
-            {
-                lock (Items)
-                {
-                    if (position > -1 && position < Items.Count)
-                        return Items[position];
-                }
-                return default(T);
-            }
-        }
-
         protected ListPresenter()
         {
             _sync = new object();
             Items = new List<T>();
         }
 
-        public virtual void Clear(bool isNotify = true)
+
+        public virtual void Clear(bool isNotify)
         {
+            bool isEmpty;
             lock (Items)
+            {
+                isEmpty = Items.Count == 0;
                 Items.Clear();
+            }
             IsLastReaded = false;
             OffsetUrl = string.Empty;
             if (isNotify)
-                NotifySourceChanged(nameof(Clear), true);
+                NotifySourceChanged(nameof(Clear), isEmpty);
+        }
+
+        public void LoadCancel()
+        {
+            lock (_sync)
+            {
+                _singleTaskCancellationTokenSource?.Cancel();
+                _singleTaskCancellationTokenSource = null;
+            }
         }
 
 
@@ -178,36 +177,103 @@ namespace Steepshot.Core.Presenters
             }
         }
 
-        public void LoadCancel()
-        {
-            lock (_sync)
-            {
-                _singleTaskCancellationTokenSource?.Cancel();
-                _singleTaskCancellationTokenSource = null;
-            }
-        }
 
-        public int IndexOf(T item)
-        {
-            lock (Items)
-                return Items.IndexOf(item);
-        }
-
-        public virtual int FindIndex(Predicate<T> match)
+        public int FindIndex(Predicate<T> match)
         {
             lock (Items)
                 return Items.FindIndex(match);
-        }
-
-        public T FirstOrDefault(Func<T, bool> match)
-        {
-            lock (Items)
-                return Items.FirstOrDefault(match);
         }
 
         internal virtual void NotifySourceChanged(string sender, bool isChanged)
         {
             SourceChanged?.Invoke(new Status(sender, isChanged));
         }
+
+        #region IList<T>
+
+        public bool IsReadOnly => true;
+
+
+        public T this[int position]
+        {
+            get
+            {
+                lock (Items)
+                {
+                    if (position > -1 && position < Items.Count)
+                        return Items[position];
+                }
+                return default(T);
+            }
+            set { throw new ReadOnlyException("Collection is closed for outside changes."); }
+        }
+
+        public int Count
+        {
+            get
+            {
+                if (Items != null)
+                {
+                    lock (Items)
+                        return Items.Count;
+                }
+                return 0;
+            }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            lock (Items)
+            {
+                return Items.GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void Add(T item)
+        {
+            throw new ReadOnlyException("Collection is closed for outside changes.");
+        }
+
+        public void Clear()
+        {
+            Clear(true);
+        }
+
+        public bool Contains(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(T item)
+        {
+            throw new ReadOnlyException();
+        }
+
+        public int IndexOf(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, T item)
+        {
+            throw new ReadOnlyException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new ReadOnlyException();
+        }
+
+        #endregion
     }
 }

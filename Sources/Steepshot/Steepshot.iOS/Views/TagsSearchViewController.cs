@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using Foundation;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -15,11 +16,13 @@ using Steepshot.Core.Localization;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class TagsSearchViewController : BaseViewControllerWithPresenter<SearchPresenter>
+    public partial class TagsSearchViewController : BaseViewController
     {
         private Timer _timer;
         private FollowTableViewSource _userTableSource;
         private SearchType _searchType = SearchType.Tags;
+        private SearchFacade _searchFacade;
+
 
         private readonly Dictionary<SearchType, string> _prevQuery = new Dictionary<SearchType, string>
         {
@@ -27,18 +30,16 @@ namespace Steepshot.iOS.Views
             {SearchType.Tags, null}
         };
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new SearchPresenter();
-        }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
+            _searchFacade = new SearchFacade();
+
             _timer = new Timer(OnTimer);
 
-            _userTableSource = new FollowTableViewSource(_presenter.UserFriendPresenter, usersTable);
+            _userTableSource = new FollowTableViewSource(_searchFacade.UserFriendPresenter, usersTable);
             _userTableSource.ScrolledToBottom += GetItems;
             _userTableSource.CellAction += CellAction;
             usersTable.Source = _userTableSource;
@@ -47,7 +48,7 @@ namespace Steepshot.iOS.Views
             usersTable.RegisterNibForCellReuse(UINib.FromName(nameof(FollowViewCell), NSBundle.MainBundle), nameof(FollowViewCell));
             usersTable.RegisterClassForCellReuse(typeof(LoaderCell), nameof(LoaderCell));
 
-            var _tagsSource = new TagsTableViewSource(_presenter.TagsPresenter);
+            var _tagsSource = new TagsTableViewSource(_searchFacade.TagsPresenter);
             _tagsSource.CellAction += CellAction;
             tagsTable.Source = _tagsSource;
             tagsTable.LayoutMargins = UIEdgeInsets.Zero;
@@ -55,8 +56,8 @@ namespace Steepshot.iOS.Views
             tagsTable.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
             tagsTable.RowHeight = 65f;
 
-            _presenter.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
-            _presenter.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
+            _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
+            _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
 
             searchTextField.BecomeFirstResponder();
             searchTextField.Font = Helpers.Constants.Regular14;
@@ -148,7 +149,7 @@ namespace Steepshot.iOS.Views
         {
             if (user != null)
             {
-                var errors = await _presenter.UserFriendPresenter.TryFollow(user);
+                var errors = await _searchFacade.UserFriendPresenter.TryFollow(user);
                 ShowAlert(errors);
             }
         }
@@ -175,9 +176,9 @@ namespace Steepshot.iOS.Views
                     return;
 
                 if (_searchType == SearchType.People)
-                    _presenter.UserFriendPresenter.Clear();
+                    _searchFacade.UserFriendPresenter.Clear();
                 else
-                    _presenter.TagsPresenter.Clear();
+                    _searchFacade.TagsPresenter.Clear();
 
                 _userTableSource.ClearPosition();
 
@@ -193,7 +194,7 @@ namespace Steepshot.iOS.Views
                 activityIndicator.StartAnimating();
             }
 
-            var error = await _presenter.TrySearchCategories(searchTextField.Text, _searchType);
+            var error = await _searchFacade.TrySearchCategories(searchTextField.Text, _searchType);
             CheckQueryIsEmpty();
 
             ShowAlert(error);
@@ -206,9 +207,9 @@ namespace Steepshot.iOS.Views
                 return;
 
             if (_searchType == SearchType.People)
-                noTagsLabel.Hidden = _presenter.UserFriendPresenter.Count > 0;
+                noTagsLabel.Hidden = _searchFacade.UserFriendPresenter.Count > 0;
             else
-                noTagsLabel.Hidden = _presenter.TagsPresenter.Count > 0;
+                noTagsLabel.Hidden = _searchFacade.TagsPresenter.Count > 0;
         }
 
         private void SwitchSearchType()
