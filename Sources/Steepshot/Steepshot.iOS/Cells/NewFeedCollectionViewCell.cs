@@ -136,6 +136,7 @@ namespace Steepshot.iOS.Cells
 
             _pageControl = new UIPageControl();
             _pageControl.Hidden = true;
+            _pageControl.UserInteractionEnabled = false;
             contentView.AddSubview(_pageControl);
 
             _likes = new UILabel();
