@@ -633,6 +633,7 @@ namespace Steepshot.iOS.Views
                     {
                         Title = title,
                         Description = description,
+                        Device = "iOS",
 
                         Tags = tags.ToArray(),
                         Media = photoUploadResponse.Select(r => r.Result).ToArray(),
