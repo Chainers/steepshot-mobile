@@ -8,12 +8,10 @@ namespace Steepshot.Utils
     {
         public Action ModelChanged;
 
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         public string Path { get; set; }
-
-        public string Thumbnail { get; set; }
-
+        
         private bool _selected;
 
         public bool Selected

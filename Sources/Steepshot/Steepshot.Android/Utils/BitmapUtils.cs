@@ -123,7 +123,7 @@ namespace Steepshot.Utils
         {
             var proj = new[] { MediaStore.Images.ImageColumns.Data };
             var cursor = context.ContentResolver.Query(contentUri, proj, null, null, null);
-            int index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
+            var index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
             cursor.MoveToFirst();
 
             return cursor.GetString(index);
@@ -154,6 +154,63 @@ namespace Steepshot.Utils
             }
 
             destination.SaveAttributes();
+        }
+
+        public static Dictionary<long, string> GetMediaThumbnailsPaths(ContentResolver contentResolver, ThumbnailKind kind)
+        {
+            string[] columns =
+            {
+                MediaStore.Images.Thumbnails.Data,
+                MediaStore.Images.Thumbnails.ImageId
+            };
+
+            var cursor = contentResolver.Query(MediaStore.Images.Thumbnails.ExternalContentUri, columns, $"{MediaStore.Images.Thumbnails.Kind} = {(int)kind}", null, null);
+
+            var dic = new Dictionary<long, string>();
+            var dublicate = new HashSet<long>();
+
+            if (cursor != null)
+            {
+                var count = cursor.Count;
+                var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.Data);
+                var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.ImageId);
+
+                for (var i = 0; i < count; i++)
+                {
+                    cursor.MoveToPosition(i);
+                    var key = cursor.GetLong(idColumnIndex);
+                    var value = cursor.GetString(dataColumnIndex);
+                    if (dic.ContainsKey(key))
+                    {
+                        dublicate.Add(key);
+                        var file = new Java.IO.File(dic[key]);
+                        if (file.Exists())
+                            file.Delete();
+
+                        file = new Java.IO.File(value);
+                        if (file.Exists())
+                            file.Delete();
+
+                        contentResolver.Delete(MediaStore.Images.Thumbnails.ExternalContentUri, MediaStore.Images.Thumbnails.ImageId + "=?", new[] { key.ToString() });
+
+                        dic.Remove(key);
+                    }
+                    else if (dublicate.Contains(key))
+                    {
+                        var file = new Java.IO.File(value);
+                        if (file.Exists())
+                            file.Delete();
+                    }
+                    else
+                    {
+                        dic.Add(key, value);
+                    }
+                }
+
+                cursor.Close();
+
+            }
+            return dic;
         }
     }
 }
