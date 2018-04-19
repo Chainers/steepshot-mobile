@@ -355,6 +355,17 @@ namespace Steepshot.iOS.Views
 
         private void RotateTap()
         {
+            UIView.Animate(0.15, () =>
+            {
+                rotate.Alpha = 0.6f;
+            }, () =>
+            {
+                UIView.Animate(0.15, () =>
+                {
+                    rotate.Alpha = 1f;
+                }, null);
+            });
+
             imageView.Image = ImageHelper.RotateImage(imageView.Image, UIImageOrientation.Right);
             SaveOrientation();
             AdjustImageViewSize(imageView.Image);

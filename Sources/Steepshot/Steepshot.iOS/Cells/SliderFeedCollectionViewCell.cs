@@ -481,7 +481,10 @@ namespace Steepshot.iOS.Cells
             {
                 _like.Layer.RemoveAllAnimations();
                 _like.LayoutIfNeeded();
-                _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                if (BasePostPresenter.IsEnableVote)
+                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                else
+                    _like.Image = UIImage.FromBundle("ic_like_disabled");
                 _like.UserInteractionEnabled = true;
             }
 
