@@ -92,7 +92,7 @@ namespace Steepshot.iOS.Views
             pickedPhoto = photo;
             previousPhotoLocalIdentifier = source.CurrentlySelectedItem?.Item2?.LocalIdentifier;
             var pickOptions = new PHImageRequestOptions() { ResizeMode = PHImageRequestOptionsResizeMode.Exact, DeliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat };
-            var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), 1200, 1200);
+            var imageSize = ImageHelper.CalculateInSampleSize(new CGSize(photo.Item2.PixelWidth, photo.Item2.PixelHeight), Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
             _m.RequestImageForAsset(photo.Item2, imageSize, PHImageContentMode.Default, pickOptions, PickImage);
         }
 
@@ -166,8 +166,8 @@ namespace Steepshot.iOS.Views
 
         private void AdjustImageViewSize(UIImage img)
         {
-            var w = img.Size.Width / 1200f * UIScreen.MainScreen.Bounds.Width;
-            var h = img.Size.Height / 1200f * UIScreen.MainScreen.Bounds.Width;
+            var w = img.Size.Width / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
+            var h = img.Size.Height / Core.Constants.PhotoMaxSize * UIScreen.MainScreen.Bounds.Width;
             originalImageSize = new CGSize(w, h);
 
             if (originalImageSize.Width < UIScreen.MainScreen.Bounds.Width && originalImageSize.Height < UIScreen.MainScreen.Bounds.Width)
@@ -480,7 +480,7 @@ namespace Steepshot.iOS.Views
                 cropped = UIImage.FromImage(cr);
             }
 
-            var newSize = ImageHelper.CalculateInSampleSize(cropped.Size, 1200, 1200, true);
+            var newSize = ImageHelper.CalculateInSampleSize(cropped.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize, true);
 
             UIGraphics.BeginImageContextWithOptions(newSize, false, 1);
             cropped.Draw(new CGRect(new CGPoint(0, 0), newSize));

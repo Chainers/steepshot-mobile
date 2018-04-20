@@ -8,6 +8,7 @@ using CoreMedia;
 using Foundation;
 using Photos;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
@@ -206,6 +207,12 @@ namespace Steepshot.iOS.Views
             {
                 var jpegData = AVCapturePhotoOutput.GetJpegPhotoDataRepresentation(photoSampleBuffer, previewPhotoSampleBuffer);
                 var photo = UIImage.LoadFromData(jpegData);
+
+                var inSampleSize = ImageHelper.CalculateInSampleSize(photo.Size, Core.Constants.PhotoMaxSize, Core.Constants.PhotoMaxSize);
+                var deviceRatio = UIScreen.MainScreen.Bounds.Width / UIScreen.MainScreen.Bounds.Height;
+
+                var x = ((float)inSampleSize.Width - Core.Constants.PhotoMaxSize * (float)deviceRatio) / 2f;
+                photo = CropImage(photo, x, 0, Core.Constants.PhotoMaxSize * (float)deviceRatio, Core.Constants.PhotoMaxSize, inSampleSize);
                 GoToDescription(photo, orientationOnPhoto);
             }
             catch (Exception ex)
@@ -215,7 +222,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private UIImage CropImage(UIImage sourceImage, int cropX, int cropY, int width, int height)
+        private UIImage CropImage(UIImage sourceImage, float cropX, float cropY, float width, float height, CGSize inSampleSize)
         {
             var imgSize = sourceImage.Size;
             UIGraphics.BeginImageContext(new SizeF(width, height));
@@ -223,7 +230,7 @@ namespace Steepshot.iOS.Views
             var clippedRect = new RectangleF(0, 0, width, height);
             context.ClipToRect(clippedRect);
 
-            var drawRect = new CGRect(-cropX, -cropY, imgSize.Width, imgSize.Height);
+            var drawRect = new CGRect(-cropX, -cropY, inSampleSize.Width, inSampleSize.Height);
             sourceImage.Draw(drawRect);
             var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();

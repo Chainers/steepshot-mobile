@@ -111,7 +111,8 @@ namespace Steepshot.iOS.Views
                 photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
                 photoView.Layer.CornerRadius = 8;
                 photoView.ClipsToBounds = true;
-                photoView.Image = ImageAssets[0].Item2;
+                if (!_isFromCamera)
+                    photoView.Image = ImageAssets[0].Item2;
                 mainScroll.AddSubview(photoView);
 
                 photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
@@ -292,10 +293,7 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidAppear(animated);
             if (_isFromCamera)
-            {
-                photoView.Image = await NormalizeImage(ImageAssets[0].Item2);
                 RotatePhotoIfNeeded();
-            }
         }
 
         private void SetPlaceholder()
@@ -681,7 +679,7 @@ namespace Steepshot.iOS.Views
                 }
             });
         }
-
+        /*
         private async Task<UIImage> NormalizeImage(UIImage sourceImage)
         {
             return await Task.Run(() =>
@@ -697,12 +695,15 @@ namespace Steepshot.iOS.Views
 
                 return modifiedImage;
             });
-        }
+        }*/
 
         private void RotatePhotoIfNeeded()
         {
             if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
+            {
+                photoView.Image = ImageAssets[0].Item2;
                 return;
+            }
 
             UIImageOrientation orientation;
 
@@ -724,7 +725,11 @@ namespace Steepshot.iOS.Views
                     orientation = UIImageOrientation.Up;
                     break;
             }
-            photoView.Image = ImageHelper.RotateImage(photoView.Image, orientation);
+            {
+                photoView.Image = ImageHelper.RotateImage(ImageAssets[0].Item2, orientation);
+                ImageAssets.RemoveAt(0);
+                ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, photoView.Image));
+            }
         }
 
         private void ToggleAvailability(bool enabled)
