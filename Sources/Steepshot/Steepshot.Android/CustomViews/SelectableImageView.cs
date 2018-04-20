@@ -47,7 +47,7 @@ namespace Steepshot.CustomViews
                 canvas.DrawRect(0, 0, Width, Height, SelectionPaint);
             }
 
-            if (_model.SelectionPosition >= 0)
+            if (_model.MultySelect)
             {
                 SelectionPaint.SetStyle(Paint.Style.Fill);
                 var radius = BitmapUtils.DpToPixel(15, Context.Resources);

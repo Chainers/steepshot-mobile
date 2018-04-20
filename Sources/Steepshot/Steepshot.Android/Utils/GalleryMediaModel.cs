@@ -16,7 +16,7 @@ namespace Steepshot.Utils
         public string Path { get; set; }
 
         public string Bucket { get; set; }
-        
+
         public bool Selected
         {
             get => _selected;
@@ -27,7 +27,7 @@ namespace Steepshot.Utils
             }
         }
 
-        private int _selectionPosition = (int)GallerySelectionType.None;
+        private int _selectionPosition;
 
         public int SelectionPosition
         {
@@ -43,5 +43,6 @@ namespace Steepshot.Utils
 
         public Bitmap PreparedBitmap { get; set; }
 
+        public bool MultySelect { get; set; }
     }
 }

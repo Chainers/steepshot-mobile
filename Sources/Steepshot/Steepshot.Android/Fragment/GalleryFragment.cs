@@ -152,37 +152,57 @@ namespace Steepshot.Fragment
 
             foreach (var model in _gallery)
             {
-                var pos = _multySelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None;
-                if (model.SelectionPosition != pos)
-                    model.SelectionPosition = pos;
+                model.MultySelect = _multySelect;
+                model.SelectionPosition = 0;
             }
 
             GalleryMediaModel selectedItem = null;
             for (var i = 0; i < _pickedItems.Count; i++)
             {
-                if (_pickedItems[i].Selected) selectedItem = _pickedItems[i];
+                if (_pickedItems[i].Selected)
+                    selectedItem = _pickedItems[i];
+
                 _pickedItems[i].Parameters = null;
             }
 
             _pickedItems.Clear();
             _prevSelected = null;
-            OnItemSelected(selectedItem ?? _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase)));
+
+            if (selectedItem == null)
+            {
+                selectedItem = _buckets[0].Equals(_selectedBucket)
+                    ? _gallery.FirstOrDefault()
+                    : _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
+            }
+
+            OnItemSelected(selectedItem);
             _multiselectBtn.SetImageResource(_multySelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
+
+            _gridAdapter.NotifyDataSetChanged();
         }
 
         private void OnItemSelected(GalleryMediaModel model)
         {
-            if (_pickedItems.Count >= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
+            if (_multySelect && _pickedItems.Count >= MaxPhotosAllowed && !model.Selected)
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit);
                 return;
             }
-            var selected = _pickedItems.Find(x => x.Selected && x != model);
-            if (selected != null) selected.Selected = false;
+
+            for (int i = 0; i < _pickedItems.Count; i++)
+            {
+                var selected = _pickedItems[i];
+                if (selected.Selected && selected != model)
+                {
+                    selected.Selected = false;
+                }
+            }
+
             if (_multySelect)
             {
                 if (_prevSelected != null)
                     _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
+
                 _prevSelected = model;
 
                 if (!_pickedItems.Contains(model))
@@ -192,14 +212,31 @@ namespace Steepshot.Fragment
                 }
                 else if (model.Selected)
                 {
-                    _pickedItems.Remove(model);
-                    _pickedItems.ForEach(x => x.SelectionPosition = _pickedItems.IndexOf(x) + 1);
                     model.Parameters = null;
                     model.Selected = false;
-                    model.SelectionPosition = (int)GallerySelectionType.Multi;
+                    model.SelectionPosition = 0;
                     _prevSelected = null;
+                    _pickedItems.Remove(model);
+
+                    for (var index = 0; index < _pickedItems.Count; index++)
+                    {
+                        var x = _pickedItems[index];
+                        x.SelectionPosition = index + 1;
+                    }
+
+                    GalleryMediaModel selectedItem;
                     if (_pickedItems.Count > 0)
-                        OnItemSelected(_pickedItems.Last());
+                    {
+                        selectedItem = _pickedItems.Last();
+                    }
+                    else
+                    {
+                        selectedItem = _buckets[0].Equals(_selectedBucket)
+                            ? _gallery.FirstOrDefault()
+                            : _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    OnItemSelected(selectedItem);
                     return;
                 }
             }
