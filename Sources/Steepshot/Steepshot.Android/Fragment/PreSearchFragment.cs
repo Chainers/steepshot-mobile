@@ -14,7 +14,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
-using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -234,6 +233,7 @@ namespace Steepshot.Fragment
                 _tabSettings = BasePresenter.User.GetTabSettings(nameof(PreSearchFragment));
                 SwitchListAdapter(_tabSettings.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
+                _postsList.Touch += PostsListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -243,6 +243,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
                 _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
+                _postPager.Touch += PostsListOnTouch;
 
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
@@ -276,6 +277,12 @@ namespace Steepshot.Fragment
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }
+        }
+
+        private void PostsListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            ((View)sender)?.OnTouchEvent(touchEventArgs.Event);
+            TouchEvent?.Invoke(touchEventArgs);
         }
 
         public override void OnResume()

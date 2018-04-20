@@ -208,6 +208,7 @@ namespace Steepshot.Fragment
                 SwitchListAdapter(_tabSettings.IsGridView);
 
                 _postsList.AddOnScrollListener(_scrollListner);
+                _postsList.Touch += PostsListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -217,6 +218,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
                 _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
+                _postPager.Touch += PostsListOnTouch;
 
                 _refresher.Refresh += RefresherRefresh;
                 _settings.Click += OnSettingsClick;
@@ -260,6 +262,12 @@ namespace Steepshot.Fragment
                     _adapter.NotifyDataSetChanged();
                 }
             }
+        }
+
+        private void PostsListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            ((View)sender)?.OnTouchEvent(touchEventArgs.Event);
+            TouchEvent?.Invoke(touchEventArgs);
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)

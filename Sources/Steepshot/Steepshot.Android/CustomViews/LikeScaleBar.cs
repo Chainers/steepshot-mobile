@@ -13,11 +13,11 @@ namespace Steepshot.CustomViews
         private int _marksCount;
         private int _markRadius;
         private int MarksSpacing => (Width - PaddingLeft - PaddingRight) / (_marksCount - 1);
-        private int MarksBindingDelta => MarksSpacing / 5;
+        private int _stopDelta = 0;
         private Paint _tickMarkActive;
         private Paint TickMarkActive => _tickMarkActive ?? (_tickMarkActive = new Paint());
         private Paint _tickMarkInActive;
-        private Paint TickMarkInActive => _tickMarkInActive ?? (_tickMarkInActive = new Paint { Color = Resources.GetColor(Resource.Color.rgb245_245_245) });
+        private Paint TickMarkInActive => _tickMarkInActive ?? (_tickMarkInActive = new Paint { Color = Style.R245G245B245 });
         private ArgbEvaluator _argbEvaluator;
 
         public LikeScaleBar(Context context) : base(context)
@@ -45,13 +45,30 @@ namespace Steepshot.CustomViews
 
         private void OnProgressChanged(object sender, ProgressChangedEventArgs progressChangedEventArgs)
         {
+            int scaleWidth = Width - PaddingLeft - PaddingRight;
             for (int i = 0; i < _marksCount; i++)
             {
-                var offset = MarksSpacing * i + PaddingLeft;
-                if (Math.Abs(Width * Progress * 0.01 - offset) < MarksBindingDelta)
-                    SetProgress((int)Math.Round((offset - PaddingLeft) * 100 / (float)(Width - PaddingLeft - PaddingRight)), true);
+                int offset = MarksSpacing * i;
+                int offsetProgress = (int)Math.Round(offset * 100 / (float)scaleWidth);
+                int delta = Math.Abs(Progress - offsetProgress);
+                if (delta < 1 + _stopDelta)
+                {
+                    _stopDelta = 5;
+                    SetProgress(offsetProgress, true);
+                    break;
+                }
+                if (delta < Max / 2 / _marksCount && _stopDelta != 0)
+                {
+                    _stopDelta = 0;
+                    break;
+                }
             }
-            if (Progress < 1) SetProgress(1, true);
+
+            if (Progress < 1)
+            {
+                _stopDelta = 0;
+                SetProgress(1, true);
+            }
         }
 
         private void DrawTickMarks(Canvas canvas)
@@ -61,7 +78,7 @@ namespace Steepshot.CustomViews
                 var offset = MarksSpacing * i + PaddingLeft;
                 if (Width * Progress * 0.01 >= offset)
                 {
-                    var colorInt = (int)_argbEvaluator.Evaluate(offset / (float)(MarksSpacing * (_marksCount - 1)), Resources.GetColor(Resource.Color.rgb255_121_4).ToArgb(), Resources.GetColor(Resource.Color.rgb255_22_5).ToArgb());
+                    var colorInt = (int)_argbEvaluator.Evaluate(offset / (float)(MarksSpacing * (_marksCount - 1)), Style.R255G121B4.ToArgb(), Style.R255G22B5.ToArgb());
                     var hex = $"#{Integer.ToHexString(colorInt)}";
                     TickMarkActive.Color = Color.ParseColor(hex);
                     canvas.DrawCircle(offset, Height / 2, _markRadius, TickMarkActive);

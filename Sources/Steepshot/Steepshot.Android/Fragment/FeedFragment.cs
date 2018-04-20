@@ -96,6 +96,7 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = _postPagerAdapter;
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
+                _postPager.Touch += FeedListOnTouch;
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
@@ -218,24 +219,6 @@ namespace Steepshot.Fragment
         private void GoToBrowseButtonClick(object sender, EventArgs e)
         {
             ((RootActivity)Activity).SelectTab(1);
-        }
-
-        private void PhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-            StartActivity(intent);
-        }
-
-        private void FeedPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            OpenPost(post);
         }
 
         public void OpenPost(Post post)

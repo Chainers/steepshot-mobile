@@ -25,7 +25,6 @@ using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
-using Steepshot.Fragment;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -209,10 +208,18 @@ namespace Steepshot.Adapter
             BaseFragment.TouchEvent += TouchEvent;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (BaseFragment.TouchEvent != null)
+                BaseFragment.TouchEvent -= TouchEvent;
+            base.Dispose(disposing);
+        }
+
         private void TouchEvent(View.TouchEventArgs touchEventArgs)
         {
             if (_likeScaleContainer == null) return;
             _likeScaleContainer.Visibility = ViewStates.Gone;
+            _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
@@ -464,6 +471,8 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
+            BasePresenter.User.VotePower = (short)_likeScaleBar.Progress;
+
             if (Post.Flag)
                 _postAction?.Invoke(ActionType.Flag, Post);
             else
@@ -472,16 +481,18 @@ namespace Steepshot.Adapter
                 if (_likeScaleContainer.Visibility == ViewStates.Visible)
                 {
                     _likeScaleContainer.Visibility = ViewStates.Invisible;
+                    _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
                 }
             }
         }
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (Post.Vote || Post.Flag) return;
+            if (!BasePresenter.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag) return;
+            _likeScaleBar.Progress = BasePresenter.User.VotePower;
+            _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
             _likeScaleContainer.Visibility = ViewStates.Visible;
-            _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
         }
 
         private void LikeScaleBarOnProgressChanged(object sender, SeekBar.ProgressChangedEventArgs progressChangedEventArgs)
@@ -573,9 +584,18 @@ namespace Steepshot.Adapter
             {
                 if (post.Vote || !post.Flag)
                 {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_filled
-                        : Resource.Drawable.ic_new_like_selected);
+                    if (BasePostPresenter.IsEnableVote)
+                    {
+                        _likeOrFlag.SetImageResource(post.Vote
+                            ? Resource.Drawable.ic_new_like_filled
+                            : Resource.Drawable.ic_new_like_selected);
+                    }
+                    else
+                    {
+                        _likeOrFlag.SetImageResource(post.Vote
+                            ? Resource.Drawable.ic_new_like_disabled
+                            : Resource.Drawable.ic_new_like);
+                    }
                 }
                 else
                 {

@@ -173,6 +173,7 @@
         android:layout_marginRight="10dp"
         android:gravity="center_vertical"
         android:elevation="2dp"
+        android:clickable="true"
         android:background="@drawable/popup_background"
         android:visibility="gone">
         <TextView
