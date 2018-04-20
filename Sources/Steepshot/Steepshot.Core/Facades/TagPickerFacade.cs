@@ -16,6 +16,7 @@ namespace Steepshot.Core.Facades
         private readonly TagsPresenter _tagsPresenter = new TagsPresenter();
         private readonly ObservableCollection<string> _localTags;
         private List<string> _filteredTags = new List<string>();
+        public int Count => _filteredTags.Count;
 
         public string this[int position]
         {
@@ -36,7 +37,6 @@ namespace Steepshot.Core.Facades
         private void UpdateFilteredTags(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             _filteredTags = _tagsPresenter.Where(tag => !_localTags.Any(localTag => localTag.Equals(tag.Name))).Select(i => i.Name).ToList();
-            NotifySourceChanged(nameof(Clear), true);
         }
 
         public int IndexOf(string tag)

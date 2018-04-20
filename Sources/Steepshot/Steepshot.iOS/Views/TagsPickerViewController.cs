@@ -23,7 +23,7 @@ namespace Steepshot.iOS.Views
         private string _previousQuery;
         private SearchTextField _tagField;
         private TagPickerFacade _tagPickerFacade;
-
+        private TagsTableViewSource _tableSource;
 
         public TagsPickerViewController(LocalTagsCollectionViewSource viewSource, LocalTagsCollectionViewFlowDelegate flowDelegate)
         {
@@ -85,8 +85,6 @@ namespace Steepshot.iOS.Views
             SetCollectionHeight();
             SearchTextChanged();
         }
-
-        TagsTableViewSource _tableSource;
 
         protected override void KeyBoardUpNotification(NSNotification notification)
         {

@@ -42,7 +42,7 @@ namespace Steepshot.iOS.ViewSources
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return _presenter.Count;
+            return _presenter != null ? _presenter.Count : _tagPickerFacade.Count;
         }
 
         public NSIndexPath IndexOfTag(string tag)
