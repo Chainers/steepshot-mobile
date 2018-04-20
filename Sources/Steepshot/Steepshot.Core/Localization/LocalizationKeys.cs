@@ -142,6 +142,8 @@
         NotificationComment,
         NotificationPosting,
         WatchUser,
-        UnwatchUser
+        UnwatchUser,
+        Posts5minLimit,
+        PostsDayLimit
     }
 }
