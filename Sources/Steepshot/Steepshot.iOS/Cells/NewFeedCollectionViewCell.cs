@@ -136,6 +136,7 @@ namespace Steepshot.iOS.Cells
 
             _pageControl = new UIPageControl();
             _pageControl.Hidden = true;
+            _pageControl.UserInteractionEnabled = false;
             contentView.AddSubview(_pageControl);
 
             _likes = new UILabel();
@@ -464,7 +465,7 @@ namespace Steepshot.iOS.Cells
                 if (BasePostPresenter.IsEnableVote)
                     _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
                 else
-                    _like.Image = UIImage.FromBundle("ic_like_disabled");
+                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
                 _like.UserInteractionEnabled = true;
             }
 

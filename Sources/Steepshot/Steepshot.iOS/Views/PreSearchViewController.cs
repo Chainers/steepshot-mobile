@@ -8,7 +8,6 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -17,7 +16,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class PreSearchViewController : BaseViewControllerWithPresenter<PreSearchPresenter>
+    public partial class PreSearchViewController : BasePostController<PreSearchPresenter>
     {
         public string CurrentPostCategory;
 
@@ -27,7 +26,6 @@ namespace Steepshot.iOS.Views
 
         private UINavigationController _navController;
         private UIRefreshControl _refreshControl;
-        private bool _isFeedRefreshing;
 
         public override void ViewDidLoad()
         {
@@ -162,7 +160,7 @@ namespace Steepshot.iOS.Views
             _presenter.SourceChanged += SourceChanged;
         }
 
-        private void SameTabTapped()
+        protected override void SameTabTapped()
         {
             collectionView.SetContentOffset(new CGPoint(0, 0), true);
         }
@@ -192,18 +190,6 @@ namespace Steepshot.iOS.Views
                 View.LayoutIfNeeded();
             }, null);
             GetPosts(true, true);
-        }
-
-        private async void ScrolledToBottom()
-        {
-            await GetPosts(false);
-        }
-
-        private void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            _navController.PushViewController(myViewController, true);
         }
 
         private void CellAction(ActionType type, Post post)
@@ -260,77 +246,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async void Vote(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped(null, null);
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryVote(post);
-            if (error is CanceledError)
-                return;
-
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
-
-        private void Flagged(Post post)
-        {
-            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
-            PresentViewController(actionSheetAlert, true, null);
-        }
-
-        private void HidePhoto(Post post)
-        {
-            try
-            {
-                if (post == null || BasePresenter.User.PostBlackList.Contains(post.Url))
-                    return;
-
-                BasePresenter.User.PostBlackList.Add(post.Url);
-                BasePresenter.User.Save();
-
-                _presenter.HidePost(post);
-                collectionView.ReloadData();
-                collectionView.CollectionViewLayout.InvalidateLayout();
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-        }
-
-        private async Task FlagPhoto(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped(null, null);
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryFlag(post);
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
         private void SwitchLayout(object sender, EventArgs e)
         {
             _gridDelegate.IsGrid = _collectionViewSource.IsGrid = !_collectionViewSource.IsGrid;
@@ -357,7 +272,7 @@ namespace Steepshot.iOS.Views
             collectionView.SetContentOffset(new CGPoint(0, 0), false);
         }
 
-        private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
+        protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             ErrorBase error;
             do
@@ -393,7 +308,6 @@ namespace Steepshot.iOS.Views
                 if (_refreshControl.Refreshing)
                 {
                     _refreshControl.EndRefreshing();
-                    _isFeedRefreshing = false;
                 }
                 else
                     activityIndicator.StopAnimating();
@@ -404,11 +318,6 @@ namespace Steepshot.iOS.Views
         private async Task RefreshTable()
         {
             await GetPosts(false, true);
-        }
-
-        void LoginTapped(object sender, EventArgs e)
-        {
-            _navController.PushViewController(new WelcomeViewController(), true);
         }
 
         void SearchTapped()
