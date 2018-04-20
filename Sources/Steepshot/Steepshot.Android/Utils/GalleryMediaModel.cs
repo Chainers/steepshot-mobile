@@ -6,14 +6,17 @@ namespace Steepshot.Utils
 {
     public class GalleryMediaModel
     {
+        private bool _selected;
+
         public Action ModelChanged;
+
 
         public long Id { get; set; }
 
         public string Path { get; set; }
-        
-        private bool _selected;
 
+        public string Bucket { get; set; }
+        
         public bool Selected
         {
             get => _selected;
@@ -39,5 +42,6 @@ namespace Steepshot.Utils
         public ImageParameters Parameters { get; set; }
 
         public Bitmap PreparedBitmap { get; set; }
+
     }
 }

@@ -38,26 +38,15 @@ namespace Steepshot.Fragment
         #region Fields
 
         private const byte MaxPhotosAllowed = 7;
-        private const byte MaxOffset = 100;
 
-        private GalleryMediaModel[][] _gallery;
+        private GalleryMediaModel[] _gallery;
         private List<GalleryMediaModel> _pickedItems;
         private GalleryMediaModel _prevSelected;
         private bool _multySelect;
         private string[] _buckets;
-        private int _selectedBucket;
+        private string _selectedBucket;
 
         private GalleryGridAdapter _gridAdapter;
-
-        #endregion
-
-        #region Properties
-
-        private GalleryGridAdapter GridAdapter
-        {
-            get { return _gridAdapter ?? (_gridAdapter = new GalleryGridAdapter(Activity)); }
-        }
-
 
         #endregion
 
@@ -94,10 +83,12 @@ namespace Steepshot.Fragment
             _folders.ItemSelected += FoldersOnItemSelected;
             _folders.SetSelection(0);
 
+            _gridAdapter = new GalleryGridAdapter(Activity);
+            _gridAdapter.OnItemSelected += OnItemSelected;
+
             var gridLayoutManager = new GridLayoutManager(Activity, 3) { SmoothScrollbarEnabled = true };
-            GridAdapter.OnItemSelected += OnItemSelected;
             _gridView.SetLayoutManager(gridLayoutManager);
-            _gridView.SetAdapter(GridAdapter);
+            _gridView.SetAdapter(_gridAdapter);
             _gridView.SetCoordinatorListener(_coordinator);
 
             _ratioBtn.Click += RatioBtnOnClick;
@@ -115,6 +106,7 @@ namespace Steepshot.Fragment
             Cheeseknife.Reset(this);
             GC.Collect(0);
         }
+
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
@@ -158,10 +150,11 @@ namespace Steepshot.Fragment
             _ratioBtn.Visibility = _multySelect ? ViewStates.Gone : ViewStates.Visible;
             _preview.UseStrictBounds = _multySelect;
 
-            var models = _gallery[_selectedBucket];
-            for (var i = 0; i < models.Length; i++)
+            foreach (var model in _gallery)
             {
-                models[i].SelectionPosition = _multySelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None;
+                var pos = _multySelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None;
+                if (model.SelectionPosition != pos)
+                    model.SelectionPosition = pos;
             }
 
             GalleryMediaModel selectedItem = null;
@@ -170,9 +163,10 @@ namespace Steepshot.Fragment
                 if (_pickedItems[i].Selected) selectedItem = _pickedItems[i];
                 _pickedItems[i].Parameters = null;
             }
+
             _pickedItems.Clear();
             _prevSelected = null;
-            OnItemSelected(selectedItem ?? models[0]);
+            OnItemSelected(selectedItem ?? _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase)));
             _multiselectBtn.SetImageResource(_multySelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
         }
 
@@ -221,50 +215,17 @@ namespace Steepshot.Fragment
 
         private void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
         {
-            _folders.Enabled = false;
             var pos = itemSelectedEventArgs.Position;
-            _selectedBucket = pos;
+            _selectedBucket = _buckets[pos];
 
-            if (_gallery[pos] == null)
-            {
-                var bName = _buckets[pos];
-                var ids = GetMediaIds(MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{bName}\"");
-                if (ids.Length > 0)
-                {
-                    var bucketMedia = new List<GalleryMediaModel>();
-                    var allMediaPaths = _gallery[0];
-                    foreach (long t in ids)
-                    {
-                        var itm = allMediaPaths.FirstOrDefault(m => m.Id == t);
-                        if (itm != null)
-                            bucketMedia.Add(itm);
-                    }
-                    _gallery[pos] = bucketMedia.ToArray();
-                }
-            }
+            var set = pos == 0
+                ? _gallery
+                : _gallery.Where(i => i.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase)).ToArray();
 
-            for (var i = 0; i < _gallery[pos].Length; i++)
-            {
-                if (_multySelect)
-                {
-                    var picked = _pickedItems.Find(p => p.Id.Equals(_gallery[pos][i].Id));
-                    if (picked == null)
-                        _gallery[pos][i].SelectionPosition = (int)GallerySelectionType.Multi;
-                    else
-                        _gallery[pos][i] = picked;
-                }
-                else
-                {
-                    _gallery[pos][i].SelectionPosition = (int)GallerySelectionType.None;
-                }
-            }
+            _gridAdapter.SetMedia(set);
 
-            GridAdapter.SetMedia(_gallery[pos]);
-
-            if (_gallery[pos].Length > 0 && _pickedItems.Count == 0)
-                OnItemSelected(_gallery[pos][0]);
-
-            _folders.Enabled = true;
+            if (set.Length > 0 && _pickedItems.Count == 0)
+                OnItemSelected(set[0]);
         }
 
         private void InitBucket()
@@ -287,17 +248,11 @@ namespace Steepshot.Fragment
 
         private void InitGalery()
         {
-            var allMediaPaths = GetAllMediaPaths();
-            _gallery = new GalleryMediaModel[_buckets.Length][];
-            _gallery[0] = allMediaPaths.Values.ToArray();
-        }
-
-        private Dictionary<long, GalleryMediaModel> GetAllMediaPaths()
-        {
             string[] columns =
             {
+                MediaStore.Images.ImageColumns.Id,
                 MediaStore.Images.ImageColumns.Data,
-                MediaStore.Images.ImageColumns.Id
+                MediaStore.Images.ImageColumns.BucketDisplayName
             };
 
             var orderBy = $"{MediaStore.Images.ImageColumns.DateTaken} DESC";
@@ -308,51 +263,25 @@ namespace Steepshot.Fragment
                 var count = cursor.Count;
                 var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
                 var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
-                var result = new Dictionary<long, GalleryMediaModel>();
+                var bucketDisplayName = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                _gallery = new GalleryMediaModel[count];
 
                 for (var i = 0; i < count; i++)
                 {
                     cursor.MoveToPosition(i);
-                    var model = new GalleryMediaModel
+                    _gallery[i] = new GalleryMediaModel
                     {
                         Id = cursor.GetLong(idColumnIndex),
-                        Path = cursor.GetString(dataColumnIndex)
+                        Path = cursor.GetString(dataColumnIndex),
+                        Bucket = cursor.GetString(bucketDisplayName),
                     };
-                    result.Add(model.Id, model);
                 }
                 cursor.Close();
-
-                return result;
             }
-            return new Dictionary<long, GalleryMediaModel>();
-        }
-
-        private long[] GetMediaIds(string bucketSelection)
-        {
-            string[] columns =
+            else
             {
-                MediaStore.Images.ImageColumns.Id
-            };
-
-            string orderBy = MediaStore.Images.ImageColumns.DateTaken + " DESC";
-            var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, bucketSelection, null, orderBy);
-
-            if (cursor != null)
-            {
-                var count = cursor.Count;
-                var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
-                var result = new long[count];
-
-                for (var i = 0; i < count; i++)
-                {
-                    cursor.MoveToPosition(i);
-                    result[i] = cursor.GetLong(idColumnIndex);
-                }
-                cursor.Close();
-
-                return result;
+                _gallery = new GalleryMediaModel[0];
             }
-            return new long[0];
         }
     }
 }

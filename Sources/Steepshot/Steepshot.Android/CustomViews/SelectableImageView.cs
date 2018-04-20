@@ -10,20 +10,31 @@ namespace Steepshot.CustomViews
 {
     public sealed class SelectableImageView : ImageView
     {
-        private GalleryMediaModel _model;
+        private static readonly object Synk = new object();
         private static Dictionary<long, string> _thumbnails;
+        private GalleryMediaModel _model;
         private Paint _selectionPaint;
         private Paint _whitePaint;
 
         private Paint SelectionPaint => _selectionPaint ?? (_selectionPaint = new Paint(PaintFlags.AntiAlias) { Color = Style.R255G81B4, StrokeWidth = BitmapUtils.DpToPixel(6, Context.Resources) });
         private Paint WhitePaint => _whitePaint ?? (_whitePaint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = BitmapUtils.DpToPixel(1, Context.Resources), TextSize = BitmapUtils.DpToPixel(16, Context.Resources), TextAlign = Paint.Align.Center });
-        private Dictionary<long, string> Thumbnails => _thumbnails ?? (_thumbnails = BitmapUtils.GetMediaThumbnailsPaths(Context.ContentResolver, ThumbnailKind.MiniKind));
 
 
         public SelectableImageView(Context context) : base(context)
         {
             Clickable = true;
             SetScaleType(ScaleType.CenterCrop);
+
+            if (_thumbnails == null)
+            {
+                lock (Synk)
+                {
+                    if (_thumbnails == null)
+                    {
+                        _thumbnails = BitmapUtils.GetMediaThumbnailsPaths(Context.ContentResolver, ThumbnailKind.MiniKind);
+                    }
+                }
+            }
         }
 
 
@@ -67,9 +78,9 @@ namespace Steepshot.CustomViews
             _model = model;
             _model.ModelChanged += ModelChanged;
 
-            if (Thumbnails.ContainsKey(model.Id))
+            if (_thumbnails.ContainsKey(model.Id))
             {
-                var path = Thumbnails[model.Id];
+                var path = _thumbnails[model.Id];
                 SetImageURI(Uri.Parse(path));
                 return;
             }
@@ -82,7 +93,7 @@ namespace Steepshot.CustomViews
             {
                 cursor.MoveToFirst();
                 var thumbUri = cursor.GetString(0);
-                Thumbnails.Add(model.Id, thumbUri);
+                _thumbnails.Add(model.Id, thumbUri);
                 cursor.Close();
             }
         }
