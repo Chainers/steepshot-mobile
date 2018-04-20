@@ -62,17 +62,17 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 base.OnViewCreated(view, savedInstanceState);
-                
+
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
-                
+
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
                 _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
-                
+
                 _logo.Click += OnLogoClick;
                 _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
@@ -85,6 +85,7 @@ namespace Steepshot.Fragment
                 _feedList.SetAdapter(_adapter);
                 _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
                 _feedList.AddOnScrollListener(_scrollListner);
+                _feedList.Touch += FeedListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -115,6 +116,12 @@ namespace Steepshot.Fragment
                 post.Children += count;
                 _adapter.NotifyDataSetChanged();
             }
+        }
+
+        private void FeedListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            _feedList?.OnTouchEvent(touchEventArgs.Event);
+            TouchEvent?.Invoke(touchEventArgs);
         }
 
         public override void OnResume()
@@ -198,7 +205,7 @@ namespace Steepshot.Fragment
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
-            
+
             _feedContainer.Visibility = ViewStates.Invisible;
 
             if (Presenter.Count == 0)

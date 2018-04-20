@@ -1,4 +1,5 @@
-﻿using Android.Views;
+﻿using System;
+using Android.Views;
 using Steepshot.Activity;
 
 namespace Steepshot.Base
@@ -31,5 +32,7 @@ namespace Steepshot.Base
             IsInitialized = false;
             base.OnDetach();
         }
+
+        public static Action<View.TouchEventArgs> TouchEvent;
     }
 }

@@ -21,9 +21,11 @@ using System.Collections.Generic;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
+using Steepshot.Fragment;
 using Object = Java.Lang.Object;
 
 namespace Steepshot.Adapter
@@ -204,6 +206,13 @@ namespace Steepshot.Adapter
             {
                 _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
+            BaseFragment.TouchEvent += TouchEvent;
+        }
+
+        private void TouchEvent(View.TouchEventArgs touchEventArgs)
+        {
+            if (_likeScaleContainer == null) return;
+            _likeScaleContainer.Visibility = ViewStates.Gone;
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
