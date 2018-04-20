@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Android.App;
 using Android.Content;
@@ -6,6 +7,7 @@ using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
+using Com.OneSignal;
 using CheeseBind;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -20,28 +22,40 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SettingsActivity : BaseActivity
+    public sealed class SettingsActivity : BaseActivityWithPresenter<UserProfilePresenter>
     {
         private AccountsAdapter _accountsAdapter;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
+        private List<PushSubscription> _pushSubscriptions;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.add_account)] private Button _addButton;
-        [CheeseBind.BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
-        [CheeseBind.BindView(Resource.Id.tests)] private AppCompatButton _testsButton;
-        [CheeseBind.BindView(Resource.Id.btn_guide)] private Button _guideButton;
-        [CheeseBind.BindView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
-        [CheeseBind.BindView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
-        [CheeseBind.BindView(Resource.Id.version_textview)] private TextView _versionText;
-        [CheeseBind.BindView(Resource.Id.nsfw_switch_text)] private TextView _nsfwSwitchText;
-        [CheeseBind.BindView(Resource.Id.low_switch_text)] private TextView _lowSwitchText;
-        [CheeseBind.BindView(Resource.Id.profile_login)] private TextView _viewTitle;
-        [CheeseBind.BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
-        [CheeseBind.BindView(Resource.Id.btn_settings)] private ImageButton _settings;
-        [CheeseBind.BindView(Resource.Id.btn_back)] private ImageButton _backButton;
-        [CheeseBind.BindView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
-        [CheeseBind.BindView(Resource.Id.add_account_loading_spinner)] private ProgressBar _addAccountLoader;
+        [BindView(Resource.Id.add_account)] private Button _addButton;
+        [BindView(Resource.Id.dtn_terms_of_service)] private Button _termsButton;
+        [BindView(Resource.Id.tests)] private AppCompatButton _testsButton;
+        [BindView(Resource.Id.btn_guide)] private Button _guideButton;
+        [BindView(Resource.Id.nsfw_switch)] private SwitchCompat _nsfwSwitcher;
+        [BindView(Resource.Id.low_switch)] private SwitchCompat _lowRatedSwitcher;
+        [BindView(Resource.Id.version_textview)] private TextView _versionText;
+        [BindView(Resource.Id.nsfw_switch_text)] private TextView _nsfwSwitchText;
+        [BindView(Resource.Id.low_switch_text)] private TextView _lowSwitchText;
+        [BindView(Resource.Id.profile_login)] private TextView _viewTitle;
+        [BindView(Resource.Id.btn_switcher)] private ImageButton _switcher;
+        [BindView(Resource.Id.btn_settings)] private ImageButton _settings;
+        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
+        [BindView(Resource.Id.accounts_list)] private RecyclerView _accountsList;
+        [BindView(Resource.Id.add_account_loading_spinner)] private ProgressBar _addAccountLoader;
+        [BindView(Resource.Id.header_text)] private TextView _notificationSettings;
+        [BindView(Resource.Id.post_upvotes)] private TextView _notificationUpvotes;
+        [BindView(Resource.Id.post_upvotes_switch)] private SwitchCompat _notificationUpvotesSwitch;
+        [BindView(Resource.Id.comments_upvotes)] private TextView _notificationCommentsUpvotes;
+        [BindView(Resource.Id.comments_upvotes_switch)] private SwitchCompat _notificationCommentsUpvotesSwitch;
+        [BindView(Resource.Id.following)] private TextView _notificationFollowing;
+        [BindView(Resource.Id.following_switch)] private SwitchCompat _notificationFollowingSwitch;
+        [BindView(Resource.Id.comments)] private TextView _notificationComments;
+        [BindView(Resource.Id.comments_switch)] private SwitchCompat _notificationCommentsSwitch;
+        [BindView(Resource.Id.posting)] private TextView _notificationPosting;
+        [BindView(Resource.Id.posting_switch)] private SwitchCompat _notificationPostingSwitch;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -60,6 +74,12 @@ namespace Steepshot.Activity
             _addButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AddAccountText);
             _guideButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Guidelines);
             _termsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.ToS);
+            _notificationSettings.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationSettings);
+            _notificationUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPostUpvotes);
+            _notificationCommentsUpvotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationCommentsUpvotes);
+            _notificationFollowing.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationFollow);
+            _notificationComments.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationComment);
+            _notificationPosting.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.NotificationPosting);
 
             SetAddButton(accounts.Count);
 
@@ -74,10 +94,16 @@ namespace Steepshot.Activity
             _nsfwSwitchText.Typeface = Style.Semibold;
             _lowSwitchText.Typeface = Style.Semibold;
             _termsButton.Typeface = Style.Semibold;
+            _notificationSettings.Typeface = Style.Semibold;
+            _notificationUpvotes.Typeface = Style.Semibold;
+            _notificationCommentsUpvotes.Typeface = Style.Semibold;
+            _notificationFollowing.Typeface = Style.Semibold;
+            _notificationComments.Typeface = Style.Semibold;
+            _notificationPosting.Typeface = Style.Semibold;
             _termsButton.Click += TermsOfServiceClick;
             _guideButton.Typeface = Style.Semibold;
             _guideButton.Click += GuideClick;
-            
+
             _addButton.Click += AddAccountClick;
 
             _accountsAdapter = new AccountsAdapter();
@@ -92,9 +118,22 @@ namespace Steepshot.Activity
 
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
+            _notificationUpvotesSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Upvote);
+            _notificationCommentsUpvotesSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.UpvoteComment);
+            _notificationFollowingSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Follow);
+            _notificationCommentsSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Comment);
+            _notificationPostingSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User);
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
+            _notificationUpvotesSwitch.CheckedChange += NotificationUpvotesSwitchOnCheckedChange;
+            _notificationCommentsUpvotesSwitch.CheckedChange += NotificationCommentsUpvotesSwitchOnCheckedChange;
+            _notificationFollowingSwitch.CheckedChange += NotificationFollowingSwitchOnCheckedChange;
+            _notificationCommentsSwitch.CheckedChange += NotificationCommentsSwitchOnCheckedChange;
+            _notificationPostingSwitch.CheckedChange += NotificationPostingSwitchOnCheckedChange;
+
+            _pushSubscriptions = new List<PushSubscription>();
+            _pushSubscriptions.AddRange(BasePresenter.User.PushSubscriptions);
             //for tests
             if (BasePresenter.User.IsDev || BasePresenter.User.Login.Equals("joseph.kalu"))
             {
@@ -111,11 +150,17 @@ namespace Steepshot.Activity
             base.OnResume();
         }
 
-        public override void OnBackPressed()
+        public override async void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
+            if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
+            {
+                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToArray());
+                if (error == null)
+                    BasePresenter.User.UserInfo.PushSubscriptions = _pushSubscriptions;
+            }
         }
 
         protected override void OnDestroy()
@@ -136,6 +181,29 @@ namespace Steepshot.Activity
             _nsfwChanged = !_nsfwChanged;
         }
 
+        private void NotificationUpvotesSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
+            SwitchSubscription(PushSubscription.Upvote, e.IsChecked);
+
+        private void NotificationCommentsUpvotesSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
+            SwitchSubscription(PushSubscription.UpvoteComment, e.IsChecked);
+
+        private void NotificationCommentsSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
+            SwitchSubscription(PushSubscription.Comment, e.IsChecked);
+
+        private void NotificationFollowingSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
+            SwitchSubscription(PushSubscription.Follow, e.IsChecked);
+
+        private void NotificationPostingSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
+            SwitchSubscription(PushSubscription.User, e.IsChecked);
+
+        private void SwitchSubscription(PushSubscription subscription, bool value)
+        {
+            if (value && !_pushSubscriptions.Contains(subscription))
+                _pushSubscriptions.Add(subscription);
+            else
+                _pushSubscriptions.Remove(subscription);
+        }
+
         private void OnAdapterPickAccount(UserInfo userInfo)
         {
             if (userInfo == null)
@@ -149,6 +217,8 @@ namespace Steepshot.Activity
             if (userInfo == null)
                 return;
 
+            OneSignal.Current.DeleteTag("username");
+            OneSignal.Current.DeleteTag("player_id");
             var chainToDelete = userInfo.Chain;
             BasePresenter.User.Delete(userInfo);
             RemoveChain(chainToDelete);

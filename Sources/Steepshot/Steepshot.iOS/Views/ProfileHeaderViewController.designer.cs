@@ -16,9 +16,6 @@ namespace Steepshot.iOS.Views
 		UIKit.NSLayoutConstraint accountViewHeight { get; set; }
 
 		[Outlet]
-		UIKit.UIImageView avatar { get; set; }
-
-		[Outlet]
 		UIKit.UILabel balanceLabel { get; set; }
 
 		[Outlet]
@@ -52,6 +49,9 @@ namespace Steepshot.iOS.Views
 		UIKit.UIActivityIndicatorView progressBar { get; set; }
 
 		[Outlet]
+		UIKit.UIStackView stackView { get; set; }
+
+		[Outlet]
 		UIKit.UILabel username { get; set; }
 
 		[Outlet]
@@ -65,9 +65,9 @@ namespace Steepshot.iOS.Views
 		
 		void ReleaseDesignerOutlets ()
 		{
-			if (avatar != null) {
-				avatar.Dispose ();
-				avatar = null;
+			if (accountViewHeight != null) {
+				accountViewHeight.Dispose ();
+				accountViewHeight = null;
 			}
 
 			if (balanceLabel != null) {
@@ -145,9 +145,9 @@ namespace Steepshot.iOS.Views
 				websiteView = null;
 			}
 
-			if (accountViewHeight != null) {
-				accountViewHeight.Dispose ();
-				accountViewHeight = null;
+			if (stackView != null) {
+				stackView.Dispose ();
+				stackView = null;
 			}
 		}
 	}

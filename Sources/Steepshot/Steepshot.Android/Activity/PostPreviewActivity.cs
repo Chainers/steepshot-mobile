@@ -16,7 +16,7 @@ namespace Steepshot.Activity
         private string path;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.photo)] private ScaleImageView _photo;
+        [BindView(Resource.Id.photo)] private ScaleImageView _photo;
 #pragma warning restore 0649
 
 

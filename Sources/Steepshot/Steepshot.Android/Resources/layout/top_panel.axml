@@ -19,12 +19,21 @@
             android:scaleType="center"
             android:background="@android:color/transparent" />
         <ImageButton
+            android:id="@+id/more"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_more"
+            android:scaleType="center"
+            android:layout_marginLeft="10dp"
+            android:visibility="gone"
+            android:background="@android:color/transparent" />
+        <ImageButton
             android:id="@+id/btn_settings"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/ic_settings"
             android:scaleType="center"
-            android:layout_marginLeft="14dp"
+            android:layout_marginLeft="10dp"
             android:background="@android:color/transparent" />
     </LinearLayout>
     <LinearLayout

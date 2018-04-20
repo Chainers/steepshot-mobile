@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Content;
 using Android.Graphics;
 using Android.Hardware;
+using Android.Locations;
 using Android.Media;
 using Android.OS;
 using Android.Provider;
@@ -17,12 +19,17 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Camera = Android.Hardware.Camera;
+using Format = Android.Graphics.Format;
 
 namespace Steepshot.Fragment
 {
 #pragma warning disable 0649, 4014, 0618
-    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback
+    public sealed class OldCameraFragment : BaseFragment, ISurfaceHolderCallback, Camera.IPictureCallback, Camera.IShutterCallback, ILocationListener
     {
+        private Location _currentLocation;
+        private LocationManager _locationManager;
+        private bool isGpsEnable = true;
+
         private const bool FullScreen = true;
         private const int GalleryRequestCode = 228;
 
@@ -34,14 +41,15 @@ namespace Steepshot.Fragment
         private float _dist;
         private CameraOrientationEventListener _orientationListner;
 
-        [CheeseBind.BindView(Resource.Id.surfaceView)] private SurfaceView _sv;
-        [CheeseBind.BindView(Resource.Id.flash_button)] private ImageButton _flashButton;
-        [CheeseBind.BindView(Resource.Id.shot_button)] private ImageButton _shotButton;
-        [CheeseBind.BindView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
-        [CheeseBind.BindView(Resource.Id.revert_button)] private ImageButton _revertButton;
-        [CheeseBind.BindView(Resource.Id.close_button)] private ImageButton _closeButton;
-        [CheeseBind.BindView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
-        [CheeseBind.BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
+        [BindView(Resource.Id.surfaceView)] private SurfaceView _sv;
+        [BindView(Resource.Id.flash_button)] private ImageButton _flashButton;
+        [BindView(Resource.Id.gps_button)] private ImageButton _gpsButton;
+        [BindView(Resource.Id.shot_button)] private ImageButton _shotButton;
+        [BindView(Resource.Id.loading_spinner)] private ProgressBar _progressBar;
+        [BindView(Resource.Id.revert_button)] private ImageButton _revertButton;
+        [BindView(Resource.Id.close_button)] private ImageButton _closeButton;
+        [BindView(Resource.Id.gallery_button)] private RelativeLayout _galleryButton;
+        [BindView(Resource.Id.gallery_icon)] private CircleImageView _galleryIcon;
 
 #pragma warning restore 0649
 
@@ -56,6 +64,10 @@ namespace Steepshot.Fragment
         {
             base.OnViewCreated(view, savedInstanceState);
 
+            _locationManager = (LocationManager)Context.GetSystemService(Context.LocationService);
+            var criteriaForLocationService = new Criteria { Accuracy = Accuracy.NoRequirement };
+            _locationManager.RequestLocationUpdates(0, 0, criteriaForLocationService, this, null);
+
             if (Camera.NumberOfCameras < 2)
                 _revertButton.Visibility = ViewStates.Gone;
 
@@ -65,15 +77,22 @@ namespace Steepshot.Fragment
             _galleryButton.Click += OpenGallery;
             _revertButton.Click += SwitchCamera;
             _sv.Touch += SvOnTouch;
+            _gpsButton.Click += GpsButtonOnClick;
 
             _orientationListner = new CameraOrientationEventListener(Activity, SensorDelay.Normal);
             _orientationListner.OrientationChanged += OnOrientationChanged;
             GetGalleryIcon();
         }
 
+        private void GpsButtonOnClick(object sender, EventArgs eventArgs)
+        {
+            isGpsEnable = !isGpsEnable;
+            _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+        }
+
         private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
-            Camera.Parameters cameraParams = _camera.GetParameters();
+            var cameraParams = _camera.GetParameters();
             var action = touchEventArgs.Event.Action;
 
             if (touchEventArgs.Event.PointerCount > 1)
@@ -93,9 +112,9 @@ namespace Steepshot.Fragment
 
         private void HandleZoom(MotionEvent e, Camera.Parameters p)
         {
-            int maxZoom = p.MaxZoom;
-            int zoom = p.Zoom;
-            float newDist = GetFingerSpacing(e);
+            var maxZoom = p.MaxZoom;
+            var zoom = p.Zoom;
+            var newDist = GetFingerSpacing(e);
             if (newDist > _dist)
             {
                 if (zoom < maxZoom)
@@ -113,8 +132,8 @@ namespace Steepshot.Fragment
 
         private float GetFingerSpacing(MotionEvent e)
         {
-            float x = e.GetX(0) - e.GetX(1);
-            float y = e.GetY(0) - e.GetY(1);
+            var x = e.GetX(0) - e.GetX(1);
+            var y = e.GetY(0) - e.GetY(1);
             return (float)Math.Sqrt(x * x + y * y);
         }
 
@@ -164,7 +183,24 @@ namespace Steepshot.Fragment
 
         private void TakePhotoClick(object sender, EventArgs e)
         {
+            var parameters = _camera.GetParameters();
+            AddGps(parameters);
+            parameters.SetRotation(_currentRotation);
+            _camera.SetParameters(parameters);
             _camera?.TakePicture(this, null, this);
+        }
+
+        private void AddGps(Camera.Parameters parameters)
+        {
+            if (isGpsEnable && _currentLocation != null)
+            {
+                parameters.RemoveGpsData();
+                parameters.SetGpsLatitude(_currentLocation.Latitude);
+                parameters.SetGpsLongitude(_currentLocation.Longitude);
+                parameters.SetGpsAltitude(_currentLocation.Altitude);
+                parameters.SetGpsTimestamp(_currentLocation.Time);
+                parameters.SetGpsProcessingMethod(_currentLocation.Provider);
+            }
         }
 
         private void GoBack(object sender, EventArgs e)
@@ -182,7 +218,6 @@ namespace Steepshot.Fragment
             if (_camera == null)
                 return;
 
-            var parameters = _camera.GetParameters();
             var info = new Camera.CameraInfo();
             Camera.GetCameraInfo(_cameraId, info);
 
@@ -192,8 +227,6 @@ namespace Steepshot.Fragment
                 : (info.Orientation + orientation) % 360;
 
             _currentRotation = rotation;
-            parameters.SetRotation(rotation);
-            _camera.SetParameters(parameters);
         }
 
 
@@ -383,7 +416,7 @@ namespace Steepshot.Fragment
 
                 Activity.RunOnUiThread(() =>
                 {
-                    ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(model));
+                    ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(model));
                     if (_progressBar != null)
                     {
                         _progressBar.Visibility = ViewStates.Gone;
@@ -462,14 +495,35 @@ namespace Steepshot.Fragment
                 var imageFile = new Java.IO.File(imageLocation);
                 if (imageFile.Exists())
                 {
-                    using (var fileDescriptor = Activity.ContentResolver.OpenFileDescriptor(imageFile.Path.ToUri(), "r").FileDescriptor)
-                    {
-                        var bitmap = BitmapUtils.DecodeSampledBitmapFromDescriptor(fileDescriptor, 300, 300);
-                        bitmap = BitmapUtils.RotateImageIfRequired(bitmap, fileDescriptor, imageFile.Path);
-                        _galleryIcon.SetImageBitmap(bitmap);
-                    }
+                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(imageFile.Path, 300, 300);
+                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageFile.Path);
+                    _galleryIcon.SetImageBitmap(bitmap);
                 }
             }
+        }
+
+
+
+        public void OnLocationChanged(Location location)
+        {
+            if (_currentLocation == null)
+            {
+                _gpsButton.Visibility = ViewStates.Visible;
+                _gpsButton.SetImageResource(Resource.Drawable.ic_gps);
+            }
+            _currentLocation = location;
+        }
+
+        public void OnProviderDisabled(string provider)
+        {
+        }
+
+        public void OnProviderEnabled(string provider)
+        {
+        }
+
+        public void OnStatusChanged(string provider, [GeneratedEnum] Availability status, Bundle extras)
+        {
         }
     }
 }

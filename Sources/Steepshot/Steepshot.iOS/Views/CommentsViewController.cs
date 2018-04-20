@@ -193,6 +193,8 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryVote(post);
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         public async Task FlagComment(Post post)
@@ -205,6 +207,8 @@ namespace Steepshot.iOS.Views
 
             var error = await _presenter.TryFlag(post);
             ShowAlert(error);
+            if (error == null)
+                ((MainTabBarController)TabBarController)?.UpdateProfile();
         }
 
         private async void CreateComment(object sender, EventArgs e)

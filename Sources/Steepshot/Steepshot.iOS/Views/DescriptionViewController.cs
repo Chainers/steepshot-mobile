@@ -21,88 +21,292 @@ using System.Linq;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using ImageIO;
+using PureLayout.Net;
 
 namespace Steepshot.iOS.Views
 {
     public partial class DescriptionViewController : BaseViewControllerWithPresenter<PostDescriptionPresenter>
     {
-		private const int _photoSize = 900; //kb
-
-        private readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
-
+        private const int _photoSize = 900; //kb
+        private TimeSpan PostingLimit;
+        private UIDeviceOrientation _rotation;
         private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
         private LocalTagsCollectionViewSource _collectionviewSource;
-		private TagsTableViewSource _tableSource;
-        private NSDictionary _metadata;
-		private UIImage ImageAsset;
-		private Timer _timer;
-		private string ImageExtension;
-		private string _previousQuery;
-        private bool _isSpammer;
+        private List<Tuple<NSDictionary, UIImage>> ImageAssets;
+        private nfloat _separatorMargin = 30;
 
-        public DescriptionViewController(UIImage imageAsset, string extension, NSDictionary metadata)
+        private string ImageExtension;
+        private bool _isSpammer;
+        public bool _isFromCamera => ImageAssets.Count == 1 && ImageAssets[0].Item1 == null;
+
+        private UICollectionView photoCollection;
+        private UIImageView photoView;
+        private UITextView titleTextField;
+        private UIImageView titleEditImage;
+        private UITextView descriptionTextField;
+        private UIImageView descriptionEditImage;
+        private UILabel tagField;
+        private UIImageView hashtagImage;
+        private UICollectionView tagsCollectionView;
+        private UIButton postPhotoButton;
+        private UIActivityIndicatorView loadingView;
+        private NSLayoutConstraint tagsCollectionHeight;
+        private bool _isinitialized;
+
+        public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
-            ImageAsset = imageAsset;
+            ImageAssets = imageAssets;
             ImageExtension = extension;
-            _metadata = metadata;
+            _rotation = rotation;
         }
 
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
 
-            Activeview = descriptionTextField;
-            postPhotoButton.Layer.CornerRadius = 25;
-            postPhotoButton.TitleLabel.Font = Constants.Semibold14;
-            tagField.Font = titleTextField.Font = descriptionTextField.Font = Constants.Regular14;
+            tagsCollectionView = new UICollectionView(CGRect.Null, new LeftAlignedCollectionViewFlowLayout());
+            tagsCollectionView.ScrollEnabled = false;
 
-            _tableSource = new TagsTableViewSource(_presenter);
-            _tableSource.CellAction += TableCellAction;
-            tagsTableView.Source = _tableSource;
-            tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
-            tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
-            tagsTableView.RegisterNibForCellReuse(UINib.FromName(nameof(TagTableViewCell), NSBundle.MainBundle), nameof(TagTableViewCell));
-            tagsTableView.RowHeight = 65f;
+            CreateView();
 
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
-
-            tagsCollectionView.SetCollectionViewLayout(new UICollectionViewFlowLayout()
-            {
-                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                SectionInset = new UIEdgeInsets(0, 15, 0, 0),
-            }, false);
-
             _collectionviewSource = new LocalTagsCollectionViewSource();
             _collectionviewSource.CellAction += CollectionCellAction;
-            _collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(_collectionviewSource);
+            _collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(_collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
             tagsCollectionView.Source = _collectionviewSource;
             tagsCollectionView.Delegate = _collectionViewDelegate;
-
-            tagField.Delegate = new TagFieldDelegate(DoneTapped);
-            tagField.EditingChanged += EditingDidChange;
-            tagField.EditingDidBegin += EditingDidBegin;
-            tagField.EditingDidEnd += EditingDidEnd;
+            tagsCollectionView.BackgroundColor = UIColor.White;
 
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
             View.AddGestureRecognizer(tap);
 
-            photoView.Image = ImageAsset;
-            postPhotoButton.TouchDown += PostPhoto;
-
-            _presenter.SourceChanged += SourceChanged;
-            _timer = new Timer(OnTimer);
-
             SetBackButton();
-            SearchTextChanged();
             SetPlaceholder();
             CheckOnSpam();
+        }
+
+        protected override void KeyBoardUpNotification(NSNotification notification)
+        {
+            var kbSize = UIKeyboard.FrameEndFromNotification(notification);
+            var contentInsets = new UIEdgeInsets(0, 0, kbSize.Height, 0);
+            mainScroll.ContentInset = contentInsets;
+            mainScroll.ScrollIndicatorInsets = contentInsets;
+            mainScroll.ScrollRectToVisible(Activeview.Frame, true);
+        }
+
+        protected override void KeyBoardDownNotification(NSNotification notification)
+        {
+            var contentInsets = new UIEdgeInsets(0, 0, 0, 0);
+            mainScroll.ContentInset = contentInsets;
+            mainScroll.ScrollIndicatorInsets = contentInsets;
+            View.LayoutSubviews();
+        }
+
+        private void CreateView()
+        {
+            if (ImageAssets.Count == 1)
+            {
+                photoView = new UIImageView();
+                photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
+                photoView.Layer.CornerRadius = 8;
+                photoView.ClipsToBounds = true;
+                photoView.Image = ImageAssets[0].Item2;
+                mainScroll.AddSubview(photoView);
+
+                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
+                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
+                photoView.AutoMatchDimension(ALDimension.Height, ALDimension.Width, photoView);
+                var photoMargin = 15;
+                var photoViewSide = UIScreen.MainScreen.Bounds.Width - photoMargin * 2;
+                photoView.AutoSetDimension(ALDimension.Width, photoViewSide);
+            }
+            else
+            {
+                photoCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
+                {
+                    ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                    ItemSize = new CGSize(160, 160),
+                    SectionInset = new UIEdgeInsets(0, 15, 0, 0),
+                    MinimumInteritemSpacing = 10,
+                });
+                mainScroll.AddSubview(photoCollection);
+
+                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 30f);
+                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+                photoCollection.AutoSetDimension(ALDimension.Height, 160f);
+                photoCollection.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width);
+
+                photoCollection.Bounces = false;
+                photoCollection.ShowsHorizontalScrollIndicator = false;
+                photoCollection.RegisterClassForCell(typeof(PhotoGalleryCell), nameof(PhotoGalleryCell));
+                var galleryCollectionViewSource = new PhotoGalleryViewSource(ImageAssets);
+                photoCollection.Source = galleryCollectionViewSource;
+                photoCollection.BackgroundColor = UIColor.White;
+            }
+
+            var photoTitleSeparator = new UIView();
+            photoTitleSeparator.BackgroundColor = Constants.R245G245B245;
+
+            titleTextField = new UITextView();
+            titleTextField.ScrollEnabled = false;
+            titleTextField.Font = Constants.Semibold14;
+            titleEditImage = new UIImageView();
+            titleEditImage.Image = UIImage.FromBundle("ic_edit");
+
+            var titleDescriptionSeparator = new UIView();
+            titleDescriptionSeparator.BackgroundColor = Constants.R245G245B245;
+
+            descriptionTextField = new UITextView();
+            descriptionTextField.ScrollEnabled = false;
+            descriptionTextField.Font = Constants.Regular14;
+            descriptionEditImage = new UIImageView();
+            descriptionEditImage.Image = UIImage.FromBundle("ic_edit");
+
+            var descriptionHashtagSeparator = new UIView();
+            descriptionHashtagSeparator.BackgroundColor = Constants.R245G245B245;
+
+            tagField = new UILabel();
+            tagField.Text = "Hashtag";
+            tagField.Font = Constants.Regular14;
+            tagField.TextColor = Constants.R151G155B158;
+            tagField.UserInteractionEnabled = true;
+            var tap = new UITapGestureRecognizer(OpenTagPicker);
+            tagField.AddGestureRecognizer(tap);
+
+            hashtagImage = new UIImageView();
+            hashtagImage.Image = UIImage.FromBundle("ic_hash");
+
+            var hashtagCollectionSeparator = new UIView();
+            hashtagCollectionSeparator.BackgroundColor = Constants.R245G245B245;
+
+            postPhotoButton = new UIButton();
+            postPhotoButton.SetTitle(AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText), UIControlState.Normal);
+            postPhotoButton.SetTitle("", UIControlState.Disabled);
+            postPhotoButton.Layer.CornerRadius = 25;
+            postPhotoButton.TitleLabel.Font = Constants.Semibold14;
+            postPhotoButton.TouchDown += PostPhoto;
+
+            loadingView = new UIActivityIndicatorView();
+            loadingView.Color = UIColor.White;
+            loadingView.HidesWhenStopped = true;
+
+            mainScroll.Bounces = false;
+            mainScroll.AddSubview(photoTitleSeparator);
+            mainScroll.AddSubview(titleTextField);
+            mainScroll.AddSubview(titleEditImage);
+            mainScroll.AddSubview(titleDescriptionSeparator);
+            mainScroll.AddSubview(descriptionTextField);
+            mainScroll.AddSubview(descriptionEditImage);
+            mainScroll.AddSubview(descriptionHashtagSeparator);
+            mainScroll.AddSubview(tagField);
+            mainScroll.AddSubview(hashtagImage);
+            mainScroll.AddSubview(hashtagCollectionSeparator);
+            mainScroll.AddSubview(tagsCollectionView);
+            mainScroll.AddSubview(postPhotoButton);
+            mainScroll.AddSubview(loadingView);
+
+            if (ImageAssets.Count == 1)
+                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 30f);
+            else
+                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 30f);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
+            photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
+            photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
+
+            titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 17f);
+            titleTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
+
+            titleEditImage.AutoSetDimensionsToSize(new CGSize(18, 18));
+            titleEditImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            titleEditImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, titleTextField, 5f);
+            titleEditImage.AutoAlignAxis(ALAxis.Horizontal, titleTextField);
+
+            titleDescriptionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleTextField, 17f);
+            titleDescriptionSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            titleDescriptionSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            titleDescriptionSeparator.AutoSetDimension(ALDimension.Height, 1f);
+
+            descriptionTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, titleDescriptionSeparator, 17f);
+            descriptionTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
+
+            descriptionEditImage.AutoSetDimensionsToSize(new CGSize(18, 18));
+            descriptionEditImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            descriptionEditImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, descriptionTextField, 5f);
+            descriptionEditImage.AutoAlignAxis(ALAxis.Horizontal, descriptionTextField);
+
+            descriptionHashtagSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionTextField, 17f);
+            descriptionHashtagSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            descriptionHashtagSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            descriptionHashtagSeparator.AutoSetDimension(ALDimension.Height, 1f);
+
+            tagField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, descriptionHashtagSeparator);
+            tagField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            tagField.AutoSetDimension(ALDimension.Height, 70f);
+
+            hashtagImage.AutoSetDimensionsToSize(new CGSize(15, 17));
+            hashtagImage.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            hashtagImage.AutoPinEdge(ALEdge.Left, ALEdge.Right, tagField, 5f);
+            hashtagImage.AutoAlignAxis(ALAxis.Horizontal, tagField);
+
+            hashtagCollectionSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagField);
+            hashtagCollectionSeparator.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            hashtagCollectionSeparator.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            hashtagCollectionSeparator.AutoSetDimension(ALDimension.Height, 1f);
+
+            tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, hashtagCollectionSeparator, 25f);
+            tagsCollectionView.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            tagsCollectionView.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            tagsCollectionHeight = tagsCollectionView.AutoSetDimension(ALDimension.Height, 0f);
+
+            postPhotoButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, tagsCollectionView, 40f);
+            postPhotoButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator);
+            postPhotoButton.AutoPinEdge(ALEdge.Right, ALEdge.Right, photoTitleSeparator);
+            postPhotoButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 35f);
+            postPhotoButton.AutoSetDimension(ALDimension.Height, 50f);
+
+            loadingView.AutoAlignAxis(ALAxis.Horizontal, postPhotoButton);
+            loadingView.AutoAlignAxis(ALAxis.Vertical, postPhotoButton);
+        }
+
+        private void OpenTagPicker()
+        {
+            NavigationItem.RightBarButtonItem = null;
+            KeyBoardDownNotification(null);
+            NavigationController.PushViewController(new TagsPickerViewController(_collectionviewSource, _collectionViewDelegate), true);
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            base.ViewWillAppear(animated);
+            if (!IsMovingToParentViewController)
+            {
+                tagsCollectionView.ReloadData();
+                ResizeView();
+            }
+        }
+
+        public override async void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            if (_isFromCamera)
+            {
+                photoView.Image = await NormalizeImage(ImageAssets[0].Item2);
+                RotatePhotoIfNeeded();
+            }
         }
 
         private void SetPlaceholder()
         {
             var _titleTextViewDelegate = new PostTitleTextViewDelegate();
             titleTextField.Delegate = _titleTextViewDelegate;
+
+            _titleTextViewDelegate.EditingStartedAction += () =>
+            {
+                Activeview = titleTextField;
+            };
 
             var titlePlaceholderLabel = new UILabel();
             titlePlaceholderLabel.Text = "Enter a title of your photo";
@@ -116,12 +320,16 @@ namespace Steepshot.iOS.Views
             var labelWidth = titlePlaceholderLabel.Frame.Width;
             var labelHeight = titlePlaceholderLabel.Frame.Height;
 
-            titlePlaceholderLabel.Frame = new CGRect(labelX, labelY, labelWidth, labelHeight);
+            titlePlaceholderLabel.Frame = new CGRect(5, labelY, labelWidth, labelHeight);
 
             titleTextField.AddSubview(titlePlaceholderLabel);
             _titleTextViewDelegate.Placeholder = titlePlaceholderLabel;
 
             var _descriptionTextViewDelegate = new PostTitleTextViewDelegate(2048);
+            _descriptionTextViewDelegate.EditingStartedAction += () =>
+            {
+                Activeview = descriptionTextField;
+            };
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
 
             var descriptionPlaceholderLabel = new UILabel();
@@ -136,7 +344,7 @@ namespace Steepshot.iOS.Views
             var descLabelWidth = descriptionPlaceholderLabel.Frame.Width;
             var descLabelHeight = descriptionPlaceholderLabel.Frame.Height;
 
-            descriptionPlaceholderLabel.Frame = new CGRect(descLabelX, descLabelY, descLabelWidth, descLabelHeight);
+            descriptionPlaceholderLabel.Frame = new CGRect(5, descLabelY, descLabelWidth, descLabelHeight);
 
             descriptionTextField.AddSubview(descriptionPlaceholderLabel);
             _descriptionTextViewDelegate.Placeholder = descriptionPlaceholderLabel;
@@ -150,104 +358,9 @@ namespace Steepshot.iOS.Views
             AddOkButton();
         }
 
-        private void EditingDidBegin(object sender, EventArgs e)
-        {
-            AddOkButton();
-            AnimateView(true);
-        }
-
-        private void EditingDidChange(object sender, EventArgs e)
-        {
-            var txt = ((UITextField)sender).Text;
-            if (!string.IsNullOrWhiteSpace(txt))
-            {
-                if (txt.EndsWith(" "))
-                {
-                    ((UITextField)sender).Text = string.Empty;
-                    AddTag(txt);
-                }
-            }
-            _timer.Change(500, Timeout.Infinite);
-        }
-
-        private void EditingDidEnd(object sender, EventArgs e)
-        {
-            AnimateView(false);
-        }
-
-        protected override void KeyBoardUpNotification(NSNotification notification)
-        {
-            tagsTableView.ContentInset = new UIEdgeInsets(0, 0, UIKeyboard.FrameEndFromNotification(notification).Height, 0);
-            base.KeyBoardUpNotification(notification);
-        }
-
-        private void OnTimer(object state)
-        {
-            InvokeOnMainThread(() =>
-            {
-                SearchTextChanged();
-            });
-        }
-
         private void CollectionCellAction(ActionType type, string tag)
         {
             RemoveTag(tag);
-        }
-
-        private void TableCellAction(ActionType type, string tag)
-        {
-            AddTag(tag);
-        }
-
-        private async void SearchTextChanged()
-        {
-            if (_previousQuery == tagField.Text || tagField.Text.Length == 1)
-                return;
-
-            _previousQuery = tagField.Text;
-            _presenter.Clear();
-
-            ErrorBase error = null;
-            if (tagField.Text.Length == 0)
-                error = await _presenter.TryGetTopTags();
-            else if (tagField.Text.Length > 1)
-                error = await _presenter.TryLoadNext(tagField.Text);
-
-            ShowAlert(error);
-        }
-
-        private void SourceChanged(Status obj)
-        {
-            tagsTableView.ReloadData();
-        }
-
-        private void AnimateView(bool tagsOpened)
-        {
-            tagDefault.Active = !tagsOpened;
-            tagToTop.Active = tagsOpened;
-
-            UIView.Animate(0.2, () =>
-            {
-                photoView.Hidden = tagsOpened;
-                titleEditImage.Hidden = tagsOpened;
-                titleTextField.Hidden = tagsOpened;
-                tagsTableView.Hidden = !tagsOpened;
-                titleBottomView.Hidden = tagsOpened;
-                View.LayoutIfNeeded();
-            });
-        }
-
-        private void AddTag(string txt)
-        {
-            if (!_collectionviewSource.LocalTags.Contains(txt))
-            {
-                localTagsHeight.Constant = 50;
-                localTagsTopSpace.Constant = 15;
-                _collectionviewSource.LocalTags.Add(txt);
-                _collectionViewDelegate.GenerateVariables();
-                tagsCollectionView.ReloadData();
-                tagsCollectionView.ScrollToItem(NSIndexPath.FromItemSection(_collectionviewSource.LocalTags.Count - 1, 0), UICollectionViewScrollPosition.Right, true);
-            }
         }
 
         private void RemoveTag(string tag)
@@ -255,17 +368,25 @@ namespace Steepshot.iOS.Views
             _collectionviewSource.LocalTags.Remove(tag);
             _collectionViewDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
-            if (_collectionviewSource.LocalTags.Count == 0)
-            {
-                localTagsHeight.Constant = 0;
-                localTagsTopSpace.Constant = 0;
-            }
+            ResizeView();
         }
 
         public override void ViewDidLayoutSubviews()
         {
-            Constants.CreateGradient(postPhotoButton, 25);
-            Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+            if (!_isinitialized)
+            {
+                postPhotoButton.LayoutIfNeeded();
+                Constants.CreateGradient(postPhotoButton, 25);
+                Constants.CreateShadow(postPhotoButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+                _isinitialized = true;
+            }
+        }
+
+        private void ResizeView()
+        {
+            tagsCollectionView.LayoutIfNeeded();
+            var collectionContentSize = tagsCollectionView.ContentSize;
+            tagsCollectionHeight.Constant = collectionContentSize.Height;
         }
 
         private void SetBackButton()
@@ -286,11 +407,6 @@ namespace Steepshot.iOS.Views
 
         private void DoneTapped()
         {
-            if (!string.IsNullOrEmpty(tagField.Text))
-            {
-                AddTag(tagField.Text);
-                tagField.Text = string.Empty;
-            }
             RemoveFocusFromTextFields();
         }
 
@@ -308,7 +424,7 @@ namespace Steepshot.iOS.Views
             _presenter = new PostDescriptionPresenter();
         }
 
-        private async Task<OperationResult<MediaModel>> UploadPhoto()
+        private async Task<OperationResult<MediaModel>> UploadPhoto(UIImage photo, NSDictionary metadata)
         {
             Stream stream = null;
             try
@@ -317,17 +433,18 @@ namespace Steepshot.iOS.Views
                 var maxCompression = 0.1f;
                 int maxFileSize = _photoSize * 1024;
 
-                var byteArray = ImageAsset.AsJPEG(compression);
+                var byteArray = photo.AsJPEG(compression);
 
                 while (byteArray.Count() > maxFileSize && compression > maxCompression)
                 {
                     compression -= 0.1f;
-                    byteArray = ImageAsset.AsJPEG(compression);
+                    byteArray = photo.AsJPEG(compression);
                 }
-                if (_metadata != null)
+
+                if (metadata != null)
                 {
                     //exif setup
-                    var editedExifData = RemakeMetadata(_metadata);
+                    var editedExifData = RemakeMetadata(metadata, photo);
                     var newImageDataWithExif = new NSMutableData();
                     var imageDestination = CGImageDestination.Create(newImageDataWithExif, "public.jpeg", 0);
                     imageDestination.AddImage(new UIImage(byteArray).CGImage, editedExifData);
@@ -336,7 +453,7 @@ namespace Steepshot.iOS.Views
                 }
                 else
                     stream = byteArray.AsStream();
-                
+
                 var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
                 return await _presenter.TryUploadMedia(request);
             }
@@ -352,7 +469,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private NSDictionary RemakeMetadata(NSDictionary metadata)
+        private NSDictionary RemakeMetadata(NSDictionary metadata, UIImage photo)
         {
             var keys = new List<object>();
             var values = new List<object>();
@@ -366,13 +483,13 @@ namespace Steepshot.iOS.Views
                         values.Add(new NSNumber(1));
                         break;
                     case "PixelHeight":
-                        values.Add(ImageAsset.Size.Height);
+                        values.Add(photo.Size.Height);
                         break;
                     case "PixelWidth":
-                        values.Add(ImageAsset.Size.Width);
+                        values.Add(photo.Size.Width);
                         break;
                     case "{TIFF}":
-                        values.Add(RemakeMetadata((NSDictionary)item.Value));
+                        values.Add(RemakeMetadata((NSDictionary)item.Value, photo));
                         break;
                     default:
                         values.Add(item.Value);
@@ -400,14 +517,18 @@ namespace Steepshot.iOS.Views
                     if (spamCheck.Result.WaitingTime > 0)
                     {
                         _isSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
                         StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        ShowAlert(LocalizationKeys.Posts5minLimit);
                     }
                 }
                 else
                 {
                     // more than 15 posts
-                    // TODO: need to show alert
                     _isSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
             }
             finally
@@ -418,6 +539,7 @@ namespace Steepshot.iOS.Views
 
         private async void StartPostTimer(int startSeconds)
         {
+            string timeFormat;
             var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
             postPhotoButton.UserInteractionEnabled = false;
 
@@ -425,7 +547,8 @@ namespace Steepshot.iOS.Views
             {
                 UIView.PerformWithoutAnimation(() =>
                 {
-                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString("mm\\:ss"), UIControlState.Normal);
+                    timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString(timeFormat), UIControlState.Normal); 
                     postPhotoButton.LayoutIfNeeded();
                 });
                 await Task.Delay(1000);
@@ -452,6 +575,7 @@ namespace Steepshot.iOS.Views
                 return;
 
             ToggleAvailability(false);
+            RemoveFocusFromTextFields();
 
             await Task.Run(() =>
             {
@@ -472,17 +596,21 @@ namespace Steepshot.iOS.Views
 
                     var shouldReturn = false;
                     var photoUploadRetry = false;
-                    OperationResult<MediaModel> photoUploadResponse;
+                    OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
                     do
                     {
                         photoUploadRetry = false;
-                        photoUploadResponse = UploadPhoto().Result;
+                        for (int i = 0; i < ImageAssets.Count; i++)
+                        {
+                            photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                        }
 
-                        if (!photoUploadResponse.IsSuccess)
+                        if (photoUploadResponse.Any(r => r.IsSuccess == false))
                         {
                             InvokeOnMainThread(() =>
                             {
-                                ShowDialog(photoUploadResponse.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                //Remake this
+                                ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
                                 {
                                     shouldReturn = true;
                                     mre.Set();
@@ -505,9 +633,10 @@ namespace Steepshot.iOS.Views
                     {
                         Title = title,
                         Description = description,
+                        Device = "iOS",
 
                         Tags = tags.ToArray(),
-                        Media = new[] { photoUploadResponse.Result }
+                        Media = photoUploadResponse.Select(r => r.Result).ToArray(),
                     };
 
                     var pushToBlockchainRetry = false;
@@ -553,6 +682,51 @@ namespace Steepshot.iOS.Views
             });
         }
 
+        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
+        {
+            return await Task.Run(() =>
+            {
+                var imgSize = sourceImage.Size;
+                var inSampleSize = ImageHelper.CalculateInSampleSize(sourceImage.Size, 1200, 1200);
+                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
+
+                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
+                sourceImage.Draw(drawRect);
+                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
+                UIGraphics.EndImageContext();
+
+                return modifiedImage;
+            });
+        }
+
+        private void RotatePhotoIfNeeded()
+        {
+            if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
+                return;
+
+            UIImageOrientation orientation;
+
+            switch (_rotation)
+            {
+                case UIDeviceOrientation.Portrait:
+                    orientation = UIImageOrientation.Up;
+                    break;
+                case UIDeviceOrientation.PortraitUpsideDown:
+                    orientation = UIImageOrientation.Down;
+                    break;
+                case UIDeviceOrientation.LandscapeLeft:
+                    orientation = UIImageOrientation.Left;
+                    break;
+                case UIDeviceOrientation.LandscapeRight:
+                    orientation = UIImageOrientation.Right;
+                    break;
+                default:
+                    orientation = UIImageOrientation.Up;
+                    break;
+            }
+            photoView.Image = ImageHelper.RotateImage(photoView.Image, orientation);
+        }
+
         private void ToggleAvailability(bool enabled)
         {
             if (enabled)
@@ -569,15 +743,36 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
-            if (tagToTop.Active)
-                RemoveFocusFromTextFields();
-            else
-                NavigationController.PopViewController(true);
+            NavigationController.PopViewController(true);
         }
 
         private void DoneTapped(object sender, EventArgs e)
         {
             DoneTapped();
+        }
+    }
+
+    public class LeftAlignedCollectionViewFlowLayout : UICollectionViewFlowLayout
+    {
+        public override UICollectionViewLayoutAttributes[] LayoutAttributesForElementsInRect(CGRect rect)
+        {
+            var attributes = base.LayoutAttributesForElementsInRect(rect);
+
+            var leftMargin = SectionInset.Left;
+            double maxY = -1.0f;
+
+            foreach (var layoutAttribute in attributes)
+            {
+                if (layoutAttribute.Frame.Y >= maxY)
+                {
+                    leftMargin = SectionInset.Left;
+                }
+                layoutAttribute.Frame = new CGRect(new CGPoint(leftMargin, layoutAttribute.Frame.Y), layoutAttribute.Frame.Size);
+
+                leftMargin += layoutAttribute.Frame.Width + MinimumInteritemSpacing;
+                maxY = Math.Max(layoutAttribute.Frame.GetMaxY(), maxY);
+            }
+            return attributes;
         }
     }
 }

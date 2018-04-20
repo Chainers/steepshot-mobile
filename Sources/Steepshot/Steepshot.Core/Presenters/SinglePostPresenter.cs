@@ -21,7 +21,7 @@ namespace Steepshot.Core.Presenters
             if (response.IsSuccess)
             {
                 PostInfo = response.Result;
-                CashPresenterManager.Add(PostInfo);
+                PostInfo = CashPresenterManager.Add(PostInfo);
                 NotifySourceChanged(nameof(TryLoadPostInfo), true);
             }
             return response.Error;

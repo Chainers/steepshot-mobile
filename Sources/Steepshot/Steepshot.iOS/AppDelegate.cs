@@ -5,6 +5,7 @@ using Foundation;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;

@@ -41,7 +41,7 @@ namespace Steepshot.Core.HttpClient
 
         public abstract Task<OperationResult<VoidResponse>> CreateOrEdit(CommentModel model, CancellationToken ct);
 
-        public abstract Task<OperationResult<string>> GetVerifyTransaction(UploadMediaModel model, CancellationToken ct);
+        public abstract Task<OperationResult<object>> GetVerifyTransaction(AuthorizedModel model, CancellationToken ct);
 
         public abstract Task<OperationResult<VoidResponse>> Delete(DeleteModel model, CancellationToken ct);
 

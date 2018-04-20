@@ -34,12 +34,8 @@ namespace Steepshot.iOS.Cells
                     CellAction?.Invoke(ActionType.Tap, tagText.Text);
                 });
 
-                hashTag.Font = tagText.Font = Constants.Semibold14;
-
+                tagText.Font = Constants.Regular14;
                 rootView.Layer.CornerRadius = 20;
-                rootView.Layer.BorderColor = Constants.R244G244B246.CGColor;
-                rootView.Layer.BorderWidth = 1;
-
                 rootView.AddGestureRecognizer(tap);
 
                 _isInitialized = true;

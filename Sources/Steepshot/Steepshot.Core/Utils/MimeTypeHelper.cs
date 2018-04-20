@@ -5,6 +5,10 @@ namespace Steepshot.Core.Utils
 {
     public sealed class MimeTypeHelper
     {
+        public const string Jpg = ".jpg";
+        public const string Jpeg = ".jpeg";
+
+
         private static readonly IDictionary<string, string> Mappings =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -213,8 +217,8 @@ namespace Steepshot.Core.Utils
                 {".jnlp", "application/x-java-jnlp-file"},
                 {".jpb", "application/octet-stream"},
                 {".jpe", "image/jpeg"},
-                {".jpeg", "image/jpeg"},
-                {".jpg", "image/jpeg"},
+                {Jpeg, "image/jpeg"},
+                {Jpg, "image/jpeg"},
                 {".js", "application/x-javascript"},
                 {".json", "application/json"},
                 {".jsx", "text/jscript"},

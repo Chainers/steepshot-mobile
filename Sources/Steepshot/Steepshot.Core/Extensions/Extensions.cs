@@ -12,6 +12,10 @@ namespace Steepshot.Core.Extensions
         private static HashSet<string> _censoredWords;
         private static HashSet<string> CensoredWords => _censoredWords ?? (_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords());
         private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private static readonly Regex WordDelimiters = new Regex(@"[_\s\.]+");
+        private static readonly Regex PermlinkNotSupportedCharacters = new Regex(@"[^a-z0-9-]+", RegexOptions.IgnoreCase);
+        private static readonly Regex TagNotSupportedCharacters = new Regex(@"[\w\d- ]+", RegexOptions.IgnoreCase);
+
 
         public static string ToPostTime(this DateTime date)
         {
@@ -58,9 +62,6 @@ namespace Steepshot.Core.Extensions
             return Transliteration.ToRus(text);
         }
 
-        private static readonly Regex WordDelimiters = new Regex(@"[_\s\.]+");
-        private static readonly Regex PermlinkNotSupportedCharacters = new Regex(@"[^a-z0-9-]+", RegexOptions.IgnoreCase);
-
         public static string TagToEn(this string tag)
         {
             tag = tag.Trim();
@@ -70,6 +71,15 @@ namespace Steepshot.Core.Extensions
             tag = WordDelimiters.Replace(tag, "-");
             tag = PermlinkNotSupportedCharacters.Replace(tag, string.Empty);
             return tag;
+        }
+
+        public static string NormalizeTag(this string tag)
+        {
+            var rez = string.Empty;
+            var matches = TagNotSupportedCharacters.Matches(tag);
+            foreach (Match matche in matches)
+                rez += matche.Value;
+            return rez;
         }
     }
 }

@@ -4,66 +4,69 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Media;
 using Android.Net;
+using Android.OS;
 using Android.Provider;
 using Android.Views;
-using Java.IO;
-using Orientation = Android.Media.Orientation;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Steepshot.Utils
 {
     public static class BitmapUtils
     {
-        public static Bitmap RotateImageIfRequired(Bitmap img, FileDescriptor fd, string url)
+        public static Bitmap RotateImageIfRequired(Bitmap img, string url)
         {
-            Orientation orientation;
-            if (!TryGetOrientation(fd, out orientation))
-                if (!TryGetOrientation(url, out orientation))
-                    return img;
+            var ei = new ExifInterface(url);
+            var orientation = ei.GetAttribute(ExifInterface.TagOrientation);
+            if (string.IsNullOrEmpty(orientation) || orientation == "0")
+                return img;
 
+            var matrix = GetMatrixOrientation(ei, 0);
+            var rotated = Bitmap.CreateBitmap(img, 0, 0, img.Width, img.Height, matrix, true);
+            img.Recycle();
+            img.Dispose();
+            return rotated;
+        }
+
+        private static Matrix GetMatrixOrientation(ExifInterface sourceExif, float degrees)
+        {
+            var matrix = new Matrix();
+
+            var orientation = sourceExif.GetAttribute(ExifInterface.TagOrientation);
             switch (orientation)
             {
-                case Orientation.Rotate90:
-                    return RotateImage(img, 90);
-                case Orientation.Rotate180:
-                    return RotateImage(img, 180);
-                case Orientation.Rotate270:
-                    return RotateImage(img, 270);
-                default:
-                    return img;
+                case "1": //Horizontal(normal)
+                    matrix.PostRotate(degrees);
+                    break;
+                case "2": //Mirror horizontal
+                    matrix.SetScale(-1, 1);
+                    matrix.PostRotate(degrees);
+                    break;
+                case "3": //Rotate 180
+                    matrix.PostRotate(180 + degrees);
+                    break;
+                case "4": //Mirror vertical
+                    matrix.PostRotate(180 + degrees);
+                    matrix.SetScale(-1, 1);
+                    break;
+                case "5": //Mirror horizontal and rotate 270 CW
+                    matrix.PostScale(-1, 1);
+                    matrix.SetRotate(270 + degrees);
+                    break;
+                case "6": //Rotate 90 CW
+                    matrix.SetRotate(90 + degrees);
+                    break;
+                case "7": //Mirror horizontal and rotate 90 CW
+                    matrix.PostScale(-1, 1);
+                    matrix.SetRotate(90 + degrees);
+                    break;
+                case "8": //Rotate 270 CW
+                    matrix.SetRotate(270 + degrees);
+                    break;
             }
+            return matrix;
         }
 
-        private static bool TryGetOrientation(FileDescriptor fd, out Orientation rez)
-        {
-            try
-            {
-                var ei = new ExifInterface(fd);
-                rez = (Orientation)ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
-                return true;
-            }
-            catch
-            {
-                //nothing to do
-            }
-            rez = Orientation.Normal;
-            return false;
-        }
-
-        private static bool TryGetOrientation(string url, out Orientation rez)
-        {
-            try
-            {
-                var ei = new ExifInterface(url);
-                rez = (Orientation)ei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
-                return true;
-            }
-            catch
-            {
-                //nothing to do
-            }
-            rez = Orientation.Normal;
-            return false;
-        }
 
         public static Bitmap RotateImage(Bitmap img, int degree)
         {
@@ -73,14 +76,13 @@ namespace Steepshot.Utils
             return rotatedImg;
         }
 
-        public static Bitmap DecodeSampledBitmapFromDescriptor(FileDescriptor fileDescriptor, int reqWidth, int reqHeight)
+        public static Bitmap DecodeSampledBitmapFromFile(string fileDescriptor, int reqWidth, int reqHeight)
         {
             var options = new BitmapFactory.Options { InJustDecodeBounds = true };
-            BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            BitmapFactory.DecodeFile(fileDescriptor, options);
             options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
             options.InJustDecodeBounds = false;
-            //options.InPreferredConfig = Bitmap.Config.Rgb565; //TODO:KOA:Perhaps Argb8888 will look better о.О
-            return BitmapFactory.DecodeFileDescriptor(fileDescriptor, new Rect(), options);
+            return BitmapFactory.DecodeFile(fileDescriptor, options);
         }
 
         public static int CalculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight)
@@ -127,97 +129,31 @@ namespace Steepshot.Utils
             return cursor.GetString(index);
         }
 
-        /*
-        public virtual string ToPath(T itm)
+
+        public static void CopyExif(string source, string destination, Dictionary<string, string> replace)
         {
-            var buf = string.Empty;
-
-            var post = itm as Post;
-            if (post != null)
-            {
-                buf = post.Body;
-            }
-            else
-            {
-                var str = itm as string;
-                if (str != null)
-                    buf = str;
-            }
-
-            if (!buf.StartsWith("http") && !buf.StartsWith("file://"))
-                buf = "file://" + buf;
-
-            return buf;
+            var sourceExif = new ExifInterface(source);
+            var destinationExif = new ExifInterface(destination);
+            CopyExif(sourceExif, destinationExif, replace);
         }
 
-        
-        public static Bitmap getCorrectlyOrientedImage(Context context, string photoUri, int maxWidth)
+        public static void CopyExif(ExifInterface source, ExifInterface destination, Dictionary<string, string> replace)
         {
-            BitmapFactory.Options dbo = new BitmapFactory.Options();
-            dbo.InJustDecodeBounds = true;
-            BitmapFactory.DecodeFile(photoUri, dbo);
-
-
-            int rotatedWidth, rotatedHeight;
-            int orientation = 1;//getOrientation(context, photoUri);
-
-            if (orientation == 90 || orientation == 270)
+            var build = (int)Build.VERSION.SdkInt;
+            var fields = typeof(ExifInterface).GetFields();
+            foreach (var field in fields)
             {
-                rotatedWidth = dbo.OutHeight;
-                rotatedHeight = dbo.OutWidth;
-            }
-            else
-            {
-                rotatedWidth = dbo.OutWidth;
-                rotatedHeight = dbo.OutHeight;
+                var atr = field.GetCustomAttribute<Android.Runtime.RegisterAttribute>();
+                if (build >= atr?.ApiSince)
+                {
+                    var name = (string)field.GetValue(null);
+                    var aBuf = replace != null && replace.ContainsKey(name) ? replace[name] : source.GetAttribute(name);
+                    if (!string.IsNullOrEmpty(aBuf))
+                        destination.SetAttribute(name, aBuf);
+                }
             }
 
-            Bitmap srcBitmap;
-            stream = context.ContentResolver.OpenInputStream(photoUri);
-            if (rotatedWidth > maxWidth || rotatedHeight > maxWidth)
-            {
-                float widthRatio = ((float)rotatedWidth) / ((float)maxWidth);
-                float heightRatio = ((float)rotatedHeight) / ((float)maxWidth);
-                float maxRatio = Math.Max(widthRatio, heightRatio);
-
-                // Create the bitmap from file
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.InSampleSize = (int)maxRatio;
-                srcBitmap = BitmapFactory.DecodeStream(stream, null, options);
-            }
-            else
-            {
-                srcBitmap = BitmapFactory.DecodeStream(stream);
-
-            }
-            stream.Close();
-
-            if (orientation > 0)
-            {
-                Matrix matrix = new Matrix();
-                matrix.PostRotate(orientation);
-
-                srcBitmap = Bitmap.CreateBitmap(srcBitmap, 0, 0, srcBitmap.Width,
-                        srcBitmap.Height, matrix, true);
-            }
-            return srcBitmap;
-        }*/
-
-
-        /*
-        public static int getOrientation(Context context, Uri photoUri)
-        {
-
-            Cursor cursor = context.getContentResolver().query(photoUri,
-                    new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
-
-            if (cursor == null || cursor.getCount() != 1)
-            {
-                return 90;  //Assuming it was taken portrait
-            }
-
-            cursor.moveToFirst();
-            return cursor.getInt(0);
-        }*/
+            destination.SaveAttributes();
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace Steepshot.Activity
         private MobileAutoTests _testContainer;
 
 #pragma warning disable 0649, 4014
-        [CheeseBind.BindView(Resource.Id.test_results)] private TextView _testResults;
+        [BindView(Resource.Id.test_results)] private TextView _testResults;
 #pragma warning restore 0649
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -34,7 +34,7 @@ namespace Steepshot.Activity
             Cheeseknife.Reset(this);
         }
 
-        [CheeseBind.OnClick(Resource.Id.run_api_tests)]
+        [OnClick(Resource.Id.run_api_tests)]
         private async void RunApiTest(object sender, EventArgs e)
         {
             //TODO: add cancel support
@@ -42,7 +42,7 @@ namespace Steepshot.Activity
             await _testContainer.RunDitchApiTests();
         }
 
-        [CheeseBind.OnClick(Resource.Id.btn_back)]
+        [OnClick(Resource.Id.btn_back)]
         public void GoBackClick(object sender, EventArgs e)
         {
             OnBackPressed();

@@ -184,7 +184,7 @@
             android:textColor="@color/black"
             android:textSize="14sp"
             android:gravity="center"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true" />
         <View
             android:id="@+id/separator"
             android:layout_toRightOf="@id/like_scale_power"
@@ -199,7 +199,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:scaleType="center"
-            android:src="@drawable/ic_scale_heart"
+            android:src="@drawable/ic_new_like_selected"
             android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true" />
@@ -215,7 +215,7 @@
             android:thumb="@drawable/seekbar_thumb"
             android:progressDrawable="@drawable/seekbar_progress"
             android:layout_centerInParent="true"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="10dp" />
     </RelativeLayout>
     <View
         android:id="@+id/comments_separator"

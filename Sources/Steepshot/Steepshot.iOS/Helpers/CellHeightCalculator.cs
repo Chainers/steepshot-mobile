@@ -46,7 +46,7 @@ namespace Steepshot.iOS.Helpers
                 if (tag == "steepshot")
                     continue;
                 NSUrl tagUrlWithoutWhitespaces = null;
-                var tagText = tag.Replace(' ', '#');
+                var tagText = tag.Replace(" ", string.Empty);
                 if (_tagRegex.IsMatch(tagText))
                     tagUrlWithoutWhitespaces = new NSUrl(tagText);
                 var linkAttribute = new UIStringAttributes

@@ -18,13 +18,12 @@ using Steepshot.Core.Utils;
 using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Environment = Android.OS.Environment;
-using Uri = Android.Net.Uri;
 
 namespace Steepshot.Fragment
 {
     public class GalleryFragment : BaseFragment
     {
-        private const byte MaxPhotosAllowed = 7;
+        #region BindView
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.folders_spinner)] private Spinner _folders;
@@ -39,10 +38,11 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.photos_grid)] private CoordinatorRecyclerView _gridView;
 #pragma warning restore 0649
 
-        private bool IsSdCardAvailable =>
-            Environment.ExternalStorageState.Equals(Environment.MediaMounted);
-        private string _selectedBucket;
-        private string BucketSelection => _selectedBucket.Equals(AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery)) ? null : MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{_selectedBucket}\"";
+        #endregion
+
+        #region Fields
+
+        private const byte MaxPhotosAllowed = 7;
         private Dictionary<string, string> _media;
         private Dictionary<string, string> _thumbnails;
         private Dictionary<string, List<GalleryMediaModel>> _gallery;
@@ -50,8 +50,16 @@ namespace Steepshot.Fragment
         private GalleryMediaModel _prevSelected;
         private CancellationTokenSource _cancellationTokenSource;
         private bool _multiSelect;
-
         private string[] _buckets;
+        private string _selectedBucket;
+        private GalleryGridAdapter _gridAdapter;
+
+        #endregion
+
+        #region Properties
+
+        private bool IsSdCardAvailable => Environment.ExternalStorageState.Equals(Environment.MediaMounted);
+
         private string[] Buckets
         {
             get
@@ -60,15 +68,16 @@ namespace Steepshot.Fragment
                 {
                     string[] columns = { "Distinct " + MediaStore.Images.ImageColumns.BucketDisplayName };
 
-                    var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, null, null, null);
-                    int count = cursor.Count;
+                    var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns,
+                        null, null, null);
+                    var count = cursor.Count;
                     _buckets = new string[count + 1];
                     _buckets[0] = AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery);
 
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         cursor.MoveToPosition(i);
-                        int dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
+                        var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.BucketDisplayName);
                         _buckets[i + 1] = cursor.GetString(dataColumnIndex);
                     }
 
@@ -79,8 +88,12 @@ namespace Steepshot.Fragment
             }
         }
 
-        private GalleryGridAdapter _gridAdapter;
+        private string BucketSelection => _selectedBucket.Equals(AppSettings.LocalizationManager.GetText(LocalizationKeys.Gallery)) ? null : MediaStore.Images.ImageColumns.BucketDisplayName + $" = \"{_selectedBucket}\"";
+
         private GalleryGridAdapter GridAdapter => _gridAdapter ?? (_gridAdapter = new GalleryGridAdapter(Activity));
+
+        #endregion
+
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -92,6 +105,7 @@ namespace Steepshot.Fragment
 
             return InflatedView;
         }
+
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             if (IsInitialized)
@@ -125,12 +139,14 @@ namespace Steepshot.Fragment
             _gallery = new Dictionary<string, List<GalleryMediaModel>>();
             _pickedItems = new List<GalleryMediaModel>();
         }
+
         public override void OnDetach()
         {
             base.OnDetach();
             Cheeseknife.Reset(this);
             GC.Collect(0);
         }
+
 
         private void NextBtnOnClick(object sender, EventArgs eventArgs)
         {
@@ -140,19 +156,24 @@ namespace Steepshot.Fragment
                 _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();
                 foreach (var galleryMediaModel in _pickedItems)
                 {
-                    var croppedBitmap = _preview.Crop(Uri.Parse(galleryMediaModel.Path), galleryMediaModel.Parameters);
+                    var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
                     galleryMediaModel.PreparedBitmap = croppedBitmap;
                 }
-                ((BaseActivity)Activity).OpenNewContentFragment(new PostEditFragment(_pickedItems));
+                ((BaseActivity)Activity).OpenNewContentFragment(new PostCreateFragment(_pickedItems));
             }
             else
             {
                 Activity.ShowAlert(LocalizationKeys.NoPhotosPicked);
             }
         }
+
         private void BackBtnOnClick(object sender, EventArgs eventArgs) => ((BaseActivity)Activity).OnBackPressed();
+
         private void RatioBtnOnClick(object sender, EventArgs eventArgs) => _preview.SwitchScale();
-        private void RotateBtnOnClick(object sender, EventArgs eventArgs) => _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+
+        private void RotateBtnOnClick(object sender, EventArgs eventArgs) =>
+            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)
         {
             _multiSelect = !_multiSelect;
@@ -168,8 +189,11 @@ namespace Steepshot.Fragment
             _pickedItems.Clear();
             _prevSelected = null;
             OnItemSelected(selectedItem ?? _gallery[_selectedBucket][0]);
-            _multiselectBtn.SetImageResource(_multiSelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
+            _multiselectBtn.SetImageResource(_multiSelect
+                ? Resource.Drawable.ic_multiselect_active
+                : Resource.Drawable.ic_multiselect);
         }
+
         private void OnItemSelected(GalleryMediaModel model)
         {
             if (_pickedItems.Count >= MaxPhotosAllowed && model.SelectionPosition == (int)GallerySelectionType.Multi)
@@ -208,8 +232,9 @@ namespace Steepshot.Fragment
             }
 
             model.Selected = true;
-            _preview.SetImageUri(Uri.Parse(model.Path), model.Parameters);
+            _preview.SetImagePath(model.Path, model.Parameters);
         }
+
         private void FoldersOnItemSelected(object sender, AdapterView.ItemSelectedEventArgs itemSelectedEventArgs)
         {
             _cancellationTokenSource?.Cancel();
@@ -219,9 +244,12 @@ namespace Steepshot.Fragment
             _selectedBucket = Buckets[itemSelectedEventArgs.Position];
             _media = GetMediaPaths();
             _thumbnails = GetMediaThumbnailsPaths();
+
             if (!_gallery.ContainsKey(_selectedBucket))
                 _gallery.Add(_selectedBucket, GetMediaWithThumbnails());
-            _gallery[_selectedBucket].ForEach(x => x.SelectionPosition = _multiSelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None);
+
+            foreach (var x in _gallery[_selectedBucket])
+                x.SelectionPosition = _multiSelect ? (int)GallerySelectionType.Multi : (int)GallerySelectionType.None;
 
             GridAdapter.SetMedia(_gallery[_selectedBucket]);
             OnItemSelected(_gallery[_selectedBucket][0]);
@@ -230,63 +258,68 @@ namespace Steepshot.Fragment
         private List<GalleryMediaModel> GetMediaWithThumbnails()
         {
             var result = new List<GalleryMediaModel>();
-            foreach (var tuple in _media)
+            foreach (var kv in _media)
             {
                 var galleryModel = new GalleryMediaModel
                 {
-                    Id = tuple.Key,
-                    Path = "file://" + tuple.Value,
-                    Thumbnail = _thumbnails.ContainsKey(tuple.Key) ? _thumbnails[tuple.Key] : string.Empty,
+                    Id = kv.Key,
+                    Path = kv.Value,
+                    Thumbnail = _thumbnails.ContainsKey(kv.Key) ? _thumbnails[kv.Key] : string.Empty,
                     Selected = false
                 };
+
                 if (string.IsNullOrEmpty(galleryModel.Thumbnail))
                     GenerateThumbnail(_selectedBucket, galleryModel, _cancellationTokenSource.Token);
+
                 result.Add(galleryModel);
             }
             return result;
         }
+
         private Dictionary<string, string> GetMediaPaths()
         {
             string[] columns =
-                {
-                    MediaStore.Images.ImageColumns.Data,
-                    MediaStore.Images.ImageColumns.Id
-                };
+            {
+                MediaStore.Images.ImageColumns.Data,
+                MediaStore.Images.ImageColumns.Id
+            };
 
-            string orderBy = MediaStore.Images.ImageColumns.DateTaken;
+            var orderBy = MediaStore.Images.ImageColumns.DateTaken;
             var cursor = Activity.ContentResolver.Query(MediaStore.Images.Media.ExternalContentUri, columns, BucketSelection, null, orderBy);
-            int count = cursor.Count;
+            var count = cursor.Count;
             var result = new Dictionary<string, string>();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 cursor.MoveToPosition(i);
-                int dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
-                int idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
+                var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
+                var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
                 result.Add(cursor.GetString(idColumnIndex), cursor.GetString(dataColumnIndex));
             }
 
             cursor.Close();
             return result;
         }
+
         private Dictionary<string, string> GetMediaThumbnailsPaths()
         {
             string[] columns =
             {
-                    MediaStore.Images.Thumbnails.Data,
-                    MediaStore.Images.Thumbnails.ImageId
-                };
+                MediaStore.Images.Thumbnails.Data,
+                MediaStore.Images.Thumbnails.ImageId
+            };
 
             var cursor = Activity.ContentResolver.Query(MediaStore.Images.Thumbnails.ExternalContentUri, columns, null, null, null);
-            int count = cursor.Count;
+            var count = cursor.Count;
             var result = new Dictionary<string, string>();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 cursor.MoveToPosition(i);
-                int dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.Data);
-                int idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.ImageId);
+                var dataColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.Data);
+                var idColumnIndex = cursor.GetColumnIndex(MediaStore.Images.Thumbnails.ImageId);
                 var key = cursor.GetString(idColumnIndex);
+
                 if (result.ContainsKey(key))
                     result.Add(key, cursor.GetString(dataColumnIndex));
             }
@@ -294,39 +327,41 @@ namespace Steepshot.Fragment
             cursor.Close();
             return result;
         }
-        private void GenerateThumbnail(string bucket, GalleryMediaModel model, CancellationToken ct) => Task.Run(() =>
+
+        private void GenerateThumbnail(string bucket, GalleryMediaModel model, CancellationToken ct)
         {
-            var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Activity.ContentResolver, long.Parse(model.Id),
-                ThumbnailKind.MiniKind, null);
-
-            var values = new ContentValues(4);
-            values.Put(MediaStore.Images.Thumbnails.Kind, (int)ThumbnailKind.MiniKind);
-            values.Put(MediaStore.Images.Thumbnails.ImageId, long.Parse(model.Id));
-            values.Put(MediaStore.Images.Thumbnails.Height, thumbnail.Height);
-            values.Put(MediaStore.Images.Thumbnails.Width, thumbnail.Width);
-
-            if (ct.IsCancellationRequested)
-                return;
-
-            var uri = Activity.ContentResolver.Insert(MediaStore.Images.Thumbnails.ExternalContentUri, values);
-
-            using (var thumbOut = Activity.ContentResolver.OpenOutputStream(uri))
+            Task.Run(() =>
             {
-                thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, thumbOut);
-            }
+                var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Activity.ContentResolver, long.Parse(model.Id), ThumbnailKind.MiniKind, null);
 
-            var cursor = MediaStore.Images.Thumbnails.QueryMiniThumbnail(Activity.ContentResolver, long.Parse(model.Id),
-                ThumbnailKind.MiniKind, new[] { MediaStore.Images.Thumbnails.Data });
+                var values = new ContentValues(4);
+                values.Put(MediaStore.Images.Thumbnails.Kind, (int)ThumbnailKind.MiniKind);
+                values.Put(MediaStore.Images.Thumbnails.ImageId, long.Parse(model.Id));
+                values.Put(MediaStore.Images.Thumbnails.Height, thumbnail.Height);
+                values.Put(MediaStore.Images.Thumbnails.Width, thumbnail.Width);
 
-            if (cursor != null && cursor.Count > 0)
-            {
-                cursor.MoveToFirst();
-                var thumbUri = cursor.GetString(0);
-                model.Thumbnail = thumbUri;
-                Activity.RunOnUiThread(() =>
-                GridAdapter.NotifyItemChanged(_gallery[bucket].IndexOf(model)));
-                cursor.Close();
-            }
-        }, ct);
+                if (ct.IsCancellationRequested)
+                    return;
+
+                var uri = Activity.ContentResolver.Insert(MediaStore.Images.Thumbnails.ExternalContentUri, values);
+
+                using (var thumbOut = Activity.ContentResolver.OpenOutputStream(uri))
+                {
+                    thumbnail.Compress(Bitmap.CompressFormat.Jpeg, 100, thumbOut);
+                }
+
+                var cursor = MediaStore.Images.Thumbnails.QueryMiniThumbnail(Activity.ContentResolver, long.Parse(model.Id), ThumbnailKind.MiniKind, new[] { MediaStore.Images.Thumbnails.Data });
+
+                if (cursor != null && cursor.Count > 0)
+                {
+                    cursor.MoveToFirst();
+                    var thumbUri = cursor.GetString(0);
+                    model.Thumbnail = thumbUri;
+                    Activity.RunOnUiThread(() =>
+                        GridAdapter.NotifyItemChanged(_gallery[bucket].IndexOf(model)));
+                    cursor.Close();
+                }
+            }, ct);
+        }
     }
 }
