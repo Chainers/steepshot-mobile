@@ -44,6 +44,8 @@ namespace Steepshot.iOS.Views
             var multiselectTap = new UITapGestureRecognizer(MultiSelectTap);
             multiSelect.AddGestureRecognizer(multiselectTap);
 
+            bottomArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
+
             source = new PhotoCollectionViewSource();
             photoCollection.Source = source;
             photoCollection.RegisterClassForCell(typeof(PhotoCollectionViewCell), nameof(PhotoCollectionViewCell));
@@ -247,6 +249,19 @@ namespace Steepshot.iOS.Views
 
         private void ZoomTap()
         {
+            UIView.Animate(0.15,() => {
+                if (topArrow.Transform.xx == 1)
+                {
+                    topArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
+                    bottomArrow.Transform = CGAffineTransform.MakeRotation(0);
+                }
+                else
+                {
+                    topArrow.Transform = CGAffineTransform.MakeRotation(0);
+                    bottomArrow.Transform = CGAffineTransform.MakeRotation((float)(Math.PI));
+                }
+            });
+
             if (originalImageSize.Width < originalImageSize.Height)
             {
                 if (_cropView.ZoomScale != _cropView.Frame.Width / originalImageSize.Width)
@@ -340,6 +355,17 @@ namespace Steepshot.iOS.Views
 
         private void RotateTap()
         {
+            UIView.Animate(0.15, () =>
+            {
+                rotate.Alpha = 0.6f;
+            }, () =>
+            {
+                UIView.Animate(0.15, () =>
+                {
+                    rotate.Alpha = 1f;
+                }, null);
+            });
+
             imageView.Image = ImageHelper.RotateImage(imageView.Image, UIImageOrientation.Right);
             SaveOrientation();
             AdjustImageViewSize(imageView.Image);

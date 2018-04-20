@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Cells
 	partial class LocalTagCollectionViewCell
 	{
 		[Outlet]
+		UIKit.UIImageView closeImage { get; set; }
+
+		[Outlet]
 		UIKit.UIView rootView { get; set; }
 
 		[Outlet]
@@ -28,6 +31,11 @@ namespace Steepshot.iOS.Cells
 			if (tagText != null) {
 				tagText.Dispose ();
 				tagText = null;
+			}
+
+			if (closeImage != null) {
+				closeImage.Dispose ();
+				closeImage = null;
 			}
 		}
 	}

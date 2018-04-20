@@ -13,7 +13,7 @@ namespace Steepshot.iOS.Cells
 	partial class TagTableViewCell
 	{
 		[Outlet]
-		UIKit.UILabel hashLabel { get; set; }
+		UIKit.UIImageView addImage { get; set; }
 
 		[Outlet]
 		UIKit.UILabel tagLabel { get; set; }
@@ -25,9 +25,9 @@ namespace Steepshot.iOS.Cells
 				tagLabel = null;
 			}
 
-			if (hashLabel != null) {
-				hashLabel.Dispose ();
-				hashLabel = null;
+			if (addImage != null) {
+				addImage.Dispose ();
+				addImage = null;
 			}
 		}
 	}

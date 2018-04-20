@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Views
 	partial class PhotoPreviewViewController
 	{
 		[Outlet]
+		UIKit.UIImageView bottomArrow { get; set; }
+
+		[Outlet]
 		UIKit.UIView cropBackgroundView { get; set; }
 
 		[Outlet]
@@ -26,6 +29,9 @@ namespace Steepshot.iOS.Views
 
 		[Outlet]
 		UIKit.UIImageView rotate { get; set; }
+
+		[Outlet]
+		UIKit.UIImageView topArrow { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -44,14 +50,24 @@ namespace Steepshot.iOS.Views
 				photoCollection = null;
 			}
 
+			if (resize != null) {
+				resize.Dispose ();
+				resize = null;
+			}
+
 			if (rotate != null) {
 				rotate.Dispose ();
 				rotate = null;
 			}
 
-			if (resize != null) {
-				resize.Dispose ();
-				resize = null;
+			if (topArrow != null) {
+				topArrow.Dispose ();
+				topArrow = null;
+			}
+
+			if (bottomArrow != null) {
+				bottomArrow.Dispose ();
+				bottomArrow = null;
 			}
 		}
 	}

@@ -32,6 +32,8 @@ namespace Steepshot.iOS.ViewControllers
         private static readonly nfloat _alertWidth = 270;
 
         public static bool ShouldProfileUpdate { get; set; }
+        public static Action CloseSliderAction;
+        public static bool IsSliderOpen;
 
         public override void ViewDidAppear(bool animated)
         {
@@ -243,8 +245,8 @@ namespace Steepshot.iOS.ViewControllers
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
 
-            var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
-            alert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
+            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
+            alert.AddAction(UIAlertAction.Create(lm.GetText(LocalizationKeys.Ok), UIAlertActionStyle.Cancel, null));
             PresentViewController(alert, true, null);
         }
 
@@ -271,7 +273,7 @@ namespace Steepshot.iOS.ViewControllers
                 message = nameof(LocalizationKeys.UnexpectedError);
             }
 
-            var alert = UIAlertController.Create(null, Regex.Replace(message, @"[^\w\s-]", "", RegexOptions.None), UIAlertControllerStyle.Alert);
+            var alert = UIAlertController.Create(null, lm.GetText(message), UIAlertControllerStyle.Alert);
             alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
             alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);

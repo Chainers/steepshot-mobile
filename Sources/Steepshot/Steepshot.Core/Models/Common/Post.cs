@@ -102,7 +102,6 @@ namespace Steepshot.Core.Models.Common
         [JsonIgnore]
         public bool ShowMask { get; set; } = true;
 
-
         public string Permlink
         {
             get

@@ -45,13 +45,11 @@ namespace Steepshot.CustomViews
         {
             base.OnDraw(canvas);
             if (!Draw) return;
-            var paint = new Paint(PaintFlags.AntiAlias) { Color = new Color(ContextCompat.GetColor(Context, Resource.Color.rgb209_213_216)), StrokeWidth = VotingPowerWidth };
+            var paint = new Paint(PaintFlags.AntiAlias) { Color = Utils.Style.R209G213B216, StrokeWidth = VotingPowerWidth };
             paint.SetStyle(Paint.Style.Stroke);
             paint.StrokeCap = Paint.Cap.Round;
             canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, 360f, false, paint);
-            paint.SetShader(new LinearGradient(0, 0, 0, Height,
-                new Color(ContextCompat.GetColor(Context, Resource.Color.rgb255_121_4)),
-                new Color(ContextCompat.GetColor(Context, Resource.Color.rgb255_22_5)), Shader.TileMode.Mirror));
+            paint.SetShader(new LinearGradient(0, 0, 0, Height, Utils.Style.R255G121B4, Utils.Style.R255G22B5, Shader.TileMode.Mirror));
             canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, VotingPower * 3.6f, false, paint);
         }
     }

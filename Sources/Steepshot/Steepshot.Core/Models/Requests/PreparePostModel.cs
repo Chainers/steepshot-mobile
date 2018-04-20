@@ -19,6 +19,17 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         public string Description { get; set; }
+        
+        public string Permlink
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_permlink))
+                    _permlink = OperationHelper.TitleToPermlink(Title);
+
+                return _permlink;
+            }
+        }
 
         //needed for post/prepare
         [JsonProperty]
@@ -53,18 +64,8 @@ namespace Steepshot.Core.Models.Requests
         [Required(ErrorMessage = nameof(LocalizationKeys.EmptyTitleField))]
         public string Title { get; set; }
 
-
-
-        public string Permlink
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_permlink))
-                    _permlink = OperationHelper.TitleToPermlink(Title);
-
-                return _permlink;
-            }
-        }
+        [JsonProperty]
+        public string Device { get; set; }
 
         public bool IsEditMode { get; }
 
@@ -78,7 +79,6 @@ namespace Steepshot.Core.Models.Requests
                 return _category;
             }
         }
-
 
         public PreparePostModel(UserInfo user) : base(user)
         {
