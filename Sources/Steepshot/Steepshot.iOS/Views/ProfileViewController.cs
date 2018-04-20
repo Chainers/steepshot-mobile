@@ -113,19 +113,23 @@ namespace Steepshot.iOS.Views
             powerPopup = new UIView();
             powerPopup.Frame = new CGRect(0, -NavigationController.NavigationBar.Frame.Bottom, UIScreen.MainScreen.Bounds.Width, NavigationController.NavigationBar.Frame.Bottom);
 
-            var heart = new UIImageView();
-            heart.Image = UIImage.FromBundle("ic_white_heart");
-            powerPopup.AddSubview(heart);
-
             powerText = new UILabel();
+            powerText.TextAlignment = UITextAlignment.Center;
             powerText.TextColor = UIColor.White;
             powerText.Font = Constants.Semibold14;
             powerPopup.AddSubview(powerText);
 
-            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
-            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            powerText.AutoAlignAxis(ALAxis.Horizontal, heart);
-            powerText.AutoPinEdge(ALEdge.Left, ALEdge.Right, heart, 10f);
+            var pseudoBar = new UIView();
+            powerPopup.AddSubview(pseudoBar);
+            pseudoBar.AutoSetDimension(ALDimension.Height, 20f);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+
+            powerText.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, pseudoBar);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             Constants.CreateGradient(powerPopup, 0);
 
             NavigationController.View.AddSubview(powerPopup);
