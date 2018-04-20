@@ -31,15 +31,13 @@ namespace Steepshot.Fragment
 {
     public abstract class PostPrepareBaseFragment : BaseFragmentWithPresenter<PostDescriptionPresenter>
     {
-        protected readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+        #region Fields
 
+        protected readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
-
         protected SelectedTagsAdapter _localTagsAdapter;
-        protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
         protected TagsAdapter _tagsAdapter;
-        protected TagsAdapter TagsAdapter => _tagsAdapter ?? (_tagsAdapter = new TagsAdapter(Presenter));
         protected PreparePostModel _model;
         protected string _previousQuery;
 
@@ -70,6 +68,15 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.page_title)] protected TextView _pageTitle;
         [BindView(Resource.Id.top_margin_tags_layout)] protected RelativeLayout _topMarginTagsLayout;
         [BindView(Resource.Id.toolbar)] protected LinearLayout _topPanel;
+
+        #endregion
+
+        #region Properties
+
+        protected TagsAdapter TagsAdapter => _tagsAdapter ?? (_tagsAdapter = new TagsAdapter(Presenter));
+        protected SelectedTagsAdapter LocalTagsAdapter => _localTagsAdapter ?? (_localTagsAdapter = new SelectedTagsAdapter());
+
+        #endregion
 
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -121,7 +128,6 @@ namespace Steepshot.Fragment
 
         }
 
-
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             if (!IsInitialized)
@@ -140,6 +146,7 @@ namespace Steepshot.Fragment
             GC.Collect(0);
         }
 
+
         protected async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
@@ -153,7 +160,7 @@ namespace Steepshot.Fragment
         }
 
         protected abstract Task OnPostAsync();
-        
+
         protected async void SetPostingTimer()
         {
             var timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
@@ -181,16 +188,7 @@ namespace Steepshot.Fragment
             });
         }
 
-
-
-
-        protected void RatioBtnOnClick(object sender, EventArgs eventArgs) => _preview.SwitchScale();
-
-        protected void RotateBtnOnClick(object sender, EventArgs eventArgs) => _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
-
-
-
-        protected void OnUploadEnded()
+        protected void EnabledPost()
         {
             _postButton.Enabled = true;
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
@@ -205,7 +203,7 @@ namespace Steepshot.Fragment
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)
         {
-            OnUploadEnded();
+            EnabledPost();
         }
 
         protected void TryAgainAction(object o, DialogClickEventArgs dialogClickEventArgs)
@@ -217,7 +215,7 @@ namespace Steepshot.Fragment
         {
             if (_model.Media == null)
             {
-                OnUploadEnded();
+                EnabledPost();
                 return;
             }
 
@@ -228,7 +226,7 @@ namespace Steepshot.Fragment
             if (resp.IsSuccess)
             {
                 BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
-                OnUploadEnded();
+                EnabledPost();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);
                 if (Activity is SplashActivity || Activity is CameraActivity)
@@ -403,6 +401,9 @@ namespace Steepshot.Fragment
                 ((BaseActivity)Activity).OnBackPressed();
         }
 
-        protected void OnRootLayoutClick(object sender, EventArgs e) => ((BaseActivity)Activity).HideKeyboard();
+        protected void OnRootLayoutClick(object sender, EventArgs e)
+        {
+            ((BaseActivity)Activity).HideKeyboard();
+        }
     }
 }

@@ -107,6 +107,7 @@ namespace Steepshot.Base
             }
 
             GC.Collect();
+            GC.Collect(GC.MaxGeneration);
             base.OnTrimMemory(level);
         }
 

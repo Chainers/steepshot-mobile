@@ -8,10 +8,4 @@
         Comment,
         Post
     }
-
-    public enum GallerySelectionType
-    {
-        None = -1,
-        Multi = 0
-    }
 }

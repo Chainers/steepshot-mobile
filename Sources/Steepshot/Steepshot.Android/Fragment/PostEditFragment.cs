@@ -35,6 +35,7 @@ namespace Steepshot.Fragment
 
             SetEditPost();
 
+            _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
             if (_editPost.Media.Length > 1)
             {
                 _photos.Visibility = ViewStates.Visible;
@@ -53,19 +54,48 @@ namespace Steepshot.Fragment
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
 
-                _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
                 var url = _editPost.Media[0].Thumbnails.Mini;
                 Picasso.With(Activity).Load(url)
                     .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
                     .Into(_preview);
 
                 _preview.Touch += PreviewOnTouch;
-                _ratioBtn.Click += RatioBtnOnClick;
-                _rotateBtn.Click += RotateBtnOnClick;
             }
 
             SearchTextChanged();
         }
+
+        protected override async Task OnPostAsync()
+        {
+            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+
+            if (!isConnected)
+            {
+                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
+                EnabledPost();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_title.Text))
+            {
+                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
+                EnabledPost();
+                return;
+            }
+
+            _model.Media = _editPost.Media;
+
+            _model.Title = _title.Text;
+            _model.Description = _description.Text;
+            _model.Tags = _localTagsAdapter.LocalTags.ToArray();
+            TryCreateOrEditPost();
+        }
+
+        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
+        }
+
 
         private void SetEditPost()
         {
@@ -78,37 +108,6 @@ namespace Steepshot.Fragment
             {
                 AddTag(editPostTag);
             }
-        }
-
-        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
-        }
-
-        protected override async Task OnPostAsync()
-        {
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                OnUploadEnded();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                OnUploadEnded();
-                return;
-            }
-
-            _model.Media = _editPost.Media;
-
-            _model.Title = _title.Text;
-            _model.Description = _description.Text;
-            _model.Tags = _localTagsAdapter.LocalTags.ToArray();
-            TryCreateOrEditPost();
         }
     }
 }
