@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CoreGraphics;
 using Foundation;
 using Steepshot.Core.Models.Enums;
@@ -11,7 +12,7 @@ namespace Steepshot.iOS.ViewSources
 {
     public class LocalTagsCollectionViewSource : UICollectionViewSource
     {
-        public List<string> LocalTags = new List<string>();
+        public ObservableCollection<string> LocalTags = new ObservableCollection<string>();
         public Action<ActionType, string> CellAction;
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)

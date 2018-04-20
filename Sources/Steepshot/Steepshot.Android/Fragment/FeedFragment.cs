@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -62,17 +63,17 @@ namespace Steepshot.Fragment
             if (!IsInitialized)
             {
                 base.OnViewCreated(view, savedInstanceState);
-                
+
                 Presenter.SourceChanged += PresenterSourceChanged;
                 _adapter = new FeedAdapter<FeedPresenter>(Context, Presenter);
                 _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
-                
+
                 _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
                 _postPagerAdapter.PostAction += PostAction;
                 _postPagerAdapter.TagAction += TagAction;
                 _postPagerAdapter.CloseAction += CloseAction;
-                
+
                 _logo.Click += OnLogoClick;
                 _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
@@ -198,7 +199,7 @@ namespace Steepshot.Fragment
 
             _bar.Visibility = ViewStates.Gone;
             _refresher.Refreshing = false;
-            
+
             _feedContainer.Visibility = ViewStates.Invisible;
 
             if (Presenter.Count == 0)
@@ -234,6 +235,7 @@ namespace Steepshot.Fragment
         {
             if (Activity is RootActivity activity)
                 activity._tabLayout.Visibility = ViewStates.Gone;
+
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();

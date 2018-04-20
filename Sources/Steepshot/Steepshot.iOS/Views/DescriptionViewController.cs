@@ -128,7 +128,7 @@ namespace Steepshot.iOS.Views
                 {
                     ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                     ItemSize = new CGSize(160, 160),
-                    SectionInset = new UIEdgeInsets(0, 15, 0, 0),
+                    SectionInset = new UIEdgeInsets(0, 15, 0, 15),
                     MinimumInteritemSpacing = 10,
                 });
                 mainScroll.AddSubview(photoCollection);

@@ -52,6 +52,7 @@
                 </constraints>
             </tableViewCellContentView>
             <connections>
+                <outlet property="addImage" destination="MJq-aA-ihX" id="mrq-KV-fBW"/>
                 <outlet property="tagLabel" destination="cbH-Dy-QAn" id="Wz8-dq-4vU"/>
             </connections>
             <point key="canvasLocation" x="-255" y="82.5"/>
