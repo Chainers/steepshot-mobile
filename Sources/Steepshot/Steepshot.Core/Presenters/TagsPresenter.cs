@@ -34,8 +34,13 @@ namespace Steepshot.Core.Presenters
                 if (tags.Count > 0)
                 {
                     lock (Items)
-                        Items.AddRange(Items.Count == 0 ? tags : tags.Skip(1));
-
+                    {
+                        foreach (var tag in tags)
+                        {
+                            if (!Items.Contains(tag))
+                                Items.Add(tag);
+                        }
+                    }
                     OffsetUrl = tags.Last().Name;
                 }
 

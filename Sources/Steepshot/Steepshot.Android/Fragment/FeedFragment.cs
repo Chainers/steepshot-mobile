@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Android.Content;
 using Android.OS;
 using Android.Support.Design.Widget;
@@ -241,6 +242,7 @@ namespace Steepshot.Fragment
         {
             if (Activity is RootActivity activity)
                 activity._tabLayout.Visibility = ViewStates.Gone;
+
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();

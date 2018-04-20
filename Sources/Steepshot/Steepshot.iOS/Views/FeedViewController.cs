@@ -77,6 +77,7 @@ namespace Steepshot.iOS.Views
             feedCollection.RegisterNibForCell(UINib.FromName(nameof(FeedCollectionViewCell), NSBundle.MainBundle), nameof(FeedCollectionViewCell));
             feedCollection.Add(_refreshControl);
             feedCollection.Delegate = _gridDelegate;
+            feedCollection.DelaysContentTouches = false;
 
             _sliderGridDelegate = new SliderCollectionViewFlowDelegate(sliderCollection, _presenter);
             _sliderGridDelegate.ScrolledToBottom += ScrolledToBottom;
@@ -97,6 +98,8 @@ namespace Steepshot.iOS.Views
             sliderCollection.Source = _sliderCollectionViewSource;
             sliderCollection.RegisterClassForCell(typeof(LoaderCollectionCell), nameof(LoaderCollectionCell));
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
+
+            sliderCollection.DelaysContentTouches = false;
 
             _sliderCollectionViewSource.CellAction += CellAction;
             _sliderCollectionViewSource.TagAction += TagAction;

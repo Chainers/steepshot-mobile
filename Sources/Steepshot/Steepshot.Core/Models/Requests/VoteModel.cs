@@ -17,7 +17,6 @@ namespace Steepshot.Core.Models.Requests
         [Required]
         public VoteType Type { get; }
 
-
         public VoteModel(UserInfo user, Post post, VoteType type) : base(user)
         {
             Type = type;

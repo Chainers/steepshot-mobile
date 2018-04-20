@@ -61,6 +61,7 @@
             </constraints>
             <size key="customSize" width="185" height="78"/>
             <connections>
+                <outlet property="closeImage" destination="Rcf-DT-omb" id="jyv-fA-RU5"/>
                 <outlet property="rootView" destination="D4I-Q1-fXj" id="fxA-eD-cYS"/>
                 <outlet property="tagText" destination="WSF-PB-8Xu" id="lHf-Gb-hoZ"/>
             </connections>
