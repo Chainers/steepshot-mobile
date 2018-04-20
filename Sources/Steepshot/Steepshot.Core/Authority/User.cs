@@ -67,6 +67,17 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public short VotePower
+        {
+            get => UserInfo.VotePower;
+            set
+            {
+                UserInfo.VotePower = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public HashSet<string> PostBlackList => UserInfo.PostBlackList;
         public List<PushSubscription> PushSubscriptions
         {

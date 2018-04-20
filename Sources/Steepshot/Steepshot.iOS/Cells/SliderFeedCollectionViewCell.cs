@@ -15,6 +15,8 @@ using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
 using System.Text.RegularExpressions;
+using Steepshot.iOS.CustomViews;
+using Steepshot.iOS.ViewControllers;
 
 namespace Steepshot.iOS.Cells
 {
@@ -39,6 +41,7 @@ namespace Steepshot.iOS.Cells
         private UILabel _rewards;
         private UIView _verticalSeparator;
         private UIImageView _like;
+        private SliderView _sliderView;
 
         public UIImage PostImage => _bodyImage[0].Image;
 
@@ -68,7 +71,7 @@ namespace Steepshot.iOS.Cells
         private readonly nfloat verticalSeparatorHeight = 30;
         private readonly nfloat moreButtonWidth = 50;
         private readonly nfloat likersCornerRadius;
-        private readonly nfloat distinction = 5f / (UIScreen.MainScreen.Bounds.Width - 10);
+        private readonly nfloat distinction = 5f / (UIScreen.MainScreen.Bounds.Width - 10f);
         private nfloat authorX;
 
         public bool IsCellActionSet => CellAction != null;
@@ -231,6 +234,32 @@ namespace Steepshot.iOS.Cells
 
             var liketap = new UITapGestureRecognizer(LikeTap);
             _like.AddGestureRecognizer(liketap);
+
+            _sliderView = new SliderView(_contentScroll.Frame.Width);
+            _sliderView.LikeTap += () =>
+            {
+                LikeTap();
+            };
+            BaseViewController.CloseSliderAction += () =>
+            {
+                if (_sliderView.Superview != null)
+                    _sliderView.Close();
+            };
+
+            var likelongtap = new UILongPressGestureRecognizer((UILongPressGestureRecognizer obj) =>
+            {
+                if (BasePresenter.User.IsAuthenticated && !_currentPost.Vote)
+                {
+                    if (obj.State == UIGestureRecognizerState.Began)
+                    {
+                        if (!BasePostPresenter.IsEnableVote)
+                            return;
+                        BaseViewController.IsSliderOpen = true;
+                        _sliderView.Show(_contentScroll);
+                    }
+                }
+            });
+            _like.AddGestureRecognizer(likelongtap);
 
             UITapGestureRecognizer tap = new UITapGestureRecognizer(() =>
             {
@@ -443,6 +472,8 @@ namespace Steepshot.iOS.Cells
 
             _like.Frame = new CGRect(_contentView.Frame.Width - likeButtonWidthConst, _photoScroll.Frame.Bottom, likeButtonWidthConst, underPhotoPanelHeight);
 
+            _sliderView.Frame = new CGRect(0, _photoScroll.Frame.Bottom - 5, _photoScroll.Frame.Width, 70);
+
             _like.Transform = CGAffineTransform.MakeScale(1f, 1f);
             if (_currentPost.VoteChanging)
                 Animate();
@@ -450,7 +481,10 @@ namespace Steepshot.iOS.Cells
             {
                 _like.Layer.RemoveAllAnimations();
                 _like.LayoutIfNeeded();
-                _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                if (BasePostPresenter.IsEnableVote)
+                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
+                else
+                    _like.Image = UIImage.FromBundle("ic_like_disabled");
                 _like.UserInteractionEnabled = true;
             }
 

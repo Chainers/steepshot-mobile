@@ -1,5 +1,6 @@
 ﻿using System;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Models.Enums;
 using UIKit;
 
@@ -29,21 +30,40 @@ namespace Steepshot.iOS.Cells
             if (!_isInitialized)
             {
                 SelectionStyle = UITableViewCellSelectionStyle.None;
-                var tap = new UITapGestureRecognizer(() =>
-                {
-                    CellAction?.Invoke(ActionType.Tap, tagLabel.Text);
-                });
-                ContentView.AddGestureRecognizer(tap);
                 tagLabel.Font = Helpers.Constants.Semibold14;
 
+                var buttonOverlay = new UIButton();
+                buttonOverlay.BackgroundColor = UIColor.Clear;
+                ContentView.AddSubview(buttonOverlay);
+
+                buttonOverlay.TouchDown += (object sender, EventArgs e) =>
+                {
+                    addImage.Image = UIImage.FromBundle("ic_add_tag_active.png");
+                };
+
+                buttonOverlay.TouchCancel += (object sender, EventArgs e) =>
+                {
+                    addImage.Image = UIImage.FromBundle("ic_add_tag.png");
+                };
+
+                buttonOverlay.TouchUpInside += TouchUp;
+                buttonOverlay.TouchUpOutside += TouchUp;
+
+                buttonOverlay.AutoPinEdgesToSuperviewEdges();
                 _isInitialized = true;
             }
-
             base.LayoutSubviews();
+        }
+
+        private void TouchUp(object sender, EventArgs e)
+        {
+            addImage.Image = UIImage.FromBundle("ic_add_tag.png");
+            CellAction?.Invoke(ActionType.Tap, tagLabel.Text);
         }
 
         public void UpdateCell(string tag)
         {
+            addImage.Image = UIImage.FromBundle("ic_add_tag.png");
             tagLabel.Text = tag;
         }
     }

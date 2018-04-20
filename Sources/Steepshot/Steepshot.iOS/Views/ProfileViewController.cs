@@ -363,7 +363,7 @@ namespace Steepshot.iOS.Views
                                              .FadeAnimation(false, false, 0)
                                              .LoadingPlaceholder("ic_noavatar.png")
                                              .ErrorPlaceholder("ic_noavatar.png")
-                                             .DownSample(width: (int)_profileHeader.Avatar.Frame.Width)
+                                             .DownSample(width: (int)300)
                                              .Into(_profileHeader.Avatar);
                     else
                         _profileHeader.Avatar.Image = UIImage.FromBundle("ic_noavatar");

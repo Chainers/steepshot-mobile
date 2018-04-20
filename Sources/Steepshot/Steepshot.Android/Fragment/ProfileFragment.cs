@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -402,7 +403,7 @@ namespace Steepshot.Fragment
                 var pushes = dialogView.FindViewById<Button>(Resource.Id.pushes);
                 if (UserIsWatched)
                 {
-                    pushes.SetTextColor(Resources.GetColor(Resource.Color.rgb255_34_5));
+                    pushes.SetTextColor(Style.R255G34B5);
                     pushes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser);
                 }
                 else
@@ -443,7 +444,7 @@ namespace Steepshot.Fragment
                 var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _profileId);
                 if (error == null)
                     BasePresenter.User.WatchedUsers.Add(_profileId);
-            }            
+            }
         }
 
         private void CancelDialog(object sender, EventArgs e)

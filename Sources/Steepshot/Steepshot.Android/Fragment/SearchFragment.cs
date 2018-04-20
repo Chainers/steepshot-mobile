@@ -17,11 +17,12 @@ using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Activity;
+using Steepshot.Core.Facades;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
 {
-    public sealed class SearchFragment : BaseFragmentWithPresenter<SearchPresenter>
+    public sealed class SearchFragment : BaseFragment
     {
         public const string SearchExtra = "SEARCH";
 
@@ -36,6 +37,7 @@ namespace Steepshot.Fragment
         private ScrollListener _scrollListner;
         private TagsAdapter _categoriesAdapter;
         private FollowersAdapter _usersSearchAdapter;
+        private SearchFacade _searchFacade;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.categories)] private RecyclerView _categories;
@@ -50,6 +52,15 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.users_layout)] private RelativeLayout _usersLayout;
         [BindView(Resource.Id.empty_query_label)] private TextView _emptyQueryLabel;
 #pragma warning restore 0649
+
+
+        public override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            if (_searchFacade == null)
+                _searchFacade = new SearchFacade();
+        }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -79,10 +90,10 @@ namespace Steepshot.Fragment
             _categories.SetLayoutManager(new LinearLayoutManager(Activity));
             _users.SetLayoutManager(new LinearLayoutManager(Activity));
 
-            Presenter.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
-            Presenter.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
-            _categoriesAdapter = new TagsAdapter(Presenter.TagsPresenter);
-            _usersSearchAdapter = new FollowersAdapter(Activity, Presenter.UserFriendPresenter);
+            _searchFacade.UserFriendPresenter.SourceChanged += UserFriendPresenterSourceChanged;
+            _searchFacade.TagsPresenter.SourceChanged += TagsPresenterSourceChanged;
+            _categoriesAdapter = new TagsAdapter(_searchFacade.TagsPresenter);
+            _usersSearchAdapter = new FollowersAdapter(Activity, _searchFacade.UserFriendPresenter);
             _categories.SetAdapter(_categoriesAdapter);
             _users.SetAdapter(_usersSearchAdapter);
 
@@ -119,6 +130,7 @@ namespace Steepshot.Fragment
 
         public override void OnDetach()
         {
+            _searchFacade.TasksCancel();
             base.OnDetach();
             Cheeseknife.Reset(this);
         }
@@ -198,7 +210,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            var error = await Presenter.UserFriendPresenter.TryFollow(userFriend);
+            var error = await _searchFacade.UserFriendPresenter.TryFollow(userFriend);
             if (!IsInitialized)
                 return;
 
@@ -230,9 +242,9 @@ namespace Steepshot.Fragment
                     return;
 
                 if (_searchType == SearchType.People)
-                    Presenter.UserFriendPresenter.Clear();
+                    _searchFacade.UserFriendPresenter.Clear();
                 else
-                    Presenter.TagsPresenter.Clear();
+                    _searchFacade.TagsPresenter.Clear();
 
                 _scrollListner.ClearPosition();
 
@@ -251,7 +263,7 @@ namespace Steepshot.Fragment
                     _tagSpinner.Visibility = ViewStates.Visible;
             }
 
-            var error = await Presenter.TrySearchCategories(_searchView.Text, _searchType);
+            var error = await _searchFacade.TrySearchCategories(_searchView.Text, _searchType);
             if (!IsInitialized)
                 return;
             CheckQueryIsEmpty();
@@ -265,9 +277,9 @@ namespace Steepshot.Fragment
 
             if (_searchType == SearchType.People)
                 _emptyQueryLabel.Visibility =
-                    Presenter.UserFriendPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+                    _searchFacade.UserFriendPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
             else
-                _emptyQueryLabel.Visibility = Presenter.TagsPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
+                _emptyQueryLabel.Visibility = _searchFacade.TagsPresenter.Count > 0 ? ViewStates.Invisible : ViewStates.Visible;
         }
 
         private async void SwitchSearchType(bool isLoaderNeeded = true)

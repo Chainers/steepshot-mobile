@@ -5,6 +5,7 @@ using Foundation;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Sentry;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
@@ -36,7 +37,7 @@ namespace Steepshot.iOS
             var localizationManager = new LocalizationManager(localization);
 
             var ravenClientDSN = assetsHelper.GetConfigInfo().RavenClientDsn;
-            var reporterService = new ReporterService(appInfo, ravenClientDSN);
+            var reporterService = new Core.Sentry.ReporterService(appInfo, ravenClientDSN);
 
             builder.RegisterInstance(localizationManager).As<LocalizationManager>().SingleInstance();
             builder.RegisterInstance(assetsHelper).As<IAssetsHelper>().SingleInstance();
@@ -59,7 +60,7 @@ namespace Steepshot.iOS
                 AppSettings.Reporter.SendCrash(e.Exception);
             };
 
-            Window = new UIWindow(UIScreen.MainScreen.Bounds);
+            Window = new CustomWindow();
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
             else
