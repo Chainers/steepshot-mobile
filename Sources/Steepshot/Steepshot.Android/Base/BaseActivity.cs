@@ -26,12 +26,18 @@ namespace Steepshot.Base
         public const string AppLinkingExtra = "appLinkingExtra";
         protected HostFragment CurrentHostFragment;
         protected static LruCache Cache;
+        public static Func<MotionEvent, bool> TouchEvent;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             InitIoC(Assets);
             base.OnCreate(savedInstanceState);
             InitPicassoCache();
+        }
+
+        public override bool DispatchTouchEvent(MotionEvent ev)
+        {
+            return (TouchEvent?.Invoke(ev) ?? false) || base.DispatchTouchEvent(ev);
         }
 
         public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)

@@ -12,7 +12,7 @@ namespace Steepshot.CustomViews
     {
         private int _marksCount;
         private int _markRadius;
-        private int MarksSpacing => (Width - PaddingLeft - PaddingRight) / (_marksCount - 1);
+        private float MarksSpacing => (Width - PaddingLeft - PaddingRight) / (float)(_marksCount - 1);
         private int _stopDelta = 0;
         private Paint _tickMarkActive;
         private Paint TickMarkActive => _tickMarkActive ?? (_tickMarkActive = new Paint());
@@ -48,8 +48,8 @@ namespace Steepshot.CustomViews
             int scaleWidth = Width - PaddingLeft - PaddingRight;
             for (int i = 0; i < _marksCount; i++)
             {
-                int offset = MarksSpacing * i;
-                int offsetProgress = (int)Math.Round(offset * 100 / (float)scaleWidth);
+                float offset = MarksSpacing * i;
+                int offsetProgress = (int)Math.Round(offset * 100 / scaleWidth);
                 int delta = Math.Abs(Progress - offsetProgress);
                 if (delta < 1 + _stopDelta)
                 {

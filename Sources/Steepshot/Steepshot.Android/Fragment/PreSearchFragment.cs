@@ -233,7 +233,6 @@ namespace Steepshot.Fragment
                 _tabSettings = BasePresenter.User.GetTabSettings(nameof(PreSearchFragment));
                 SwitchListAdapter(_tabSettings.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
-                _postsList.Touch += PostsListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -243,7 +242,6 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
                 _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
-                _postPager.Touch += PostsListOnTouch;
 
                 _switcher.Click += OnSwitcherClick;
                 _refresher.Refresh += RefresherRefresh;
@@ -279,19 +277,10 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void PostsListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            ((View)sender)?.OnTouchEvent(touchEventArgs.Event);
-            TouchEvent?.Invoke(touchEventArgs);
-        }
-
         public override void OnResume()
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -331,8 +320,6 @@ namespace Steepshot.Fragment
 
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
@@ -344,8 +331,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _postPager.Visibility = ViewStates.Gone;
                 _postsList.Visibility = ViewStates.Visible;
                 _postsList.GetAdapter().NotifyDataSetChanged();
@@ -478,16 +463,6 @@ namespace Steepshot.Fragment
         {
             _spinner.Visibility = ViewStates.Gone;
             await LoadPosts(CustomTag, true);
-        }
-
-        private void OnPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-            StartActivity(intent);
         }
 
         private async void PostAction(ActionType type, Post post)

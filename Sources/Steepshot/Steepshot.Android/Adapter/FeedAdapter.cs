@@ -86,9 +86,9 @@ namespace Steepshot.Adapter
 
     public class FeedViewHolder : RecyclerView.ViewHolder
     {
+        private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
         private readonly Action<string> _tagAction;
-        private readonly ImageView _gallery;
         private readonly ViewPager _photosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
@@ -102,7 +102,7 @@ namespace Steepshot.Adapter
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
         private readonly ImageButton _likeScale;
-        protected readonly ImageButton More;
+        private readonly ImageButton _more;
         private readonly LinearLayout _topLikers;
         protected readonly RelativeLayout NsfwMask;
         private readonly TextView _nsfwMaskMessage;
@@ -131,17 +131,10 @@ namespace Steepshot.Adapter
 
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-            _gallery = itemView.FindViewById<ImageView>(Resource.Id.gallery);
+            itemView.FindViewById<ImageView>(Resource.Id.gallery);
             _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
             _pagerTabLayout = ItemView.FindViewById<TabLayout>(Resource.Id.dot_selector);
             _pagerTabLayout.SetupWithViewPager(_photosViewPager, true);
-
-            var parameters = _photosViewPager.LayoutParameters;
-            parameters.Height = height;
-
-            _photosViewPager.LayoutParameters = parameters;
-
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post));
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -151,7 +144,7 @@ namespace Steepshot.Adapter
             _flagsIcon = itemView.FindViewById<ImageView>(Resource.Id.flagIcon);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
-            More = itemView.FindViewById<ImageButton>(Resource.Id.more);
+            _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _topLikers = itemView.FindViewById<LinearLayout>(Resource.Id.top_likers);
             NsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.nsfw_mask);
             _nsfwMaskMessage = NsfwMask.FindViewById<TextView>(Resource.Id.mask_message);
@@ -174,6 +167,16 @@ namespace Steepshot.Adapter
             _nsfwMaskMessage.Typeface = Style.Light;
             NsfwMaskSubMessage.Typeface = Style.Light;
 
+            var parameters = _photosViewPager.LayoutParameters;
+            parameters.Height = height;
+
+            _photosViewPager.LayoutParameters = parameters;
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, post =>
+            {
+                HideScaleBar();
+                postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post);
+            });
+
             _moreActionsDialog = new BottomSheetDialog(Context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
             _title.MovementMethod = new LinkMovementMethod();
@@ -195,8 +198,8 @@ namespace Steepshot.Adapter
             _flagsIcon.Click += DoFlagersAction;
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
-            More.Click += DoMoreAction;
-            More.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _more.Click += DoMoreAction;
+            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
             _title.TagAction += _tagAction;
@@ -205,21 +208,35 @@ namespace Steepshot.Adapter
             {
                 _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
-            BaseFragment.TouchEvent += TouchEvent;
+            BaseActivity.TouchEvent += TouchEvent;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (BaseFragment.TouchEvent != null)
-                BaseFragment.TouchEvent -= TouchEvent;
+            if (BaseActivity.TouchEvent != null)
+                BaseActivity.TouchEvent -= TouchEvent;
             base.Dispose(disposing);
         }
 
-        private void TouchEvent(View.TouchEventArgs touchEventArgs)
+        private void HideScaleBar()
         {
-            if (_likeScaleContainer == null) return;
-            _likeScaleContainer.Visibility = ViewStates.Gone;
-            _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
+            if (_likeScaleContainer.Visibility == ViewStates.Visible)
+            {
+                _likeScaleContainer.Visibility = ViewStates.Invisible;
+                _isScalebarOpened = false;
+                _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
+            }
+        }
+
+        private bool TouchEvent(MotionEvent ev)
+        {
+            if (_likeScaleContainer == null) return false;
+            var containerRect = new Rect();
+            _likeScaleContainer.GetGlobalVisibleRect(containerRect);
+            if (containerRect.Contains((int)ev.RawX, (int)ev.RawY)) return true;
+            if (ev.Action == MotionEventActions.Down)
+                HideScaleBar();
+            return false;
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
@@ -478,21 +495,18 @@ namespace Steepshot.Adapter
             else
             {
                 _postAction?.Invoke(ActionType.Like, Post);
-                if (_likeScaleContainer.Visibility == ViewStates.Visible)
-                {
-                    _likeScaleContainer.Visibility = ViewStates.Invisible;
-                    _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
-                }
+                HideScaleBar();
             }
         }
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (!BasePresenter.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag) return;
+            if (!BasePresenter.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
             _likeScaleBar.Progress = BasePresenter.User.VotePower;
             _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
             _likeScaleContainer.Visibility = ViewStates.Visible;
+            _isScalebarOpened = true;
         }
 
         private void LikeScaleBarOnProgressChanged(object sender, SeekBar.ProgressChangedEventArgs progressChangedEventArgs)

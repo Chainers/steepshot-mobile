@@ -86,7 +86,6 @@ namespace Steepshot.Fragment
                 _feedList.SetAdapter(_adapter);
                 _feedList.SetLayoutManager(new LinearLayoutManager(Android.App.Application.Context));
                 _feedList.AddOnScrollListener(_scrollListner);
-                _feedList.Touch += FeedListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -96,7 +95,6 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = _postPagerAdapter;
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
-                _postPager.Touch += FeedListOnTouch;
 
                 _emptyQueryLabel.Typeface = Style.Light;
                 _emptyQueryLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.EmptyCategory);
@@ -120,19 +118,10 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void FeedListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            _feedList?.OnTouchEvent(touchEventArgs.Event);
-            TouchEvent?.Invoke(touchEventArgs);
-        }
-
         public override void OnResume()
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -223,9 +212,6 @@ namespace Steepshot.Fragment
 
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
-
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();
@@ -237,8 +223,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 _postPager.Visibility = ViewStates.Gone;
                 _feedList.Visibility = ViewStates.Visible;

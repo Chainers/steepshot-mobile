@@ -161,9 +161,6 @@ namespace Steepshot.Fragment
             base.OnResume();
             _adapter.NotifyDataSetChanged();
 
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
             if (UserVisibleHint)
                 UpdateProfile();
         }
@@ -208,7 +205,6 @@ namespace Steepshot.Fragment
                 SwitchListAdapter(_tabSettings.IsGridView);
 
                 _postsList.AddOnScrollListener(_scrollListner);
-                _postsList.Touch += PostsListOnTouch;
 
                 _postPager.SetClipToPadding(false);
                 var pagePadding = (int)BitmapUtils.DpToPixel(20, Resources);
@@ -218,7 +214,6 @@ namespace Steepshot.Fragment
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
                 _postPager.Adapter = ProfilePagerAdapter;
                 _postPager.SetPageTransformer(false, _profilePagerAdapter, (int)LayerType.None);
-                _postPager.Touch += PostsListOnTouch;
 
                 _refresher.Refresh += RefresherRefresh;
                 _settings.Click += OnSettingsClick;
@@ -264,12 +259,6 @@ namespace Steepshot.Fragment
             }
         }
 
-        private void PostsListOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            ((View)sender)?.OnTouchEvent(touchEventArgs.Event);
-            TouchEvent?.Invoke(touchEventArgs);
-        }
-
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
         {
             if (pageScrolledEventArgs.Position == Presenter.Count)
@@ -307,8 +296,6 @@ namespace Steepshot.Fragment
 
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
@@ -320,8 +307,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _postPager.Visibility = ViewStates.Gone;
                 _postsList.Visibility = ViewStates.Visible;
                 _postsList.GetAdapter().NotifyDataSetChanged();
