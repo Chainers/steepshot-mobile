@@ -8,4 +8,11 @@
         Comment,
         Post
     }
+
+    public enum TagType
+    {
+        Local,
+        PostSearch,
+        BrowseSearch
+    }
 }
