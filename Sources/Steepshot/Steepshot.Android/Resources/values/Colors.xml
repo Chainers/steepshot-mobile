@@ -28,5 +28,7 @@
   <item name="rgb255_121_4" type="color">#FF7904</item>
   <item name="rgb255_81_4" type="color">#ff5104</item>
   <item name="rgb255_22_5" type="color">#FF1605</item>
+  <item name="rgb245_245_245" type="color">#F5F5F5</item>
+  <item name="rgb255_47_5" type="color">#FF2F05</item>
   <item name="rgb255_34_5" type="color">#FF2205</item>
 </resources>

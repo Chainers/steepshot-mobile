@@ -460,9 +460,18 @@ namespace Steepshot.Adapter
             {
                 if (post.Vote || !post.Flag)
                 {
-                    _likeOrFlag.SetImageResource(post.Vote
-                        ? Resource.Drawable.ic_new_like_filled
-                        : Resource.Drawable.ic_new_like_selected);
+                    if (BasePostPresenter.IsEnableVote)
+                    {
+                        _likeOrFlag.SetImageResource(post.Vote
+                            ? Resource.Drawable.ic_new_like_filled
+                            : Resource.Drawable.ic_new_like_selected);
+                    }
+                    else
+                    {
+                        _likeOrFlag.SetImageResource(post.Vote
+                            ? Resource.Drawable.ic_new_like_disabled
+                            : Resource.Drawable.ic_new_like);
+                    }
                 }
                 else
                 {
