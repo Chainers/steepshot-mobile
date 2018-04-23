@@ -9,6 +9,7 @@
         ServeUnexpectedError,
         UnknownError,
         EmptyTitleField,
+        EmptyDeviceField,
         EmptyFileField,
         EmptyVerifyTransaction,
         EmptyUrlField,

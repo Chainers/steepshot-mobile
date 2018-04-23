@@ -4,6 +4,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Tests
 {
@@ -37,7 +38,7 @@ namespace Steepshot.Core.Tests
         public void PreparePostModel_Empty_Title()
         {
             var user = Users.First().Value;
-            var request = new PreparePostModel(user)
+            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Media = new MediaModel[1]
             };
@@ -51,7 +52,7 @@ namespace Steepshot.Core.Tests
         public void PreparePostModel_Empty_Media()
         {
             var user = Users.First().Value;
-            var request = new PreparePostModel(user)
+            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Title = "title"
             };
@@ -69,7 +70,7 @@ namespace Steepshot.Core.Tests
             for (int i = 0; i < tags.Length; i++)
                 tags[i] = "tag_" + i;
 
-            var request = new PreparePostModel(user)
+            var request = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Title = "title",
                 Media = new MediaModel[1],

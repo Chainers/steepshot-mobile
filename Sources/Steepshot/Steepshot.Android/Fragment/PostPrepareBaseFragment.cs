@@ -140,7 +140,7 @@ namespace Steepshot.Fragment
             _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
-            _model = new PreparePostModel(BasePresenter.User.UserInfo);
+            _model = new PreparePostModel(BasePresenter.User.UserInfo, AppSettings.AppInfo.GetModel());
             SetPostingTimer();
         }
 

@@ -300,7 +300,7 @@ namespace Steepshot.Core
                 return;
             }
 
-            var model = new PreparePostModel(_user)
+            var model = new PreparePostModel(_user, AppSettings.AppInfo.GetModel())
             {
                 Tags = new[] { "spam" },
                 Title = "Upload test",

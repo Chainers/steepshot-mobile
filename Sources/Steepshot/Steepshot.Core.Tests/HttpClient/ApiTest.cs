@@ -50,7 +50,7 @@ namespace Steepshot.Core.Tests.HttpClient
         public async Task PreparePostTest(KnownChains apiName)
         {
             var user = Users[apiName];
-            var model = new PreparePostModel(user)
+            var model = new PreparePostModel(user, AppSettings.AppInfo.GetModel())
             {
                 Title = "Test",
                 Description = DateTime.Now.ToString(CultureInfo.InvariantCulture),
