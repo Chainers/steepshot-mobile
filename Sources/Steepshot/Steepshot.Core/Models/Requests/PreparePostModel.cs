@@ -19,7 +19,7 @@ namespace Steepshot.Core.Models.Requests
 
         [JsonProperty]
         public string Description { get; set; }
-        
+
         public string Permlink
         {
             get
@@ -65,6 +65,7 @@ namespace Steepshot.Core.Models.Requests
         public string Title { get; set; }
 
         [JsonProperty]
+        [Required(ErrorMessage = nameof(LocalizationKeys.EmptyDeviceField))]
         public string Device { get; set; }
 
         public bool IsEditMode { get; }
@@ -80,19 +81,21 @@ namespace Steepshot.Core.Models.Requests
             }
         }
 
-        public PreparePostModel(UserInfo user) : base(user)
+        public PreparePostModel(UserInfo user, string device) : base(user)
         {
             ShowFooter = user.ShowFooter;
             Author = user.Login;
+            Device = device;
             IsEditMode = false;
         }
 
-        public PreparePostModel(UserInfo user, Post post) : base(user)
+        public PreparePostModel(UserInfo user, Post post, string device) : base(user)
         {
             ShowFooter = user.ShowFooter;
             Author = user.Login;
             _permlink = post.Permlink;
             _category = post.Category;
+            Device = device;
             IsEditMode = true;
         }
     }

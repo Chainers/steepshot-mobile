@@ -185,7 +185,7 @@ namespace Steepshot.Fragment
         {
             if (_multySelect && _pickedItems.Count >= MaxPhotosAllowed && !model.Selected)
             {
-                Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit);
+                Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit, ToastLength.Short);
                 return;
             }
 

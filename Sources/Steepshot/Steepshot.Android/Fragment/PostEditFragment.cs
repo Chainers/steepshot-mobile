@@ -10,6 +10,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -99,7 +100,7 @@ namespace Steepshot.Fragment
 
         private void SetEditPost()
         {
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost);
+            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
             _title.Text = _editPost.Title;
             _title.SetSelection(_editPost.Title.Length);
             _description.Text = _editPost.Description;
