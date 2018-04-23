@@ -86,8 +86,14 @@ namespace Steepshot.Base
 
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
-                base.OnBackPressed();
+            if (CurrentHostFragment?.ChildFragmentManager?.Fragments.Count > 0)
+            {
+                if (CurrentHostFragment.ChildFragmentManager.Fragments?[CurrentHostFragment.ChildFragmentManager.Fragments.Count - 1] is BaseFragment currentFragment &&
+                    (currentFragment.OnBackPressed() || CurrentHostFragment.HandleBackPressed(SupportFragmentManager)))
+                    return;
+            }
+
+            base.OnBackPressed();
         }
 
         public virtual void OpenNewContentFragment(BaseFragment frag)

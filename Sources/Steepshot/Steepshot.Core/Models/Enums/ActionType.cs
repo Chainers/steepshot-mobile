@@ -21,5 +21,9 @@
         Photo,
         Share,
         Close,
+        Followers,
+        Following,
+        Balance,
+        LikePower
     }
 }

@@ -56,6 +56,7 @@ namespace Steepshot.Fragment
         [BindView(Resource.Id.list_layout)] private RelativeLayout _listLayout;
         [BindView(Resource.Id.first_post)] private Button _firstPostButton;
         [BindView(Resource.Id.post_prev_pager)] private ViewPager _postPager;
+        [BindView(Resource.Id.like_power)] private TextView _likePowerLabel;
 #pragma warning restore 0649
 
         private PostPagerAdapter<UserProfilePresenter> _profilePagerAdapter;
@@ -83,9 +84,7 @@ namespace Steepshot.Fragment
                 {
                     _profileFeedAdapter = new ProfileFeedAdapter(Context, Presenter);
                     _profileFeedAdapter.PostAction += PostAction;
-                    _profileFeedAdapter.FollowersAction += OnFollowersClick;
-                    _profileFeedAdapter.FollowingAction += OnFollowingClick;
-                    _profileFeedAdapter.FollowAction += OnFollowClick;
+                    _profileFeedAdapter.ProfileAction += ProfileAction;
                     _profileFeedAdapter.TagAction += TagAction;
                 }
                 return _profileFeedAdapter;
@@ -101,9 +100,7 @@ namespace Steepshot.Fragment
                 {
                     _profileGridAdapter = new ProfileGridAdapter(Context, Presenter);
                     _profileGridAdapter.Click += FeedPhotoClick;
-                    _profileGridAdapter.FollowersAction += OnFollowersClick;
-                    _profileGridAdapter.FollowingAction += OnFollowingClick;
-                    _profileGridAdapter.FollowAction += OnFollowClick;
+                    _profileGridAdapter.ProfileAction += ProfileAction;
                 }
                 return _profileGridAdapter;
             }
@@ -190,6 +187,7 @@ namespace Steepshot.Fragment
 
                 _login.Typeface = Style.Semibold;
                 _firstPostButton.Typeface = Style.Semibold;
+                _likePowerLabel.Typeface = Style.Semibold;
 
                 _scrollListner = new ScrollListener();
                 _scrollListner.ScrolledToBottom += GetUserPosts;
@@ -533,37 +531,49 @@ namespace Steepshot.Fragment
             _loadingSpinner.Visibility = ViewStates.Gone;
         }
 
-        private async void OnFollowClick()
+        private async void ProfileAction(ActionType type)
         {
-            if (BasePresenter.User.IsAuthenticated)
+            switch (type)
             {
-                var error = await Presenter.TryFollow();
-                if (!IsInitialized)
-                    return;
+                case ActionType.Balance:
+                    break;
+                case ActionType.Followers:
+                    Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
+                    Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
+                    Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowersCount);
+                    ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
+                    break;
+                case ActionType.Following:
+                    Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, false);
+                    Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
+                    Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowingCount);
+                    ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
+                    break;
+                case ActionType.Follow:
+                    if (BasePresenter.User.IsAuthenticated)
+                    {
+                        var error = await Presenter.TryFollow();
+                        if (!IsInitialized)
+                            return;
 
-                Context.ShowAlert(error, ToastLength.Long);
+                        Context.ShowAlert(error, ToastLength.Long);
+                    }
+                    else
+                    {
+                        var intent = new Intent(Activity, typeof(WelcomeActivity));
+                        StartActivity(intent);
+                    }
+                    break;
+                case ActionType.LikePower:
+                    var avatar = _postsList.FindViewById(Resource.Id.profile_image);
+                    avatar.Enabled = false;
+                    _likePowerLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, Presenter.UserProfileResponse.VotingPower);
+                    _likePowerLabel.Visibility = ViewStates.Visible;
+                    await Task.Delay(1000);
+                    _likePowerLabel.Visibility = ViewStates.Gone;
+                    avatar.Enabled = true;
+                    break;
             }
-            else
-            {
-                var intent = new Intent(Activity, typeof(WelcomeActivity));
-                StartActivity(intent);
-            }
-        }
-
-        private void OnFollowingClick()
-        {
-            Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, false);
-            Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
-            Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowingCount);
-            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
-        }
-
-        private void OnFollowersClick()
-        {
-            Activity.Intent.PutExtra(FollowersFragment.IsFollowersExtra, true);
-            Activity.Intent.PutExtra(FollowersFragment.UsernameExtra, _profileId);
-            Activity.Intent.PutExtra(FollowersFragment.CountExtra, Presenter.UserProfileResponse.FollowersCount);
-            ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
         }
 
         private async void PostAction(ActionType type, Post post)

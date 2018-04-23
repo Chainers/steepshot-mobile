@@ -616,11 +616,11 @@ namespace Steepshot.Adapter
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
                     var url = mediaModel.Thumbnails.Mini;
-                    Picasso.With(_context).Load(url).NoFade()
+                    Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade()
                         .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
-                            Picasso.With(_context).Load(url).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                            Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
 
                     if (_type == PostPagerType.PostScreen)
