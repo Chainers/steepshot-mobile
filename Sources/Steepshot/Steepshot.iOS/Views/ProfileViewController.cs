@@ -4,7 +4,6 @@ using CoreGraphics;
 using FFImageLoading;
 using Foundation;
 using PureLayout.Net;
-using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
@@ -20,7 +19,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class ProfileViewController : BaseViewControllerWithPresenter<UserProfilePresenter>
+    public partial class ProfileViewController : BasePostController<UserProfilePresenter> //BaseViewControllerWithPresenter<UserProfilePresenter>
     {
         protected override void CreatePresenter()
         {
@@ -103,10 +102,10 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            if(Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
+            if (Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
                 SetVotePowerView();
             GetUserInfo();
-            GetUserPosts();
+            GetPosts();
         }
 
         private void SetVotePowerView()
@@ -114,19 +113,23 @@ namespace Steepshot.iOS.Views
             powerPopup = new UIView();
             powerPopup.Frame = new CGRect(0, -NavigationController.NavigationBar.Frame.Bottom, UIScreen.MainScreen.Bounds.Width, NavigationController.NavigationBar.Frame.Bottom);
 
-            var heart = new UIImageView();
-            heart.Image = UIImage.FromBundle("ic_white_heart");
-            powerPopup.AddSubview(heart);
-
             powerText = new UILabel();
+            powerText.TextAlignment = UITextAlignment.Center;
             powerText.TextColor = UIColor.White;
             powerText.Font = Constants.Semibold14;
             powerPopup.AddSubview(powerText);
 
-            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
-            heart.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            powerText.AutoAlignAxis(ALAxis.Horizontal, heart);
-            powerText.AutoPinEdge(ALEdge.Left, ALEdge.Right, heart, 10f);
+            var pseudoBar = new UIView();
+            powerPopup.AddSubview(pseudoBar);
+            pseudoBar.AutoSetDimension(ALDimension.Height, 20f);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            pseudoBar.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+
+            powerText.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, pseudoBar);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            powerText.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             Constants.CreateGradient(powerPopup, 0);
 
             NavigationController.View.AddSubview(powerPopup);
@@ -154,19 +157,9 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void SameTabTapped()
+        protected override void SameTabTapped()
         {
             collectionView.SetContentOffset(new CGPoint(0, -_profileHeader.View.Frame.Height), true);
-        }
-
-        private async void ScrolledToBottom()
-        {
-            await GetUserPosts();
-        }
-
-        private void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
         }
 
         async void RefreshControl_ValueChanged(object sender, EventArgs e)
@@ -303,17 +296,10 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            _navController.PushViewController(myViewController, true);
-        }
-
         private async Task RefreshPage()
         {
             GetUserInfo();
-            await GetUserPosts(true);
+            await GetPosts(clearOld: true);
         }
 
         public async Task<UserProfileResponse> GetUserInfo()
@@ -476,13 +462,13 @@ namespace Steepshot.iOS.Views
             collectionView.ContentOffset = new CGPoint(0, -_profileHeader.View.Frame.Height);
         }
 
-        private async Task GetUserPosts(bool needRefresh = false)
+        protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             if (_isPostsLoading)
                 return;
             _isPostsLoading = true;
 
-            if (needRefresh)
+            if (clearOld)
             {
                 _presenter.Clear();
                 _gridDelegate.ClearPosition();
@@ -507,73 +493,6 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private async void Vote(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped();
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryVote(post);
-            if (error is CanceledError)
-                return;
-
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
-        private void Flagged(Post post)
-        {
-            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create("Flag photo", UIAlertActionStyle.Default, (obj) => FlagPhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Hide photo", UIAlertActionStyle.Default, (obj) => HidePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
-            PresentViewController(actionSheetAlert, true, null);
-        }
-
-        private void HidePhoto(Post post)
-        {
-            try
-            {
-                if (post == null || BasePresenter.User.PostBlackList.Contains(post.Url))
-                    return;
-
-                BasePresenter.User.PostBlackList.Add(post.Url);
-                BasePresenter.User.Save();
-
-                _presenter.HidePost(post);
-
-                collectionView.ReloadData();
-                collectionView.CollectionViewLayout.InvalidateLayout();
-            }
-            catch (Exception ex)
-            {
-                AppSettings.Reporter.SendCrash(ex);
-            }
-        }
-
-        private async Task FlagPhoto(Post post)
-        {
-            if (!BasePresenter.User.IsAuthenticated)
-            {
-                LoginTapped();
-                return;
-            }
-
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryFlag(post);
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
         private async Task Follow()
         {
             _profileHeader.DecorateFollowButton(null, Username);
@@ -583,12 +502,6 @@ namespace Steepshot.iOS.Views
                 _profileHeader.DecorateFollowButton(_userData.HasFollowed, Username);
             else
                 ShowAlert(error);
-        }
-
-        private void LoginTapped()
-        {
-            var myViewController = new WelcomeViewController();
-            NavigationController.PushViewController(myViewController, true);
         }
     }
 }

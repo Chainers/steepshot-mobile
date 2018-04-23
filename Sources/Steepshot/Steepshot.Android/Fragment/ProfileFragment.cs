@@ -158,9 +158,6 @@ namespace Steepshot.Fragment
             base.OnResume();
             _adapter.NotifyDataSetChanged();
 
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
             if (UserVisibleHint)
                 UpdateProfile();
         }
@@ -297,8 +294,6 @@ namespace Steepshot.Fragment
 
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
@@ -310,8 +305,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _postPager.Visibility = ViewStates.Gone;
                 _postsList.Visibility = ViewStates.Visible;
                 _postsList.GetAdapter().NotifyDataSetChanged();

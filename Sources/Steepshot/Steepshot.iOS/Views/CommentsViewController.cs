@@ -213,9 +213,11 @@ namespace Steepshot.iOS.Views
 
         private async void CreateComment(object sender, EventArgs e)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            var textToSend = commentTextView.Text.Trim();
+
+            if (string.IsNullOrEmpty(textToSend))
             {
-                LoginTapped();
+                ShowAlert(LocalizationKeys.EmptyCommentField);
                 return;
             }
 
@@ -223,7 +225,7 @@ namespace Steepshot.iOS.Views
             sendButton.Hidden = true;
             sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateComment(Post, commentTextView.Text);
+            var response = await _presenter.TryCreateComment(Post, textToSend);
             if (response.IsSuccess)
             {
                 commentTextView.Text = string.Empty;

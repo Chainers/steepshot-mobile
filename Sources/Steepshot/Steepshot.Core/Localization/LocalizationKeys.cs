@@ -145,6 +145,7 @@
         WatchUser,
         UnwatchUser,
         Posts5minLimit,
-        PostsDayLimit
+        PostsDayLimit,
+        EmptyCommentField,
     }
 }

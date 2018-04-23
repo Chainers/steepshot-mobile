@@ -484,7 +484,7 @@ namespace Steepshot.iOS.Cells
                 if (BasePostPresenter.IsEnableVote)
                     _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active") : UIImage.FromBundle("ic_like");
                 else
-                    _like.Image = UIImage.FromBundle("ic_like_disabled");
+                    _like.Image = _currentPost.Vote ? UIImage.FromBundle("ic_like_active_disabled") : UIImage.FromBundle("ic_like_disabled");
                 _like.UserInteractionEnabled = true;
             }
 

@@ -10,14 +10,12 @@ using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.ViewSources;
 using UIKit;
-using Steepshot.Core.Utils;
-using Steepshot.Core.Localization;
 using CoreGraphics;
 using Steepshot.Core.Errors;
 
 namespace Steepshot.iOS.Views
 {
-    public partial class FeedViewController : BaseViewControllerWithPresenter<FeedPresenter>
+    public partial class FeedViewController : BasePostController<FeedPresenter>
     {
         private ProfileCollectionViewSource _collectionViewSource;
         private CollectionViewFlowDelegate _gridDelegate;
@@ -118,7 +116,7 @@ namespace Steepshot.iOS.Views
             GetPosts();
         }
 
-        private void SameTabTapped()
+        protected override void SameTabTapped()
         {
             feedCollection.SetContentOffset(new CGPoint(0, 0), true);
         }
@@ -172,7 +170,7 @@ namespace Steepshot.iOS.Views
                     Vote(post);
                     break;
                 case ActionType.More:
-                    Flag(post);
+                    Flagged(post);
                     break;
                 case ActionType.Close:
                     feedCollection.Hidden = false;
@@ -186,14 +184,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
-        }
-
-        private async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
+        protected override async Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
         {
             ErrorBase error;
             do
@@ -218,65 +209,6 @@ namespace Steepshot.iOS.Views
                     activityIndicator.StopAnimating();
             } while (error is RequestError);
             ShowAlert(error);
-        }
-
-        private async void ScrolledToBottom()
-        {
-            await GetPosts(false, false);
-        }
-
-        private async Task Vote(Post post)
-        {
-            var error = await _presenter.TryVote(post);
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
-        private void Flag(Post post)
-        {
-            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagPhoto), UIAlertActionStyle.Default, obj => FlagPhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HidePhoto), UIAlertActionStyle.Default, obj => HidePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Sharepost), UIAlertActionStyle.Default, obj => SharePhoto(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.CopyLink), UIAlertActionStyle.Default, obj => CopyLink(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
-            PresentViewController(actionSheetAlert, true, null);
-        }
-
-        private void HidePhoto(Post post)
-        {
-            BasePresenter.User.PostBlackList.Add(post.Url);
-            BasePresenter.User.Save();
-
-            _presenter.HidePost(post);
-        }
-
-        private async Task FlagPhoto(Post post)
-        {
-            if (post == null)
-                return;
-
-            var error = await _presenter.TryFlag(post);
-            ShowAlert(error);
-            if (error == null)
-                ((MainTabBarController)TabBarController)?.UpdateProfile();
-        }
-
-        private void CopyLink(Post post)
-        {
-            UIPasteboard.General.String = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
-            ShowAlert(LocalizationKeys.Copied);
-        }
-
-        private void SharePhoto(Post post)
-        {
-            var postLink = AppSettings.LocalizationManager.GetText(LocalizationKeys.PostLink, post.Url);
-            var item = NSObject.FromObject(postLink);
-            var activityItems = new NSObject[] { item };
-
-            var activityController = new UIActivityViewController(activityItems, null);
-            PresentViewController(activityController, true, null);
         }
 
         private void SetNavBar()
