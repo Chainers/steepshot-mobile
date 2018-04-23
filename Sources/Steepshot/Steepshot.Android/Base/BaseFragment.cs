@@ -33,5 +33,7 @@ namespace Steepshot.Base
             IsInitialized = false;
             base.OnDetach();
         }
+
+        public virtual bool OnBackPressed() => false;
     }
 }

@@ -119,6 +119,7 @@
         EnterPostTitle,
         EnterPostDescription,
         AddHashtag,
+        Hashtag,
         MyProfile,
         AccountBalance,
         ShowNsfw,

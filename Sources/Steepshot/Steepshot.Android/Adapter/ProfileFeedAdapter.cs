@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 
@@ -9,8 +10,7 @@ namespace Steepshot.Adapter
 {
     public sealed class ProfileFeedAdapter : FeedAdapter<UserProfilePresenter>
     {
-        public Action FollowersAction, FollowingAction, BalanceAction = null;
-        public Action FollowAction;
+        public Action<ActionType> ProfileAction;
         private readonly bool _isHeaderNeeded;
 
         public override int ItemCount
@@ -42,7 +42,7 @@ namespace Steepshot.Adapter
             {
                 case ViewType.Header:
                     var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                    var headerVh = new HeaderViewHolder(headerView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                    var headerVh = new HeaderViewHolder(headerView, Context, ProfileAction);
                     return headerVh;
                 case ViewType.Loader:
                     var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);

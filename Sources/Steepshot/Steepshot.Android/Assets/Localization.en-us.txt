@@ -164,6 +164,7 @@
         "EnterPostTitle": "Enter a title of your photo",
         "EnterPostDescription": "Enter a description of your photo",
         "AddHashtag": "Add Hashtag",
+		"Hashtag": "Hashtag",
         "MyProfile": "My Profile",
         "AccountBalance": "Account Balance",
         "ShowNsfw": "Show NSFW content",

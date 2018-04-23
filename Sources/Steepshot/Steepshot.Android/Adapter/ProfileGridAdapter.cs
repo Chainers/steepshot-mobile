@@ -8,6 +8,7 @@ using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Utils;
@@ -18,8 +19,7 @@ namespace Steepshot.Adapter
 {
     public sealed class ProfileGridAdapter : GridAdapter<UserProfilePresenter>
     {
-        public Action FollowersAction, FollowingAction, BalanceAction = null;
-        public Action FollowAction;
+        public Action<ActionType> ProfileAction;
         private readonly bool _isHeaderNeeded;
 
 
@@ -53,7 +53,7 @@ namespace Steepshot.Adapter
             {
                 case ViewType.Header:
                     var headerView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_profile_header, parent, false);
-                    var headerVh = new HeaderViewHolder(headerView, Context, FollowersAction, FollowingAction, BalanceAction, FollowAction);
+                    var headerVh = new HeaderViewHolder(headerView, Context, ProfileAction);
                     return headerVh;
                 case ViewType.Loader:
                     var loaderView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.loading_item, parent, false);
@@ -100,12 +100,12 @@ namespace Steepshot.Adapter
         private readonly ProgressBar _loadingSpinner;
         private readonly VotingPowerFrame _votingPower;
 
-        private readonly Action _followersAction, _followingAction, _followAction, _balanceAction;
+        private readonly Action<ActionType> _profileAction;
 
         private string _userAvatar;
         private UserProfileResponse _profile;
 
-        public HeaderViewHolder(View itemView, Context context, Action followersAction, Action followingAction, Action balanceAction, Action followAction) : base(itemView)
+        public HeaderViewHolder(View itemView, Context context, Action<ActionType> profileAction) : base(itemView)
         {
             _context = context;
 
@@ -151,10 +151,7 @@ namespace Steepshot.Adapter
             _balance.Typeface = Style.Regular;
             _votingPowerText.Typeface = Style.Regular;
 
-            _followersAction = followersAction;
-            _followingAction = followingAction;
-            _balanceAction = balanceAction;
-            _followAction = followAction;
+            _profileAction = profileAction;
 
             _followingBtn.Click += OnFollowingBtnOnClick;
             _followersBtn.Click += OnFollowersBtnOnClick;
@@ -163,47 +160,31 @@ namespace Steepshot.Adapter
             _profileImage.Click += ProfileImageOnClick;
         }
 
-        private async void ProfileImageOnClick(object sender, EventArgs eventArgs)
+        private void ProfileImageOnClick(object sender, EventArgs eventArgs)
         {
-            _profileImage.Enabled = false;
-            _votingPowerText.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PowerOfLike, _profile.VotingPower);
-            _votingPowerText.Visibility = ViewStates.Visible;
-            var start = 20;
-            var end = 255;
-            var change = end - start;
-            while (start < 255)
-            {
-                _votingPowerText.Alpha = 1 - start / (float)change;
-                _profileImage.SetColorFilter(Color.Argb(start, 255, 255, 255), PorterDuff.Mode.Multiply);
-                await Task.Delay(start == 20 ? 1000 : 50);
-                start += 10;
-            }
-            _profileImage.ClearColorFilter();
-            _votingPowerText.Alpha = 1;
-            _votingPowerText.Visibility = ViewStates.Invisible;
-            _profileImage.Enabled = true;
+            _profileAction?.Invoke(ActionType.LikePower);
         }
 
         private void OnFollowButtonOnClick(object sender, EventArgs e)
         {
-            _followAction?.Invoke();
+            _profileAction?.Invoke(ActionType.Follow);
         }
 
         private void OnBalanceContainerOnClick(object sender, EventArgs e)
         {
-            _balanceAction?.Invoke();
+            _profileAction?.Invoke(ActionType.Balance);
         }
 
         private void OnFollowersBtnOnClick(object sender, EventArgs e)
         {
             if (_profile.FollowersCount > 0)
-                _followersAction?.Invoke();
+                _profileAction?.Invoke(ActionType.Followers);
         }
 
         private void OnFollowingBtnOnClick(object sender, EventArgs e)
         {
             if (_profile.FollowingCount > 0)
-                _followingAction?.Invoke();
+                _profileAction?.Invoke(ActionType.Following);
         }
 
         public void UpdateHeader(UserProfileResponse profile)

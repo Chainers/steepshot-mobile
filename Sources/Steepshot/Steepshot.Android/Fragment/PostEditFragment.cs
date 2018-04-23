@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Util;
@@ -20,12 +21,10 @@ namespace Steepshot.Fragment
         private readonly Post _editPost;
         private GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_editPost));
 
-
         public PostEditFragment(Post post)
         {
             _editPost = post;
         }
-
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {

@@ -31,4 +31,6 @@
   <item name="rgb245_245_245" type="color">#F5F5F5</item>
   <item name="rgb255_47_5" type="color">#FF2F05</item>
   <item name="rgb255_34_5" type="color">#FF2205</item>
+  <item name="rgb255_71_5" type="color">#FF4705</item>
+  <item name="rgb245_245_245" type="color">#F5F5F5</item>
 </resources>

@@ -13,26 +13,27 @@
         android:layout_marginRight="13dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="#"
-            android:textSize="14sp"
-            android:textColor="@color/rgb209_213_216"
-            android:layout_marginEnd="3dp" />
+        <ImageView
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginTop="1dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_tag" />
         <TextView
             android:id="@+id/tag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="7dp"
             android:text="cryptocurrency"
             android:gravity="center"
             android:textSize="14sp"
             android:textColor="@color/rgb151_155_158" />
         <ImageView
+            android:id="@+id/button_state"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_marginLeft="7dp"
             android:layout_marginTop="1dp"
+            android:layout_marginLeft="7dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_close_tag" />
     </LinearLayout>

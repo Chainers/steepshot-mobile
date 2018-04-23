@@ -32,32 +32,6 @@
             android:textSize="20sp"
             android:textColor="@color/rgb15_24_30" />
     </LinearLayout>
-    <RelativeLayout
-        android:id="@+id/btn_post_layout"
-        android:layout_width="315dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="17dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:visibility="gone"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/white"
-            android:layout_centerInParent="true"
-            android:elevation="10dp" />
-        <Button
-            android:id="@+id/btn_post"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textColor="@color/white"
-            android:textAllCaps="false"
-            android:background="@drawable/steem_login_border"
-            android:layout_centerInParent="true"
-            android:textSize="14sp" />
-    </RelativeLayout>
     <View
         android:id="@+id/separator"
         android:layout_below="@id/toolbar"
@@ -70,8 +44,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/separator"
-        android:layout_above="@id/btn_post_layout"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:background="@color/white">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -83,9 +57,9 @@
                     android:id="@+id/photos"
                     android:layout_width="match_parent"
                     android:layout_height="160dp"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="30dp" />
+                    android:layout_marginBottom="30dp"
+                    android:background="@android:color/transparent" />
                 <RelativeLayout
                     android:id="@+id/photo_preview_container"
                     android:layout_width="match_parent"
@@ -119,16 +93,17 @@
                 </RelativeLayout>
             </RelativeLayout>
             <LinearLayout
+                android:id="@+id/description_container"
                 android:layout_below="@id/photos_layout"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
-                android:layout_marginLeft="30dp">
+                android:layout_height="wrap_content">
                 <RelativeLayout
                     android:id="@+id/title_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginLeft="30dp">
                     <ImageView
                         android:id="@+id/title_image"
                         android:layout_width="15dp"
@@ -158,7 +133,9 @@
                 <RelativeLayout
                     android:id="@+id/description_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginLeft="30dp">
                     <ImageView
                         android:id="@+id/description_image"
                         android:layout_width="15dp"
@@ -197,68 +174,126 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:clickable="true">
-                        <ImageView
-                            android:id="@+id/hash_tag"
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:src="@drawable/ic_tag"
-                            android:layout_centerVertical="true"
-                            android:layout_alignParentRight="true" />
-                        <Steepshot.Utils.NewTextEdit
-                            android:id="@+id/tag"
+                        <RelativeLayout
+                            android:id="@+id/tag_label"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toLeftOf="@id/hash_tag"
-                            android:layout_centerVertical="true"
-                            android:paddingTop="25dp"
-                            android:paddingBottom="25dp"
+                            android:layout_marginRight="30dp"
+                            android:layout_marginLeft="30dp">
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/rgb244_244_246"
+                                android:layout_alignParentTop="true" />
+                            <ImageView
+                                android:id="@+id/hash_tag"
+                                android:layout_width="15dp"
+                                android:layout_height="15dp"
+                                android:src="@drawable/ic_tag"
+                                android:layout_centerVertical="true"
+                                android:layout_alignParentRight="true" />
+                            <TextView
+                                android:id="@+id/add_tag"
+                                android:layout_toLeftOf="@id/hash_tag"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingTop="25dp"
+                                android:paddingBottom="25dp"
+                                android:textColor="@color/rgb151_155_158"
+                                android:textSize="14sp" />
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/rgb244_244_246"
+                                android:layout_alignParentBottom="true" />
+                        </RelativeLayout>
+                        <Steepshot.Utils.NewTextEdit
+                            android:id="@+id/tag"
+                            android:layout_below="@id/tag_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="15dp"
+                            android:layout_marginLeft="15dp"
+                            android:paddingLeft="20dp"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp"
                             android:textSize="14sp"
                             android:maxLength="32"
-                            android:gravity="bottom"
                             android:singleLine="true"
                             android:imeOptions="actionDone"
-                            android:background="@android:color/transparent"
+                            android:background="@drawable/edit_text_borders"
                             android:textCursorDrawable="@drawable/ic_input"
                             android:inputType="textNoSuggestions"
-                            android:textColorHint="@color/rgb151_155_158" />
-                        <View
-                            android:id="@+id/tag_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:background="@color/rgb244_244_246"
-                            android:layout_alignParentTop="true" />
+                            android:textColorHint="@color/rgb151_155_158"
+                            android:visibility="gone" />
+                        <ImageButton
+                            android:id="@+id/clear_edit"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="35dp"
+                            android:background="@android:color/transparent"
+                            android:visibility="gone"
+                            android:src="@drawable/ic_close_tag_active" />
                     </RelativeLayout>
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/rgb244_244_246"
-                        android:layout_alignParentTop="true" />
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/local_tags_list"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
                         android:visibility="gone" />
                     <org.apmem.tools.layouts.FlowLayout
                         android:id="@+id/flow_tags"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginLeft="30dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/btn_post_layout"
+                android:layout_below="@id/description_container"
+                android:layout_width="315dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="17dp"
+                android:layout_centerHorizontal="true">
+                <ProgressBar
+                    android:id="@+id/loading_spinner"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:visibility="gone"
+                    android:indeterminateTintMode="src_atop"
+                    android:indeterminateTint="@color/white"
+                    android:layout_centerInParent="true"
+                    android:elevation="10dp" />
+                <Button
+                    android:id="@+id/btn_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:textColor="@color/white"
+                    android:textAllCaps="false"
+                    android:background="@drawable/steem_login_border"
+                    android:layout_centerInParent="true"
+                    android:textSize="14sp" />
+            </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
     <LinearLayout
         android:id="@+id/tags_list_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:layout_above="@id/btn_post_layout"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="5dp"
         android:layout_below="@id/scroll_container"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:visibility="gone">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/tags_list"
             android:layout_width="match_parent"
