@@ -122,9 +122,6 @@ namespace Steepshot.Fragment
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -213,29 +210,8 @@ namespace Steepshot.Fragment
             ((RootActivity)Activity).SelectTab(1);
         }
 
-        private void PhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-            StartActivity(intent);
-        }
-
-        private void FeedPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            OpenPost(post);
-        }
-
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
-
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();
@@ -247,8 +223,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 _postPager.Visibility = ViewStates.Gone;
                 _feedList.Visibility = ViewStates.Visible;

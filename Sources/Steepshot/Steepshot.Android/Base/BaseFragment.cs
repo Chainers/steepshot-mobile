@@ -1,5 +1,7 @@
-﻿using Android.Views;
+﻿using System;
+using Android.Views;
 using Steepshot.Activity;
+using static Android.Views.View;
 
 namespace Steepshot.Base
 {

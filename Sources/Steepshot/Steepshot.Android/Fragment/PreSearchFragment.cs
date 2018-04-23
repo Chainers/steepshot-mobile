@@ -14,7 +14,6 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using CheeseBind;
-using Newtonsoft.Json;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
@@ -282,9 +281,6 @@ namespace Steepshot.Fragment
         {
             base.OnResume();
             _adapter.NotifyDataSetChanged();
-            if (_postPager.Visibility == ViewStates.Visible)
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Invisible;
         }
 
         private void PostPagerOnPageScrolled(object sender, ViewPager.PageScrolledEventArgs pageScrolledEventArgs)
@@ -324,8 +320,6 @@ namespace Steepshot.Fragment
 
         public void OpenPost(Post post)
         {
-            if (Activity is RootActivity activity)
-                activity._tabLayout.Visibility = ViewStates.Gone;
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
             _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
@@ -337,8 +331,6 @@ namespace Steepshot.Fragment
         {
             if (_postPager.Visibility == ViewStates.Visible)
             {
-                if (Activity is RootActivity activity)
-                    activity._tabLayout.Visibility = ViewStates.Visible;
                 _postPager.Visibility = ViewStates.Gone;
                 _postsList.Visibility = ViewStates.Visible;
                 _postsList.GetAdapter().NotifyDataSetChanged();
@@ -471,16 +463,6 @@ namespace Steepshot.Fragment
         {
             _spinner.Visibility = ViewStates.Gone;
             await LoadPosts(CustomTag, true);
-        }
-
-        private void OnPhotoClick(Post post)
-        {
-            if (post == null)
-                return;
-
-            var intent = new Intent(Context, typeof(PostPreviewActivity));
-            intent.PutExtra(PostPreviewActivity.PhotoExtraPath, post.Media[0].Url);
-            StartActivity(intent);
         }
 
         private async void PostAction(ActionType type, Post post)
