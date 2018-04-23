@@ -46,6 +46,7 @@ namespace Steepshot.CustomViews
         private void OnProgressChanged(object sender, ProgressChangedEventArgs progressChangedEventArgs)
         {
             int scaleWidth = Width - PaddingLeft - PaddingRight;
+            int deltaLimit = Max / 2 / _marksCount;
             for (int i = 0; i < _marksCount; i++)
             {
                 float offset = MarksSpacing * i;
@@ -57,7 +58,7 @@ namespace Steepshot.CustomViews
                     SetProgress(offsetProgress, true);
                     break;
                 }
-                if (delta < Max / 2 / _marksCount && _stopDelta != 0)
+                if (delta < deltaLimit && _stopDelta != 0)
                 {
                     _stopDelta = 0;
                     break;
