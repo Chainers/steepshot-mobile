@@ -389,6 +389,7 @@
     <Compile Include="Helpers\CustomWindow.cs" />
     <Compile Include="CustomViews\SearchTextField.cs" />
     <Compile Include="ViewControllers\BasePostController.cs" />
+    <Compile Include="CustomViews\CropView.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
