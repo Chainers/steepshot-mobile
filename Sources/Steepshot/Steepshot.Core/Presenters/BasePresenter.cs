@@ -187,6 +187,10 @@ namespace Steepshot.Core.Presenters
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new OperationResult<TResult>(new CanceledError());
 
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+
                 AppSettings.Reporter.SendCrash(ex);
                 return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
             }
@@ -211,6 +215,10 @@ namespace Steepshot.Core.Presenters
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new OperationResult<TResult>(new CanceledError());
 
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
+
                 AppSettings.Reporter.SendCrash(ex);
                 return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
             }
@@ -234,6 +242,10 @@ namespace Steepshot.Core.Presenters
             {
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new OperationResult<TResult>(new CanceledError());
+
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new OperationResult<TResult>(new AppError(LocalizationKeys.InternetUnavailable));
 
                 AppSettings.Reporter.SendCrash(ex);
                 return new OperationResult<TResult>(new AppError(LocalizationKeys.UnknownError));
@@ -260,6 +272,10 @@ namespace Steepshot.Core.Presenters
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new CanceledError();
 
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
                 AppSettings.Reporter.SendCrash(ex);
                 return new AppError(LocalizationKeys.UnknownError);
             }
@@ -284,6 +300,10 @@ namespace Steepshot.Core.Presenters
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new CanceledError();
 
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
                 AppSettings.Reporter.SendCrash(ex);
                 return new AppError(LocalizationKeys.UnknownError);
             }
@@ -307,6 +327,10 @@ namespace Steepshot.Core.Presenters
             {
                 if (ct.IsCancellationRequested || ex is OperationCanceledException)
                     return new CanceledError();
+
+                var available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
 
                 AppSettings.Reporter.SendCrash(ex);
                 return new AppError(LocalizationKeys.UnknownError);
