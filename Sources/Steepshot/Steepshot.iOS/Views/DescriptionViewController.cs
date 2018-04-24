@@ -732,23 +732,6 @@ namespace Steepshot.iOS.Views
                 }
             });
         }
-        /*
-        private async Task<UIImage> NormalizeImage(UIImage sourceImage)
-        {
-            return await Task.Run(() =>
-            {
-                var imgSize = sourceImage.Size;
-                var inSampleSize = ImageHelper.CalculateInSampleSize(sourceImage.Size, 1200, 1200);
-                UIGraphics.BeginImageContextWithOptions(inSampleSize, false, sourceImage.CurrentScale);
-
-                var drawRect = new CGRect(0, 0, inSampleSize.Width, inSampleSize.Height);
-                sourceImage.Draw(drawRect);
-                var modifiedImage = UIGraphics.GetImageFromCurrentImageContext();
-                UIGraphics.EndImageContext();
-
-                return modifiedImage;
-            });
-        }*/
 
         private void RotatePhotoIfNeeded()
         {

@@ -57,9 +57,9 @@ namespace Steepshot.iOS.CustomViews
 
             var shiftSide = originalImageSize.Height < originalImageSize.Width;
             if (shiftSide)
-                shift = Frame.Height / 2.0f - ContentSize.Height / 2.0f;
+                shift = (Frame.Height - ContentSize.Height) / 2.0f;
             else
-                shift = Frame.Width / 2.0f - ContentSize.Width / 2.0f;
+                shift = (Frame.Width - ContentSize.Width) / 2.0f;
 
             if (shift > 0)
                 if (shiftSide)
