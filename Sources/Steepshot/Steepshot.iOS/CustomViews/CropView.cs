@@ -14,10 +14,11 @@ namespace Steepshot.iOS.CustomViews
 
         public CropView(CGRect _frame)
         {
-            imageView = new UIImageView(_frame/*new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width)*/);
+            imageView = new UIImageView(_frame);
             imageView.ContentMode = UIViewContentMode.ScaleAspectFit;
 
-            Frame = _frame;//new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width);
+            BackgroundColor = Constants.R245G245B245;
+            Frame = _frame;
             Bounces = false;
             MinimumZoomScale = 1f;
             MaximumZoomScale = 4f;
@@ -146,7 +147,7 @@ namespace Steepshot.iOS.CustomViews
             if (originalImageSize.Height < originalImageSize.Width && Frame.Width <= originalImageSize.Width)
                 scale = Frame.Height / originalImageSize.Height;
 
-            if (scale > 0)
+            if (scale > 1)
             {
                 MinimumZoomScale = scale;
                 SetZoomScale(scale, false);

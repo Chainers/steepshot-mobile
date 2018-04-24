@@ -73,6 +73,7 @@ namespace Steepshot.iOS.Views
                 NavigationItem.RightBarButtonItem.Enabled = true;
             };
 
+            cropBackgroundView.BackgroundColor = Constants.R245G245B245;
             cropBackgroundView.AddSubview(_cropView);
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();

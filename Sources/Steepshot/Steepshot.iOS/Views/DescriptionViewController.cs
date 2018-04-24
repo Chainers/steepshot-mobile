@@ -77,7 +77,6 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
             _collectionviewSource = new LocalTagsCollectionViewSource();
-            _collectionviewSource.CellAction += CollectionCellAction;
             _collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(_collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
             tagsCollectionView.Source = _collectionviewSource;
             tagsCollectionView.Delegate = _collectionViewDelegate;
@@ -116,6 +115,7 @@ namespace Steepshot.iOS.Views
                 photoView.Layer.CornerRadius = 8;
                 photoView.ClipsToBounds = true;
                 photoView.UserInteractionEnabled = true;
+                photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
                 mainScroll.AddSubview(photoView);
 
                 photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
@@ -313,11 +313,20 @@ namespace Steepshot.iOS.Views
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
+
+            _collectionviewSource.CellAction += CollectionCellAction;
+
             if (!IsMovingToParentViewController)
             {
                 tagsCollectionView.ReloadData();
                 ResizeView();
             }
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            _collectionviewSource.CellAction -= CollectionCellAction;
+            base.ViewWillDisappear(animated);
         }
 
         public override void ViewDidAppear(bool animated)

@@ -49,7 +49,7 @@ namespace Steepshot.iOS.Views
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 SectionInset = new UIEdgeInsets(0, 15, 0, 15),
             }, false);
-            _viewSource.CellAction += CollectionCellAction;
+            //_viewSource.CellAction += CollectionCellAction;
 
             tagsCollectionView.Source = _viewSource;
             tagsCollectionView.Delegate = _flowDelegate;
@@ -73,7 +73,7 @@ namespace Steepshot.iOS.Views
             View.AddGestureRecognizer(tap);
 
             _tableSource = new TagsTableViewSource(_tagPickerFacade);
-            _tableSource.CellAction += TableCellAction;
+            //_tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
@@ -84,6 +84,19 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SetCollectionHeight();
             SearchTextChanged();
+        }
+
+        public override void ViewWillAppear(bool animated)
+        {
+            _tableSource.CellAction += TableCellAction;
+            _viewSource.CellAction += CollectionCellAction;
+            base.ViewWillAppear(animated);
+        }
+
+        public override void ViewWillDisappear(bool animated)
+        {
+            _tableSource.CellAction -= TableCellAction;
+            _viewSource.CellAction -= CollectionCellAction;
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
