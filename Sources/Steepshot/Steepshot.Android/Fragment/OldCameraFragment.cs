@@ -86,12 +86,18 @@ namespace Steepshot.Fragment
 
         private void GpsButtonOnClick(object sender, EventArgs eventArgs)
         {
+            _gpsButton.Enabled = false;
+
             isGpsEnable = !isGpsEnable;
             _gpsButton.SetImageResource(isGpsEnable ? Resource.Drawable.ic_gps : Resource.Drawable.ic_gps_n);
+
+            _gpsButton.Enabled = true;
         }
 
         private void SvOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
+            _sv.Enabled = false;
+
             var cameraParams = _camera.GetParameters();
             var action = touchEventArgs.Event.Action;
 
@@ -108,6 +114,8 @@ namespace Steepshot.Fragment
                 }
             }
             touchEventArgs.Handled = true;
+
+            _sv.Enabled = true;
         }
 
         private void HandleZoom(MotionEvent e, Camera.Parameters p)
@@ -169,6 +177,8 @@ namespace Steepshot.Fragment
 
         private void FlashClick(object sender, EventArgs e)
         {
+            _flashButton.Enabled = false;
+
             var parameters = _camera.GetParameters();
             if (parameters.SupportedFlashModes != null
                 && parameters.SupportedFlashModes.Contains(Camera.Parameters.FlashModeOff)
@@ -179,15 +189,26 @@ namespace Steepshot.Fragment
                 _camera.SetParameters(parameters);
                 _flashButton.SetImageResource(mode == Camera.Parameters.FlashModeOff ? Resource.Drawable.ic_flash_off : Resource.Drawable.ic_flash);
             }
+
+            _flashButton.Enabled = true;
         }
 
         private void TakePhotoClick(object sender, EventArgs e)
         {
-            var parameters = _camera.GetParameters();
-            AddGps(parameters);
-            parameters.SetRotation(_currentRotation);
-            _camera.SetParameters(parameters);
-            _camera?.TakePicture(this, null, this);
+            _shotButton.Enabled = false;
+
+            try
+            {
+                var parameters = _camera.GetParameters();
+                AddGps(parameters);
+                parameters.SetRotation(_currentRotation);
+                _camera.SetParameters(parameters);
+                _camera?.TakePicture(this, null, this);
+            }
+            catch
+            {
+                _shotButton.Enabled = true;
+            }
         }
 
         private void AddGps(Camera.Parameters parameters)
@@ -205,12 +226,20 @@ namespace Steepshot.Fragment
 
         private void GoBack(object sender, EventArgs e)
         {
+            _closeButton.Enabled = false;
+
             Activity.OnBackPressed();
+
+            _closeButton.Enabled = true;
         }
 
         private void OpenGallery(object sender, EventArgs e)
         {
+            _galleryButton.Enabled = false;
+
             ((BaseActivity)Activity).OpenNewContentFragment(new GalleryFragment());
+
+            _galleryButton.Enabled = true;
         }
 
         private void OnOrientationChanged(int orientation)
@@ -443,6 +472,8 @@ namespace Steepshot.Fragment
 
         public void SwitchCamera(object sender, EventArgs e)
         {
+            _revertButton.Enabled = false;
+
             if (_camera != null)
             {
                 _camera.StopPreview();
@@ -452,6 +483,8 @@ namespace Steepshot.Fragment
 
             var cameraToSwitch = _cameraId == 0 ? 1 : 0;
             EnableCamera(cameraToSwitch);
+
+            _revertButton.Enabled = true;
         }
 
         private void EnableCamera(int cameraToSwitch)
@@ -511,7 +544,8 @@ namespace Steepshot.Fragment
                 _gpsButton.Visibility = ViewStates.Visible;
                 _gpsButton.SetImageResource(Resource.Drawable.ic_gps);
             }
-            _currentLocation = location;
+            if (_currentLocation == null || _currentLocation.Accuracy > location.Accuracy)
+                _currentLocation = location;
         }
 
         public void OnProviderDisabled(string provider)
