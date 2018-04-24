@@ -455,23 +455,20 @@ namespace Steepshot.Adapter
                 {
                     LikeSet(true);
                 }
+                else if (post.Vote || !post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_disabled
+                        : Resource.Drawable.ic_new_like);
+                }
             }
             else
             {
                 if (post.Vote || !post.Flag)
                 {
-                    if (BasePostPresenter.IsEnableVote)
-                    {
-                        _likeOrFlag.SetImageResource(post.Vote
-                            ? Resource.Drawable.ic_new_like_filled
-                            : Resource.Drawable.ic_new_like_selected);
-                    }
-                    else
-                    {
-                        _likeOrFlag.SetImageResource(post.Vote
-                            ? Resource.Drawable.ic_new_like_disabled
-                            : Resource.Drawable.ic_new_like);
-                    }
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_filled
+                        : Resource.Drawable.ic_new_like_selected);
                 }
                 else
                 {

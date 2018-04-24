@@ -366,13 +366,7 @@ namespace Steepshot.CustomViews
 
         public void OnBitmapLoaded(Bitmap p0, Picasso.LoadedFrom p1)
         {
-            ResetToDefaults(ScaleType.Square);
-            _drawable = new BitmapDrawable(p0);
-            _imageRawWidth = p0.Width;
-            _imageRawHeight = p0.Height;
-            _reloadImage = false;
-            RequestLayout();
-            Invalidate();
+            SetImageBitmap(p0);
         }
 
         public void OnPrepareLoad(Drawable p0) { }
