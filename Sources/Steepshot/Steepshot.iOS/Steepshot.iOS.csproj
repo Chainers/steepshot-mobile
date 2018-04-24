@@ -90,6 +90,7 @@
     <LangVersion>Default</LangVersion>
     <MtouchProfiling>false</MtouchProfiling>
     <IOSDebugOverWiFi>false</IOSDebugOverWiFi>
+    <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
