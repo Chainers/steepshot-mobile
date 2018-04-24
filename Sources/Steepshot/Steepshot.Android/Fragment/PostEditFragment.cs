@@ -55,7 +55,7 @@ namespace Steepshot.Fragment
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
 
                 var url = _editPost.Media[0].Thumbnails.Mini;
-                Picasso.With(Activity).Load(url)
+                Picasso.With(Activity).Load(url).CenterCrop()
                     .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
                     .Into(_preview);
 

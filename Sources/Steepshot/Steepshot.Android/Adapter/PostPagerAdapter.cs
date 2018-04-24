@@ -73,9 +73,9 @@ namespace Steepshot.Adapter
         {
             if (_presenter.Count > 0)
             {
-                var reusePosition = CurrentItem % CachedPagesCount;
-                if (_presenter[CurrentItem] != null)
-                    _viewHolders[reusePosition]?.UpdateData(_presenter[CurrentItem], _context);
+                foreach (var holder in _viewHolders)
+                    holder?.UpdateData();
+
                 _itemsCount = _presenter.IsLastReaded ? _presenter.Count : _presenter.Count + 1;
                 base.NotifyDataSetChanged();
                 ResetVisibleItems();
@@ -157,6 +157,12 @@ namespace Steepshot.Adapter
             postFooter.SetLayerType(LayerType.Hardware, null);
 
             NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
+        }
+
+        public void UpdateData()
+        {
+            if (Post != null)
+                UpdateData(Post, Context);
         }
 
         protected override void SetNsfwMaskLayout()
