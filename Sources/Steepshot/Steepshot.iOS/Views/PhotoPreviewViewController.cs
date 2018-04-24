@@ -63,6 +63,16 @@ namespace Steepshot.iOS.Views
 
             _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Width));
 
+            _cropView.ZoomingStarted += (object sender, UIScrollViewZoomingEventArgs e) => 
+            {
+                NavigationItem.RightBarButtonItem.Enabled = false;
+            };
+
+            _cropView.ZoomingEnded+= (object sender, ZoomingEndedEventArgs e) => 
+            {
+                NavigationItem.RightBarButtonItem.Enabled = true;
+            };
+
             cropBackgroundView.AddSubview(_cropView);
             NavigationController.NavigationBar.Translucent = false;
             SetBackButton();

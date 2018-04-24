@@ -56,6 +56,7 @@ namespace Steepshot.iOS.Views
         private NSLayoutConstraint tagsCollectionHeight;
         private bool _isinitialized;
         private UIImageView _rotateButton;
+        private UIImageView _resizeButton;
 
         public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
@@ -132,25 +133,25 @@ namespace Steepshot.iOS.Views
                     _cropView = new CropView(new CGRect(0, 0, photoViewSide, photoViewSide));
                     photoView.AddSubview(_cropView);
 
-                    var resizeButton = new UIImageView();
-                    resizeButton.Image = UIImage.FromBundle("ic_resize");
-                    resizeButton.UserInteractionEnabled = true;
-                    mainScroll.AddSubview(resizeButton);
-                    resizeButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoView, 15f);
-                    resizeButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
+                    _resizeButton = new UIImageView();
+                    _resizeButton.Image = UIImage.FromBundle("ic_resize");
+                    _resizeButton.UserInteractionEnabled = true;
+                    mainScroll.AddSubview(_resizeButton);
+                    _resizeButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoView, 15f);
+                    _resizeButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
 
                     _rotateButton = new UIImageView();
                     _rotateButton.Image = UIImage.FromBundle("ic_rotate");
                     _rotateButton.UserInteractionEnabled = true;
                     mainScroll.AddSubview(_rotateButton);
-                    _rotateButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, resizeButton, 15f);
+                    _rotateButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, _resizeButton, 15f);
                     _rotateButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
 
                     var rotateTap = new UITapGestureRecognizer(RotateTap);
                     _rotateButton.AddGestureRecognizer(rotateTap);
 
                     var zoomTap = new UITapGestureRecognizer(ZoomTap);
-                    resizeButton.AddGestureRecognizer(zoomTap);
+                    _resizeButton.AddGestureRecognizer(zoomTap);
                 }
             }
             else
@@ -322,7 +323,7 @@ namespace Steepshot.iOS.Views
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
-            if (_isFromCamera)
+            if (_isFromCamera && IsMovingToParentViewController)
             {
                 RotatePhotoIfNeeded();
                 _cropView.AdjustImageViewSize(ImageAssets[0].Item2);
@@ -612,6 +613,13 @@ namespace Steepshot.iOS.Views
             ToggleAvailability(false);
             RemoveFocusFromTextFields();
 
+            if (_isFromCamera)
+            {
+                var croppedPhoto = _cropView.CropImage(new SavedPhoto(null, ImageAssets[0].Item2, _cropView.ContentOffset) { OriginalImageSize = _cropView.originalImageSize, Scale = _cropView.ZoomScale });
+                ImageAssets.RemoveAt(0);
+                ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, croppedPhoto));
+            }
+
             await Task.Run(() =>
             {
                 try
@@ -737,10 +745,7 @@ namespace Steepshot.iOS.Views
         private void RotatePhotoIfNeeded()
         {
             if (_rotation == UIDeviceOrientation.Portrait || _rotation == UIDeviceOrientation.Unknown)
-            {
-                //_cropView.imageView.Image = ImageAssets[0].Item2;
                 return;
-            }
 
             UIImageOrientation orientation;
 
@@ -762,11 +767,10 @@ namespace Steepshot.iOS.Views
                     orientation = UIImageOrientation.Up;
                     break;
             }
-            {
-                var rotated = ImageHelper.RotateImage(ImageAssets[0].Item2, orientation);
-                ImageAssets.RemoveAt(0);
-                ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, rotated));
-            }
+
+            var rotated = ImageHelper.RotateImage(ImageAssets[0].Item2, orientation);
+            ImageAssets.RemoveAt(0);
+            ImageAssets.Add(new Tuple<NSDictionary, UIImage>(null, rotated));
         }
 
         private void ZoomTap()
@@ -801,6 +805,12 @@ namespace Steepshot.iOS.Views
             else
                 loadingView.StartAnimating();
 
+            if (_isFromCamera)
+            {
+                _rotateButton.UserInteractionEnabled = enabled;
+                _resizeButton.UserInteractionEnabled = enabled;
+                photoView.UserInteractionEnabled = enabled;
+            }
             postPhotoButton.Enabled = enabled;
             titleTextField.UserInteractionEnabled = enabled;
             descriptionTextField.UserInteractionEnabled = enabled;
@@ -810,6 +820,7 @@ namespace Steepshot.iOS.Views
 
         private void GoBack(object sender, EventArgs e)
         {
+            _presenter.TasksCancel();
             NavigationController.PopViewController(true);
         }
 
