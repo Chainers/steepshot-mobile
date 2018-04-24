@@ -4,6 +4,7 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using System.IO;
+using Ditch.Core.JsonRpc;
 
 namespace Steepshot.Core.Presenters
 {

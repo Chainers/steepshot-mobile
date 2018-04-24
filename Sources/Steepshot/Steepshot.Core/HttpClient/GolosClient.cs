@@ -12,6 +12,7 @@ using Steepshot.Core.Serializing;
 using DitchFollowType = Ditch.Golos.Models.Enums.FollowType;
 using DitchBeneficiary = Ditch.Golos.Models.Operations.Beneficiary;
 using Ditch.Core;
+using Ditch.Core.JsonRpc;
 using Ditch.Golos.Models.Operations;
 using Ditch.Golos.Models.Objects;
 using Steepshot.Core.Errors;
@@ -93,7 +94,7 @@ namespace Steepshot.Core.HttpClient
                     if (!content.IsError)
                     {
                         //Convert Asset type to double
-                        result.Result = new VoteResponse(true)
+                        result.Result = new VoteResponse()
                         {
                             NewTotalPayoutReward = GbgKof * (content.Result.TotalPayoutValue + content.Result.CuratorPayoutValue + content.Result.PendingPayoutValue).ToDouble(),
                             NetVotes = content.Result.NetVotes,
@@ -128,7 +129,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<VoidResponse>();
 
                 if (!resp.IsError)
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 else
                     OnError(resp, result);
 
@@ -153,7 +154,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<VoidResponse>();
 
                 if (!resp.IsError)
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 else
                     OnError(resp, result);
 
@@ -196,7 +197,7 @@ namespace Steepshot.Core.HttpClient
                 var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
                 {
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 }
                 else
                     OnError(resp, result);
@@ -221,7 +222,7 @@ namespace Steepshot.Core.HttpClient
 
                 var result = new OperationResult<VoidResponse>();
                 if (!resp.IsError)
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 else
                     OnError(resp, result);
                 return result;
@@ -259,7 +260,7 @@ namespace Steepshot.Core.HttpClient
                 var op = new AccountUpdateOperation(model.Login, profile.MemoKey, editedMeta);
                 var resp2 = _operationManager.BroadcastOperationsSynchronous(keys, ct, op);
                 if (!resp2.IsError)
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 else
                     OnError(resp2, result);
                 return result;

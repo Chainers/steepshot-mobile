@@ -10,6 +10,7 @@ using Steepshot.Core.Serializing;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
+using Ditch.Core.JsonRpc;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 
@@ -288,7 +289,7 @@ namespace Steepshot.Core.HttpClient
                 endpoint = $"{GatewayVersion.V1}/log/{endpoint}";
                 var result = await Gateway.Post<VoidResponse>(endpoint, parameters, token);
                 if (result.IsSuccess)
-                    result.Result = new VoidResponse(true);
+                    result.Result = new VoidResponse();
                 return result;
             }
             catch

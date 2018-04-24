@@ -7,6 +7,7 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Serializing;
 using System.Linq;
+using Ditch.Core.JsonRpc;
 using Steepshot.Core.Errors;
 
 namespace Steepshot.Core.HttpClient

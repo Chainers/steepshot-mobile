@@ -25,7 +25,6 @@ namespace Steepshot.Core.Tests.HttpClient
             var response = await Api[apiName].LoginWithPostingKey(request, CancellationToken.None);
             AssertResult(response);
             Assert.That(response.IsSuccess, Is.True);
-            Assert.That(response.Result.IsSuccess, Is.True);
         }
 
         [Test]
@@ -96,7 +95,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var createCommentModel = new CreateOrEditCommentModel(user, lastPost, $"Test comment {DateTime.Now:G}", AppSettings.AppInfo);
             var createCommentResponse = await Api[apiName].CreateOrEditComment(createCommentModel, CancellationToken.None);
             AssertResult(createCommentResponse);
-            Assert.That(createCommentResponse.Result.IsSuccess, Is.True);
+            Assert.That(createCommentResponse.IsSuccess, Is.True);
 
             // Wait for data to be writed into blockchain
             Thread.Sleep(TimeSpan.FromSeconds(15));
@@ -127,7 +126,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteUpRequest = new VoteModel(user, lastPost, VoteType.Up);
             var voteUpResponse = await Api[apiName].Vote(voteUpRequest, CancellationToken.None);
             AssertResult(voteUpResponse);
-            Assert.That(voteUpResponse.Result.IsSuccess, Is.True);
+            Assert.That(voteUpResponse.IsSuccess, Is.True);
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteUpResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward <= voteUpResponse.Result.NewTotalPayoutReward);
@@ -147,7 +146,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteDownRequest = new VoteModel(user, lastPost, VoteType.Down);
             var voteDownResponse = await Api[apiName].Vote(voteDownRequest, CancellationToken.None);
             AssertResult(voteDownResponse);
-            Assert.That(voteDownResponse.Result.IsSuccess, Is.True);
+            Assert.That(voteDownResponse.IsSuccess, Is.True);
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteDownResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             //Assert.IsTrue(lastPost.TotalPayoutReward >= voteDownResponse.Result.NewTotalPayoutReward);
@@ -185,7 +184,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteUpCommentRequest = new VoteModel(user, post, VoteType.Up);
             var voteUpCommentResponse = await Api[apiName].Vote(voteUpCommentRequest, CancellationToken.None);
             AssertResult(voteUpCommentResponse);
-            Assert.That(voteUpCommentResponse.Result.IsSuccess, Is.True);
+            Assert.That(voteUpCommentResponse.IsSuccess, Is.True);
             Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteUpCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
@@ -203,7 +202,7 @@ namespace Steepshot.Core.Tests.HttpClient
             var voteDownCommentRequest = new VoteModel(user, post, VoteType.Down);
             var voteDownCommentResponse = await Api[apiName].Vote(voteDownCommentRequest, CancellationToken.None);
             AssertResult(voteDownCommentResponse);
-            Assert.That(voteDownCommentResponse.Result.IsSuccess, Is.True);
+            Assert.That(voteDownCommentResponse.IsSuccess, Is.True);
             Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
             Assert.That(voteDownCommentResponse.Result.NewTotalPayoutReward, Is.Not.Null);
 
@@ -230,13 +229,13 @@ namespace Steepshot.Core.Tests.HttpClient
             var followRequest = new FollowModel(user, FollowType.Follow, followUser);
             var followResponse = await Api[apiName].Follow(followRequest, CancellationToken.None);
             AssertResult(followResponse);
-            Assert.IsTrue(followResponse.Result.IsSuccess);
+            Assert.IsTrue(followResponse.IsSuccess);
 
             // 8) UnFollow
             var unfollowRequest = new FollowModel(user, FollowType.UnFollow, followUser);
             var unfollowResponse = await Api[apiName].Follow(unfollowRequest, CancellationToken.None);
             AssertResult(unfollowResponse);
-            Assert.IsTrue(unfollowResponse.Result.IsSuccess);
+            Assert.IsTrue(unfollowResponse.IsSuccess);
         }
 
 
@@ -266,7 +265,7 @@ namespace Steepshot.Core.Tests.HttpClient
             };
             var response = await Api[apiName].UpdateUserProfile(updateUserProfileModel, CancellationToken.None);
             AssertResult(response);
-            Assert.IsTrue(response.Result.IsSuccess);
+            Assert.IsTrue(response.IsSuccess);
         }
     }
 }
