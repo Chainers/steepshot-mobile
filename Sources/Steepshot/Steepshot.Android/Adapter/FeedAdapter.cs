@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.OS;
+using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.CustomViews;
@@ -85,9 +86,9 @@ namespace Steepshot.Adapter
 
     public class FeedViewHolder : RecyclerView.ViewHolder
     {
+        private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
         private readonly Action<string> _tagAction;
-        private readonly ImageView _gallery;
         private readonly ViewPager _photosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
@@ -100,7 +101,8 @@ namespace Steepshot.Adapter
         private readonly ImageView _flagsIcon;
         private readonly TextView _cost;
         private readonly ImageButton _likeOrFlag;
-        protected readonly ImageButton More;
+        private readonly ImageButton _likeScale;
+        private readonly ImageButton _more;
         private readonly LinearLayout _topLikers;
         protected readonly RelativeLayout NsfwMask;
         private readonly TextView _nsfwMaskMessage;
@@ -108,6 +110,9 @@ namespace Steepshot.Adapter
         private readonly ImageButton _nsfwMaskCloseButton;
         private readonly Button _nsfwMaskActionButton;
         private readonly BottomSheetDialog _moreActionsDialog;
+        private readonly RelativeLayout _likeScaleContainer;
+        private readonly LikeScaleBar _likeScaleBar;
+        private readonly TextView _likeScalePower;
         protected readonly Context Context;
         private bool _isAnimationRuning;
 
@@ -126,17 +131,10 @@ namespace Steepshot.Adapter
 
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
-            _gallery = itemView.FindViewById<ImageView>(Resource.Id.gallery);
+            itemView.FindViewById<ImageView>(Resource.Id.gallery);
             _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
             _pagerTabLayout = ItemView.FindViewById<TabLayout>(Resource.Id.dot_selector);
             _pagerTabLayout.SetupWithViewPager(_photosViewPager, true);
-
-            var parameters = _photosViewPager.LayoutParameters;
-            parameters.Height = height;
-
-            _photosViewPager.LayoutParameters = parameters;
-
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, (post) => postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post));
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -146,23 +144,38 @@ namespace Steepshot.Adapter
             _flagsIcon = itemView.FindViewById<ImageView>(Resource.Id.flagIcon);
             _cost = itemView.FindViewById<TextView>(Resource.Id.cost);
             _likeOrFlag = itemView.FindViewById<ImageButton>(Resource.Id.btn_like);
-            More = itemView.FindViewById<ImageButton>(Resource.Id.more);
+            _more = itemView.FindViewById<ImageButton>(Resource.Id.more);
             _topLikers = itemView.FindViewById<LinearLayout>(Resource.Id.top_likers);
             NsfwMask = itemView.FindViewById<RelativeLayout>(Resource.Id.nsfw_mask);
             _nsfwMaskMessage = NsfwMask.FindViewById<TextView>(Resource.Id.mask_message);
             NsfwMaskSubMessage = NsfwMask.FindViewById<TextView>(Resource.Id.mask_submessage);
             _nsfwMaskCloseButton = NsfwMask.FindViewById<ImageButton>(Resource.Id.mask_close);
             _nsfwMaskActionButton = NsfwMask.FindViewById<Button>(Resource.Id.nsfw_mask_button);
+            _likeScaleContainer = itemView.FindViewById<RelativeLayout>(Resource.Id.like_scale_container);
+            _likeScaleBar = itemView.FindViewById<LikeScaleBar>(Resource.Id.like_scale);
+            _likeScalePower = itemView.FindViewById<TextView>(Resource.Id.like_scale_power);
+            _likeScale = itemView.FindViewById<ImageButton>(Resource.Id.btn_like_scale);
 
             _author.Typeface = Style.Semibold;
             _time.Typeface = Style.Regular;
             _likes.Typeface = Style.Semibold;
             _flags.Typeface = Style.Semibold;
             _cost.Typeface = Style.Semibold;
+            _likeScalePower.Typeface = Style.Semibold;
             _title.Typeface = Style.Regular;
             _commentSubtitle.Typeface = Style.Regular;
             _nsfwMaskMessage.Typeface = Style.Light;
             NsfwMaskSubMessage.Typeface = Style.Light;
+
+            var parameters = _photosViewPager.LayoutParameters;
+            parameters.Height = height;
+
+            _photosViewPager.LayoutParameters = parameters;
+            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, post =>
+            {
+                HideScaleBar();
+                postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post);
+            });
 
             _moreActionsDialog = new BottomSheetDialog(Context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
@@ -173,6 +186,8 @@ namespace Steepshot.Adapter
             _tagAction = tagAction;
 
             _likeOrFlag.Click += DoLikeAction;
+            _likeOrFlag.LongClick += DoLikeScaleAction;
+            _likeScale.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
@@ -183,8 +198,8 @@ namespace Steepshot.Adapter
             _flagsIcon.Click += DoFlagersAction;
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
-            More.Click += DoMoreAction;
-            More.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _more.Click += DoMoreAction;
+            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
             _title.TagAction += _tagAction;
@@ -193,6 +208,35 @@ namespace Steepshot.Adapter
             {
                 _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
+            BaseActivity.TouchEvent += TouchEvent;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (BaseActivity.TouchEvent != null)
+                BaseActivity.TouchEvent -= TouchEvent;
+            base.Dispose(disposing);
+        }
+
+        private void HideScaleBar()
+        {
+            if (_likeScaleContainer.Visibility == ViewStates.Visible)
+            {
+                _likeScaleContainer.Visibility = ViewStates.Invisible;
+                _isScalebarOpened = false;
+                _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
+            }
+        }
+
+        private bool TouchEvent(MotionEvent ev)
+        {
+            if (_likeScaleContainer == null) return false;
+            var containerRect = new Rect();
+            _likeScaleContainer.GetGlobalVisibleRect(containerRect);
+            if (containerRect.Contains((int)ev.RawX, (int)ev.RawY)) return true;
+            if (ev.Action == MotionEventActions.Down)
+                HideScaleBar();
+            return false;
         }
 
         private void NsfwMaskActionButtonOnClick(object sender, EventArgs eventArgs)
@@ -444,10 +488,33 @@ namespace Steepshot.Adapter
             if (!BasePostPresenter.IsEnableVote)
                 return;
 
+            if (_likeScaleContainer.Visibility == ViewStates.Visible)
+                BasePresenter.User.VotePower = (short)_likeScaleBar.Progress;
+
             if (Post.Flag)
+            {
                 _postAction?.Invoke(ActionType.Flag, Post);
+            }
             else
+            {
                 _postAction?.Invoke(ActionType.Like, Post);
+                HideScaleBar();
+            }
+        }
+
+        private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
+        {
+            if (!BasePresenter.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
+            _likeScaleBar.Progress = BasePresenter.User.VotePower;
+            _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
+            _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
+            _likeScaleContainer.Visibility = ViewStates.Visible;
+            _isScalebarOpened = true;
+        }
+
+        private void LikeScaleBarOnProgressChanged(object sender, SeekBar.ProgressChangedEventArgs progressChangedEventArgs)
+        {
+            _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
         }
 
         public void UpdateData(Post post, Context context)
@@ -528,6 +595,12 @@ namespace Steepshot.Adapter
                 else if (post.FlagChanging)
                 {
                     LikeSet(true);
+                }
+                else if (post.Vote || !post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_disabled
+                        : Resource.Drawable.ic_new_like);
                 }
             }
             else
@@ -616,11 +689,11 @@ namespace Steepshot.Adapter
                 {
                     var photo = (ImageView)photoCard.GetChildAt(0);
                     var url = mediaModel.Thumbnails.Mini;
-                    Picasso.With(_context).Load(url).NoFade()
+                    Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade()
                         .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
                         .Into(photo, null, () =>
                         {
-                            Picasso.With(_context).Load(url).NoFade().Priority(Picasso.Priority.High).Into(photo);
+                            Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
 
                     if (_type == PostPagerType.PostScreen)

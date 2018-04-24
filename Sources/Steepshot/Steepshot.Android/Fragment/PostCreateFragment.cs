@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.Graphics;
 using Android.Media;
@@ -64,18 +65,33 @@ namespace Steepshot.Fragment
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
 
-                _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
+                if (_media[0].PreparedBitmap == null)
+                {
+                    _preview.SetImagePath(_media[0].Path, _media[0].Parameters);
+                    _ratioBtn.Click += RatioBtnOnClick;
+                    _rotateBtn.Click += RotateBtnOnClick;
+                }
+                else
+                {
+                    _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
+                    _preview.SetImageBitmap(_media[0].PreparedBitmap);
+                }
 
                 _preview.Touch += PreviewOnTouch;
-                _ratioBtn.Click += RatioBtnOnClick;
-                _rotateBtn.Click += RotateBtnOnClick;
             }
 
             SearchTextChanged();
         }
 
+
         protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
         {
+            if (_media[0].PreparedBitmap != null)
+            {
+                _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
+                return;
+            }
+
             _preview.OnTouchEvent(touchEventArgs.Event);
             if (touchEventArgs.Event.Action == MotionEventActions.Down)
                 _descriptionScrollContainer.RequestDisallowInterceptTouchEvent(true);
@@ -90,19 +106,19 @@ namespace Steepshot.Fragment
             if (!isConnected)
             {
                 Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                OnUploadEnded();
+                EnabledPost();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
                 Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                OnUploadEnded();
+                EnabledPost();
                 return;
             }
 
             _model.Media = new MediaModel[_media.Count];
-            if (_media.Count == 1)
+            if (_media.Count == 1 && _media[0].PreparedBitmap == null)
                 _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
             for (var i = 0; i < _media.Count; i++)
@@ -124,7 +140,7 @@ namespace Steepshot.Fragment
                 if (!operationResult.IsSuccess)
                 {
                     Activity.ShowAlert(operationResult.Error);
-                    OnUploadEnded();
+                    EnabledPost();
                     return;
                 }
 
@@ -136,6 +152,17 @@ namespace Steepshot.Fragment
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryCreateOrEditPost();
         }
+
+        protected void RatioBtnOnClick(object sender, EventArgs eventArgs)
+        {
+            _preview.SwitchScale();
+        }
+
+        protected void RotateBtnOnClick(object sender, EventArgs eventArgs)
+        {
+            _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
+        }
+
 
         private string SaveFileTemp(Bitmap btmp, string pathToExif)
         {

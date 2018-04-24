@@ -5,6 +5,7 @@ namespace Steepshot.Utils
 {
     public sealed class ScrollListener : RecyclerView.OnScrollListener
     {
+        public event Action<int> ScrolledToPosition;
         public event Action ScrolledToBottom;
         private int _pos, _prevPos;
         public int Position => _pos;
@@ -18,6 +19,7 @@ namespace Steepshot.Utils
         {
             _pos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindFirstVisibleItemPosition();
             var lastPos = ((LinearLayoutManager)recyclerView.GetLayoutManager()).FindLastVisibleItemPosition();
+            ScrolledToPosition?.Invoke(lastPos);
             if (lastPos > _prevPos && lastPos != _prevPos)
             {
                 if (lastPos == recyclerView.GetAdapter().ItemCount - 1)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Android.OS;
 using Android.Support.V7.Widget;
 using Android.Util;
@@ -10,6 +11,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.Utils;
 
 namespace Steepshot.Fragment
@@ -19,12 +21,10 @@ namespace Steepshot.Fragment
         private readonly Post _editPost;
         private GalleryHorizontalAdapter GalleryAdapter => _galleryAdapter ?? (_galleryAdapter = new GalleryHorizontalAdapter(_editPost));
 
-
         public PostEditFragment(Post post)
         {
             _editPost = post;
         }
-
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
@@ -35,6 +35,7 @@ namespace Steepshot.Fragment
 
             SetEditPost();
 
+            _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
             if (_editPost.Media.Length > 1)
             {
                 _photos.Visibility = ViewStates.Visible;
@@ -53,36 +54,15 @@ namespace Steepshot.Fragment
                 _previewContainer.LayoutParameters = layoutParams;
                 _preview.CornerRadius = BitmapUtils.DpToPixel(5, Resources);
 
-                _ratioBtn.Visibility = _rotateBtn.Visibility = ViewStates.Gone;
                 var url = _editPost.Media[0].Thumbnails.Mini;
-                Picasso.With(Activity).Load(url)
+                Picasso.With(Activity).Load(url).CenterCrop()
                     .Resize(_previewContainer.LayoutParameters.Width, _previewContainer.LayoutParameters.Height)
                     .Into(_preview);
 
                 _preview.Touch += PreviewOnTouch;
-                _ratioBtn.Click += RatioBtnOnClick;
-                _rotateBtn.Click += RotateBtnOnClick;
             }
 
             SearchTextChanged();
-        }
-
-        private void SetEditPost()
-        {
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost);
-            _title.Text = _editPost.Title;
-            _title.SetSelection(_editPost.Title.Length);
-            _description.Text = _editPost.Description;
-            _description.SetSelection(_editPost.Description.Length);
-            foreach (var editPostTag in _editPost.Tags)
-            {
-                AddTag(editPostTag);
-            }
-        }
-
-        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
-        {
-            _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
         }
 
         protected override async Task OnPostAsync()
@@ -92,14 +72,14 @@ namespace Steepshot.Fragment
             if (!isConnected)
             {
                 Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                OnUploadEnded();
+                EnabledPost();
                 return;
             }
 
             if (string.IsNullOrEmpty(_title.Text))
             {
                 Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                OnUploadEnded();
+                EnabledPost();
                 return;
             }
 
@@ -109,6 +89,25 @@ namespace Steepshot.Fragment
             _model.Description = _description.Text;
             _model.Tags = _localTagsAdapter.LocalTags.ToArray();
             TryCreateOrEditPost();
+        }
+
+        protected void PreviewOnTouch(object sender, View.TouchEventArgs touchEventArgs)
+        {
+            _descriptionScrollContainer.OnTouchEvent(touchEventArgs.Event);
+        }
+
+
+        private void SetEditPost()
+        {
+            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
+            _title.Text = _editPost.Title;
+            _title.SetSelection(_editPost.Title.Length);
+            _description.Text = _editPost.Description;
+            _description.SetSelection(_editPost.Description.Length);
+            foreach (var editPostTag in _editPost.Tags)
+            {
+                AddTag(editPostTag);
+            }
         }
     }
 }

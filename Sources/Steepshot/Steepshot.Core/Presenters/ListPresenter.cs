@@ -94,14 +94,14 @@ namespace Steepshot.Core.Presenters
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                {
                     return new CanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new AppError(LocalizationKeys.UnknownError);
-                }
+
+                available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
             finally
             {
@@ -155,14 +155,14 @@ namespace Steepshot.Core.Presenters
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                {
                     return new CanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new AppError(LocalizationKeys.UnknownError);
-                }
+
+                available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
             finally
             {

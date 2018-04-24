@@ -26,12 +26,18 @@ namespace Steepshot.Base
         public const string AppLinkingExtra = "appLinkingExtra";
         protected HostFragment CurrentHostFragment;
         protected static LruCache Cache;
+        public static Func<MotionEvent, bool> TouchEvent;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             InitIoC(Assets);
             base.OnCreate(savedInstanceState);
             InitPicassoCache();
+        }
+
+        public override bool DispatchTouchEvent(MotionEvent ev)
+        {
+            return (TouchEvent?.Invoke(ev) ?? false) || base.DispatchTouchEvent(ev);
         }
 
         public override View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
@@ -86,8 +92,14 @@ namespace Steepshot.Base
 
         public override void OnBackPressed()
         {
-            if (CurrentHostFragment == null || !CurrentHostFragment.HandleBackPressed(SupportFragmentManager))
-                base.OnBackPressed();
+            if (CurrentHostFragment?.ChildFragmentManager?.Fragments.Count > 0)
+            {
+                if (CurrentHostFragment.ChildFragmentManager.Fragments?[CurrentHostFragment.ChildFragmentManager.Fragments.Count - 1] is BaseFragment currentFragment &&
+                    (currentFragment.OnBackPressed() || CurrentHostFragment.HandleBackPressed(SupportFragmentManager)))
+                    return;
+            }
+
+            base.OnBackPressed();
         }
 
         public virtual void OpenNewContentFragment(BaseFragment frag)
@@ -107,6 +119,7 @@ namespace Steepshot.Base
             }
 
             GC.Collect();
+            GC.Collect(GC.MaxGeneration);
             base.OnTrimMemory(level);
         }
 

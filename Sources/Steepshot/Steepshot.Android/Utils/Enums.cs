@@ -9,9 +9,10 @@
         Post
     }
 
-    public enum GallerySelectionType
+    public enum TagType
     {
-        None = -1,
-        Multi = 0
+        Local,
+        PostSearch,
+        BrowseSearch
     }
 }

@@ -36,7 +36,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginBottom="10dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_rotate" />
+            android:src="@drawable/rotate_button_states" />
         <ImageButton
             android:id="@+id/multiselect"
             android:layout_width="40dp"

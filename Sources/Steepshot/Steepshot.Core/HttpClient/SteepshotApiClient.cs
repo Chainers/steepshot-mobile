@@ -88,7 +88,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoteResponse>(new ValidationError(results));
 
             var result = await _ditchClient.Vote(model, ct);
-            Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+            await Trace($"post/@{model.Author}/{model.Permlink}/{model.Type.GetDescription()}", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
             return result;
         }
 
@@ -99,7 +99,7 @@ namespace Steepshot.Core.HttpClient
                 return new OperationResult<VoidResponse>(new ValidationError(results));
 
             var result = await _ditchClient.Follow(model, ct);
-            Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);//.Wait(5000);
+            await Trace($"user/{model.Username}/{model.Type.ToString().ToLowerInvariant()}", model.Login, result.Error, model.Username, ct);
             return result;
         }
 
@@ -126,7 +126,7 @@ namespace Steepshot.Core.HttpClient
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
             //log parent post to perform update
-            Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Error, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);//.Wait(5000);
+            await Trace($"post/@{model.ParentAuthor}/{model.ParentPermlink}/comment", model.Login, result.Error, $"@{model.ParentAuthor}/{model.ParentPermlink}", ct);
             return result;
         }
 
@@ -146,11 +146,11 @@ namespace Steepshot.Core.HttpClient
             var result = await _ditchClient.CreateOrEdit(commentModel, ct);
             if (model.IsEditMode)
             {
-                Trace($"post/{model.PostPermlink}/edit", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
+                await Trace($"post/{model.PostPermlink}/edit", model.Login, result.Error, model.PostPermlink, ct);
             }
             else
             {
-                Trace("post", model.Login, result.Error, model.PostPermlink, ct);//.Wait(5000);
+                await Trace("post", model.Login, result.Error, model.PostPermlink, ct);
             }
             return result;
         }
@@ -187,14 +187,14 @@ namespace Steepshot.Core.HttpClient
                 if (operationResult.IsSuccess)
                 {
                     if (model.IsPost)
-                        Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+                        await Trace($"post/@{model.Author}/{model.Permlink}/delete", model.Login, operationResult.Error, $"@{model.Author}/{model.Permlink}", ct);
                     return operationResult;
                 }
             }
 
             var result = await _ditchClient.CreateOrEdit(model, ct);
             if (model.IsPost)
-                Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);//.Wait(5000);
+                await Trace($"post/@{model.Author}/{model.Permlink}/edit", model.Login, result.Error, $"@{model.Author}/{model.Permlink}", ct);
             return result;
         }
 

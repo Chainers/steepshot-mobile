@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Android.Support.V7.Widget;
 using Android.Views;
+using Steepshot.Utils;
+
 namespace Steepshot.Adapter
 {
     public sealed class SelectedTagsAdapter : RecyclerView.Adapter
     {
-        public readonly List<string> LocalTags = new List<string>();
+        public readonly ObservableCollection<string> LocalTags = new ObservableCollection<string>();
         public bool Enabled = true;
         public Action<string> Click;
 
@@ -26,7 +28,7 @@ namespace Steepshot.Adapter
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.lyt_local_tags_item, parent, false);
-            var vh = new TagViewHolder(itemView, Click);
+            var vh = new TagViewHolder(itemView, Click, TagType.Local);
             return vh;
         }
     }

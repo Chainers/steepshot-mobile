@@ -1,5 +1,7 @@
-﻿using Android.Views;
+﻿using System;
+using Android.Views;
 using Steepshot.Activity;
+using static Android.Views.View;
 
 namespace Steepshot.Base
 {
@@ -31,5 +33,7 @@ namespace Steepshot.Base
             IsInitialized = false;
             base.OnDetach();
         }
+
+        public virtual bool OnBackPressed() => false;
     }
 }

@@ -593,7 +593,7 @@ namespace Steepshot.iOS.Views
                 UIView.PerformWithoutAnimation(() =>
                 {
                     timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
-                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString(timeFormat), UIControlState.Normal); 
+                    postPhotoButton.SetTitle((PostingLimit - timepassed).ToString(timeFormat), UIControlState.Normal);
                     postPhotoButton.LayoutIfNeeded();
                 });
                 await Task.Delay(1000);
@@ -681,7 +681,7 @@ namespace Steepshot.iOS.Views
                     if (shouldReturn)
                         return;
 
-                    var model = new PreparePostModel(BasePresenter.User.UserInfo)
+                    var model = new PreparePostModel(BasePresenter.User.UserInfo, AppSettings.AppInfo.GetModel())
                     {
                         Title = title,
                         Description = description,

@@ -455,6 +455,12 @@ namespace Steepshot.Adapter
                 {
                     LikeSet(true);
                 }
+                else if (post.Vote || !post.Flag)
+                {
+                    _likeOrFlag.SetImageResource(post.Vote
+                        ? Resource.Drawable.ic_new_like_disabled
+                        : Resource.Drawable.ic_new_like);
+                }
             }
             else
             {
