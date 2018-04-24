@@ -41,7 +41,6 @@ namespace Steepshot.iOS.Views
         public bool _isFromCamera => ImageAssets.Count == 1 && ImageAssets[0].Item1 == null;
 
         private UICollectionView photoCollection;
-        //private UIImageView photoView;
         private UIImageView photoView;
         private CropView _cropView;
         private UITextView titleTextField;

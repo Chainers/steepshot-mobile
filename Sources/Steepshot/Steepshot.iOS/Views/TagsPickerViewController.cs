@@ -49,7 +49,6 @@ namespace Steepshot.iOS.Views
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
                 SectionInset = new UIEdgeInsets(0, 15, 0, 15),
             }, false);
-            //_viewSource.CellAction += CollectionCellAction;
 
             tagsCollectionView.Source = _viewSource;
             tagsCollectionView.Delegate = _flowDelegate;
@@ -73,7 +72,6 @@ namespace Steepshot.iOS.Views
             View.AddGestureRecognizer(tap);
 
             _tableSource = new TagsTableViewSource(_tagPickerFacade);
-            //_tableSource.CellAction += TableCellAction;
             tagsTableView.Source = _tableSource;
             tagsTableView.LayoutMargins = UIEdgeInsets.Zero;
             tagsTableView.RegisterClassForCellReuse(typeof(TagTableViewCell), nameof(TagTableViewCell));
