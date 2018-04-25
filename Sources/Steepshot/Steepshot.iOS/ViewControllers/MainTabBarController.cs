@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Com.OneSignal;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
@@ -70,6 +72,23 @@ namespace Steepshot.iOS.ViewControllers
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
+            InitPushes();
+        }
+
+        private void InitPushes() => Task.Run(() =>
+        {
+            OneSignal.Current.IdsAvailable(OneSignalCallback);
+        });
+
+        private void OneSignalCallback(string playerId, string pushToken)
+        {
+            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+            {
+                var t = _presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
+            }
+            BasePresenter.User.PushesPlayerId = playerId;
         }
 
         public async void UpdateProfile()

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Foundation;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -12,7 +13,7 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter, new()
     {
         protected async void Vote(Post post)
         {
@@ -124,5 +125,13 @@ namespace Steepshot.iOS.ViewControllers
             myViewController.CurrentPostCategory = tag;
             NavigationController.PushViewController(myViewController, true);
         }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new T();
+            _presenter.SourceChanged += SourceChanged;
+        }
+
+        protected abstract void SourceChanged(Status status);
     }
 }

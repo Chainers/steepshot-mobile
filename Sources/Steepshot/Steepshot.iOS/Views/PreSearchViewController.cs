@@ -326,7 +326,7 @@ namespace Steepshot.iOS.Views
             NavigationController.PushViewController(myViewController, true);
         }
 
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (!collectionView.Hidden)
             {

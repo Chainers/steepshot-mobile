@@ -21,6 +21,7 @@ using Steepshot.CustomViews;
 using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Activity
 {

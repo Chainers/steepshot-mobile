@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Autofac;
+using Com.OneSignal;
 using Foundation;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
-using Steepshot.Core.Sentry;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Services;
 using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
@@ -13,6 +15,7 @@ using Steepshot.iOS.Services;
 using Steepshot.iOS.ViewControllers;
 using Steepshot.iOS.Views;
 using UIKit;
+using Com.OneSignal.iOS;
 
 namespace Steepshot.iOS
 {
@@ -60,6 +63,11 @@ namespace Steepshot.iOS
                 AppSettings.Reporter.SendCrash(e.Exception);
             };
 
+            Com.OneSignal.OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                     .InFocusDisplaying(Com.OneSignal.Abstractions.OSInFocusDisplayOption.Notification)
+                     .HandleNotificationOpened(HandleNotificationOpened)
+                     .EndInit();
+
             Window = new CustomWindow();
             if (BasePresenter.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
@@ -70,6 +78,25 @@ namespace Steepshot.iOS
             Window.MakeKeyAndVisible();
             return true;
         }
+
+        private void HandleNotificationOpened(Com.OneSignal.Abstractions.OSNotificationOpenedResult result)
+        {
+            var type = result.notification.payload.additionalData["type"].ToString();
+            var data = result.notification.payload.additionalData["data"].ToString();
+            switch (type)
+            {
+                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
+                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
+                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
+                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                    InitialViewController.NavigationController.PushViewController(new PostViewController(data), false);
+                    break;
+                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                    InitialViewController.NavigationController.PushViewController(new ProfileViewController() { Username = data}, false);
+                    break;
+            }
+        }
+
         /*
         public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {

@@ -168,7 +168,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.EndRefreshing();
         }
 
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (sliderCollection.Hidden)
             {

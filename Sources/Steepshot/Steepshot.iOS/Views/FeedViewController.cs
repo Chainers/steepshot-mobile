@@ -24,13 +24,7 @@ namespace Steepshot.iOS.Views
         private bool _isFeedRefreshing;
         private SliderCollectionViewFlowDelegate _sliderGridDelegate;
 
-        protected override void CreatePresenter()
-        {
-            _presenter = new FeedPresenter();
-            _presenter.SourceChanged += SourceChanged;
-        }
-
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (!feedCollection.Hidden)
             {
@@ -143,7 +137,6 @@ namespace Steepshot.iOS.Views
                     break;
                 case ActionType.Preview:
                     if (feedCollection.Hidden)
-                        //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else
                     {
