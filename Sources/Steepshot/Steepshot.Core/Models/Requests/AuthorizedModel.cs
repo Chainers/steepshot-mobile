@@ -21,7 +21,8 @@ namespace Steepshot.Core.Models.Requests
             PostingKey = postingKey;
         }
 
-        public AuthorizedModel(UserInfo user) : this(user.Login, user.PostingKey)
+        public AuthorizedModel(UserInfo user)
+            : this(user.Login, user.PostingKey)
         {
         }
     }

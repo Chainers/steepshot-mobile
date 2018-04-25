@@ -15,6 +15,7 @@ using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -157,9 +158,11 @@ namespace Steepshot.Activity
             base.OnBackPressed();
             if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
             {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToArray());
-                if (error == null)
-                    BasePresenter.User.UserInfo.PushSubscriptions = _pushSubscriptions;
+                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, true)
+                {
+                    Subscriptions = _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToList()
+                };
+                var error = await BasePresenter.TrySubscribeForPushes(model);
             }
         }
 

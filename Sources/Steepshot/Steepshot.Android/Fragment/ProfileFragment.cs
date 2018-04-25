@@ -24,6 +24,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Interfaces;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Fragment
@@ -424,16 +425,16 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            if (UserIsWatched)
+            var model = new PushNotificationsModel(BasePresenter.User.UserInfo, !UserIsWatched)
             {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Unsubscribe, BasePresenter.User.PushesPlayerId, _profileId);
-                if (error == null)
+                WatchedUser = _profileId
+            };
+            var error = await BasePresenter.TrySubscribeForPushes(model);
+            if (error == null)
+            {
+                if (UserIsWatched)
                     BasePresenter.User.WatchedUsers.Remove(_profileId);
-            }
-            else
-            {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _profileId);
-                if (error == null)
+                else
                     BasePresenter.User.WatchedUsers.Add(_profileId);
             }
         }

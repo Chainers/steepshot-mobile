@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -16,6 +17,7 @@ using Steepshot.Base;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.CustomViews;
 using Steepshot.Fragment;
@@ -56,14 +58,17 @@ namespace Steepshot.Activity
                 InitPushes();
         }
 
-        private void InitPushes() => Task.Run(() =>
-                                                    {
-                                                        OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                                                        .InFocusDisplaying(OSInFocusDisplayOption.None)
-                                                        .HandleNotificationOpened(OneSignalNotificationOpened)
-                                                        .EndInit();
-                                                        OneSignal.Current.IdsAvailable(OneSignalCallback);
-                                                    });
+        private void InitPushes()
+        {
+            Task.Run(() =>
+            {
+                OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                    .InFocusDisplaying(OSInFocusDisplayOption.None)
+                    .HandleNotificationOpened(OneSignalNotificationOpened)
+                    .EndInit();
+                OneSignal.Current.IdsAvailable(OneSignalCallback);
+            });
+        }
 
         private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
         {
@@ -83,13 +88,27 @@ namespace Steepshot.Activity
             }
         }
 
-        private void OneSignalCallback(string playerId, string pushToken)
+        private async void OneSignalCallback(string playerId, string pushToken)
         {
             OneSignal.Current.SendTag("username", BasePresenter.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
+
             if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
-                Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, playerId, new[] { PushSubscription.Upvote, PushSubscription.Follow, PushSubscription.Comment, PushSubscription.UpvoteComment });
-            BasePresenter.User.PushesPlayerId = playerId;
+            {
+                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, playerId, true)
+                {
+                    Subscriptions = new List<PushSubscription>
+                    {
+                        PushSubscription.Upvote,
+                        PushSubscription.Follow,
+                        PushSubscription.Comment,
+                        PushSubscription.UpvoteComment
+                    }
+                };
+                var responce = await BasePresenter.TrySubscribeForPushes(model);
+                if (responce.IsSuccess)
+                    BasePresenter.User.PushesPlayerId = playerId;
+            }
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
