@@ -497,6 +497,7 @@
     <BundleResource Include="Resources\ic_like_disabled%403x.png" />
     <BundleResource Include="Resources\ic_like_active_disabled%402x.png" />
     <BundleResource Include="Resources\ic_like_active_disabled%403x.png" />
+    <BundleResource Include="Resources\Fonts\OpenSans-Bold.ttf" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">

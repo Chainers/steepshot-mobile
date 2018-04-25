@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CoreGraphics;
 using Foundation;
+using PureLayout.Net;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
 
@@ -14,6 +17,9 @@ namespace Steepshot.iOS.ViewControllers
 {
     public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
     {
+        private UIView popup;
+        private UIButton rightButton;
+
         protected async void Vote(Post post)
         {
             if (!BasePresenter.User.IsAuthenticated)
@@ -50,7 +56,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 //for edit and delete
                 //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
-                //actionSheetAlert.AddAction(UIAlertAction.Create("Delete post", UIAlertActionStyle.Default, null));
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeletePhoto(post)));
             }
             else
             {
@@ -102,6 +108,159 @@ namespace Steepshot.iOS.ViewControllers
 
             var activityController = new UIActivityViewController(activityItems, null);
             PresentViewController(activityController, true, null);
+        }
+
+        private async Task DeletePhoto(Post post)
+        {
+            var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
+            var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
+            var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
+            var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
+
+            var commonMargin = 10;
+            var dialogWidth = UIScreen.MainScreen.Bounds.Width - commonMargin * 2;
+
+            popup = new UIView();
+            popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
+            popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
+            popup.UserInteractionEnabled = true;
+            UIApplication.SharedApplication.KeyWindow.InsertSubviewAbove(popup, UIApplication.SharedApplication.KeyWindow);
+
+            var dialog = new UIView();
+            dialog.ClipsToBounds = true;
+            dialog.Layer.CornerRadius = 15;
+            dialog.BackgroundColor = UIColor.White;
+            popup.AddSubview(dialog);
+
+            dialog.AutoSetDimension(ALDimension.Width, dialogWidth);
+
+            // Title
+
+            var title = new UITextView();
+            title.UserInteractionEnabled = false;
+            title.Editable = false;
+            title.Font = Constants.Regular20;
+            title.TextAlignment = UITextAlignment.Center;
+            title.Text = titleText;
+            title.BackgroundColor = UIColor.Clear;
+            dialog.AddSubview(title);
+
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 12);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+
+            var size = title.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+            title.AutoSetDimension(ALDimension.Height, size.Height);
+
+            // Alert message
+
+            var message = new UITextView();
+            message.UserInteractionEnabled = false;
+            message.Editable = false;
+            message.Font = Constants.Regular14;
+            message.TextAlignment = UITextAlignment.Center;
+            message.Text = messageText;
+            message.BackgroundColor = UIColor.Clear;
+            dialog.AddSubview(message);
+
+            message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 11);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+
+            size = message.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
+            message.AutoSetDimension(ALDimension.Height, size.Height);
+
+            // Separator
+
+            var separator = new UIView();
+            separator.BackgroundColor = Constants.R245G245B245;
+            dialog.AddSubview(separator);
+
+            separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, message, 26);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            separator.AutoSetDimension(ALDimension.Height, 1);
+
+            var leftButton = CreateButton(leftButtonText, UIColor.Black);
+            leftButton.Font = Constants.Semibold14;
+            leftButton.Layer.BorderWidth = 1;
+            leftButton.Layer.BorderColor = Constants.R245G245B245.CGColor;
+            dialog.AddSubview(leftButton);
+
+            leftButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            leftButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+            leftButton.AutoSetDimension(ALDimension.Height, 50);
+
+            rightButton = CreateButton(rightButtonText, UIColor.White);
+            rightButton.Font = Constants.Bold14;
+            dialog.AddSubview(rightButton);
+
+            rightButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
+            rightButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftButton, 15);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
+            rightButton.AutoSetDimension(ALDimension.Height, 50);
+
+
+            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 17); // TODO: change on bar height
+            dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
+
+            leftButton.TouchDown += (sender, e) =>
+            {
+                UIView.Animate(0.3, () =>
+                { 
+                    dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
+                }, () => popup.RemoveFromSuperview());
+            };
+
+            rightButton.TouchDown += (sender, e) =>
+            {
+                var error = _presenter.TryDeletePost(post);
+                // TODO : catch errors
+                popup.RemoveFromSuperview();
+            };
+
+            NavigationController.View.EndEditing(true);
+            TabBarController.View.AddSubview(popup);
+
+            var targetY = dialog.Frame.Y;
+            dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
+
+            UIView.Animate(0.3, () =>
+            {
+                dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY - 10);
+            }, () =>
+            {
+                UIView.Animate(0.1, () =>
+                {
+                    dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY);
+                });
+            });
+
+            ViewDidLayoutSubviews();
+        }
+
+        public override void ViewDidLayoutSubviews()
+        {
+            if (rightButton != null)
+            {
+                rightButton.LayoutIfNeeded();
+                Constants.CreateGradient(rightButton, 25);
+                Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
+            }
+        }
+
+        public UIButton CreateButton(string title, UIColor titleColor)
+        {
+            var button = new UIButton();
+            button.SetTitle(title, UIControlState.Normal);
+            button.SetTitleColor(titleColor, UIControlState.Normal);
+            button.Layer.CornerRadius = 25;
+
+            return button;
         }
 
         protected abstract void SameTabTapped();
