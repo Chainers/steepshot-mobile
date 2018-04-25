@@ -69,6 +69,12 @@ namespace Steepshot.iOS.Helpers
         {
             if (Variables.Count == _presenter.Count)
                 return;
+
+            if (Variables.Count - _presenter.Count == 1) // TODO: trashcode
+            {
+                Variables.RemoveAt(0);
+            }
+
             for (int i = Variables.Count; i < _presenter.Count; i++)
             {
                 var cellVariables = CellHeightCalculator.Calculate(_presenter[i]);
@@ -166,7 +172,7 @@ namespace Steepshot.iOS.Helpers
         public Action<ActionType, Tuple<NSIndexPath, PHAsset>> CellClicked;
         private readonly PhotoCollectionViewSource _vs;
         private const byte postLimit = 7;
-            
+
         public PhotoCollectionViewFlowDelegate(PhotoCollectionViewSource viewSource)
         {
             _vs = viewSource;
