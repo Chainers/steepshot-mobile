@@ -118,8 +118,8 @@ namespace Steepshot.iOS.ViewControllers
             var leftButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel);
             var rightButtonText = AppSettings.LocalizationManager.GetText(LocalizationKeys.Delete);
 
-            var commonMargin = 10;
-            var dialogWidth = UIScreen.MainScreen.Bounds.Width - commonMargin * 2;
+            var commonMargin = 20;
+            var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
 
             popup = new UIView();
             popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
@@ -136,36 +136,38 @@ namespace Steepshot.iOS.ViewControllers
 
             // Title
 
-            var title = new UITextView();
+            var title = new UILabel();
+            title.Lines = 3;
+            title.LineBreakMode = UILineBreakMode.WordWrap;
             title.UserInteractionEnabled = false;
-            title.Editable = false;
             title.Font = Constants.Regular20;
             title.TextAlignment = UITextAlignment.Center;
             title.Text = titleText;
             title.BackgroundColor = UIColor.Clear;
             dialog.AddSubview(title);
 
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 12);
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 24);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            title.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
 
             var size = title.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
             title.AutoSetDimension(ALDimension.Height, size.Height);
 
             // Alert message
 
-            var message = new UITextView();
+            var message = new UILabel();
+            message.Lines = 9;
+            message.LineBreakMode = UILineBreakMode.WordWrap;
             message.UserInteractionEnabled = false;
-            message.Editable = false;
             message.Font = Constants.Regular14;
             message.TextAlignment = UITextAlignment.Center;
             message.Text = messageText;
             message.BackgroundColor = UIColor.Clear;
             dialog.AddSubview(message);
 
-            message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 11);
-            message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
-            message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            message.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, title, 22);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 10);
+            message.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 10);
 
             size = message.SizeThatFits(new CGSize(dialogWidth - commonMargin * 2, 0));
             message.AutoSetDimension(ALDimension.Height, size.Height);
@@ -177,8 +179,8 @@ namespace Steepshot.iOS.ViewControllers
             dialog.AddSubview(separator);
 
             separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, message, 26);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
             separator.AutoSetDimension(ALDimension.Height, 1);
 
             var leftButton = CreateButton(leftButtonText, UIColor.Black);
@@ -188,8 +190,8 @@ namespace Steepshot.iOS.ViewControllers
             dialog.AddSubview(leftButton);
 
             leftButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
-            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 20);
-            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Left, commonMargin);
+            leftButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
             leftButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
             leftButton.AutoSetDimension(ALDimension.Height, 50);
 
@@ -199,8 +201,8 @@ namespace Steepshot.iOS.ViewControllers
 
             rightButton.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, separator, 20);
             rightButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, leftButton, 15);
-            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 20);
-            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Right, commonMargin);
+            rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, commonMargin);
             rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
             rightButton.AutoSetDimension(ALDimension.Height, 50);
             rightButton.LayoutIfNeeded();
