@@ -18,6 +18,7 @@ namespace Steepshot.iOS.ViewControllers
     public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
     {
         private UIView popup;
+        private UIView dialog;
         private UIButton rightButton;
 
         protected async void Vote(Post post)
@@ -56,7 +57,7 @@ namespace Steepshot.iOS.ViewControllers
             {
                 //for edit and delete
                 //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeletePhoto(post)));
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
             }
             else
             {
@@ -110,7 +111,7 @@ namespace Steepshot.iOS.ViewControllers
             PresentViewController(activityController, true, null);
         }
 
-        private async Task DeletePhoto(Post post)
+        private void DeleteAlert(Post post)
         {
             var titleText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertTitle);
             var messageText = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteAlertMessage);
@@ -122,11 +123,10 @@ namespace Steepshot.iOS.ViewControllers
 
             popup = new UIView();
             popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
-            popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
+            popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
             popup.UserInteractionEnabled = true;
-            UIApplication.SharedApplication.KeyWindow.InsertSubviewAbove(popup, UIApplication.SharedApplication.KeyWindow);
 
-            var dialog = new UIView();
+            dialog = new UIView();
             dialog.ClipsToBounds = true;
             dialog.Layer.CornerRadius = 15;
             dialog.BackgroundColor = UIColor.White;
@@ -203,34 +203,26 @@ namespace Steepshot.iOS.ViewControllers
             rightButton.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 20);
             rightButton.AutoSetDimension(ALDimension.Width, dialogWidth / 2 - 27);
             rightButton.AutoSetDimension(ALDimension.Height, 50);
+            rightButton.LayoutIfNeeded();
 
-
-            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 17); // TODO: change on bar height
+            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
             dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
 
-            leftButton.TouchDown += (sender, e) =>
-            {
-                UIView.Animate(0.3, () =>
-                { 
-                    dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
-                }, () => popup.RemoveFromSuperview());
-            };
-
-            rightButton.TouchDown += (sender, e) =>
-            {
-                var error = _presenter.TryDeletePost(post);
-                // TODO : catch errors
-                popup.RemoveFromSuperview();
-            };
+            leftButton.TouchDown += (sender, e) => { HideDialog(); };
+            rightButton.TouchDown += (sender, e) => { DeletePost(post); };
 
             NavigationController.View.EndEditing(true);
             TabBarController.View.AddSubview(popup);
+
+            Constants.CreateGradient(rightButton, 25);
+            Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
 
             var targetY = dialog.Frame.Y;
             dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
 
             UIView.Animate(0.3, () =>
             {
+                popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
                 dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY - 10);
             }, () =>
             {
@@ -239,18 +231,25 @@ namespace Steepshot.iOS.ViewControllers
                     dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY);
                 });
             });
-
-            ViewDidLayoutSubviews();
         }
 
-        public override void ViewDidLayoutSubviews()
+        private void HideDialog()
         {
-            if (rightButton != null)
+            UIView.Animate(0.3, () =>
             {
-                rightButton.LayoutIfNeeded();
-                Constants.CreateGradient(rightButton, 25);
-                Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
-            }
+                popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
+                dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
+            }, () => popup.RemoveFromSuperview());
+        }
+
+        private async void DeletePost(Post post)
+        {
+            HideDialog();
+
+            var error = await _presenter.TryDeletePost(post);
+
+            if (error != null)
+                ShowAlert(error);
         }
 
         public UIButton CreateButton(string title, UIColor titleColor)
