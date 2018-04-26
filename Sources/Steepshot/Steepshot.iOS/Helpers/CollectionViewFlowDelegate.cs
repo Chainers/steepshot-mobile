@@ -70,7 +70,7 @@ namespace Steepshot.iOS.Helpers
             if (Variables.Count == _presenter.Count)
                 return;
 
-            if (Variables.Count - _presenter.Count == 1) // TODO: trashcode
+            if (Variables.Count - _presenter.Count == 1)
             {
                 Variables.RemoveAt(0);
             }
