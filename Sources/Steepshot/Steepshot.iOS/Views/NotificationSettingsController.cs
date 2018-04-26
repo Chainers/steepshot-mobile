@@ -60,9 +60,9 @@ namespace Steepshot.iOS.Views
         private void NotificationPostingSwitchOnCheckedChange(object sender, EventArgs e) =>
         _presenter.SwitchSubscription(PushSubscription.User, ((UISwitch)sender).On);
 
-        protected async override void GoBack(object sender, EventArgs e)
+        protected override void GoBack(object sender, EventArgs e)
         {
-            await _presenter.OnBack();
+            _presenter.OnBack();
             NavigationController.PopViewController(true);
         }
 

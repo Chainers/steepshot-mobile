@@ -14,6 +14,7 @@ using Steepshot.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
@@ -26,7 +27,6 @@ namespace Steepshot.Activity
         private AccountsAdapter _accountsAdapter;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
-        //private List<PushSubscription> _pushSubscriptions;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.add_account)] private Button _addButton;
@@ -147,12 +147,12 @@ namespace Steepshot.Activity
             base.OnResume();
         }
 
-        public override async void OnBackPressed()
+        public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
-            await Presenter.OnBack();
+            Presenter.OnBack();
         }
 
         protected override void OnDestroy()

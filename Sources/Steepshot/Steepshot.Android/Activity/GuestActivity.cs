@@ -1,4 +1,6 @@
 ﻿using Android.App;
+using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Fragment;
@@ -6,7 +8,7 @@ using Steepshot.Interfaces;
 
 namespace Steepshot.Activity
 {
-    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class GuestActivity : BaseActivity, IClearable
     {
         protected override void OnCreate(Bundle savedInstanceState)
@@ -18,6 +20,12 @@ namespace Steepshot.Activity
             CurrentHostFragment.UserVisibleHint = true;
             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
             fragmentTransaction.Commit();
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            HandleLink(intent);
+            base.OnNewIntent(intent);
         }
 
         public override void OnBackPressed()

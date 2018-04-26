@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
@@ -29,13 +30,15 @@ namespace Steepshot.Core.Presenters
                 _pushSubscriptions.Remove(subscription);
         }
 
-        public async Task OnBack()
+        public void OnBack()
         {
-            if (!User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
+            if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
             {
-                var error = await TrySubscribeForPushes(PushSubscriptionAction.Subscribe, User.PushesPlayerId, _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToArray());
-                if (error == null)
-                    User.UserInfo.PushSubscriptions = _pushSubscriptions;
+                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, true)
+                {
+                    Subscriptions = _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToList()
+                };
+                TrySubscribeForPushes(model);
             }
         }
     }
