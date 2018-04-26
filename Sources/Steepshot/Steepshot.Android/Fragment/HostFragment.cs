@@ -1,6 +1,6 @@
 ﻿using Android.App;
-using Android.Net;
 using Android.OS;
+using Steepshot.Activity;
 using Steepshot.Base;
 
 namespace Steepshot.Fragment
@@ -44,12 +44,13 @@ namespace Steepshot.Fragment
         public override void OnActivityCreated(Bundle savedInstanceState)
         {
             base.OnActivityCreated(savedInstanceState);
-            if (Activity is BaseActivity activity)
+            if (Activity is RootActivity rootActivity)
             {
-                var appLink = activity.Intent.GetStringExtra(BaseActivity.AppLinkingExtra);
-                if (!string.IsNullOrEmpty(appLink))
-                    activity.OpenUri(appLink);
-                activity.Intent.RemoveExtra(BaseActivity.AppLinkingExtra);
+                rootActivity.HandleNotification(rootActivity.Intent);
+            }
+            if (Activity is BaseActivity baseActivity)
+            {
+                baseActivity.HandleLink(baseActivity.Intent);
             }
         }
 
@@ -70,7 +71,7 @@ namespace Steepshot.Fragment
             if (addToBackstack)
                 transaction.AddToBackStack(null);
 
-            transaction.Commit();
+            transaction.CommitAllowingStateLoss();
         }
 
         public static HostFragment NewInstance(BaseFragment fragment)

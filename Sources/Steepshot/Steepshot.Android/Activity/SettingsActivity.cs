@@ -151,7 +151,7 @@ namespace Steepshot.Activity
             base.OnResume();
         }
 
-        public override async void OnBackPressed()
+        public override void OnBackPressed()
         {
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
@@ -162,7 +162,7 @@ namespace Steepshot.Activity
                 {
                     Subscriptions = _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToList()
                 };
-                var error = await BasePresenter.TrySubscribeForPushes(model);
+                BasePresenter.TrySubscribeForPushes(model);
             }
         }
 

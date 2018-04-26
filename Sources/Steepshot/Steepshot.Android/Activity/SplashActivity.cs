@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content.PM;
@@ -10,6 +11,9 @@ using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Content;
 using Android.Runtime;
+using Com.OneSignal;
+using Com.OneSignal.Abstractions;
+using Newtonsoft.Json;
 using Steepshot.Core.Localization;
 using Steepshot.Fragment;
 using Steepshot.Services;
@@ -34,6 +38,7 @@ namespace Steepshot.Activity
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
 
             GAService.Instance.InitializeGAService(this);
+            InitPushes();
 
             switch (Intent.Action)
             {
@@ -60,12 +65,30 @@ namespace Steepshot.Activity
                 case Intent.ActionView:
                     {
                         var intent = new Intent(this, BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
-                        intent.PutExtra(AppLinkingExtra, Intent?.Data?.ToString());
+                        intent.PutExtra(AppLinkingExtra, Intent?.Data?.Path);
                         StartActivity(intent);
                         return;
                     }
             }
             StartActivity(BasePresenter.User.IsAuthenticated ? typeof(RootActivity) : typeof(GuestActivity));
+        }
+
+        private void InitPushes()
+        {
+            OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                .InFocusDisplaying(OSInFocusDisplayOption.None)
+                .HandleNotificationOpened(OneSignalNotificationOpened)
+                .EndInit();
+        }
+
+        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
+        {
+            RunOnUiThread(() =>
+            {
+                var intent = new Intent(this, typeof(RootActivity));
+                intent.PutExtra(RootActivity.NotificationData, JsonConvert.SerializeObject(result.notification.payload.additionalData.ToDictionary(x => x.Key, x => x.Value.ToString())));
+                StartActivity(intent);
+            });
         }
 
         private void OnTaskSchedulerOnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)

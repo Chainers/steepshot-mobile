@@ -9,8 +9,8 @@ using Android.Support.V4.Content;
 using Android.Views;
 using Android.Widget;
 using Com.OneSignal;
-using Com.OneSignal.Abstractions;
 using CheeseBind;
+using Newtonsoft.Json;
 using Refractored.Controls;
 using Square.Picasso;
 using Steepshot.Base;
@@ -29,6 +29,7 @@ namespace Steepshot.Activity
     [Activity(Label = Core.Constants.Steepshot, ScreenOrientation = ScreenOrientation.Portrait, LaunchMode = LaunchMode.SingleTask)]
     public sealed class RootActivity : BaseActivityWithPresenter<UserProfilePresenter>, IClearable
     {
+        public const string NotificationData = "NotificationData";
         private Adapter.PagerAdapter _adapter;
         private TabLayout.Tab _prevTab;
         private int _tabHeight;
@@ -55,37 +56,7 @@ namespace Steepshot.Activity
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
             if (BasePresenter.User.IsAuthenticated)
-                InitPushes();
-        }
-
-        private void InitPushes()
-        {
-            Task.Run(() =>
-            {
-                OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                    .InFocusDisplaying(OSInFocusDisplayOption.None)
-                    .HandleNotificationOpened(OneSignalNotificationOpened)
-                    .EndInit();
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
-            });
-        }
-
-        private void OneSignalNotificationOpened(OSNotificationOpenedResult result)
-        {
-            var type = result.notification.payload.additionalData["type"].ToString();
-            var data = result.notification.payload.additionalData["data"].ToString();
-            switch (type)
-            {
-                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
-                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
-                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
-                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
-                    OpenNewContentFragment(new SinglePostFragment(data));
-                    break;
-                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
-                    OpenNewContentFragment(new ProfileFragment(data));
-                    break;
-            }
         }
 
         private async void OneSignalCallback(string playerId, string pushToken)
@@ -105,10 +76,44 @@ namespace Steepshot.Activity
                         PushSubscription.UpvoteComment
                     }
                 };
-                var responce = await BasePresenter.TrySubscribeForPushes(model);
-                if (responce.IsSuccess)
+                var response = await BasePresenter.TrySubscribeForPushes(model);
+                if (response.IsSuccess)
                     BasePresenter.User.PushesPlayerId = playerId;
             }
+        }
+
+        public void HandleNotification(Intent intent)
+        {
+            var jsonData = intent.GetStringExtra(NotificationData);
+            intent.RemoveExtra(NotificationData);
+            if (jsonData != null)
+            {
+                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonData);
+                if (data != null)
+                {
+                    var type = data["type"];
+                    var link = data["data"];
+                    switch (type)
+                    {
+                        case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
+                        case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
+                        case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
+                        case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                            OpenNewContentFragment(new SinglePostFragment(link));
+                            break;
+                        case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                            OpenNewContentFragment(new ProfileFragment(link));
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            HandleNotification(intent);
+            HandleLink(intent);
+            base.OnNewIntent(intent);
         }
 
         public override void OpenNewContentFragment(BaseFragment frag)
