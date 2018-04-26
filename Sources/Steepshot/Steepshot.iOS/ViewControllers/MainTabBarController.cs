@@ -97,7 +97,8 @@ namespace Steepshot.iOS.ViewControllers
                         PushSubscription.Upvote,
                         PushSubscription.Follow,
                         PushSubscription.Comment,
-                        PushSubscription.UpvoteComment
+                        PushSubscription.UpvoteComment,
+                        PushSubscription.User,
                     }
                 };
                 var response = await BasePresenter.TrySubscribeForPushes(model);

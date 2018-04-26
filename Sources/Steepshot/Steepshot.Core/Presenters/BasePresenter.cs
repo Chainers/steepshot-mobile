@@ -168,14 +168,14 @@ namespace Steepshot.Core.Presenters
 
         public static async Task<OperationResult<object>> TrySubscribeForPushes(PushNotificationsModel model)
         {
-            var error = await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
-            if (error == null)
+            var response = await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
+            if (response.IsSuccess)
             {
                 if (model.Subscriptions != null)
                     User.UserInfo.PushSubscriptions = model.Subscriptions;
             }
 
-            return error;
+            return response;
         }
 
 
