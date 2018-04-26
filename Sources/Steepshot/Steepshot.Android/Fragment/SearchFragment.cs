@@ -12,7 +12,6 @@ using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
-using Steepshot.Core.Presenters;
 using Steepshot.Utils;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Enums;
@@ -80,6 +79,7 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
             _searchView.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchHint);
+            _searchView.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9-]+") });
             _tagsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Tag);
             _peopleButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Users);
             _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);
