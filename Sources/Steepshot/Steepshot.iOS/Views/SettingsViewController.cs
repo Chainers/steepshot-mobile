@@ -14,6 +14,7 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
+using Com.OneSignal;
 
 namespace Steepshot.iOS.Views
 {
@@ -207,6 +208,9 @@ namespace Steepshot.iOS.Views
 
         private void RemoveNetwork(UserInfo account)
         {
+            OneSignal.Current.DeleteTag("username");
+            OneSignal.Current.DeleteTag("player_id");
+
             _tableSource.Accounts.Remove(account);
             accountsTable.ReloadData();
             ResizeView();
