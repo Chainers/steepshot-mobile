@@ -63,10 +63,13 @@ namespace Steepshot.iOS
                 AppSettings.Reporter.SendCrash(e.Exception);
             };
 
-            Com.OneSignal.OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
-                     .InFocusDisplaying(Com.OneSignal.Abstractions.OSInFocusDisplayOption.Notification)
-                     .HandleNotificationOpened(HandleNotificationOpened)
-                     .EndInit();
+            if (AppSettings.AppInfo.GetModel() != "Simulator")
+            {
+                Com.OneSignal.OneSignal.Current.StartInit("77fa644f-3280-4e87-9f14-1f0c7ddf8ca5")
+                         .InFocusDisplaying(Com.OneSignal.Abstractions.OSInFocusDisplayOption.Notification)
+                         .HandleNotificationOpened(HandleNotificationOpened)
+                         .EndInit();
+            }
 
             Window = new CustomWindow();
             if (BasePresenter.User.IsAuthenticated)

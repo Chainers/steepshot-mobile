@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Android.App;
 using Android.Content;
@@ -22,12 +21,12 @@ using Steepshot.Utils;
 namespace Steepshot.Activity
 {
     [Activity(ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
-    public sealed class SettingsActivity : BaseActivityWithPresenter<UserProfilePresenter>
+    public sealed class SettingsActivity : BaseActivityWithPresenter<PushSettingsPresenter>
     {
         private AccountsAdapter _accountsAdapter;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
-        private List<PushSubscription> _pushSubscriptions;
+        //private List<PushSubscription> _pushSubscriptions;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.add_account)] private Button _addButton;
@@ -132,8 +131,6 @@ namespace Steepshot.Activity
             _notificationCommentsSwitch.CheckedChange += NotificationCommentsSwitchOnCheckedChange;
             _notificationPostingSwitch.CheckedChange += NotificationPostingSwitchOnCheckedChange;
 
-            _pushSubscriptions = new List<PushSubscription>();
-            _pushSubscriptions.AddRange(BasePresenter.User.PushSubscriptions);
             //for tests
             if (BasePresenter.User.IsDev || BasePresenter.User.Login.Equals("joseph.kalu"))
             {
@@ -155,12 +152,7 @@ namespace Steepshot.Activity
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
-            if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
-            {
-                var error = await Presenter.TrySubscribeForPushes(PushSubscriptionAction.Subscribe, BasePresenter.User.PushesPlayerId, _pushSubscriptions.FindAll(x => x != PushSubscription.User).ToArray());
-                if (error == null)
-                    BasePresenter.User.UserInfo.PushSubscriptions = _pushSubscriptions;
-            }
+            await Presenter.OnBack();
         }
 
         protected override void OnDestroy()
@@ -182,27 +174,19 @@ namespace Steepshot.Activity
         }
 
         private void NotificationUpvotesSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
-            SwitchSubscription(PushSubscription.Upvote, e.IsChecked);
+            Presenter.SwitchSubscription(PushSubscription.Upvote, e.IsChecked);
 
         private void NotificationCommentsUpvotesSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
-            SwitchSubscription(PushSubscription.UpvoteComment, e.IsChecked);
+            Presenter.SwitchSubscription(PushSubscription.UpvoteComment, e.IsChecked);
 
         private void NotificationCommentsSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
-            SwitchSubscription(PushSubscription.Comment, e.IsChecked);
+            Presenter.SwitchSubscription(PushSubscription.Comment, e.IsChecked);
 
         private void NotificationFollowingSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
-            SwitchSubscription(PushSubscription.Follow, e.IsChecked);
+            Presenter.SwitchSubscription(PushSubscription.Follow, e.IsChecked);
 
         private void NotificationPostingSwitchOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs e) =>
-            SwitchSubscription(PushSubscription.User, e.IsChecked);
-
-        private void SwitchSubscription(PushSubscription subscription, bool value)
-        {
-            if (value && !_pushSubscriptions.Contains(subscription))
-                _pushSubscriptions.Add(subscription);
-            else
-                _pushSubscriptions.Remove(subscription);
-        }
+            Presenter.SwitchSubscription(PushSubscription.User, e.IsChecked);
 
         private void OnAdapterPickAccount(UserInfo userInfo)
         {

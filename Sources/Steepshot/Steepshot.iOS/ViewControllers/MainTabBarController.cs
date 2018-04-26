@@ -6,6 +6,7 @@ using FFImageLoading;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -72,7 +73,8 @@ namespace Steepshot.iOS.ViewControllers
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
-            InitPushes();
+            if (AppSettings.AppInfo.GetModel() != "Simulator")
+                InitPushes();
         }
 
         private void InitPushes() => Task.Run(() =>

@@ -62,6 +62,7 @@ namespace Steepshot.iOS.Views
         {
             if (TabBarController != null)
                 TabBarController.View.Frame = new CGRect(0, 0, TabBarController.View.Frame.Width, TabBarController.View.Frame.Height - _tabBarHeight);
+            _presenter.TasksCancel();
             base.ViewWillDisappear(animated);
         }
 

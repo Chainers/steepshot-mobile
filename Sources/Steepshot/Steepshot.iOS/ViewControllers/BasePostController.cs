@@ -107,7 +107,7 @@ namespace Steepshot.iOS.ViewControllers
 
         protected abstract void SameTabTapped();
 
-        protected void GoBack(object sender, EventArgs e)
+        protected virtual void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(true);
         }

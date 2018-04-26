@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
-    public sealed class UserProfilePresenter : BasePostPresenter, IDisposable
+    public class UserProfilePresenter : BasePostPresenter, IDisposable
     {
         private const int ItemsLimit = 18;
 
@@ -71,7 +71,7 @@ namespace Steepshot.Core.Presenters
             }
             return response.Error;
         }
-
+       
 
         public async Task<ErrorBase> TryFollow()
         {

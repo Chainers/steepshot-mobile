@@ -33,6 +33,7 @@
     <CodesignProvision>
     </CodesignProvision>
     <LangVersion>Default</LangVersion>
+    <MtouchExtraArgs>--registrar:static</MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>pdbonly</DebugType>
@@ -423,6 +424,7 @@
     <Compile Include="CustomViews\SearchTextField.cs" />
     <Compile Include="ViewControllers\BasePostController.cs" />
     <Compile Include="CustomViews\CropView.cs" />
+    <Compile Include="Views\NotificationSettingsController.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
