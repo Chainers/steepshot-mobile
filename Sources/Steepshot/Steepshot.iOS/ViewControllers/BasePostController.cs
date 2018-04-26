@@ -55,9 +55,12 @@ namespace Steepshot.iOS.ViewControllers
                     actionSheetAlert.AddAction(action);
             if (post.Author == BasePresenter.User.Login)
             {
-                //for edit and delete
-                //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
-                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
+                if (post.CashoutTime > post.Created)
+                {
+                    //for edit and delete
+                    //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
+                }
             }
             else
             {
