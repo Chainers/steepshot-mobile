@@ -1,4 +1,5 @@
-﻿using Steepshot.Core.Presenters;
+﻿using System;
+using Steepshot.Core.Presenters;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -15,6 +16,11 @@ namespace Steepshot.iOS.ViewControllers
         protected virtual void CreatePresenter()
         {
             _presenter = new T();
+        }
+
+        protected virtual void GoBack(object sender, EventArgs e)
+        {
+            NavigationController.PopViewController(true);
         }
     }
 }

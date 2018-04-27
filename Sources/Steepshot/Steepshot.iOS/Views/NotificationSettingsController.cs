@@ -10,7 +10,7 @@ using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class NotificationSettingsController : BasePostController<PushSettingsPresenter>
+    public class NotificationSettingsController : BaseViewControllerWithPresenter<PushSettingsPresenter>
     {
         private readonly UISwitch _notificationUpvotesSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsUpvotesSwitch = new UISwitch();
@@ -62,7 +62,7 @@ namespace Steepshot.iOS.Views
 
         protected override void GoBack(object sender, EventArgs e)
         {
-            _presenter.OnBack();
+            _presenter.SaveSettings();
             NavigationController.PopViewController(true);
         }
 
@@ -172,21 +172,6 @@ namespace Steepshot.iOS.Views
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 30);
             separator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 30);
             separator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, label, 30);
-        }
-
-        protected override Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void SameTabTapped()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void SourceChanged(Status status)
-        {
-            throw new NotImplementedException();
         }
     }
 }

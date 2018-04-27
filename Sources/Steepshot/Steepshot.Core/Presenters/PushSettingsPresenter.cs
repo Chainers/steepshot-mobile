@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
-    public class PushSettingsPresenter : UserProfilePresenter
+    public class PushSettingsPresenter : BasePresenter
     {
         private List<PushSubscription> _pushSubscriptions = new List<PushSubscription>();
 
@@ -30,7 +28,7 @@ namespace Steepshot.Core.Presenters
                 _pushSubscriptions.Remove(subscription);
         }
 
-        public void OnBack()
+        public void SaveSettings()
         {
             if (!BasePresenter.User.PushSubscriptions.SequenceEqual(_pushSubscriptions))
             {

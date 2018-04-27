@@ -117,11 +117,11 @@ namespace Steepshot.Activity
 
             _nsfwSwitcher.Checked = BasePresenter.User.IsNsfw;
             _lowRatedSwitcher.Checked = BasePresenter.User.IsLowRated;
-            _notificationUpvotesSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Upvote);
-            _notificationCommentsUpvotesSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.UpvoteComment);
-            _notificationFollowingSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Follow);
-            _notificationCommentsSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Comment);
-            _notificationPostingSwitch.Checked = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User);
+            _notificationUpvotesSwitch.Checked = Presenter.UpvotesSwitchChecked;
+            _notificationCommentsUpvotesSwitch.Checked = Presenter.CommentsUpvotesSwitchChecked;
+            _notificationFollowingSwitch.Checked = Presenter.FollowingSwitchChecked;
+            _notificationCommentsSwitch.Checked = Presenter.CommentsSwitchChecked;
+            _notificationPostingSwitch.Checked = Presenter.PostingSwitchChecked;
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
@@ -152,7 +152,7 @@ namespace Steepshot.Activity
             if (_nsfwChanged || _lowRatedChanged)
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
             base.OnBackPressed();
-            Presenter.OnBack();
+            Presenter.SaveSettings();
         }
 
         protected override void OnDestroy()

@@ -8,7 +8,7 @@ using Steepshot.Core.Models.Enums;
 
 namespace Steepshot.Core.Presenters
 {
-    public class UserProfilePresenter : BasePostPresenter, IDisposable
+    public sealed class UserProfilePresenter : BasePostPresenter, IDisposable
     {
         private const int ItemsLimit = 18;
 

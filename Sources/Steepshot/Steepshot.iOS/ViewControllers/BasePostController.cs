@@ -106,18 +106,13 @@ namespace Steepshot.iOS.ViewControllers
         }
 
         protected abstract void SameTabTapped();
-
-        protected virtual void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
+        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
+        protected abstract void SourceChanged(Status status);
 
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
         }
-
-        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
 
         protected void TagAction(string tag)
         {
@@ -131,7 +126,5 @@ namespace Steepshot.iOS.ViewControllers
             _presenter = new T();
             _presenter.SourceChanged += SourceChanged;
         }
-
-        protected abstract void SourceChanged(Status status);
     }
 }
