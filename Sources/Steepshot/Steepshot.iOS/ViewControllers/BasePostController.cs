@@ -9,6 +9,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
+using Steepshot.iOS.CustomViews;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -17,7 +18,6 @@ namespace Steepshot.iOS.ViewControllers
 {
     public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
     {
-        private UIView popup;
         private UIView dialog;
         private UIButton rightButton;
 
@@ -124,16 +124,10 @@ namespace Steepshot.iOS.ViewControllers
             var commonMargin = 20;
             var dialogWidth = UIScreen.MainScreen.Bounds.Width - 10 * 2;
 
-            popup = new UIView();
-            popup.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
-            popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
-            popup.UserInteractionEnabled = true;
-
             dialog = new UIView();
             dialog.ClipsToBounds = true;
             dialog.Layer.CornerRadius = 15;
             dialog.BackgroundColor = UIColor.White;
-            popup.AddSubview(dialog);
 
             dialog.AutoSetDimension(ALDimension.Width, dialogWidth);
 
@@ -210,46 +204,20 @@ namespace Steepshot.iOS.ViewControllers
             rightButton.AutoSetDimension(ALDimension.Height, 50);
             rightButton.LayoutIfNeeded();
 
-            dialog.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom, 34);
-            dialog.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
-
-            leftButton.TouchDown += (sender, e) => { HideDialog(); };
-            rightButton.TouchDown += (sender, e) => { DeletePost(post); };
-
             NavigationController.View.EndEditing(true);
-            TabBarController.View.AddSubview(popup);
+
+            var alert = new CustomAlertView(dialog, TabBarController);
+
+            leftButton.TouchDown += (sender, e) => { alert.Hide(); };
+            rightButton.TouchDown += (sender, e) => { DeletePost(post, alert.Hide); };
 
             Constants.CreateGradient(rightButton, 25);
             Constants.CreateShadow(rightButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
-
-            var targetY = dialog.Frame.Y;
-            dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
-
-            UIView.Animate(0.3, () =>
-            {
-                popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.5f);
-                dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY - 10);
-            }, () =>
-            {
-                UIView.Animate(0.1, () =>
-                {
-                    dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, targetY);
-                });
-            });
         }
 
-        private void HideDialog()
+        private async void DeletePost(Post post, Action action)
         {
-            UIView.Animate(0.3, () =>
-            {
-                popup.BackgroundColor = UIColor.Black.ColorWithAlpha(0.0f);
-                dialog.Transform = CGAffineTransform.Translate(CGAffineTransform.MakeIdentity(), 0, UIScreen.MainScreen.Bounds.Bottom);
-            }, () => popup.RemoveFromSuperview());
-        }
-
-        private async void DeletePost(Post post)
-        {
-            HideDialog();
+            action.Invoke();
 
             var error = await _presenter.TryDeletePost(post);
 
