@@ -88,6 +88,12 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;

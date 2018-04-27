@@ -92,6 +92,12 @@ namespace Steepshot.iOS.Views
             sliderCollection.RegisterClassForCell(typeof(SliderFeedCollectionViewCell), nameof(SliderFeedCollectionViewCell));
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             _profileHeader = new ProfileHeaderViewController(ProfileHeaderLoaded);
             collectionView.ContentInset = new UIEdgeInsets(300, 0, 0, 0);
             collectionView.AddSubview(_profileHeader.View);

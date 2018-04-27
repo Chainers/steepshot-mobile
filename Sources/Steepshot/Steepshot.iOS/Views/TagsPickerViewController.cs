@@ -63,7 +63,6 @@ namespace Steepshot.iOS.Views
             _tagField.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
             tagsCollectionView.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, _tagField, 20f);
             _tagField.AutoSetDimension(ALDimension.Height, 40f);
-            _tagField.BecomeFirstResponder();
 
             var tap = new UITapGestureRecognizer(() =>
             {
@@ -82,6 +81,12 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             SetCollectionHeight();
             SearchTextChanged();
+        }
+
+        public override void ViewDidAppear(bool animated)
+        {
+            base.ViewDidAppear(animated);
+            _tagField.BecomeFirstResponder();
         }
 
         public override void ViewWillAppear(bool animated)

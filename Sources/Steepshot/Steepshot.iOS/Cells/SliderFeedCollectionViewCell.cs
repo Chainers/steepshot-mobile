@@ -240,9 +240,9 @@ namespace Steepshot.iOS.Cells
             {
                 LikeTap();
             };
-            BaseViewController.CloseSliderAction += () =>
+            BaseViewController.SliderAction += (isOpening) =>
             {
-                if (_sliderView.Superview != null)
+                if (_sliderView.Superview != null && !isOpening)
                     _sliderView.Close();
             };
 
@@ -338,7 +338,7 @@ namespace Steepshot.iOS.Cells
             _contentScroll.SetContentOffset(new CGPoint(0, 0), false);
 
             _photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
-            _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width /* * _currentPost.Media.Length*/, variables.PhotoHeight);
+            _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width * _currentPost.Media.Length, variables.PhotoHeight);
             _photoScroll.SetContentOffset(new CGPoint(0, 0), false);
 
             foreach (var subview in _photoScroll.Subviews)
@@ -348,10 +348,10 @@ namespace Steepshot.iOS.Cells
             {
                 _scheduledWorkBody[i]?.Cancel();
             }
-            _scheduledWorkBody = new IScheduledWork[1/*_currentPost.Media.Length*/];
+            _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
 
-            _bodyImage = new UIImageView[1/*_currentPost.Media.Length*/];
-            for (int i = 0; i < 1/*_currentPost.Media.Length*/; i++)
+            _bodyImage = new UIImageView[_currentPost.Media.Length];
+            for (int i = 0; i < _currentPost.Media.Length; i++)
             {
                 _bodyImage[i] = new UIImageView();
                 _bodyImage[i].Layer.CornerRadius = 10;

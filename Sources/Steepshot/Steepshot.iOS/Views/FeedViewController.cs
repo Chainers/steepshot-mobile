@@ -97,6 +97,12 @@ namespace Steepshot.iOS.Views
             _sliderCollectionViewSource.TagAction += TagAction;
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             if (TabBarController != null)
             {
                 TabBarController.NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;

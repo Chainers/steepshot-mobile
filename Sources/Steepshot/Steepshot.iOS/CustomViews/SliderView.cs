@@ -83,7 +83,6 @@ namespace Steepshot.iOS.CustomViews
 
         public void Close()
         {
-            BaseViewController.IsSliderOpen = false;
             Animate(0.15, () =>
             {
                 Frame = new CGRect(Frame.X, Frame.Y - animationLength, Frame.Width, Frame.Height);
