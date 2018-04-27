@@ -15,7 +15,6 @@ namespace Steepshot.Core.Extensions
         private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex WordDelimiters = new Regex(@"[_\s\.]+");
         private static readonly Regex PermlinkNotSupportedCharacters = new Regex(@"[^a-z0-9-]+", RegexOptions.IgnoreCase);
-        private static readonly Regex TagNotSupportedCharacters = new Regex(@"[\w\d- ]+", RegexOptions.IgnoreCase);
 
         public static string ToPostTime(this DateTime date)
         {
@@ -76,7 +75,7 @@ namespace Steepshot.Core.Extensions
         public static string NormalizeTag(this string tag)
         {
             var rez = string.Empty;
-            var matches = TagNotSupportedCharacters.Matches(tag);
+            var matches = PermlinkNotSupportedCharacters.Matches(tag);
             foreach (Match matche in matches)
                 rez += matche.Value;
             return rez;
