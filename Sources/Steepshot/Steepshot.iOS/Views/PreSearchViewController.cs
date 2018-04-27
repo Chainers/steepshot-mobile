@@ -8,6 +8,7 @@ using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Cells;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
@@ -88,7 +89,7 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
-            if (!BasePresenter.User.IsAuthenticated && CurrentPostCategory == null)
+            if (!AppSettings.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
                 loginButton.Layer.CornerRadius = 25;
@@ -197,7 +198,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;

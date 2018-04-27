@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Threading.Tasks;
 using PureLayout.Net;
-using Steepshot.Core.Models;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
 
 namespace Steepshot.iOS.Views
 {
-    public class NotificationSettingsController : BaseViewControllerWithPresenter<PushSettingsPresenter>
+    public class NotificationSettingsController : BaseViewController
     {
         private readonly UISwitch _notificationUpvotesSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsUpvotesSwitch = new UISwitch();
@@ -24,45 +25,83 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             CreateView();
 
-            _notificationUpvotesSwitch.On = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Upvote);
-            _notificationCommentsUpvotesSwitch.On = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.UpvoteComment);
-            _notificationFollowingSwitch.On = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Follow);
-            _notificationCommentsSwitch.On = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.Comment);
-            _notificationPostingSwitch.On = BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User);
+            _notificationUpvotesSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Upvote);
+            _notificationCommentsUpvotesSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.UpvoteComment);
+            _notificationFollowingSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Follow);
+            _notificationCommentsSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Comment);
+            _notificationPostingSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.User);
 
-            _notificationUpvotesSwitch.ValueChanged += NotificationUpvotesSwitchOnCheckedChange;
-            _notificationCommentsUpvotesSwitch.ValueChanged += NotificationCommentsUpvotesSwitchOnCheckedChange;
-            _notificationFollowingSwitch.ValueChanged += NotificationFollowingSwitchOnCheckedChange;
-            _notificationCommentsSwitch.ValueChanged += NotificationCommentsSwitchOnCheckedChange;
-            _notificationPostingSwitch.ValueChanged += NotificationPostingSwitchOnCheckedChange;
+            _notificationUpvotesSwitch.ValueChanged += NotificationChange;
+            _notificationCommentsUpvotesSwitch.ValueChanged += NotificationChange;
+            _notificationFollowingSwitch.ValueChanged += NotificationChange;
+            _notificationCommentsSwitch.ValueChanged += NotificationChange;
+            _notificationPostingSwitch.ValueChanged += NotificationChange;
         }
 
         private void SetBackButton()
         {
             var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
             NavigationItem.LeftBarButtonItem = leftBarButton;
-            NavigationController.NavigationBar.TintColor = Helpers.Constants.R15G24B30;
+            NavigationController.NavigationBar.TintColor = Constants.R15G24B30;
             NavigationItem.Title = "Notifications settings";
         }
 
-        private void NotificationUpvotesSwitchOnCheckedChange(object sender, EventArgs e) =>
-        _presenter.SwitchSubscription(PushSubscription.Upvote, ((UISwitch)sender).On);
-
-        private void NotificationCommentsUpvotesSwitchOnCheckedChange(object sender, EventArgs e) =>
-        _presenter.SwitchSubscription(PushSubscription.UpvoteComment, ((UISwitch)sender).On);
-
-        private void NotificationCommentsSwitchOnCheckedChange(object sender, EventArgs e) =>
-        _presenter.SwitchSubscription(PushSubscription.Comment, ((UISwitch)sender).On);
-
-        private void NotificationFollowingSwitchOnCheckedChange(object sender, EventArgs e) =>
-        _presenter.SwitchSubscription(PushSubscription.Follow, ((UISwitch)sender).On);
-
-        private void NotificationPostingSwitchOnCheckedChange(object sender, EventArgs e) =>
-        _presenter.SwitchSubscription(PushSubscription.User, ((UISwitch)sender).On);
-
-        protected override void GoBack(object sender, EventArgs e)
+        private async void NotificationChange(object sender, EventArgs e)
         {
-            _presenter.SaveSettings();
+            if (!(sender is UISwitch switcher))
+                return;
+
+            _notificationUpvotesSwitch.Enabled = false;
+            _notificationCommentsUpvotesSwitch.Enabled = false;
+            _notificationFollowingSwitch.Enabled = false;
+            _notificationCommentsSwitch.Enabled = false;
+            _notificationPostingSwitch.Enabled = false;
+
+            var subscription = PushSettings.None;
+
+            if (Equals(sender, _notificationUpvotesSwitch))
+                subscription = PushSettings.Upvote;
+            else if (Equals(sender, _notificationCommentsUpvotesSwitch))
+                subscription = PushSettings.UpvoteComment;
+            else if (Equals(sender, _notificationFollowingSwitch))
+                subscription = PushSettings.Follow;
+            else if (Equals(sender, _notificationCommentsSwitch))
+                subscription = PushSettings.Comment;
+            else if (Equals(sender, _notificationPostingSwitch))
+                subscription = PushSettings.User;
+
+            if (switcher.On)
+                AppSettings.User.PushSettings |= subscription;
+            else
+                AppSettings.User.PushSettings ^= subscription;
+
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
+            {
+                Subscriptions = AppSettings.User.PushSettings.FlagToStringList()
+            };
+            var resp = await BasePresenter.TrySubscribeForPushes(model);
+            if (!resp.IsSuccess) //rollback
+            {
+                if (switcher.On)
+                    AppSettings.User.PushSettings ^= subscription;
+                else
+                    AppSettings.User.PushSettings |= subscription;
+
+                switcher.ValueChanged -= NotificationChange;
+                switcher.On = !switcher.On;
+                switcher.ValueChanged += NotificationChange;
+                this.ShowAlert(resp.Error);
+            }
+
+            _notificationUpvotesSwitch.Enabled = true;
+            _notificationCommentsUpvotesSwitch.Enabled = true;
+            _notificationFollowingSwitch.Enabled = true;
+            _notificationCommentsSwitch.Enabled = true;
+            _notificationPostingSwitch.Enabled = true;
+        }
+
+        protected void GoBack(object sender, EventArgs e)
+        {
             NavigationController.PopViewController(true);
         }
 

@@ -79,17 +79,28 @@ namespace Steepshot.Core.Authority
         }
 
         public HashSet<string> PostBlackList => UserInfo.PostBlackList;
-        public List<PushSubscription> PushSubscriptions
+
+        public PushSettings PushSettings
         {
-            get => UserInfo.PushSubscriptions;
-            set => UserInfo.PushSubscriptions = value;
+            get => UserInfo.PushSettings;
+            set
+            {
+                UserInfo.PushSettings = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
         }
 
         public List<string> WatchedUsers => UserInfo.WatchedUsers;
         public string PushesPlayerId
         {
             get => UserInfo.PushesPlayerId;
-            set => UserInfo.PushesPlayerId = value;
+            set
+            {
+                UserInfo.PushesPlayerId = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
         }
 
         public string Login => UserInfo.Login;

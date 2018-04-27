@@ -153,11 +153,11 @@ namespace Steepshot.Adapter
                 else
                     Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_friendAvatar);
 
-                _followButton.Visibility = BasePresenter.User.Login == _friendLogin.Text
+                _followButton.Visibility = AppSettings.User.Login == _friendLogin.Text
                     ? ViewStates.Gone
                     : ViewStates.Visible;
 
-                if (string.Equals(BasePresenter.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(AppSettings.User.Login, userFriends.Author, StringComparison.OrdinalIgnoreCase))
                 {
                     _followButton.Visibility = ViewStates.Invisible;
                 }

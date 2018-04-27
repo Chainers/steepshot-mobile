@@ -17,8 +17,8 @@ namespace Steepshot.iOS.ViewControllers
     {
         private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
-        public static string Tos => BasePresenter.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
-        public static string Pp => BasePresenter.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
+        public static string Tos => AppSettings.User.IsDev ? "https://qa.steepshot.org/terms-of-service" : "https://steepshot.org/terms-of-service";
+        public static string Pp => AppSettings.User.IsDev ? "https://qa.steepshot.org/privacy-policy" : "https://steepshot.org/privacy-policy";
 
         protected UIView Activeview;
         protected nfloat ScrollAmount = 0.0f;

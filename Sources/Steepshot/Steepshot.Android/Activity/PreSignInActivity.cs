@@ -65,7 +65,7 @@ namespace Steepshot.Activity
         public override async void OnBackPressed()
         {
             base.OnBackPressed();
-            var currentUser = BasePresenter.User.GetAllAccounts().FirstOrDefault();
+            var currentUser = AppSettings.User.GetAllAccounts().FirstOrDefault();
             if (currentUser != null)
                 await BasePresenter.SwitchChain(currentUser.Chain);
         }

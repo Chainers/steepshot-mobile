@@ -20,6 +20,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
 {
@@ -80,7 +81,7 @@ namespace Steepshot.Core.HttpClient
 
                 short weigth = 0;
                 if (model.Type == VoteType.Up)
-                    weigth = (short)(BasePresenter.User.VotePower * 100);
+                    weigth = (short)(AppSettings.User.VotePower * 100);
                 if (model.Type == VoteType.Flag)
                     weigth = -10000;
 

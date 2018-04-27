@@ -42,7 +42,7 @@ namespace Steepshot.Fragment
         private ProfileSpanSizeLookup _profileSpanSizeLookup;
         private RecyclerView.Adapter _adapter;
         private Dialog _moreActionsDialog;
-        private bool UserIsWatched => BasePresenter.User.WatchedUsers.Contains(_profileId);
+        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(_profileId);
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
@@ -197,9 +197,9 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration(true);
 
-                _tabSettings = BasePresenter.User.Login.Equals(_profileId)
-                    ? BasePresenter.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
-                    : BasePresenter.User.GetTabSettings(nameof(ProfileFragment));
+                _tabSettings = AppSettings.User.Login.Equals(_profileId)
+                    ? AppSettings.User.GetTabSettings($"User_{nameof(ProfileFragment)}")
+                    : AppSettings.User.GetTabSettings(nameof(ProfileFragment));
 
                 SwitchListAdapter(_tabSettings.IsGridView);
 
@@ -227,7 +227,7 @@ namespace Steepshot.Fragment
 
                 _firstPostButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.CreateFirstPostText);
 
-                if (_profileId != BasePresenter.User.Login)
+                if (_profileId != AppSettings.User.Login)
                 {
                     _settings.Visibility = ViewStates.Gone;
                     _backButton.Visibility = ViewStates.Visible;
@@ -343,7 +343,7 @@ namespace Steepshot.Fragment
                 if (status.Sender == nameof(UserProfilePresenter.TryFollow) || status.Sender == nameof(UserProfilePresenter.TryGetUserInfo))
                 {
                     _firstPostButton.Visibility =
-                        _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                        _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                             ? ViewStates.Visible
                             : ViewStates.Gone;
                 }
@@ -425,7 +425,7 @@ namespace Steepshot.Fragment
         private async void PushesOnClick(object sender, EventArgs eventArgs)
         {
             _moreActionsDialog.Dismiss();
-            var model = new PushNotificationsModel(BasePresenter.User.UserInfo, !UserIsWatched)
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
             {
                 WatchedUser = _profileId
             };
@@ -433,9 +433,9 @@ namespace Steepshot.Fragment
             if (error == null)
             {
                 if (UserIsWatched)
-                    BasePresenter.User.WatchedUsers.Remove(_profileId);
+                    AppSettings.User.WatchedUsers.Remove(_profileId);
                 else
-                    BasePresenter.User.WatchedUsers.Add(_profileId);
+                    AppSettings.User.WatchedUsers.Add(_profileId);
             }
         }
 
@@ -469,7 +469,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            BasePresenter.User.Save();
+            AppSettings.User.Save();
             SwitchListAdapter(_tabSettings.IsGridView);
         }
 
@@ -519,7 +519,7 @@ namespace Steepshot.Fragment
             } while (true);
 
             _firstPostButton.Visibility =
-                    _profileId == BasePresenter.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
+                    _profileId == AppSettings.User.Login && Presenter.UserProfileResponse.PostCount == 0 && Presenter.UserProfileResponse.HiddenPostCount == 0
                     ? ViewStates.Visible
                     : ViewStates.Gone;
             _loadingSpinner.Visibility = ViewStates.Gone;
@@ -544,7 +544,7 @@ namespace Steepshot.Fragment
                     ((BaseActivity)Activity).OpenNewContentFragment(new FollowersFragment());
                     break;
                 case ActionType.Follow:
-                    if (BasePresenter.User.IsAuthenticated)
+                    if (AppSettings.User.IsAuthenticated)
                     {
                         var error = await Presenter.TryFollow();
                         if (!IsInitialized)
@@ -576,7 +576,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -605,7 +605,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
                         {
                             OpenLogin();
                             return;
@@ -625,7 +625,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);

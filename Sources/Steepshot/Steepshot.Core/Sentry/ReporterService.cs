@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Sentry.Models;
 using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Sentry
 {
@@ -41,7 +42,7 @@ namespace Steepshot.Core.Sentry
 
         private JsonPacket GetPacket()
         {
-            var login = BasePresenter.User?.Login ?? "unauthorized";
+            var login = AppSettings.User?.Login ?? "unauthorized";
             var appVersion = _appInfoService.GetAppVersion();
             var buildVersion = _appInfoService.GetBuildVersion();
             return new JsonPacket

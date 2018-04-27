@@ -205,13 +205,13 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(_context).Load(Resource.Drawable.ic_holder).Into(_profileImage);
 
-            if (profile.Username.Equals(BasePresenter.User.Login, StringComparison.OrdinalIgnoreCase))
+            if (profile.Username.Equals(AppSettings.User.Login, StringComparison.OrdinalIgnoreCase))
             {
                 _votingPower.VotingPower = (float)profile.VotingPower;
                 _votingPower.Draw = true;
             }
 
-            if (string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _followButton.Visibility = ViewStates.Gone;
             }
@@ -255,14 +255,14 @@ namespace Steepshot.Adapter
                 _name.Text = profile.Name;
                 _name.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _name.Visibility = ViewStates.Gone;
             }
 
             if (!string.IsNullOrEmpty(profile.Location))
                 _place.Text = profile.Location.Trim();
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
                 _place.Visibility = ViewStates.Gone;
 
             if (!string.IsNullOrEmpty(profile.About))
@@ -270,7 +270,7 @@ namespace Steepshot.Adapter
                 _description.Text = profile.About;
                 _description.SetTextColor(Style.R15G24B30);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _description.Visibility = ViewStates.Gone;
             }
@@ -280,7 +280,7 @@ namespace Steepshot.Adapter
                 _site.Text = profile.Website;
                 _site.SetTextColor(Style.R231G72B00);
             }
-            else if (!string.Equals(BasePresenter.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
+            else if (!string.Equals(AppSettings.User.Login, profile.Username, StringComparison.OrdinalIgnoreCase))
             {
                 _site.Visibility = ViewStates.Gone;
             }

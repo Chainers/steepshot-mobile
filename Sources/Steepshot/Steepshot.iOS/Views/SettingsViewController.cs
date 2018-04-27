@@ -25,15 +25,15 @@ namespace Steepshot.iOS.Views
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            nsfwSwitch.On = BasePresenter.User.IsNsfw;
-            lowRatedSwitch.On = BasePresenter.User.IsLowRated;
+            nsfwSwitch.On = AppSettings.User.IsNsfw;
+            lowRatedSwitch.On = AppSettings.User.IsLowRated;
 
             versionLabel.Font = Constants.Regular12;
             notificationSettings.Font = reportButton.Font = termsButton.Font = guideButton.Font = lowRatedLabel.Font = nsfwLabel.Font = addAccountButton.TitleLabel.Font = Constants.Semibold14;
             Constants.CreateShadow(addAccountButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
 
             _tableSource = new AccountsTableViewSource();
-            _tableSource.Accounts = BasePresenter.User.GetAllAccounts();
+            _tableSource.Accounts = AppSettings.User.GetAllAccounts();
             _tableSource.CellAction += CellAction;
 
             accountsTable.Source = _tableSource;
@@ -104,12 +104,12 @@ namespace Steepshot.iOS.Views
 
         private void SwitchNSFW(object sender, EventArgs e)
         {
-            BasePresenter.User.IsNsfw = nsfwSwitch.On;
+            AppSettings.User.IsNsfw = nsfwSwitch.On;
         }
 
         private void SwitchLowRated(object sender, EventArgs e)
         {
-            BasePresenter.User.IsLowRated = lowRatedSwitch.On;
+            AppSettings.User.IsLowRated = lowRatedSwitch.On;
         }
 /*
         private void AddAccount()
@@ -121,7 +121,7 @@ namespace Steepshot.iOS.Views
 */
         private void RemoveAccount(UserInfo account)
         {
-            BasePresenter.User.Delete(account);
+            AppSettings.User.Delete(account);
             RemoveNetwork(account);
         }
 
@@ -194,7 +194,7 @@ namespace Steepshot.iOS.Views
         {
             if (BasePresenter.Chain == user.Chain)
                 return;
-            BasePresenter.User.SwitchUser(user);
+            AppSettings.User.SwitchUser(user);
             //HighlightView(user.Chain);
             BasePresenter.SwitchChain(user.Chain);
 
@@ -234,12 +234,12 @@ namespace Steepshot.iOS.Views
                     //BasePresenter.SwitchChain(BasePresenter.Chain == KnownChains.Steem ? _golosAcc : _steemAcc);
                 }
             }
-            BasePresenter.User.Save();
+            AppSettings.User.Save();
         }
 
         private void SetAddButton()
         {
-            addAccountButton.Hidden = BasePresenter.User.GetAllAccounts().Count == 2;
+            addAccountButton.Hidden = AppSettings.User.GetAllAccounts().Count == 2;
             //#if !DEBUG
             //addAccountButton.Hidden = true;
             //#endif

@@ -29,7 +29,7 @@ namespace Steepshot.iOS.Views
         }
 
         private UserProfileResponse _userData;
-        public string Username = BasePresenter.User.Login;
+        public string Username = AppSettings.User.Login;
         private ProfileCollectionViewSource _collectionViewSource;
         private UIRefreshControl _refreshControl;
         private bool _isPostsLoading;
@@ -42,7 +42,7 @@ namespace Steepshot.iOS.Views
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
-        private bool UserIsWatched => BasePresenter.User.WatchedUsers.Contains(Username);
+        private bool UserIsWatched => AppSettings.User.WatchedUsers.Contains(Username);
 
         public override void ViewDidLoad()
         {
@@ -104,7 +104,7 @@ namespace Steepshot.iOS.Views
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
             SetBackButton();
 
-            if (Username == BasePresenter.User.Login && BasePresenter.User.IsAuthenticated)
+            if (Username == AppSettings.User.Login && AppSettings.User.IsAuthenticated)
                 SetVotePowerView();
             GetUserInfo();
             GetPosts();
@@ -142,7 +142,7 @@ namespace Steepshot.iOS.Views
             switchButton = new UIBarButtonItem(UIImage.FromBundle("ic_grid_nonactive"), UIBarButtonItemStyle.Plain, SwitchLayout);
             switchButton.TintColor = Constants.R231G72B0;
 
-            if (Username == BasePresenter.User.Login)
+            if (Username == AppSettings.User.Login)
             {
                 NavigationItem.Title = "My Profile";
                 var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_settings"), UIBarButtonItemStyle.Plain, GoToSettings);
@@ -207,7 +207,7 @@ namespace Steepshot.iOS.Views
 
             var avatarTap = new UITapGestureRecognizer(() =>
             {
-                if (isPowerOpen || Username != BasePresenter.User.Login)
+                if (isPowerOpen || Username != AppSettings.User.Login)
                     return;
 
                 UIView.Animate(0.3f, 0f, UIViewAnimationOptions.CurveEaseOut, () =>
@@ -251,7 +251,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -321,7 +321,7 @@ namespace Steepshot.iOS.Views
                 {
                     _userData = _presenter.UserProfileResponse;
 
-                    if (Username == BasePresenter.User.Login)
+                    if (Username == AppSettings.User.Login)
                         _profileHeader.PowerFrame.ChangePercents((int)_userData.VotingPower);
                     else
                         _profileHeader.PowerFrame.ChangePercents(0);
@@ -461,7 +461,7 @@ namespace Steepshot.iOS.Views
 
         private async void PushesOnClick(object sender)
         {
-            var model = new PushNotificationsModel(BasePresenter.User.UserInfo, !UserIsWatched)
+            var model = new PushNotificationsModel(AppSettings.User.UserInfo, !UserIsWatched)
             {
                 WatchedUser = Username
             };
@@ -469,9 +469,9 @@ namespace Steepshot.iOS.Views
             if (response.IsSuccess)
             {
                 if (UserIsWatched)
-                    BasePresenter.User.WatchedUsers.Remove(Username);
+                    AppSettings.User.WatchedUsers.Remove(Username);
                 else
-                    BasePresenter.User.WatchedUsers.Add(Username);
+                    AppSettings.User.WatchedUsers.Add(Username);
             }
         }
 

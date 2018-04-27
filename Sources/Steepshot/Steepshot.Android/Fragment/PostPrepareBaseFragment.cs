@@ -141,7 +141,7 @@ namespace Steepshot.Fragment
             _rootLayout.Click += OnRootLayoutClick;
 
             _timer = new Timer(OnTimer);
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, AppSettings.AppInfo.GetModel());
+            _model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
             SetPostingTimer();
         }
 
@@ -179,7 +179,7 @@ namespace Steepshot.Fragment
 
         protected async void SetPostingTimer()
         {
-            var timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+            var timepassed = DateTime.Now - AppSettings.User.UserInfo.LastPostTime;
             _postButton.Enabled = false;
             while (timepassed < PostingLimit)
             {
@@ -187,7 +187,7 @@ namespace Steepshot.Fragment
                 await Task.Delay(1000);
                 if (!IsInitialized)
                     return;
-                timepassed = DateTime.Now - BasePresenter.User.UserInfo.LastPostTime;
+                timepassed = DateTime.Now - AppSettings.User.UserInfo.LastPostTime;
             }
             _postButton.Enabled = true;
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
@@ -230,7 +230,7 @@ namespace Steepshot.Fragment
 
             if (resp.IsSuccess)
             {
-                BasePresenter.User.UserInfo.LastPostTime = DateTime.Now;
+                AppSettings.User.UserInfo.LastPostTime = DateTime.Now;
                 EnabledPost();
                 BasePresenter.ProfileUpdateType = ProfileUpdateType.Full;
                 Activity.ShowAlert(LocalizationKeys.PostDelay, ToastLength.Long);

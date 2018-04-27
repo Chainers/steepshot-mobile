@@ -5,6 +5,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -29,11 +30,11 @@ namespace Steepshot.Core.Presenters
         {
             var request = new UserPostsModel(UserName)
             {
-                Login = User.Login,
+                Login = AppSettings.User.Login,
                 Offset = OffsetUrl,
                 Limit = string.IsNullOrEmpty(OffsetUrl) ? ItemsLimit : ItemsLimit + 1,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
 
             ErrorBase error;
@@ -57,9 +58,9 @@ namespace Steepshot.Core.Presenters
         {
             var req = new UserProfileModel(user)
             {
-                Login = User.Login,
-                ShowNsfw = User.IsNsfw,
-                ShowLowRated = User.IsLowRated
+                Login = AppSettings.User.Login,
+                ShowNsfw = AppSettings.User.IsNsfw,
+                ShowLowRated = AppSettings.User.IsLowRated
             };
             var response = await Api.GetUserProfile(req, ct);
 
@@ -91,7 +92,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Follow(UserProfileResponse userProfileResponse, CancellationToken ct)
         {
             var hasFollowed = userProfileResponse.HasFollowed;
-            var request = new FollowModel(User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
+            var request = new FollowModel(AppSettings.User.UserInfo, hasFollowed ? FollowType.UnFollow : FollowType.Follow, UserName);
             var response = await Api.Follow(request, ct);
 
             if (response.IsSuccess)

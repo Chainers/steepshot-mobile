@@ -7,6 +7,7 @@ using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -44,7 +45,7 @@ namespace Steepshot.Core.Presenters
             {
                 Offset = OffsetUrl,
                 Limit = ItemsLimit,
-                Login = User.Login
+                Login = AppSettings.User.Login
             };
 
             var response = await Api.GetPostVoters(request, ct);
@@ -85,7 +86,7 @@ namespace Steepshot.Core.Presenters
 
             var request = new UserFriendsModel(username, FollowType.Value)
             {
-                Login = User.Login,
+                Login = AppSettings.User.Login,
                 Offset = OffsetUrl,
                 Limit = ItemsLimit
             };
@@ -126,7 +127,7 @@ namespace Steepshot.Core.Presenters
             {
                 Limit = ItemsLimit,
                 Offset = OffsetUrl,
-                Login = User.Login
+                Login = AppSettings.User.Login
             };
 
             var response = await Api.SearchUser(request, ct);
@@ -165,7 +166,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Follow(UserFriend item, CancellationToken ct)
         {
             var hasFollowed = item.HasFollowed;
-            var request = new FollowModel(User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
+            var request = new FollowModel(AppSettings.User.UserInfo, item.HasFollowed ? Models.Enums.FollowType.UnFollow : Models.Enums.FollowType.Follow, item.Author);
             var response = await Api.Follow(request, ct);
 
             if (response.IsSuccess)

@@ -5,6 +5,7 @@ using Com.OneSignal;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
@@ -71,7 +72,7 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.ClipsToBounds = true;
             _avatar.Image = UIImage.FromBundle("ic_noavatar");
 
-            _presenter = new UserProfilePresenter() { UserName = BasePresenter.User.Login };
+            _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
@@ -86,24 +87,17 @@ namespace Steepshot.iOS.ViewControllers
 
         private async void OneSignalCallback(string playerId, string pushToken)
         {
-            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("username", AppSettings.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
-            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+            if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, playerId, true)
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
                 {
-                    Subscriptions = new List<PushSubscription>
-                    {
-                        PushSubscription.Upvote,
-                        PushSubscription.Follow,
-                        PushSubscription.Comment,
-                        PushSubscription.UpvoteComment,
-                        PushSubscription.User,
-                    }
+                    Subscriptions = PushSettings.All.FlagToStringList()
                 };
                 var response = await BasePresenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
-                    BasePresenter.User.PushesPlayerId = playerId;
+                    AppSettings.User.PushesPlayerId = playerId;
             }
         }
 
@@ -118,7 +112,7 @@ namespace Steepshot.iOS.ViewControllers
         {
             do
             {
-                var error = await _presenter.TryGetUserInfo(BasePresenter.User.Login);
+                var error = await _presenter.TryGetUserInfo(AppSettings.User.Login);
                 if (error == null || error is CanceledError)
                 {
                     _powerFrame.ChangePercents((int)_presenter.UserProfileResponse.VotingPower);

@@ -22,7 +22,7 @@ namespace Steepshot.Core.Presenters
         {
             var request = new NamedInfoModel(post.Url)
             {
-                Login = User.Login
+                Login = AppSettings.User.Login
             };
 
             ErrorBase error;
@@ -40,7 +40,7 @@ namespace Steepshot.Core.Presenters
 
         public async Task<OperationResult<VoidResponse>> TryCreateComment(Post parentPost, string body)
         {
-            var model = new CreateOrEditCommentModel(User.UserInfo, parentPost, body, AppSettings.AppInfo);
+            var model = new CreateOrEditCommentModel(AppSettings.User.UserInfo, parentPost, body, AppSettings.AppInfo);
             return await TryRunTask<CreateOrEditCommentModel, VoidResponse>(CreateComment, OnDisposeCts.Token, model);
         }
 

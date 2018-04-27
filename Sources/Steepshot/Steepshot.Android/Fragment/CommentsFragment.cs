@@ -108,7 +108,7 @@ namespace Steepshot.Fragment
             _comments.SetAdapter(_adapter);
             _comments.Visibility = ViewStates.Visible;
 
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
                 _messagePanel.Visibility = ViewStates.Gone;
 
             _commentEditCancelBtn.Click += CommentEditCancelBtnOnClick;
@@ -173,7 +173,7 @@ namespace Steepshot.Fragment
 
             if (_commentEditBlock.Visibility == ViewStates.Visible)
             {
-                var error = await Presenter.TryEditComment(BasePresenter.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
+                var error = await Presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
                 if (!IsInitialized)
                     return;
@@ -237,7 +237,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryVote(post);
 
@@ -257,7 +257,7 @@ namespace Steepshot.Fragment
                         if (post == null)
                             return;
 
-                        if (BasePresenter.User.Login != post.Author)
+                        if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
@@ -276,7 +276,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryFlag(post);
 

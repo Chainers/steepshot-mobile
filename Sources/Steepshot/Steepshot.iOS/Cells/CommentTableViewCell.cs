@@ -104,7 +104,7 @@ namespace Steepshot.iOS.Cells
                 likeButton.TouchDown += LikeTap;
                 otherActionButton.TouchDown += MoreTap;
                 _isInitialized = true;
-                if (!BasePresenter.User.IsAuthenticated)
+                if (!AppSettings.User.IsAuthenticated)
                 {
                     replyButton.Hidden = true;
                     replyHiddenConstraint.Active = true;

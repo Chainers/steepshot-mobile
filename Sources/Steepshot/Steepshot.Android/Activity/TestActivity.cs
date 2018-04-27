@@ -24,7 +24,7 @@ namespace Steepshot.Activity
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.lyt_auto_test);
             Cheeseknife.Bind(this);
-            _testContainer = new MobileAutoTests(Presenter.OpenApi, BasePresenter.User.UserInfo, AppSettings.AppInfo);
+            _testContainer = new MobileAutoTests(Presenter.OpenApi, AppSettings.User.UserInfo, AppSettings.AppInfo);
             _testContainer.StepFinished += UpdateResult;
         }
 

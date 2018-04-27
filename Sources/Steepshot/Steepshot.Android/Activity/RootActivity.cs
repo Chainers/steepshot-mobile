@@ -24,6 +24,7 @@ using Steepshot.Fragment;
 using Steepshot.Interfaces;
 using Steepshot.Utils;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Activity
 {
@@ -56,31 +57,27 @@ namespace Steepshot.Activity
             _tabLayout.TabSelected += OnTabLayoutOnTabSelected;
             _tabLayout.TabReselected += OnTabLayoutOnTabReselected;
 
-            if (BasePresenter.User.IsAuthenticated)
+            if (AppSettings.User.IsAuthenticated)
                 OneSignal.Current.IdsAvailable(OneSignalCallback);
         }
 
         private async void OneSignalCallback(string playerId, string pushToken)
         {
-            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("username", AppSettings.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
 
-            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+            if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
-                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, playerId, true)
+                var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
                 {
-                    Subscriptions = new List<PushSubscription>
-                    {
-                        PushSubscription.Upvote,
-                        PushSubscription.Follow,
-                        PushSubscription.Comment,
-                        PushSubscription.UpvoteComment,
-                        PushSubscription.User,
-                    }
+                    Subscriptions = PushSettings.All.FlagToStringList()
                 };
                 var response = await BasePresenter.TrySubscribeForPushes(model);
                 if (response.IsSuccess)
-                    BasePresenter.User.PushesPlayerId = playerId;
+                {
+                    AppSettings.User.PushesPlayerId = playerId;
+                    AppSettings.User.PushSettings = PushSettings.All;
+                }
             }
         }
 
@@ -97,13 +94,13 @@ namespace Steepshot.Activity
                     var link = data["data"];
                     switch (type)
                     {
-                        case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
-                        case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
-                        case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
-                        case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                        case string upvote when upvote.Equals(PushSettings.Upvote.GetEnumDescription()):
+                        case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
+                        case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
+                        case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
                             OpenNewContentFragment(new SinglePostFragment(link));
                             break;
-                        case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                        case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
                             OpenNewContentFragment(new ProfileFragment(link));
                             break;
                     }
@@ -176,7 +173,7 @@ namespace Steepshot.Activity
             {
                 SelectTab(e.Tab.Position);
                 _prevTab = e.Tab;
-                BasePresenter.User.SelectedTab = e.Tab.Position;
+                AppSettings.User.SelectedTab = e.Tab.Position;
             }
         }
 
@@ -207,8 +204,8 @@ namespace Steepshot.Activity
                     SetProfileChart(_tabLayout.LayoutParameters.Height);
                 tab.SetIcon(ContextCompat.GetDrawable(this, _adapter.TabIconsInactive[i]));
             }
-            SelectTab(BasePresenter.User.SelectedTab);
-            _prevTab = _tabLayout.GetTabAt(BasePresenter.User.SelectedTab);
+            SelectTab(AppSettings.User.SelectedTab);
+            _prevTab = _tabLayout.GetTabAt(AppSettings.User.SelectedTab);
             _viewPager.OffscreenPageLimit = _adapter.Count - 1;
         }
 
@@ -245,7 +242,7 @@ namespace Steepshot.Activity
         {
             do
             {
-                var error = await Presenter.TryGetUserInfo(BasePresenter.User.Login);
+                var error = await Presenter.TryGetUserInfo(AppSettings.User.Login);
                 if (IsDestroyed)
                     return;
 
