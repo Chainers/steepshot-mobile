@@ -18,10 +18,4 @@ namespace Steepshot.Core.Models.Enums
         [EnumMember(Value = "post")]
         User
     }
-
-    public enum PushSubscriptionAction
-    {
-        Subscribe,
-        Unsubscribe
-    }
 }

@@ -147,16 +147,11 @@ namespace Steepshot.Base
             Finish();
         }
 
-        public void OpenUri(Android.Net.Uri uri)
+        public void HandleLink(Intent intent)
         {
-            if (string.IsNullOrEmpty(uri?.Path))
-                return;
+            var path = intent.GetStringExtra(AppLinkingExtra);
+            intent.RemoveExtra(AppLinkingExtra);
 
-            OpenUri(uri.Path);
-        }
-
-        public void OpenUri(string path)
-        {
             if (string.IsNullOrEmpty(path))
                 return;
 

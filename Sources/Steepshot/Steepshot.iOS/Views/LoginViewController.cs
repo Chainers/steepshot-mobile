@@ -14,11 +14,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class LoginViewController : BaseViewControllerWithPresenter<SignInPresenter>
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new SignInPresenter();
-        }
-
         public string AvatarLink { get; set; }
         public string Username { get; set; }
 

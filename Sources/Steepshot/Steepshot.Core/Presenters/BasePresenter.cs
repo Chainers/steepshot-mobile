@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Cryptography.ECDSA;
-using Ditch.Core;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.HttpClient;
@@ -13,13 +11,14 @@ using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Services;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models.Requests;
 
 namespace Steepshot.Core.Presenters
 {
     public abstract class BasePresenter
     {
         private static readonly CultureInfo CultureInfo;
-        protected static readonly SteepshotApiClient Api;
+        public static readonly SteepshotApiClient Api;
         private static readonly Timer LazyLoadTimer;
         private static readonly object CtsSync;
         private static CancellationTokenSource _reconecTokenSource;
@@ -165,6 +164,20 @@ namespace Steepshot.Core.Presenters
 
             return ts;
         }
+
+
+        public static async Task<OperationResult<object>> TrySubscribeForPushes(PushNotificationsModel model)
+        {
+            var response = await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
+            if (response.IsSuccess)
+            {
+                if (model.Subscriptions != null)
+                    User.UserInfo.PushSubscriptions = model.Subscriptions;
+            }
+
+            return response;
+        }
+
 
         #region TryRunTask
 

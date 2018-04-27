@@ -8,6 +8,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Models.Responses;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -41,6 +42,7 @@ namespace Steepshot.iOS.Views
         private UIView powerPopup;
         private UILabel powerText;
         private bool isPowerOpen;
+        private bool UserIsWatched => BasePresenter.User.WatchedUsers.Contains(Username);
 
         public override void ViewDidLoad()
         {
@@ -153,7 +155,9 @@ namespace Steepshot.iOS.Views
                 var leftBarButton = new UIBarButtonItem(UIImage.FromBundle("ic_back_arrow"), UIBarButtonItemStyle.Plain, GoBack);
                 leftBarButton.TintColor = Constants.R15G24B30;
                 NavigationItem.LeftBarButtonItem = leftBarButton;
-                NavigationItem.RightBarButtonItem = switchButton;
+                var settingsButton = new UIBarButtonItem(UIImage.FromBundle("ic_more"), UIBarButtonItemStyle.Plain, ShowPushSetting);
+                settingsButton.TintColor = Constants.R151G155B158;
+                NavigationItem.RightBarButtonItems = new UIBarButtonItem[] { settingsButton, switchButton };
             }
         }
 
@@ -168,7 +172,7 @@ namespace Steepshot.iOS.Views
             _refreshControl.EndRefreshing();
         }
 
-        private void SourceChanged(Status status)
+        protected override void SourceChanged(Status status)
         {
             if (sliderCollection.Hidden)
             {
@@ -434,6 +438,41 @@ namespace Steepshot.iOS.Views
         {
             var myViewController = new SettingsViewController();
             TabBarController.NavigationController.PushViewController(myViewController, true);
+        }
+
+        private void ShowPushSetting(object sender, EventArgs e)
+        {
+            var actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
+
+            if (UserIsWatched)
+            {
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.UnwatchUser),
+                                                                UIAlertActionStyle.Default, PushesOnClick));
+            }
+            else
+            {
+                actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.WatchUser),
+                                                                UIAlertActionStyle.Default, PushesOnClick));
+            }
+
+            actionSheetAlert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+            PresentViewController(actionSheetAlert, true, null);
+        }
+
+        private async void PushesOnClick(object sender)
+        {
+            var model = new PushNotificationsModel(BasePresenter.User.UserInfo, !UserIsWatched)
+            {
+                WatchedUser = Username
+            };
+            var response = await BasePresenter.TrySubscribeForPushes(model);
+            if (response.IsSuccess)
+            {
+                if (UserIsWatched)
+                    BasePresenter.User.WatchedUsers.Remove(Username);
+                else
+                    BasePresenter.User.WatchedUsers.Add(Username);
+            }
         }
 
         private void SwitchLayout(object sender, EventArgs e)

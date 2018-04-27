@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using Ditch.Core.Helpers;
 using Steepshot.Core.Localization;
@@ -7,14 +8,13 @@ using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Extensions
 {
-    public static class Extensions
+    public static class StringExtension
     {
         private static HashSet<string> _censoredWords;
         private static HashSet<string> CensoredWords => _censoredWords ?? (_censoredWords = AppSettings.AssetsesHelper.TryReadCensoredWords());
         private static readonly Regex GetWords = new Regex(@"\b[\w]{2,}\b", RegexOptions.CultureInvariant | RegexOptions.Compiled);
         private static readonly Regex WordDelimiters = new Regex(@"[_\s\.]+");
         private static readonly Regex PermlinkNotSupportedCharacters = new Regex(@"[^a-z0-9-]+", RegexOptions.IgnoreCase);
-
 
         public static string ToPostTime(this DateTime date)
         {
@@ -70,6 +70,24 @@ namespace Steepshot.Core.Extensions
             tag = WordDelimiters.Replace(tag, "-");
             tag = PermlinkNotSupportedCharacters.Replace(tag, string.Empty);
             return tag;
+        }
+
+        public static string NormalizeTag(this string tag)
+        {
+            var rez = string.Empty;
+            var matches = PermlinkNotSupportedCharacters.Matches(tag);
+            foreach (Match matche in matches)
+                rez += matche.Value;
+            return rez;
+        }
+
+        public static string GetEnumDescription(this System.Enum value)
+        {
+            var fi = value.GetType().GetField(value.ToString());
+            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+            if (attributes.Length > 0)
+                return ((EnumMemberAttribute)attributes[0]).Value;
+            return value.ToString();
         }
     }
 }
