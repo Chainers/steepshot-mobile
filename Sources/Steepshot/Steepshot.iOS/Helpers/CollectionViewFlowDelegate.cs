@@ -70,10 +70,8 @@ namespace Steepshot.iOS.Helpers
             if (Variables.Count == _presenter.Count)
                 return;
 
-            if (Variables.Count - _presenter.Count == 1)
-            {
-                Variables.RemoveAt(0);
-            }
+            if (Variables.Count > _presenter.Count)
+                Variables.Clear();
 
             for (int i = Variables.Count; i < _presenter.Count; i++)
             {
