@@ -12,11 +12,6 @@ namespace Steepshot.iOS.Views
 {
     public partial class PreLoginViewController : BaseViewControllerWithPresenter<PreSignInPresenter>
     {
-        protected override void CreatePresenter()
-        {
-            _presenter = new PreSignInPresenter();
-        }
-
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();

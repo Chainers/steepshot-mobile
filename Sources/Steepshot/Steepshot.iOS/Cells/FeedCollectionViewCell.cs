@@ -273,7 +273,7 @@ namespace Steepshot.iOS.Cells
         {
             if (string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase) && operationResult.IsSuccess)
             {
-                likeButton.Selected = operationResult.Result.IsSuccess;
+                likeButton.Selected = operationResult.IsSuccess;
                 flagButton.Selected = _currentPost.Flag;
                 //rewards.Text = BaseViewController.ToFormatedCurrencyString(operationResult.Result.NewTotalPayoutReward);
                 netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetVotes);
@@ -290,7 +290,7 @@ namespace Steepshot.iOS.Cells
         {
             if (result.IsSuccess && string.Equals(post.Url, _currentPost.Url, StringComparison.OrdinalIgnoreCase))
             {
-                flagButton.Selected = result.Result.IsSuccess;
+                flagButton.Selected = result.IsSuccess;
                 likeButton.Selected = _currentPost.Vote;
                 netVotes.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Likes, _currentPost.NetVotes);
                 //rewards.Text = BaseViewController.ToFormatedCurrencyString(result.Result.NewTotalPayoutReward);

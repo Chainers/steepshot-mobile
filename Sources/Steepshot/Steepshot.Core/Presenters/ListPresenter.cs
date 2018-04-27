@@ -16,13 +16,13 @@ namespace Steepshot.Core.Presenters
     {
         private readonly object _sync;
         private CancellationTokenSource _singleTaskCancellationTokenSource;
-
         protected const int ServerMaxCount = 40;
         protected readonly List<T> Items;
         protected string OffsetUrl = string.Empty;
+        public event Action<Status> SourceChanged;
 
         public bool IsLastReaded { get; protected set; }
-        public event Action<Status> SourceChanged;
+
 
         protected ListPresenter()
         {
@@ -94,14 +94,14 @@ namespace Steepshot.Core.Presenters
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                {
                     return new CanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new AppError(LocalizationKeys.UnknownError);
-                }
+
+                available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
             finally
             {
@@ -155,14 +155,14 @@ namespace Steepshot.Core.Presenters
             catch (Exception ex)
             {
                 if (ts.IsCancellationRequested)
-                {
                     return new CanceledError();
-                }
-                else
-                {
-                    AppSettings.Reporter.SendCrash(ex);
-                    return new AppError(LocalizationKeys.UnknownError);
-                }
+
+                available = ConnectionService.IsConnectionAvailable();
+                if (!available)
+                    return new AppError(LocalizationKeys.InternetUnavailable);
+
+                AppSettings.Reporter.SendCrash(ex);
+                return new AppError(LocalizationKeys.UnknownError);
             }
             finally
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core;
+using Ditch.Core.JsonRpc;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
@@ -75,7 +76,7 @@ namespace Steepshot.Core.Tests.Stubs
         {
             return new OperationResult<VoidResponse>
             {
-                Result = new VoidResponse(true)
+                Result = new VoidResponse()
             };
         }
 
@@ -256,12 +257,12 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoteResponse>> Vote(VoteModel model, CancellationToken ct)
         {
-            return new OperationResult<VoteResponse> { Result = new VoteResponse(true) { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
+            return new OperationResult<VoteResponse> { Result = new VoteResponse() { NetVotes = model.Type == VoteType.Up ? 100500 : 777, NewTotalPayoutReward = 10000 } };
         }
 
         public async Task<OperationResult<VoidResponse>> Follow(FollowModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
+            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
         }
 
         public async Task<OperationResult<ListResponse<Post>>> GetComments(NamedInfoModel model, CancellationToken ct)
@@ -276,12 +277,12 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoidResponse>> CreateComment(CreateOrEditCommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
+            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
         }
 
         public async Task<OperationResult<VoidResponse>> EditComment(CommentModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse> { Result = new VoidResponse(true) };
+            return new OperationResult<VoidResponse> { Result = new VoidResponse() };
         }
 
         public async Task<OperationResult<PreparePostResponse>> CreatePost(UploadMediaModel model, MediaModel mediaModel, CancellationToken ct)
@@ -406,7 +407,7 @@ namespace Steepshot.Core.Tests.Stubs
 
         public async Task<OperationResult<VoidResponse>> DeletePostOrComment(DeleteModel model, CancellationToken ct)
         {
-            return new OperationResult<VoidResponse>() { Result = new VoidResponse(true) };
+            return new OperationResult<VoidResponse>() { Result = new VoidResponse() };
         }
     }
 }

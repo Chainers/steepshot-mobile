@@ -4,6 +4,7 @@ using Android.Support.V4.App;
 using Com.OneSignal.Android;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Extensions;
 
 namespace Steepshot.Utils
 {
@@ -21,7 +22,6 @@ namespace Steepshot.Utils
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
             var type = p0.Payload.AdditionalData?.GetString("type");
-
             if (type == null || !type.Equals(PushSubscription.User.GetEnumDescription()) || BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User))
                 DisplayNotification(overrideSettings);
 

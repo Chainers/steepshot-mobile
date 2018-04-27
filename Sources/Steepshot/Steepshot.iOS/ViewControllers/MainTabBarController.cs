@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Com.OneSignal;
 using CoreGraphics;
 using FFImageLoading;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Models.Enums;
+using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.Views;
 using UIKit;
@@ -70,6 +75,36 @@ namespace Steepshot.iOS.ViewControllers
 
             TabBar.Subviews[3].AddSubview(_powerFrame);
             InitializePowerFrame();
+            if (AppSettings.AppInfo.GetModel() != "Simulator")
+                InitPushes();
+        }
+
+        private void InitPushes() => Task.Run(() =>
+        {
+            OneSignal.Current.IdsAvailable(OneSignalCallback);
+        });
+
+        private async void OneSignalCallback(string playerId, string pushToken)
+        {
+            OneSignal.Current.SendTag("username", BasePresenter.User.Login);
+            OneSignal.Current.SendTag("player_id", playerId);
+            if (string.IsNullOrEmpty(BasePresenter.User.PushesPlayerId) || !BasePresenter.User.PushesPlayerId.Equals(playerId))
+            {
+                var model = new PushNotificationsModel(BasePresenter.User.UserInfo, playerId, true)
+                {
+                    Subscriptions = new List<PushSubscription>
+                    {
+                        PushSubscription.Upvote,
+                        PushSubscription.Follow,
+                        PushSubscription.Comment,
+                        PushSubscription.UpvoteComment,
+                        PushSubscription.User,
+                    }
+                };
+                var response = await BasePresenter.TrySubscribeForPushes(model);
+                if (response.IsSuccess)
+                    BasePresenter.User.PushesPlayerId = playerId;
+            }
         }
 
         public async void UpdateProfile()

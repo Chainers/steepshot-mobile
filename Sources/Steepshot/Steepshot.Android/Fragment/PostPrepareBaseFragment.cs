@@ -101,6 +101,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
+            _tag.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9- ]+") });
             _tagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
             _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
             _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
@@ -304,7 +305,6 @@ namespace Steepshot.Fragment
 
         protected bool AddTag(string tag)
         {
-            tag = tag.NormalizeTag();
             tag = tag.Trim();
             if (string.IsNullOrWhiteSpace(tag) || _localTagsAdapter.LocalTags.Count >= 20 || _localTagsAdapter.LocalTags.Any(t => t == tag))
                 return false;
@@ -360,7 +360,6 @@ namespace Steepshot.Fragment
         protected async Task SearchTextChanged()
         {
             var text = _tag.Text;
-            text = text.NormalizeTag();
 
             if (_previousQuery == text || text.Length == 1)
                 return;

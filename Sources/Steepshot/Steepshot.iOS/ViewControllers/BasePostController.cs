@@ -6,6 +6,7 @@ using Foundation;
 using PureLayout.Net;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Localization;
+using Steepshot.Core.Models;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
@@ -16,7 +17,7 @@ using UIKit;
 
 namespace Steepshot.iOS.ViewControllers
 {
-    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter
+    public abstract class BasePostController<T> : BaseViewControllerWithPresenter<T> where T : BasePostPresenter, new()
     {
         private UIView dialog;
         private UIButton rightButton;
@@ -236,24 +237,25 @@ namespace Steepshot.iOS.ViewControllers
         }
 
         protected abstract void SameTabTapped();
-
-        protected void GoBack(object sender, EventArgs e)
-        {
-            NavigationController.PopViewController(true);
-        }
+        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
+        protected abstract void SourceChanged(Status status);
 
         protected async void ScrolledToBottom()
         {
             await GetPosts(false, false);
         }
 
-        protected abstract Task GetPosts(bool shouldStartAnimating = true, bool clearOld = false);
-
         protected void TagAction(string tag)
         {
             var myViewController = new PreSearchViewController();
             myViewController.CurrentPostCategory = tag;
             NavigationController.PushViewController(myViewController, true);
+        }
+
+        protected override void CreatePresenter()
+        {
+            _presenter = new T();
+            _presenter.SourceChanged += SourceChanged;
         }
     }
 }

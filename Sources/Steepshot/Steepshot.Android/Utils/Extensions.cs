@@ -18,14 +18,5 @@ namespace Steepshot.Utils
                 position = 0;
             recyclerView.SmoothScrollToPosition(position);
         }
-
-        public static string GetEnumDescription(this System.Enum value)
-        {
-            var fi = value.GetType().GetField(value.ToString());
-            var attributes = fi.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-            if (attributes.Length > 0)
-                return ((EnumMemberAttribute)attributes[0]).Value;
-            return value.ToString();
-        }
     }
 }

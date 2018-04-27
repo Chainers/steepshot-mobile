@@ -14,6 +14,7 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 using Steepshot.Core.Localization;
+using Com.OneSignal;
 
 namespace Steepshot.iOS.Views
 {
@@ -28,7 +29,7 @@ namespace Steepshot.iOS.Views
             lowRatedSwitch.On = BasePresenter.User.IsLowRated;
 
             versionLabel.Font = Constants.Regular12;
-            reportButton.Font = termsButton.Font = guideButton.Font = lowRatedLabel.Font = nsfwLabel.Font = addAccountButton.TitleLabel.Font = Constants.Semibold14;
+            notificationSettings.Font = reportButton.Font = termsButton.Font = guideButton.Font = lowRatedLabel.Font = nsfwLabel.Font = addAccountButton.TitleLabel.Font = Constants.Semibold14;
             Constants.CreateShadow(addAccountButton, Constants.R231G72B0, 0.5f, 25, 10, 12);
 
             _tableSource = new AccountsTableViewSource();
@@ -46,10 +47,12 @@ namespace Steepshot.iOS.Views
             var forwardImage = new UIImageView();
             var forwardImage2 = new UIImageView();
             var forwardImage3 = new UIImageView();
-            forwardImage2.Image = forwardImage3.Image = forwardImage.Image = UIImage.FromBundle("ic_forward");
+            var forwardImage4 = new UIImageView();
+            forwardImage4.Image = forwardImage2.Image = forwardImage3.Image = forwardImage.Image = UIImage.FromBundle("ic_forward");
             guideButton.AddSubview(forwardImage);
             termsButton.AddSubview(forwardImage2);
             reportButton.AddSubview(forwardImage3);
+            notificationSettings.AddSubview(forwardImage4);
 
             forwardImage.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             forwardImage.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
@@ -60,12 +63,19 @@ namespace Steepshot.iOS.Views
             forwardImage3.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
             forwardImage3.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
 
+            forwardImage4.AutoAlignAxisToSuperviewAxis(ALAxis.Horizontal);
+            forwardImage4.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 0f);
+
             var appInfoService = AppSettings.Container.Resolve<IAppInfo>();
             versionLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.AppVersion2, appInfoService.GetAppVersion(), appInfoService.GetBuildVersion());
 
             reportButton.TouchDown += SendReport;
             termsButton.TouchDown += ShowTos;
             guideButton.TouchDown += ShowGuide;
+            notificationSettings.TouchDown += (object sender, EventArgs e) => 
+            {
+                NavigationController.PushViewController(new NotificationSettingsController(), true);
+            };;
             lowRatedSwitch.ValueChanged += SwitchLowRated;
             nsfwSwitch.ValueChanged += SwitchNSFW;
             SetBackButton();
@@ -198,6 +208,9 @@ namespace Steepshot.iOS.Views
 
         private void RemoveNetwork(UserInfo account)
         {
+            OneSignal.Current.DeleteTag("username");
+            OneSignal.Current.DeleteTag("player_id");
+
             _tableSource.Accounts.Remove(account);
             accountsTable.ReloadData();
             ResizeView();

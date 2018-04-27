@@ -13,6 +13,9 @@ namespace Steepshot.iOS.Views
 	partial class PostViewController
 	{
 		[Outlet]
+		UIKit.UIActivityIndicatorView loader { get; set; }
+
+		[Outlet]
 		UIKit.UIScrollView scrollView { get; set; }
 
 		[Outlet]
@@ -36,6 +39,11 @@ namespace Steepshot.iOS.Views
 			if (scrollViewWidth != null) {
 				scrollViewWidth.Dispose ();
 				scrollViewWidth = null;
+			}
+
+			if (loader != null) {
+				loader.Dispose ();
+				loader = null;
 			}
 		}
 	}
