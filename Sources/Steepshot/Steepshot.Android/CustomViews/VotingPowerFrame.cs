@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
+using Android.OS;
 using Android.Support.V4.Content;
 using Android.Util;
 using Android.Widget;
@@ -45,12 +46,16 @@ namespace Steepshot.CustomViews
         {
             base.OnDraw(canvas);
             if (!Draw) return;
-            var paint = new Paint(PaintFlags.AntiAlias) { Color = Utils.Style.R209G213B216, StrokeWidth = VotingPowerWidth };
-            paint.SetStyle(Paint.Style.Stroke);
-            paint.StrokeCap = Paint.Cap.Round;
-            canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, 360f, false, paint);
-            paint.SetShader(new LinearGradient(0, 0, 0, Height, Utils.Style.R255G121B4, Utils.Style.R255G22B5, Shader.TileMode.Mirror));
-            canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, VotingPower * 3.6f, false, paint);
+
+            if ((int)Build.VERSION.SdkInt >= 21)
+            {
+                var paint = new Paint(PaintFlags.AntiAlias) { Color = Utils.Style.R209G213B216, StrokeWidth = VotingPowerWidth };
+                paint.SetStyle(Paint.Style.Stroke);
+                paint.StrokeCap = Paint.Cap.Round;
+                canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, 360f, false, paint);
+                paint.SetShader(new LinearGradient(0, 0, 0, Height, Utils.Style.R255G121B4, Utils.Style.R255G22B5, Shader.TileMode.Mirror));
+                canvas.DrawArc(VotingPowerWidth, VotingPowerWidth, Width - VotingPowerWidth, Height - VotingPowerWidth, 270f, VotingPower * 3.6f, false, paint);
+            }
         }
     }
 }
