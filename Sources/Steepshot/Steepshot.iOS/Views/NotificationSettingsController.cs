@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using PureLayout.Net;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models.Enums;
@@ -18,6 +19,7 @@ namespace Steepshot.iOS.Views
         private readonly UISwitch _notificationFollowingSwitch = new UISwitch();
         private readonly UISwitch _notificationCommentsSwitch = new UISwitch();
         private readonly UISwitch _notificationPostingSwitch = new UISwitch();
+        private PushSettings PushSettings;
 
         public override void ViewDidLoad()
         {
@@ -25,11 +27,12 @@ namespace Steepshot.iOS.Views
             SetBackButton();
             CreateView();
 
-            _notificationUpvotesSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Upvote);
-            _notificationCommentsUpvotesSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.UpvoteComment);
-            _notificationFollowingSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Follow);
-            _notificationCommentsSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.Comment);
-            _notificationPostingSwitch.On = AppSettings.User.PushSettings.HasFlag(PushSettings.User);
+            PushSettings = AppSettings.User.PushSettings;
+            _notificationUpvotesSwitch.On = PushSettings.HasFlag(PushSettings.Upvote);
+            _notificationCommentsUpvotesSwitch.On = PushSettings.HasFlag(PushSettings.UpvoteComment);
+            _notificationFollowingSwitch.On = PushSettings.HasFlag(PushSettings.Follow);
+            _notificationCommentsSwitch.On = PushSettings.HasFlag(PushSettings.Comment);
+            _notificationPostingSwitch.On = PushSettings.HasFlag(PushSettings.User);
 
             _notificationUpvotesSwitch.ValueChanged += NotificationChange;
             _notificationCommentsUpvotesSwitch.ValueChanged += NotificationChange;
@@ -51,12 +54,6 @@ namespace Steepshot.iOS.Views
             if (!(sender is UISwitch switcher))
                 return;
 
-            _notificationUpvotesSwitch.Enabled = false;
-            _notificationCommentsUpvotesSwitch.Enabled = false;
-            _notificationFollowingSwitch.Enabled = false;
-            _notificationCommentsSwitch.Enabled = false;
-            _notificationPostingSwitch.Enabled = false;
-
             var subscription = PushSettings.None;
 
             if (Equals(sender, _notificationUpvotesSwitch))
@@ -71,33 +68,31 @@ namespace Steepshot.iOS.Views
                 subscription = PushSettings.User;
 
             if (switcher.On)
-                AppSettings.User.PushSettings |= subscription;
+                PushSettings |= subscription;
             else
-                AppSettings.User.PushSettings ^= subscription;
+                PushSettings ^= subscription;
+        }
+
+        private async Task SavePushSettings()
+        {
+            if (AppSettings.User.PushSettings == PushSettings)
+                return;
 
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
             {
-                Subscriptions = AppSettings.User.PushSettings.FlagToStringList()
+                Subscriptions = PushSettings.FlagToStringList()
             };
             var resp = await BasePresenter.TrySubscribeForPushes(model);
-            if (!resp.IsSuccess) //rollback
-            {
-                if (switcher.On)
-                    AppSettings.User.PushSettings ^= subscription;
-                else
-                    AppSettings.User.PushSettings |= subscription;
-
-                switcher.ValueChanged -= NotificationChange;
-                switcher.On = !switcher.On;
-                switcher.ValueChanged += NotificationChange;
+            if (resp.IsSuccess)
+                AppSettings.User.PushSettings = PushSettings;
+            else
                 this.ShowAlert(resp.Error);
-            }
+        }
 
-            _notificationUpvotesSwitch.Enabled = true;
-            _notificationCommentsUpvotesSwitch.Enabled = true;
-            _notificationFollowingSwitch.Enabled = true;
-            _notificationCommentsSwitch.Enabled = true;
-            _notificationPostingSwitch.Enabled = true;
+        public override async void ViewWillDisappear(bool animated)
+        {
+            await SavePushSettings();
+            base.ViewWillDisappear(animated);
         }
 
         protected void GoBack(object sender, EventArgs e)

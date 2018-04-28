@@ -19,6 +19,7 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Steepshot.Core.Models.Requests;
+using System.Threading.Tasks;
 
 namespace Steepshot.Activity
 {
@@ -28,6 +29,7 @@ namespace Steepshot.Activity
         private AccountsAdapter _accountsAdapter;
         private bool _lowRatedChanged;
         private bool _nsfwChanged;
+        private PushSettings PushSettings;
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.add_account)] private Button _addButton;
@@ -119,11 +121,12 @@ namespace Steepshot.Activity
             _nsfwSwitcher.Checked = AppSettings.User.IsNsfw;
             _lowRatedSwitcher.Checked = AppSettings.User.IsLowRated;
 
-            _notificationUpvotesSwitch.Checked = AppSettings.User.PushSettings.HasFlag(PushSettings.Upvote);
-            _notificationCommentsUpvotesSwitch.Checked = AppSettings.User.PushSettings.HasFlag(PushSettings.UpvoteComment);
-            _notificationFollowingSwitch.Checked = AppSettings.User.PushSettings.HasFlag(PushSettings.Follow);
-            _notificationCommentsSwitch.Checked = AppSettings.User.PushSettings.HasFlag(PushSettings.Comment);
-            _notificationPostingSwitch.Checked = AppSettings.User.PushSettings.HasFlag(PushSettings.User);
+            PushSettings = AppSettings.User.PushSettings;
+            _notificationUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.Upvote);
+            _notificationCommentsUpvotesSwitch.Checked = PushSettings.HasFlag(PushSettings.UpvoteComment);
+            _notificationFollowingSwitch.Checked = PushSettings.HasFlag(PushSettings.Follow);
+            _notificationCommentsSwitch.Checked = PushSettings.HasFlag(PushSettings.Comment);
+            _notificationPostingSwitch.Checked = PushSettings.HasFlag(PushSettings.User);
 
             _nsfwSwitcher.CheckedChange += OnNsfwSwitcherOnCheckedChange;
             _lowRatedSwitcher.CheckedChange += OnLowRatedSwitcherOnCheckedChange;
@@ -156,8 +159,9 @@ namespace Steepshot.Activity
             base.OnBackPressed();
         }
 
-        protected override void OnDestroy()
+        protected override async void OnDestroy()
         {
+            await SavePushSettings();
             base.OnDestroy();
             Cheeseknife.Reset(this);
         }
@@ -178,13 +182,7 @@ namespace Steepshot.Activity
         {
             if (!(sender is SwitchCompat switcher))
                 return;
-            
-            _notificationUpvotesSwitch.Enabled = false;
-            _notificationCommentsUpvotesSwitch.Enabled = false;
-            _notificationFollowingSwitch.Enabled = false;
-            _notificationCommentsSwitch.Enabled = false;
-            _notificationPostingSwitch.Enabled = false;
-            
+
             var subscription = PushSettings.None;
 
             if (Equals(sender, _notificationUpvotesSwitch))
@@ -199,33 +197,25 @@ namespace Steepshot.Activity
                 subscription = PushSettings.User;
 
             if (e.IsChecked)
-                AppSettings.User.PushSettings |= subscription;
+                PushSettings |= subscription;
             else
-                AppSettings.User.PushSettings ^= subscription;
+                PushSettings ^= subscription;
+        }
+
+        private async Task SavePushSettings()
+        {
+            if (AppSettings.User.PushSettings == PushSettings)
+                return;
 
             var model = new PushNotificationsModel(AppSettings.User.UserInfo, true)
             {
-                Subscriptions = AppSettings.User.PushSettings.FlagToStringList()
+                Subscriptions = PushSettings.FlagToStringList()
             };
             var resp = await BasePresenter.TrySubscribeForPushes(model);
-            if (!resp.IsSuccess) //rollback
-            {
-                if (e.IsChecked)
-                    AppSettings.User.PushSettings ^= subscription;
-                else
-                    AppSettings.User.PushSettings |= subscription;
-
-                switcher.CheckedChange -= NotificationChange;
-                switcher.Checked = !e.IsChecked;
-                switcher.CheckedChange += NotificationChange;
+            if (resp.IsSuccess)
+                AppSettings.User.PushSettings = PushSettings;
+            else
                 this.ShowAlert(resp.Error);
-            }
-
-            _notificationUpvotesSwitch.Enabled = true;
-            _notificationCommentsUpvotesSwitch.Enabled = true;
-            _notificationFollowingSwitch.Enabled = true;
-            _notificationCommentsSwitch.Enabled = true;
-            _notificationPostingSwitch.Enabled = true;
         }
 
         private void OnAdapterPickAccount(UserInfo userInfo)
