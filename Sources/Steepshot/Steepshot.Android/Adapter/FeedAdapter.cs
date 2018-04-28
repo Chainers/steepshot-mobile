@@ -234,7 +234,7 @@ namespace Steepshot.Adapter
             var isScaleHit = containerRect.Contains((int)Math.Round(ev.RawX), (int)Math.Round(ev.RawY));
             if (isScaleHit)
             {
-                return _likeScaleContainer.DispatchTouchEvent(ev);
+                return _likeScaleContainer.OnTouchEvent(ev);
             }
             if (ev.Action == MotionEventActions.Down)
                 HideScaleBar();
