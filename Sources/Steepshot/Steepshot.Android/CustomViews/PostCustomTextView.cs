@@ -137,7 +137,7 @@ namespace Steepshot.CustomViews
                     _tags[j].Tag = translitTaf;
                     buf = new SpannableString(formatedTag);
                     buf.SetSpan(_tags[j], 0, buf.Length(), SpanTypes.ExclusiveExclusive);
-                    buf.SetSpan(new ForegroundColorSpan(Style.R231G72B00), 0, buf.Length(), 0);
+                    buf.SetSpan(new ForegroundColorSpan(Style.R255G34B5), 0, buf.Length(), 0);
                     builder.Append(buf);
                     j++;
                 }

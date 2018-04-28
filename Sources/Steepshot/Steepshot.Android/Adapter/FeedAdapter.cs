@@ -18,6 +18,7 @@ using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Net;
 using Android.App;
 using Android.Graphics.Drawables;
 using Android.OS;
@@ -187,7 +188,6 @@ namespace Steepshot.Adapter
 
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
-            _likeScale.Click += DoLikeAction;
             _avatar.Click += DoUserAction;
             _author.Click += DoUserAction;
             _cost.Click += DoUserAction;
@@ -208,32 +208,34 @@ namespace Steepshot.Adapter
             {
                 _title.OnMeasureInvoked += OnTitleOnMeasureInvoked;
             }
-            BaseActivity.TouchEvent += TouchEvent;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (BaseActivity.TouchEvent != null)
-                BaseActivity.TouchEvent -= TouchEvent;
+            BaseActivity.TouchEvent -= TouchEvent;
             base.Dispose(disposing);
         }
 
         private void HideScaleBar()
         {
-            if (_likeScaleContainer.Visibility == ViewStates.Visible)
-            {
-                _likeScaleContainer.Visibility = ViewStates.Invisible;
-                _isScalebarOpened = false;
-                _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
-            }
+            BaseActivity.TouchEvent -= TouchEvent;
+            _likeScaleBar.ProgressChanged -= LikeScaleBarOnProgressChanged;
+            _likeScale.Click -= DoLikeAction;
+            _likeScaleContainer.Visibility = ViewStates.Gone;
+            _isScalebarOpened = false;
         }
 
         private bool TouchEvent(MotionEvent ev)
         {
-            if (_likeScaleContainer == null) return false;
+            if (_likeScaleContainer == null || !_isScalebarOpened)
+                return false;
             var containerRect = new Rect();
             _likeScaleContainer.GetGlobalVisibleRect(containerRect);
-            if (containerRect.Contains((int)ev.RawX, (int)ev.RawY)) return true;
+            var isScaleHit = containerRect.Contains((int)Math.Round(ev.RawX), (int)Math.Round(ev.RawY));
+            if (isScaleHit)
+            {
+                return _likeScaleContainer.DispatchTouchEvent(ev);
+            }
             if (ev.Action == MotionEventActions.Down)
                 HideScaleBar();
             return false;
@@ -505,8 +507,10 @@ namespace Steepshot.Adapter
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
             if (!AppSettings.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
+            BaseActivity.TouchEvent += TouchEvent;
             _likeScaleBar.Progress = AppSettings.User.VotePower;
             _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
+            _likeScale.Click += DoLikeAction;
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
             _likeScaleContainer.Visibility = ViewStates.Visible;
             _isScalebarOpened = true;
