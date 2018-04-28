@@ -423,6 +423,7 @@
     <Compile Include="Helpers\CustomWindow.cs" />
     <Compile Include="CustomViews\SearchTextField.cs" />
     <Compile Include="ViewControllers\BasePostController.cs" />
+    <Compile Include="CustomViews\CustomAlertView.cs" />
     <Compile Include="CustomViews\CropView.cs" />
     <Compile Include="Views\NotificationSettingsController.cs" />
   </ItemGroup>
@@ -533,6 +534,7 @@
     <BundleResource Include="Resources\ic_like_disabled%403x.png" />
     <BundleResource Include="Resources\ic_like_active_disabled%402x.png" />
     <BundleResource Include="Resources\ic_like_active_disabled%403x.png" />
+    <BundleResource Include="Resources\Fonts\OpenSans-Bold.ttf" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">

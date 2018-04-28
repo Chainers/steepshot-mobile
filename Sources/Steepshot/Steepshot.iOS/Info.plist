@@ -39,6 +39,7 @@
 		<string>Fonts/OpenSans-Regular.ttf</string>
 		<string>Fonts/OpenSans-Semibold.ttf</string>
 		<string>Fonts/OpenSans-Light.ttf</string>
+		<string>Fonts/OpenSans-Bold.ttf</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
