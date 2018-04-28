@@ -21,9 +21,7 @@ namespace Steepshot.Fragment
     {
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.right_btns_layout)] private LinearLayout _rightButtons;
-        [BindView(Resource.Id.left_btns_layout)] private LinearLayout _leftButtons;
         [BindView(Resource.Id.single_post)] private FrameLayout _container;
-        [BindView(Resource.Id.btn_back)] private ImageButton _backButton;
         [BindView(Resource.Id.close)] private ImageButton _closeButton;
         [BindView(Resource.Id.loading_spinner)] private ProgressBar _loadingBar;
         [BindView(Resource.Id.profile_login)] private TextView _header;
@@ -51,15 +49,10 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
 
-            _rightButtons.Visibility = ViewStates.Gone;
-            _closeButton.Visibility = ViewStates.Gone;
             _container.Visibility = ViewStates.Gone;
-            _leftButtons.Visibility = _backButton.Visibility = _loadingBar.Visibility = ViewStates.Visible;
+            _loadingBar.Visibility = ViewStates.Visible;
 
-            _header.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.SinglePost);
-            _header.Typeface = Style.Semibold;
-
-            _backButton.Click += BackButtonOnClick;
+            _closeButton.Click += BackButtonOnClick;
 
             if (!string.IsNullOrEmpty(_url))
             {
