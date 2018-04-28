@@ -69,11 +69,6 @@ namespace Steepshot.Fragment
                 _adapter.PostAction += PostAction;
                 _adapter.TagAction += TagAction;
 
-                _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(Context, Presenter);
-                _postPagerAdapter.PostAction += PostAction;
-                _postPagerAdapter.TagAction += TagAction;
-                _postPagerAdapter.CloseAction += CloseAction;
-
                 _logo.Click += OnLogoClick;
                 _browseButton.Click += GoToBrowseButtonClick;
                 _toolbar.OffsetChanged += OnToolbarOffsetChanged;
@@ -93,6 +88,12 @@ namespace Steepshot.Fragment
                 _postPager.PageMargin = pagePadding / 2;
                 _postPager.PageScrollStateChanged += PostPagerOnPageScrollStateChanged;
                 _postPager.PageScrolled += PostPagerOnPageScrolled;
+
+                _postPagerAdapter = new PostPagerAdapter<FeedPresenter>(_postPager, Context, Presenter);
+                _postPagerAdapter.PostAction += PostAction;
+                _postPagerAdapter.TagAction += TagAction;
+                _postPagerAdapter.CloseAction += CloseAction;
+
                 _postPager.Adapter = _postPagerAdapter;
                 _postPager.SetPageTransformer(false, _postPagerAdapter, (int)LayerType.None);
 
@@ -139,7 +140,6 @@ namespace Steepshot.Fragment
         {
             if (pageScrollStateChangedEventArgs.State == 0)
             {
-                _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
                 _feedList.ScrollToPosition(_postPager.CurrentItem);
                 if (_feedList.GetLayoutManager() is GridLayoutManager manager)
                 {
@@ -213,7 +213,6 @@ namespace Steepshot.Fragment
         public void OpenPost(Post post)
         {
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            _postPagerAdapter.CurrentItem = _postPager.CurrentItem;
             _postPagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _feedList.Visibility = ViewStates.Gone;
