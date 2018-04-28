@@ -805,7 +805,7 @@ namespace Steepshot.iOS.Views
             postPhotoButton.Enabled = enabled;
             titleTextField.UserInteractionEnabled = enabled;
             descriptionTextField.UserInteractionEnabled = enabled;
-            tagField.Enabled = enabled;
+            tagField.UserInteractionEnabled = enabled;
             tagsCollectionView.UserInteractionEnabled = enabled;
         }
 
