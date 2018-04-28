@@ -89,6 +89,12 @@ namespace Steepshot.iOS.Views
             collectionView.Delegate = _gridDelegate;
             sliderCollection.Delegate = _sliderGridDelegate;
 
+            SliderAction += (isOpening) =>
+            {
+                if (!sliderCollection.Hidden)
+                    sliderCollection.ScrollEnabled = !isOpening;
+            };
+
             if (!AppSettings.User.IsAuthenticated && CurrentPostCategory == null)
             {
                 loginButton.Hidden = false;
@@ -117,7 +123,7 @@ namespace Steepshot.iOS.Views
 
             var searchTap = new UITapGestureRecognizer(SearchTapped);
             searchButton.AddGestureRecognizer(searchTap);
-            if(TabBarController != null)
+            if (TabBarController != null)
                 ((MainTabBarController)TabBarController).SameTabTapped += SameTabTapped;
 
             GetPosts();
@@ -147,7 +153,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                if(DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
+                if (DeviceModel.Model(DeviceHardware.HardwareModel) == "iPhone10,6")
                     sliderCollectionOffset.Constant = 35;
                 NavigationController.SetNavigationBarHidden(true, false);
             }
@@ -205,7 +211,7 @@ namespace Steepshot.iOS.Views
                     NavigationController.PushViewController(myViewController, true);
                     break;
                 case ActionType.Preview:
-                    if(collectionView.Hidden)
+                    if (collectionView.Hidden)
                         //NavigationController.PushViewController(new PostViewController(post, _gridDelegate.Variables[_presenter.IndexOf(post)], _presenter), false);
                         NavigationController.PushViewController(new ImagePreviewViewController(post.Body) { HidesBottomBarWhenPushed = true }, true);
                     else

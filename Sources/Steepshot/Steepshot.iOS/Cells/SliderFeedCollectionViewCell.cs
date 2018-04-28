@@ -47,6 +47,7 @@ namespace Steepshot.iOS.Cells
 
         private UIScrollView _photoScroll;
         private UIScrollView _contentScroll;
+        private UIPageControl _pageControl;
 
         private UIView _topSeparator;
         private TTTAttributedLabel _attributedLabel;
@@ -169,7 +170,18 @@ namespace Steepshot.iOS.Cells
             _photoScroll.ShowsHorizontalScrollIndicator = false;
             _photoScroll.Bounces = false;
             _photoScroll.PagingEnabled = true;
+            _photoScroll.Scrolled += (sender, e) =>
+            {
+                var pageWidth = _photoScroll.Frame.Size.Width;
+                _pageControl.CurrentPage = (int)Math.Floor((_photoScroll.ContentOffset.X - pageWidth / 2) / pageWidth) + 1;
+            };
+            _photoScroll.Layer.CornerRadius = 10;
             _contentScroll.AddSubview(_photoScroll);
+
+            _pageControl = new UIPageControl();
+            _pageControl.Hidden = true;
+            _pageControl.UserInteractionEnabled = false;
+            _contentScroll.AddSubview(_pageControl);
 
             _likes = new UILabel();
             _likes.Font = Constants.Semibold14;
@@ -240,9 +252,9 @@ namespace Steepshot.iOS.Cells
             {
                 LikeTap();
             };
-            BaseViewController.CloseSliderAction += () =>
+            BaseViewController.SliderAction += (isOpening) =>
             {
-                if (_sliderView.Superview != null)
+                if (_sliderView.Superview != null && !isOpening)
                     _sliderView.Close();
             };
 
@@ -338,7 +350,7 @@ namespace Steepshot.iOS.Cells
             _contentScroll.SetContentOffset(new CGPoint(0, 0), false);
 
             _photoScroll.Frame = new CGRect(0, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
-            _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width /* * _currentPost.Media.Length*/, variables.PhotoHeight);
+            _photoScroll.ContentSize = new CGSize(_contentScroll.Frame.Width * _currentPost.Media.Length, variables.PhotoHeight);
             _photoScroll.SetContentOffset(new CGPoint(0, 0), false);
 
             foreach (var subview in _photoScroll.Subviews)
@@ -348,20 +360,19 @@ namespace Steepshot.iOS.Cells
             {
                 _scheduledWorkBody[i]?.Cancel();
             }
-            _scheduledWorkBody = new IScheduledWork[1/*_currentPost.Media.Length*/];
+            _scheduledWorkBody = new IScheduledWork[_currentPost.Media.Length];
 
-            _bodyImage = new UIImageView[1/*_currentPost.Media.Length*/];
-            for (int i = 0; i < 1/*_currentPost.Media.Length*/; i++)
+            _bodyImage = new UIImageView[_currentPost.Media.Length];
+            for (int i = 0; i < _currentPost.Media.Length; i++)
             {
                 _bodyImage[i] = new UIImageView();
-                _bodyImage[i].Layer.CornerRadius = 10;
                 _bodyImage[i].ClipsToBounds = true;
                 _bodyImage[i].UserInteractionEnabled = true;
                 _bodyImage[i].ContentMode = UIViewContentMode.ScaleAspectFill;
                 _bodyImage[i].Frame = new CGRect(_contentScroll.Frame.Width * i, 0, _contentScroll.Frame.Width, variables.PhotoHeight);
                 _photoScroll.AddSubview(_bodyImage[i]);
 
-                _scheduledWorkBody[i] = ImageService.Instance.LoadUrl(_currentPost.Media[0].Url)
+                _scheduledWorkBody[i] = ImageService.Instance.LoadUrl(_currentPost.Media[i].Url)
                                              .Retry(2)
                                              .FadeAnimation(false)
                                              .WithCache(FFImageLoading.Cache.CacheType.All)
@@ -371,6 +382,15 @@ namespace Steepshot.iOS.Cells
                                              //})
                                               .Into(_bodyImage[i]);
             }
+            if (_currentPost.Media.Length > 1)
+            {
+                _pageControl.Hidden = false;
+                _pageControl.Pages = _currentPost.Media.Length;
+                _pageControl.SizeToFit();
+                _pageControl.Frame = new CGRect(new CGPoint(0, _photoScroll.Frame.Bottom - 30), _pageControl.Frame.Size);
+            }
+            else
+                _pageControl.Hidden = true;
 
             if (_currentPost.TopLikersAvatars.Any() && !string.IsNullOrEmpty(_currentPost.TopLikersAvatars[0]))
             {

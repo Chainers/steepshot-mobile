@@ -32,8 +32,21 @@ namespace Steepshot.iOS.ViewControllers
         private static readonly nfloat _alertWidth = 270;
 
         public static bool ShouldProfileUpdate { get; set; }
-        public static Action CloseSliderAction;
-        public static bool IsSliderOpen;
+        public static Action<bool> SliderAction;
+        private static bool _isSliderOpen;
+
+        public static bool IsSliderOpen
+        {
+            get
+            {
+                return _isSliderOpen;
+            }
+            set
+            {
+                SliderAction?.Invoke(value);
+                _isSliderOpen = value;
+            }
+        }
 
         public override void ViewDidAppear(bool animated)
         {

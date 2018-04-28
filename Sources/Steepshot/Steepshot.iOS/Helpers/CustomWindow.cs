@@ -14,7 +14,7 @@ namespace Steepshot.iOS.Helpers
             if (BaseViewController.IsSliderOpen)
             {
                 if (!(hittedView is SliderView || hittedView.Superview is SliderView))
-                    BaseViewController.CloseSliderAction?.Invoke();
+                    BaseViewController.IsSliderOpen = false;
             }
             return hittedView;
         }

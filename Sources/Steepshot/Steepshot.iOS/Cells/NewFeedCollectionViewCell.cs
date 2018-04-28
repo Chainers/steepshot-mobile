@@ -228,9 +228,9 @@ namespace Steepshot.iOS.Cells
             {
                 LikeTap();
             };
-            BaseViewController.CloseSliderAction += () =>
+            BaseViewController.SliderAction += (isSliderOpening) =>
             {
-                if(_sliderView.Superview != null)
+                if(_sliderView.Superview != null && !isSliderOpening)
                     _sliderView.Close();
             };
 
