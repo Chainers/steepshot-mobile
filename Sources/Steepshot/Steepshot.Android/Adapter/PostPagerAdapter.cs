@@ -19,6 +19,7 @@ namespace Steepshot.Adapter
         private const int CachedPagesCount = 5;
         private readonly float _pageOffset;
         private readonly T _presenter;
+        private readonly ViewPager _pager;
         private readonly Context _context;
         private readonly List<PostViewHolder> _viewHolders;
         private int _itemsCount;
@@ -26,10 +27,12 @@ namespace Steepshot.Adapter
         public Action<ActionType, Post> PostAction;
         public Action<string> TagAction;
         public Action CloseAction;
-        public int CurrentItem { get; set; }
 
-        public PostPagerAdapter(Context context, T presenter)
+        public int CurrentItem => _pager.CurrentItem;
+
+        public PostPagerAdapter(ViewPager pager, Context context, T presenter)
         {
+            _pager = pager;
             _context = context;
             _presenter = presenter;
             _viewHolders = new List<PostViewHolder>(_presenter.Count);
@@ -73,8 +76,13 @@ namespace Steepshot.Adapter
         {
             if (_presenter.Count > 0)
             {
-                foreach (var holder in _viewHolders)
-                    holder?.UpdateData();
+                var reusePosition = CurrentItem % CachedPagesCount;
+                for (int i = 0; i < CachedPagesCount; i++)
+                {
+                    var pInd = CurrentItem + (i - reusePosition);
+                    if (pInd < _presenter.Count && _presenter[pInd] != null)
+                        _viewHolders?[i]?.UpdateData(_presenter[pInd], _context);
+                }
 
                 _itemsCount = _presenter.IsLastReaded ? _presenter.Count : _presenter.Count + 1;
                 base.NotifyDataSetChanged();
@@ -157,12 +165,6 @@ namespace Steepshot.Adapter
             postFooter.SetLayerType(LayerType.Hardware, null);
 
             NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
-        }
-
-        public void UpdateData()
-        {
-            if (Post != null)
-                UpdateData(Post, Context);
         }
 
         protected override void SetNsfwMaskLayout()

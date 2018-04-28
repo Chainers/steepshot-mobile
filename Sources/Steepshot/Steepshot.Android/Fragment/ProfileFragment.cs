@@ -67,7 +67,7 @@ namespace Steepshot.Fragment
             {
                 if (_profilePagerAdapter == null)
                 {
-                    _profilePagerAdapter = new PostPagerAdapter<UserProfilePresenter>(Context, Presenter);
+                    _profilePagerAdapter = new PostPagerAdapter<UserProfilePresenter>(_postPager, Context, Presenter);
                     _profilePagerAdapter.PostAction += PostAction;
                     _profilePagerAdapter.TagAction += TagAction;
                     _profilePagerAdapter.CloseAction += CloseAction;
@@ -273,7 +273,6 @@ namespace Steepshot.Fragment
         {
             if (pageScrollStateChangedEventArgs.State == 0)
             {
-                _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
                 _postsList.ScrollToPosition(_postPager.CurrentItem + 1);
                 if (_postsList.GetLayoutManager() is GridLayoutManager manager)
                 {
@@ -296,7 +295,6 @@ namespace Steepshot.Fragment
         public void OpenPost(Post post)
         {
             _postPager.SetCurrentItem(Presenter.IndexOf(post), false);
-            _profilePagerAdapter.CurrentItem = _postPager.CurrentItem;
             _profilePagerAdapter.NotifyDataSetChanged();
             _postPager.Visibility = ViewStates.Visible;
             _postsList.Visibility = ViewStates.Gone;
