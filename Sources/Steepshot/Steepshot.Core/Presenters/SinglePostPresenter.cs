@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Requests;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -14,7 +15,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> LoadPostInfo(string url, CancellationToken ct)
         {
-            var request = new NamedInfoModel(url) { Login = User.Login };
+            var request = new NamedInfoModel(url) { Login = AppSettings.User.Login };
 
             var response = await Api.GetPostInfo(request, ct);
 

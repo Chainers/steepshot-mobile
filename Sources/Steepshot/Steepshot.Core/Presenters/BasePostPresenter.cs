@@ -9,6 +9,7 @@ using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Services;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.Presenters
 {
@@ -34,7 +35,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> DeletePost(Post post, CancellationToken ct)
         {
-            var request = new DeleteModel(User.UserInfo, post);
+            var request = new DeleteModel(AppSettings.User.UserInfo, post);
             var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
@@ -59,7 +60,7 @@ namespace Steepshot.Core.Presenters
 
         private async Task<ErrorBase> DeleteComment(Post post, Post parentPost, CancellationToken ct)
         {
-            var request = new DeleteModel(User.UserInfo, post, parentPost);
+            var request = new DeleteModel(AppSettings.User.UserInfo, post, parentPost);
             var response = await Api.DeletePostOrComment(request, ct);
             if (response.IsSuccess)
             {
@@ -93,10 +94,10 @@ namespace Steepshot.Core.Presenters
 
         public void HidePost(Post post)
         {
-            if (!User.PostBlackList.Contains(post.Url))
+            if (!AppSettings.User.PostBlackList.Contains(post.Url))
             {
-                User.PostBlackList.Add(post.Url);
-                User.Save();
+                AppSettings.User.PostBlackList.Add(post.Url);
+                AppSettings.User.Save();
             }
 
             lock (Items)
@@ -123,7 +124,7 @@ namespace Steepshot.Core.Presenters
 
                         foreach (var item in results)
                         {
-                            if (User.PostBlackList.Contains(item.Url))
+                            if (AppSettings.User.PostBlackList.Contains(item.Url))
                                 continue;
 
                             if (!Items.Any(itm => itm.Url.Equals(item.Url, StringComparison.OrdinalIgnoreCase))
@@ -202,7 +203,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Vote(Post post, CancellationToken ct)
         {
             var wasFlaged = post.Flag;
-            var request = new VoteModel(User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
+            var request = new VoteModel(AppSettings.User.UserInfo, post, post.Vote ? VoteType.Down : VoteType.Up);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)
@@ -256,7 +257,7 @@ namespace Steepshot.Core.Presenters
         private async Task<ErrorBase> Flag(Post post, CancellationToken ct)
         {
             var wasVote = post.Vote;
-            var request = new VoteModel(User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
+            var request = new VoteModel(AppSettings.User.UserInfo, post, post.Flag ? VoteType.Down : VoteType.Flag);
             var response = await Api.Vote(request, ct);
 
             if (response.IsSuccess)

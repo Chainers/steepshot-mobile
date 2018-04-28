@@ -99,7 +99,7 @@ namespace Steepshot.Fragment
 
         private void SetEditPost()
         {
-            _model = new PreparePostModel(BasePresenter.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
+            _model = new PreparePostModel(AppSettings.User.UserInfo, _editPost, AppSettings.AppInfo.GetModel());
             _title.Text = _editPost.Title;
             _title.SetSelection(_editPost.Title.Length);
             _description.Text = _editPost.Description;

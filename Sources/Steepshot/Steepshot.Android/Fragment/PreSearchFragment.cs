@@ -191,7 +191,7 @@ namespace Steepshot.Fragment
             {
                 base.OnViewCreated(view, savedInstanceState);
 
-                if (BasePresenter.User.IsAuthenticated)
+                if (AppSettings.User.IsAuthenticated)
                     _loginButton.Visibility = ViewStates.Gone;
 
                 Presenter.SourceChanged += PresenterSourceChanged;
@@ -230,7 +230,7 @@ namespace Steepshot.Fragment
 
                 _gridItemDecoration = new GridItemDecoration();
 
-                _tabSettings = BasePresenter.User.GetTabSettings(nameof(PreSearchFragment));
+                _tabSettings = AppSettings.User.GetTabSettings(nameof(PreSearchFragment));
                 SwitchListAdapter(_tabSettings.IsGridView);
                 _postsList.AddOnScrollListener(_scrollListner);
 
@@ -392,7 +392,7 @@ namespace Steepshot.Fragment
         private void OnSwitcherClick(object sender, EventArgs e)
         {
             _tabSettings.IsGridView = !(_postsList.GetLayoutManager() is GridLayoutManager);
-            BasePresenter.User.Save();
+            AppSettings.User.Save();
             SwitchListAdapter(_tabSettings.IsGridView);
         }
 
@@ -471,7 +471,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (BasePresenter.User.IsAuthenticated)
+                        if (AppSettings.User.IsAuthenticated)
                         {
                             var error = await Presenter.TryVote(post);
                             if (!IsInitialized)
@@ -505,7 +505,7 @@ namespace Steepshot.Fragment
                     {
                         if (post == null)
                             return;
-                        if (post.Children == 0 && !BasePresenter.User.IsAuthenticated)
+                        if (post.Children == 0 && !AppSettings.User.IsAuthenticated)
                         {
                             OpenLogin();
                             return;
@@ -519,13 +519,13 @@ namespace Steepshot.Fragment
                         if (post == null)
                             return;
 
-                        if (BasePresenter.User.Login != post.Author)
+                        if (AppSettings.User.Login != post.Author)
                             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(post.Author));
                         break;
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);

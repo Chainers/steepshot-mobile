@@ -214,7 +214,7 @@ namespace Steepshot.Fragment
                 fileInputStream = new FileInputStream(photo);
                 stream = new StreamConverter(fileInputStream, null);
 
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, System.IO.Path.GetExtension(path));
+                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, System.IO.Path.GetExtension(path));
                 var serverResult = await Presenter.TryUploadMedia(request);
                 return serverResult;
             }

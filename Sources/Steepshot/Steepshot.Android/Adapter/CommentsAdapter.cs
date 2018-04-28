@@ -224,8 +224,8 @@ namespace Steepshot.Adapter
             _moreActionsDialog = new BottomSheetDialog(_context);
             _moreActionsDialog.Window.RequestFeature(WindowFeatures.NoTitle);
 
-            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
-            _reply.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Gone;
+            _more.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _reply.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Gone;
         }
 
         private async Task LikeSet(bool isFlag)
@@ -295,7 +295,7 @@ namespace Steepshot.Adapter
                 delete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeleteComment);
                 delete.Typeface = Style.Semibold;
 
-                if (_post.Author == BasePresenter.User.Login)
+                if (_post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
                     edit.Visibility = delete.Visibility = _post.CashoutTime < _post.Created ? ViewStates.Gone : ViewStates.Visible;

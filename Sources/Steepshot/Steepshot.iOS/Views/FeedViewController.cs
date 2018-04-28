@@ -12,6 +12,7 @@ using Steepshot.iOS.ViewSources;
 using UIKit;
 using CoreGraphics;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.iOS.Views
 {
@@ -135,7 +136,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;

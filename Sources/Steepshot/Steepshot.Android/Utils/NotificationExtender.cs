@@ -5,6 +5,7 @@ using Com.OneSignal.Android;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Extensions;
+using Steepshot.Core.Utils;
 
 namespace Steepshot.Utils
 {
@@ -22,7 +23,8 @@ namespace Steepshot.Utils
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
             var type = p0.Payload.AdditionalData?.GetString("type");
-            if (type == null || !type.Equals(PushSubscription.User.GetEnumDescription()) || BasePresenter.User.PushSubscriptions.Contains(PushSubscription.User))
+
+            if (type == null || !type.Equals(PushSettings.User.GetEnumDescription()) || AppSettings.User.PushSettings.HasFlag(PushSettings.User))
                 DisplayNotification(overrideSettings);
 
             return false;

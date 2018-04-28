@@ -2,6 +2,7 @@
 using CoreAnimation;
 using CoreGraphics;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewControllers;
 using UIKit;
@@ -57,7 +58,7 @@ namespace Steepshot.iOS.CustomViews
 
             UITapGestureRecognizer likeslidertap = new UITapGestureRecognizer(() =>
             {
-                BasePresenter.User.VotePower = (short)Slider.Value;
+                AppSettings.User.VotePower = (short)Slider.Value;
                 LikeTap?.Invoke();
                 Close();
             });
@@ -67,7 +68,7 @@ namespace Steepshot.iOS.CustomViews
 
         public void Show(UIView parentView)
         {
-            Slider.Value = BasePresenter.User.VotePower;
+            Slider.Value = AppSettings.User.VotePower;
             sliderPercents.Text = $"{(int)(Slider.Value)}%";
             sliderPercents.SizeToFit();
             Frame = new CGRect(Frame.X, Frame.Y + animationLength, Frame.Width, Frame.Height);

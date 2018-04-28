@@ -96,7 +96,7 @@ namespace Steepshot.Fragment
             {
                 case ActionType.Like:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryVote(post);
@@ -134,7 +134,7 @@ namespace Steepshot.Fragment
                     }
                 case ActionType.Flag:
                     {
-                        if (!BasePresenter.User.IsAuthenticated)
+                        if (!AppSettings.User.IsAuthenticated)
                             return;
 
                         var error = await Presenter.TryFlag(post);

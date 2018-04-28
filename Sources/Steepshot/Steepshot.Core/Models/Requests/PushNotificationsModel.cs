@@ -27,7 +27,7 @@ namespace Steepshot.Core.Models.Requests
         public string PlayerId { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public List<PushSubscription> Subscriptions { get; set; }
+        public List<string> Subscriptions { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string WatchedUser { get; set; }

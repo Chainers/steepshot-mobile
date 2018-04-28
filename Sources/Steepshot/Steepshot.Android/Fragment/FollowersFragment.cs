@@ -65,7 +65,7 @@ namespace Steepshot.Fragment
 
             var count = Activity.Intent.GetIntExtra(CountExtra, 0);
             _peopleCount.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PeopleText, count);
-            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? BasePresenter.User.Login;
+            _username = Activity.Intent.GetStringExtra(UsernameExtra) ?? AppSettings.User.Login;
 
             _backButton.Visibility = ViewStates.Visible;
             _backButton.Click += GoBackClick;
@@ -117,7 +117,7 @@ namespace Steepshot.Fragment
         {
             if (userFriend == null)
                 return;
-            if (BasePresenter.User.IsAuthenticated)
+            if (AppSettings.User.IsAuthenticated)
             {
                 var error = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)

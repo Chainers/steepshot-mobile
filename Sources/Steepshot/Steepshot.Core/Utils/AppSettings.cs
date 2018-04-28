@@ -29,7 +29,21 @@ namespace Steepshot.Core.Utils
 
         private static LocalizationManager _localizationManager;
         public static LocalizationManager LocalizationManager => _localizationManager ?? (_localizationManager = Container.Resolve<LocalizationManager>());
-        
+
+
+        private static User _user;
+        public static User User
+        {
+            get
+            {
+                if (_user == null)
+                {
+                    _user = new User();
+                    _user.Load();
+                }
+                return _user;
+            }
+        }
 
         public static bool IsDev
         {

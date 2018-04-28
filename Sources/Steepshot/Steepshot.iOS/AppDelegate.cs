@@ -20,7 +20,7 @@ using Com.OneSignal.iOS;
 namespace Steepshot.iOS
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the
-    // BasePresenter.User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
+    // AppSettings.User Interface of the application, as well as listening (and optionally responding) to application events from iOS.
     [Register("AppDelegate")]
     public class AppDelegate : UIApplicationDelegate
     {
@@ -72,7 +72,7 @@ namespace Steepshot.iOS
             }
 
             Window = new CustomWindow();
-            if (BasePresenter.User.IsAuthenticated)
+            if (AppSettings.User.IsAuthenticated)
                 InitialViewController = new MainTabBarController();
             else
                 InitialViewController = new PreSearchViewController();
@@ -88,13 +88,13 @@ namespace Steepshot.iOS
             var data = result.notification.payload.additionalData["data"].ToString();
             switch (type)
             {
-                case string upvote when upvote.Equals(PushSubscription.Upvote.GetEnumDescription()):
-                case string commentUpvote when commentUpvote.Equals(PushSubscription.UpvoteComment.GetEnumDescription()):
-                case string comment when comment.Equals(PushSubscription.Comment.GetEnumDescription()):
-                case string userPost when userPost.Equals(PushSubscription.User.GetEnumDescription()):
+                case string upvote when upvote.Equals(PushSettings.Upvote.GetEnumDescription()):
+                case string commentUpvote when commentUpvote.Equals(PushSettings.UpvoteComment.GetEnumDescription()):
+                case string comment when comment.Equals(PushSettings.Comment.GetEnumDescription()):
+                case string userPost when userPost.Equals(PushSettings.User.GetEnumDescription()):
                     InitialViewController.NavigationController.PushViewController(new PostViewController(data), false);
                     break;
-                case string follow when follow.Equals(PushSubscription.Follow.GetEnumDescription()):
+                case string follow when follow.Equals(PushSettings.Follow.GetEnumDescription()):
                     InitialViewController.NavigationController.PushViewController(new ProfileViewController() { Username = data}, false);
                     break;
             }
@@ -106,7 +106,7 @@ namespace Steepshot.iOS
             var tabController = Window.RootViewController as UINavigationController;
             Task.Delay(500).ContinueWith(_ => InvokeOnMainThread(() =>
             {
-                if (BasePresenter.User.IsAuthenticated)
+                if (AppSettings.User.IsAuthenticated)
                 {
                     var urlCollection = url.ToString().Replace("steepshot://", string.Empty).Split('%');
                     var nsFileManager = new NSFileManager();
@@ -129,14 +129,14 @@ namespace Steepshot.iOS
         {
             // Invoked when the application is about to move from active to inactive state.
             // This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) 
-            // or when the BasePresenter.User quits the application and it begins the transition to the background state.
+            // or when the AppSettings.User quits the application and it begins the transition to the background state.
             // Games should use this method to pause the game.
         }
 
         public override void DidEnterBackground(UIApplication application)
         {
-            // Use this method to release shared resources, save BasePresenter.User data, invalidate timers and store the application state.
-            // If your application supports background exection this method is called instead of WillTerminate when the BasePresenter.User quits.
+            // Use this method to release shared resources, save AppSettings.User data, invalidate timers and store the application state.
+            // If your application supports background exection this method is called instead of WillTerminate when the AppSettings.User quits.
         }
 
         public override void WillEnterForeground(UIApplication application)
@@ -150,7 +150,7 @@ namespace Steepshot.iOS
         {
             //SharePhoto();
             // Restart any tasks that were paused (or not yet started) while the application was inactive. 
-            // If the application was previously in the background, optionally refresh the BasePresenter.User interface.
+            // If the application was previously in the background, optionally refresh the AppSettings.User interface.
         }
 
         public override void WillTerminate(UIApplication application)

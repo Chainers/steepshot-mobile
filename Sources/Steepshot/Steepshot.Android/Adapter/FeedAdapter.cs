@@ -199,7 +199,7 @@ namespace Steepshot.Adapter
             _nsfwMaskCloseButton.Click += NsfwMaskCloseButtonOnClick;
             _nsfwMaskActionButton.Click += NsfwMaskActionButtonOnClick;
             _more.Click += DoMoreAction;
-            _more.Visibility = BasePresenter.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
+            _more.Visibility = AppSettings.User.IsAuthenticated ? ViewStates.Visible : ViewStates.Invisible;
 
             _title.Click += OnTitleOnClick;
             _title.TagAction += _tagAction;
@@ -295,7 +295,7 @@ namespace Steepshot.Adapter
                 delete.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost);
                 delete.Typeface = Style.Semibold;
 
-                if (Post.Author == BasePresenter.User.Login)
+                if (Post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
                     edit.Visibility = delete.Visibility = Post.CashoutTime < Post.Created ? ViewStates.Gone : ViewStates.Visible;
@@ -489,7 +489,7 @@ namespace Steepshot.Adapter
                 return;
 
             if (_likeScaleContainer.Visibility == ViewStates.Visible)
-                BasePresenter.User.VotePower = (short)_likeScaleBar.Progress;
+                AppSettings.User.VotePower = (short)_likeScaleBar.Progress;
 
             if (Post.Flag)
             {
@@ -504,8 +504,8 @@ namespace Steepshot.Adapter
 
         private void DoLikeScaleAction(object sender, View.LongClickEventArgs longClickEventArgs)
         {
-            if (!BasePresenter.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
-            _likeScaleBar.Progress = BasePresenter.User.VotePower;
+            if (!AppSettings.User.IsAuthenticated || !BasePostPresenter.IsEnableVote || Post.Vote || Post.Flag || _isScalebarOpened) return;
+            _likeScaleBar.Progress = AppSettings.User.VotePower;
             _likeScaleBar.ProgressChanged += LikeScaleBarOnProgressChanged;
             _likeScalePower.Text = $"{_likeScaleBar.Progress}%";
             _likeScaleContainer.Visibility = ViewStates.Visible;

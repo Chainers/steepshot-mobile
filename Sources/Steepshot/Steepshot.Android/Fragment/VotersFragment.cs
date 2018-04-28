@@ -131,7 +131,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (userFriend.Author == BasePresenter.User.Login)
+            if (userFriend.Author == AppSettings.User.Login)
                 return;
 
             ((BaseActivity)Activity).OpenNewContentFragment(new ProfileFragment(userFriend.Author));
@@ -142,7 +142,7 @@ namespace Steepshot.Fragment
             if (userFriend == null)
                 return;
 
-            if (BasePresenter.User.IsAuthenticated)
+            if (AppSettings.User.IsAuthenticated)
             {
                 var error = await Presenter.TryFollow(userFriend);
                 if (!IsInitialized)

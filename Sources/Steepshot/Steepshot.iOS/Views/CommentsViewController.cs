@@ -69,7 +69,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillLayoutSubviews()
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 tableBottomToSuperview.Active = true;
                 tableBottomToCommentView.Active = false;
@@ -110,7 +110,7 @@ namespace Steepshot.iOS.Views
             switch (type)
             {
                 case ActionType.Profile:
-                    if (post.Author == BasePresenter.User.Login)
+                    if (post.Author == AppSettings.User.Login)
                         return;
                     var myViewController = new ProfileViewController();
                     myViewController.Username = post.Author;
@@ -185,7 +185,7 @@ namespace Steepshot.iOS.Views
 
         private async Task Vote(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;
@@ -199,7 +199,7 @@ namespace Steepshot.iOS.Views
 
         public async Task FlagComment(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped();
                 return;

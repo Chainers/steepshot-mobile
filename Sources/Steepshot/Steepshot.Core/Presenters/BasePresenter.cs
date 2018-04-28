@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Cryptography.ECDSA;
 using Steepshot.Core.Authority;
 using Steepshot.Core.Errors;
+using Steepshot.Core.Extensions;
 using Steepshot.Core.HttpClient;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Models.Common;
@@ -28,7 +29,7 @@ namespace Steepshot.Core.Presenters
 
         public static ProfileUpdateType ProfileUpdateType = ProfileUpdateType.None;
         public static event Action<LocalizationKeys> OnAllert;
-        public static readonly User User;
+
 
         public static IConnectionService ConnectionService => _connectionService ?? (_connectionService = AppSettings.ConnectionService);
 
@@ -49,9 +50,8 @@ namespace Steepshot.Core.Presenters
         {
             CtsSync = new object();
             CultureInfo = CultureInfo.InvariantCulture;
-            User = new User();
-            User.Load();
-            Chain = User.Chain;
+
+            Chain = AppSettings.User.Chain;
 
             Api = new SteepshotApiClient();
 
@@ -123,7 +123,7 @@ namespace Steepshot.Core.Presenters
             if (Chain == userInfo.Chain)
                 return;
 
-            User.SwitchUser(userInfo);
+            AppSettings.User.SwitchUser(userInfo);
 
             Chain = userInfo.Chain;
 
@@ -168,14 +168,7 @@ namespace Steepshot.Core.Presenters
 
         public static async Task<OperationResult<object>> TrySubscribeForPushes(PushNotificationsModel model)
         {
-            var response = await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
-            if (response.IsSuccess)
-            {
-                if (model.Subscriptions != null)
-                    User.UserInfo.PushSubscriptions = model.Subscriptions;
-            }
-
-            return response;
+            return await TryRunTask<PushNotificationsModel, object>(Api.SubscribeForPushes, CancellationToken.None, model);
         }
 
 

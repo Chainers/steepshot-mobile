@@ -5,6 +5,7 @@ using Foundation;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.Core.Utils;
 using UIKit;
 using Constants = Steepshot.iOS.Helpers.Constants;
 
@@ -89,7 +90,7 @@ namespace Steepshot.iOS.Cells
 
         private void DecorateFollowButton()
         {
-            if(!BasePresenter.User.IsAuthenticated || _currentUser.Author == BasePresenter.User.Login)
+            if(!AppSettings.User.IsAuthenticated || _currentUser.Author == AppSettings.User.Login)
             {
                 followButton.Hidden = true;
                 return;

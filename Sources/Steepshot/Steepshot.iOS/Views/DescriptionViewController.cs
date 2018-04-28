@@ -498,7 +498,7 @@ namespace Steepshot.iOS.Views
                 else
                     stream = byteArray.AsStream();
 
-                var request = new UploadMediaModel(BasePresenter.User.UserInfo, stream, ImageExtension);
+                var request = new UploadMediaModel(AppSettings.User.UserInfo, stream, ImageExtension);
                 return await _presenter.TryUploadMedia(request);
             }
             catch (Exception ex)
@@ -550,7 +550,7 @@ namespace Steepshot.iOS.Views
 
             try
             {
-                var username = BasePresenter.User.Login;
+                var username = AppSettings.User.Login;
                 var spamCheck = await _presenter.TryCheckForSpam(username);
 
                 if (!spamCheck.IsSuccess)
@@ -680,7 +680,7 @@ namespace Steepshot.iOS.Views
                     if (shouldReturn)
                         return;
 
-                    var model = new PreparePostModel(BasePresenter.User.UserInfo, AppSettings.AppInfo.GetModel())
+                    var model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
                     {
                         Title = title,
                         Description = description,

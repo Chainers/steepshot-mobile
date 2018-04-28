@@ -17,7 +17,7 @@ namespace Steepshot.iOS.ViewControllers
     {
         protected async void Vote(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
@@ -47,7 +47,7 @@ namespace Steepshot.iOS.ViewControllers
             if (actions != null)
                 foreach (var action in actions)
                     actionSheetAlert.AddAction(action);
-            if (post.Author == BasePresenter.User.Login)
+            if (post.Author == AppSettings.User.Login)
             {
                 //for edit and delete
                 //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
@@ -66,15 +66,15 @@ namespace Steepshot.iOS.ViewControllers
 
         protected void HidePhoto(Post post)
         {
-            BasePresenter.User.PostBlackList.Add(post.Url);
-            BasePresenter.User.Save();
+            AppSettings.User.PostBlackList.Add(post.Url);
+            AppSettings.User.Save();
 
             _presenter.HidePost(post);
         }
 
         protected async Task FlagPhoto(Post post)
         {
-            if (!BasePresenter.User.IsAuthenticated)
+            if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped(null, null);
                 return;
