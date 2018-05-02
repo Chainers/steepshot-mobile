@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.Hardware;
 using Android.Locations;
 using Android.Media;
@@ -514,24 +515,35 @@ namespace Steepshot.Fragment
         {
             string[] projection = {
                 MediaStore.Images.ImageColumns.Id,
-                MediaStore.Images.ImageColumns.Data,
-                MediaStore.Images.ImageColumns.BucketDisplayName,
-                MediaStore.Images.ImageColumns.DateTaken,
-                MediaStore.Images.ImageColumns.MimeType
+                MediaStore.Images.ImageColumns.Data
             };
             var cursor = Context.ContentResolver
                 .Query(MediaStore.Images.Media.ExternalContentUri, projection, null, null, MediaStore.Images.ImageColumns.DateTaken + " DESC");
 
-            if (cursor.MoveToFirst())
+            if (cursor != null && cursor.Count > 0)
             {
-                var imageLocation = cursor.GetString(1);
-                var imageFile = new Java.IO.File(imageLocation);
-                if (imageFile.Exists())
+                var idInd = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Id);
+                var pathInd = cursor.GetColumnIndex(MediaStore.Images.ImageColumns.Data);
+
+                while (cursor.MoveToNext())
                 {
-                    var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(imageFile.Path, 300, 300);
-                    bitmap = BitmapUtils.RotateImageIfRequired(bitmap, imageFile.Path);
-                    _galleryIcon.SetImageBitmap(bitmap);
+                    var imageId = cursor.GetLong(idInd);
+                    var imageLocation = cursor.GetString(pathInd);
+                    var imageFile = new Java.IO.File(imageLocation);
+                    if (imageFile.Exists())
+                    {
+                        using (var bitmap = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, imageId,
+                            ThumbnailKind.MicroKind, null))
+                        {
+                            _galleryIcon.SetImageBitmap(bitmap);
+                        }
+                        break;
+                    }
                 }
+            }
+            else
+            {
+                _galleryIcon.SetImageDrawable(new ColorDrawable(Style.R245G245B245));
             }
         }
 
