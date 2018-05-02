@@ -22,10 +22,8 @@ namespace Steepshot.Utils
         {
             _result = p0;
             var overrideSettings = new OverrideSettings { Extender = this };
-            var type = p0.Payload.AdditionalData?.GetString("type");
 
-            if (type == null || !type.Equals(PushSettings.User.GetEnumDescription()) || AppSettings.User.PushSettings.HasFlag(PushSettings.User))
-                DisplayNotification(overrideSettings);
+            DisplayNotification(overrideSettings);
 
             return false;
         }

@@ -161,8 +161,8 @@ namespace Steepshot.Activity
 
         protected override async void OnDestroy()
         {
-            await SavePushSettings();
             base.OnDestroy();
+            await SavePushSettings();
             Cheeseknife.Reset(this);
         }
 
@@ -178,9 +178,9 @@ namespace Steepshot.Activity
             _nsfwChanged = !_nsfwChanged;
         }
 
-        private async void NotificationChange(object sender, CompoundButton.CheckedChangeEventArgs e)
+        private void NotificationChange(object sender, CompoundButton.CheckedChangeEventArgs e)
         {
-            if (!(sender is SwitchCompat switcher))
+            if (!(sender is SwitchCompat))
                 return;
 
             var subscription = PushSettings.None;
