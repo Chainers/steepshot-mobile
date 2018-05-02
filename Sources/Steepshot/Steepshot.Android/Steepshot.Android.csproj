@@ -66,6 +66,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />
     <Compile Include="Utils\TextInputFilter.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Interfaces\IClearable.cs" />
     <Compile Include="Fragment\CommentsFragment.cs" />
     <Compile Include="Services\GAService.cs" />
+    <Compile Include="Utils\ViewUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
