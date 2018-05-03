@@ -12,16 +12,14 @@ using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Support.Design.Widget;
-using Android.Support.V4.View;
 using Refractored.Controls;
 using Steepshot.Core.Extensions;
 using Steepshot.Core.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Net;
 using Android.App;
 using Android.Graphics.Drawables;
-using Android.OS;
+using Android.Support.V4.View;
 using Steepshot.Base;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models.Enums;
@@ -90,7 +88,7 @@ namespace Steepshot.Adapter
         private static bool _isScalebarOpened;
         private readonly Action<ActionType, Post> _postAction;
         private readonly Action<string> _tagAction;
-        private readonly ViewPager _photosViewPager;
+        protected readonly ViewPager PhotosViewPager;
         private readonly TabLayout _pagerTabLayout;
         private readonly ImageView _avatar;
         private readonly TextView _author;
@@ -133,9 +131,9 @@ namespace Steepshot.Adapter
             _avatar = itemView.FindViewById<CircleImageView>(Resource.Id.profile_image);
             _author = itemView.FindViewById<TextView>(Resource.Id.author_name);
             itemView.FindViewById<ImageView>(Resource.Id.gallery);
-            _photosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
+            PhotosViewPager = itemView.FindViewById<ViewPager>(Resource.Id.post_photos_pager);
             _pagerTabLayout = ItemView.FindViewById<TabLayout>(Resource.Id.dot_selector);
-            _pagerTabLayout.SetupWithViewPager(_photosViewPager, true);
+            _pagerTabLayout.SetupWithViewPager(PhotosViewPager, true);
 
             _title = itemView.FindViewById<PostCustomTextView>(Resource.Id.first_comment);
             _commentSubtitle = itemView.FindViewById<TextView>(Resource.Id.comment_subtitle);
@@ -168,11 +166,11 @@ namespace Steepshot.Adapter
             _nsfwMaskMessage.Typeface = Style.Light;
             NsfwMaskSubMessage.Typeface = Style.Light;
 
-            var parameters = _photosViewPager.LayoutParameters;
+            var parameters = PhotosViewPager.LayoutParameters;
             parameters.Height = height;
 
-            _photosViewPager.LayoutParameters = parameters;
-            _photosViewPager.Adapter = new PostPhotosPagerAdapter(Context, _photosViewPager.LayoutParameters, post =>
+            PhotosViewPager.LayoutParameters = parameters;
+            PhotosViewPager.Adapter = new PostPhotosPagerAdapter(Context, PhotosViewPager.LayoutParameters, post =>
             {
                 HideScaleBar();
                 postAction.Invoke(PhotoPagerType == PostPagerType.Feed ? ActionType.Photo : ActionType.Preview, post);
@@ -232,9 +230,10 @@ namespace Steepshot.Adapter
             var containerRect = new Rect();
             _likeScaleContainer.GetGlobalVisibleRect(containerRect);
             var isScaleHit = containerRect.Contains((int)Math.Round(ev.RawX), (int)Math.Round(ev.RawY));
-            if (isScaleHit)
+            if (isScaleHit || ev.Action == MotionEventActions.Move)
             {
-                return _likeScaleContainer.OnTouchEvent(ev);
+                if (_likeScaleContainer.ToLocalTouchEvent(ev) && _likeScaleContainer.DispatchTouchEvent(ev))
+                    return true;
             }
             if (ev.Action == MotionEventActions.Down)
                 HideScaleBar();
@@ -553,7 +552,7 @@ namespace Steepshot.Adapter
             else
                 Picasso.With(context).Load(Resource.Drawable.ic_holder).Into(_avatar);
 
-            ((PostPhotosPagerAdapter)_photosViewPager.Adapter).UpdateData(PhotoPagerType, Post);
+            ((PostPhotosPagerAdapter)PhotosViewPager.Adapter).UpdateData(Post);
 
             _topLikers.RemoveAllViews();
             var topLikersSize = (int)BitmapUtils.DpToPixel(24, Context.Resources);
@@ -664,11 +663,10 @@ namespace Steepshot.Adapter
         class PostPhotosPagerAdapter : Android.Support.V4.View.PagerAdapter
         {
             private const int CachedPagesCount = 5;
-            private readonly List<CardView> _photoHolders;
+            private readonly List<ImageView> _photoHolders;
             private readonly Context _context;
             private readonly ViewGroup.LayoutParams _layoutParams;
             private readonly Action<Post> _photoAction;
-            private PostPagerType _type;
             private Post _post;
             private MediaModel _photo; //TODO:KOA: Already contained in _post
 
@@ -677,21 +675,19 @@ namespace Steepshot.Adapter
                 _context = context;
                 _layoutParams = layoutParams;
                 _photoAction = photoAction;
-                _photoHolders = new List<CardView>(Enumerable.Repeat<CardView>(null, CachedPagesCount));
+                _photoHolders = new List<ImageView>(Enumerable.Repeat<ImageView>(null, CachedPagesCount));
             }
 
-            public void UpdateData(PostPagerType type, Post post)
+            public void UpdateData(Post post)
             {
-                _type = type;
                 _post = post;
                 NotifyDataSetChanged();
             }
 
-            private void LoadPhoto(MediaModel mediaModel, CardView photoCard)
+            private void LoadPhoto(MediaModel mediaModel, ImageView photo)
             {
                 if (mediaModel != null)
                 {
-                    var photo = (ImageView)photoCard.GetChildAt(0);
                     var url = mediaModel.Thumbnails.Mini;
                     Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade()
                         .Resize(_context.Resources.DisplayMetrics.WidthPixels, 0).Priority(Picasso.Priority.High)
@@ -700,15 +696,9 @@ namespace Steepshot.Adapter
                             Picasso.With(_context).Load(url).Placeholder(new ColorDrawable(Style.R245G245B245)).NoFade().Priority(Picasso.Priority.High).Into(photo);
                         });
 
-                    if (_type == PostPagerType.PostScreen)
-                    {
-                        photoCard.Radius = (int)BitmapUtils.DpToPixel(7, _context.Resources);
-                    }
-
                     var size = new Size { Height = mediaModel.Size.Height / Style.Density, Width = mediaModel.Size.Width / Style.Density };
                     var height = (int)(OptimalPhotoSize.Get(size, Style.ScreenWidthInDp, 130, Style.MaxPostHeight) * Style.Density);
-                    photoCard.LayoutParameters.Height = height;
-                    ((View)photoCard.Parent).LayoutParameters.Height = height;
+                    ((View)photo.Parent).LayoutParameters.Height = height;
                     photo.LayoutParameters.Height = height;
                 }
             }
@@ -718,15 +708,11 @@ namespace Steepshot.Adapter
                 var reusePosition = position % CachedPagesCount;
                 if (_photoHolders[reusePosition] == null)
                 {
-                    var photoCard = new CardView(_context) { LayoutParameters = _layoutParams };
-                    if (Build.VERSION.SdkInt >= Build.VERSION_CODES.Lollipop)
-                        photoCard.Elevation = 0;
                     var photo = new ImageView(_context) { LayoutParameters = _layoutParams };
                     photo.SetImageDrawable(null);
                     photo.SetScaleType(ImageView.ScaleType.CenterCrop);
                     photo.Click += PhotoOnClick;
-                    photoCard.AddView(photo);
-                    _photoHolders[reusePosition] = photoCard;
+                    _photoHolders[reusePosition] = photo;
                 }
                 container.AddView(_photoHolders[reusePosition]);
                 LoadPhoto(_post.Media[position], _photoHolders[reusePosition]);

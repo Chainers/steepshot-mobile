@@ -8,6 +8,7 @@ using Android.Widget;
 using Steepshot.Core.Models.Common;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Presenters;
+using Steepshot.CustomViews;
 using Steepshot.Utils;
 using Object = Java.Lang.Object;
 
@@ -76,12 +77,10 @@ namespace Steepshot.Adapter
         {
             if (_presenter.Count > 0)
             {
-                var reusePosition = CurrentItem % CachedPagesCount;
-                for (int i = 0; i < CachedPagesCount; i++)
+                for (int i = CurrentItem - 2; i <= CurrentItem + 2; i++)
                 {
-                    var pInd = CurrentItem + (i - reusePosition);
-                    if (pInd < _presenter.Count && _presenter[pInd] != null)
-                        _viewHolders?[i]?.UpdateData(_presenter[pInd], _context);
+                    if (i < 0 || i == _presenter.Count) continue;
+                    _viewHolders?[i % CachedPagesCount]?.UpdateData(_presenter[i], _context);
                 }
 
                 _itemsCount = _presenter.IsLastReaded ? _presenter.Count : _presenter.Count + 1;
@@ -100,7 +99,10 @@ namespace Steepshot.Adapter
                     pos += _pageOffset;
                     continue;
                 }
-                TransformPage(_viewHolders[i % CachedPagesCount]?.ItemView, pos);
+
+                var itemView = _viewHolders[i % CachedPagesCount]?.ItemView;
+                if (itemView != null)
+                    TransformPage(_viewHolders[i % CachedPagesCount].ItemView, pos + _pageOffset / itemView.Width);
                 pos += _pageOffset;
             }
         }
@@ -134,7 +136,7 @@ namespace Steepshot.Adapter
             var positionOffset = _pageOffset / pageWidth;
 
             var postHeader = page.FindViewById<RelativeLayout>(Resource.Id.title);
-            var postFooter = page.FindViewById<RelativeLayout>(Resource.Id.subtitle);
+            var postFooter = page.FindViewById<LinearLayout>(Resource.Id.footer);
             if (position == 1 + positionOffset * 1.5)
             {
                 postHeader.TranslationX = _pageOffset;
@@ -142,7 +144,7 @@ namespace Steepshot.Adapter
             }
             else
             {
-                var translation = (int)(position * _pageOffset);
+                var translation = (int)((position - positionOffset) * _pageOffset);
                 postHeader.TranslationX = translation;
                 postFooter.TranslationX = translation;
             }
@@ -160,9 +162,11 @@ namespace Steepshot.Adapter
             closeButton.Click += CloseButtonOnClick;
 
             var postHeader = itemView.FindViewById<RelativeLayout>(Resource.Id.title);
-            var postFooter = itemView.FindViewById<RelativeLayout>(Resource.Id.subtitle);
+            var postFooter = itemView.FindViewById<LinearLayout>(Resource.Id.footer);
             postHeader.SetLayerType(LayerType.Hardware, null);
             postFooter.SetLayerType(LayerType.Hardware, null);
+
+            ((MediaPager)PhotosViewPager).Radius = (int)BitmapUtils.DpToPixel(10, Context.Resources);
 
             NsfwMask.ViewTreeObserver.GlobalLayout += ViewTreeObserverOnGlobalLayout;
         }

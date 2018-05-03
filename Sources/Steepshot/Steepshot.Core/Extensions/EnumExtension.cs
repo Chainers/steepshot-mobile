@@ -23,10 +23,17 @@ namespace Steepshot.Core.Extensions
         {
             var list = new List<string>();
             var type = value.GetType();
-            var names = value.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var name in names)
+            var allFields = type.GetFields();
+
+            foreach (var field in allFields)
             {
-                var field = type.GetRuntimeField(name.Trim());
+                if (!field.IsStatic)
+                    continue;
+
+                var en = Enum.Parse(type, field.Name) as Enum;
+                if (!value.HasFlag(en))
+                    continue;
+
                 if (field.GetCustomAttribute(typeof(EnumMemberAttribute), false) is EnumMemberAttribute attribute)
                     list.Add(attribute.Value);
             }
