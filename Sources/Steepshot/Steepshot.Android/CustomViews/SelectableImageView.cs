@@ -14,8 +14,6 @@ namespace Steepshot.CustomViews
     {
         private GalleryMediaModel _model;
         private CancellationTokenSource _cts;
-        private CancellationTokenSource Cts =>
-             _cts == null || _cts.IsCancellationRequested ? _cts = new CancellationTokenSource() : _cts;
         private readonly Handler _handler = new Handler(Looper.MainLooper);
         private Paint _selectionPaint;
         private Paint _whitePaint;
@@ -28,7 +26,6 @@ namespace Steepshot.CustomViews
         {
             Clickable = true;
             SetScaleType(ScaleType.CenterCrop);
-            _cts = new CancellationTokenSource();
         }
 
 
@@ -69,24 +66,39 @@ namespace Steepshot.CustomViews
             if (_model != null)
             {
                 _model.ModelChanged -= ModelChanged;
-                Cts.Cancel();
                 (Drawable as BitmapDrawable)?.Bitmap?.Recycle();
                 SetImageDrawable(new ColorDrawable(Style.R245G245B245));
             }
 
             _model = model;
             _model.ModelChanged += ModelChanged;
-
-            LoadThumbnail(_model, Cts.Token);
+            LoadThumbnail(_model);
         }
 
-        private void LoadThumbnail(GalleryMediaModel model, CancellationToken token) => Task.Run(() =>
+        private void LoadThumbnail(GalleryMediaModel model)
         {
-            var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id,
-                ThumbnailKind.MiniKind, null);
+            if (_cts != null && !_cts.IsCancellationRequested)
+                _cts.Cancel();
 
-            _handler.Post(() => SetImageBitmap(thumbnail));
-        }, token);
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
+
+            Task.Run(() =>
+            {
+                if (token.IsCancellationRequested)
+                    return;
+
+                var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, null);
+
+                if (token.IsCancellationRequested)
+                {
+                    thumbnail.Recycle();
+                    return;
+                }
+
+                _handler.Post(() => SetImageBitmap(thumbnail));
+            }, token);
+        }
 
         private void ModelChanged()
         {
