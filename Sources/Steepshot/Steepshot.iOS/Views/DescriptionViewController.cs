@@ -31,31 +31,45 @@ namespace Steepshot.iOS.Views
         private const int _photoSize = 900; //kb
         private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
-        private LocalTagsCollectionViewFlowDelegate _collectionViewDelegate;
-        private LocalTagsCollectionViewSource _collectionviewSource;
         private List<Tuple<NSDictionary, UIImage>> ImageAssets;
         private nfloat _separatorMargin = 30;
+        private nfloat photoViewSide;
+        private int photoMargin;
 
         private string ImageExtension;
         private bool _isSpammer;
-        public bool _isFromCamera => ImageAssets.Count == 1 && ImageAssets[0].Item1 == null;
 
-        private UICollectionView photoCollection;
-        private UIImageView photoView;
+        private UIScrollView mainScroll;
         private CropView _cropView;
-        private UITextView titleTextField;
         private UIImageView titleEditImage;
-        private UITextView descriptionTextField;
         private UIImageView descriptionEditImage;
         private UILabel tagField;
         private UIImageView hashtagImage;
-        private UICollectionView tagsCollectionView;
         private UIButton postPhotoButton;
         private UIActivityIndicatorView loadingView;
         private NSLayoutConstraint tagsCollectionHeight;
-        private bool _isinitialized;
         private UIImageView _rotateButton;
         private UIImageView _resizeButton;
+		private bool _isinitialized;
+
+        protected Post post;
+        protected PreparePostModel model;
+        protected LocalTagsCollectionViewFlowDelegate collectionViewDelegate;
+        protected LocalTagsCollectionViewSource collectionviewSource;
+
+        protected UILabel titlePlaceholderLabel;
+        protected UILabel descriptionPlaceholderLabel;
+        protected UITextView titleTextField;
+        protected UITextView descriptionTextField;
+        protected UICollectionView tagsCollectionView;
+        protected UICollectionView photoCollection;
+        protected UIImageView photoView;
+        protected bool editMode;
+
+        public bool _isFromCamera => ImageAssets?.Count == 1 && ImageAssets[0]?.Item1 == null;
+
+
+        public DescriptionViewController() { }
 
         public DescriptionViewController(List<Tuple<NSDictionary, UIImage>> imageAssets, string extension, UIDeviceOrientation rotation = UIDeviceOrientation.Portrait)
         {
@@ -68,6 +82,8 @@ namespace Steepshot.iOS.Views
         {
             base.ViewDidLoad();
 
+            SetupMainScroll();
+
             tagsCollectionView = new UICollectionView(CGRect.Null, new LeftAlignedCollectionViewFlowLayout());
             tagsCollectionView.ScrollEnabled = false;
 
@@ -75,10 +91,10 @@ namespace Steepshot.iOS.Views
 
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
-            _collectionviewSource = new LocalTagsCollectionViewSource();
-            _collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(_collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
-            tagsCollectionView.Source = _collectionviewSource;
-            tagsCollectionView.Delegate = _collectionViewDelegate;
+            collectionviewSource = new LocalTagsCollectionViewSource();
+            collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
+            tagsCollectionView.Source = collectionviewSource;
+            tagsCollectionView.Delegate = collectionViewDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
             var tap = new UITapGestureRecognizer(RemoveFocusFromTextFields);
@@ -86,7 +102,9 @@ namespace Steepshot.iOS.Views
 
             SetBackButton();
             SetPlaceholder();
-            CheckOnSpam();
+
+            if (!editMode)
+                CheckOnSpam();
         }
 
         protected override void KeyBoardUpNotification(NSNotification notification)
@@ -106,77 +124,35 @@ namespace Steepshot.iOS.Views
             View.LayoutSubviews();
         }
 
+        private void SetupMainScroll()
+        { 
+            mainScroll = new UIScrollView();
+            mainScroll.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
+            mainScroll.BackgroundColor = UIColor.White;
+
+            mainScroll.ShowsVerticalScrollIndicator = true;
+            mainScroll.ScrollEnabled = true;
+            mainScroll.Bounces = true;
+
+            mainScroll.DelaysContentTouches = true;
+            mainScroll.CanCancelContentTouches = true;
+            mainScroll.ContentMode = UIViewContentMode.ScaleToFill;
+            mainScroll.UserInteractionEnabled = true;
+
+            mainScroll.Opaque = true;
+            mainScroll.ClipsToBounds = true;
+
+            View.AddSubview(mainScroll);
+
+            mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Top);
+            mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Bottom);
+            mainScroll.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+        }
+
         private void CreateView()
         {
-            if (ImageAssets.Count == 1)
-            {
-                photoView = new UIImageView();
-                photoView.Layer.CornerRadius = 8;
-                photoView.ClipsToBounds = true;
-                photoView.UserInteractionEnabled = true;
-                photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
-                mainScroll.AddSubview(photoView);
-
-                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
-                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
-                photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
-                photoView.AutoMatchDimension(ALDimension.Height, ALDimension.Width, photoView);
-                var photoMargin = 15;
-                var photoViewSide = UIScreen.MainScreen.Bounds.Width - photoMargin * 2;
-                photoView.AutoSetDimension(ALDimension.Width, photoViewSide);
-
-                if (!_isFromCamera)
-                    photoView.Image = ImageAssets[0].Item2;
-                else
-                {
-                    _cropView = new CropView(new CGRect(0, 0, photoViewSide, photoViewSide));
-                    photoView.AddSubview(_cropView);
-
-                    _resizeButton = new UIImageView();
-                    _resizeButton.Image = UIImage.FromBundle("ic_resize");
-                    _resizeButton.UserInteractionEnabled = true;
-                    mainScroll.AddSubview(_resizeButton);
-                    _resizeButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoView, 15f);
-                    _resizeButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
-
-                    _rotateButton = new UIImageView();
-                    _rotateButton.Image = UIImage.FromBundle("ic_rotate");
-                    _rotateButton.UserInteractionEnabled = true;
-                    mainScroll.AddSubview(_rotateButton);
-                    _rotateButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, _resizeButton, 15f);
-                    _rotateButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
-
-                    var rotateTap = new UITapGestureRecognizer(RotateTap);
-                    _rotateButton.AddGestureRecognizer(rotateTap);
-
-                    var zoomTap = new UITapGestureRecognizer(ZoomTap);
-                    _resizeButton.AddGestureRecognizer(zoomTap);
-                }
-            }
-            else
-            {
-                photoCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
-                {
-                    ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                    ItemSize = new CGSize(160, 160),
-                    SectionInset = new UIEdgeInsets(0, 15, 0, 15),
-                    MinimumInteritemSpacing = 10,
-                });
-                mainScroll.AddSubview(photoCollection);
-
-                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
-                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 30f);
-                photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-                photoCollection.AutoSetDimension(ALDimension.Height, 160f);
-                photoCollection.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width);
-
-                photoCollection.Bounces = false;
-                photoCollection.ShowsHorizontalScrollIndicator = false;
-                photoCollection.RegisterClassForCell(typeof(PhotoGalleryCell), nameof(PhotoGalleryCell));
-                var galleryCollectionViewSource = new PhotoGalleryViewSource(ImageAssets);
-                photoCollection.Source = galleryCollectionViewSource;
-                photoCollection.BackgroundColor = UIColor.White;
-            }
+            SetImage();
 
             var photoTitleSeparator = new UIView();
             photoTitleSeparator.BackgroundColor = Constants.R245G245B245;
@@ -239,10 +215,12 @@ namespace Steepshot.iOS.Views
             mainScroll.AddSubview(postPhotoButton);
             mainScroll.AddSubview(loadingView);
 
-            if (ImageAssets.Count == 1)
+            // TODO : remove unnesessary
+            if ((!editMode && ImageAssets.Count == 1) || (editMode && photoView != null))
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 30f);
-            else
+            else if ((!editMode && ImageAssets.Count != 1) || (editMode && photoCollection != null))
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 30f);
+
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
@@ -302,18 +280,105 @@ namespace Steepshot.iOS.Views
             loadingView.AutoAlignAxis(ALAxis.Vertical, postPhotoButton);
         }
 
+        protected virtual void SetImage()
+        {
+            if (ImageAssets.Count == 1)
+            {
+                SetupPhoto();
+
+                if (!_isFromCamera)
+                    photoView.Image = ImageAssets[0].Item2;
+                else
+                {
+                    _cropView = new CropView(new CGRect(0, 0, photoViewSide, photoViewSide));
+                    photoView.AddSubview(_cropView);
+
+                    _resizeButton = new UIImageView();
+                    _resizeButton.Image = UIImage.FromBundle("ic_resize");
+                    _resizeButton.UserInteractionEnabled = true;
+                    mainScroll.AddSubview(_resizeButton);
+                    _resizeButton.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoView, 15f);
+                    _resizeButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
+
+                    _rotateButton = new UIImageView();
+                    _rotateButton.Image = UIImage.FromBundle("ic_rotate");
+                    _rotateButton.UserInteractionEnabled = true;
+                    mainScroll.AddSubview(_rotateButton);
+                    _rotateButton.AutoPinEdge(ALEdge.Left, ALEdge.Right, _resizeButton, 15f);
+                    _rotateButton.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, photoView, -15f);
+
+                    var rotateTap = new UITapGestureRecognizer(RotateTap);
+                    _rotateButton.AddGestureRecognizer(rotateTap);
+
+                    var zoomTap = new UITapGestureRecognizer(ZoomTap);
+                    _resizeButton.AddGestureRecognizer(zoomTap);
+                }
+            }
+            else
+            {
+                SetupPhotoCollection();
+
+                var galleryCollectionViewSource = new PhotoGalleryViewSource(ImageAssets);
+                photoCollection.Source = galleryCollectionViewSource;
+                photoCollection.BackgroundColor = UIColor.White;
+            }
+        }
+
+        protected void SetupPhoto()
+        {
+            photoView = new UIImageView();
+            photoView.Layer.CornerRadius = 8;
+            photoView.ClipsToBounds = true;
+            photoView.UserInteractionEnabled = true;
+            photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
+
+            mainScroll.AddSubview(photoView);
+
+            photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+            photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
+            photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
+            photoView.AutoMatchDimension(ALDimension.Height, ALDimension.Width, photoView);
+            photoMargin = 15;
+            photoViewSide = UIScreen.MainScreen.Bounds.Width - photoMargin * 2;
+            photoView.AutoSetDimension(ALDimension.Width, photoViewSide);
+        }
+
+        protected void SetupPhotoCollection()
+        {
+            photoCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
+            {
+                ScrollDirection = UICollectionViewScrollDirection.Horizontal,
+                ItemSize = new CGSize(160, 160),
+                SectionInset = new UIEdgeInsets(0, 15, 0, 15),
+                MinimumInteritemSpacing = 10,
+            });
+            photoCollection.BackgroundColor = UIColor.White;
+
+            mainScroll.AddSubview(photoCollection);
+
+            photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
+            photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 30f);
+            photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
+            photoCollection.AutoSetDimension(ALDimension.Height, 160f);
+            photoCollection.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width);
+
+            photoCollection.Bounces = false;
+            photoCollection.ShowsHorizontalScrollIndicator = false;
+            photoCollection.RegisterClassForCell(typeof(PhotoGalleryCell), nameof(PhotoGalleryCell));
+        }
+
         private void OpenTagPicker()
         {
             NavigationItem.RightBarButtonItem = null;
             KeyBoardDownNotification(null);
-            NavigationController.PushViewController(new TagsPickerViewController(_collectionviewSource, _collectionViewDelegate), true);
+            NavigationController.PushViewController(new TagsPickerViewController(collectionviewSource, collectionViewDelegate), true);
         }
 
         public override void ViewWillAppear(bool animated)
         {
             base.ViewWillAppear(animated);
 
-            _collectionviewSource.CellAction += CollectionCellAction;
+            collectionviewSource.CellAction += CollectionCellAction;
 
             if (!IsMovingToParentViewController)
             {
@@ -324,7 +389,7 @@ namespace Steepshot.iOS.Views
 
         public override void ViewWillDisappear(bool animated)
         {
-            _collectionviewSource.CellAction -= CollectionCellAction;
+            collectionviewSource.CellAction -= CollectionCellAction;
             base.ViewWillDisappear(animated);
         }
 
@@ -352,7 +417,7 @@ namespace Steepshot.iOS.Views
                 Activeview = titleTextField;
             };
 
-            var titlePlaceholderLabel = new UILabel();
+            titlePlaceholderLabel = new UILabel();
             titlePlaceholderLabel.Text = "Enter a title of your photo";
             titlePlaceholderLabel.SizeToFit();
             titlePlaceholderLabel.Font = Constants.Regular14;
@@ -376,7 +441,7 @@ namespace Steepshot.iOS.Views
             };
             descriptionTextField.Delegate = _descriptionTextViewDelegate;
 
-            var descriptionPlaceholderLabel = new UILabel();
+            descriptionPlaceholderLabel = new UILabel();
             descriptionPlaceholderLabel.Text = "Enter a description of your photo";
             descriptionPlaceholderLabel.SizeToFit();
             descriptionPlaceholderLabel.Font = Constants.Regular14;
@@ -409,8 +474,8 @@ namespace Steepshot.iOS.Views
 
         private void RemoveTag(string tag)
         {
-            _collectionviewSource.LocalTags.Remove(tag);
-            _collectionViewDelegate.GenerateVariables();
+            collectionviewSource.LocalTags.Remove(tag);
+            collectionViewDelegate.GenerateVariables();
             tagsCollectionView.ReloadData();
             ResizeView();
         }
@@ -426,7 +491,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        private void ResizeView()
+        protected void ResizeView()
         {
             tagsCollectionView.LayoutIfNeeded();
             var collectionContentSize = tagsCollectionView.ContentSize;
@@ -613,13 +678,19 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
+            RemoveFocusFromTextFields();
+
+            OnPostAsync();
+        }
+
+        private async void OnPostAsync()
+        {
             await CheckOnSpam();
 
             if (_isSpammer)
                 return;
 
             ToggleAvailability(false);
-            RemoveFocusFromTextFields();
 
             if (_isFromCamera)
             {
@@ -640,55 +711,66 @@ namespace Steepshot.iOS.Views
                     {
                         title = titleTextField.Text;
                         description = descriptionTextField.Text;
-                        tags = _collectionviewSource.LocalTags;
+                        tags = collectionviewSource.LocalTags;
                     });
 
                     var mre = new ManualResetEvent(false);
 
-                    var shouldReturn = false;
-                    var photoUploadRetry = false;
-                    OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
-                    do
+                    if (!editMode)
                     {
-                        photoUploadRetry = false;
-                        for (int i = 0; i < ImageAssets.Count; i++)
+                        var shouldReturn = false;
+                        var photoUploadRetry = false;
+                        OperationResult<MediaModel>[] photoUploadResponse = new OperationResult<MediaModel>[ImageAssets.Count];
+                        do
                         {
-                            photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
-                        }
-
-                        if (photoUploadResponse.Any(r => r.IsSuccess == false))
-                        {
-                            InvokeOnMainThread(() =>
+                            photoUploadRetry = false;
+                            for (int i = 0; i < ImageAssets.Count; i++)
                             {
-                                //Remake this
-                                ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                photoUploadResponse[i] = UploadPhoto(ImageAssets[i].Item2, ImageAssets[i].Item1).Result;
+                            }
+
+                            if (photoUploadResponse.Any(r => r.IsSuccess == false))
+                            {
+                                InvokeOnMainThread(() =>
                                 {
-                                    shouldReturn = true;
-                                    mre.Set();
-                                }, (arg) =>
-                                {
-                                    photoUploadRetry = true;
-                                    mre.Set();
+                                    //Remake this
+                                    ShowDialog(photoUploadResponse[0].Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
+                                        {
+                                            shouldReturn = true;
+                                            mre.Set();
+                                        }, (arg) =>
+                                        {
+                                            photoUploadRetry = true;
+                                            mre.Set();
+                                        });
                                 });
-                            });
 
-                            mre.Reset();
-                            mre.WaitOne();
-                        }
-                    } while (photoUploadRetry);
+                                mre.Reset();
+                                mre.WaitOne();
+                            }
+                        } while (photoUploadRetry);
 
-                    if (shouldReturn)
-                        return;
+                        if (shouldReturn)
+                            return;
 
-                    var model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
-                    {
-                        Title = title,
-                        Description = description,
-                        Device = "iOS",
+                        model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel())
+                        {
+                            Title = title,
+                            Description = description,
+                            Device = "iOS",
 
-                        Tags = tags.ToArray(),
-                        Media = photoUploadResponse.Select(r => r.Result).ToArray(),
-                    };
+                            Tags = tags.ToArray(),
+                            Media = photoUploadResponse.Select(r => r.Result).ToArray(),
+                        };
+                    }
+                    else
+                    { 
+                        model.Title = title;
+                        model.Description = description;
+                        model.Device = "iOS";
+                        model.Tags = tags.ToArray();
+                        model.Media = post.Media;
+                    }
 
                     var pushToBlockchainRetry = false;
                     do
@@ -700,13 +782,13 @@ namespace Steepshot.iOS.Views
                             InvokeOnMainThread(() =>
                             {
                                 ShowDialog(response.Error, LocalizationKeys.Cancel, LocalizationKeys.Retry, (arg) =>
-                                 {
-                                     mre.Set();
-                                 }, (arg) =>
-                                 {
-                                     pushToBlockchainRetry = true;
-                                     mre.Set();
-                                 });
+                                {
+                                    mre.Set();
+                                }, (arg) =>
+                                {
+                                    pushToBlockchainRetry = true;
+                                    mre.Set();
+                                });
                             });
 
                             mre.Reset();
@@ -789,7 +871,7 @@ namespace Steepshot.iOS.Views
             _cropView.ApplyCriticalScale();
         }
 
-        private void ToggleAvailability(bool enabled)
+        protected void ToggleAvailability(bool enabled)
         {
             if (enabled)
                 loadingView.StopAnimating();
