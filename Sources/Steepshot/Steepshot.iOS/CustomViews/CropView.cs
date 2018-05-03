@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreAnimation;
 using CoreGraphics;
 using Steepshot.iOS.Helpers;
 using Steepshot.iOS.ViewSources;
@@ -11,6 +12,10 @@ namespace Steepshot.iOS.CustomViews
         public CGSize originalImageSize;
         public UIImageView imageView;
         public UIImageOrientation orientation = UIImageOrientation.Up;
+        private UIBezierPath _path;
+        private CAShapeLayer _shapeLayer = new CAShapeLayer();
+        private readonly UIColor _strokeColor = UIColor.FromRGB(210, 210, 210);
+        private const int _linesCount = 9;
 
         public CropView(CGRect _frame)
         {
@@ -28,7 +33,17 @@ namespace Steepshot.iOS.CustomViews
             DidZoom += (t, u) =>
             {
                 SetScrollViewInsets();
+                DrawGrid();
             };
+
+            Scrolled += (object sender, EventArgs e) =>
+            {
+                DrawGrid();
+            };
+
+            BouncesZoom = false;
+            _shapeLayer.LineWidth = 1;
+            Layer.AddSublayer(_shapeLayer);
         }
 
         public void AdjustImageViewSize(UIImage img)
@@ -238,6 +253,52 @@ namespace Steepshot.iOS.CustomViews
             cropped = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
             return cropped;
+        }
+
+        private void DrawGrid()
+        {
+            var size = new CGRect()
+            {
+                Width = ContentSize.Width > Frame.Width ? Frame.Width : ContentSize.Width,
+                Height = ContentSize.Height > Frame.Width ? Frame.Width : ContentSize.Height,
+                X = ContentOffset.X < 0 ? 0 : ContentOffset.X,
+                Y = ContentOffset.Y < 0 ? 0 : ContentOffset.Y,
+            };
+
+            var gridHeight = size.Height / (_linesCount + 1);
+            var gridWidth = size.Width / (_linesCount + 1);
+
+            _path = UIBezierPath.Create();
+            _path.LineWidth = 1;
+
+            for (int i = 1; i < _linesCount + 1; i++)
+            {
+                var start = new CGPoint(x: i * gridWidth + size.X, y: size.Y);
+                var end = new CGPoint(x: i * gridWidth + size.X, y: size.Height + size.Y);
+                _path.MoveTo(start);
+                _path.AddLineTo(end);
+            }
+
+            for (int i = 1; i < _linesCount + 1; i++)
+            {
+                var start = new CGPoint(x: size.X, y: i * gridHeight + size.Y);
+                var end = new CGPoint(x: size.Width + size.X, y: i * gridHeight + size.Y);
+                _path.MoveTo(start);
+                _path.AddLineTo(end);
+            }
+            _shapeLayer.RemoveAllAnimations();
+            _shapeLayer.StrokeColor = _strokeColor.ColorWithAlpha(0.15f).CGColor;
+
+            var animation = CABasicAnimation.FromKeyPath("strokeColor");
+            animation.BeginTime = CAAnimation.CurrentMediaTime() + 0.2; //delay
+            animation.Duration = 0.2;
+            animation.SetTo(_strokeColor.ColorWithAlpha(0).CGColor);
+            animation.RemovedOnCompletion = false;
+            animation.FillMode = CAFillMode.Forwards;
+
+            _shapeLayer.AddAnimation(animation, "flashStrokeColor");
+            _shapeLayer.Path = _path.CGPath;
+            _path.ClosePath();
         }
     }
 }

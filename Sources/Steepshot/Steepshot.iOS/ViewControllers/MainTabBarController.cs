@@ -71,6 +71,7 @@ namespace Steepshot.iOS.ViewControllers
             _avatar.Layer.CornerRadius = _avatar.Frame.Width / 2;
             _avatar.ClipsToBounds = true;
             _avatar.Image = UIImage.FromBundle("ic_noavatar");
+            _avatar.ContentMode = UIViewContentMode.ScaleAspectFill;
 
             _presenter = new UserProfilePresenter() { UserName = AppSettings.User.Login };
 
@@ -119,7 +120,7 @@ namespace Steepshot.iOS.ViewControllers
                     ImageService.Instance.LoadUrl(_presenter.UserProfileResponse.ProfileImage, TimeSpan.FromDays(30))
                                              .FadeAnimation(false, false, 0)
                                              .DownSample(width: (int)100)
-                                .Into(_avatar);
+                                             .Into(_avatar);
                     break;
                 }
                 await Task.Delay(5000);
