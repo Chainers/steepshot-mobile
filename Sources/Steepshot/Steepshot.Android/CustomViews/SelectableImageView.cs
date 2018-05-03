@@ -3,16 +3,20 @@ using Android.Graphics;
 using Android.Provider;
 using Android.Widget;
 using Steepshot.Utils;
-using System.Collections.Generic;
-using Android.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Android.Graphics.Drawables;
+using Android.OS;
 
 namespace Steepshot.CustomViews
 {
     public sealed class SelectableImageView : ImageView
     {
-        private static readonly object Synk = new object();
-        private static Dictionary<long, string> _thumbnails;
         private GalleryMediaModel _model;
+        private CancellationTokenSource _cts;
+        private CancellationTokenSource Cts =>
+             _cts == null || _cts.IsCancellationRequested ? _cts = new CancellationTokenSource() : _cts;
+        private readonly Handler _handler = new Handler(Looper.MainLooper);
         private Paint _selectionPaint;
         private Paint _whitePaint;
 
@@ -24,17 +28,7 @@ namespace Steepshot.CustomViews
         {
             Clickable = true;
             SetScaleType(ScaleType.CenterCrop);
-
-            if (_thumbnails == null)
-            {
-                lock (Synk)
-                {
-                    if (_thumbnails == null)
-                    {
-                        _thumbnails = BitmapUtils.GetMediaThumbnailsPaths(Context.ContentResolver, ThumbnailKind.MiniKind);
-                    }
-                }
-            }
+            _cts = new CancellationTokenSource();
         }
 
 
@@ -73,30 +67,26 @@ namespace Steepshot.CustomViews
         public void Bind(GalleryMediaModel model)
         {
             if (_model != null)
+            {
                 _model.ModelChanged -= ModelChanged;
+                Cts.Cancel();
+                (Drawable as BitmapDrawable)?.Bitmap?.Recycle();
+                SetImageDrawable(new ColorDrawable(Style.R245G245B245));
+            }
 
             _model = model;
             _model.ModelChanged += ModelChanged;
 
-            if (_thumbnails.ContainsKey(model.Id))
-            {
-                var path = _thumbnails[model.Id];
-                SetImageURI(Uri.Parse(path));
-                return;
-            }
-
-            var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, null);
-            SetImageBitmap(thumbnail);
-
-            var cursor = MediaStore.Images.Thumbnails.QueryMiniThumbnail(Context.ContentResolver, model.Id, ThumbnailKind.MiniKind, new[] { MediaStore.Images.Thumbnails.Data });
-            if (cursor != null && cursor.Count > 0)
-            {
-                cursor.MoveToFirst();
-                var thumbUri = cursor.GetString(0);
-                _thumbnails.Add(model.Id, thumbUri);
-                cursor.Close();
-            }
+            LoadThumbnail(_model, Cts.Token);
         }
+
+        private void LoadThumbnail(GalleryMediaModel model, CancellationToken token) => Task.Run(() =>
+        {
+            var thumbnail = MediaStore.Images.Thumbnails.GetThumbnail(Context.ContentResolver, model.Id,
+                ThumbnailKind.MiniKind, null);
+
+            _handler.Post(() => SetImageBitmap(thumbnail));
+        }, token);
 
         private void ModelChanged()
         {
