@@ -119,14 +119,20 @@ namespace Steepshot.Utils
             return new BitmapDrawable(view.Context.Resources, bitmap);
         }
 
-        public static string GetRealPathFromURI(Uri contentUri, Context context)
+        public static string GetRealPathFromUri(Uri contentUri, Context context)
         {
             var proj = new[] { MediaStore.Images.ImageColumns.Data };
             var cursor = context.ContentResolver.Query(contentUri, proj, null, null, null);
-            var index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
-            cursor.MoveToFirst();
 
-            return cursor.GetString(index);
+            if (cursor != null && cursor.Count > 0)
+            {
+                var index = cursor.GetColumnIndexOrThrow(MediaStore.Images.ImageColumns.Data);
+                cursor.MoveToFirst();
+
+                return cursor.GetString(index);
+            }
+
+            return contentUri.Path;
         }
 
 

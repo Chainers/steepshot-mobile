@@ -50,7 +50,7 @@ namespace Steepshot.Activity
                             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
                             var galleryModel = new GalleryMediaModel
                             {
-                                Path = BitmapUtils.GetRealPathFromURI(uri, this)
+                                Path = BitmapUtils.GetRealPathFromUri(uri, this)
                             };
                             CurrentHostFragment = HostFragment.NewInstance(new PostCreateFragment(galleryModel));
                             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);
