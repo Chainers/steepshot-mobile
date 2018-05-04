@@ -99,7 +99,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
-            //_tag.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9- ]+") });
+            _tag.SetFilters(new IInputFilter[] { new TextInputFilter(TextInputFilter.TagFilter) });
             _tagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
             _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
             _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
