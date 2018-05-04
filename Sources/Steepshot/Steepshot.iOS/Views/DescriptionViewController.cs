@@ -215,10 +215,9 @@ namespace Steepshot.iOS.Views
             mainScroll.AddSubview(postPhotoButton);
             mainScroll.AddSubview(loadingView);
 
-            // TODO : remove unnesessary
-            if ((!editMode && ImageAssets.Count == 1) || (editMode && photoView != null))
+            if (photoView != null)
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 30f);
-            else if ((!editMode && ImageAssets.Count != 1) || (editMode && photoCollection != null))
+            else
                 photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 30f);
 
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
@@ -685,10 +684,13 @@ namespace Steepshot.iOS.Views
 
         private async void OnPostAsync()
         {
-            await CheckOnSpam();
+            if (!editMode)
+            {
+                await CheckOnSpam();
 
-            if (_isSpammer)
-                return;
+                if (_isSpammer)
+                    return;
+            }
 
             ToggleAvailability(false);
 
