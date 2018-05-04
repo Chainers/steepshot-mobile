@@ -199,7 +199,7 @@ namespace Steepshot.Fragment
 
             _feedContainer.Visibility = ViewStates.Invisible;
 
-            if (Presenter.Count == 0)
+            if (error == null && Presenter.Count == 0)
             {
                 _feedContainer.Visibility = ViewStates.Visible;
             }

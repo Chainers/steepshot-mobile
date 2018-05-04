@@ -6,11 +6,13 @@
     android:background="@android:color/white">
     <ImageButton
         android:id="@+id/arrow_back"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="5dp"
+        android:scaleType="centerInside"
+        android:padding="12dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_back_arrow" />
     <Spinner
@@ -22,11 +24,13 @@
         android:layout_marginLeft="20dp" />
     <ImageButton
         android:id="@+id/arrow_next"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="10dp"
+        android:scaleType="centerInside"
+        android:padding="12dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_next_arrow" />
 </RelativeLayout>
