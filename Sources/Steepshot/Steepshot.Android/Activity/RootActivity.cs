@@ -66,7 +66,7 @@ namespace Steepshot.Activity
             OneSignal.Current.SendTag("username", AppSettings.User.Login);
             OneSignal.Current.SendTag("player_id", playerId);
 
-            if (string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
+            if (AppSettings.User.IsFirstRun || string.IsNullOrEmpty(AppSettings.User.PushesPlayerId) || !AppSettings.User.PushesPlayerId.Equals(playerId))
             {
                 var model = new PushNotificationsModel(AppSettings.User.UserInfo, playerId, true)
                 {

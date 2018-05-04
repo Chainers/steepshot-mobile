@@ -103,6 +103,23 @@ namespace Steepshot.Core.Authority
             }
         }
 
+        public bool IsFirstRun
+        {
+            get
+            {
+                var res = UserInfo.IsFirstRun;
+                if (res)
+                    IsFirstRun = false;
+                return res;
+            }
+            set
+            {
+                UserInfo.IsFirstRun = value;
+                if (IsAuthenticated)
+                    _data.Update(UserInfo);
+            }
+        }
+
         public string Login => UserInfo.Login;
 
         public KnownChains Chain => UserInfo.Chain;

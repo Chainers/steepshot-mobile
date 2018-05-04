@@ -41,6 +41,8 @@ namespace Steepshot.Core.Authority
         public List<string> WatchedUsers { get; set; } = new List<string>();
 
         public string PushesPlayerId { get; set; } = string.Empty;
+
+        public bool IsFirstRun { get; set; } = true;
     }
 
     public sealed class Navigation
