@@ -79,7 +79,7 @@ namespace Steepshot.Fragment
 
             base.OnViewCreated(view, savedInstanceState);
             _searchView.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.SearchHint);
-            _searchView.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9-]+") });
+            //_searchView.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9-]+") });
             _tagsButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Tag);
             _peopleButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Users);
             _clearButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Clear);

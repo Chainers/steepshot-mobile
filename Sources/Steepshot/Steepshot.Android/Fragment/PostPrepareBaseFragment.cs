@@ -11,12 +11,10 @@ using Android.Views;
 using Android.Widget;
 using Apmem;
 using CheeseBind;
-using Cryptography.ECDSA;
 using Steepshot.Activity;
 using Steepshot.Adapter;
 using Steepshot.Base;
 using Steepshot.Core.Errors;
-using Steepshot.Core.Extensions;
 using Steepshot.Core.Facades;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Models;
@@ -101,7 +99,7 @@ namespace Steepshot.Fragment
             base.OnViewCreated(view, savedInstanceState);
 
             _tag.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
-            _tag.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9- ]+") });
+            //_tag.SetFilters(new IInputFilter[] { new TextInputFilter(@"[a-zа-я0-9- ]+") });
             _tagLabel.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.Hashtag);
             _title.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostTitle);
             _description.Hint = AppSettings.LocalizationManager.GetText(LocalizationKeys.EnterPostDescription);
