@@ -63,10 +63,19 @@ namespace Steepshot.iOS.ViewControllers
             CloseKeyboardToken = NSNotificationCenter.DefaultCenter.AddObserver
             (UIKeyboard.WillHideNotification, KeyBoardDownNotification);
             if (TabBarController != null)
+            {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction += WillEnterForeground;
+                ((MainTabBarController)TabBarController).SameTabTapped += OnSameTabTapped;
+            }
 
             Services.GAService.Instance.TrackAppPage(GetType().Name);
         }
+
+        private void OnSameTabTapped()
+        {
+            NavigationController?.PopToRootViewController(true);
+        }
+
 
         public void WillEnterForeground()
         {
@@ -76,7 +85,11 @@ namespace Steepshot.iOS.ViewControllers
         public override void ViewDidDisappear(bool animated)
         {
             if (TabBarController != null)
+            {
                 ((MainTabBarController)TabBarController).WillEnterForegroundAction -= WillEnterForeground;
+                ((MainTabBarController)TabBarController).SameTabTapped -= OnSameTabTapped;
+            }
+
             if (ShowKeyboardToken != null)
             {
                 NSNotificationCenter.DefaultCenter.RemoveObservers(new[] { CloseKeyboardToken, ShowKeyboardToken, ForegroundToken });
