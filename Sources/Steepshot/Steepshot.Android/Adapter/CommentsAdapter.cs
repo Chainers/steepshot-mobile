@@ -498,6 +498,9 @@ namespace Steepshot.Adapter
             else
                 _cost.Visibility = ViewStates.Gone;
             _time.Text = post.Created.ToPostTime();
+
+            if (post.Author == AppSettings.User.Login)
+                _more.Visibility = post.CashoutTime < post.Created ? ViewStates.Gone : ViewStates.Visible;
         }
 
         private void OnSuccess()
