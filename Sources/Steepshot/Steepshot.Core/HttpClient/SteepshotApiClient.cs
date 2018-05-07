@@ -14,7 +14,7 @@ namespace Steepshot.Core.HttpClient
 {
     public class SteepshotApiClient : BaseServerClient
     {
-        private readonly Dictionary<string, Beneficiary[]> _beneficiariesCash;
+        private readonly Dictionary<KnownChains, Beneficiary[]> _beneficiariesCash;
         private readonly object _synk;
 
         private CancellationTokenSource _ctsMain;
@@ -24,7 +24,7 @@ namespace Steepshot.Core.HttpClient
         {
             Gateway = new ApiGateway();
             JsonConverter = new JsonNetConverter();
-            _beneficiariesCash = new Dictionary<string, Beneficiary[]>();
+            _beneficiariesCash = new Dictionary<KnownChains, Beneficiary[]>();
             _synk = new object();
         }
 
@@ -112,7 +112,7 @@ namespace Steepshot.Core.HttpClient
 
             if (!model.IsEditMode)
             {
-                var bKey = $"{_ditchClient.GetType()}";
+                var bKey = _ditchClient.Chain;
                 if (_beneficiariesCash.ContainsKey(bKey))
                 {
                     model.Beneficiaries = _beneficiariesCash[bKey];

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Ditch.Core.Errors;
@@ -18,13 +17,17 @@ namespace Steepshot.Core.HttpClient
 {
     internal abstract class BaseDitchClient
     {
-        private readonly Regex _errorMsg = new Regex(@"(?<=[\w\s\(\)&|\.<>=]+:\s+)[a-z\s0-9.]*", RegexOptions.IgnoreCase);
         protected readonly JsonNetConverter JsonConverter;
         protected readonly object SyncConnection;
 
+
         public volatile bool EnableWrite;
 
+
+        public abstract KnownChains Chain { get; }
+
         public abstract bool IsConnected { get; }
+
 
         protected BaseDitchClient(JsonNetConverter jsonConverter)
         {

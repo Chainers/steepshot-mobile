@@ -15,11 +15,9 @@ using DitchBeneficiary = Ditch.Steem.Models.Operations.Beneficiary;
 using Ditch.Core;
 using Ditch.Core.JsonRpc;
 using Ditch.Steem.Models.ApiObj;
-using Ditch.Steem.Models.Objects;
 using Steepshot.Core.Errors;
 using Steepshot.Core.Models.Enums;
 using Steepshot.Core.Localization;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 
 namespace Steepshot.Core.HttpClient
@@ -28,7 +26,10 @@ namespace Steepshot.Core.HttpClient
     {
         private readonly OperationManager _operationManager;
 
+
         public override bool IsConnected => _operationManager.IsConnected;
+
+        public override KnownChains Chain => KnownChains.Steem;
 
         public SteemClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {

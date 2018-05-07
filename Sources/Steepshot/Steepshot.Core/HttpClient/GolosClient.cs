@@ -26,7 +26,11 @@ namespace Steepshot.Core.HttpClient
         private double GbgKof = 2.4645;//TODO: get value from server
         private readonly OperationManager _operationManager;
 
+
         public override bool IsConnected => _operationManager.IsConnected;
+
+        public override KnownChains Chain => KnownChains.Golos;
+
 
         public GolosClient(JsonNetConverter jsonConverter) : base(jsonConverter)
         {
