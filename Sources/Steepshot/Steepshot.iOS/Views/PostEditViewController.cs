@@ -13,6 +13,8 @@ using Steepshot.Core.Models.Requests;
 using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Core.Localization;
+using System;
+
 namespace Steepshot.iOS.Views
 {
     public class PostEditViewController : DescriptionViewController
@@ -31,6 +33,11 @@ namespace Steepshot.iOS.Views
             SetupFields();
 
             model = new PreparePostModel(AppSettings.User.UserInfo, post, AppSettings.AppInfo.GetModel());
+        }
+
+        protected override void GetPostSize()
+        {
+            GetPostSize(post.Media[0].Size.Width, post.Media[0].Size.Height, post.Media.Count());
         }
 
         protected override void SetImage()

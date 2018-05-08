@@ -10,7 +10,6 @@ using UIKit;
 using CoreGraphics;
 using System.Threading.Tasks;
 using Constants = Steepshot.iOS.Helpers.Constants;
-using Steepshot.Core.Models;
 using System.Threading;
 using Steepshot.iOS.Helpers;
 using Steepshot.Core.Models.Common;
@@ -32,9 +31,9 @@ namespace Steepshot.iOS.Views
         private TimeSpan PostingLimit;
         private UIDeviceOrientation _rotation;
         private List<Tuple<NSDictionary, UIImage>> ImageAssets;
-        private nfloat _separatorMargin = 30;
+        protected nfloat _separatorMargin = 30;
         private nfloat photoViewSide;
-        private int photoMargin;
+        protected int photoMargin;
 
         private string ImageExtension;
         private bool _isSpammer;
@@ -50,7 +49,10 @@ namespace Steepshot.iOS.Views
         private NSLayoutConstraint tagsCollectionHeight;
         private UIImageView _rotateButton;
         private UIImageView _resizeButton;
-		private bool _isinitialized;
+        private bool _isinitialized;
+        protected CGSize _cellSize;
+        protected const int cellSide = 160;
+        protected const int sectionInset = 15;
 
         protected Post post;
         protected PreparePostModel model;
@@ -127,7 +129,6 @@ namespace Steepshot.iOS.Views
         private void SetupMainScroll()
         { 
             mainScroll = new UIScrollView();
-            mainScroll.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
             mainScroll.BackgroundColor = UIColor.White;
 
             mainScroll.ShowsVerticalScrollIndicator = true;
@@ -152,6 +153,7 @@ namespace Steepshot.iOS.Views
 
         private void CreateView()
         {
+            GetPostSize();
             SetImage();
 
             var photoTitleSeparator = new UIView();
@@ -216,13 +218,14 @@ namespace Steepshot.iOS.Views
             mainScroll.AddSubview(loadingView);
 
             if (photoView != null)
-                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 30f);
+                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoView, 15f);
             else
-                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 30f);
+                photoTitleSeparator.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoCollection, 15f);
 
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Left, _separatorMargin);
             photoTitleSeparator.AutoPinEdgeToSuperviewEdge(ALEdge.Right, _separatorMargin);
             photoTitleSeparator.AutoSetDimension(ALDimension.Height, 1f);
+            photoTitleSeparator.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
 
             titleTextField.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, photoTitleSeparator, 17f);
             titleTextField.AutoPinEdge(ALEdge.Left, ALEdge.Left, photoTitleSeparator, -5f);
@@ -279,6 +282,37 @@ namespace Steepshot.iOS.Views
             loadingView.AutoAlignAxis(ALAxis.Vertical, postPhotoButton);
         }
 
+        protected virtual void GetPostSize()
+        {
+            GetPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);
+        }
+
+        protected void GetPostSize(nfloat width, nfloat height, int listCount)
+        {
+            if (height > width)
+            {
+                var ratio = width / height;
+                if (listCount == 1)
+                {
+                    photoMargin = 15;
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2) / ratio);
+                }
+                else
+                    _cellSize = new CGSize(cellSide * ratio, cellSide);
+            }
+            else
+            {
+                var ratio = height /width;
+                if (listCount == 1)
+                {
+                    photoMargin = 15;
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - photoMargin * 2, (UIScreen.MainScreen.Bounds.Width - photoMargin * 2) * ratio);
+                }
+                else
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - sectionInset * 2, (UIScreen.MainScreen.Bounds.Width - sectionInset * 2) * ratio);
+            }
+        }
+
         protected virtual void SetImage()
         {
             if (ImageAssets.Count == 1)
@@ -329,17 +363,14 @@ namespace Steepshot.iOS.Views
             photoView.Layer.CornerRadius = 8;
             photoView.ClipsToBounds = true;
             photoView.UserInteractionEnabled = true;
-            photoView.ContentMode = UIViewContentMode.ScaleAspectFill;
+            photoView.ContentMode = UIViewContentMode.ScaleAspectFit;
 
             mainScroll.AddSubview(photoView);
 
-            photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Left, 15f);
+            photoView.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
-            photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Right, 15f);
-            photoView.AutoMatchDimension(ALDimension.Height, ALDimension.Width, photoView);
-            photoMargin = 15;
-            photoViewSide = UIScreen.MainScreen.Bounds.Width - photoMargin * 2;
-            photoView.AutoSetDimension(ALDimension.Width, photoViewSide);
+            photoView.AutoSetDimension(ALDimension.Width, _cellSize.Width);
+            photoView.AutoSetDimension(ALDimension.Height, _cellSize.Height);
         }
 
         protected void SetupPhotoCollection()
@@ -347,8 +378,8 @@ namespace Steepshot.iOS.Views
             photoCollection = new UICollectionView(CGRect.Null, new UICollectionViewFlowLayout()
             {
                 ScrollDirection = UICollectionViewScrollDirection.Horizontal,
-                ItemSize = new CGSize(160, 160),
-                SectionInset = new UIEdgeInsets(0, 15, 0, 15),
+                ItemSize = _cellSize,
+                SectionInset = new UIEdgeInsets(0, sectionInset, 0, sectionInset),
                 MinimumInteritemSpacing = 10,
             });
             photoCollection.BackgroundColor = UIColor.White;
@@ -358,7 +389,7 @@ namespace Steepshot.iOS.Views
             photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Left);
             photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 30f);
             photoCollection.AutoPinEdgeToSuperviewEdge(ALEdge.Right);
-            photoCollection.AutoSetDimension(ALDimension.Height, 160f);
+            photoCollection.AutoSetDimension(ALDimension.Height, _cellSize.Height);
             photoCollection.AutoSetDimension(ALDimension.Width, UIScreen.MainScreen.Bounds.Width);
 
             photoCollection.Bounces = false;
