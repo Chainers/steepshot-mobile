@@ -6,7 +6,6 @@ using Android.Content.PM;
 using Android.OS;
 using Steepshot.Base;
 using Steepshot.Core;
-using Steepshot.Core.Presenters;
 using Steepshot.Core.Utils;
 using Steepshot.Utils;
 using Android.Content;
@@ -50,7 +49,7 @@ namespace Steepshot.Activity
                             var fragmentTransaction = SupportFragmentManager.BeginTransaction();
                             var galleryModel = new GalleryMediaModel
                             {
-                                Path = BitmapUtils.GetRealPathFromUri(uri, this)
+                                Path = BitmapUtils.GetUriRealPath(this, uri)
                             };
                             CurrentHostFragment = HostFragment.NewInstance(new PostCreateFragment(galleryModel));
                             fragmentTransaction.Add(Android.Resource.Id.Content, CurrentHostFragment);

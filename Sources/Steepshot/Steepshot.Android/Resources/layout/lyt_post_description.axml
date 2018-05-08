@@ -152,7 +152,7 @@
                         android:paddingTop="25dp"
                         android:paddingBottom="25dp"
                         android:textSize="14sp"
-                        android:maxLength="255"
+                        android:maxLength="2048"
                         android:background="@android:color/transparent"
                         android:textCursorDrawable="@drawable/ic_input"
                         android:textColorHint="@color/rgb151_155_158" />

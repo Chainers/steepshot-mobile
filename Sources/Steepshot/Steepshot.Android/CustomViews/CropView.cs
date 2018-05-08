@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
 using Android.Graphics;
@@ -10,6 +11,7 @@ using Android.Views.Animations;
 using Square.Picasso;
 using Steepshot.Utils;
 using Math = System.Math;
+using Uri = Android.Net.Uri;
 
 namespace Steepshot.CustomViews
 {
@@ -298,7 +300,7 @@ namespace Steepshot.CustomViews
             var left = Math.Max((int)Math.Round((double)cropParameters.Left), 0);
             var top = Math.Max((int)Math.Round((double)cropParameters.Top), 0);
 
-            using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(path, MaxImageSize, MaxImageSize))
+            using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(path), MaxImageSize, MaxImageSize))
             {
                 //TODO:KOA: CreateBitmap used twice о.О
                 using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false))
@@ -517,7 +519,7 @@ namespace Steepshot.CustomViews
                 if (Looper.MyLooper() == null)
                     Looper.Prepare();
 
-                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(_imageUri, targetWidth, targetHeight))
+                using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(_imageUri), targetWidth, targetHeight))
                 {
                     var matrix = new Matrix();
                     matrix.PostRotate(angle);
