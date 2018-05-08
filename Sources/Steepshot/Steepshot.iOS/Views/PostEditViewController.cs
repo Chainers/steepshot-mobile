@@ -33,6 +33,32 @@ namespace Steepshot.iOS.Views
             model = new PreparePostModel(AppSettings.User.UserInfo, post, AppSettings.AppInfo.GetModel());
         }
 
+        protected override void GetPostSize()
+        {
+            if (post.Media[0].Size.Height > post.Media[0].Size.Width)
+            {
+                var ratio = (float)post.Media[0].Size.Width / (float)post.Media[0].Size.Height;
+                if (post.Media.Count() == 1)
+                {
+                    photoMargin = 15;
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2) / ratio);
+                }
+                else
+                    _cellSize = new CGSize(cellSide * ratio, cellSide);
+            }
+            else
+            {
+                var ratio = (float)post.Media[0].Size.Height / (float)post.Media[0].Size.Width;
+                if (post.Media.Count() == 1)
+                {
+                    photoMargin = 15;
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - photoMargin * 2, (UIScreen.MainScreen.Bounds.Width - photoMargin * 2) * ratio);
+                }
+                else
+                    _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - sectionInset * 2, (UIScreen.MainScreen.Bounds.Width - sectionInset * 2) * ratio);
+            }
+        }
+
         protected override void SetImage()
         {
             if (post.Media.Length > 1)
