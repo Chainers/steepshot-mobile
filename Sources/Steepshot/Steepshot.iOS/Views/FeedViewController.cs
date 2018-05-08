@@ -119,7 +119,8 @@ namespace Steepshot.iOS.Views
 
         protected override void SameTabTapped()
         {
-            feedCollection.SetContentOffset(new CGPoint(0, 0), true);
+            if (this.NavigationController.TopViewController == this)
+                feedCollection.SetContentOffset(new CGPoint(0, 0), true);
         }
 
         private async void OnRefresh(object sender, EventArgs e)
