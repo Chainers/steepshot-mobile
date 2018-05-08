@@ -284,10 +284,15 @@ namespace Steepshot.iOS.Views
 
         protected virtual void GetPostSize()
         {
-            if (ImageAssets[0].Item2.Size.Height > ImageAssets[0].Item2.Size.Width)
+            GetPostSize(ImageAssets[0].Item2.Size.Width, ImageAssets[0].Item2.Size.Height, ImageAssets.Count);
+        }
+
+        protected void GetPostSize(nfloat width, nfloat height, int listCount)
+        {
+            if (height > width)
             {
-                var ratio = ImageAssets[0].Item2.Size.Width / ImageAssets[0].Item2.Size.Height;
-                if (ImageAssets.Count == 1)
+                var ratio = width / height;
+                if (listCount == 1)
                 {
                     photoMargin = 15;
                     _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2, (UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2) / ratio);
@@ -297,8 +302,8 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                var ratio = ImageAssets[0].Item2.Size.Height / ImageAssets[0].Item2.Size.Width;
-                if (ImageAssets.Count == 1)
+                var ratio = height /width;
+                if (listCount == 1)
                 {
                     photoMargin = 15;
                     _cellSize = new CGSize(UIScreen.MainScreen.Bounds.Width - photoMargin * 2, (UIScreen.MainScreen.Bounds.Width - photoMargin * 2) * ratio);
