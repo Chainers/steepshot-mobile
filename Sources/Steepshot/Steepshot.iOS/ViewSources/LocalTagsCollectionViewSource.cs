@@ -14,6 +14,12 @@ namespace Steepshot.iOS.ViewSources
     {
         public ObservableCollection<string> LocalTags = new ObservableCollection<string>();
         public Action<ActionType, string> CellAction;
+        private bool _isEditMode;
+
+        public LocalTagsCollectionViewSource(bool isEditMode)
+        {
+            _isEditMode = isEditMode;
+        }
 
         public override nint GetItemsCount(UICollectionView collectionView, nint section)
         {
@@ -26,7 +32,12 @@ namespace Steepshot.iOS.ViewSources
 
             if (!tagCell.IsCellActionSet)
             {
-                tagCell.CellAction = CellAction;
+                tagCell.CellAction += (ActionType arg1, string arg2) =>
+                {
+                    if (_isEditMode && LocalTags.Count == 1)
+                        return;
+                    CellAction?.Invoke(arg1, arg2);
+                };
             }
             tagCell.RefreshCell(LocalTags[indexPath.Row]);
             return tagCell;

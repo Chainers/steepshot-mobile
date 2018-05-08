@@ -91,7 +91,7 @@ namespace Steepshot.iOS.Views
 
             tagsCollectionView.RegisterClassForCell(typeof(LocalTagCollectionViewCell), nameof(LocalTagCollectionViewCell));
             tagsCollectionView.RegisterNibForCell(UINib.FromName(nameof(LocalTagCollectionViewCell), NSBundle.MainBundle), nameof(LocalTagCollectionViewCell));
-            collectionviewSource = new LocalTagsCollectionViewSource();
+            collectionviewSource = new LocalTagsCollectionViewSource(editMode);
             collectionViewDelegate = new LocalTagsCollectionViewFlowDelegate(collectionviewSource, UIScreen.MainScreen.Bounds.Width - _separatorMargin * 2);
             tagsCollectionView.Source = collectionviewSource;
             tagsCollectionView.Delegate = collectionViewDelegate;
