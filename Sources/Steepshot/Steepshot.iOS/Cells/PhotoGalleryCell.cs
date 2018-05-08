@@ -1,4 +1,5 @@
 ﻿using System;
+using FFImageLoading;
 using PureLayout.Net;
 using UIKit;
 
@@ -23,6 +24,11 @@ namespace Steepshot.iOS.Cells
         public void UpdateImage(UIImage image)
         {
             _bodyImage.Image = image;
+        }
+
+        public void UpdateImage(string url)
+        {
+            ImageService.Instance.LoadUrl(url).Into(_bodyImage);
         }
     }
 }

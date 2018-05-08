@@ -58,8 +58,8 @@ namespace Steepshot.iOS.ViewControllers
             {
                 if (post.CashoutTime > post.Created)
                 {
-                    //for edit and delete
-                    //actionSheetAlert.AddAction(UIAlertAction.Create("Edit post", UIAlertActionStyle.Default, null));
+                    actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.EditPost), UIAlertActionStyle.Default, obj => EditPost(post)));
+
                     actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.DeletePost), UIAlertActionStyle.Default, obj => DeleteAlert(post)));
                 }
             }
@@ -224,6 +224,12 @@ namespace Steepshot.iOS.ViewControllers
 
             if (error != null)
                 ShowAlert(error);
+        }
+
+        private void EditPost(Post post)
+        {
+            var editPostViewController = new PostEditViewController(post);
+            TabBarController.NavigationController.PushViewController(editPostViewController, true);
         }
 
         public UIButton CreateButton(string title, UIColor titleColor)

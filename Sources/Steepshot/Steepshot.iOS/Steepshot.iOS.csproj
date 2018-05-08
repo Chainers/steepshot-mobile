@@ -239,7 +239,6 @@
     <InterfaceDefinition Include="Views\CommentsViewController.xib" />
     <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
-    <InterfaceDefinition Include="Views\DescriptionViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
     <InterfaceDefinition Include="Views\SettingsViewController.xib" />
     <InterfaceDefinition Include="Views\PostTagsViewController.xib" />
@@ -339,9 +338,6 @@
       <DependentUpon>ImagePreviewViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\DescriptionViewController.cs" />
-    <Compile Include="Views\DescriptionViewController.designer.cs">
-      <DependentUpon>DescriptionViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\FollowViewController.cs" />
     <Compile Include="Views\FollowViewController.designer.cs">
       <DependentUpon>FollowViewController.cs</DependentUpon>
@@ -426,6 +422,7 @@
     <Compile Include="CustomViews\CustomAlertView.cs" />
     <Compile Include="CustomViews\CropView.cs" />
     <Compile Include="Views\NotificationSettingsController.cs" />
+    <Compile Include="Views\PostEditViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
