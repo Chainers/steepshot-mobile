@@ -18,12 +18,28 @@ namespace Steepshot.Core.Presenters
             var request = new NamedInfoModel(url) { Login = AppSettings.User.Login };
 
             var response = await Api.GetPostInfo(request, ct);
+            var error = ResponseProcessing(response, nameof(TryLoadPostInfo));
+
+            return error;
+        }
+
+        protected ErrorBase ResponseProcessing(OperationResult<Post> response, string sender)
+        {
+            if (response == null)
+                return null;
 
             if (response.IsSuccess)
             {
-                PostInfo = response.Result;
-                PostInfo = CashPresenterManager.Add(PostInfo);
-                NotifySourceChanged(nameof(TryLoadPostInfo), true);
+                var isAdded = false;
+                var item = response.Result;
+                if (IsValidMedia(item))
+                {
+                    CashPresenterManager.Add(item);
+                    PostInfo = item;
+                    isAdded = true;
+                }
+
+                NotifySourceChanged(sender, isAdded);
             }
             return response.Error;
         }
