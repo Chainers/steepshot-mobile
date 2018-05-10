@@ -46,13 +46,17 @@ namespace Steepshot.iOS.Views
             sendButton.Layer.CornerRadius = sendButton.Frame.Width / 2;
             sendButton.TouchDown += CreateComment;
 
-            _tableSource = new CommentsTableViewSource(_presenter);
+            _tableSource = new CommentsTableViewSource(_presenter, Post);
             _tableSource.CellAction += CellAction;
+            _tableSource.TagAction += TagAction;
 
             commentsTable.Source = _tableSource;
             commentsTable.LayoutMargins = UIEdgeInsets.Zero;
+            commentsTable.RegisterClassForCellReuse(typeof(DescriptionTableViewCell), nameof(DescriptionTableViewCell));
+            commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(DescriptionTableViewCell), NSBundle.MainBundle), nameof(DescriptionTableViewCell));
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
             commentsTable.RegisterNibForCellReuse(UINib.FromName(nameof(CommentTableViewCell), NSBundle.MainBundle), nameof(CommentTableViewCell));
+
             commentsTable.RowHeight = UITableView.AutomaticDimension;
             commentsTable.EstimatedRowHeight = 150f;
 
