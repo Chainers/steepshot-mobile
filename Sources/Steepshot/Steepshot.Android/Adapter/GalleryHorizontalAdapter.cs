@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Android.Widget;
 using Square.Picasso;
 using Steepshot.Core.Models.Common;
 using Steepshot.Utils;
+using ViewUtils = Steepshot.Utils.ViewUtils;
 
 namespace Steepshot.Adapter
 {
@@ -34,9 +36,14 @@ namespace Steepshot.Adapter
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
+            var width = (int)Math.Round(((Android.App.Activity)parent.Context).WindowManager.DefaultDisplay.Width - BitmapUtils.DpToPixel(25, parent.Resources));
+            var height = (int)Math.Round(BitmapUtils.DpToPixel(160, parent.Resources));
+            var previewSize = _gallery == null ?
+                ViewUtils.CalculateImagePreviewSize(_postMedia[0].Size.Width, _postMedia[0].Size.Height, width, height) :
+                ViewUtils.CalculateImagePreviewSize(_gallery[0].PreparedBitmap.Width, _gallery[0].PreparedBitmap.Height, width, height);
             var cardView = new CardView(parent.Context)
             {
-                LayoutParameters = new FrameLayout.LayoutParams(parent.Height, parent.Height),
+                LayoutParameters = new FrameLayout.LayoutParams(previewSize.Width, previewSize.Height),
                 Radius = BitmapUtils.DpToPixel(5, parent.Resources)
             };
             var image = new ImageView(parent.Context)
@@ -44,7 +51,7 @@ namespace Steepshot.Adapter
                 Id = Resource.Id.photo,
                 LayoutParameters = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent)
             };
-            image.SetScaleType(ImageView.ScaleType.CenterCrop);
+            image.SetScaleType(ImageView.ScaleType.FitXy);
             cardView.AddView(image);
             return new GalleryViewHolder(cardView);
         }

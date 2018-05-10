@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
 using Android.Graphics;
@@ -129,13 +128,13 @@ namespace Steepshot.CustomViews
                 {
                     if (ImageRatio < _maximumRatio)
                     {
-                        GetBoundsForWidthAndRatio(_imageRawWidth, _minimumRatio, DrawableImageParameters.PreviewBounds);
-                        scale = DrawableImageParameters.PreviewBounds.Height() / _height;
+                        GetBoundsForWidthAndRatio(_imageRawHeight, _minimumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Width() / _width;
                     }
                     else
                     {
-                        GetBoundsForHeightAndRatio(_imageRawHeight, _maximumRatio, DrawableImageParameters.PreviewBounds);
-                        scale = DrawableImageParameters.PreviewBounds.Width() / _width;
+                        GetBoundsForHeightAndRatio(_imageRawWidth, _maximumRatio, DrawableImageParameters.PreviewBounds);
+                        scale = DrawableImageParameters.PreviewBounds.Height() / _height;
                     }
                 }
                 else
@@ -278,6 +277,7 @@ namespace Steepshot.CustomViews
 
         public void Rotate(float angle)
         {
+            IsBitmapReady = false;
             DrawableImageParameters.Rotation = angle;
             _currentScaleType = _useStrictBounds ? ScaleType.Bind : _currentScaleType;
             _reloadImage = true;
@@ -292,8 +292,8 @@ namespace Steepshot.CustomViews
         public Bitmap Crop(string path, ImageParameters parameters)
         {
             var matrix = new Matrix();
-            matrix.PostRotate(parameters.Rotation);
-            matrix.PostScale(parameters.Scale, parameters.Scale);
+            matrix.PreRotate(parameters.Rotation);
+            matrix.PreScale(parameters.Scale, parameters.Scale);
 
             var cropParameters = new Rect(parameters.CropBounds);
             cropParameters.Offset(-(int)Math.Round(parameters.PreviewBounds.Left), -(int)Math.Round(parameters.PreviewBounds.Top));
@@ -307,7 +307,7 @@ namespace Steepshot.CustomViews
                 {
                     var width = Math.Min((int)Math.Round((double)cropParameters.Width()), rotatedBitmap.Width);
                     var height = Math.Min((int)Math.Round((double)cropParameters.Height()), rotatedBitmap.Height);
-                    var croppedBitmap = Bitmap.CreateBitmap(rotatedBitmap, left, top, width, height);
+                    var croppedBitmap = Bitmap.CreateBitmap(rotatedBitmap, left, top, width, height).Copy(Bitmap.Config.Argb8888, true);
                     bitmap.Recycle();
                     rotatedBitmap.Recycle();
                     return croppedBitmap;
@@ -488,7 +488,7 @@ namespace Steepshot.CustomViews
 
             Path path = new Path();
             path.AddRoundRect(new RectF(0, 0, canvas.Width, canvas.Height), CornerRadius, CornerRadius, Path.Direction.Cw);
-            canvas.ClipPath(path, Region.Op.Replace);
+            canvas.ClipPath(path);
 
             GetDisplayDrawableBounds(DrawableImageParameters.PreviewBounds);
 
@@ -507,8 +507,8 @@ namespace Steepshot.CustomViews
                 _minimumRatio = MinimumRatio;
                 _maximumRatio = MaximumRatio;
                 _defaultRatio = DefaultRatio;
+                DrawableImageParameters = new ImageParameters();
             }
-            DrawableImageParameters = new ImageParameters();
             _currentScaleType = scaleType;
         }
 

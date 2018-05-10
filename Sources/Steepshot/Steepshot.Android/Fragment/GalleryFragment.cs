@@ -141,6 +141,9 @@ namespace Steepshot.Fragment
 
         private void RotateBtnOnClick(object sender, EventArgs eventArgs)
         {
+            if (!_preview.IsBitmapReady)
+                return;
+
             _preview.Rotate(_preview.DrawableImageParameters.Rotation + 90f);
         }
 
