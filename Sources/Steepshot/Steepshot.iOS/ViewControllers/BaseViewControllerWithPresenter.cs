@@ -1,6 +1,5 @@
 ﻿using System;
 using Steepshot.Core.Presenters;
-using Steepshot.iOS.Views;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -22,13 +21,6 @@ namespace Steepshot.iOS.ViewControllers
         protected virtual void GoBack(object sender, EventArgs e)
         {
             NavigationController.PopViewController(true);
-        }
-
-        protected void TagAction(string tag)
-        {
-            var myViewController = new PreSearchViewController();
-            myViewController.CurrentPostCategory = tag;
-            NavigationController.PushViewController(myViewController, true);
         }
     }
 }
