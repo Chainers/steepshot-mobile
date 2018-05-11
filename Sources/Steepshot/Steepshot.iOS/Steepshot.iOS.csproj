@@ -103,14 +103,8 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=4.8.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autofac.4.8.0\lib\netstandard1.1\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="Cryptography.ECDSA, Version=2.1.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Cryptography.ECDSA.Secp256k1.1.0.1\lib\netstandard1.3\Cryptography.ECDSA.dll</HintPath>
-    </Reference>
-    <Reference Include="Ditch.Core, Version=3.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ditch.Core.3.1.1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
     </Reference>
     <Reference Include="Ditch.Golos, Version=3.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Ditch.Golos.3.1.2\lib\netstandard2.0\Ditch.Golos.dll</HintPath>
@@ -183,6 +177,15 @@
     </Reference>
     <Reference Include="MGSwipeTableCell">
       <HintPath>..\packages\MGSwipeTableCell.1.0.0\lib\Xamarin.iOS10\MGSwipeTableCell.dll</HintPath>
+    </Reference>
+    <Reference Include="Ditch.Core, Version=3.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ditch.Core.3.1.1\lib\netstandard2.0\Ditch.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Analytics">
+      <HintPath>..\packages\Xamarin.Google.iOS.Analytics.3.17.0.2\lib\Xamarin.iOS10\Google.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac">
+      <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

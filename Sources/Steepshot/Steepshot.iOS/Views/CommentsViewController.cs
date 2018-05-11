@@ -37,7 +37,7 @@ namespace Steepshot.iOS.Views
             commentTextView.Layer.BorderWidth = 1f;
             commentTextView.Layer.CornerRadius = 20f;
             commentTextView.TextContainerInset = new UIEdgeInsets(10, 20, 10, 15);
-            commentTextView.Font = Helpers.Constants.Regular14;
+            commentTextView.Font = Constants.Regular14;
             _commentsTextViewDelegate = new CommentsTextViewDelegate();
             commentTextView.Delegate = _commentsTextViewDelegate;
 
@@ -284,6 +284,16 @@ namespace Steepshot.iOS.Views
                 LoginTapped();
                 return;
             }
+            commentTextView.Text = post.Body;
+            commentTextView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
+            commentTextView.Layer.BorderColor = UIColor.FromRGB(255,246,205).ColorWithAlpha(0.5f).CGColor;
+            commentTextView.BecomeFirstResponder();
+            //commentTextView.Layer.BorderWidth = 1f;
+            //commentTextView.Layer.CornerRadius = 20f;
+            //commentTextView.TextContainerInset = new UIEdgeInsets(10, 20, 10, 15);
+            //commentTextView.Font = Constants.Regular14;
+            //_commentsTextViewDelegate = new CommentsTextViewDelegate();
+            //commentTextView.Delegate = _commentsTextViewDelegate;
 
             //_editComment = post;
             //_textInput.Text = _commentEditText.Text = post.Body;

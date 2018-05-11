@@ -170,7 +170,7 @@ namespace Steepshot.iOS.Cells
             else if (_currentPost.CashoutTime > DateTime.Now)
             {
                 rightButtons.Insert(0, deleteButton);
-                //rightButtons.Insert(1, editButton);
+                rightButtons.Insert(1, editButton);
             }
 
             RightButtons = rightButtons.ToArray();
