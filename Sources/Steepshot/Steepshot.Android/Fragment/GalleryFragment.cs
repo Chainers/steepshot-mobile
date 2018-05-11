@@ -42,7 +42,7 @@ namespace Steepshot.Fragment
         private GalleryMediaModel[] _gallery;
         private List<GalleryMediaModel> _pickedItems;
         private GalleryMediaModel _prevSelected;
-        private bool _multySelect;
+        private bool _multiSelect;
         private string[] _buckets;
         private string _selectedBucket;
 
@@ -115,7 +115,7 @@ namespace Steepshot.Fragment
 
             if (_pickedItems.Count > 0)
             {
-                _pickedItems.Last().Parameters = _preview.DrawableImageParameters.Copy();
+                _pickedItems.Find(x => x.Selected).Parameters = _preview.DrawableImageParameters.Copy();
                 foreach (var galleryMediaModel in _pickedItems)
                 {
                     var croppedBitmap = _preview.Crop(galleryMediaModel.Path, galleryMediaModel.Parameters);
@@ -149,13 +149,13 @@ namespace Steepshot.Fragment
 
         private void MultiselectBtnOnClick(object sender, EventArgs eventArgs)
         {
-            _multySelect = !_multySelect;
-            _ratioBtn.Visibility = _multySelect ? ViewStates.Gone : ViewStates.Visible;
-            _preview.UseStrictBounds = _multySelect;
+            _multiSelect = !_multiSelect;
+            _ratioBtn.Visibility = _multiSelect ? ViewStates.Gone : ViewStates.Visible;
+            _preview.UseStrictBounds = _multiSelect;
 
             foreach (var model in _gallery)
             {
-                model.MultySelect = _multySelect;
+                model.MultySelect = _multiSelect;
                 model.SelectionPosition = 0;
             }
 
@@ -163,7 +163,14 @@ namespace Steepshot.Fragment
             for (var i = 0; i < _pickedItems.Count; i++)
             {
                 if (_pickedItems[i].Selected)
+                {
                     selectedItem = _pickedItems[i];
+                    if (_multiSelect)
+                    {
+                        selectedItem.Parameters = _preview.DrawableImageParameters.Copy();
+                        continue;
+                    }
+                }
 
                 _pickedItems[i].Parameters = null;
             }
@@ -179,14 +186,14 @@ namespace Steepshot.Fragment
             }
 
             OnItemSelected(selectedItem);
-            _multiselectBtn.SetImageResource(_multySelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
+            _multiselectBtn.SetImageResource(_multiSelect ? Resource.Drawable.ic_multiselect_active : Resource.Drawable.ic_multiselect);
 
             _gridAdapter.NotifyDataSetChanged();
         }
 
         private void OnItemSelected(GalleryMediaModel model)
         {
-            if (_multySelect && _pickedItems.Count >= MaxPhotosAllowed && !(model.Selected || model.SelectionPosition > 0))
+            if (_multiSelect && _pickedItems.Count >= MaxPhotosAllowed && !(model.Selected || model.SelectionPosition > 0))
             {
                 Activity.ShowAlert(LocalizationKeys.PickedPhotosLimit, ToastLength.Short);
                 return;
@@ -201,7 +208,7 @@ namespace Steepshot.Fragment
                 }
             }
 
-            if (_multySelect)
+            if (_multiSelect)
             {
                 if (_prevSelected != null)
                     _prevSelected.Parameters = _preview.DrawableImageParameters.Copy();
@@ -239,7 +246,8 @@ namespace Steepshot.Fragment
                             : _gallery.FirstOrDefault(m => m.Bucket.Equals(_selectedBucket, StringComparison.OrdinalIgnoreCase));
                     }
 
-                    OnItemSelected(selectedItem);
+                    if (!_multiSelect || _pickedItems.Count > 0)
+                        OnItemSelected(selectedItem);
                     return;
                 }
             }
