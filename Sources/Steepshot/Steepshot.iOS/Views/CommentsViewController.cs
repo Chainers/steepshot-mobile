@@ -178,10 +178,12 @@ namespace Steepshot.iOS.Views
             progressBar.StartAnimating();
 
             _presenter.Clear();
+            commentsTable.Hidden = true;
             var error = await _presenter.TryLoadNextComments(Post);
             if (error is CanceledError)
                 return;
             ShowAlert(error);
+            commentsTable.Hidden = false;
             progressBar.StopAnimating();
         }
 
