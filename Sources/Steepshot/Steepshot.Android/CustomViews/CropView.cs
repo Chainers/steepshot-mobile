@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Android.Animation;
 using Android.Content;
 using Android.Graphics;
@@ -25,6 +26,8 @@ namespace Steepshot.CustomViews
         }
 
         #region Fields
+
+        private CancellationTokenSource _cancellationTokenSource;
 
         private const float MinimumRatio = 0.8f;
         private const float MaximumRatio = 1.92f;
@@ -258,6 +261,9 @@ namespace Steepshot.CustomViews
 
         public void SetImagePath(string path, ImageParameters parameters)
         {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
             _reloadImage = !path.Equals(_imageUri);
 
             if (_reloadImage)
@@ -487,7 +493,17 @@ namespace Steepshot.CustomViews
             if (_reloadImage)
             {
                 IsBitmapReady = false;
-                _drawable = await MakeDrawable(MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
+
+                var drawableRequest = await MakeDrawable(_cancellationTokenSource.Token, MaxImageSize, MaxImageSize, _drawableImageParameters.Rotation);
+
+                if (drawableRequest == null)
+                {
+                    RequestLayout();
+                    Invalidate();
+                    return;
+                }
+
+                _drawable = drawableRequest;
             }
 
             Reset(_currentScaleType);
@@ -512,7 +528,7 @@ namespace Steepshot.CustomViews
             Grid.Draw(canvas);
         }
 
-        private Task<BitmapDrawable> MakeDrawable(int targetWidth, int targetHeight, float angle = 0) => Task.Run(() =>
+        private Task<BitmapDrawable> MakeDrawable(CancellationToken token, int targetWidth, int targetHeight, float angle = 0) => Task.Run(() =>
         {
             try
             {
@@ -526,6 +542,9 @@ namespace Steepshot.CustomViews
                     var preparedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false);
                     _imageRawWidth = preparedBitmap.Width;
                     _imageRawHeight = preparedBitmap.Height;
+
+                    if (token.IsCancellationRequested)
+                        return null;
 
                     return new BitmapDrawable(Context.Resources, preparedBitmap);
                 }

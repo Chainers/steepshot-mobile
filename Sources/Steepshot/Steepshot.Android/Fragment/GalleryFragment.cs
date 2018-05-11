@@ -272,7 +272,7 @@ namespace Steepshot.Fragment
 
             _gridAdapter.SetMedia(set);
 
-            if (set.Length > 0 && _pickedItems.Count == 0)
+            if (set.Length > 0 && _pickedItems.Count == 0 || !_multiSelect)
                 OnItemSelected(set[0]);
         }
 
