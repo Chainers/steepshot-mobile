@@ -52,7 +52,7 @@
                         <color key="textColor" red="0.59215686270000001" green="0.60784313729999995" blue="0.61960784310000006" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZa-PT-Ha5">
+                    <button opaque="NO" contentMode="scaleToFill" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZa-PT-Ha5">
                         <rect key="frame" x="319" y="29" width="40" height="50"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="40" id="oDe-1K-egu"/>
@@ -60,7 +60,7 @@
                         </constraints>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <state key="normal" image="ic_comment_like_inactive.png"/>
-                        <state key="selected" image="ic_like_active.png">
+                        <state key="selected" image="ic_comment_like_active.png">
                             <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         </state>
                     </button>
@@ -157,7 +157,7 @@
         </tableViewCell>
     </objects>
     <resources>
+        <image name="ic_comment_like_active.png" width="15" height="14"/>
         <image name="ic_comment_like_inactive.png" width="15" height="14"/>
-        <image name="ic_like_active.png" width="22" height="20"/>
     </resources>
 </document>

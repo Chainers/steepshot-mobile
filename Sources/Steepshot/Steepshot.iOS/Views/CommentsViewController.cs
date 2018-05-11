@@ -49,6 +49,7 @@ namespace Steepshot.iOS.Views
             _tableSource = new CommentsTableViewSource(_presenter);
             _tableSource.CellAction += CellAction;
 
+            commentsTable.Bounces = false;
             commentsTable.Source = _tableSource;
             commentsTable.LayoutMargins = UIEdgeInsets.Zero;
             commentsTable.RegisterClassForCellReuse(typeof(CommentTableViewCell), nameof(CommentTableViewCell));
