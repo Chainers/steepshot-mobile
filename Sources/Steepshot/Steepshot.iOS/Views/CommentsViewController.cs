@@ -125,24 +125,21 @@ namespace Steepshot.iOS.Views
                 case ActionType.Like:
                     Vote(post);
                     break;
-                case ActionType.More:
-                    Flag(post);
+                case ActionType.Delete:
+                    DeleteComment(post);
                     break;
                 case ActionType.Reply:
                     Reply(post);
                     break;
+                case ActionType.Edit:
+                    EditComment(post);
+                    break;
+                case ActionType.Flag:
+                    FlagComment(post);
+                    break;
                 default:
                     break;
             }
-        }
-
-        private void Flag(Post post)
-        {
-            UIAlertController actionSheetAlert = UIAlertController.Create(null, null, UIAlertControllerStyle.ActionSheet);
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.FlagComment), UIAlertActionStyle.Default, obj => FlagComment(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.HideComment), UIAlertActionStyle.Default, obj => HideAction(post)));
-            actionSheetAlert.AddAction(UIAlertAction.Create(AppSettings.LocalizationManager.GetText(LocalizationKeys.Cancel), UIAlertActionStyle.Cancel, null));
-            PresentViewController(actionSheetAlert, true, null);
         }
 
         private void Reply(Post post)
@@ -225,35 +222,80 @@ namespace Steepshot.iOS.Views
             sendButton.Hidden = true;
             sendProgressBar.StartAnimating();
 
-            var response = await _presenter.TryCreateComment(Post, textToSend);
-            if (response.IsSuccess)
+            /*
+            if (_commentEditBlock.Visibility == ViewStates.Visible)
             {
-                commentTextView.Text = string.Empty;
-                _commentsTextViewDelegate.Placeholder.Hidden = false;
-                commentTextView.ResignFirstResponder();
-                commentTextView.Frame = new CGRect(commentTextView.Frame.Location, new CGSize(commentTextView.Frame.Width, 40));
-                bottomView.Frame = new CGRect(bottomView.Frame.Location, new CGSize(bottomView.Frame.Width, 60));
-                commentsTable.Frame = new CGRect(commentsTable.Frame.Location,
-                                                 new CGSize(commentsTable.Frame.Width, UIScreen.MainScreen.Bounds.Height - bottomView.Frame.Height - View.Frame.Y));
+                var error = await _presenter.TryEditComment(AppSettings.User.UserInfo, _post, _editComment, _textInput.Text, AppSettings.AppInfo);
 
-                var error = await _presenter.TryLoadNextComments(Post);
-
-                ShowAlert(error);
-                if (_presenter.Count > 0)
-                    commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
-                Post.Children++;
+                //Context.ShowAlert(error);
+                CommentEditCancelBtnOnClick(null, null);
             }
             else
-                ShowAlert(response.Error);
+            {*/
+                var response = await _presenter.TryCreateComment(Post, textToSend);
+                if (response.IsSuccess)
+                {
+                    commentTextView.Text = string.Empty;
+                    _commentsTextViewDelegate.Placeholder.Hidden = false;
+                    commentTextView.ResignFirstResponder();
+                    commentTextView.Frame = new CGRect(commentTextView.Frame.Location, new CGSize(commentTextView.Frame.Width, 40));
+                    bottomView.Frame = new CGRect(bottomView.Frame.Location, new CGSize(bottomView.Frame.Width, 60));
+                    commentsTable.Frame = new CGRect(commentsTable.Frame.Location,
+                                                     new CGSize(commentsTable.Frame.Width, UIScreen.MainScreen.Bounds.Height - bottomView.Frame.Height - View.Frame.Y));
+
+                    var error = await _presenter.TryLoadNextComments(Post);
+
+                    ShowAlert(error);
+                    if (_presenter.Count > 0)
+                        commentsTable.ScrollToRow(NSIndexPath.FromRowSection(_presenter.Count - 1, 0), UITableViewScrollPosition.Bottom, true);
+                    Post.Children++;
+                }
+                else
+                    ShowAlert(response.Error);
+            //}
 
             commentTextView.UserInteractionEnabled = true;
             sendButton.Hidden = false;
             sendProgressBar.StopAnimating();
         }
 
-        private void GoBack(object sender, EventArgs e)
+        public async Task DeleteComment(Post post)
         {
-            NavigationController.PopViewController(true);
+            if (!AppSettings.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
+            var error = await _presenter.TryDeleteComment(post, Post);
+
+            ShowAlert(error);
+        }
+
+        public async Task EditComment(Post post)
+        {
+            if (!AppSettings.User.IsAuthenticated)
+            {
+                LoginTapped();
+                return;
+            }
+
+            //_editComment = post;
+            //_textInput.Text = _commentEditText.Text = post.Body;
+            //_textInput.SetSelection(post.Body.Length);
+            //_commentEditBlock.Visibility = ViewStates.Visible;
+            //OpenKeyboard();
+
+            var error = await _presenter.TryDeleteComment(post, Post);
+
+            ShowAlert(error);
+        }
+
+        private void CommentEditCancelBtnOnClick(object sender, EventArgs eventArgs)
+        {
+            //_textInput.Text = _commentEditText.Text = string.Empty;
+            //_commentEditBlock.Visibility = ViewStates.Gone;
+            //HideKeyboard();
         }
 
         void LoginTapped()

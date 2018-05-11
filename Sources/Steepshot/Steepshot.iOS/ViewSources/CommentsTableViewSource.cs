@@ -13,9 +13,7 @@ namespace Steepshot.iOS.ViewSources
         private readonly string _cellIdentifier = nameof(CommentTableViewCell);
         public event Action<ActionType, Post> CellAction;
 
-        public CommentsTableViewSource(BasePostPresenter presenter) : base(presenter)
-        {
-        }
+        public CommentsTableViewSource(BasePostPresenter presenter) : base(presenter) { }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
