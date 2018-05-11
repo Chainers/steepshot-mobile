@@ -175,6 +175,7 @@ namespace Steepshot.Adapter
         {
             base.SetNsfwMaskLayout();
             ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.AlignParentTop);
+            ((RelativeLayout.LayoutParams)NsfwMask.LayoutParameters).AddRule(LayoutRules.Above, Resource.Id.footer);
         }
 
         private void ViewTreeObserverOnGlobalLayout(object sender, EventArgs eventArgs)
