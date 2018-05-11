@@ -10,10 +10,12 @@ using Steepshot.Core.Presenters;
 using CoreGraphics;
 using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
+using MGSwipeTableCellXamarin;
+using System.Collections.Generic;
 
 namespace Steepshot.iOS.Cells
 {
-    public partial class CommentTableViewCell : UITableViewCell
+    public partial class CommentTableViewCell : MGSwipeTableCell
     {
         protected CommentTableViewCell(IntPtr handle) : base(handle) { }
         public static readonly NSString Key = new NSString(nameof(CommentTableViewCell));
@@ -23,6 +25,10 @@ namespace Steepshot.iOS.Cells
         private bool _isInitialized;
         private Post _currentPost;
         private IScheduledWork _scheduledWorkAvatar;
+
+        private MGSwipeButton deleteButton;
+        private MGSwipeButton editButton;
+        private MGSwipeButton flagButton;
 
         static CommentTableViewCell()
         {
@@ -102,7 +108,27 @@ namespace Steepshot.iOS.Cells
                 timestamp.Font = Helpers.Constants.Regular12;
 
                 likeButton.TouchDown += LikeTap;
-                otherActionButton.TouchDown += MoreTap;
+
+                RightSwipeSettings.Transition = MGSwipeTransition.Border;
+
+                deleteButton = MGSwipeButton.ButtonWithTitle("", UIImage.FromBundle("ic_delete"), UIColor.FromRGB(250, 250, 250), 26, (tableCell) =>
+                {
+                    CellAction?.Invoke(ActionType.Delete, _currentPost);
+                    return true;
+                });
+
+                editButton = MGSwipeButton.ButtonWithTitle("", UIImage.FromBundle("ic_edit"), UIColor.FromRGB(250, 250, 250), 26, (arg0) =>
+                {
+                    CellAction?.Invoke(ActionType.Edit, _currentPost);
+                    return true;
+                });
+
+                flagButton = MGSwipeButton.ButtonWithTitle("", UIImage.FromBundle("ic_flag"), UIColor.FromRGB(250, 250, 250), 26, (arg0) =>
+                {
+                    CellAction?.Invoke(ActionType.Flag, _currentPost);
+                    return true;
+                });
+
                 _isInitialized = true;
                 if (!AppSettings.User.IsAuthenticated)
                 {
@@ -136,6 +162,18 @@ namespace Steepshot.iOS.Cells
                 flagVisibleConstraint.Active = false;
                 likeHiddenConstraint.Active = true;
             }
+
+            var rightButtons = new List<MGSwipeButton>();
+
+            if (_currentPost.Author != AppSettings.User.Login)
+                rightButtons.Add(flagButton);
+            else if (_currentPost.CashoutTime > DateTime.Now)
+            {
+                rightButtons.Insert(0, deleteButton);
+                //rightButtons.Insert(1, editButton);
+            }
+
+            RightButtons = rightButtons.ToArray();
         }
 
         private void LikeTap(object sender, EventArgs e)
@@ -143,11 +181,6 @@ namespace Steepshot.iOS.Cells
             if (!BasePostPresenter.IsEnableVote)
                 return;
             CellAction?.Invoke(ActionType.Like, _currentPost);
-        }
-
-        private void MoreTap(object sender, EventArgs e)
-        {
-            CellAction?.Invoke(ActionType.More, _currentPost);
         }
 
         private void Animate()

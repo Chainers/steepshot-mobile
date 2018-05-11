@@ -10,6 +10,7 @@ using Steepshot.Core.Localization;
 using Steepshot.Core.Utils;
 using PureLayout.Net;
 using Steepshot.iOS.Helpers;
+using Steepshot.iOS.Views;
 
 namespace Steepshot.iOS.ViewControllers
 {
@@ -290,6 +291,13 @@ namespace Steepshot.iOS.ViewControllers
             alert.AddAction(UIAlertAction.Create(lm.GetText(leftButtonText), UIAlertActionStyle.Cancel, leftButtonAction));
             alert.AddAction(UIAlertAction.Create(lm.GetText(rightButtonText), UIAlertActionStyle.Default, rightButtonAction));
             PresentViewController(alert, true, null);
+        }
+
+        protected void TagAction(string tag)
+        {
+            var myViewController = new PreSearchViewController();
+            myViewController.CurrentPostCategory = tag;
+            NavigationController.PushViewController(myViewController, true);
         }
     }
 
