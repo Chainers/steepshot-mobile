@@ -144,9 +144,15 @@ namespace Steepshot.Activity
             var login = _username;
             var pass = _password?.Text;
 
-            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(login))
             {
                 this.ShowAlert(LocalizationKeys.EmptyLogin, ToastLength.Short);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(pass))
+            {
+                this.ShowAlert(LocalizationKeys.EmptyPostingKey, ToastLength.Short);
                 return;
             }
 

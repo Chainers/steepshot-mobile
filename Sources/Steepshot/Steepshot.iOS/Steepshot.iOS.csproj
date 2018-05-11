@@ -255,6 +255,7 @@
     <InterfaceDefinition Include="Views\PhotoPreviewViewController.xib" />
     <InterfaceDefinition Include="Views\PostViewController.xib" />
     <InterfaceDefinition Include="Views\TagsPickerViewController.xib" />
+    <InterfaceDefinition Include="Cells\DescriptionTableViewCell.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -426,6 +427,10 @@
     <Compile Include="CustomViews\CropView.cs" />
     <Compile Include="Views\NotificationSettingsController.cs" />
     <Compile Include="Views\PostEditViewController.cs" />
+    <Compile Include="Cells\DescriptionTableViewCell.cs" />
+    <Compile Include="Cells\DescriptionTableViewCell.designer.cs">
+      <DependentUpon>DescriptionTableViewCell.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\ic_photo_holder.png" />
