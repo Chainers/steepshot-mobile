@@ -29,7 +29,7 @@ namespace Steepshot.Utils
         public NotificationCompat.Builder Extend(NotificationCompat.Builder builder)
         {
             Bitmap largeIcon = null;
-            var largeIconUrl = _result.Payload.AdditionalData.Get("large_icon").ToString();
+            var largeIconUrl = _result.Payload.AdditionalData?.Get("large_icon").ToString();
             if (!string.IsNullOrEmpty(largeIconUrl))
                 largeIcon = Picasso.With(this).Load(largeIconUrl).Get();
             builder.SetSmallIcon(Resource.Drawable.ic_notification)

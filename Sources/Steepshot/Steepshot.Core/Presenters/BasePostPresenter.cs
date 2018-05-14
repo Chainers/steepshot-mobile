@@ -156,7 +156,7 @@ namespace Steepshot.Core.Presenters
             return false;
         }
 
-        private bool IsValidMedia(Post item)
+        protected bool IsValidMedia(Post item)
         {
             //This part of the server logic, but... let`s check that everything is okay
             if (item.Media == null || item.Media.Length == 0)
