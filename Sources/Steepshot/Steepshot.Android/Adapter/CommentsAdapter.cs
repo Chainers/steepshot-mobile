@@ -486,7 +486,7 @@ namespace Steepshot.Adapter
             if (post.NetFlags > 0)
             {
                 _flags.Visibility = ViewStates.Visible;
-                _flags.Text = _likes.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
+                _flags.Text = AppSettings.LocalizationManager.GetText(_post.NetFlags == 1 ? LocalizationKeys.Flag : LocalizationKeys.Flags, post.NetFlags);
             }
             else
                 _flags.Visibility = ViewStates.Gone;
