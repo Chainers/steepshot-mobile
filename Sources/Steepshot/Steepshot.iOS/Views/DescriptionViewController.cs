@@ -317,13 +317,15 @@ namespace Steepshot.iOS.Views
         {
             if (ImageAssets.Count == 1)
             {
-                SetupPhoto();
-
                 if (!_isFromCamera)
+                {
+                    SetupPhoto(_cellSize);
                     photoView.Image = ImageAssets[0].Item2;
+                }
                 else
                 {
-                    _cropView = new CropView(new CGRect(0, 0, photoViewSide, photoViewSide));
+                    SetupPhoto(new CGSize(UIScreen.MainScreen.Bounds.Width - 15 * 2, UIScreen.MainScreen.Bounds.Width - 15 * 2));
+                    _cropView = new CropView(new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width - 15 * 2, UIScreen.MainScreen.Bounds.Width - 15 * 2));
                     photoView.AddSubview(_cropView);
 
                     _resizeButton = new UIImageView();
@@ -357,7 +359,7 @@ namespace Steepshot.iOS.Views
             }
         }
 
-        protected void SetupPhoto()
+        protected void SetupPhoto(CGSize size)
         {
             photoView = new UIImageView();
             photoView.Layer.CornerRadius = 8;
@@ -369,8 +371,8 @@ namespace Steepshot.iOS.Views
 
             photoView.AutoAlignAxisToSuperviewAxis(ALAxis.Vertical);
             photoView.AutoPinEdgeToSuperviewEdge(ALEdge.Top, 15f);
-            photoView.AutoSetDimension(ALDimension.Width, _cellSize.Width);
-            photoView.AutoSetDimension(ALDimension.Height, _cellSize.Height);
+            photoView.AutoSetDimension(ALDimension.Width, size.Width);
+            photoView.AutoSetDimension(ALDimension.Height,size.Height);
         }
 
         protected void SetupPhotoCollection()
