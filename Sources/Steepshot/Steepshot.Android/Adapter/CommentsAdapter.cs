@@ -298,7 +298,7 @@ namespace Steepshot.Adapter
                 if (_post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility = _post.CashoutTime < _post.Created ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = _post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var cancel = dialogView.FindViewById<Button>(Resource.Id.cancel);
@@ -500,7 +500,7 @@ namespace Steepshot.Adapter
             _time.Text = post.Created.ToPostTime();
 
             if (post.Author == AppSettings.User.Login)
-                _more.Visibility = post.CashoutTime < post.Created ? ViewStates.Gone : ViewStates.Visible;
+                _more.Visibility = post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
         }
 
         private void OnSuccess()

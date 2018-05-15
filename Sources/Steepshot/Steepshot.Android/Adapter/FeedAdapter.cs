@@ -299,7 +299,7 @@ namespace Steepshot.Adapter
                 if (Post.Author == AppSettings.User.Login)
                 {
                     flag.Visibility = hide.Visibility = ViewStates.Gone;
-                    edit.Visibility = delete.Visibility = Post.CashoutTime < Post.Created ? ViewStates.Gone : ViewStates.Visible;
+                    edit.Visibility = delete.Visibility = Post.CashoutTime < DateTime.Now ? ViewStates.Gone : ViewStates.Visible;
                 }
 
                 var sharepost = dialogView.FindViewById<Button>(Resource.Id.sharepost);
