@@ -66,6 +66,7 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Base\App.cs" />
     <Compile Include="CustomViews\MediaPager.cs" />
     <Compile Include="Fragment\PostCreateFragment.cs" />
     <Compile Include="Fragment\PostPrepareBaseFragment.cs" />

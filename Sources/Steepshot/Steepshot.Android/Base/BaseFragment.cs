@@ -22,12 +22,6 @@ namespace Steepshot.Base
                 activity._tabLayout.Visibility = shouldHide ? ViewStates.Gone : ViewStates.Visible;
         }
 
-        public override void OnCreate(Android.OS.Bundle savedInstanceState)
-        {
-            BaseActivity.InitIoC(Context.Assets);
-            base.OnCreate(savedInstanceState);
-        }
-
         public override void OnDetach()
         {
             IsInitialized = false;
