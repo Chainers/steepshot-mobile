@@ -213,7 +213,6 @@ namespace Steepshot.Adapter
             _likeOrFlag.Click += Like_Click;
             _avatar.Click += UserAction;
             _author.Click += UserAction;
-            _cost.Click += UserAction;
             _more.Click += DoMoreAction;
             _reply.Click += ReplyAction;
             _rootView.Click += Root_Click;

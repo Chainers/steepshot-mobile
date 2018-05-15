@@ -187,8 +187,7 @@ namespace Steepshot.Adapter
             _likeOrFlag.Click += DoLikeAction;
             _likeOrFlag.LongClick += DoLikeScaleAction;
             _avatar.Click += DoUserAction;
-            _author.Click += DoUserAction;
-            _cost.Click += DoUserAction;
+            _author.Click += DoUserAction;            
             _commentSubtitle.Click += DoCommentAction;
             _likes.Click += DoLikersAction;
             _topLikers.Click += DoLikersAction;
