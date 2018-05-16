@@ -387,7 +387,14 @@ namespace Steepshot.iOS.Views
         {
             base.ScrollTheView(move);
             if (move)
+            {
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(ScrollAmount, 0, 0, 0);
+                if (_postToEdit != null)
+                {
+                    var currentPostIndex = _presenter.IndexOf(_postToEdit);
+                    _commentsTable.ScrollToRow(NSIndexPath.FromItemSection(currentPostIndex + 1, 0), UITableViewScrollPosition.Top, true);
+                }
+            }
             else
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(0, 0, 0, 0);
         }
@@ -435,6 +442,7 @@ namespace Steepshot.iOS.Views
             {
                 _postToEdit.Editing = false;
                 _commentsTable.ReloadData();
+                _postToEdit = null;
             }
         }
 
