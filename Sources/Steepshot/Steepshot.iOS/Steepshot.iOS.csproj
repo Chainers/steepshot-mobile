@@ -187,6 +187,9 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.4.8.1\lib\netstandard1.1\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Analytics">
+      <HintPath>..\packages\Xamarin.Google.iOS.Analytics.3.17.0.2\lib\Xamarin.iOS10\Google.Analytics.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
@@ -242,7 +245,6 @@
     <InterfaceDefinition Include="Views\LoginViewController.xib" />
     <InterfaceDefinition Include="Views\PhotoViewController.xib" />
     <InterfaceDefinition Include="Views\ProfileViewController.xib" />
-    <InterfaceDefinition Include="Views\CommentsViewController.xib" />
     <InterfaceDefinition Include="Views\WebPageViewController.xib" />
     <InterfaceDefinition Include="Views\ImagePreviewViewController.xib" />
     <InterfaceDefinition Include="Views\FollowViewController.xib" />
@@ -333,9 +335,6 @@
       <DependentUpon>ProfileViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\CommentsViewController.cs" />
-    <Compile Include="Views\CommentsViewController.designer.cs">
-      <DependentUpon>CommentsViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\WebPageViewController.cs" />
     <Compile Include="Views\WebPageViewController.designer.cs">
       <DependentUpon>WebPageViewController.cs</DependentUpon>
