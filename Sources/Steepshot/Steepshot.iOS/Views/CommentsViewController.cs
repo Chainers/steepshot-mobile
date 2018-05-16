@@ -203,6 +203,16 @@ namespace Steepshot.iOS.Views
                 _commentView.Hidden = true;
         }
 
+        public override void ViewWillDisappear(bool animated)
+        {
+            if (_postToEdit != null)
+            {
+                _postToEdit.Editing = false;
+                _commentsTable.ReloadData();
+            }
+            base.ViewWillDisappear(animated);
+        }
+
         private void SetPlaceholder()
         {
             var placeholderLabel = new UILabel();
@@ -376,7 +386,7 @@ namespace Steepshot.iOS.Views
         protected override void ScrollTheView(bool move)
         {
             base.ScrollTheView(move);
-            if (move && _commentsTable.ContentSize.Height > _commentsTable.Frame.Height)
+            if (move)
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(ScrollAmount, 0, 0, 0);
             else
                 _commentsTable.ScrollIndicatorInsets = _commentsTable.ContentInset = new UIEdgeInsets(0, 0, 0, 0);
@@ -421,8 +431,11 @@ namespace Steepshot.iOS.Views
             _buttonsContainer.Hidden = true;
             _sendButton.Hidden = false;
             Activeview = _commentView;
-            _postToEdit.Editing = false;
-            _commentsTable.ReloadData();
+            if (_postToEdit != null)
+            {
+                _postToEdit.Editing = false;
+                _commentsTable.ReloadData();
+            }
         }
 
         private async void SaveTap(object sender, EventArgs e)
@@ -439,7 +452,7 @@ namespace Steepshot.iOS.Views
 
             _commentTextView.UserInteractionEnabled = true;
             _editProgressBar.StopAnimating();
-            _saveButton.Hidden = true;
+            _saveButton.Hidden = false;
         }
 
         void LoginTapped()
