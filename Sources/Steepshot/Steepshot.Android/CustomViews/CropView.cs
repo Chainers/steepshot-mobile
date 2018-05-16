@@ -144,19 +144,6 @@ namespace Steepshot.CustomViews
                     else
                         scale = _height / (float)_imageRawHeight;
                 }
-                else if (_imageRawWidth < _width || _imageRawHeight < _height)
-                {
-                    if (ImageRatio < _maximumRatio)
-                    {
-                        GetBoundsForWidthAndRatio(_imageRawHeight, _minimumRatio, _drawableImageParameters.PreviewBounds);
-                        scale = _drawableImageParameters.PreviewBounds.Width() / _width;
-                    }
-                    else
-                    {
-                        GetBoundsForHeightAndRatio(_imageRawWidth, _maximumRatio, _drawableImageParameters.PreviewBounds);
-                        scale = _drawableImageParameters.PreviewBounds.Height() / _height;
-                    }
-                }
                 else
                 {
                     if (ImageRatio < _minimumRatio)
@@ -323,7 +310,7 @@ namespace Steepshot.CustomViews
             using (var bitmap = BitmapUtils.DecodeSampledBitmapFromFile(Context, Uri.Parse(path), MaxImageSize, MaxImageSize))
             {
                 //TODO:KOA: CreateBitmap used twice о.О
-                using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, false))
+                using (var rotatedBitmap = Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true))
                 {
                     var width = Math.Min((int)Math.Round((double)cropParameters.Width()), rotatedBitmap.Width);
                     var height = Math.Min((int)Math.Round((double)cropParameters.Height()), rotatedBitmap.Height);
