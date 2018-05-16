@@ -127,34 +127,38 @@ namespace Steepshot.Fragment
                 return;
             }
 
-            _model.Media = new MediaModel[_media.Count];
-            if (_media.Count == 1 && _media[0].PreparedBitmap == null)
-                _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
-            for (var i = 0; i < _media.Count; i++)
+            if (_model.Media == null || _model.Media.Any(x => x == null))
             {
-                var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
-                var operationResult = await UploadPhoto(temp);
-                if (!IsInitialized)
-                    return;
+                _model.Media = new MediaModel[_media.Count];
+                if (_media.Count == 1 && _media[0].PreparedBitmap == null)
+                    _media[0].PreparedBitmap = _preview.Crop(_media[0].Path, _preview.DrawableImageParameters);
 
-                if (!operationResult.IsSuccess)
+                for (var i = 0; i < _media.Count; i++)
                 {
-                    //((SplashActivity)Activity).Cache.EvictAll();
-                    operationResult = await UploadPhoto(temp);
-
+                    var temp = SaveFileTemp(_media[i].PreparedBitmap, _media[i].Path);
+                    var operationResult = await UploadPhoto(temp);
                     if (!IsInitialized)
                         return;
-                }
 
-                if (!operationResult.IsSuccess)
-                {
-                    Activity.ShowAlert(operationResult.Error);
-                    EnabledPost();
-                    return;
-                }
+                    if (!operationResult.IsSuccess)
+                    {
+                        //((SplashActivity)Activity).Cache.EvictAll();
+                        operationResult = await UploadPhoto(temp);
 
-                _model.Media[i] = operationResult.Result;
+                        if (!IsInitialized)
+                            return;
+                    }
+
+                    if (!operationResult.IsSuccess)
+                    {
+                        Activity.ShowAlert(operationResult.Error);
+                        EnabledPost();
+                        return;
+                    }
+
+                    _model.Media[i] = operationResult.Result;
+                }
             }
 
             _model.Title = _title.Text;
@@ -206,8 +210,6 @@ namespace Steepshot.Fragment
             }
             finally
             {
-                btmp?.Recycle();
-                btmp?.Dispose();
                 stream?.Dispose();
             }
             return string.Empty;
