@@ -108,7 +108,6 @@ namespace Steepshot.iOS.Views
             _commentsTextViewDelegate.ChangedAction += (gh) =>
             {
                 _commentViewHeight.Constant = _commentTextViewHeight.Constant = gh;
-                View.LayoutIfNeeded();
             };
 
             _commentTextView.Delegate = _commentsTextViewDelegate;
@@ -360,6 +359,9 @@ namespace Steepshot.iOS.Views
 
         public async Task DeleteComment(Post post)
         {
+            if (!_buttonsContainer.Hidden)
+                return;
+
             if (!AppSettings.User.IsAuthenticated)
             {
                 LoginTapped();
@@ -388,6 +390,11 @@ namespace Steepshot.iOS.Views
                 return;
             }
 
+            if (_postToEdit != null)
+            {
+                _postToEdit.Editing = false;
+                _commentsTable.ReloadData();
+            }
             _commentTextView.BecomeFirstResponder();
             _buttonsContainer.Hidden = false;
             _sendButton.Hidden = true;
@@ -398,6 +405,8 @@ namespace Steepshot.iOS.Views
             _commentsTextViewDelegate.Changed(_commentTextView);
             _commentTextView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
             _commentTextView.Layer.BorderColor = UIColor.FromRGB(255, 246, 205).ColorWithAlpha(0.5f).CGColor;
+
+            View.LayoutIfNeeded();
         }
 
         private void CancelTap(object sender, EventArgs e)
@@ -412,6 +421,8 @@ namespace Steepshot.iOS.Views
             _buttonsContainer.Hidden = true;
             _sendButton.Hidden = false;
             Activeview = _commentView;
+            _postToEdit.Editing = false;
+            _commentsTable.ReloadData();
         }
 
         private async void SaveTap(object sender, EventArgs e)
