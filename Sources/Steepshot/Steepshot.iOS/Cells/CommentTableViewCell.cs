@@ -64,6 +64,10 @@ namespace Steepshot.iOS.Cells
             commentText.Text = _currentPost.Body;
             loginLabel.Text = _currentPost.Author;
             //costLabel.Text = BaseViewController.ToFormatedCurrencyString(_currentPost.TotalPayoutReward);
+            if (_currentPost.Editing)
+                ContentView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
+            else
+                ContentView.BackgroundColor = UIColor.White;
 
             timestamp.Text = _currentPost.Created.ToPostTime();
 
@@ -120,6 +124,8 @@ namespace Steepshot.iOS.Cells
                 editButton = MGSwipeButton.ButtonWithTitle("", UIImage.FromBundle("ic_edit"), UIColor.FromRGB(250, 250, 250), 26, (arg0) =>
                 {
                     CellAction?.Invoke(ActionType.Edit, _currentPost);
+                    _currentPost.Editing = true;
+                    ContentView.BackgroundColor = UIColor.FromRGB(255, 235, 143).ColorWithAlpha(0.5f);
                     return true;
                 });
 
@@ -170,7 +176,7 @@ namespace Steepshot.iOS.Cells
             else if (_currentPost.CashoutTime > DateTime.Now)
             {
                 rightButtons.Insert(0, deleteButton);
-                //rightButtons.Insert(1, editButton);
+                rightButtons.Insert(1, editButton);
             }
 
             RightButtons = rightButtons.ToArray();
