@@ -25,7 +25,6 @@ namespace Steepshot.Fragment
         public PostEditFragment(Post post)
         {
             _editPost = post;
-            editMode = true;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)

@@ -39,9 +39,7 @@ namespace Steepshot.Fragment
         protected PreparePostModel _model;
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
-        protected bool editMode;
         protected bool isSpammer;
-
 
 #pragma warning disable 0649, 4014
         [BindView(Resource.Id.btn_back)] protected ImageButton _backButton;
@@ -142,9 +140,6 @@ namespace Steepshot.Fragment
 
             _timer = new Timer(OnTimer);
             _model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
-
-            if (!editMode)
-                CheckOnSpam();
         }
 
         public override void OnDetach()
@@ -167,13 +162,8 @@ namespace Steepshot.Fragment
 
         private async void OnPost(object sender, EventArgs e)
         {
-            _postButton.Enabled = false;
-            _title.Enabled = false;
-            _description.Enabled = false;
-            _tag.Enabled = false;
-            _localTagsAdapter.Enabled = false;
             _postButton.Text = string.Empty;
-            _loadingSpinner.Visibility = ViewStates.Visible;
+            SpinnerDisplay(false);
 
             var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
 
@@ -200,7 +190,7 @@ namespace Steepshot.Fragment
         {
             isSpammer = false;
             _postButton.Text = string.Empty;
-            _loadingSpinner.Visibility = ViewStates.Visible;
+            SpinnerDisplay(false);
 
             try
             {
@@ -231,7 +221,7 @@ namespace Steepshot.Fragment
             }
             finally
             {
-                _loadingSpinner.Visibility = ViewStates.Gone;
+                SpinnerDisplay(true);
                 _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
             }
         }
@@ -244,6 +234,8 @@ namespace Steepshot.Fragment
 
             while (timepassed < PostingLimit)
             {
+                if (!IsInitialized)
+                    return;
                 timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
                 _postButton.Text = (PostingLimit - timepassed).ToString(timeFormat);
                 await Task.Delay(1000);
@@ -255,17 +247,25 @@ namespace Steepshot.Fragment
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
         }
 
+        protected void SpinnerDisplay(bool enabled)
+        {
+            if (enabled)
+                _loadingSpinner.Visibility = ViewStates.Gone;
+            else
+                _loadingSpinner.Visibility = ViewStates.Visible;
+
+            _postButton.Enabled = enabled;
+            _title.Enabled = enabled;
+            _description.Enabled = enabled;
+            _tag.Enabled = enabled;
+            _localTagsAdapter.Enabled = enabled;
+            _tagLabel.Enabled = enabled;
+        }
+
         protected void EnabledPost()
         {
-            _postButton.Enabled = true;
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-
-            _loadingSpinner.Visibility = ViewStates.Gone;
-
-            _title.Enabled = true;
-            _description.Enabled = true;
-            _tag.Enabled = true;
-            _localTagsAdapter.Enabled = true;
+            SpinnerDisplay(true);
         }
 
         protected void ForgetAction(object o, DialogClickEventArgs dialogClickEventArgs)

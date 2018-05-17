@@ -91,6 +91,7 @@ namespace Steepshot.Fragment
             }
 
             SearchTextChanged();
+            CheckOnSpam();
         }
 
 
@@ -114,6 +115,9 @@ namespace Steepshot.Fragment
             await CheckOnSpam();
             if (isSpammer)
                 return;
+
+            _postButton.Text = string.Empty;
+            SpinnerDisplay(false);
 
             if (_model.Media == null || _model.Media.Any(x => x == null))
             {
