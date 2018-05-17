@@ -25,6 +25,7 @@ namespace Steepshot.Fragment
         public PostEditFragment(Post post)
         {
             _editPost = post;
+            editMode = true;
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
@@ -71,22 +72,6 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                EnabledPost();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
             _model.Media = _editPost.Media;
 
             _model.Title = _title.Text;

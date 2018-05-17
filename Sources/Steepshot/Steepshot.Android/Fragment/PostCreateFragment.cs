@@ -111,22 +111,9 @@ namespace Steepshot.Fragment
 
         protected override async Task OnPostAsync()
         {
-            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
-
-            if (!isConnected)
-            {
-                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
-                EnabledPost();
+            await CheckOnSpam();
+            if (isSpammer)
                 return;
-            }
-
-            if (string.IsNullOrEmpty(_title.Text))
-            {
-                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
-                EnabledPost();
-                return;
-            }
-
 
             if (_model.Media == null || _model.Media.Any(x => x == null))
             {

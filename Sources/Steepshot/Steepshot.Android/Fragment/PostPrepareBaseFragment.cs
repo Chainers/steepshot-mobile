@@ -31,7 +31,7 @@ namespace Steepshot.Fragment
     {
         #region Fields
 
-        protected readonly TimeSpan PostingLimit = TimeSpan.FromMinutes(5);
+        protected TimeSpan PostingLimit;
         protected Timer _timer;
         protected GalleryHorizontalAdapter _galleryAdapter;
         protected SelectedTagsAdapter _localTagsAdapter;
@@ -39,6 +39,8 @@ namespace Steepshot.Fragment
         protected PreparePostModel _model;
         protected string _previousQuery;
         protected TagPickerFacade _tagPickerFacade;
+        protected bool editMode;
+        protected bool isSpammer;
 
 
 #pragma warning disable 0649, 4014
@@ -140,7 +142,9 @@ namespace Steepshot.Fragment
 
             _timer = new Timer(OnTimer);
             _model = new PreparePostModel(AppSettings.User.UserInfo, AppSettings.AppInfo.GetModel());
-            SetPostingTimer();
+
+            if (!editMode)
+                CheckOnSpam();
         }
 
         public override void OnDetach()
@@ -161,7 +165,7 @@ namespace Steepshot.Fragment
             });
         }
 
-        protected async void OnPost(object sender, EventArgs e)
+        private async void OnPost(object sender, EventArgs e)
         {
             _postButton.Enabled = false;
             _title.Enabled = false;
@@ -170,23 +174,83 @@ namespace Steepshot.Fragment
             _localTagsAdapter.Enabled = false;
             _postButton.Text = string.Empty;
             _loadingSpinner.Visibility = ViewStates.Visible;
+
+            var isConnected = BasePresenter.ConnectionService.IsConnectionAvailable();
+
+            if (!isConnected)
+            {
+                Activity.ShowAlert(LocalizationKeys.InternetUnavailable);
+                EnabledPost();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_title.Text))
+            {
+                Activity.ShowAlert(LocalizationKeys.EmptyTitleField, ToastLength.Long);
+                EnabledPost();
+                return;
+            }
+
             await OnPostAsync();
         }
 
         protected abstract Task OnPostAsync();
 
-        protected async void SetPostingTimer()
+        protected async Task CheckOnSpam()
         {
-            var timepassed = DateTime.Now - AppSettings.User.UserInfo.LastPostTime;
+            isSpammer = false;
+            _postButton.Text = string.Empty;
+            _loadingSpinner.Visibility = ViewStates.Visible;
+
+            try
+            {
+                var username = AppSettings.User.Login;
+                var spamCheck = await Presenter.TryCheckForSpam(username);
+
+                if (!spamCheck.IsSuccess)
+                    return;
+
+                if (!spamCheck.Result.IsSpam)
+                {
+                    if (spamCheck.Result.WaitingTime > 0)
+                    {
+                        isSpammer = true;
+                        PostingLimit = TimeSpan.FromMinutes(5);
+                        StartPostTimer((int)spamCheck.Result.WaitingTime);
+                        Activity.ShowAlert(LocalizationKeys.Posts5minLimit);
+                    }
+                }
+                else
+                {
+                    // more than 15 posts
+                    isSpammer = true;
+                    PostingLimit = TimeSpan.FromHours(24);
+                    StartPostTimer((int)spamCheck.Result.WaitingTime);
+                    Activity.ShowAlert(LocalizationKeys.PostsDayLimit);
+                }
+            }
+            finally
+            {
+                _loadingSpinner.Visibility = ViewStates.Gone;
+                _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
+            }
+        }
+
+        private async void StartPostTimer(int startSeconds)
+        {
+            string timeFormat;
+            var timepassed = PostingLimit - TimeSpan.FromSeconds(startSeconds);
             _postButton.Enabled = false;
+
             while (timepassed < PostingLimit)
             {
-                _postButton.Text = (PostingLimit - timepassed).ToString("mm\\:ss");
+                timeFormat = (PostingLimit - timepassed).TotalHours >= 1 ? "hh\\:mm\\:ss" : "mm\\:ss";
+                _postButton.Text = (PostingLimit - timepassed).ToString(timeFormat);
                 await Task.Delay(1000);
-                if (!IsInitialized)
-                    return;
-                timepassed = DateTime.Now - AppSettings.User.UserInfo.LastPostTime;
+                timepassed = timepassed.Add(TimeSpan.FromSeconds(1));
             }
+
+            isSpammer = false;
             _postButton.Enabled = true;
             _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
         }
