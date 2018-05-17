@@ -14,15 +14,17 @@ namespace Steepshot.iOS.ViewSources
         private readonly TagsPresenter _presenter;
         private readonly TagPickerFacade _tagPickerFacade;
         public Action<ActionType, string> CellAction;
+        private bool _hidePlus;
 
         public TagsTableViewSource(TagPickerFacade tagPickerFacade)
         {
             _tagPickerFacade = tagPickerFacade;
         }
 
-        public TagsTableViewSource(TagsPresenter presenter)
+        public TagsTableViewSource(TagsPresenter presenter, bool hidePlus = false)
         {
             _presenter = presenter;
+            _hidePlus = hidePlus;
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
@@ -30,7 +32,10 @@ namespace Steepshot.iOS.ViewSources
             var cell = (TagTableViewCell)tableView.DequeueReusableCell(_cellIdentifier, indexPath);
 
             if (!cell.IsCellActionSet)
+            {
                 cell.CellAction += CellAction;
+                cell.HidePlus = _hidePlus;
+            }
 
             var tag = _presenter != null
                 ? _presenter[indexPath.Row].Name

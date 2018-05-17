@@ -54,7 +54,7 @@ namespace Steepshot.iOS.Views
             tagsCollectionView.Delegate = _flowDelegate;
             tagsCollectionView.BackgroundColor = UIColor.White;
 
-            _tagField = new SearchTextField(() => { AddLocalTag(_tagField.Text); });
+            _tagField = new SearchTextField(() => { AddLocalTag(_tagField.Text); }, "Hashtag");
             View.AddSubview(_tagField);
 
             _tagField.ClearButtonTapped += () => { OnTimer(null); };
@@ -191,7 +191,7 @@ namespace Steepshot.iOS.Views
 
             if (txt.EndsWith(" "))
                 AddLocalTag(txt);
-            _tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
+            //_tagField.ClearButton.Hidden = _tagField.Text.Length == 0;
             _timer.Change(500, Timeout.Infinite);
         }
 
@@ -200,10 +200,7 @@ namespace Steepshot.iOS.Views
             if (!_viewSource.LocalTags.Contains(txt) && !string.IsNullOrWhiteSpace(txt))
             {
                 if (shouldClear)
-                {
-                    _tagField.Text = string.Empty;
-                    _tagField.ClearButton.Hidden = true;
-                }
+                    _tagField.Clear();
                 _viewSource.LocalTags.Add(txt);
                 SetCollectionHeight();
                 _flowDelegate.GenerateVariables();

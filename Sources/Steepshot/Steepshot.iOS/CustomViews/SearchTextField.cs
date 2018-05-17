@@ -16,7 +16,7 @@ namespace Steepshot.iOS.CustomViews
 
         public Action ClearButtonTapped;
 
-        public SearchTextField(Action returnButtonTapped)
+        public SearchTextField(Action returnButtonTapped, string placeholder)
         {
             ClearButton = new UIButton();
             ClearButton.Hidden = true;
@@ -39,14 +39,27 @@ namespace Steepshot.iOS.CustomViews
             };
 
             var at = new NSMutableAttributedString();
-            at.Append(new NSAttributedString("Hashtag", _searchPlaceholderAttributes));
+            at.Append(new NSAttributedString(placeholder, _searchPlaceholderAttributes));
             AttributedPlaceholder = at;
             AutocorrectionType = UITextAutocorrectionType.No;
             AutocapitalizationType = UITextAutocapitalizationType.None;
+            BackgroundColor = Constants.R245G245B245;
             Font = Constants.Regular14;
             Layer.CornerRadius = 20;
 
             Delegate = new TagFieldDelegate(returnButtonTapped);
+            EditingChanged += DoEditingChanged;
+        }
+
+        private void DoEditingChanged(object sender, EventArgs e)
+        {
+            ClearButton.Hidden = Text.Length == 0;
+        }
+
+        public void Clear()
+        {
+            Text = string.Empty;
+            ClearButton.Hidden = true;
         }
 
         public override CGRect TextRect(CGRect forBounds)

@@ -357,9 +357,6 @@
       <DependentUpon>PostTagsViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\TagsSearchViewController.cs" />
-    <Compile Include="Views\TagsSearchViewController.designer.cs">
-      <DependentUpon>TagsSearchViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Views\VotersViewController.cs" />
     <Compile Include="Views\VotersViewController.designer.cs">
       <DependentUpon>VotersViewController.cs</DependentUpon>
@@ -550,6 +547,8 @@
     <BundleResource Include="Resources\ic_comment_like_inactive%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%402x.png" />
     <BundleResource Include="Resources\ic_comment_like_active%403x.png" />
+    <BundleResource Include="Resources\ic_noresult_search%403x.png" />
+    <BundleResource Include="Resources\ic_noresult_search%402x.png" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="..\Steepshot.Android\Assets\Localization.en-us.txt">
