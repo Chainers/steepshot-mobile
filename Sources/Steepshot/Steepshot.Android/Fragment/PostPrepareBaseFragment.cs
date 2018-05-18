@@ -192,14 +192,10 @@ namespace Steepshot.Fragment
             _postButton.Text = string.Empty;
             SpinnerDisplay(false);
 
-            try
+            var spamCheck = await Presenter.TryCheckForSpam(AppSettings.User.Login);
+
+            if (spamCheck.IsSuccess)
             {
-                var username = AppSettings.User.Login;
-                var spamCheck = await Presenter.TryCheckForSpam(username);
-
-                if (!spamCheck.IsSuccess)
-                    return;
-
                 if (!spamCheck.Result.IsSpam)
                 {
                     if (spamCheck.Result.WaitingTime > 0)
@@ -219,11 +215,9 @@ namespace Steepshot.Fragment
                     Activity.ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
             }
-            finally
-            {
-                SpinnerDisplay(true);
-                _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
-            }
+
+            SpinnerDisplay(true);
+            _postButton.Text = AppSettings.LocalizationManager.GetText(LocalizationKeys.PublishButtonText);
         }
 
         private async void StartPostTimer(int startSeconds)

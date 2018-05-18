@@ -127,7 +127,7 @@ namespace Steepshot.iOS.Views
         }
 
         private void SetupMainScroll()
-        { 
+        {
             mainScroll = new UIScrollView();
             mainScroll.BackgroundColor = UIColor.White;
 
@@ -302,7 +302,7 @@ namespace Steepshot.iOS.Views
             }
             else
             {
-                var ratio = height /width;
+                var ratio = height / width;
                 if (listCount == 1)
                 {
                     photoMargin = 15;
@@ -643,14 +643,10 @@ namespace Steepshot.iOS.Views
             _isSpammer = false;
             ToggleAvailability(false);
 
-            try
+            var spamCheck = await _presenter.TryCheckForSpam(AppSettings.User.Login);
+
+            if (spamCheck.IsSuccess)
             {
-                var username = AppSettings.User.Login;
-                var spamCheck = await _presenter.TryCheckForSpam(username);
-
-                if (!spamCheck.IsSuccess)
-                    return;
-
                 if (!spamCheck.Result.IsSpam)
                 {
                     if (spamCheck.Result.WaitingTime > 0)
@@ -670,10 +666,8 @@ namespace Steepshot.iOS.Views
                     ShowAlert(LocalizationKeys.PostsDayLimit);
                 }
             }
-            finally
-            {
-                ToggleAvailability(true);
-            }
+
+            ToggleAvailability(true);
         }
 
         private async void StartPostTimer(int startSeconds)
@@ -797,7 +791,7 @@ namespace Steepshot.iOS.Views
                         };
                     }
                     else
-                    { 
+                    {
                         model.Title = title;
                         model.Description = description;
                         model.Device = "iOS";
